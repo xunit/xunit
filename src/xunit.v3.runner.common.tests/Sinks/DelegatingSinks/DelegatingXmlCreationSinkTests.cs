@@ -47,7 +47,7 @@ public class DelegatingXmlCreationSinkTests
     public void AssemblyStartingDoesNotIncludeNullConfigFile()
     {
         var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-        assemblyStarting.TestAssembly.ConfigFileName.Returns((string)null);
+        assemblyStarting.TestAssembly.ConfigFileName.Returns((string?)null);
 
         var assemblyElement = new XElement("assembly");
         var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
@@ -223,7 +223,7 @@ public class DelegatingXmlCreationSinkTests
         testFailed.TestCase.Returns(testCase);
         testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
         testFailed.Messages.Returns(new[] { "Exception Message" });
-        testFailed.StackTraces.Returns(new[] { (string)null });
+        testFailed.StackTraces.Returns(new[] { (string?)null });
         testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
         var assemblyElement = new XElement("assembly");
@@ -377,41 +377,41 @@ public class DelegatingXmlCreationSinkTests
         return result;
     }
 
-    public static IEnumerable<object[]> Messages
+    public static IEnumerable<object?[]> Messages
     {
         get
         {
-            yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
+            yield return new object?[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
 
             var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
             var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
             assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-            yield return new object[] { assemblyCleanupFailure, @"assembly-cleanup", @"C:\Foo\bar.dll" };
+            yield return new object?[] { assemblyCleanupFailure, @"assembly-cleanup", @"C:\Foo\bar.dll" };
 
             var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
             var testCollection = Mocks.TestCollection(displayName: "FooBar");
             collectionCleanupFailure.TestCollection.Returns(testCollection);
-            yield return new object[] { collectionCleanupFailure, "test-collection-cleanup", "FooBar" };
+            yield return new object?[] { collectionCleanupFailure, "test-collection-cleanup", "FooBar" };
 
             var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
             var testClass = Mocks.TestClass("MyType");
             classCleanupFailure.TestClass.Returns(testClass);
-            yield return new object[] { classCleanupFailure, "test-class-cleanup", "MyType" };
+            yield return new object?[] { classCleanupFailure, "test-class-cleanup", "MyType" };
 
             var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
             var testMethod = Mocks.TestMethod(methodName: "MyMethod");
             methodCleanupFailure.TestMethod.Returns(testMethod);
-            yield return new object[] { methodCleanupFailure, "test-method-cleanup", "MyMethod" };
+            yield return new object?[] { methodCleanupFailure, "test-method-cleanup", "MyMethod" };
 
             var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
             var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
             testCaseCleanupFailure.TestCase.Returns(testCase);
-            yield return new object[] { testCaseCleanupFailure, "test-case-cleanup", "MyTestCase" };
+            yield return new object?[] { testCaseCleanupFailure, "test-case-cleanup", "MyTestCase" };
 
             var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
             var test = Mocks.Test(testCase, "MyTest");
             testCleanupFailure.Test.Returns(test);
-            yield return new object[] { testCleanupFailure, "test-cleanup", "MyTest" };
+            yield return new object?[] { testCleanupFailure, "test-cleanup", "MyTest" };
         }
     }
 

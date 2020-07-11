@@ -119,7 +119,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
     {
         var events = new List<IDiagnosticMessage>();
         var diagSink = Substitute.For<IMessageSinkWithTypes>();
-        diagSink.WhenForAnyArgs(x => x.OnMessageWithTypes(null, null))
+        diagSink.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
                 .Do(callInfo =>
                 {
                     var message = callInfo.Arg<IMessageSinkMessage>();
@@ -148,7 +148,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
     {
         var events = new List<IDiagnosticMessage>();
         var diagSink = Substitute.For<IMessageSinkWithTypes>();
-        diagSink.WhenForAnyArgs(x => x.OnMessageWithTypes(null, null))
+        diagSink.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
                 .Do(callInfo =>
                 {
                     var message = callInfo.Arg<IMessageSinkMessage>();
@@ -186,7 +186,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
         public TestableDelegatingLongRunningTestDetectionSink(int longRunningSeconds, IMessageSinkWithTypes diagnosticMessageSink)
             : base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink) { }
 
-        public TestableDelegatingLongRunningTestDetectionSink(int longRunningSeconds, Action<LongRunningTestsSummary> callback = null)
+        public TestableDelegatingLongRunningTestDetectionSink(int longRunningSeconds, Action<LongRunningTestsSummary>? callback = null)
             : base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), callback ?? (_ => { })) { }
 
         protected override DateTime UtcNow => utcNow;

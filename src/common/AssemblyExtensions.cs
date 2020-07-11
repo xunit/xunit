@@ -1,14 +1,17 @@
 #nullable enable
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 
 static class AssemblyExtensions
 {
+    [return: NotNullIfNotNull("assembly")]
     public static string? GetLocalCodeBase(this Assembly? assembly) =>
         GetLocalCodeBase(assembly?.CodeBase, Path.DirectorySeparatorChar);
 
+    [return: NotNullIfNotNull("codeBase")]
     public static string? GetLocalCodeBase(string? codeBase, char directorySeparator)
     {
         if (codeBase == null)

@@ -57,7 +57,7 @@ public class TestMessageSinkTests
     public void ProcessesVisitorTypes(Type type)
     {
         var forMethod = forMethodGeneric.MakeGenericMethod(type);
-        var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] });
+        var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] })!;
         var sink = new SpyTestMessageSink();
 
         sink.OnMessageWithTypes(substitute, null);

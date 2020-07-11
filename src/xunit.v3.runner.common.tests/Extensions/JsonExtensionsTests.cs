@@ -8,7 +8,7 @@ public class JsonExtensionsTests
     [CulturedFact]
     public void SimpleValues()
     {
-        var data = new Dictionary<string, object>
+        var data = new Dictionary<string, object?>
         {
             { "string", "bar" },
             { "int32", 42 },
@@ -19,6 +19,7 @@ public class JsonExtensionsTests
             { "boolean", true },
             { "guid", Guid.Empty },
             { "stringWithQuote", "\"bar\"" },
+            { "nullValue", null }  // does not serialize nulls
         };
 
         var result = JsonExtensions.ToJson(data);
@@ -29,7 +30,7 @@ public class JsonExtensionsTests
     [Fact]
     public void EscapeValues()
     {
-        var data = new Dictionary<string, object>
+        var data = new Dictionary<string, object?>
         {
             { "foo", "\x00 \x1f \t \r \n \\ \"Hello!\"" }
         };

@@ -11,7 +11,7 @@ public class DelegatingExecutionSummarySinkTests
     public DelegatingExecutionSummarySinkTests()
     {
         innerSink = Substitute.For<IMessageSinkWithTypes>();
-        innerSink.OnMessageWithTypes(null, null).ReturnsForAnyArgs(true);
+        innerSink.OnMessageWithTypes(null!, null).ReturnsForAnyArgs(true);
 
         testMessage = Substitute.For<IMessageSinkMessage>();
     }

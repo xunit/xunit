@@ -12,7 +12,7 @@ public class ConfigReaderTests
     static ConfigReaderTests()
     {
         AssemblyFileName = Assembly.GetExecutingAssembly().GetLocalCodeBase();
-        AssemblyPath = Path.GetDirectoryName(AssemblyFileName);
+        AssemblyPath = Path.GetDirectoryName(AssemblyFileName)!;
     }
 
     public class Load_WithJson

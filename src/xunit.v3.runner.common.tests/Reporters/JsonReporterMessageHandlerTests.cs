@@ -126,7 +126,7 @@ public class JsonReporterMessageHandlerTests
     {
         var logger = Substitute.For<IRunnerLogger>();
         var jsonReporterMessageHandler = new JsonReporterMessageHandler(logger, _ => $"mappedFlow");
-        string output = null;
+        var output = default(string);
         logger.LogImportantMessage(Arg.Any<StackFrameInfo>(), Arg.Do<string>(str => output = str));
 
         jsonReporterMessageHandler.OnMessageWithTypes(message, null);
