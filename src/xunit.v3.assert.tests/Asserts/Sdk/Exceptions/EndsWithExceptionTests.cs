@@ -13,6 +13,7 @@ public class EndsWithExceptionTests
 
         var ex = Record.Exception(() => Assert.EndsWith("WORLD", "Hello"));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 
@@ -26,6 +27,7 @@ public class EndsWithExceptionTests
 
         var ex = Record.Exception(() => Assert.EndsWith("WORLD", "Hello, world"));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 
@@ -39,6 +41,7 @@ public class EndsWithExceptionTests
 
         var ex = Record.Exception(() => Assert.EndsWith("first test 1", null));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 
@@ -52,6 +55,7 @@ public class EndsWithExceptionTests
 
         var ex = Record.Exception(() => Assert.EndsWith(null, "first test 1"));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 }

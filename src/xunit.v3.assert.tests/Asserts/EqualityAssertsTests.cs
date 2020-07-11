@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
 
@@ -85,16 +86,12 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public int CompareTo(object obj)
+            public int CompareTo(object? obj)
             {
                 if (obj is int intObj)
-                {
                     return Value.CompareTo(intObj);
-                }
                 else if (obj is MultiComparable multiObj)
-                {
                     return Value.CompareTo(multiObj.Value);
-                }
 
                 throw new InvalidOperationException();
             }
@@ -155,7 +152,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public int CompareTo(ComparableBaseClass other) => Value.CompareTo(other.Value);
+            public int CompareTo(ComparableBaseClass? other) => Value.CompareTo(other!.Value);
         }
 
         class ComparableSubClassA : ComparableBaseClass
@@ -199,12 +196,12 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public int CompareTo(ComparableThrower other)
+            public int CompareTo(ComparableThrower? other)
             {
                 throw new InvalidOperationException();
             }
 
-            public override bool Equals(object obj) => Value == ((ComparableThrower)obj).Value;
+            public override bool Equals(object? obj) => Value == ((ComparableThrower?)obj)!.Value;
 
             public override int GetHashCode() => Value;
         }
@@ -266,7 +263,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public bool Equals(EquatableBaseClass other) => Value == other.Value;
+            public bool Equals(EquatableBaseClass? other) => Value == other!.Value;
         }
 
         class EquatableSubClassA : EquatableBaseClass
@@ -313,8 +310,8 @@ public class EqualityAssertsTests
         [Fact]
         public void IStructuralEquatable_ExpectedNull_ActualNull()
         {
-            var expected = new Tuple<StringWrapper>(null);
-            var actual = new Tuple<StringWrapper>(null);
+            var expected = new Tuple<StringWrapper?>(null);
+            var actual = new Tuple<StringWrapper?>(null);
 
             Assert.Equal(expected, actual);
             Assert.Equal(expected, (IStructuralEquatable)actual);
@@ -324,8 +321,8 @@ public class EqualityAssertsTests
         [Fact]
         public void IStructuralEquatable_ExpectedNull_ActualNonNull()
         {
-            var expected = new Tuple<StringWrapper>(null);
-            var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
+            var expected = new Tuple<StringWrapper?>(null);
+            var actual = new Tuple<StringWrapper?>(new StringWrapper("a"));
 
             Assert.NotEqual(expected, actual);
             Assert.NotEqual(expected, (IStructuralEquatable)actual);
@@ -335,8 +332,8 @@ public class EqualityAssertsTests
         [Fact]
         public void IStructuralEquatable_ExpectedNonNull_ActualNull()
         {
-            var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-            var actual = new Tuple<StringWrapper>(null);
+            var expected = new Tuple<StringWrapper?>(new StringWrapper("a"));
+            var actual = new Tuple<StringWrapper?>(null);
 
             Assert.NotEqual(expected, actual);
             Assert.NotEqual(expected, (IStructuralEquatable)actual);
@@ -352,7 +349,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            bool IEquatable<StringWrapper>.Equals(StringWrapper other) => Value == other.Value;
+            bool IEquatable<StringWrapper>.Equals(StringWrapper? other) => Value == other!.Value;
         }
 
         [Fact]
@@ -547,7 +544,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public bool Equals(IntWrapper other) => Value == other.Value;
+            public bool Equals(IntWrapper? other) => Value == other!.Value;
         }
 
         [Fact]
@@ -577,7 +574,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            bool IEquatable<IntWrapper>.Equals(IntWrapper other) => Value == other.Value;
+            bool IEquatable<IntWrapper>.Equals(IntWrapper? other) => Value == other!.Value;
         }
 
         [Fact]
@@ -607,7 +604,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public int CompareTo(IntWrapper other) => Value.CompareTo(other.Value);
+            public int CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
         }
 
         [Fact]
@@ -637,7 +634,7 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            int IComparable<IntWrapper>.CompareTo(IntWrapper other) => Value.CompareTo(other.Value);
+            int IComparable<IntWrapper>.CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
         }
 
         [Fact]
@@ -667,12 +664,12 @@ public class EqualityAssertsTests
                 Value = value;
             }
 
-            public int CompareTo(IntWrapper other)
+            public int CompareTo(IntWrapper? other)
             {
                 throw new NotSupportedException();
             }
 
-            public override bool Equals(object obj) => Value == ((IntWrapper)obj).Value;
+            public override bool Equals(object? obj) => Value == ((IntWrapper?)obj)!.Value;
 
             public override int GetHashCode() => Value;
         }
@@ -691,7 +688,7 @@ public class EqualityAssertsTests
         {
             public bool CompareCalled;
 
-            public int CompareTo(object obj)
+            public int CompareTo(object? obj)
             {
                 CompareCalled = true;
                 return 0;
@@ -702,7 +699,7 @@ public class EqualityAssertsTests
         {
             public bool CompareCalled;
 
-            public int CompareTo(SpyComparable_Generic other)
+            public int CompareTo(SpyComparable_Generic? other)
             {
                 CompareCalled = true;
                 return 0;
@@ -712,9 +709,9 @@ public class EqualityAssertsTests
         public class SpyEquatable : IEquatable<SpyEquatable>
         {
             public bool Equals__Called;
-            public SpyEquatable Equals_Other;
+            public SpyEquatable? Equals_Other;
 
-            public bool Equals(SpyEquatable other)
+            public bool Equals(SpyEquatable? other)
             {
                 Equals__Called = true;
                 Equals_Other = other;
@@ -725,7 +722,7 @@ public class EqualityAssertsTests
 
         class NonComparableObject
         {
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 return true;
             }
@@ -762,7 +759,7 @@ public class EqualityAssertsTests
                 this.result = result;
             }
 
-            public bool Equals(T x, T y)
+            public bool Equals([AllowNull] T x, [AllowNull] T y)
             {
                 return result;
             }
@@ -1072,30 +1069,18 @@ public class EqualityAssertsTests
 
     private class DerivedClass : BaseClass
     {
-        public override bool Equals(object obj)
-        {
-            if (obj is BaseClass)
-            {
-                return true;
-            }
+        public override bool Equals(object? obj) =>
+            obj is BaseClass || base.Equals(obj);
 
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return 0;
-        }
+        public override int GetHashCode() => 0;
     }
 
     private class EnumerableClass : IEnumerable<BaseClass>
     {
-        private readonly string baz;
         private readonly IEnumerable<BaseClass> bars;
 
         public EnumerableClass(string baz, params BaseClass[] bars)
         {
-            this.baz = baz;
             this.bars = bars;
         }
 

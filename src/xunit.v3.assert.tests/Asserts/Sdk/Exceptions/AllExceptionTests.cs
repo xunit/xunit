@@ -9,11 +9,11 @@ public class AllExceptionTests
     {
         var errors = new[]
         {
-            new Tuple<int, object, Exception>(1, $"Multi-line{Environment.NewLine}ToString-print",
-                                              new Exception($"Multi-line{Environment.NewLine}message")),
-            new Tuple<int, object, Exception>(3, 2, new Exception("Error 2")),
-            new Tuple<int, object, Exception>(5, new object(), new Exception("Error 3")),
-            new Tuple<int, object, Exception>(6, null, new NullReferenceException("Error 4"))
+            new Tuple<int, object?, Exception>(1, $"Multi-line{Environment.NewLine}ToString-print",
+                                               new Exception($"Multi-line{Environment.NewLine}message")),
+            new Tuple<int, object?, Exception>(3, 2, new Exception("Error 2")),
+            new Tuple<int, object?, Exception>(5, new object(), new Exception("Error 3")),
+            new Tuple<int, object?, Exception>(6, null, new NullReferenceException("Error 4"))
         };
 
         var ex = new AllException(6, errors);

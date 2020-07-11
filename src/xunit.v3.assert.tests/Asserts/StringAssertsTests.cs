@@ -33,7 +33,7 @@ public class StringAssertsTests
         [Fact]
         public void NullActualStringThrows()
         {
-            Assert.Throws<ContainsException>(() => Assert.Contains("foo", (string)null));
+            Assert.Throws<ContainsException>(() => Assert.Contains("foo", (string?)null));
         }
     }
 
@@ -69,7 +69,7 @@ public class StringAssertsTests
         [Fact]
         public void NullActualStringDoesNotThrow()
         {
-            Assert.DoesNotContain("foo", (string)null);
+            Assert.DoesNotContain("foo", (string?)null);
         }
     }
 
@@ -122,11 +122,11 @@ public class StringAssertsTests
         [InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
         public void FailureCases(string expected, string actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
         {
-            Exception ex = Record.Exception(
+            var ex = Record.Exception(
                 () => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
             );
 
-            EqualException eqEx = Assert.IsType<EqualException>(ex);
+            var eqEx = Assert.IsType<EqualException>(ex);
             Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
             Assert.Equal(actualIndex, eqEx.ActualIndex);
         }
@@ -217,6 +217,13 @@ public class StringAssertsTests
     public class Matches_WithString
     {
         [Fact]
+        public void GuardClauses()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.Matches((string?)null!, "Hello, world!"));
+            Assert.Throws<MatchesException>(() => Assert.Matches(@"\w+", null));
+        }
+
+        [Fact]
         public void Success()
         {
             Assert.Matches(@"\w", "Hello");
@@ -232,22 +239,17 @@ public class StringAssertsTests
                          @"Regex: \d+" + Environment.NewLine +
                           "Value: Hello, world!", ex.Message);
         }
-
-        [Fact]
-        public void NullRegexPatternThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => Assert.Matches((string)null, "Hello, world!"));
-        }
-
-        [Fact]
-        public void NullActualStringThrows()
-        {
-            Assert.Throws<MatchesException>(() => Assert.Matches(@"\w+", (string)null));
-        }
     }
 
     public class Matches_WithRegex
     {
+        [Fact]
+        public void GuardClauses()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.Matches((Regex?)null!, "Hello, world!"));
+            Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), null));
+        }
+
         [Fact]
         public void Success()
         {
@@ -270,22 +272,17 @@ public class StringAssertsTests
                          @"Regex: \d+" + Environment.NewLine +
                           "Value: Hello, world!", ex.Message);
         }
-
-        [Fact]
-        public void NullRegexThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => Assert.Matches((Regex)null, "Hello, world!"));
-        }
-
-        [Fact]
-        public void NullActualStringThrows()
-        {
-            Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), (string)null));
-        }
     }
 
     public class DoesNotMatch_WithString
     {
+        [Fact]
+        public void GuardClauses()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((string?)null!, "Hello, world!"));
+            Assert.DoesNotMatch(@"\w+", null);
+        }
+
         [Fact]
         public void Success()
         {
@@ -302,22 +299,17 @@ public class StringAssertsTests
                          @"Regex: \w" + Environment.NewLine +
                           "Value: Hello, world!", ex.Message);
         }
-
-        [Fact]
-        public void NullRegexPatternThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((string)null, "Hello, world!"));
-        }
-
-        [Fact]
-        public void NullActualStringDoesNotThrow()
-        {
-            Assert.DoesNotMatch(@"\w+", (string)null);
-        }
     }
 
     public class DoesNotMatch_WithRegex
     {
+        [Fact]
+        public void GuardClauses()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((Regex?)null!, "Hello, world!"));
+            Assert.DoesNotMatch(new Regex(@"\w+"), null);
+        }
+
         [Fact]
         public void Success()
         {
@@ -333,18 +325,6 @@ public class StringAssertsTests
             Assert.Equal("Assert.DoesNotMatch() Failure:" + Environment.NewLine +
                          @"Regex: \w" + Environment.NewLine +
                           "Value: Hello, world!", ex.Message);
-        }
-
-        [Fact]
-        public void NullRegexThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((Regex)null, "Hello, world!"));
-        }
-
-        [Fact]
-        public void NullActualStringDoesNotThrow()
-        {
-            Assert.DoesNotMatch(new Regex(@"\w+"), (string)null);
         }
     }
 }

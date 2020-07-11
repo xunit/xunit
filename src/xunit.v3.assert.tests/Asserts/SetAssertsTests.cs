@@ -10,7 +10,7 @@ public class SetAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Subset(null, new HashSet<int>()));
+            Assert.Throws<ArgumentNullException>(() => Assert.Subset(null!, new HashSet<int>()));
             Assert.Throws<SubsetException>(() => Assert.Subset(new HashSet<int>(), null));
         }
 
@@ -51,7 +51,7 @@ public class SetAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.ProperSubset(null, new HashSet<int>()));
+            Assert.Throws<ArgumentNullException>(() => Assert.ProperSubset(null!, new HashSet<int>()));
             Assert.Throws<ProperSubsetException>(() => Assert.ProperSubset(new HashSet<int>(), null));
         }
 
@@ -92,7 +92,7 @@ public class SetAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Superset(null, new HashSet<int>()));
+            Assert.Throws<ArgumentNullException>(() => Assert.Superset(null!, new HashSet<int>()));
             Assert.Throws<SupersetException>(() => Assert.Superset(new HashSet<int>(), null));
         }
 
@@ -133,7 +133,7 @@ public class SetAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.ProperSuperset(null, new HashSet<int>()));
+            Assert.Throws<ArgumentNullException>(() => Assert.ProperSuperset(null!, new HashSet<int>()));
             Assert.Throws<ProperSupersetException>(() => Assert.ProperSuperset(new HashSet<int>(), null));
         }
 

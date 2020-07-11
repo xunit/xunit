@@ -199,10 +199,10 @@ public class EventAssertsTests
     {
         public void RaiseWithArgs(EventArgs args)
         {
-            Completed.Invoke(this, args);
+            Completed!.Invoke(this, args);
         }
 
-        public event EventHandler<EventArgs> Completed;
+        public event EventHandler<EventArgs>? Completed;
     }
 
     private class DerivedEventArgs : EventArgs { }

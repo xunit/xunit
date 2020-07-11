@@ -14,16 +14,15 @@ public class AssertActualExpectedExceptionTests
     [Fact]
     public void NullValuesInArraysCreateCorrectExceptionMessage()
     {
-        string[] expectedValue = new string[] { null, "hello" };
-        string[] actualValue = new string[] { null, "world" };
+        var expectedValue = new string?[] { null, "hello" };
+        var actualValue = new string?[] { null, "world" };
 
-        string expectedMessage =
+        var expectedMessage =
             "Message" + Environment.NewLine +
             "Expected: String[] [null, \"hello\"]" + Environment.NewLine +
             "Actual:   String[] [null, \"world\"]";
 
-        AssertActualExpectedException ex =
-            new AssertActualExpectedException(expectedValue, actualValue, "Message");
+        var ex = new AssertActualExpectedException(expectedValue, actualValue, "Message");
 
         Assert.Equal(expectedMessage, ex.Message);
     }
@@ -31,13 +30,12 @@ public class AssertActualExpectedExceptionTests
     [Fact]
     public void ExpectedAndActualAreUsedInMessage()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Message" + Environment.NewLine +
             "Expected: 2" + Environment.NewLine +
             "Actual:   1";
 
-        AssertActualExpectedException ex =
-            new AssertActualExpectedException(2, 1, "Message");
+        var ex = new AssertActualExpectedException(2, 1, "Message");
 
         Assert.Equal(expectedMessage, ex.Message);
     }
@@ -45,8 +43,7 @@ public class AssertActualExpectedExceptionTests
     [Fact]
     public void PreservesExpectedAndActual()
     {
-        AssertActualExpectedException ex =
-            new AssertActualExpectedException(2, 1, null);
+        var ex = new AssertActualExpectedException(2, 1, null);
 
         Assert.Equal("1", ex.Actual);
         Assert.Equal("2", ex.Expected);

@@ -6,7 +6,7 @@ public class EqualExceptionTests
     [Fact]
     public void OneStringAddsValueToEndOfTheOtherString()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.Equal() Failure" + Environment.NewLine +
             "                    ↓ (pos 10)" + Environment.NewLine +
             "Expected: first test 1" + Environment.NewLine +
@@ -15,26 +15,28 @@ public class EqualExceptionTests
 
         var ex = Record.Exception(() => Assert.Equal("first test 1", "first test"));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 
     [Fact]
     public void OneStringOneNullDoesNotShowDifferencePoint()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.Equal() Failure" + Environment.NewLine +
             "Expected: first test 1" + Environment.NewLine +
             "Actual:   (null)";
 
         var ex = Record.Exception(() => Assert.Equal("first test 1", null));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 
     [Fact]
     public void StringsDifferInTheMiddle()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.Equal() Failure" + Environment.NewLine +
             "                ↓ (pos 6)" + Environment.NewLine +
             "Expected: first failure" + Environment.NewLine +
@@ -43,6 +45,7 @@ public class EqualExceptionTests
 
         var ex = Record.Exception(() => Assert.Equal("first failure", "first test"));
 
+        Assert.NotNull(ex);
         Assert.Equal(expectedMessage, ex.Message);
     }
 }

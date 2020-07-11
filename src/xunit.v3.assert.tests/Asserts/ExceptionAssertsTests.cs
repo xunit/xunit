@@ -540,6 +540,7 @@ public class ExceptionAssertsTests
 
             var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
+            Assert.NotNull(ex);
             Assert.Contains("ThrowsArgument_Action.ThrowingMethod", ex.StackTrace);
             Assert.DoesNotContain("Xunit.Assert.Throws", ex.StackTrace);
         }
@@ -620,6 +621,7 @@ public class ExceptionAssertsTests
 
             var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
+            Assert.NotNull(ex);
             Assert.Contains("ThrowsArgumentAsync.ThrowingMethod", ex.StackTrace);
             Assert.DoesNotContain("Xunit.Assert.ThrowsAsync", ex.StackTrace);
         }
@@ -684,6 +686,7 @@ public class ExceptionAssertsTests
 
             var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
+            Assert.NotNull(ex);
             Assert.Contains("ThrowsArgumentNull_Action.ThrowingMethod", ex.StackTrace);
             Assert.DoesNotContain("Xunit.Assert.Throws", ex.StackTrace);
         }

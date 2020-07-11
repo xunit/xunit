@@ -13,14 +13,14 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullCollectionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null, _ => { }));
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null!, _ => { }));
         }
 
         [Fact]
         public static void NullActionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object>)null));
-            Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object, int>)null));
+            Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object>)null!));
+            Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object, int>)null!));
         }
 
         [Fact]
@@ -69,7 +69,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void CollectionWithNullThrowsAllException()
         {
-            var collection = new object[]
+            var collection = new object?[]
             {
                 new object(),
                 null
@@ -150,13 +150,13 @@ public class CollectionAssertsTests
         [Fact]
         public static void GuardClause()
         {
-            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, (List<int>)null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, null!));
         }
 
         [Fact]
         public static void CanFindNullInContainer()
         {
-            var list = new List<object> { 16, null, "Hi there" };
+            var list = new List<object?> { 16, null, "Hi there" };
 
             Assert.Contains(null, list);
         }
@@ -185,7 +185,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullsAllowedInContainer()
         {
-            var list = new List<object> { null, 16, "Hi there" };
+            var list = new List<object?> { null, 16, "Hi there" };
 
             Assert.Contains("Hi there", list);
         }
@@ -281,8 +281,8 @@ public class CollectionAssertsTests
         {
             var comparer = Substitute.For<IEqualityComparer<int>>();
 
-            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, (List<int>)null, comparer));
-            Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, new int[0], null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, null!, comparer));
+            Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, new int[0], null!));
         }
 
         [Fact]
@@ -327,8 +327,8 @@ public class CollectionAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains((List<int>)null, item => true));
-            Assert.Throws<ArgumentNullException>("filter", () => Assert.Contains(new int[0], (Predicate<int>)null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains((List<int>)null!, item => true));
+            Assert.Throws<ArgumentNullException>("filter", () => Assert.Contains(new int[0], (Predicate<int>)null!));
         }
 
         [Fact]
@@ -353,13 +353,13 @@ public class CollectionAssertsTests
         [Fact]
         public static void GuardClause()
         {
-            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, (List<int>)null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, (List<int>)null!));
         }
 
         [Fact]
         public static void CanSearchForNullInContainer()
         {
-            var list = new List<object> { 16, "Hi there" };
+            var list = new List<object?> { 16, "Hi there" };
 
             Assert.DoesNotContain(null, list);
         }
@@ -388,7 +388,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullsAllowedInContainer()
         {
-            var list = new List<object> { null, 16, "Hi there" };
+            var list = new List<object?> { null, 16, "Hi there" };
 
             Assert.DoesNotContain(42, list);
         }
@@ -494,8 +494,8 @@ public class CollectionAssertsTests
         {
             var comparer = Substitute.For<IEqualityComparer<int>>();
 
-            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, (List<int>)null, comparer));
-            Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, new int[0], null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, null!, comparer));
+            Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, new int[0], null!));
         }
 
         [Fact]
@@ -535,8 +535,8 @@ public class CollectionAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain((List<int>)null, item => true));
-            Assert.Throws<ArgumentNullException>("filter", () => Assert.DoesNotContain(new int[0], (Predicate<int>)null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain((List<int>)null!, item => true));
+            Assert.Throws<ArgumentNullException>("filter", () => Assert.DoesNotContain(new int[0], (Predicate<int>)null!));
         }
 
         [Fact]
@@ -561,7 +561,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Empty(null));
+            Assert.Throws<ArgumentNullException>(() => Assert.Empty(null!));
         }
 
         [Fact]
@@ -875,15 +875,16 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullCollectionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Single(null));
+            Assert.Throws<ArgumentNullException>(() => Assert.Single((IEnumerable)null!));
+            Assert.Throws<ArgumentNullException>(() => Assert.Single((IEnumerable<object>)null!));
         }
 
         [Fact]
         public static void EmptyCollectionThrows()
         {
-            ArrayList collection = new ArrayList();
+            var collection = new ArrayList();
 
-            Exception ex = Record.Exception(() => Assert.Single(collection));
+            var ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
@@ -892,9 +893,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void MultiItemCollectionThrows()
         {
-            ArrayList collection = new ArrayList { "Hello", "World" };
+            var collection = new ArrayList { "Hello", "World" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection));
+            var ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element, but it contained 2 elements.", ex.Message);
@@ -903,9 +904,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void SingleItemCollectionDoesNotThrow()
         {
-            ArrayList collection = new ArrayList { "Hello" };
+            var collection = new ArrayList { "Hello" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection));
+            var ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.Null(ex);
         }
@@ -913,9 +914,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void SingleItemCollectionReturnsTheItem()
         {
-            ArrayList collection = new ArrayList { "Hello" };
+            var collection = new ArrayList { "Hello" };
 
-            object result = Assert.Single(collection);
+            var result = Assert.Single(collection);
 
             Assert.Equal("Hello", result);
         }
@@ -926,7 +927,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullCollectionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Single(null, null));
+            Assert.Throws<ArgumentNullException>(() => Assert.Single(null!, null));
         }
 
         [Fact]
@@ -950,7 +951,7 @@ public class CollectionAssertsTests
         {
             IEnumerable collection = new[] { "Hello", "World!" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection, "foo"));
+            var ex = Record.Exception(() => Assert.Single(collection, "foo"));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element matching \"foo\", but it contained no matching elements.", ex.Message);
@@ -959,9 +960,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void PredicateTooManyMatches()
         {
-            string[] collection = new[] { "Hello", "World!", "Hello" };
+            var collection = new[] { "Hello", "World!", "Hello" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection, "Hello"));
+            var ex = Record.Exception(() => Assert.Single(collection, "Hello"));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element matching \"Hello\", but it contained 2 matching elements.", ex.Message);
@@ -973,15 +974,15 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullCollectionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null));
+            Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null!));
         }
 
         [Fact]
         public static void EmptyCollectionThrows()
         {
-            object[] collection = new object[0];
+            var collection = new object[0];
 
-            Exception ex = Record.Exception(() => Assert.Single(collection));
+            var ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
@@ -990,9 +991,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void MultiItemCollectionThrows()
         {
-            string[] collection = new[] { "Hello", "World!" };
+            var collection = new[] { "Hello", "World!" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection));
+            var ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element, but it contained 2 elements.", ex.Message);
@@ -1001,9 +1002,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void SingleItemCollectionDoesNotThrow()
         {
-            string[] collection = new[] { "Hello" };
+            var collection = new[] { "Hello" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection));
+            var ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.Null(ex);
         }
@@ -1011,9 +1012,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void SingleItemCollectionReturnsTheItem()
         {
-            string[] collection = new[] { "Hello" };
+            var collection = new[] { "Hello" };
 
-            string result = Assert.Single(collection);
+            var result = Assert.Single(collection);
 
             Assert.Equal("Hello", result);
         }
@@ -1022,23 +1023,18 @@ public class CollectionAssertsTests
     public class Single_Generic_WithPredicate
     {
         [Fact]
-        public static void NullCollectionThrows()
+        public static void GuardClauses()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null, _ => true));
-        }
-
-        [Fact]
-        public static void NullPredicateThrows()
-        {
-            Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(new object[0], null));
+            Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null!, _ => true));
+            Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(new object[0], null!));
         }
 
         [Fact]
         public static void PredicateSingleMatch()
         {
-            string[] collection = new[] { "Hello", "World!" };
+            var collection = new[] { "Hello", "World!" };
 
-            string result = Assert.Single(collection, item => item.StartsWith("H"));
+            var result = Assert.Single(collection, item => item.StartsWith("H"));
 
             Assert.Equal("Hello", result);
         }
@@ -1046,9 +1042,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void PredicateNoMatch()
         {
-            string[] collection = new[] { "Hello", "World!" };
+            var collection = new[] { "Hello", "World!" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection, item => false));
+            var ex = Record.Exception(() => Assert.Single(collection, item => false));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained no matching elements.", ex.Message);
@@ -1057,9 +1053,9 @@ public class CollectionAssertsTests
         [Fact]
         public static void PredicateTooManyMatches()
         {
-            string[] collection = new[] { "Hello", "World!" };
+            var collection = new[] { "Hello", "World!" };
 
-            Exception ex = Record.Exception(() => Assert.Single(collection, item => true));
+            var ex = Record.Exception(() => Assert.Single(collection, item => true));
 
             Assert.IsType<SingleException>(ex);
             Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained 2 matching elements.", ex.Message);
@@ -1068,7 +1064,7 @@ public class CollectionAssertsTests
 
     sealed class SpyEnumerator<T> : IEnumerable<T>, IEnumerator<T>
     {
-        IEnumerator<T> innerEnumerator;
+        IEnumerator<T>? innerEnumerator;
 
         public SpyEnumerator(IEnumerable<T> enumerable)
         {
@@ -1076,10 +1072,10 @@ public class CollectionAssertsTests
         }
 
         public T Current
-            => innerEnumerator.Current;
+            => Guard.NotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
 
-        object IEnumerator.Current
-            => innerEnumerator.Current;
+        object? IEnumerator.Current
+            => Guard.NotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
 
         public bool IsDisposed
             => innerEnumerator == null;
@@ -1091,7 +1087,7 @@ public class CollectionAssertsTests
             => this;
 
         public bool MoveNext()
-            => innerEnumerator.MoveNext();
+            => Guard.NotNull("Tried to call MoveNext() on a disposed enumerator", innerEnumerator).MoveNext();
 
         public void Reset()
         {
@@ -1100,7 +1096,7 @@ public class CollectionAssertsTests
 
         public void Dispose()
         {
-            innerEnumerator.Dispose();
+            innerEnumerator?.Dispose();
             innerEnumerator = null;
         }
     }

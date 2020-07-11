@@ -12,10 +12,10 @@ public class PropertyAssertsTests
         [Fact]
         public void GuardClauses()
         {
-            var ex1 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(null, "propertyName", delegate { }));
+            var ex1 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(null!, "propertyName", delegate { }));
             Assert.Equal("object", ex1.ParamName);
 
-            var ex2 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(Substitute.For<INotifyPropertyChanged>(), "propertyName", (Action)null));
+            var ex2 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(Substitute.For<INotifyPropertyChanged>(), "propertyName", (Action)null!));
             Assert.Equal("testCode", ex2.ParamName);
         }
 
@@ -84,10 +84,10 @@ public class PropertyAssertsTests
         [Fact]
         public async void GuardClauses()
         {
-            var ex1 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(null, "propertyName", async delegate { }));
+            var ex1 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(null!, "propertyName", async delegate { }));
             Assert.Equal("object", ex1.ParamName);
 
-            var ex2 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", null));
+            var ex2 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", null!));
             Assert.Equal("testCode", ex2.ParamName);
         }
 
@@ -150,16 +150,16 @@ public class PropertyAssertsTests
 
     class NotifiedClass : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public string Property1
         {
-            set { PropertyChanged(this, new PropertyChangedEventArgs("Property1")); }
+            set { PropertyChanged!(this, new PropertyChangedEventArgs("Property1")); }
         }
 
         public int Property2
         {
-            set { PropertyChanged(this, new PropertyChangedEventArgs("Property2")); }
+            set { PropertyChanged!(this, new PropertyChangedEventArgs("Property2")); }
         }
     }
 }
