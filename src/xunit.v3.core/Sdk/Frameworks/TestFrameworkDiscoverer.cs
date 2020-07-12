@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// A base implementation of <see cref="ITestFrameworkDiscoverer"/> that supports test filtering
     /// and runs the discovery process on a thread pool thread.
     /// </summary>
-    public abstract class TestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
+    public abstract class TestFrameworkDiscoverer : ITestFrameworkDiscoverer
     {
         IAssemblyInfo assemblyInfo;
         IMessageSink diagnosticMessageSink;

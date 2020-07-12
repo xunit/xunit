@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Reflection-based implementation of <see cref="IReflectionAttributeInfo"/>.
     /// </summary>
-    public class ReflectionAttributeInfo : LongLivedMarshalByRefObject, IReflectionAttributeInfo
+    public class ReflectionAttributeInfo : IReflectionAttributeInfo
     {
         static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
         static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();

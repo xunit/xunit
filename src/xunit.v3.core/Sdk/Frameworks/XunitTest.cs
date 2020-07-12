@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// An implementation of <see cref="ITest"/> for xUnit v3.
     /// </summary>
-    public class XunitTest : LongLivedMarshalByRefObject, ITest
+    public class XunitTest : ITest
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTest"/> class.

@@ -15,7 +15,7 @@ namespace Xunit
     /// Default implementation of <see cref="IDiagnosticMessage"/>.
     /// </summary>
 #if XUNIT_FRAMEWORK
-    public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage
+    public class DiagnosticMessage : IDiagnosticMessage
 #else
     public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage, IMessageSinkMessageWithTypes
 #endif

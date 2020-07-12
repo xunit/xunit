@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// The default implementation of <see cref="ITestCollection"/>.
     /// </summary>
     [DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
-    public class TestCollection : LongLivedMarshalByRefObject, ITestCollection
+    public class TestCollection : ITestCollection
     {
         string? displayName;
         ITestAssembly? testAssembly;

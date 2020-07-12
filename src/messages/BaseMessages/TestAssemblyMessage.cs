@@ -13,7 +13,11 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyMessage"/> and <see cref="IExecutionMessage"/>.
     /// </summary>
+#if XUNIT_FRAMEWORK
+    public class TestAssemblyMessage : ITestAssemblyMessage, IExecutionMessage
+#else
     public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage, IExecutionMessage
+#endif
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyMessage"/> class.

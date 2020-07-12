@@ -3,10 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
+#if XUNIT_FRAMEWORK
+public class SpyMessageSink<TFinalMessage> : IMessageSink
+#else
 public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink
+#endif
 {
     readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 

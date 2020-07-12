@@ -6,7 +6,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Reflection-based implementation of <see cref="IReflectionParameterInfo"/>.
     /// </summary>
-    public class ReflectionParameterInfo : LongLivedMarshalByRefObject, IReflectionParameterInfo
+    public class ReflectionParameterInfo : IReflectionParameterInfo
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionParameterInfo"/> class.

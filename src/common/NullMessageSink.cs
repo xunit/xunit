@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
+using System.Collections.Generic;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -14,7 +14,7 @@ namespace Xunit
     /// <summary>
     /// An implementation of <see cref="IMessageSink"/> that ignores all messages.
     /// </summary>
-    public class NullMessageSink : LongLivedMarshalByRefObject, IMessageSink
+    public class NullMessageSink : IMessageSink
 #else
     /// <summary>
     /// An implementation of <see cref="IMessageSink"/> and <see cref="IMessageSinkWithTypes"/>

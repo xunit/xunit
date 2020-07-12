@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// The default implementation of <see cref="ITestMethod"/>.
     /// </summary>
     [DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
-    public class TestMethod : LongLivedMarshalByRefObject, ITestMethod
+    public class TestMethod : ITestMethod
     {
         private IMethodInfo? method;
         private ITestClass? testClass;

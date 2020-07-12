@@ -12,7 +12,7 @@ namespace Xunit.Sdk
     /// </summary>
     /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
     /// derive from <see cref="ITestCase"/>.</typeparam>
-    public abstract class TestFrameworkExecutor<TTestCase> : LongLivedMarshalByRefObject, ITestFrameworkExecutor
+    public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor
         where TTestCase : ITestCase
     {
         DisposalTracker disposalTracker = new DisposalTracker();

@@ -11,5 +11,10 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="IDiscoveryCompleteMessage"/>.
     /// </summary>
-    public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage { }
+#if XUNIT_FRAMEWORK
+    public class DiscoveryCompleteMessage : IDiscoveryCompleteMessage
+#else
+    public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
+#endif
+    { }
 }

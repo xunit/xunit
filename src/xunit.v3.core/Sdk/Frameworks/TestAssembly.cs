@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     /// The default implementation of <see cref="ITestAssembly"/>.
     /// </summary>
     [DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
-    public class TestAssembly : LongLivedMarshalByRefObject, ITestAssembly
+    public class TestAssembly : ITestAssembly
     {
         IAssemblyInfo? assembly;
         Version? version;

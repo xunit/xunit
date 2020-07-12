@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Reflection-based implementation of <see cref="IReflectionMethodInfo"/>.
     /// </summary>
-    public class ReflectionMethodInfo : LongLivedMarshalByRefObject, IReflectionMethodInfo
+    public class ReflectionMethodInfo : IReflectionMethodInfo
     {
         static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
 

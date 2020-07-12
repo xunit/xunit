@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// disposed when the framework is disposed. The discoverer and executor are automatically
     /// tracked for disposal, since those interfaces mandate an implementation of <see cref="IDisposable"/>.
     /// </summary>
-    public abstract class TestFramework : LongLivedMarshalByRefObject, ITestFramework
+    public abstract class TestFramework : ITestFramework
     {
         DisposalTracker disposalTracker = new DisposalTracker();
         ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
@@ -54,8 +54,6 @@ namespace Xunit.Sdk
 
             ExtensibilityPointFactory.Dispose();
             DisposalTracker.Dispose();
-
-            DisconnectAll();
         }
 
         /// <summary>

@@ -13,7 +13,11 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="IErrorMessage"/>.
     /// </summary>
+#if XUNIT_FRAMEWORK
+    public class ErrorMessage : IErrorMessage
+#else
     public class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
+#endif
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.

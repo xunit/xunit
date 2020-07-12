@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// The default implementation of <see cref="ITestClass"/>.
     /// </summary>
     [DebuggerDisplay(@"\{ class = {Class.Name} \}")]
-    public class TestClass : LongLivedMarshalByRefObject, ITestClass
+    public class TestClass : ITestClass
     {
         ITypeInfo? @class;
         ITestCollection? testCollection;

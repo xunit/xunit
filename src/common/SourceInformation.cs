@@ -11,7 +11,11 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ISourceInformation"/>.
     /// </summary>
+#if XUNIT_FRAMEWORK
+    public class SourceInformation : ISourceInformation
+#else
     public class SourceInformation : LongLivedMarshalByRefObject, ISourceInformation
+#endif
     {
         /// <inheritdoc/>
         public string? FileName { get; set; }
