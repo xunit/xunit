@@ -19,8 +19,6 @@
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
-    <Compile Include="..\common\AssemblyResolution\AssemblyHelper_Desktop.cs" LinkBase="Common" />
-    <Compile Include="..\common\AssemblyResolution\_DiagnosticMessage.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">

@@ -12,7 +12,7 @@ namespace Xunit
     /// <summary>
     /// This class provides assistance with assembly resolution for missing assemblies.
     /// </summary>
-    class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
+    public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
     {
         static readonly string[] Extensions = { ".dll", ".exe" };
 
@@ -20,20 +20,7 @@ namespace Xunit
         readonly IMessageSink? internalDiagnosticsMessageSink;
         readonly Dictionary<string, Assembly?> lookupCache = new Dictionary<string, Assembly?>();
 
-        /// <summary>
-        /// Constructs an instance using the given <paramref name="directory"/> for resolution.
-        /// </summary>
-        /// <param name="directory">The directory to use for resolving assemblies.</param>
-        public AssemblyHelper(string directory)
-            : this(directory, null)
-        { }
-
-        /// <summary>
-        /// Constructs an instance using the given <paramref name="directory"/> for resolution.
-        /// </summary>
-        /// <param name="directory">The directory to use for resolving assemblies.</param>
-        /// <param name="internalDiagnosticsMessageSink">The message sink to send internal diagnostics messages to</param>
-        public AssemblyHelper(string directory, IMessageSink? internalDiagnosticsMessageSink)
+        AssemblyHelper(string directory, IMessageSink? internalDiagnosticsMessageSink)
         {
             Guard.ArgumentNotNull(nameof(directory), directory);
 
@@ -44,8 +31,8 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void Dispose()
-            => AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+        public void Dispose() =>
+            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
 
         Assembly? LoadAssembly(AssemblyName assemblyName)
         {
@@ -61,9 +48,9 @@ namespace Xunit
             if (internalDiagnosticsMessageSink != null)
             {
                 if (result == null)
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver"));
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver"));
                 else
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'"));
             }
 
             lookupCache[assemblyName.Name] = result;
@@ -102,7 +89,7 @@ namespace Xunit
         /// of the .deps.json file generated during the build process.
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
-        public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, IMessageSink? internalDiagnosticsMessageSink = null) =>
+        public static IDisposable? SubscribeResolveForAssembly(string assemblyFileName, IMessageSink? internalDiagnosticsMessageSink = null) =>
             new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, internalDiagnosticsMessageSink);
 
         /// <summary>
@@ -111,7 +98,7 @@ namespace Xunit
         /// of the .deps.json file generated during the build process.
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
-        public static IDisposable SubscribeResolveForAssembly(Type typeInAssembly, IMessageSink? internalDiagnosticsMessageSink = null) =>
+        public static IDisposable? SubscribeResolveForAssembly(Type typeInAssembly, IMessageSink? internalDiagnosticsMessageSink = null) =>
             new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, internalDiagnosticsMessageSink);
     }
 }
