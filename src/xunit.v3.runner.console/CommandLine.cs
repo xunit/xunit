@@ -13,8 +13,7 @@ namespace Xunit.Runner.SystemConsole
 
         protected CommandLine(string[] args, Predicate<string>? fileExists = null)
         {
-            if (fileExists == null)
-                fileExists = File.Exists;
+            fileExists ??= File.Exists;
 
             for (var i = args.Length - 1; i >= 0; i--)
                 arguments.Push(args[i]);
@@ -28,9 +27,9 @@ namespace Xunit.Runner.SystemConsole
 
         public bool DiagnosticMessages { get; protected set; }
 
-        public bool InternalDiagnosticMessages { get; protected set; }
-
         public bool FailSkips { get; protected set; }
+
+        public bool InternalDiagnosticMessages { get; protected set; }
 
         public int? MaxParallelThreads { get; set; }
 
@@ -74,10 +73,8 @@ namespace Xunit.Runner.SystemConsole
             return result ?? new DefaultRunnerReporterWithTypes();
         }
 
-        protected virtual string GetFullPath(string fileName)
-        {
-            return Path.GetFullPath(fileName);
-        }
+        protected virtual string GetFullPath(string fileName) =>
+            Path.GetFullPath(fileName);
 
         XunitProject GetProjectFile(List<(string assemblyFileName, string? configFileName)> assemblies)
         {
