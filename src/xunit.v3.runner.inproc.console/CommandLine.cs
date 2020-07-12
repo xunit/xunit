@@ -18,8 +18,7 @@ namespace Xunit.Runner.InProc.SystemConsole
         {
             this.assemblyFileName = assemblyFileName;
 
-            if (fileExists == null)
-                fileExists = File.Exists;
+            fileExists ??= File.Exists;
 
             for (var i = args.Length - 1; i >= 0; i--)
                 arguments.Push(args[i]);
@@ -31,9 +30,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 
         public bool DiagnosticMessages { get; protected set; }
 
-        public bool InternalDiagnosticMessages { get; protected set; }
-
         public bool FailSkips { get; protected set; }
+
+        public bool InternalDiagnosticMessages { get; protected set; }
 
         public int? MaxParallelThreads { get; set; }
 
@@ -73,10 +72,8 @@ namespace Xunit.Runner.InProc.SystemConsole
             return result ?? new DefaultRunnerReporterWithTypes();
         }
 
-        protected virtual string GetFullPath(string fileName)
-        {
-            return Path.GetFullPath(fileName);
-        }
+        protected virtual string GetFullPath(string fileName) =>
+            Path.GetFullPath(fileName);
 
         XunitProject GetProjectFile(string assemblyFileName, string? configFileName)
             => new XunitProject
@@ -121,7 +118,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                 var optionName = option.Key.ToLowerInvariant();
 
                 if (!optionName.StartsWith("-", StringComparison.Ordinal))
-                    throw new ArgumentException($"unknown command line option: {option.Key}");
+                    throw new ArgumentException($"expected option, instead got: {option.Key}");
 
                 optionName = optionName.Substring(1);
 
