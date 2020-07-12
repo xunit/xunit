@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Security.Permissions;
 
@@ -75,7 +76,7 @@ namespace Xunit
             }
             catch (TargetInvocationException ex)
             {
-                ex.InnerException!.RethrowWithNoStackTraceLoss();
+                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
                 return default;
             }
         }
@@ -95,7 +96,7 @@ namespace Xunit
             }
             catch (TargetInvocationException ex)
             {
-                ex.InnerException!.RethrowWithNoStackTraceLoss();
+                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
                 return default;
             }
         }

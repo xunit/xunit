@@ -8,7 +8,6 @@
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
     <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />

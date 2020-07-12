@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace Xunit
 {
@@ -36,7 +37,7 @@ namespace Xunit
             }
             catch (TargetInvocationException ex)
             {
-                ex.InnerException!.RethrowWithNoStackTraceLoss();
+                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
                 return default;
             }
         }
@@ -58,7 +59,7 @@ namespace Xunit
             }
             catch (TargetInvocationException ex)
             {
-                ex.InnerException!.RethrowWithNoStackTraceLoss();
+                ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
                 return default;
             }
         }
