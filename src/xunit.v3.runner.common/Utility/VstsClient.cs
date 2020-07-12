@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -147,9 +147,13 @@ namespace Xunit.Runner.Common
                 }
 
                 responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                using var sr = new StringReader(responseString);
-                var responseJson = JsonDeserializer.Deserialize(sr) as JsonObject;
-                var id = responseJson?.ValueAsInt("id");
+                var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
+                if (responseJson.ValueKind != JsonValueKind.Object)
+                    throw new InvalidOperationException($"Response was not a JSON object");
+
+                if (!responseJson.TryGetProperty("id", out var idProp) || !(idProp.TryGetInt32(out var id)))
+                    throw new InvalidOperationException($"Response JSON did not have an integer 'id' property");
+
                 return id;
             }
             catch (Exception ex)
@@ -261,20 +265,21 @@ namespace Xunit.Runner.Common
                 {
                     var respString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                    using var sr = new StringReader(respString);
-                    var responseValue = JsonDeserializer.Deserialize(sr);
-                    var responseJson = responseValue as JsonObject;
-                    Guard.NotNull($"JSON response was not in the proper format (expected JsonObject, got {responseValue.GetType().Name}", responseJson);
+                    var responseJson = JsonSerializer.Deserialize<JsonElement>(respString);
+                    if (responseJson.ValueKind != JsonValueKind.Object)
+                        throw new InvalidOperationException($"JSON response was not in the proper format (expected Object, got {responseJson.ValueKind})");
 
-                    var testCases = responseJson.Value("value") as JsonArray;
-                    Guard.NotNull("JSON response was missing top-level 'value' array", testCases);
+                    if (!responseJson.TryGetProperty("value", out var testCases) || testCases.ValueKind != JsonValueKind.Array)
+                        throw new InvalidOperationException("JSON response was missing top-level 'value' array");
 
-                    for (var i = 0; i < testCases.Length; ++i)
+                    for (var i = 0; i < testCases.GetArrayLength(); ++i)
                     {
-                        var testCase = testCases[i] as JsonObject;
-                        Guard.NotNull($"JSON response value element {i} was not in the proper format (expected JsonObject, got {testCases[i].GetType().Name}", testCase);
+                        var testCase = testCases[i];
+                        if (testCase.ValueKind != JsonValueKind.Object)
+                            throw new InvalidOperationException($"JSON response value element {i} was not in the proper format (expected Object, got {testCase.ValueKind})");
 
-                        var id = testCase.ValueAsInt("id");
+                        if (!testCase.TryGetProperty("id", out var idProp) || !idProp.TryGetInt32(out var id))
+                            throw new InvalidOperationException($"JSON response value element {i} is missing an 'id' property or it wasn't an integer");
 
                         // Match the test by ordinal
                         var test = added![i];

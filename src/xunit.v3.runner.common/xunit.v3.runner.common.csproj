@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.common.net472</AssemblyName>
@@ -15,7 +15,6 @@
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\common\Json.cs" LinkBase="Common" />
     <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
@@ -34,6 +33,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 

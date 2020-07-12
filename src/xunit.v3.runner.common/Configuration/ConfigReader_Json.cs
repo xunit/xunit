@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Json;
 
 namespace Xunit.Runner.Common
 {
@@ -9,98 +10,80 @@ namespace Xunit.Runner.Common
     public static class ConfigReader_Json
     {
         /// <summary>
-        /// Loads the test assembly configuration for the given test assembly from a JSON stream. Caller is responsible for opening the stream.
+        /// Loads the test assembly configuration for the given test assembly from JSON.
         /// </summary>
-        /// <param name="configStream">Stream containing config for an assembly</param>
+        /// <param name="json">The JSON text to read</param>
         /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration? Load(Stream configStream)
+        public static TestAssemblyConfiguration? Load(string json)
         {
-            var result = new TestAssemblyConfiguration();
-
             try
             {
-                using var reader = new StreamReader(configStream);
-                if (!(JsonDeserializer.Deserialize(reader) is JsonObject config))
+                var result = new TestAssemblyConfiguration();
+                var root = JsonSerializer.Deserialize<JsonElement>(json);
+                if (root.ValueKind != JsonValueKind.Object)
                     return null;
 
-                foreach (var propertyName in config.Keys)
+                foreach (var property in root.EnumerateObject())
                 {
-                    var propertyValue = config.Value(propertyName);
-
-                    if (propertyValue is JsonBoolean booleanValue)
+                    if (property.Value.ValueKind == JsonValueKind.True || property.Value.ValueKind == JsonValueKind.False)
                     {
-                        if (string.Equals(propertyName, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
+                        var booleanValue = property.Value.GetBoolean();
+
+                        if (string.Equals(property.Name, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
                             result.DiagnosticMessages = booleanValue;
-                        if (string.Equals(propertyName, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(property.Name, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
                             result.InternalDiagnosticMessages = booleanValue;
-                        if (string.Equals(propertyName, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(property.Name, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
                             result.ParallelizeAssembly = booleanValue;
-                        if (string.Equals(propertyName, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(property.Name, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
                             result.ParallelizeTestCollections = booleanValue;
-                        if (string.Equals(propertyName, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(property.Name, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
                             result.PreEnumerateTheories = booleanValue;
-                        if (string.Equals(propertyName, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(property.Name, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
                             result.ShadowCopy = booleanValue;
-                        if (string.Equals(propertyName, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(property.Name, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
                             result.StopOnFail = booleanValue;
                     }
-                    else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+                    else if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetInt32(out var intValue))
                     {
-                        if (propertyValue is JsonNumber numberValue)
+                        if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (int.TryParse(numberValue.Raw, out var maxParallelThreads) && maxParallelThreads >= -1)
-                                result.MaxParallelThreads = maxParallelThreads;
+                            if (intValue >= -1)
+                                result.MaxParallelThreads = intValue;
+                        }
+                        else if (string.Equals(property.Name, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (intValue > 0)
+                                result.LongRunningTestSeconds = intValue;
                         }
                     }
-                    else if (string.Equals(propertyName, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
+                    else if (property.Value.ValueKind == JsonValueKind.String)
                     {
-                        if (propertyValue is JsonNumber numberValue)
+                        var stringValue = property.Value.GetString();
+
+                        if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (int.TryParse(numberValue.Raw, out var seconds) && seconds > 0)
-                                result.LongRunningTestSeconds = seconds;
+                            if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
+                                result.MethodDisplay = methodDisplay;
                         }
-                    }
-                    else if (string.Equals(propertyName, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (propertyValue is JsonString stringValue)
+                        else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
                         {
-                            try
-                            {
-                                var methodDisplay = Enum.Parse(typeof(TestMethodDisplay), stringValue, true);
-                                result.MethodDisplay = (TestMethodDisplay)methodDisplay;
-                            }
-                            catch { }
+                            if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
+                                result.MethodDisplayOptions = methodDisplayOptions;
                         }
-                    }
-                    else if (string.Equals(propertyName, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (propertyValue is JsonString stringValue)
+                        else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
                         {
-                            try
-                            {
-                                var methodDisplayOptions = Enum.Parse(typeof(TestMethodDisplayOptions), stringValue, true);
-                                result.MethodDisplayOptions = (TestMethodDisplayOptions)methodDisplayOptions;
-                            }
-                            catch { }
-                        }
-                    }
-                    else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (propertyValue is JsonString stringValue)
-                        {
-                            try
-                            {
-                                var appDomain = Enum.Parse(typeof(AppDomainSupport), stringValue, true);
-                                result.AppDomain = (AppDomainSupport)appDomain;
-                            }
-                            catch { }
+                            if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
+                                result.AppDomain = appDomain;
                         }
                     }
                 }
+
+                return result;
             }
             catch { }
 
-            return result;
+            return null;
         }
 
         /// <summary>
@@ -130,16 +113,13 @@ namespace Xunit.Runner.Common
                 if (!File.Exists(configFileName))
                     return null;
 
-                using (var stream = File_OpenRead(configFileName))
-                    return Load(stream);
+                var json = File.ReadAllText(configFileName);
+                return Load(json);
             }
             catch { }
 
             return null;
         }
-
-        static Stream File_OpenRead(string path) =>
-            File.OpenRead(path);
 
         static class Configuration
         {
