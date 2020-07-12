@@ -66,7 +66,7 @@ namespace Xunit
 #if WINDOWS_UAP
                         assemblyPath = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, assemblyPath);
 #else
-                        assemblyPath = method.DeclaringType.GetAssembly().Location;
+                        assemblyPath = method.DeclaringType.Assembly.Location;
 #endif
 
                         var stateMachineType = method.GetCustomAttribute<AsyncStateMachineAttribute>()?.StateMachineType;

@@ -57,7 +57,7 @@ namespace Xunit.Serialization
             if (data.TryGetValue(key, out var val))
                 return val.Value;
 
-            if (type.IsValueType())
+            if (type.IsValueType)
                 return Activator.CreateInstance(type);
 
             return null;
@@ -188,7 +188,7 @@ namespace Xunit.Serialization
             if (type == typeof(Type))
                 return SerializationHelper.GetType(serializedValue);
 
-            if (type.IsEnum() || type.IsNullableEnum())
+            if (type.IsEnum || type.IsNullableEnum())
                 return Enum.Parse(type.UnwrapNullable(), serializedValue);
 
             if (type.IsArray)
@@ -325,7 +325,7 @@ namespace Xunit.Serialization
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
 
             var valueType = value.GetType();
-            if (valueType.IsEnum())
+            if (valueType.IsEnum)
             {
                 if (!valueType.IsFromLocalAssembly())
                     throw new ArgumentException($"We cannot serialize enum {valueType.FullName}.{value} because it lives in the GAC", nameof(value));
@@ -393,7 +393,7 @@ namespace Xunit.Serialization
                     return true;
 
             var typeToCheck = valueType;
-            if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
+            if (valueType.IsEnum || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
                 return typeToCheck.IsFromLocalAssembly();
 
             return false;

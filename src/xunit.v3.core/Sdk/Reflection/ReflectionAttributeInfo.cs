@@ -180,7 +180,7 @@ namespace Xunit.Sdk
 
             var destinationArray = Array.CreateInstance(argType, collect.Count);
 
-            if (argType.IsEnum())
+            if (argType.IsEnum)
                 Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value!)).ToArray(), destinationArray, collect.Count);
             else
                 Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);

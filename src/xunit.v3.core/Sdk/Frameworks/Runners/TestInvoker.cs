@@ -204,12 +204,12 @@ namespace Xunit.Sdk
                 return task;
 
             var type = obj.GetType();
-            if (type.IsGenericType() && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
+            if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
             {
                 if (startAsTaskOpenGenericMethod == null)
                 {
                     startAsTaskOpenGenericMethod = type
-                        .GetAssembly()
+                        .Assembly
                         .GetType("Microsoft.FSharp.Control.FSharpAsync")?
                         .GetRuntimeMethods()
                         .FirstOrDefault(m => m.Name == "StartAsTask");

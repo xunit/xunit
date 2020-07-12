@@ -200,7 +200,7 @@ namespace Xunit.Sdk
                     throw new ArgumentException($"We cannot serialize type {type.FullName} because it lives in the GAC", nameof(type));
 
                 var typeName = typeToMap.FullName!;
-                var assemblyName = typeToMap.GetAssembly().FullName!.Split(',')[0];
+                var assemblyName = typeToMap.Assembly.FullName!.Split(',')[0];
 
                 var arrayRanks = new Stack<int>();
                 while (typeToMap.IsArray)
@@ -210,7 +210,7 @@ namespace Xunit.Sdk
                     typeToMap = elementType;
                 }
 
-                if (typeToMap.IsGenericType() && !typeToMap.IsGenericTypeDefinition())
+                if (typeToMap.IsGenericType && !typeToMap.IsGenericTypeDefinition)
                 {
                     var typeDefinition = typeToMap.GetGenericTypeDefinition();
                     var innerTypes = typeToMap.GetGenericArguments()

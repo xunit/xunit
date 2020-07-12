@@ -143,7 +143,7 @@ namespace Xunit
             try
             {
                 var sinkWithTypes = MessageSinkWithTypesAdapter.Wrap(sink);
-                var asssemblyName = typeof(OptimizedRemoteMessageSink).GetAssembly().GetName();
+                var asssemblyName = typeof(OptimizedRemoteMessageSink).Assembly.GetName();
                 var optimizedSink = AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName!, sinkWithTypes);
                 if (optimizedSink != null)
                     return optimizedSink;

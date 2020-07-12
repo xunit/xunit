@@ -360,7 +360,7 @@ namespace Xunit.Sdk
         {
             // Do we have Class : BaseClass<T>, Class: BaseClass<T, U> etc.
             var baseType = passedParameterType.GetTypeInfo().BaseType;
-            if (baseType != null && baseType.IsGenericType())
+            if (baseType != null && baseType.IsGenericType)
             {
                 var baseGenericTypeArguments = baseType.GetGenericArguments();
 
@@ -375,7 +375,7 @@ namespace Xunit.Sdk
             }
 
             // Do we have Class : Interface<T>, Class : Interface<T, U> etc.
-            foreach (var interfaceType in passedParameterType.GetInterfaces().Where(i => i.IsGenericType()))
+            foreach (var interfaceType in passedParameterType.GetInterfaces().Where(i => i.IsGenericType))
             {
                 var interfaceGenericArguments = interfaceType.GetGenericArguments();
                 for (var i = 0; i < interfaceGenericArguments.Length; i++)
