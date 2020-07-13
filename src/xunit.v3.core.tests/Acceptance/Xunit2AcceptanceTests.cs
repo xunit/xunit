@@ -363,7 +363,7 @@ public class Xunit2AcceptanceTests
         }
 
         [CollectionDefinition("Ordered Collection")]
-        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "xunit.v3.core.tests")]
+        [TestCaseOrderer(typeof(AlphabeticalOrderer))]
         public class CollectionClass { }
 
         [Collection("Ordered Collection")]
@@ -391,7 +391,7 @@ public class Xunit2AcceptanceTests
             );
         }
 
-        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "xunit.v3.core.tests")]
+        [TestCaseOrderer(typeof(AlphabeticalOrderer))]
         public class TestClassWithoutCollection
         {
             [Fact]
@@ -435,7 +435,7 @@ public class Xunit2AcceptanceTests
         }
 
         [CollectionDefinition("Parallel Ordered Collection")]
-        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "xunit.v3.core.tests")]
+        [TestCaseOrderer(typeof(TestOrdering.AlphabeticalOrderer))]
         public class CollectionClass { }
 
         [Collection("Parallel Ordered Collection")]
@@ -449,7 +449,7 @@ public class Xunit2AcceptanceTests
         }
 
         [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
-        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "xunit.v3.core.tests")]
+        [TestCaseOrderer(typeof(TestOrdering.AlphabeticalOrderer))]
         public class TestClassNonParallelCollectionDefinition { }
 
         [Collection("Non-Parallel Collection")]

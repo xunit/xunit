@@ -378,11 +378,16 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>()
+    public static IReflectionAttributeInfo TestCaseOrdererAttribute(Type type)
     {
-        var ordererType = typeof(TOrderer);
-        return TestCaseOrdererAttribute(ordererType.FullName!, ordererType.GetTypeInfo().Assembly.FullName!);
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+        result.Attribute.Returns(new TestCaseOrdererAttribute(type));
+        result.GetConstructorArguments().Returns(new object[] { type });
+        return result;
     }
+
+    public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>() =>
+        TestCaseOrdererAttribute(typeof(TOrderer));
 
     public static ITestClass TestClass(
         string? typeName = null,

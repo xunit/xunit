@@ -108,15 +108,15 @@ namespace Xunit.Sdk
                         TestCaseOrderer = testCaseOrderer;
                     else
                     {
-                        var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for assembly-level test case orderer"));
+                        var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for assembly-level test case orderer"));
                     }
                 }
                 catch (Exception ex)
                 {
                     var innerEx = ex.Unwrap();
-                    var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test case orderer '{args[0]}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+                    var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test case orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
                 }
             }
 

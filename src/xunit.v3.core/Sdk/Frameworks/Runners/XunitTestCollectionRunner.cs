@@ -143,14 +143,14 @@ namespace Xunit.Sdk
                         if (testCaseOrderer != null)
                             return testCaseOrderer;
 
-                        var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
+                        var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
                     }
                     catch (Exception ex)
                     {
                         var innerEx = ex.Unwrap();
-                        var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{args[0]}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+                        var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{type}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
                     }
                 }
             }

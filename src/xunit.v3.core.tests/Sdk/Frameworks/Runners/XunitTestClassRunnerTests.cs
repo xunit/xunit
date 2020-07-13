@@ -329,7 +329,7 @@ public class XunitTestClassRunnerTests
             Assert.StartsWith("Class-level test case orderer 'XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithCtorThrowingTestCaseOrder' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
         }
 
-        [TestCaseOrderer("XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer", "xunit.v3.core.tests")]
+        [TestCaseOrderer(typeof(MyCtorThrowingTestCaseOrderer))]
         class TestClassWithCtorThrowingTestCaseOrder
         {
             [Fact]
@@ -376,7 +376,7 @@ public class XunitTestClassRunnerTests
 
     class CollectionUnderTest : IClassFixture<object> { }
 
-    [TestCaseOrderer("XunitTestClassRunnerTests+CustomTestCaseOrderer", "xunit.v3.core.tests")]
+    [TestCaseOrderer(typeof(CustomTestCaseOrderer))]
     class ClassUnderTest : IClassFixture<FixtureUnderTest>
     {
         public ClassUnderTest(FixtureUnderTest x, string y, decimal z) { }
