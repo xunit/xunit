@@ -18,5 +18,11 @@ namespace Xunit.Sdk
         /// <param name="assemblyName">The name of the assembly that the discoverer type
         /// is located in, without file extension (f.e., 'xunit.execution')</param>
         public TestFrameworkDiscovererAttribute(string typeName, string assemblyName) { }
+
+        /// <summary>
+        /// Initializes an instance of <see cref="TestFrameworkDiscovererAttribute"/>.
+        /// </summary>
+        /// <param name="discovererType">The type of the discoverer</param>
+        public TestFrameworkDiscovererAttribute(Type discovererType) { }
     }
 }

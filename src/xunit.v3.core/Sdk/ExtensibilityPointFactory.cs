@@ -168,8 +168,7 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull(nameof(testFrameworkDiscovererAttribute), testFrameworkDiscovererAttribute);
 
-            var args = testFrameworkDiscovererAttribute.GetConstructorArguments().Cast<string>().ToArray();
-            var testFrameworkDiscovererType = SerializationHelper.GetType(args[1], args[0]);
+            var testFrameworkDiscovererType = TypeFromAttributeConstructor(testFrameworkDiscovererAttribute);
             if (testFrameworkDiscovererType == null)
                 return null;
 
