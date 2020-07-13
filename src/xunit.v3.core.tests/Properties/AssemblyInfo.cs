@@ -1,3 +1,3 @@
 using Xunit;
 
-[assembly: AssemblyTrait("Assembly", "Trait")]
+[assembly: Trait("Assembly", "Trait")]
