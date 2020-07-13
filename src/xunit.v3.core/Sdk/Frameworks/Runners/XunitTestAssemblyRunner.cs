@@ -130,15 +130,15 @@ namespace Xunit.Sdk
                         TestCollectionOrderer = testCollectionOrderer;
                     else
                     {
-                        var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for assembly-level test collection orderer"));
+                        var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for assembly-level test collection orderer"));
                     }
                 }
                 catch (Exception ex)
                 {
                     var innerEx = ex.Unwrap();
-                    var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test collection orderer '{args[0]}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+                    var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test collection orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
                 }
             }
 

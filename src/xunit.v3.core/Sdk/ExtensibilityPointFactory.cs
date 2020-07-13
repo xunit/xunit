@@ -141,8 +141,7 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull(nameof(testCollectionOrdererAttribute), testCollectionOrdererAttribute);
 
-            var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var ordererType = SerializationHelper.GetType(args[1], args[0]);
+            var ordererType = TypeFromAttributeConstructor(testCollectionOrdererAttribute);
             if (ordererType == null)
                 return null;
 

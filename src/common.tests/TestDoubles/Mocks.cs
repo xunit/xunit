@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -456,11 +454,16 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
+    public static IReflectionAttributeInfo TestCollectionOrdererAttribute(Type type)
     {
-        var ordererType = typeof(TOrderer);
-        return TestCollectionOrdererAttribute(ordererType.FullName!, ordererType.GetTypeInfo().Assembly.FullName!);
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+        result.Attribute.Returns(new TestCollectionOrdererAttribute(type));
+        result.GetConstructorArguments().Returns(new object[] { type });
+        return result;
     }
+
+    public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>() =>
+        TestCollectionOrdererAttribute(typeof(TOrderer));
 
     public static ITestFailed TestFailed(
         Type type,

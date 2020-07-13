@@ -14,5 +14,11 @@ namespace Xunit
         /// <param name="ordererTypeName">The type name of the orderer class (that implements <see cref="T:Xunit.Sdk.ITestCollectionOrderer"/>).</param>
         /// <param name="ordererAssemblyName">The assembly that <paramref name="ordererTypeName"/> exists in.</param>
         public TestCollectionOrdererAttribute(string ordererTypeName, string ordererAssemblyName) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestCollectionOrdererAttribute"/> class.
+        /// </summary>
+        /// <param name="ordererType">The orderer type</param>
+        public TestCollectionOrdererAttribute(Type ordererType) { }
     }
 }
