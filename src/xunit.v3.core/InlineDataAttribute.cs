@@ -8,7 +8,7 @@ namespace Xunit
     /// <summary>
     /// Provides a data source for a data theory, with the data coming from inline values.
     /// </summary>
-    [DataDiscoverer("Xunit.Sdk.InlineDataDiscoverer", "xunit.v3.core")]  // TODO: Use type
+    [DataDiscoverer(typeof(InlineDataDiscoverer))]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class InlineDataAttribute : DataAttribute
     {

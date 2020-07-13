@@ -91,8 +91,7 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull(nameof(dataDiscovererAttribute), dataDiscovererAttribute);
 
-            var args = dataDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var discovererType = SerializationHelper.GetType(args[1], args[0]);
+            var discovererType = TypeFromAttributeConstructor(dataDiscovererAttribute);
             if (discovererType == null)
                 return null;
 

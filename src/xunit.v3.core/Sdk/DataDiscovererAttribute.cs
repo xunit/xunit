@@ -17,5 +17,11 @@ namespace Xunit.Sdk
         /// <param name="assemblyName">The name of the assembly that the discoverer type
         /// is located in, without file extension (f.e., 'xunit.execution')</param>
         public DataDiscovererAttribute(string typeName, string assemblyName) { }
+
+        /// <summary>
+        /// Initializes an instance of <see cref="DataDiscovererAttribute"/>.
+        /// </summary>
+        /// <param name="discovererType">The discoverer type</param>
+        public DataDiscovererAttribute(Type discovererType) { }
     }
 }

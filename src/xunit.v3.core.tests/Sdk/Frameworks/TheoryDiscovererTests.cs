@@ -289,7 +289,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
         public void Test() { }
     }
 
-    [DataDiscoverer("TheoryDiscovererTests", "xunit.v3.core.tests")]
+    [DataDiscoverer(typeof(TheoryDiscovererTests))]
     public class NotADataDiscovererAttribute : DataAttribute
     {
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)

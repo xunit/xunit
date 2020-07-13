@@ -61,15 +61,13 @@ namespace Xunit.Sdk
 
                 foreach (var dataAttribute in dataAttributes)
                 {
-                    var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                    var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    var discovererType = SerializationHelper.GetType(args[1], args[0]);
-                    if (discovererType == null)
+                    var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).FirstOrDefault();
+                    if (discovererAttribute == null)
                     {
                         if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
-                            Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
+                            Aggregator.Add(new InvalidOperationException($"Data attribute {reflectionAttribute.Attribute.GetType().FullName} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
                         else
-                            Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
+                            Aggregator.Add(new InvalidOperationException($"A data attribute specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
 
                         continue;
                     }
@@ -77,7 +75,16 @@ namespace Xunit.Sdk
                     IDataDiscoverer? discoverer;
                     try
                     {
-                        discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererType);
+                        discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererAttribute);
+                        if (discoverer == null)
+                        {
+                            if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
+                                Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
+                            else
+                                Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
+
+                            continue;
+                        }
                     }
                     catch (InvalidCastException)
                     {
@@ -86,12 +93,6 @@ namespace Xunit.Sdk
                         else
                             Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
 
-                        continue;
-                    }
-
-                    if (discoverer == null)
-                    {
-                        Aggregator.Add(new InvalidOperationException($"Data discoverer type '{discovererType.FullName}' could not be constructed"));
                         continue;
                     }
 
