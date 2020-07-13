@@ -110,14 +110,10 @@ namespace Xunit.Sdk
             {
                 var testCaseDiscovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
                 if (testCaseDiscovererAttribute != null)
-                {
-                    var args = testCaseDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    discovererType = SerializationHelper.GetType(args[1], args[0]);
-                }
+                    discovererType = ExtensibilityPointFactory.TypeFromAttributeConstructor(testCaseDiscovererAttribute);
 
                 if (factAttributeType != null)
                     DiscovererTypeCache[factAttributeType] = discovererType;
-
             }
 
             if (discovererType == null)

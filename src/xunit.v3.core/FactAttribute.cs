@@ -8,7 +8,7 @@ namespace Xunit
     /// by the test runner. It can also be extended to support a customized definition of a
     /// test method.
     /// </summary>
-    [XunitTestCaseDiscoverer("Xunit.Sdk.FactDiscoverer", "xunit.v3.core")]  // TODO: Use type
+    [XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class FactAttribute : Attribute
     {

@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-namespace TestUtility
+namespace Xunit.Sdk
 {
     public class CulturedXunitTheoryTestCase : XunitTheoryTestCase
     {
@@ -21,17 +20,18 @@ namespace TestUtility
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The method under test.</param>
-        public CulturedXunitTheoryTestCase(IMessageSink diagnosticMessageSink,
-                                           TestMethodDisplay defaultMethodDisplay,
-                                           TestMethodDisplayOptions defaultMethodDisplayOptions,
-                                           ITestMethod testMethod,
-                                           string culture)
-            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+        public CulturedXunitTheoryTestCase(
+            IMessageSink diagnosticMessageSink,
+            TestMethodDisplay defaultMethodDisplay,
+            TestMethodDisplayOptions defaultMethodDisplayOptions,
+            ITestMethod testMethod,
+            string culture)
+                : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
         {
             Initialize(culture);
         }
 
-        public string Culture { get; private set; }
+        public string Culture { get; private set; } = "<unset>";
 
         public override void Deserialize(IXunitSerializationInfo data)
         {
@@ -52,12 +52,13 @@ namespace TestUtility
             DisplayName += $"[{culture}]";
         }
 
-        public override Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
-                                                  IMessageBus messageBus,
-                                                  object[] constructorArguments,
-                                                  ExceptionAggregator aggregator,
-                                                  CancellationTokenSource cancellationTokenSource)
-            => new CulturedXunitTheoryTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource).RunAsync();
+        public override Task<RunSummary> RunAsync(
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            object?[] constructorArguments,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                => new CulturedXunitTheoryTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource).RunAsync();
 
         public override void Serialize(IXunitSerializationInfo data)
         {

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-namespace TestUtility
+namespace Xunit.Sdk
 {
     public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
     {
@@ -14,7 +13,10 @@ namespace TestUtility
             this.diagnosticMessageSink = diagnosticMessageSink;
         }
 
-        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<IXunitTestCase> Discover(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo factAttribute)
         {
             var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
             var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();

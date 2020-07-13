@@ -4,25 +4,25 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-namespace TestUtility
+namespace Xunit.Sdk
 {
     public class CulturedXunitTestCase : XunitTestCase
     {
-        private string culture;
+        string culture = "<unset>";
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
         public CulturedXunitTestCase() { }
 
-        public CulturedXunitTestCase(IMessageSink diagnosticMessageSink,
-                                     TestMethodDisplay defaultMethodDisplay,
-                                     TestMethodDisplayOptions defaultMethodDisplayOptions,
-                                     ITestMethod testMethod,
-                                     string culture,
-                                     object[] testMethodArguments = null)
-            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
+        public CulturedXunitTestCase(
+            IMessageSink diagnosticMessageSink,
+            TestMethodDisplay defaultMethodDisplay,
+            TestMethodDisplayOptions defaultMethodDisplayOptions,
+            ITestMethod testMethod,
+            string culture,
+            object?[]? testMethodArguments = null)
+                : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
         {
             Initialize(culture);
         }
@@ -53,11 +53,12 @@ namespace TestUtility
             data.AddValue("Culture", culture);
         }
 
-        public override async Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
-                                                        IMessageBus messageBus,
-                                                        object[] constructorArguments,
-                                                        ExceptionAggregator aggregator,
-                                                        CancellationTokenSource cancellationTokenSource)
+        public override async Task<RunSummary> RunAsync(
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            object?[] constructorArguments,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
         {
             var originalCulture = CurrentCulture;
             var originalUICulture = CurrentUICulture;

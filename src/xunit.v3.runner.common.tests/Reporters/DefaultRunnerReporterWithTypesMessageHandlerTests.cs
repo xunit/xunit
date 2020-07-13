@@ -5,6 +5,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 
 public class DefaultRunnerReporterWithTypesMessageHandlerTests
 {

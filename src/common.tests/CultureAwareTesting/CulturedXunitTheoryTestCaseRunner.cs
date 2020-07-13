@@ -3,25 +3,25 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-namespace TestUtility
+namespace Xunit.Sdk
 {
     public class CulturedXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
     {
-        string culture;
-        CultureInfo originalCulture;
-        CultureInfo originalUICulture;
+        string culture = "<unset>";
+        CultureInfo? originalCulture;
+        CultureInfo? originalUICulture;
 
-        public CulturedXunitTheoryTestCaseRunner(CulturedXunitTheoryTestCase culturedXunitTheoryTestCase,
-                                                 string displayName,
-                                                 string skipReason,
-                                                 object[] constructorArguments,
-                                                 IMessageSink diagnosticMessageSink,
-                                                 IMessageBus messageBus,
-                                                 ExceptionAggregator aggregator,
-                                                 CancellationTokenSource cancellationTokenSource)
-            : base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
+        public CulturedXunitTheoryTestCaseRunner(
+            CulturedXunitTheoryTestCase culturedXunitTheoryTestCase,
+            string displayName,
+            string? skipReason,
+            object?[] constructorArguments,
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                : base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
         {
             culture = culturedXunitTheoryTestCase.Culture;
         }

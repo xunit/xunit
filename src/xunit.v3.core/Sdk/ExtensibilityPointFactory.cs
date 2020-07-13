@@ -293,5 +293,49 @@ namespace Xunit.Sdk
             // We expect values to be strings here, so hopefully we never hit this
             return value.ToString()!;
         }
+
+        /// <summary>
+        /// Gets the type from an attribute constructor, assuming it supports one or both
+        /// of the following construtor forms:
+        /// - ctor(Type type)
+        /// - ctor(string typeName, string assemblyName)
+        /// </summary>
+        /// <param name="attribute">The attribute to get the type from</param>
+        /// <returns>The type, if it exists; <c>null</c>, otherwise</returns>
+        public static Type? TypeFromAttributeConstructor(IAttributeInfo attribute)
+        {
+            Guard.ArgumentNotNull(nameof(attribute), attribute);
+
+            var ctorArgs = attribute.GetConstructorArguments().ToArray();
+            if (ctorArgs.Length == 1 && ctorArgs[0] is Type type)
+                return type;
+
+            if (ctorArgs.Length == 2 && ctorArgs[0] is string typeName && ctorArgs[1] is string assemblyName)
+                return SerializationHelper.GetType(assemblyName, typeName);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the type from an attribute constructor, assuming it supports one or both
+        /// of the following construtor forms:
+        /// - ctor(Type type)
+        /// - ctor(string typeName, string assemblyName)
+        /// </summary>
+        /// <param name="attribute">The attribute to get the type from</param>
+        /// <returns>The type, if it exists; <c>null</c>, otherwise</returns>
+        public static (string? typeName, string? assemblyName) TypeStringsFromAttributeConstructor(IAttributeInfo attribute)
+        {
+            Guard.ArgumentNotNull(nameof(attribute), attribute);
+
+            var ctorArgs = attribute.GetConstructorArguments().ToArray();
+            if (ctorArgs.Length == 1 && ctorArgs[0] is Type type)
+                return (type.FullName, type.Assembly.FullName);
+
+            if (ctorArgs.Length == 2 && ctorArgs[0] is string typeName && ctorArgs[1] is string assemblyName)
+                return (typeName, assemblyName);
+
+            return (null, null);
+        }
     }
 }
