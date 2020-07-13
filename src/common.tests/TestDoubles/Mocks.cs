@@ -689,13 +689,24 @@ public static class Mocks
 
     public static IAttributeInfo TraitDiscovererAttribute(
         string typeName = "Xunit.Sdk.TraitDiscoverer",
-        string assemblyName = "xunit.v3.core")  // TODO: Use type
+        string assemblyName = "xunit.v3.core")
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new TraitDiscovererAttribute(typeName, assemblyName));
         result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
         return result;
     }
+
+    public static IAttributeInfo TraitDiscovererAttribute(Type discovererType)
+    {
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+        result.Attribute.Returns(new TraitDiscovererAttribute(discovererType));
+        result.GetConstructorArguments().Returns(new object[] { discovererType });
+        return result;
+    }
+
+    public static IAttributeInfo TraitDiscovererAttribute<TDiscoverer>() =>
+        TraitDiscovererAttribute(typeof(TDiscoverer));
 
     public static ITypeInfo TypeInfo(
         string? typeName = null,

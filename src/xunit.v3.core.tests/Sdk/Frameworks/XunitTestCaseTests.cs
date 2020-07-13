@@ -130,7 +130,7 @@ public class XunitTestCaseTests
             }
         }
 
-        [TraitDiscoverer("XunitTestCaseTests+Traits+BugDiscoverer", "xunit.v3.core.tests")]
+        [TraitDiscoverer(typeof(BugDiscoverer))]
         class BugAttribute : Attribute, ITraitAttribute
         {
             public BugAttribute(int id) { }

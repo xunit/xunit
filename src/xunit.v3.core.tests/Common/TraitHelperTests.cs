@@ -115,7 +115,7 @@ public class TraitHelperTests
 
     class InheritedCustomTrait : CustomTraitAttribute { }
 
-    [TraitDiscoverer("TraitHelperTests+CustomTraitDiscoverer", "xunit.v3.core.tests")]
+    [TraitDiscoverer(typeof(CustomTraitDiscoverer))]
     class CustomTraitAttribute : Attribute, ITraitAttribute { }
 
     class CustomTraitDiscoverer : ITraitDiscoverer
