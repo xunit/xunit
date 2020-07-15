@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK
+﻿#if false
 
 using System;
 using System.Collections.Generic;

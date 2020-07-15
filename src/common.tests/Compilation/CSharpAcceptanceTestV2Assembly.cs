@@ -7,13 +7,14 @@ using System.Reflection;
 
 public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 {
-    private CSharpAcceptanceTestV2Assembly(string basePath)
+    private CSharpAcceptanceTestV2Assembly(string? basePath)
         : base(basePath) { }
 
     protected override IEnumerable<string> GetStandardReferences()
     {
-        return base.GetStandardReferences()
-                   .Concat(new[] { "xunit.assert.dll", "xunit.core.dll", "xunit.execution.dotnet.dll" });
+        return base
+            .GetStandardReferences()
+            .Concat(new[] { "xunit.assert.dll", "xunit.core.dll", "xunit.execution.dotnet.dll" });
     }
 
     public static CSharpAcceptanceTestV2Assembly Create(string code, params string[] references)

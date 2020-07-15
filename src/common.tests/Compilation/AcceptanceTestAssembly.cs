@@ -7,9 +7,9 @@ using System.Reflection;
 
 public abstract class AcceptanceTestAssembly : IDisposable
 {
-    protected AcceptanceTestAssembly(string basePath)
+    protected AcceptanceTestAssembly(string? basePath)
     {
-        BasePath = basePath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+        BasePath = basePath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
         FileName = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
         PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 

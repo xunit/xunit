@@ -7,7 +7,7 @@ using System.Reflection;
 
 public class CSharpAcceptanceTestV1Assembly : CSharpAcceptanceTestAssembly
 {
-    private CSharpAcceptanceTestV1Assembly(string basePath)
+    private CSharpAcceptanceTestV1Assembly(string? basePath)
         : base(basePath) { }
 
     protected override IEnumerable<string> GetStandardReferences()
