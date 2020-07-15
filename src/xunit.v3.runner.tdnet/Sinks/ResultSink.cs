@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 
 namespace Xunit.Runner.TdNet
 {

@@ -1,4 +1,5 @@
 ﻿using TestDriven.Framework;
+using Xunit.Runner.Common;
 
 namespace Xunit.Runner.TdNet
 {

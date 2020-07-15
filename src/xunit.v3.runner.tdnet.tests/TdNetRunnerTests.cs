@@ -15,12 +15,12 @@ public class TdNetRunnerTests
     {
         class TypeUnderTest
         {
-#pragma warning disable 67,649
-            public event Action Event;
+            public event Action? Event;
+#pragma warning disable CS0649
             public int Field;
+#pragma warning restore CS0649
             public int Property { get; set; }
             public void Method() { }
-#pragma warning restore 67,649
         }
 
         [Fact]
@@ -42,7 +42,7 @@ public class TdNetRunnerTests
             var listener = Substitute.For<ITestListener>();
             var runner = new TestableTdNetRunner();
 
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetMethod("Method"));
+            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetMethod(nameof(TypeUnderTest.Method))!);
 
             Assert.Collection(runner.Operations,
                 msg => Assert.Equal("RunMethod(method: TdNetRunnerTests+RunMember+TypeUnderTest.Method, initialRunState: NoTests)", msg)
@@ -55,68 +55,12 @@ public class TdNetRunnerTests
             var listener = Substitute.For<ITestListener>();
             var runner = new TestableTdNetRunner();
 
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetProperty("Property"));
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetField("Field"));
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetEvent("Event"));
+            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetProperty(nameof(TypeUnderTest.Property))!);
+            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetField(nameof(TypeUnderTest.Field))!);
+            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetEvent(nameof(TypeUnderTest.Event))!);
 
             Assert.Empty(runner.Operations);
         }
-
-        //class TestClassWithoutInnerClasses { }
-
-        //class TestClassWithInnerClasses
-        //{
-        //    public class InnerClass1 { }
-        //    public class InnerClass2 { }
-        //}
-
-        // [Fact]
-        //public void RunClassRunsMembersInTheClass()
-        // {
-        //     var listener = Substitute.For<ITestListener>();
-        //     var runner = new TestableTdNetRunner();
-
-        //    runner.RunMember(listener, thisAssembly, typeof(TestClassWithoutInnerClasses));
-
-        //    Assert.Collection(runner.Controller.Operations,
-        //        msg => Assert.Equal("Discovery: type TdNetRunnerTests+RunMember+TestClassWithoutInnerClasses (includeSourceInformation = False)", msg),
-        //        msg => Assert.Equal("Run: 1 test case(s)", msg)
-        //     );
-        // }
-
-        // [Fact]
-        //public void RunClassRunsMembersInTheInnerClasses()
-        // {
-        //     var listener = Substitute.For<ITestListener>();
-        //     var runner = new TestableTdNetRunner();
-
-        //    runner.RunMember(listener, thisAssembly, typeof(TestClassWithInnerClasses));
-
-        //    Assert.Collection(runner.Controller.Operations,
-        //        msg => Assert.Equal("Discovery: type TdNetRunnerTests+RunMember+TestClassWithInnerClasses (includeSourceInformation = False)", msg),
-        //        msg => Assert.Equal("Run: 1 test case(s)", msg),
-        //        msg => Assert.Equal("Discovery: type TdNetRunnerTests+RunMember+TestClassWithInnerClasses+InnerClass1 (includeSourceInformation = False)", msg),
-        //        msg => Assert.Equal("Run: 1 test case(s)", msg),
-        //        msg => Assert.Equal("Discovery: type TdNetRunnerTests+RunMember+TestClassWithInnerClasses+InnerClass2 (includeSourceInformation = False)", msg),
-        //        msg => Assert.Equal("Run: 1 test case(s)", msg)
-        //     );
-        // }
-
-        // [Fact]
-        //public void RunMethod()
-        // {
-        //     var listener = Substitute.For<ITestListener>();
-        //     var runner = new TestableTdNetRunner();
-        //    var testCase = Mocks.TestCase<RunMember>("RunMethod");
-        //    runner.Controller.TestCasesToRun.Add(testCase.Object);
-
-        //    runner.RunMember(listener, testCase.Assembly, testCase.MethodInfo);
-
-        //    Assert.Collection(runner.Controller.Operations,
-        //        msg => Assert.Equal("Discovery: type TdNetRunnerTests+RunMember (includeSourceInformation = False)", msg),
-        //        msg => Assert.Equal("Run: 1 test case(s)", msg)
-        //    );
-        // }
     }
 
     public class RunNamespace
@@ -170,18 +114,18 @@ public class TdNetRunnerTests
                     return TestRunState.NoTests;
                 });
 
-            Helper.RunClass(null, TestRunState.NoTests).ReturnsForAnyArgs(
+            Helper.RunClass(null!, TestRunState.NoTests).ReturnsForAnyArgs(
                 callInfo =>
                 {
                     Operations.Add($"RunClass(type: {callInfo[0]}, initialRunState: {callInfo[1]})");
                     return TestRunState.NoTests;
                 });
 
-            Helper.RunMethod(null, TestRunState.NoTests).ReturnsForAnyArgs(
+            Helper.RunMethod(null!, TestRunState.NoTests).ReturnsForAnyArgs(
                 callInfo =>
                 {
                     var method = (MethodInfo)callInfo[0];
-                    Operations.Add($"RunMethod(method: {method.DeclaringType.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
+                    Operations.Add($"RunMethod(method: {method.DeclaringType!.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
                     return TestRunState.NoTests;
                 });
         }

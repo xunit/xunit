@@ -65,7 +65,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultSink(listener, 42) { TestRunState = initialState };
 
-            visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(),null);
+            visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
 
             Assert.Equal(initialState, visitor.TestRunState);
         }
@@ -171,7 +171,7 @@ public class ResultVisitorTests
         [Fact]
         public static void ConvertsITestPassed()
         {
-            TestResult testResult = null;
+            TestResult? testResult = null;
             var listener = Substitute.For<ITestListener>();
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
@@ -203,7 +203,7 @@ public class ResultVisitorTests
                 ex = e;
             }
 
-            TestResult testResult = null;
+            TestResult? testResult = null;
             var listener = Substitute.For<ITestListener>();
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
@@ -226,7 +226,7 @@ public class ResultVisitorTests
         [Fact]
         public static void ConvertsITestSkipped()
         {
-            TestResult testResult = null;
+            TestResult? testResult = null;
             var listener = Substitute.For<ITestListener>();
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);

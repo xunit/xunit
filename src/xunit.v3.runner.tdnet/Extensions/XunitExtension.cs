@@ -7,17 +7,11 @@ namespace Xunit.Runner.TdNet
 {
     public static class XunitExtension
     {
-        public static Type GetClass(this ITestCase testCase)
-        {
-            var typeInfo = testCase.TestMethod.TestClass.Class as IReflectionTypeInfo;
-            return typeInfo == null ? null : typeInfo.Type;
-        }
+        public static Type? GetClass(this ITestCase testCase) =>
+            testCase.TestMethod.TestClass.Class is IReflectionTypeInfo typeInfo ? typeInfo.Type : null;
 
-        public static MethodInfo GetMethod(this ITestCase testCase)
-        {
-            var methodInfo = testCase.TestMethod.Method as IReflectionMethodInfo;
-            return methodInfo == null ? null : methodInfo.MethodInfo;
-        }
+        public static MethodInfo? GetMethod(this ITestCase testCase) =>
+            testCase.TestMethod.Method is IReflectionMethodInfo methodInfo ? methodInfo.MethodInfo : null;
 
         public static TestResult ToTdNetTestResult(this ITestResultMessage testResult, TestState testState, int totalTests)
         {

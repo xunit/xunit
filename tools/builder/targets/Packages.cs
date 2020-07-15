@@ -15,7 +15,7 @@ public static class Packages
         var srcFolder = Path.Join(context.BaseFolder, "src");
         var projectFolders =
             Directory.GetFiles(srcFolder, "xunit.v3.*.csproj", SearchOption.AllDirectories)
-                .Where(x => !x.EndsWith(".tests.csproj") && !x.EndsWith(".NonNullable.csproj"))
+                .Where(x => !x.EndsWith(".tests.csproj") && !x.EndsWith(".NonNullable.csproj") && !x.EndsWith(".tdnet.csproj"))
                 .OrderBy(x => x)
                 .Select(x => Path.GetDirectoryName(x).Substring(context.BaseFolder.Length + 1));
 
