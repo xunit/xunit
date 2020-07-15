@@ -3,9 +3,11 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
+using Xunit.Runner.Common;
 
 namespace Xunit.Runner.MSBuild
 {
+    // TODO: I think all the transforms are in Runner.Common now
     public class CrossPlatform
     {
         public static void Transform(IRunnerLogger logger, string outputDisplayName, string resourceName, XNode xml, ITaskItem outputFile)

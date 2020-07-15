@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.runner.msbuild\xunit.v3.runner.msbuild.csproj" />
+  </ItemGroup>
+
+</Project>

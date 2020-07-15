@@ -37,6 +37,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.inproc.cons
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.inproc.console.tests", "src\xunit.v3.runner.inproc.console.tests\xunit.v3.runner.inproc.console.tests.csproj", "{2A7D29F8-5B8D-4175-895D-FADFB3326E09}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.msbuild", "src\xunit.v3.runner.msbuild\xunit.v3.runner.msbuild.csproj", "{478F7852-1405-4062-967A-81C90C8E559F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.msbuild.tests", "src\xunit.v3.runner.msbuild.tests\xunit.v3.runner.msbuild.tests.csproj", "{37690DD1-7CAA-4AF5-9891-93A3F210F3C1}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility", "src\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj", "{83174840-DD7B-4F11-A1AC-08EBD2F50354}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility.tests", "src\xunit.v3.runner.utility.tests\xunit.v3.runner.utility.tests.csproj", "{42626F10-47E8-472C-9927-733D3EF9042E}"
@@ -103,6 +107,14 @@ Global
 		{2A7D29F8-5B8D-4175-895D-FADFB3326E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A7D29F8-5B8D-4175-895D-FADFB3326E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A7D29F8-5B8D-4175-895D-FADFB3326E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{478F7852-1405-4062-967A-81C90C8E559F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{478F7852-1405-4062-967A-81C90C8E559F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{478F7852-1405-4062-967A-81C90C8E559F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{478F7852-1405-4062-967A-81C90C8E559F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37690DD1-7CAA-4AF5-9891-93A3F210F3C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37690DD1-7CAA-4AF5-9891-93A3F210F3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37690DD1-7CAA-4AF5-9891-93A3F210F3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37690DD1-7CAA-4AF5-9891-93A3F210F3C1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -130,6 +142,8 @@ Global
 		{1F24BA4B-9C6D-460A-8663-F5E5B597081B} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{B760593A-6B4F-46A3-B7A1-0B791ED37AFF} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{2A7D29F8-5B8D-4175-895D-FADFB3326E09} = {DD6C7641-EDB5-445C-8563-15068910979E}
+		{478F7852-1405-4062-967A-81C90C8E559F} = {DD6C7641-EDB5-445C-8563-15068910979E}
+		{37690DD1-7CAA-4AF5-9891-93A3F210F3C1} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{42626F10-47E8-472C-9927-733D3EF9042E} = {DD6C7641-EDB5-445C-8563-15068910979E}
 	EndGlobalSection

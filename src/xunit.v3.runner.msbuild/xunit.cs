@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
+using Xunit.Runner.Common;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild
@@ -17,23 +18,23 @@ namespace Xunit.Runner.MSBuild
     {
         volatile bool cancel;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
-        XunitFilters filters;
-        IRunnerLogger logger;
+        XunitFilters? filters;
+        IRunnerLogger? logger;
         int? maxThreadCount;
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
-        IMessageSinkWithTypes reporterMessageHandler;
+        IMessageSinkWithTypes? reporterMessageHandler;
         bool? shadowCopy;
         bool? stopOnFail;
 
-        public string AppDomains { get; set; }
+        public string? AppDomains { get; set; }
 
         [Required]
-        public ITaskItem[] Assemblies { get; set; }
+        public ITaskItem[]? Assemblies { get; set; }
 
         public bool DiagnosticMessages { get; set; }
 
-        public string ExcludeTraits { get; set; }
+        public string? ExcludeTraits { get; set; }
 
         [Output]
         public int ExitCode { get; protected set; }
@@ -56,15 +57,17 @@ namespace Xunit.Runner.MSBuild
             }
         }
 
-        public ITaskItem Html { get; set; }
+        public ITaskItem? Html { get; set; }
 
         public bool IgnoreFailures { get; set; }
 
-        public string IncludeTraits { get; set; }
+        public string? IncludeTraits { get; set; }
 
         public bool InternalDiagnosticMessages { get; set; }
 
-        public string MaxParallelThreads { get; set; }
+        public ITaskItem? JUnit { get; set; }
+
+        public string? MaxParallelThreads { get; set; }
 
         protected bool NeedsXml
             => Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
@@ -73,13 +76,13 @@ namespace Xunit.Runner.MSBuild
 
         public bool NoLogo { get; set; }
 
-        public ITaskItem NUnit { get; set; }
+        public ITaskItem? NUnit { get; set; }
 
         public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
 
         public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
 
-        public string Reporter { get; set; }
+        public string? Reporter { get; set; }
 
         // To be used by the xUnit.net team for diagnostic purposes only
         public bool SerializeTestCases { get; set; }
@@ -88,13 +91,11 @@ namespace Xunit.Runner.MSBuild
 
         public bool StopOnFail { set { stopOnFail = value; } }
 
-        public string WorkingFolder { get; set; }
+        public string? WorkingFolder { get; set; }
 
-        public ITaskItem Xml { get; set; }
+        public ITaskItem? Xml { get; set; }
 
-        public ITaskItem XmlV1 { get; set; }
-
-        public ITaskItem JUnit { get; set; }
+        public ITaskItem? XmlV1 { get; set; }
 
         public void Cancel()
         {
@@ -103,9 +104,11 @@ namespace Xunit.Runner.MSBuild
 
         public override bool Execute()
         {
+            Guard.ArgumentNotNull(nameof(Assemblies), Assemblies);
+
             RemotingUtility.CleanUpRegisteredChannels();
 
-            XElement assembliesElement = null;
+            XElement? assembliesElement = null;
             var environment = $"{IntPtr.Size * 8}-bit {CrossPlatform.Version}";
 
             if (NeedsXml)
@@ -160,7 +163,7 @@ namespace Xunit.Runner.MSBuild
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
             var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, InternalDiagnosticMessages);
-            
+
             using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), internalDiagnosticsMessageSink))
             {
                 var reporter = GetReporter();
@@ -171,10 +174,7 @@ namespace Xunit.Runner.MSBuild
                 reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!NoLogo)
-                {
-                    var versionAttribute = typeof(xunit).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                    Log.LogMessage(MessageImportance.High, $"xUnit.net MSBuild Runner v{versionAttribute.InformationalVersion} ({environment})");
-                }
+                    Log.LogMessage(MessageImportance.High, $"xUnit.net MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
 
                 var project = new XunitProject();
                 foreach (var assembly in Assemblies)
@@ -204,7 +204,7 @@ namespace Xunit.Runner.MSBuild
                     var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
-                        assembliesElement.Add(assemblyElement);
+                        assembliesElement!.Add(assemblyElement);
                 }
                 else
                 {
@@ -212,7 +212,7 @@ namespace Xunit.Runner.MSBuild
                     {
                         var assemblyElement = ExecuteAssembly(assembly, appDomains);
                         if (assemblyElement != null)
-                            assembliesElement.Add(assemblyElement);
+                            assembliesElement!.Add(assemblyElement);
                     }
                 }
 
@@ -227,7 +227,7 @@ namespace Xunit.Runner.MSBuild
 
             Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
 
-            if (NeedsXml)
+            if (NeedsXml && assembliesElement != null)
             {
                 if (Xml != null)
                     using (var xmlStream = new FileStream(Xml.GetMetadata("FullPath"), FileMode.OpenOrCreate, FileAccess.Write))
@@ -250,7 +250,9 @@ namespace Xunit.Runner.MSBuild
             return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
         }
 
-        protected virtual XElement ExecuteAssembly(XunitProjectAssembly assembly, AppDomainSupport? appDomains)
+        protected virtual XElement? ExecuteAssembly(
+            XunitProjectAssembly assembly,
+            AppDomainSupport? appDomains)
         {
             if (cancel)
                 return null;
@@ -277,17 +279,17 @@ namespace Xunit.Runner.MSBuild
                 if (stopOnFail.HasValue)
                     executionOptions.SetStopOnTestFail(stopOnFail);
 
-                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename)!;
                 var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename!, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
                     // Discover & filter the tests
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
+                    reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
 
                     controller.Find(false, discoverySink, discoveryOptions);
                     discoverySink.Finished.WaitOne();
@@ -296,17 +298,17 @@ namespace Xunit.Runner.MSBuild
                     var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
                     var testCasesToRun = filteredTestCases.Count;
 
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
+                    reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
 
                     // Run the filtered tests
                     if (testCasesToRun == 0)
-                        completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename), new ExecutionSummary());
+                        completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename)!, new ExecutionSummary());
                     else
                     {
                         if (SerializeTestCases)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+                        IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
                         if (assemblyElement != null)
                             resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
                         if (longRunningSeconds > 0)
@@ -314,12 +316,12 @@ namespace Xunit.Runner.MSBuild
                         if (FailSkips)
                             resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+                        reporterMessageHandler!.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
                         controller.RunTests(filteredTestCases, resultsSink, executionOptions);
                         resultsSink.Finished.WaitOne();
 
-                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+                        reporterMessageHandler!.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
 
                         if (resultsSink.ExecutionSummary.Failed != 0)
                         {
@@ -341,8 +343,9 @@ namespace Xunit.Runner.MSBuild
                 {
                     Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
 
-                    foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
-                        Log.LogError(stackLine);
+                    if (e.StackTrace != null)
+                        foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+                            Log.LogError(stackLine);
 
                     e = e.InnerException;
                 }
@@ -356,7 +359,7 @@ namespace Xunit.Runner.MSBuild
         protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
         {
             var result = new List<IRunnerReporter>();
-            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
 
             foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
             {
@@ -369,7 +372,7 @@ namespace Xunit.Runner.MSBuild
                 }
                 catch (ReflectionTypeLoadException ex)
                 {
-                    types = ex.Types;
+                    types = ex.Types ?? new Type[0];
                 }
                 catch
                 {
@@ -379,7 +382,7 @@ namespace Xunit.Runner.MSBuild
                 foreach (var type in types)
                 {
 #pragma warning disable CS0618
-                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
 #pragma warning restore CS0618
 
@@ -397,10 +400,10 @@ namespace Xunit.Runner.MSBuild
             return result;
         }
 
-        protected IRunnerReporter GetReporter()
+        protected IRunnerReporter? GetReporter()
         {
             var reporters = GetAvailableRunnerReporters();
-            IRunnerReporter reporter = null;
+            IRunnerReporter? reporter = null;
             if (!NoAutoReporters)
                 reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
 
@@ -409,7 +412,13 @@ namespace Xunit.Runner.MSBuild
                 reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
                 if (reporter == null)
                 {
-                    var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).Select(r => r.RunnerSwitch.ToLowerInvariant()).OrderBy(x => x).ToList();
+                    var switchableReporters =
+                        reporters
+                            .Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch))
+                            .Select(r => r.RunnerSwitch!.ToLowerInvariant())
+                            .OrderBy(x => x)
+                            .ToList();
+
                     if (switchableReporters.Count == 0)
                         Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
                     else

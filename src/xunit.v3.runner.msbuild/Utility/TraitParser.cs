@@ -8,14 +8,14 @@ namespace Xunit.Runner.MSBuild
         static readonly char[] TraitSeperator = { ';' };
         static readonly char[] KeyValueSeperator = { '=' };
 
-        readonly Action<string> warningHandler;
+        readonly Action<string>? warningHandler;
 
-        public TraitParser(Action<string> warningHandler = null)
+        public TraitParser(Action<string>? warningHandler = null)
         {
             this.warningHandler = warningHandler;
         }
 
-        public void Parse(string traits, Dictionary<string, List<string>> traitsDictionary)
+        public void Parse(string? traits, Dictionary<string, List<string>> traitsDictionary)
         {
             if (!string.IsNullOrEmpty(traits))
             {
@@ -38,8 +38,7 @@ namespace Xunit.Runner.MSBuild
         {
             Guard.ArgumentNotNullOrEmpty("message", message);
 
-            if (warningHandler != null)
-                warningHandler(message);
+            warningHandler?.Invoke(message);
         }
     }
 }

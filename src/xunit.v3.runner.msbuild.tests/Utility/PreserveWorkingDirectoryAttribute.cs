@@ -1,12 +1,10 @@
-﻿#if NETFRAMEWORK
-
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using Xunit.Sdk;
 
 public class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
 {
-    string workingDirectory;
+    string? workingDirectory;
 
     public override void Before(MethodInfo methodUnderTest)
     {
@@ -18,5 +16,3 @@ public class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
         Directory.SetCurrentDirectory(workingDirectory);
     }
 }
-
-#endif

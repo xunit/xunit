@@ -20,7 +20,18 @@ namespace Xunit
         readonly IMessageSink? internalDiagnosticsMessageSink;
         readonly Dictionary<string, Assembly?> lookupCache = new Dictionary<string, Assembly?>();
 
-        AssemblyHelper(string directory, IMessageSink? internalDiagnosticsMessageSink)
+        /// <summary>
+        /// Constructs an instance using the given <paramref name="directory"/> for resolution.
+        /// </summary>
+        /// <param name="directory">The directory to use for resolving assemblies.</param>
+        public AssemblyHelper(string directory) : this(directory, null) { }
+
+        /// <summary>
+        /// Constructs an instance using the given <paramref name="directory"/> for resolution.
+        /// </summary>
+        /// <param name="directory">The directory to use for resolving assemblies.</param>
+        /// <param name="internalDiagnosticsMessageSink">The message sink to send internal diagnostics messages to</param>
+        public AssemblyHelper(string directory, IMessageSink? internalDiagnosticsMessageSink)
         {
             Guard.ArgumentNotNull(nameof(directory), directory);
 
