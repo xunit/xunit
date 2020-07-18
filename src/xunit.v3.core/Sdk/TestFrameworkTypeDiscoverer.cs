@@ -15,9 +15,12 @@ namespace Xunit.Sdk
 		{
 			Guard.ArgumentNotNull(nameof(attribute), attribute);
 
-			var args = attribute.GetConstructorArguments().Cast<string>().ToArray();
+			var args = attribute.GetConstructorArguments().ToArray();
+			if (args.Length == 1)
+				return (Type)args[0];
 
-			return SerializationHelper.GetType(args[1], args[0]);
+			var stringArgs = args.Cast<string>().ToArray();
+			return SerializationHelper.GetType(stringArgs[1], stringArgs[0]);
 		}
 	}
 }

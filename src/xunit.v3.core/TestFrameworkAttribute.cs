@@ -21,5 +21,12 @@ namespace Xunit
 			string typeName,
 			string assemblyName)
 		{ }
+
+		/// <summary>
+		/// Initializes an instance of <see cref="TestFrameworkAttribute"/>.
+		/// </summary>
+		/// <param name="frameworkType">The framework type</param>
+		public TestFrameworkAttribute(Type frameworkType)
+		{ }
 	}
 }

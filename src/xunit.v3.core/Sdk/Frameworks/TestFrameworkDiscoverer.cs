@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 		readonly Lazy<string> targetFramework;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
+		/// Initializes a new instance of the <see cref="TestFrameworkDiscoverer"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
