@@ -5,21 +5,21 @@ using Xunit.Sdk;
 
 public class MockTestCaseOrderer : ITestCaseOrderer
 {
-    private readonly bool reverse;
+	private readonly bool reverse;
 
-    public MockTestCaseOrderer(bool reverse = false)
-    {
-        this.reverse = reverse;
-    }
+	public MockTestCaseOrderer(bool reverse = false)
+	{
+		this.reverse = reverse;
+	}
 
-    public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
-        where TTestCase : ITestCase
-    {
-        if (!reverse)
-            return testCases;
+	public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+		where TTestCase : ITestCase
+	{
+		if (!reverse)
+			return testCases;
 
-        var result = testCases.ToList();
-        result.Reverse();
-        return result;
-    }
+		var result = testCases.ToList();
+		result.Reverse();
+		return result;
+	}
 }

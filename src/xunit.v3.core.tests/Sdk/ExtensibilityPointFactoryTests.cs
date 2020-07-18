@@ -7,112 +7,112 @@ using Xunit.Sdk;
 
 public class ExtensibilityPointFactoryTests
 {
-    readonly List<IMessageSinkMessage> messages = new List<IMessageSinkMessage>();
-    protected IMessageSink spy;
+	readonly List<IMessageSinkMessage> messages = new List<IMessageSinkMessage>();
+	protected IMessageSink spy;
 
-    public ExtensibilityPointFactoryTests()
-    {
-        spy = SpyMessageSink.Create(messages: messages);
-    }
+	public ExtensibilityPointFactoryTests()
+	{
+		spy = SpyMessageSink.Create(messages: messages);
+	}
 
-    public IEnumerable<string> DiagnosticMessages
-    {
-        get
-        {
-            return messages.OfType<IDiagnosticMessage>().Select(m => m.Message);
-        }
-    }
+	public IEnumerable<string> DiagnosticMessages
+	{
+		get
+		{
+			return messages.OfType<IDiagnosticMessage>().Select(m => m.Message);
+		}
+	}
 
-    public class GetXunitTestCollectionFactory : ExtensibilityPointFactoryTests
-    {
-        [Fact]
-        public void DefaultTestCollectionFactoryIsCollectionPerClass()
-        {
-            var assembly = Mocks.TestAssembly();
+	public class GetXunitTestCollectionFactory : ExtensibilityPointFactoryTests
+	{
+		[Fact]
+		public void DefaultTestCollectionFactoryIsCollectionPerClass()
+		{
+			var assembly = Mocks.TestAssembly();
 
-            var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (IAttributeInfo?)null, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (IAttributeInfo?)null, assembly);
 
-            Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
-        }
+			Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
+		}
 
-        [Theory]
-        [InlineData(CollectionBehavior.CollectionPerAssembly, typeof(CollectionPerAssemblyTestCollectionFactory))]
-        [InlineData(CollectionBehavior.CollectionPerClass, typeof(CollectionPerClassTestCollectionFactory))]
-        public void UserCanChooseFromBuiltInCollectionFactories_NonParallel(CollectionBehavior behavior, Type expectedType)
-        {
-            var attr = Mocks.CollectionBehaviorAttribute(behavior);
-            var assembly = Mocks.TestAssembly();
+		[Theory]
+		[InlineData(CollectionBehavior.CollectionPerAssembly, typeof(CollectionPerAssemblyTestCollectionFactory))]
+		[InlineData(CollectionBehavior.CollectionPerClass, typeof(CollectionPerClassTestCollectionFactory))]
+		public void UserCanChooseFromBuiltInCollectionFactories_NonParallel(CollectionBehavior behavior, Type expectedType)
+		{
+			var attr = Mocks.CollectionBehaviorAttribute(behavior);
+			var assembly = Mocks.TestAssembly();
 
-            var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
-            Assert.IsType(expectedType, result);
-        }
+			Assert.IsType(expectedType, result);
+		}
 
-        [Fact]
-        public void UserCanChooseCustomCollectionFactory()
-        {
-            var factoryType = typeof(MyTestCollectionFactory);
-            var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!);
-            var assembly = Mocks.TestAssembly();
+		[Fact]
+		public void UserCanChooseCustomCollectionFactory()
+		{
+			var factoryType = typeof(MyTestCollectionFactory);
+			var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!);
+			var assembly = Mocks.TestAssembly();
 
-            var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
-            var myFactory = Assert.IsType<MyTestCollectionFactory>(result);
-            Assert.Same(assembly, myFactory.Assembly);
-        }
+			var myFactory = Assert.IsType<MyTestCollectionFactory>(result);
+			Assert.Same(assembly, myFactory.Assembly);
+		}
 
-        class MyTestCollectionFactory : IXunitTestCollectionFactory
-        {
-            public MyTestCollectionFactory(ITestAssembly assembly)
-            {
-                Assembly = assembly;
-            }
+		class MyTestCollectionFactory : IXunitTestCollectionFactory
+		{
+			public MyTestCollectionFactory(ITestAssembly assembly)
+			{
+				Assembly = assembly;
+			}
 
-            public readonly ITestAssembly Assembly;
+			public readonly ITestAssembly Assembly;
 
-            public string DisplayName { get { return "My Factory"; } }
+			public string DisplayName { get { return "My Factory"; } }
 
-            public ITestCollection Get(ITypeInfo testClass)
-            {
-                throw new NotImplementedException();
-            }
-        }
+			public ITestCollection Get(ITypeInfo testClass)
+			{
+				throw new NotImplementedException();
+			}
+		}
 
-        [Theory]
-        [InlineData("ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor",
-                    "Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.Sdk.TestAssembly")]
-        [InlineData("ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface",
-                    "Test collection factory type 'xunit.v3.core.tests, ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface' does not implement IXunitTestCollectionFactory")]
-        [InlineData("ThisIsNotARealType",
-                    "Unable to create test collection factory type 'xunit.v3.core.tests, ThisIsNotARealType'")]
-        public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName, string expectedMessage)
-        {
-            var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests");
-            var assembly = Mocks.TestAssembly();
+		[Theory]
+		[InlineData("ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor",
+					"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.Sdk.TestAssembly")]
+		[InlineData("ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface",
+					"Test collection factory type 'xunit.v3.core.tests, ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface' does not implement IXunitTestCollectionFactory")]
+		[InlineData("ThisIsNotARealType",
+					"Unable to create test collection factory type 'xunit.v3.core.tests, ThisIsNotARealType'")]
+		public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName, string expectedMessage)
+		{
+			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests");
+			var assembly = Mocks.TestAssembly();
 
-            var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
-            Assert.Collection(DiagnosticMessages,
-                msg => Assert.Equal(expectedMessage, msg)
-            );
-        }
+			Assert.Collection(DiagnosticMessages,
+				msg => Assert.Equal(expectedMessage, msg)
+			);
+		}
 
-        class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory
-        {
-            public string DisplayName
-            {
-                get { throw new NotImplementedException(); }
-            }
+		class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory
+		{
+			public string DisplayName
+			{
+				get { throw new NotImplementedException(); }
+			}
 
-            public ITestCollection Get(ITypeInfo testClass)
-            {
-                throw new NotImplementedException();
-            }
-        }
+			public ITestCollection Get(ITypeInfo testClass)
+			{
+				throw new NotImplementedException();
+			}
+		}
 
-        class TestCollectionFactory_DoesNotImplementInterface
-        {
-            public TestCollectionFactory_DoesNotImplementInterface(IAssemblyInfo assemblyInfo) { }
-        }
-    }
+		class TestCollectionFactory_DoesNotImplementInterface
+		{
+			public TestCollectionFactory_DoesNotImplementInterface(IAssemblyInfo assemblyInfo) { }
+		}
+	}
 }

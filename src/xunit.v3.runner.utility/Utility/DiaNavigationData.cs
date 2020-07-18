@@ -2,10 +2,10 @@
 
 namespace Xunit
 {
-    class DiaNavigationData
-    {
-        public string FileName { get; set; }
+	class DiaNavigationData
+	{
+		public string FileName { get; set; }
 
-        public int LineNumber { get; set; }
-    }
+		public int LineNumber { get; set; }
+	}
 }

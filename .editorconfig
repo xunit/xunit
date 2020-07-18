@@ -2,15 +2,14 @@
 root = true
 
 [*]
-# indent_style = tab
-indent_style = space
+indent_style = tab
 indent_size = 4
 insert_final_newline = true
 end_of_line = lf
 
 # Visual Studio demands 2-spaced project files
 # Tabs are not legal whitespace for YAML files
-[*.{csproj,json,nuspec,props,yaml,yml}]
+[*.{csproj,json,props,targets,yaml,yml}]
 indent_style = space
 indent_size = 2
 

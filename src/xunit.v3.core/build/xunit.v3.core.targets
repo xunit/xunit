@@ -8,11 +8,9 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
-  <!-- .NET Core need .deps.json and .runtimeconfig.json files (and portable PDBs for TPv2) -->
-  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+  <!-- Everything else is TPv2, which wants portable PDBs -->
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
     <DebugType Condition=" '$(DebugType)' == '' ">portable</DebugType>
-    <GenerateDependencyFile>true</GenerateDependencyFile>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
 </Project>

@@ -19,6 +19,7 @@
     "nupkg",
     "parallelization",
     "randomizer",
+    "serializability",
     "stoponfail",
     "veyor",
     "vsts",

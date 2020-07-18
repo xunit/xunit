@@ -4,31 +4,31 @@ using Xunit.Sdk;
 
 namespace Xunit.Runner.Common
 {
-    /// <summary>
-    /// Class that maps test framework discovery messages to events.
-    /// </summary>
-    public class DiscoveryEventSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
-    {
-        /// <summary>
-        /// Occurs when a <see cref="IDiscoveryCompleteMessage"/> message is received.
-        /// </summary>
-        public event MessageHandler<IDiscoveryCompleteMessage>? DiscoveryCompleteMessageEvent;
+	/// <summary>
+	/// Class that maps test framework discovery messages to events.
+	/// </summary>
+	public class DiscoveryEventSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+	{
+		/// <summary>
+		/// Occurs when a <see cref="IDiscoveryCompleteMessage"/> message is received.
+		/// </summary>
+		public event MessageHandler<IDiscoveryCompleteMessage>? DiscoveryCompleteMessageEvent;
 
-        /// <summary>
-        /// Occurs when a <see cref="ITestCaseDiscoveryMessage"/> message is received.
-        /// </summary>
-        public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
+		/// <summary>
+		/// Occurs when a <see cref="ITestCaseDiscoveryMessage"/> message is received.
+		/// </summary>
+		public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
 
-        /// <inheritdoc/>
-        public void Dispose() { }
+		/// <inheritdoc/>
+		public void Dispose() { }
 
-        /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? typeNames)
-        {
-            Guard.ArgumentNotNull(nameof(message), message);
+		/// <inheritdoc/>
+		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? typeNames)
+		{
+			Guard.ArgumentNotNull(nameof(message), message);
 
-            return message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
-                && message.Dispatch(typeNames, DiscoveryCompleteMessageEvent);
-        }
-    }
+			return message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
+				&& message.Dispatch(typeNames, DiscoveryCompleteMessageEvent);
+		}
+	}
 }

@@ -4,39 +4,57 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
-    {
-        public CulturedTheoryAttributeDiscoverer(IMessageSink diagnosticMessageSink)
-            : base(diagnosticMessageSink) { }
+	public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
+	{
+		public CulturedTheoryAttributeDiscoverer(IMessageSink diagnosticMessageSink)
+			: base(diagnosticMessageSink) { }
 
-        protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
-            ITestFrameworkDiscoveryOptions discoveryOptions,
-            ITestMethod testMethod,
-            IAttributeInfo theoryAttribute,
-            object?[] dataRow)
-        {
-            var cultures = GetCultures(theoryAttribute);
-            return cultures.Select(culture => new CulturedXunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, culture, dataRow)).ToList();
-        }
+		protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestMethod testMethod,
+			IAttributeInfo theoryAttribute,
+			object?[] dataRow)
+		{
+			var cultures = GetCultures(theoryAttribute);
 
-        protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
-            ITestFrameworkDiscoveryOptions discoveryOptions,
-            ITestMethod testMethod,
-            IAttributeInfo theoryAttribute)
-        {
-            var cultures = GetCultures(theoryAttribute);
-            return cultures.Select(culture => new CulturedXunitTheoryTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, culture)).ToList();
-        }
+			return cultures.Select(
+				culture => new CulturedXunitTestCase(
+					DiagnosticMessageSink,
+					discoveryOptions.MethodDisplayOrDefault(),
+					discoveryOptions.MethodDisplayOptionsOrDefault(),
+					testMethod,
+					culture,
+					dataRow
+				)
+			).ToList();
+		}
 
-        static string[] GetCultures(IAttributeInfo culturedTheoryAttribute)
-        {
-            var ctorArgs = culturedTheoryAttribute.GetConstructorArguments().ToArray();
-            var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();
+		protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestMethod testMethod,
+			IAttributeInfo theoryAttribute)
+		{
+			var cultures = GetCultures(theoryAttribute);
+			return cultures.Select(
+				culture => new CulturedXunitTheoryTestCase(
+					DiagnosticMessageSink,
+					discoveryOptions.MethodDisplayOrDefault(),
+					discoveryOptions.MethodDisplayOptionsOrDefault(),
+					testMethod,
+					culture
+				)
+			).ToList();
+		}
 
-            if (cultures == null || cultures.Length == 0)
-                cultures = new[] { "en-US", "fr-FR" };
+		static string[] GetCultures(IAttributeInfo culturedTheoryAttribute)
+		{
+			var ctorArgs = culturedTheoryAttribute.GetConstructorArguments().ToArray();
+			var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();
 
-            return cultures;
-        }
-    }
+			if (cultures == null || cultures.Length == 0)
+				cultures = new[] { "en-US", "fr-FR" };
+
+			return cultures;
+		}
+	}
 }

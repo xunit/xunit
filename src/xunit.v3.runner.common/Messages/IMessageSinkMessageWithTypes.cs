@@ -2,14 +2,14 @@
 
 namespace Xunit.Runner.Common
 {
-    /// <summary>
-    /// Identifies a message that can return its own type information.
-    /// </summary>
-    public interface IMessageSinkMessageWithTypes
-    {
-        /// <summary>
-        /// Gets the interface type full names of the implemented interfaces.
-        /// </summary>
-        HashSet<string> InterfaceTypes { get; }
-    }
+	/// <summary>
+	/// Identifies a message that can return its own type information.
+	/// </summary>
+	public interface IMessageSinkMessageWithTypes
+	{
+		/// <summary>
+		/// Gets the interface type full names of the implemented interfaces.
+		/// </summary>
+		HashSet<string> InterfaceTypes { get; }
+	}
 }

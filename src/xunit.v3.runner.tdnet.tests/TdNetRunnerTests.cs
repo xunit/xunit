@@ -9,138 +9,138 @@ using Xunit.Runner.TdNet;
 
 public class TdNetRunnerTests
 {
-    private static readonly Assembly thisAssembly = typeof(TdNetRunnerTests).Assembly;
+	private static readonly Assembly thisAssembly = typeof(TdNetRunnerTests).Assembly;
 
-    public class RunMember
-    {
-        class TypeUnderTest
-        {
-            public event Action? Event;
+	public class RunMember
+	{
+		class TypeUnderTest
+		{
+			public event Action? Event;
 #pragma warning disable CS0649
-            public int Field;
+			public int Field;
 #pragma warning restore CS0649
-            public int Property { get; set; }
-            public void Method() { }
-        }
+			public int Property { get; set; }
+			public void Method() { }
+		}
 
-        [Fact]
-        public void WithType()
-        {
-            var listener = Substitute.For<ITestListener>();
-            var runner = new TestableTdNetRunner();
+		[Fact]
+		public void WithType()
+		{
+			var listener = Substitute.For<ITestListener>();
+			var runner = new TestableTdNetRunner();
 
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest));
+			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest));
 
-            Assert.Collection(runner.Operations,
-                msg => Assert.Equal("RunClass(type: TdNetRunnerTests+RunMember+TypeUnderTest, initialRunState: NoTests)", msg)
-            );
-        }
+			Assert.Collection(runner.Operations,
+				msg => Assert.Equal("RunClass(type: TdNetRunnerTests+RunMember+TypeUnderTest, initialRunState: NoTests)", msg)
+			);
+		}
 
-        [Fact]
-        public void WithMethod()
-        {
-            var listener = Substitute.For<ITestListener>();
-            var runner = new TestableTdNetRunner();
+		[Fact]
+		public void WithMethod()
+		{
+			var listener = Substitute.For<ITestListener>();
+			var runner = new TestableTdNetRunner();
 
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetMethod(nameof(TypeUnderTest.Method))!);
+			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetMethod(nameof(TypeUnderTest.Method))!);
 
-            Assert.Collection(runner.Operations,
-                msg => Assert.Equal("RunMethod(method: TdNetRunnerTests+RunMember+TypeUnderTest.Method, initialRunState: NoTests)", msg)
-            );
-        }
+			Assert.Collection(runner.Operations,
+				msg => Assert.Equal("RunMethod(method: TdNetRunnerTests+RunMember+TypeUnderTest.Method, initialRunState: NoTests)", msg)
+			);
+		}
 
-        [Fact]
-        public void WithUnsupportedMemberTypes()
-        {
-            var listener = Substitute.For<ITestListener>();
-            var runner = new TestableTdNetRunner();
+		[Fact]
+		public void WithUnsupportedMemberTypes()
+		{
+			var listener = Substitute.For<ITestListener>();
+			var runner = new TestableTdNetRunner();
 
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetProperty(nameof(TypeUnderTest.Property))!);
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetField(nameof(TypeUnderTest.Field))!);
-            runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetEvent(nameof(TypeUnderTest.Event))!);
+			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetProperty(nameof(TypeUnderTest.Property))!);
+			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetField(nameof(TypeUnderTest.Field))!);
+			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetEvent(nameof(TypeUnderTest.Event))!);
 
-            Assert.Empty(runner.Operations);
-        }
-    }
+			Assert.Empty(runner.Operations);
+		}
+	}
 
-    public class RunNamespace
-    {
-        [Fact]
-        public void RunsOnlyTestMethodsInTheGivenNamespace()
-        {
-            var listener = Substitute.For<ITestListener>();
-            var runner = new TestableTdNetRunner();
-            var testCaseInNamespace = Mocks.TestCase<DummyNamespace.ClassInNamespace>("TestMethod");
-            var testCaseOutsideOfNamespace = Mocks.TestCase<RunNamespace>("RunsOnlyTestMethodsInTheGivenNamespace");
-            runner.TestsToDiscover.Clear();
-            runner.TestsToDiscover.Add(testCaseInNamespace);
-            runner.TestsToDiscover.Add(testCaseOutsideOfNamespace);
+	public class RunNamespace
+	{
+		[Fact]
+		public void RunsOnlyTestMethodsInTheGivenNamespace()
+		{
+			var listener = Substitute.For<ITestListener>();
+			var runner = new TestableTdNetRunner();
+			var testCaseInNamespace = Mocks.TestCase<DummyNamespace.ClassInNamespace>("TestMethod");
+			var testCaseOutsideOfNamespace = Mocks.TestCase<RunNamespace>("RunsOnlyTestMethodsInTheGivenNamespace");
+			runner.TestsToDiscover.Clear();
+			runner.TestsToDiscover.Add(testCaseInNamespace);
+			runner.TestsToDiscover.Add(testCaseOutsideOfNamespace);
 
-            runner.RunNamespace(listener, typeof(DummyNamespace.ClassInNamespace).Assembly, "DummyNamespace");
+			runner.RunNamespace(listener, typeof(DummyNamespace.ClassInNamespace).Assembly, "DummyNamespace");
 
-            Assert.Collection(runner.Operations,
-                msg => Assert.Equal("Discovery()", msg),
-                msg => Assert.Equal("Run(initialRunState: NoTests)", msg)
-            );
-            Assert.Collection(runner.TestsRun,
-                testCase => Assert.Same(testCaseInNamespace, testCase)
-            );
-        }
-    }
+			Assert.Collection(runner.Operations,
+				msg => Assert.Equal("Discovery()", msg),
+				msg => Assert.Equal("Run(initialRunState: NoTests)", msg)
+			);
+			Assert.Collection(runner.TestsRun,
+				testCase => Assert.Same(testCaseInNamespace, testCase)
+			);
+		}
+	}
 
-    class TestableTdNetRunner : TdNetRunner
-    {
-        public TdNetRunnerHelper Helper;
-        public List<string> Operations = new List<string>();
-        public List<ITestCase> TestsRun = new List<ITestCase>();
-        public List<ITestCase> TestsToDiscover = new List<ITestCase> { Substitute.For<ITestCase>() };
+	class TestableTdNetRunner : TdNetRunner
+	{
+		public TdNetRunnerHelper Helper;
+		public List<string> Operations = new List<string>();
+		public List<ITestCase> TestsRun = new List<ITestCase>();
+		public List<ITestCase> TestsToDiscover = new List<ITestCase> { Substitute.For<ITestCase>() };
 
-        public TestableTdNetRunner()
-        {
-            Helper = Substitute.For<TdNetRunnerHelper>();
+		public TestableTdNetRunner()
+		{
+			Helper = Substitute.For<TdNetRunnerHelper>();
 
-            Helper.Discover().Returns(
-                callInfo =>
-                {
-                    Operations.Add("Discovery()");
-                    return TestsToDiscover;
-                });
+			Helper.Discover().Returns(
+				callInfo =>
+				{
+					Operations.Add("Discovery()");
+					return TestsToDiscover;
+				});
 
-            Helper.Run(null, TestRunState.NoTests).ReturnsForAnyArgs(
-                callInfo =>
-                {
-                    Operations.Add($"Run(initialRunState: {callInfo[1]})");
-                    TestsRun.AddRange((IEnumerable<ITestCase>)callInfo[0]);
-                    return TestRunState.NoTests;
-                });
+			Helper.Run(null, TestRunState.NoTests).ReturnsForAnyArgs(
+				callInfo =>
+				{
+					Operations.Add($"Run(initialRunState: {callInfo[1]})");
+					TestsRun.AddRange((IEnumerable<ITestCase>)callInfo[0]);
+					return TestRunState.NoTests;
+				});
 
-            Helper.RunClass(null!, TestRunState.NoTests).ReturnsForAnyArgs(
-                callInfo =>
-                {
-                    Operations.Add($"RunClass(type: {callInfo[0]}, initialRunState: {callInfo[1]})");
-                    return TestRunState.NoTests;
-                });
+			Helper.RunClass(null!, TestRunState.NoTests).ReturnsForAnyArgs(
+				callInfo =>
+				{
+					Operations.Add($"RunClass(type: {callInfo[0]}, initialRunState: {callInfo[1]})");
+					return TestRunState.NoTests;
+				});
 
-            Helper.RunMethod(null!, TestRunState.NoTests).ReturnsForAnyArgs(
-                callInfo =>
-                {
-                    var method = (MethodInfo)callInfo[0];
-                    Operations.Add($"RunMethod(method: {method.DeclaringType!.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
-                    return TestRunState.NoTests;
-                });
-        }
+			Helper.RunMethod(null!, TestRunState.NoTests).ReturnsForAnyArgs(
+				callInfo =>
+				{
+					var method = (MethodInfo)callInfo[0];
+					Operations.Add($"RunMethod(method: {method.DeclaringType!.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
+					return TestRunState.NoTests;
+				});
+		}
 
-        public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly)
-        {
-            return Helper;
-        }
-    }
+		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly)
+		{
+			return Helper;
+		}
+	}
 }
 
 namespace DummyNamespace
 {
-    public class ClassInNamespace
-    {
-        public void TestMethod() { }
-    }
+	public class ClassInNamespace
+	{
+		public void TestMethod() { }
+	}
 }

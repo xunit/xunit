@@ -9,129 +9,129 @@ using Xunit.Runner.Common;
 
 namespace Xunit.Runner.TdNet
 {
-    public class TdNetRunnerHelper : IDisposable
-    {
-        readonly TestAssemblyConfiguration? configuration;
-        readonly ITestListener? testListener;
-        readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
-        readonly Xunit2? xunit;
+	public class TdNetRunnerHelper : IDisposable
+	{
+		readonly TestAssemblyConfiguration? configuration;
+		readonly ITestListener? testListener;
+		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
+		readonly Xunit2? xunit;
 
-        /// <summary>
-        /// This constructor is for unit testing purposes only.
-        /// </summary>
-        protected TdNetRunnerHelper()
-        { }
+		/// <summary>
+		/// This constructor is for unit testing purposes only.
+		/// </summary>
+		protected TdNetRunnerHelper()
+		{ }
 
-        public TdNetRunnerHelper(Assembly assembly, ITestListener testListener)
-        {
-            this.testListener = testListener;
+		public TdNetRunnerHelper(Assembly assembly, ITestListener testListener)
+		{
+			this.testListener = testListener;
 
-            var assemblyFileName = assembly.GetLocalCodeBase();
-            configuration = ConfigReader.Load(assemblyFileName);
-            var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-            xunit = new Xunit2(configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false, diagnosticMessageSink: diagnosticMessageSink);
-            toDispose.Push(xunit);
-        }
+			var assemblyFileName = assembly.GetLocalCodeBase();
+			configuration = ConfigReader.Load(assemblyFileName);
+			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
+			xunit = new Xunit2(configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false, diagnosticMessageSink: diagnosticMessageSink);
+			toDispose.Push(xunit);
+		}
 
-        public virtual IReadOnlyList<ITestCase> Discover()
-        {
-            Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
+		public virtual IReadOnlyList<ITestCase> Discover()
+		{
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-            return Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
-        }
+			return Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
+		}
 
-        IReadOnlyList<ITestCase> Discover(Type? type)
-        {
-            Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
+		IReadOnlyList<ITestCase> Discover(Type? type)
+		{
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-            if (type == null)
-                return new ITestCase[0];
+			if (type == null)
+				return new ITestCase[0];
 
-            return Discover(sink => xunit.Find(type.FullName!, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
-        }
+			return Discover(sink => xunit.Find(type.FullName!, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
+		}
 
-        IReadOnlyList<ITestCase> Discover(Action<IMessageSinkWithTypes> discoveryAction)
-        {
-            try
-            {
-                var sink = new TestDiscoverySink();
-                toDispose.Push(sink);
-                discoveryAction(sink);
-                sink.Finished.WaitOne();
-                return sink.TestCases.ToList();
-            }
-            catch (Exception ex)
-            {
-                testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
-                return new ITestCase[0];
-            }
-        }
+		IReadOnlyList<ITestCase> Discover(Action<IMessageSinkWithTypes> discoveryAction)
+		{
+			try
+			{
+				var sink = new TestDiscoverySink();
+				toDispose.Push(sink);
+				discoveryAction(sink);
+				sink.Finished.WaitOne();
+				return sink.TestCases.ToList();
+			}
+			catch (Exception ex)
+			{
+				testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
+				return new ITestCase[0];
+			}
+		}
 
-        public void Dispose()
-        {
-            foreach (var disposable in toDispose)
-                disposable.Dispose();
-        }
+		public void Dispose()
+		{
+			foreach (var disposable in toDispose)
+				disposable.Dispose();
+		}
 
-        public virtual TestRunState Run(IReadOnlyList<ITestCase>? testCases = null, TestRunState initialRunState = TestRunState.NoTests)
-        {
-            Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);
-            Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
+		public virtual TestRunState Run(IReadOnlyList<ITestCase>? testCases = null, TestRunState initialRunState = TestRunState.NoTests)
+		{
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-            try
-            {
-                if (testCases == null)
-                    testCases = Discover();
+			try
+			{
+				if (testCases == null)
+					testCases = Discover();
 
-                var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
-                toDispose.Push(resultSink);
+				var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
+				toDispose.Push(resultSink);
 
-                var executionOptions = TestFrameworkOptions.ForExecution(configuration);
-                xunit.RunTests(testCases, resultSink, executionOptions);
+				var executionOptions = TestFrameworkOptions.ForExecution(configuration);
+				xunit.RunTests(testCases, resultSink, executionOptions);
 
-                resultSink.Finished.WaitOne();
+				resultSink.Finished.WaitOne();
 
-                return resultSink.TestRunState;
-            }
-            catch (Exception ex)
-            {
-                testListener.WriteLine("Error during test execution:\r\n" + ex, Category.Error);
-                return TestRunState.Error;
-            }
-        }
+				return resultSink.TestRunState;
+			}
+			catch (Exception ex)
+			{
+				testListener.WriteLine("Error during test execution:\r\n" + ex, Category.Error);
+				return TestRunState.Error;
+			}
+		}
 
-        public virtual TestRunState RunClass(Type type, TestRunState initialRunState = TestRunState.NoTests)
-        {
-            var state = Run(Discover(type), initialRunState);
+		public virtual TestRunState RunClass(Type type, TestRunState initialRunState = TestRunState.NoTests)
+		{
+			var state = Run(Discover(type), initialRunState);
 
-            foreach (var memberInfo in type.GetMembers())
-            {
-                var childType = memberInfo as Type;
-                if (childType != null)
-                    state = RunClass(childType, state);
-            }
+			foreach (var memberInfo in type.GetMembers())
+			{
+				var childType = memberInfo as Type;
+				if (childType != null)
+					state = RunClass(childType, state);
+			}
 
-            return state;
-        }
+			return state;
+		}
 
-        public virtual TestRunState RunMethod(MethodInfo method, TestRunState initialRunState = TestRunState.NoTests)
-        {
-            var testCases = Discover(method.ReflectedType).Where(tc =>
-            {
-                var methodInfo = tc.GetMethod();
-                if (methodInfo == null)
-                    return false;
+		public virtual TestRunState RunMethod(MethodInfo method, TestRunState initialRunState = TestRunState.NoTests)
+		{
+			var testCases = Discover(method.ReflectedType).Where(tc =>
+			{
+				var methodInfo = tc.GetMethod();
+				if (methodInfo == null)
+					return false;
 
-                if (methodInfo == method)
-                    return true;
+				if (methodInfo == method)
+					return true;
 
-                if (methodInfo.IsGenericMethod)
-                    return methodInfo.GetGenericMethodDefinition() == method;
+				if (methodInfo.IsGenericMethod)
+					return methodInfo.GetGenericMethodDefinition() == method;
 
-                return false;
-            }).ToList();
+				return false;
+			}).ToList();
 
-            return Run(testCases, initialRunState);
-        }
-    }
+			return Run(testCases, initialRunState);
+		}
+	}
 }

@@ -4,20 +4,20 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    /// <summary>
-    /// The implementation of <see cref="ITestFrameworkTypeDiscoverer"/> that supports attributes
-    /// of type <see cref="TestFrameworkDiscovererAttribute"/>.
-    /// </summary>
-    public class TestFrameworkTypeDiscoverer : ITestFrameworkTypeDiscoverer
-    {
-        /// <inheritdoc/>
-        public Type? GetTestFrameworkType(IAttributeInfo attribute)
-        {
-            Guard.ArgumentNotNull(nameof(attribute), attribute);
+	/// <summary>
+	/// The implementation of <see cref="ITestFrameworkTypeDiscoverer"/> that supports attributes
+	/// of type <see cref="TestFrameworkDiscovererAttribute"/>.
+	/// </summary>
+	public class TestFrameworkTypeDiscoverer : ITestFrameworkTypeDiscoverer
+	{
+		/// <inheritdoc/>
+		public Type? GetTestFrameworkType(IAttributeInfo attribute)
+		{
+			Guard.ArgumentNotNull(nameof(attribute), attribute);
 
-            var args = attribute.GetConstructorArguments().Cast<string>().ToArray();
+			var args = attribute.GetConstructorArguments().Cast<string>().ToArray();
 
-            return SerializationHelper.GetType(args[1], args[0]);
-        }
-    }
+			return SerializationHelper.GetType(args[1], args[0]);
+		}
+	}
 }

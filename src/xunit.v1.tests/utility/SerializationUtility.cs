@@ -4,20 +4,20 @@ using Xunit;
 
 public static class SerializationUtility
 {
-    public static T SerializeAndDeserialize<T>(T obj)
-    {
-        Assert.NotNull(obj);
+	public static T SerializeAndDeserialize<T>(T obj)
+	{
+		Assert.NotNull(obj);
 
-        using (var memoryStream = new MemoryStream())
-        {
-            var formatter = new BinaryFormatter();
+		using (var memoryStream = new MemoryStream())
+		{
+			var formatter = new BinaryFormatter();
 
-            formatter.Serialize(memoryStream, obj);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            object deserialized = formatter.Deserialize(memoryStream);
+			formatter.Serialize(memoryStream, obj);
+			memoryStream.Seek(0, SeekOrigin.Begin);
+			object deserialized = formatter.Deserialize(memoryStream);
 
-            Assert.NotNull(deserialized);
-            return Assert.IsType<T>(deserialized);
-        }
-    }
+			Assert.NotNull(deserialized);
+			return Assert.IsType<T>(deserialized);
+		}
+	}
 }

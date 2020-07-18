@@ -2,10 +2,10 @@
 
 class DummyAssembly : Assembly
 {
-    readonly string location;
+	readonly string location;
 
-    public DummyAssembly(string location)
-        => this.location = location;
+	public DummyAssembly(string location)
+		=> this.location = location;
 
-    public override string Location => location;
+	public override string Location => location;
 }

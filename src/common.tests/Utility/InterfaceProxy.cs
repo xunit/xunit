@@ -4,5 +4,5 @@
 /// </summary>
 public class InterfaceProxy<T>
 {
-    public override string ToString() { return typeof(T).Name; }
+	public override string ToString() { return typeof(T).Name; }
 }

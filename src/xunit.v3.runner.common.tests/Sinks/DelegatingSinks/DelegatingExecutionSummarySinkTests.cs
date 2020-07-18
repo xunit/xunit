@@ -5,37 +5,37 @@ using Xunit.Runner.Common;
 
 public class DelegatingExecutionSummarySinkTests
 {
-    readonly IMessageSinkWithTypes innerSink;
-    readonly IMessageSinkMessage testMessage;
+	readonly IMessageSinkWithTypes innerSink;
+	readonly IMessageSinkMessage testMessage;
 
-    public DelegatingExecutionSummarySinkTests()
-    {
-        innerSink = Substitute.For<IMessageSinkWithTypes>();
-        innerSink.OnMessageWithTypes(null!, null).ReturnsForAnyArgs(true);
+	public DelegatingExecutionSummarySinkTests()
+	{
+		innerSink = Substitute.For<IMessageSinkWithTypes>();
+		innerSink.OnMessageWithTypes(null!, null).ReturnsForAnyArgs(true);
 
-        testMessage = Substitute.For<IMessageSinkMessage>();
-    }
+		testMessage = Substitute.For<IMessageSinkMessage>();
+	}
 
-    public class Cancellation : DelegatingExecutionSummarySinkTests
-    {
-        [Fact]
-        public void ReturnsFalseWhenCancellationThunkIsTrue()
-        {
-            var sink = new DelegatingExecutionSummarySink(innerSink, () => true);
+	public class Cancellation : DelegatingExecutionSummarySinkTests
+	{
+		[Fact]
+		public void ReturnsFalseWhenCancellationThunkIsTrue()
+		{
+			var sink = new DelegatingExecutionSummarySink(innerSink, () => true);
 
-            var result = sink.OnMessage(testMessage);
+			var result = sink.OnMessage(testMessage);
 
-            Assert.False(result);
-        }
+			Assert.False(result);
+		}
 
-        [Fact]
-        public void ReturnsTrueWhenCancellationThunkIsFalse()
-        {
-            var sink = new DelegatingExecutionSummarySink(innerSink, () => false);
+		[Fact]
+		public void ReturnsTrueWhenCancellationThunkIsFalse()
+		{
+			var sink = new DelegatingExecutionSummarySink(innerSink, () => false);
 
-            var result = sink.OnMessage(testMessage);
+			var result = sink.OnMessage(testMessage);
 
-            Assert.True(result);
-        }
-    }
+			Assert.True(result);
+		}
+	}
 }

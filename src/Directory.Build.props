@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
     <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.154" PrivateAssets="all" />
   </ItemGroup>
 
@@ -50,7 +51,6 @@
 
       <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
-        <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
       </ItemGroup>
     </When>
   </Choose>

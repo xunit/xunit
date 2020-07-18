@@ -1,0 +1,5 @@
+<TestRunner>
+	<FriendlyName>xUnit.net v3 {0}.{1}.{2} build {3}</FriendlyName>
+	<AssemblyPath>xunit.v3.runner.tdnet.dll</AssemblyPath>
+	<TypeName>Xunit.Runner.TdNet.TdNetRunner</TypeName>
+</TestRunner>

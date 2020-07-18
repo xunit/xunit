@@ -5,25 +5,25 @@ using Xunit;
 
 namespace Xunit1
 {
-    public class SerializationTests
-    {
-        [Serializable]
-        class SerializableObject { }
+	public class SerializationTests
+	{
+		[Serializable]
+		class SerializableObject { }
 
-        [Fact]
-        void CanSerializeAndDeserializeObjectsInATest()
-        {
-            BinaryFormatter bf = new BinaryFormatter();
+		[Fact]
+		void CanSerializeAndDeserializeObjectsInATest()
+		{
+			BinaryFormatter bf = new BinaryFormatter();
 
-            using (Stream ms = new MemoryStream())
-            {
-                bf.Serialize(ms, new SerializableObject());
-                ms.Position = 0;
-                object o = bf.Deserialize(ms);
+			using (Stream ms = new MemoryStream())
+			{
+				bf.Serialize(ms, new SerializableObject());
+				ms.Position = 0;
+				object o = bf.Deserialize(ms);
 
-                Assert.IsType(typeof(SerializableObject), o);
-                Assert.DoesNotThrow(delegate { SerializableObject o2 = (SerializableObject)o; });
-            }
-        }
-    }
+				Assert.IsType(typeof(SerializableObject), o);
+				Assert.DoesNotThrow(delegate { SerializableObject o2 = (SerializableObject)o; });
+			}
+		}
+	}
 }

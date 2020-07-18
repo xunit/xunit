@@ -11,10 +11,10 @@ namespace Xunit
 #endif
 {
 #if XUNIT_FRAMEWORK
-    /// <summary>
-    /// An implementation of <see cref="IMessageSink"/> that ignores all messages.
-    /// </summary>
-    public class NullMessageSink : IMessageSink
+	/// <summary>
+	/// An implementation of <see cref="IMessageSink"/> that ignores all messages.
+	/// </summary>
+	public class NullMessageSink : IMessageSink
 #else
     /// <summary>
     /// An implementation of <see cref="IMessageSink"/> and <see cref="IMessageSinkWithTypes"/>
@@ -22,16 +22,17 @@ namespace Xunit
     /// </summary>
     public class NullMessageSink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 #endif
-    {
-        /// <inheritdoc/>
-        public void Dispose() { }
+	{
+		/// <inheritdoc/>
+		public void Dispose()
+		{ }
 
-        /// <inheritdoc/>
-        public bool OnMessage(IMessageSinkMessage message) => true;
+		/// <inheritdoc/>
+		public bool OnMessage(IMessageSinkMessage message) => true;
 
 #if !XUNIT_FRAMEWORK
         /// <inheritdoc/>
         public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes) => true;
 #endif
-    }
+	}
 }

@@ -1,5 +1,5 @@
 public enum Configuration
 {
-    Debug,
-    Release,
+	Debug,
+	Release,
 }

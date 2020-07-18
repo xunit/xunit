@@ -6,76 +6,54 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class CulturedXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
-    {
-        string culture = "<unset>";
-        CultureInfo? originalCulture;
-        CultureInfo? originalUICulture;
+	public class CulturedXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
+	{
+		readonly string culture;
+		CultureInfo? originalCulture;
+		CultureInfo? originalUICulture;
 
-        public CulturedXunitTheoryTestCaseRunner(
-            CulturedXunitTheoryTestCase culturedXunitTheoryTestCase,
-            string displayName,
-            string? skipReason,
-            object?[] constructorArguments,
-            IMessageSink diagnosticMessageSink,
-            IMessageBus messageBus,
-            ExceptionAggregator aggregator,
-            CancellationTokenSource cancellationTokenSource)
-                : base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
-        {
-            culture = culturedXunitTheoryTestCase.Culture;
-        }
+		public CulturedXunitTheoryTestCaseRunner(
+			CulturedXunitTheoryTestCase culturedXunitTheoryTestCase,
+			string displayName,
+			string? skipReason,
+			object?[] constructorArguments,
+			IMessageSink diagnosticMessageSink,
+			IMessageBus messageBus,
+			ExceptionAggregator aggregator,
+			CancellationTokenSource cancellationTokenSource)
+				: base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
+		{
+			culture = culturedXunitTheoryTestCase.Culture;
+		}
 
-        protected override Task AfterTestCaseStartingAsync()
-        {
-            try
-            {
-                originalCulture = CurrentCulture;
-                originalUICulture = CurrentUICulture;
+		protected override Task AfterTestCaseStartingAsync()
+		{
+			try
+			{
+				originalCulture = CultureInfo.CurrentCulture;
+				originalUICulture = CultureInfo.CurrentUICulture;
 
-                var cultureInfo = new CultureInfo(culture);
-                CurrentCulture = cultureInfo;
-                CurrentUICulture = cultureInfo;
-            }
-            catch (Exception ex)
-            {
-                Aggregator.Add(ex);
-                return Task.FromResult(0);
-            }
+				var cultureInfo = new CultureInfo(culture);
+				CultureInfo.CurrentCulture = cultureInfo;
+				CultureInfo.CurrentUICulture = cultureInfo;
+			}
+			catch (Exception ex)
+			{
+				Aggregator.Add(ex);
+				return Task.FromResult(0);
+			}
 
-            return base.AfterTestCaseStartingAsync();
-        }
+			return base.AfterTestCaseStartingAsync();
+		}
 
-        protected override Task BeforeTestCaseFinishedAsync()
-        {
-            if (originalUICulture != null)
-                CurrentUICulture = originalUICulture;
-            if (originalCulture != null)
-                CurrentCulture = originalCulture;
+		protected override Task BeforeTestCaseFinishedAsync()
+		{
+			if (originalUICulture != null)
+				CultureInfo.CurrentUICulture = originalUICulture;
+			if (originalCulture != null)
+				CultureInfo.CurrentCulture = originalCulture;
 
-            return base.BeforeTestCaseFinishedAsync();
-        }
-
-        static CultureInfo CurrentCulture
-        {
-#if NETFRAMEWORK
-            get => Thread.CurrentThread.CurrentCulture;
-            set => Thread.CurrentThread.CurrentCulture = value;
-#else
-            get => CultureInfo.CurrentCulture;
-            set => CultureInfo.CurrentCulture = value;
-#endif
-        }
-
-        static CultureInfo CurrentUICulture
-        {
-#if NETFRAMEWORK
-            get => Thread.CurrentThread.CurrentUICulture;
-            set => Thread.CurrentThread.CurrentUICulture = value;
-#else
-            get => CultureInfo.CurrentUICulture;
-            set => CultureInfo.CurrentUICulture = value;
-#endif
-        }
-    }
+			return base.BeforeTestCaseFinishedAsync();
+		}
+	}
 }
