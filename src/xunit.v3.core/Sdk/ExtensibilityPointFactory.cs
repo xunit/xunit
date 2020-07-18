@@ -167,6 +167,92 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
+		/// Gets the test framework object for the given test assembly.
+		/// </summary>
+		/// <param name="diagnosticMessageSink">The diagnostic message sink</param>
+		/// <param name="testAssembly">The test assembly to get the test framework for</param>
+		/// <param name="sourceInformationProvider">The optional source information provider</param>
+		/// <returns>The test framework object</returns>
+		public static ITestFramework GetTestFramework(
+			IMessageSink diagnosticMessageSink,
+			IAssemblyInfo testAssembly,
+			ISourceInformationProvider? sourceInformationProvider = null)
+		{
+			// TODO Guard
+			ITestFramework result;
+
+			var testFrameworkType = GetTestFrameworkType(diagnosticMessageSink, testAssembly);
+			if (!typeof(ITestFramework).IsAssignableFrom(testFrameworkType))
+			{
+				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test framework type '{testFrameworkType.FullName}' does not implement '{typeof(ITestFramework).FullName}'; falling back to '{typeof(XunitTestFramework).FullName}'"));
+				testFrameworkType = typeof(XunitTestFramework);
+			}
+
+			try
+			{
+				var ctorWithSink =
+					testFrameworkType
+						.GetConstructors()
+						.FirstOrDefault(ctor =>
+						{
+							var paramInfos = ctor.GetParameters();
+							return paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(IMessageSink);
+						});
+
+				if (ctorWithSink != null)
+					result = (ITestFramework)ctorWithSink.Invoke(new object[] { diagnosticMessageSink });
+				else
+					result = (ITestFramework)Activator.CreateInstance(testFrameworkType)!;
+			}
+			catch (Exception ex)
+			{
+				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during test framework construction: {ex.Unwrap()}"));
+				result = new XunitTestFramework(diagnosticMessageSink);
+			}
+
+			if (sourceInformationProvider != null)
+				result.SourceInformationProvider = sourceInformationProvider;
+
+			return result;
+		}
+
+		static Type GetTestFrameworkType(
+			IMessageSink diagnosticMessageSink,
+			IAssemblyInfo testAssembly)
+		{
+			try
+			{
+				var testFrameworkAttr = testAssembly.GetCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault();
+				if (testFrameworkAttr != null)
+				{
+					var discovererAttr = testFrameworkAttr.GetCustomAttributes(typeof(TestFrameworkDiscovererAttribute)).FirstOrDefault();
+					if (discovererAttr != null)
+					{
+						var discoverer = GetTestFrameworkTypeDiscoverer(diagnosticMessageSink, discovererAttr);
+						if (discoverer != null)
+						{
+							var discovererType = discoverer.GetTestFrameworkType(testFrameworkAttr);
+							if (discovererType != null)
+								return discovererType;
+						}
+
+						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Unable to create custom test framework discoverer type from '{testFrameworkAttr.GetType().FullName}'"));
+					}
+					else
+					{
+						diagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]"));
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during test framework discoverer construction: {ex.Unwrap()}"));
+			}
+
+			return typeof(XunitTestFramework);
+		}
+
+		/// <summary>
 		/// Gets a test framework discoverer.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>

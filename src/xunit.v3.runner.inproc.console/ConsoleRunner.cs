@@ -378,9 +378,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 				var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-				using var testFramework = new XunitTestFramework(diagnosticMessageSink, assembly.ConfigFilename);
 				var entryAssembly = Assembly.GetEntryAssembly()!;
 				var assemblyInfo = new ReflectionAssemblyInfo(entryAssembly);
+				using var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
 				var discoverySink = new TestDiscoverySink(() => cancel);
 
 				using (var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo))
