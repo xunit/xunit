@@ -67,6 +67,24 @@ public static class Mocks
 	}
 
 	public static IReflectionAttributeInfo CollectionBehaviorAttribute(
+		Type factoryType,
+		bool disableTestParallelization = false,
+		int maxParallelThreads = 0)
+	{
+		var attribute = new CollectionBehaviorAttribute(factoryType)
+		{
+			DisableTestParallelization = disableTestParallelization,
+			MaxParallelThreads = maxParallelThreads
+		};
+		var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+		result.Attribute.Returns(attribute);
+		result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
+		result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
+		result.GetConstructorArguments().Returns(new object[] { factoryType });
+		return result;
+	}
+
+	public static IReflectionAttributeInfo CollectionBehaviorAttribute(
 		string factoryTypeName,
 		string factoryAssemblyName,
 		bool disableTestParallelization = false,

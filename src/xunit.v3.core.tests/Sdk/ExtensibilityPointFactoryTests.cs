@@ -43,7 +43,20 @@ public class ExtensibilityPointFactoryTests
 		}
 
 		[Fact]
-		public void UserCanChooseCustomCollectionFactory()
+		public void UserCanChooseCustomCollectionFactoryWithType()
+		{
+			var factoryType = typeof(MyTestCollectionFactory);
+			var attr = Mocks.CollectionBehaviorAttribute(factoryType);
+			var assembly = Mocks.TestAssembly();
+
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+
+			var myFactory = Assert.IsType<MyTestCollectionFactory>(result);
+			Assert.Same(assembly, myFactory.Assembly);
+		}
+
+		[Fact]
+		public void UserCanChooseCustomCollectionFactoryWithTypeAndAssemblyName()
 		{
 			var factoryType = typeof(MyTestCollectionFactory);
 			var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!);

@@ -279,17 +279,22 @@ namespace Xunit.Sdk
 			if (ctorArgs.Count == 0)
 				return typeof(CollectionPerClassTestCollectionFactory);
 
-			if (ctorArgs.Count == 1)
+			if (ctorArgs.Count == 1 && ctorArgs[0] is CollectionBehavior collectionBehavior)
 			{
-				if (ctorArgs[0] is CollectionBehavior collectionBehavior && collectionBehavior == CollectionBehavior.CollectionPerAssembly)
+				if (collectionBehavior == CollectionBehavior.CollectionPerAssembly)
 					return typeof(CollectionPerAssemblyTestCollectionFactory);
 
 				return typeof(CollectionPerClassTestCollectionFactory);
 			}
-
-			if (!(ctorArgs[0] is string typeName) || !(ctorArgs[1] is string assemblyName))
-				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"[CollectionBehavior({ToQuotedString(ctorArgs[0])}, {ToQuotedString(ctorArgs[1])})] cannot have null argument values"));
-			else
+			else if (ctorArgs.Count == 1 && ctorArgs[0] is Type factoryType)
+			{
+				var resultTypeInfo = factoryType.GetTypeInfo();
+				if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
+					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection factory type '{factoryType.FullName}' does not implement IXunitTestCollectionFactory"));
+				else
+					return factoryType;
+			}
+			else if (ctorArgs.Count == 2 && ctorArgs[0] is string typeName && ctorArgs[1] is string assemblyName)
 			{
 				var result = SerializationHelper.GetType(assemblyName, typeName);
 				if (result == null)
@@ -298,11 +303,13 @@ namespace Xunit.Sdk
 				{
 					var resultTypeInfo = result.GetTypeInfo();
 					if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
-						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection factory type '{ctorArgs[1]}, {ctorArgs[0]}' does not implement IXunitTestCollectionFactory"));
+						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection factory type '{assemblyName}, {typeName}' does not implement IXunitTestCollectionFactory"));
 					else
 						return result;
 				}
 			}
+			else
+				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"[CollectionBehavior({ToQuotedString(ctorArgs[0])}, {ToQuotedString(ctorArgs[1])})] cannot have null argument values"));
 
 			return typeof(CollectionPerClassTestCollectionFactory);
 		}

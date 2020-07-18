@@ -32,6 +32,13 @@ namespace Xunit
 		{ }
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.
+		/// </summary>
+		/// <param name="factoryType">The factory type</param>
+		public CollectionBehaviorAttribute(Type factoryType)
+		{ }
+
+		/// <summary>
 		/// Determines whether tests in this assembly are run in parallel.
 		/// </summary>
 		public bool DisableTestParallelization { get; set; }
