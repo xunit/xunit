@@ -38,12 +38,13 @@ namespace Xunit
 		/// tests to be discovered and run without locking assembly files on disk.</param>
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
-		public Xunit1(AppDomainSupport appDomainSupport,
-					  ISourceInformationProvider sourceInformationProvider,
-					  string assemblyFileName,
-					  string? configFileName = null,
-					  bool shadowCopy = true,
-					  string? shadowCopyFolder = null)
+		public Xunit1(
+			AppDomainSupport appDomainSupport,
+			ISourceInformationProvider sourceInformationProvider,
+			string assemblyFileName,
+			string? configFileName = null,
+			bool shadowCopy = true,
+			string? shadowCopyFolder = null)
 		{
 			Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
@@ -107,7 +108,9 @@ namespace Xunit
 		/// </summary>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
-		public void Find(bool includeSourceInformation, IMessageSink messageSink)
+		public void Find(
+			bool includeSourceInformation,
+			IMessageSink messageSink)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
@@ -115,7 +118,10 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink? messageSink, ITestFrameworkDiscoveryOptions? discoveryOptions)
+		void ITestFrameworkDiscoverer.Find(
+			bool includeSourceInformation,
+			IMessageSink? messageSink,
+			ITestFrameworkDiscoveryOptions? discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
@@ -128,18 +134,28 @@ namespace Xunit
 		/// <param name="typeName">The fully qualified type name to find tests in.</param>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
-		public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
+		public void Find(
+			string typeName,
+			bool includeSourceInformation,
+			IMessageSink messageSink)
 		{
 			Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
 		}
 
 		/// <inheritdoc/>
-		void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
+		void ITestFrameworkDiscoverer.Find(
+			string typeName,
+			bool includeSourceInformation,
+			IMessageSink messageSink,
+			ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
 		}
 
-		void Find(Predicate<ITestCaseDiscoveryMessage> filter, bool includeSourceInformation, IMessageSink messageSink)
+		void Find(
+			Predicate<ITestCaseDiscoveryMessage> filter,
+			bool includeSourceInformation,
+			IMessageSink messageSink)
 		{
 			try
 			{
@@ -186,7 +202,10 @@ namespace Xunit
 			Run(discoverySink.TestCases, messageSink);
 		}
 
-		void ITestFrameworkExecutor.RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
+		void ITestFrameworkExecutor.RunAll(
+			IMessageSink messageSink,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestFrameworkExecutionOptions executionOptions)
 		{
 			Run(messageSink);
 		}
@@ -196,7 +215,9 @@ namespace Xunit
 		/// </summary>
 		/// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
-		public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
+		public void Run(
+			IEnumerable<ITestCase> testCases,
+			IMessageSink messageSink)
 		{
 			var results = new Xunit1RunSummary();
 			var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
@@ -225,12 +246,18 @@ namespace Xunit
 			}
 		}
 
-		void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
+		void ITestFrameworkExecutor.RunTests(
+			IEnumerable<ITestCase> testCases,
+			IMessageSink messageSink,
+			ITestFrameworkExecutionOptions executionOptions)
 		{
 			Run(testCases, messageSink);
 		}
 
-		Xunit1RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<ITestCase> testCases, IMessageSink messageSink)
+		Xunit1RunSummary RunTestCollection(
+			ITestCollection testCollection,
+			IEnumerable<ITestCase> testCases,
+			IMessageSink messageSink)
 		{
 			var results = new Xunit1RunSummary
 			{
@@ -256,7 +283,10 @@ namespace Xunit
 			return results;
 		}
 
-		Xunit1RunSummary RunTestClass(ITestClass testClass, IList<ITestCase> testCases, IMessageSink messageSink)
+		Xunit1RunSummary RunTestClass(
+			ITestClass testClass,
+			IList<ITestCase> testCases,
+			IMessageSink messageSink)
 		{
 			var handler = new TestClassCallbackHandler(testCases, messageSink);
 			var results = handler.TestClassResults;
@@ -280,18 +310,15 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public string Serialize(ITestCase testCase)
-			=> SerializationHelper.Serialize(testCase);
+		public string Serialize(ITestCase testCase) => SerializationHelper.Serialize(testCase);
 
 		class Comparer : IEqualityComparer<ITestClass>
 		{
 			public static readonly Comparer Instance = new Comparer();
 
-			public bool Equals(ITestClass? x, ITestClass? y)
-				=> x?.Class.Name == y?.Class.Name;
+			public bool Equals(ITestClass? x, ITestClass? y) => x?.Class.Name == y?.Class.Name;
 
-			public int GetHashCode(ITestClass obj)
-				=> obj.Class.Name.GetHashCode();
+			public int GetHashCode(ITestClass obj) => obj.Class.Name.GetHashCode();
 		}
 	}
 }

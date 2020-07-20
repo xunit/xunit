@@ -1,4 +1,3 @@
-using System;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
@@ -9,13 +8,6 @@ namespace Xunit1.Extensions
 {
 	public class AssumeIdentityAttributeAcceptanceTests
 	{
-		static readonly bool isMono;
-
-		static AssumeIdentityAttributeAcceptanceTests()
-		{
-			isMono = Type.GetType("Mono.Runtime") != null;
-		}
-
 		[Fact, AssumeIdentity("casper")]
 		public void AttributeChangesRoleInTestMethod()
 		{
@@ -25,21 +17,24 @@ namespace Xunit1.Extensions
 		[Fact]
 		public void CallingSecuredMethodWillThrow()
 		{
-			if (!isMono)  // Mono does not appear to properly support PrincipalPermission
+			// Mono does not appear to properly support PrincipalPermission
+			if (!EnvironmentHelper.IsMono)
 				Assert.Throws<SecurityException>(() => DefeatVillian());
 		}
 
 		[Fact, AssumeIdentity("Q")]
 		public void CallingSecuredMethodWithWrongIdentityWillThrow()
 		{
-			if (!isMono)  // Mono does not appear to properly support PrincipalPermission
+			// Mono does not appear to properly support PrincipalPermission
+			if (!EnvironmentHelper.IsMono)
 				Assert.Throws<SecurityException>(() => DefeatVillian());
 		}
 
 		[Fact, AssumeIdentity("007")]
 		public void CallingSecuredMethodWithAssumedIdentityPasses()
 		{
-			if (!isMono)  // Mono does not appear to properly support PrincipalPermission
+			// Mono does not appear to properly support PrincipalPermission
+			if (!EnvironmentHelper.IsMono)
 				Assert.DoesNotThrow(() => DefeatVillian());
 		}
 

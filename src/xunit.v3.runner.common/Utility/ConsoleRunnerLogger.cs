@@ -25,7 +25,9 @@ namespace Xunit.Runner.Common
 		/// <param name="useColors">A flag to indicate whether colors should be used when
 		/// logging messages.</param>
 		/// <param name="lockObject">The lock object used to prevent console clashes.</param>
-		public ConsoleRunnerLogger(bool useColors, object lockObject)
+		public ConsoleRunnerLogger(
+			bool useColors,
+			object lockObject)
 		{
 			Guard.ArgumentNotNull(nameof(lockObject), lockObject);
 
@@ -37,7 +39,9 @@ namespace Xunit.Runner.Common
 		public object LockObject { get; }
 
 		/// <inheritdoc/>
-		public void LogError(StackFrameInfo stackFrame, string message)
+		public void LogError(
+			StackFrameInfo stackFrame,
+			string message)
 		{
 			using (SetColor(ConsoleColor.Red))
 				lock (LockObject)
@@ -45,7 +49,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public void LogImportantMessage(StackFrameInfo stackFrame, string message)
+		public void LogImportantMessage(
+			StackFrameInfo stackFrame,
+			string message)
 		{
 			using (SetColor(ConsoleColor.Gray))
 				lock (LockObject)
@@ -53,7 +59,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public void LogMessage(StackFrameInfo stackFrame, string message)
+		public void LogMessage(
+			StackFrameInfo stackFrame,
+			string message)
 		{
 			using (SetColor(ConsoleColor.DarkGray))
 				lock (LockObject)
@@ -61,7 +69,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public void LogWarning(StackFrameInfo stackFrame, string message)
+		public void LogWarning(
+			StackFrameInfo stackFrame,
+			string message)
 		{
 			using (SetColor(ConsoleColor.Yellow))
 				lock (LockObject)

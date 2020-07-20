@@ -8,11 +8,12 @@ namespace Xunit.Runners
 	public abstract class TestInfo
 	{
 		/// <summary/>
-		public TestInfo(string typeName,
-						string methodName,
-						Dictionary<string, List<string>>? traits,
-						string testDisplayName,
-						string testCollectionDisplayName)
+		public TestInfo(
+			string typeName,
+			string methodName,
+			Dictionary<string, List<string>>? traits,
+			string testDisplayName,
+			string testCollectionDisplayName)
 		{
 			Guard.ArgumentNotNull(nameof(typeName), typeName);
 			Guard.ArgumentNotNull(nameof(methodName), methodName);

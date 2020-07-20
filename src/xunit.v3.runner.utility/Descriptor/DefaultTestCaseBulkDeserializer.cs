@@ -20,9 +20,10 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations)
-			=> serializations.Select(serialization => executor.Deserialize(serialization))
-							 .Select(testCase => new KeyValuePair<string, ITestCase>(testCase.UniqueID, testCase))
-							 .ToList();
+		public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations) =>
+			serializations
+				.Select(serialization => executor.Deserialize(serialization))
+				.Select(testCase => new KeyValuePair<string, ITestCase>(testCase.UniqueID, testCase))
+				.ToList();
 	}
 }

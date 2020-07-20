@@ -2,7 +2,12 @@ namespace Xunit
 {
 	static class AppDomainManagerFactory
 	{
-		internal static IAppDomainManager Create(bool useAppDomain, string assemblyFileName, string? configFileName, bool shadowCopy, string? shadowCopyFolder)
+		internal static IAppDomainManager Create(
+			bool useAppDomain,
+			string assemblyFileName,
+			string? configFileName,
+			bool shadowCopy,
+			string? shadowCopyFolder)
 		{
 			Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 

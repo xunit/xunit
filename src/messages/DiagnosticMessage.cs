@@ -17,7 +17,7 @@ namespace Xunit
 #if XUNIT_FRAMEWORK
 	public class DiagnosticMessage : IDiagnosticMessage
 #else
-    public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage, IMessageSinkMessageWithTypes
+	public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage, IMessageSinkMessageWithTypes
 #endif
 	{
 		/// <summary>
@@ -43,7 +43,9 @@ namespace Xunit
 		/// </summary>
 		/// <param name="format">The format of the message to send</param>
 		/// <param name="args">The arguments used to format the message</param>
-		public DiagnosticMessage(string format, params object?[] args)
+		public DiagnosticMessage(
+			string format,
+			params object?[] args)
 		{
 			Guard.ArgumentNotNull(nameof(format), format);
 
@@ -51,10 +53,10 @@ namespace Xunit
 		}
 
 #if !XUNIT_FRAMEWORK
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName!));
+		static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName!));
 
-        /// <inheritdoc/>
-        public HashSet<string> InterfaceTypes => interfaceTypes;
+		/// <inheritdoc/>
+		public HashSet<string> InterfaceTypes => interfaceTypes;
 #endif
 
 		/// <inheritdoc/>

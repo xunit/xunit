@@ -376,7 +376,7 @@ public class XmlTestExecutionVisitorTests
 			{
 				"\xd800\xdfff This.Is.Valid \xda00\xdd00",
 				"\xd800\xdfff This.Is.Valid \xda00\xdd00" // note: no @
-            };
+			};
 		}
 
 		[Theory]

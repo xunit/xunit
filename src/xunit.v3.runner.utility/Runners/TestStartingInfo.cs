@@ -8,12 +8,13 @@ namespace Xunit.Runners
 	public class TestStartingInfo : TestInfo
 	{
 		/// <summary/>
-		public TestStartingInfo(string typeName,
-								string methodName,
-								Dictionary<string, List<string>>? traits,
-								string testDisplayName,
-								string testCollectionDisplayName)
-			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
+		public TestStartingInfo(
+			string typeName,
+			string methodName,
+			Dictionary<string, List<string>>? traits,
+			string testDisplayName,
+			string testCollectionDisplayName)
+				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
 		{ }
 	}
 }

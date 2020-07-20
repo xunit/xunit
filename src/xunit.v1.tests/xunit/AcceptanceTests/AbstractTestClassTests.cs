@@ -10,25 +10,25 @@ namespace Xunit1
 		public void TestsFromAbstractBaseClassesShouldBeExecuted()
 		{
 			string code = @"
-                using Xunit;
+				using Xunit;
 
-                public abstract class TestBase
-                {
-                    [Fact]
-                    public void BaseTestMethod() {}
-                }
+				public abstract class TestBase
+				{
+					[Fact]
+					public void BaseTestMethod() {}
+				}
 
-                public class DerivedTestClass1 : TestBase
-                {
-                    [Fact]
-                    public void TestMethod1() {}
-                }
+				public class DerivedTestClass1 : TestBase
+				{
+					[Fact]
+					public void TestMethod1() {}
+				}
 
-                public class DerivedTestClass2 : TestBase
-                {
-                    [Fact]
-                    public void TestMethod2() {}
-                }";
+				public class DerivedTestClass2 : TestBase
+				{
+					[Fact]
+					public void TestMethod2() {}
+				}";
 
 			XmlNode assemblyNode = Execute(code);
 

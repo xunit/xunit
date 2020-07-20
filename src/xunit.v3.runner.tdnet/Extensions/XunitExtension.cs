@@ -13,9 +13,8 @@ namespace Xunit.Runner.TdNet
 		public static MethodInfo? GetMethod(this ITestCase testCase) =>
 			testCase.TestMethod.Method is IReflectionMethodInfo methodInfo ? methodInfo.MethodInfo : null;
 
-		public static TestResult ToTdNetTestResult(this ITestResultMessage testResult, TestState testState, int totalTests)
-		{
-			return new TestResult
+		public static TestResult ToTdNetTestResult(this ITestResultMessage testResult, TestState testState, int totalTests) =>
+			new TestResult
 			{
 				FixtureType = testResult.TestCase.GetClass(),
 				Method = testResult.TestCase.GetMethod(),
@@ -24,6 +23,5 @@ namespace Xunit.Runner.TdNet
 				TimeSpan = new TimeSpan((long)(10000.0M * testResult.ExecutionTime)),
 				TotalTests = totalTests,
 			};
-		}
 	}
 }

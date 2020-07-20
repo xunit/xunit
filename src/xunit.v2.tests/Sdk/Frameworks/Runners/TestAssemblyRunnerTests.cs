@@ -282,11 +282,9 @@ public class TestAssemblyRunnerTests
 			}
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var collection1 = Mocks.TestCollection(displayName: "AAA");
 			var testCase1 = Mocks.TestCase(collection1);
 			var collection2 = Mocks.TestCollection(displayName: "ZZZZ");

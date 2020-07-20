@@ -30,7 +30,11 @@ namespace Xunit.Runner.Common
 		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
 		readonly AutoResetEvent workEvent = new AutoResetEvent(false);
 
-		public VstsClient(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
+		public VstsClient(
+			IRunnerLogger logger,
+			string baseUri,
+			string accessToken,
+			int buildId)
 		{
 			Guard.ArgumentNotNull(nameof(logger), logger);
 			Guard.ArgumentNotNullOrEmpty(nameof(baseUri), baseUri);
@@ -101,14 +105,18 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		public void AddTest(IDictionary<string, object?> request, ITest uniqueId)
+		public void AddTest(
+			IDictionary<string, object?> request,
+			ITest uniqueId)
 		{
 			request.Add(UNIQUEIDKEY, uniqueId);
 			addQueue.Enqueue(request);
 			workEvent.Set();
 		}
 
-		public void UpdateTest(IDictionary<string, object?> request, ITest uniqueId)
+		public void UpdateTest(
+			IDictionary<string, object?> request,
+			ITest uniqueId)
 		{
 			request.Add(UNIQUEIDKEY, uniqueId);
 			updateQueue.Enqueue(request);
@@ -199,7 +207,10 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		async Task SendTestResults(bool isAdd, int runId, ICollection<IDictionary<string, object?>> body)
+		async Task SendTestResults(
+			bool isAdd,
+			int runId,
+			ICollection<IDictionary<string, object?>> body)
 		{
 			if (body.Count == 0)
 				return;

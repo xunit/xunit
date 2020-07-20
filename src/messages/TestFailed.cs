@@ -15,14 +15,15 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFailed"/> class.
 		/// </summary>
-		public TestFailed(ITest test,
-						  decimal executionTime,
-						  string? output,
-						  string?[] exceptionTypes,
-						  string[] messages,
-						  string?[] stackTraces,
-						  int[] exceptionParentIndices)
-			: base(test, executionTime, output)
+		public TestFailed(
+			ITest test,
+			decimal executionTime,
+			string? output,
+			string?[] exceptionTypes,
+			string[] messages,
+			string?[] stackTraces,
+			int[] exceptionParentIndices)
+				: base(test, executionTime, output)
 		{
 			Guard.ArgumentNotNull(nameof(exceptionTypes), exceptionTypes);
 			Guard.ArgumentNotNull(nameof(messages), messages);
@@ -38,11 +39,12 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFailed"/> class.
 		/// </summary>
-		public TestFailed(ITest test,
-						  decimal executionTime,
-						  string? output,
-						  Exception ex)
-			: base(test, executionTime, output)
+		public TestFailed(
+			ITest test,
+			decimal executionTime,
+			string? output,
+			Exception ex)
+				: base(test, executionTime, output)
 		{
 			Guard.ArgumentNotNull(nameof(ex), ex);
 

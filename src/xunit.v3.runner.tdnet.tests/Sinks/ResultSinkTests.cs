@@ -6,18 +6,18 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
 
-public class ResultVisitorTests
+public class ResultSinkTests
 {
 	[Fact]
 	public static void SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
 	{
 		var listener = Substitute.For<ITestListener>();
-		var visitor = new ResultSink(listener, 42);
+		using var sink = new ResultSink(listener, 42);
 		var message = Substitute.For<ITestAssemblyFinished>();
 
-		visitor.OnMessageWithTypes(message, null);
+		sink.OnMessageWithTypes(message, null);
 
-		Assert.True(visitor.Finished.WaitOne(0));
+		Assert.True(sink.Finished.WaitOne(0));
 	}
 
 	public class RunState
@@ -26,9 +26,9 @@ public class ResultVisitorTests
 		public static void DefaultRunStateIsNoTests()
 		{
 			var listener = Substitute.For<ITestListener>();
-			var visitor = new ResultSink(listener, 42);
+			using var sink = new ResultSink(listener, 42);
 
-			Assert.Equal(TestRunState.NoTests, visitor.TestRunState);
+			Assert.Equal(TestRunState.NoTests, sink.TestRunState);
 		}
 
 		[Theory]
@@ -38,22 +38,22 @@ public class ResultVisitorTests
 		public static void FailureSetsStateToFailed(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			var visitor = new ResultSink(listener, 42) { TestRunState = initialState };
+			using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
 
-			visitor.OnMessageWithTypes(Mocks.TestFailed(typeof(object), "GetHashCode"), null);
+			sink.OnMessageWithTypes(Mocks.TestFailed(typeof(object), "GetHashCode"), null);
 
-			Assert.Equal(TestRunState.Failure, visitor.TestRunState);
+			Assert.Equal(TestRunState.Failure, sink.TestRunState);
 		}
 
 		[Fact]
 		public static void Success_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
-			var visitor = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
 
-			visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
+			sink.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
 
-			Assert.Equal(TestRunState.Success, visitor.TestRunState);
+			Assert.Equal(TestRunState.Success, sink.TestRunState);
 		}
 
 		[Theory]
@@ -63,22 +63,22 @@ public class ResultVisitorTests
 		public static void Success_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			var visitor = new ResultSink(listener, 42) { TestRunState = initialState };
+			using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
 
-			visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
+			sink.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
 
-			Assert.Equal(initialState, visitor.TestRunState);
+			Assert.Equal(initialState, sink.TestRunState);
 		}
 
 		[Fact]
 		public static void Skip_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
-			var visitor = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
 
-			visitor.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
+			sink.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
 
-			Assert.Equal(TestRunState.Success, visitor.TestRunState);
+			Assert.Equal(TestRunState.Success, sink.TestRunState);
 		}
 
 		[Theory]
@@ -88,11 +88,11 @@ public class ResultVisitorTests
 		public static void Skip_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			var visitor = new ResultSink(listener, 42) { TestRunState = initialState };
+			using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
 
-			visitor.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
+			sink.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
 
-			Assert.Equal(initialState, visitor.TestRunState);
+			Assert.Equal(initialState, sink.TestRunState);
 		}
 	}
 
@@ -151,18 +151,17 @@ public class ResultVisitorTests
 		public static void LogsTestFailure(IMessageSinkMessage message, string messageType)
 		{
 			var listener = Substitute.For<ITestListener>();
-			using (var visitor = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests })
-			{
-				visitor.OnMessageWithTypes(message, null);
+			using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
 
-				Assert.Equal(TestRunState.Failure, visitor.TestRunState);
-				var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
-				Assert.Equal($"*** {messageType} ***", testResult.Name);
-				Assert.Equal(TestState.Failed, testResult.State);
-				Assert.Equal(1, testResult.TotalTests);
-				Assert.Equal("ExceptionType : This is my message \t\r\n", testResult.Message);
-				Assert.Equal("Line 1\r\nLine 2\r\nLine 3", testResult.StackTrace);
-			}
+			sink.OnMessageWithTypes(message, null);
+
+			Assert.Equal(TestRunState.Failure, sink.TestRunState);
+			var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
+			Assert.Equal($"*** {messageType} ***", testResult.Name);
+			Assert.Equal(TestState.Failed, testResult.State);
+			Assert.Equal(1, testResult.TotalTests);
+			Assert.Equal("ExceptionType : This is my message \t\r\n", testResult.Message);
+			Assert.Equal("Line 1\r\nLine 2\r\nLine 3", testResult.StackTrace);
 		}
 	}
 
@@ -173,12 +172,13 @@ public class ResultVisitorTests
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
-			listener.WhenAny(l => l.TestFinished(null))
-					.Do<TestResult>(result => testResult = result);
-			var visitor = new ResultSink(listener, 42);
+			listener
+				.WhenAny(l => l.TestFinished(null))
+				.Do<TestResult>(result => testResult = result);
+			using var sink = new ResultSink(listener, 42);
 			var message = Mocks.TestPassed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M);
 
-			visitor.OnMessageWithTypes(message, null);
+			sink.OnMessageWithTypes(message, null);
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);
@@ -205,12 +205,13 @@ public class ResultVisitorTests
 
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
-			listener.WhenAny(l => l.TestFinished(null))
-					.Do<TestResult>(result => testResult = result);
-			var visitor = new ResultSink(listener, 42);
+			listener
+				.WhenAny(l => l.TestFinished(null))
+				.Do<TestResult>(result => testResult = result);
+			using var sink = new ResultSink(listener, 42);
 			var message = Mocks.TestFailed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, ex: ex);
 
-			visitor.OnMessageWithTypes(message, null);
+			sink.OnMessageWithTypes(message, null);
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);
@@ -228,12 +229,13 @@ public class ResultVisitorTests
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
-			listener.WhenAny(l => l.TestFinished(null))
-					.Do<TestResult>(result => testResult = result);
-			var visitor = new ResultSink(listener, 42);
+			listener
+				.WhenAny(l => l.TestFinished(null))
+				.Do<TestResult>(result => testResult = result);
+			using var sink = new ResultSink(listener, 42);
 			var message = Mocks.TestSkipped(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, skipReason: "I forgot how to run");
 
-			visitor.OnMessageWithTypes(message, null);
+			sink.OnMessageWithTypes(message, null);
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);

@@ -43,11 +43,9 @@ public class TestFrameworkProxyTests
 
 	class AttributeWithoutDiscoverer : Attribute, ITestFrameworkAttribute { }
 
-	[Fact]
+	[CulturedFact("en-US")]
 	public void Attribute_ThrowingDiscovererCtor()
 	{
-		Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 		var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingDiscovererCtor));
 		var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
@@ -73,11 +71,9 @@ public class TestFrameworkProxyTests
 		}
 	}
 
-	[Fact]
+	[CulturedFact("en-US")]
 	public void Attribute_ThrowingDiscovererMethod()
 	{
-		Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 		var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingDiscovererMethod));
 		var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
@@ -98,11 +94,9 @@ public class TestFrameworkProxyTests
 		}
 	}
 
-	[Fact]
+	[CulturedFact("en-US")]
 	public void Attribute_ThrowingTestFrameworkCtor()
 	{
-		Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 		var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingTestFrameworkCtor));
 		var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 

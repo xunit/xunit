@@ -11,12 +11,10 @@ namespace Xunit.Runner.Common
 	public class NullSourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
 	{
 		/// <inheritdoc/>
-		public ISourceInformation GetSourceInformation(ITestCase testCase)
-		{
-			return new SourceInformation();
-		}
+		public ISourceInformation GetSourceInformation(ITestCase testCase) => new SourceInformation();
 
 		/// <inheritdoc/>
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 	}
 }

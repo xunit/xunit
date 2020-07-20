@@ -16,8 +16,14 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassCleanupFailure"/> class.
 		/// </summary>
-		public TestMethodCleanupFailure(IEnumerable<ITestCase> testCases, ITestMethod testMethod, string?[] exceptionTypes, string[] messages, string?[] stackTraces, int[] exceptionParentIndices)
-			: base(testCases, testMethod)
+		public TestMethodCleanupFailure(
+			IEnumerable<ITestCase> testCases,
+			ITestMethod testMethod,
+			string?[] exceptionTypes,
+			string[] messages,
+			string?[] stackTraces,
+			int[] exceptionParentIndices)
+				: base(testCases, testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(exceptionTypes), exceptionTypes);
 			Guard.ArgumentNotNull(nameof(messages), messages);
@@ -33,8 +39,11 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassCleanupFailure"/> class.
 		/// </summary>
-		public TestMethodCleanupFailure(IEnumerable<ITestCase> testCases, ITestMethod testMethod, Exception ex)
-			: base(testCases, testMethod)
+		public TestMethodCleanupFailure(
+			IEnumerable<ITestCase> testCases,
+			ITestMethod testMethod,
+			Exception ex)
+				: base(testCases, testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(ex), ex);
 

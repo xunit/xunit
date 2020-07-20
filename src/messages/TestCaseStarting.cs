@@ -15,6 +15,7 @@ namespace Xunit
 		/// Initializes a new instance of the <see cref="TestCaseStarting"/> class.
 		/// </summary>
 		public TestCaseStarting(ITestCase testCase)
-			: base(testCase) { }
+			: base(testCase)
+		{ }
 	}
 }

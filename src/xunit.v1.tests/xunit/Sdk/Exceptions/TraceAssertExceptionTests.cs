@@ -30,7 +30,8 @@ namespace Xunit1
 		[Fact]
 		public void TraceAssertFailureWithNoMessage()
 		{
-			if (!IsRunningOnMono()) // Mono does "non-standard" things with the message when it's empty
+			// Mono does "non-standard" things with the message when it's empty
+			if (!EnvironmentHelper.IsMono)
 			{
 				TraceAssertException ex = Assert.Throws<TraceAssertException>(() => Trace.Assert(false));
 
@@ -39,11 +40,6 @@ namespace Xunit1
 				Assert.Equal("", ex.AssertDetailedMessage);
 				Assert.Equal("Debug.Assert() Failure", ex.Message);
 			}
-		}
-
-		bool IsRunningOnMono()
-		{
-			return Type.GetType("Mono.Runtime") != null;
 		}
 
 		[Fact]

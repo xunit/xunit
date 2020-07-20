@@ -314,11 +314,9 @@ public class XunitTestClassRunnerTests
 			public void Passing() { }
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var testCase = Mocks.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 

@@ -49,13 +49,14 @@ namespace Xunit
 		/// will be automatically (randomly) generated</param>
 		/// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
 		/// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
-		public XunitFrontController(AppDomainSupport appDomainSupport,
-									string assemblyFileName,
-									string? configFileName = null,
-									bool shadowCopy = true,
-									string? shadowCopyFolder = null,
-									ISourceInformationProvider? sourceInformationProvider = null,
-									IMessageSink? diagnosticMessageSink = null)
+		public XunitFrontController(
+			AppDomainSupport appDomainSupport,
+			string assemblyFileName,
+			string? configFileName = null,
+			bool shadowCopy = true,
+			string? shadowCopyFolder = null,
+			ISourceInformationProvider? sourceInformationProvider = null,
+			IMessageSink? diagnosticMessageSink = null)
 		{
 			this.appDomainSupport = appDomainSupport;
 			this.assemblyFileName = assemblyFileName;
@@ -69,7 +70,7 @@ namespace Xunit
 			if (sourceInformationProvider == null)
 			{
 #if NETSTANDARD
-                this.sourceInformationProvider = new NullSourceInformationProvider();
+				this.sourceInformationProvider = new NullSourceInformationProvider();
 #else
 				this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
 				toDispose.Push(this.sourceInformationProvider);
@@ -93,8 +94,7 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public bool CanUseAppDomains =>
-			InnerController.CanUseAppDomains;
+		public bool CanUseAppDomains => InnerController.CanUseAppDomains;
 
 		ITestCaseDescriptorProvider DescriptorProvider
 		{
@@ -122,12 +122,10 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public string TargetFramework =>
-			InnerController.TargetFramework;
+		public string TargetFramework => InnerController.TargetFramework;
 
 		/// <inheritdoc/>
-		public string TestFrameworkDisplayName =>
-			InnerController.TestFrameworkDisplayName;
+		public string TestFrameworkDisplayName => InnerController.TestFrameworkDisplayName;
 
 		/// <inheritdoc/>
 		public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations) =>
@@ -149,7 +147,7 @@ namespace Xunit
 
 			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder}");
 #else
-            return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
+			return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #endif
 		}
 
@@ -188,8 +186,8 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
-			=> DescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
+		public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization) =>
+			DescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
 
 		/// <inheritdoc/>
 		public virtual void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)

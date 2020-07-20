@@ -15,7 +15,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodStarting"/> class.
 		/// </summary>
-		public TestMethodStarting(IEnumerable<ITestCase> testCases, ITestMethod testMethod)
-			: base(testCases, testMethod) { }
+		public TestMethodStarting(
+			IEnumerable<ITestCase> testCases,
+			ITestMethod testMethod)
+				: base(testCases, testMethod)
+		{ }
 	}
 }

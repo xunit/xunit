@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- <Compile Include="..\..\src\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Common\RunnerUtility" /> -->
+    <Compile Include="..\xunit.v3.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Frameworks\v1" /> 
   </ItemGroup>
 
   <ItemGroup>

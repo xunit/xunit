@@ -8,7 +8,10 @@ using Xunit;
 
 static class XmlNodeExtensions
 {
-	public static Xunit1TestCase? ToTestCase(this XmlNode xml, string assemblyFileName, string? configFileName)
+	public static Xunit1TestCase? ToTestCase(
+		this XmlNode xml,
+		string assemblyFileName,
+		string? configFileName)
 	{
 		Guard.ArgumentNotNull(nameof(xml), xml);
 		Guard.ArgumentNotNull(nameof(assemblyFileName), assemblyFileName);

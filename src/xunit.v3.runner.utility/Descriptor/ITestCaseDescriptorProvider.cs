@@ -9,6 +9,9 @@ namespace Xunit
 	public interface ITestCaseDescriptorProvider
 	{
 		/// <summary/>
-		List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization);
+		List<TestCaseDescriptor> GetTestCaseDescriptors(
+			List<ITestCase> testCases,
+			bool includeSerialization
+		);
 	}
 }

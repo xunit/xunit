@@ -17,6 +17,9 @@ namespace Xunit.Runner.Common
 		/// <param name="message">The message from the message bus.</param>
 		/// <param name="messageTypes">The list of message types, or <c>null</c>.</param>
 		/// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
-		bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes);
+		bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes
+		);
 	}
 }

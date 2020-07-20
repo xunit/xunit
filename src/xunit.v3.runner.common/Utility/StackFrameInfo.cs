@@ -17,7 +17,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="fileName"></param>
 		/// <param name="lineNumber"></param>
-		public StackFrameInfo(string? fileName, int lineNumber)
+		public StackFrameInfo(
+			string? fileName,
+			int lineNumber)
 		{
 			FileName = fileName;
 			LineNumber = lineNumber;

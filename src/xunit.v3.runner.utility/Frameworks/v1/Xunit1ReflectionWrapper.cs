@@ -31,22 +31,22 @@ namespace Xunit
 		/// <summary>
 		/// Gets the name of the assembly under test.
 		/// </summary>
-		public string AssemblyFileName { get; private set; }
+		public string AssemblyFileName { get; }
 
 		/// <summary>
 		/// Gets the name of the method under test.
 		/// </summary>
-		public string? MethodName { get; private set; }
+		public string? MethodName { get; }
 
 		/// <summary>
 		/// Gets the name of the type under test.
 		/// </summary>
-		public string TypeName { get; private set; }
+		public string TypeName { get; }
 
 		/// <summary>
 		/// Gets the unique ID for the test.
 		/// </summary>
-		public string UniqueID { get; private set; }
+		public string UniqueID { get; }
 
 		// IAssemblyInfo
 
@@ -54,8 +54,7 @@ namespace Xunit
 
 		string IAssemblyInfo.Name => Path.GetFileNameWithoutExtension(AssemblyFileName);
 
-		IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
-			Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
 
 		ITypeInfo? IAssemblyInfo.GetType(string? typeName)
 		{
@@ -86,17 +85,13 @@ namespace Xunit
 
 		ITypeInfo IMethodInfo.Type => this;
 
-		IEnumerable<IAttributeInfo> IMethodInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
-			Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<IAttributeInfo> IMethodInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
 
-		IEnumerable<ITypeInfo> IMethodInfo.GetGenericArguments() =>
-			Enumerable.Empty<ITypeInfo>();
+		IEnumerable<ITypeInfo> IMethodInfo.GetGenericArguments() => Enumerable.Empty<ITypeInfo>();
 
-		IEnumerable<IParameterInfo> IMethodInfo.GetParameters() =>
-			Enumerable.Empty<IParameterInfo>();
+		IEnumerable<IParameterInfo> IMethodInfo.GetParameters() => Enumerable.Empty<IParameterInfo>();
 
-		IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments) =>
-			throw new NotImplementedException();
+		IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments) => throw new NotImplementedException();
 
 		// ITypeInfo
 
@@ -118,11 +113,9 @@ namespace Xunit
 
 		string ITypeInfo.Name => TypeName;
 
-		IEnumerable<IAttributeInfo> ITypeInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
-			Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<IAttributeInfo> ITypeInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
 
-		IEnumerable<ITypeInfo> ITypeInfo.GetGenericArguments() =>
-			Enumerable.Empty<ITypeInfo>();
+		IEnumerable<ITypeInfo> ITypeInfo.GetGenericArguments() => Enumerable.Empty<ITypeInfo>();
 
 		IMethodInfo ITypeInfo.GetMethod(string? methodName, bool includePrivateMethods) => this;
 

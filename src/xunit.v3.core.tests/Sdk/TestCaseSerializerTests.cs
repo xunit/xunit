@@ -44,7 +44,8 @@ public class TestCaseSerializerTests
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);
 			Assert.Null(result.TestMethodArguments);
-			Assert.Collection(result.Traits.Keys,
+			Assert.Collection(
+				result.Traits.Keys,
 				key =>
 				{
 					Assert.Equal("Assembly", key);
@@ -54,7 +55,8 @@ public class TestCaseSerializerTests
 				{
 					Assert.Equal("name", key);
 					Assert.Equal("value", Assert.Single(result.Traits[key]));
-				});
+				}
+			);
 			Assert.Equal(testCase.UniqueID, result.UniqueID);
 		}
 
@@ -68,10 +70,12 @@ public class TestCaseSerializerTests
 
 			Assert.NotNull(result);
 			Assert.NotNull(result.TestMethodArguments);
-			Assert.Collection(result.TestMethodArguments,
+			Assert.Collection(
+				result.TestMethodArguments,
 				arg => Assert.Equal(42, arg),
 				arg => Assert.Equal(21.12, arg),
-				arg => Assert.Equal("Hello world", arg));
+				arg => Assert.Equal("Hello world", arg)
+			);
 		}
 
 		[Fact]
@@ -93,7 +97,9 @@ public class TestCaseSerializerTests
 		{
 			var testCase = Mocks.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
 
-			SerializationHelper.Serialize(testCase);  // Should not throw
+			SerializationHelper.Serialize(testCase);
+
+			// Should not throw
 		}
 
 		[Fact]
@@ -116,7 +122,8 @@ public class TestCaseSerializerTests
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);
 			Assert.Null(result.TestMethodArguments);
-			Assert.Collection(result.Traits.Keys,
+			Assert.Collection(
+				result.Traits.Keys,
 				key =>
 				{
 					Assert.Equal("Assembly", key);
@@ -126,7 +133,8 @@ public class TestCaseSerializerTests
 				{
 					Assert.Equal("name", key);
 					Assert.Equal("value", Assert.Single(result.Traits[key]));
-				});
+				}
+			);
 			Assert.Equal(testCase.UniqueID, result.UniqueID);
 		}
 	}

@@ -54,10 +54,15 @@ public class SerializationHelperTests
 		[Fact(Skip = "Not working on Linux")]
 		public void TypeSerialization()
 		{
-			Assert.True(SerializationHelper.IsSerializable(typeof(string)));               // Can serialization types from mscorlib
-			Assert.True(SerializationHelper.IsSerializable(typeof(SerializationHelper)));  // Can serialize types from local libraries
+			// Can serialization types from mscorlib
+			Assert.True(SerializationHelper.IsSerializable(typeof(string)));
+
+			// Can serialize types from local libraries
+			Assert.True(SerializationHelper.IsSerializable(typeof(SerializationHelper)));
+
 #if NETFRAMEWORK
-			Assert.False(SerializationHelper.IsSerializable(typeof(Uri)));                 // Can't serialize types from the GAC
+			// Can't serialize types from the GAC
+			Assert.False(SerializationHelper.IsSerializable(typeof(Uri)));
 #endif
 		}
 	}

@@ -23,7 +23,9 @@ namespace Xunit
 		/// </summary>
 		/// <param name="callback">The callback to call when each XML node arrives.</param>
 		/// <param name="lastNodeName">The name of the expected final XML node, which triggers <see cref="LastNodeArrived"/>.</param>
-		public XmlNodeCallbackHandler(Predicate<XmlNode?>? callback = null, string? lastNodeName = null)
+		public XmlNodeCallbackHandler(
+			Predicate<XmlNode?>? callback = null,
+			string? lastNodeName = null)
 		{
 			this.callback = callback;
 			this.lastNodeName = lastNodeName;
@@ -54,10 +56,7 @@ namespace Xunit
 			return true;
 		}
 
-		string ICallbackEventHandler.GetCallbackResult()
-		{
-			return @continue.ToString();
-		}
+		string ICallbackEventHandler.GetCallbackResult() => @continue.ToString();
 
 		void ICallbackEventHandler.RaiseCallbackEvent(string eventArgument)
 		{

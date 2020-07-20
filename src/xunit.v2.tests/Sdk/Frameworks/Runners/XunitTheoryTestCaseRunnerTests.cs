@@ -28,11 +28,9 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
 	}
 
-	[Fact]
+	[CulturedFact("en-US")]
 	public static async void DiscovererWhichThrowsReturnsASingleFailedTest()
 	{
-		Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithThrowingData", messageBus, "Display Name");
 

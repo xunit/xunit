@@ -19,7 +19,8 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 
 	private void AssertMessageSequence(IEnumerable<IMessageSinkMessage> results, string testDisplayName)
 	{
-		Assert.Collection(results,
+		Assert.Collection(
+			results,
 			message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
 			message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 			message => Assert.IsAssignableFrom<ITestMethodStarting>(message),

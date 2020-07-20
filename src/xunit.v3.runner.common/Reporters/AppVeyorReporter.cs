@@ -24,9 +24,10 @@ namespace Xunit.Runner.Common
 		public IMessageSink CreateMessageHandler(IRunnerLogger logger)
 		{
 			var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
-			return baseUri == null
-				? new DefaultRunnerReporterWithTypesMessageHandler(logger)
-				: new AppVeyorReporterMessageHandler(logger, baseUri);
+			return
+				baseUri == null
+					? new DefaultRunnerReporterWithTypesMessageHandler(logger)
+					: new AppVeyorReporterMessageHandler(logger, baseUri);
 		}
 	}
 }

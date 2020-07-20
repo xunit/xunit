@@ -25,7 +25,8 @@ public class TestCollectionRunnerTests
 		Assert.Equal(result.Skipped, summary.Skipped);
 		Assert.Equal(result.Time, summary.Time);
 		Assert.False(runner.TokenSource.IsCancellationRequested);
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var starting = Assert.IsAssignableFrom<ITestCollectionStarting>(msg);
@@ -48,17 +49,18 @@ public class TestCollectionRunnerTests
 	{
 		var messages = new List<IMessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
-		messageBus.QueueMessage(null!)
-				  .ReturnsForAnyArgs(callInfo =>
-				  {
-					  var msg = callInfo.Arg<IMessageSinkMessage>();
-					  messages.Add(msg);
+		messageBus
+			.QueueMessage(null!)
+			.ReturnsForAnyArgs(callInfo =>
+			{
+				var msg = callInfo.Arg<IMessageSinkMessage>();
+				messages.Add(msg);
 
-					  if (msg is ITestCollectionStarting)
-						  throw new InvalidOperationException();
+				if (msg is ITestCollectionStarting)
+					throw new InvalidOperationException();
 
-					  return true;
-				  });
+				return true;
+			});
 		var runner = TestableTestCollectionRunner.Create(messageBus);
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
@@ -163,7 +165,8 @@ public class TestCollectionRunnerTests
 
 		await runner.RunAsync();
 
-		Assert.Collection(runner.ClassesRun,
+		Assert.Collection(
+			runner.ClassesRun,
 			tuple =>
 			{
 				Assert.Equal("TestCollectionRunnerTests+ClassUnderTest", tuple.Item1.Name);
@@ -277,7 +280,10 @@ public class TestCollectionRunnerTests
 			return Task.CompletedTask;
 		}
 
-		protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<ITestCase> testCases)
+		protected override Task<RunSummary> RunTestClassAsync(
+			ITestClass testClass,
+			IReflectionTypeInfo @class,
+			IEnumerable<ITestCase> testCases)
 		{
 			if (cancelInRunTestClassAsync)
 				CancellationTokenSource.Cancel();

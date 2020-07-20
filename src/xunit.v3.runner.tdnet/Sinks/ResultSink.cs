@@ -32,7 +32,9 @@ namespace Xunit.Runner.TdNet
 		}
 
 		public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
-		public ITestListener TestListener { get; private set; }
+
+		public ITestListener TestListener { get; }
+
 		public TestRunState TestRunState { get; set; }
 
 		void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)

@@ -11,12 +11,16 @@ namespace Xunit
 {
 	class AppDomainManager_AppDomain : IAppDomainManager
 	{
-		public AppDomainManager_AppDomain(string assemblyFileName, string? configFileName, bool shadowCopy, string? shadowCopyFolder)
+		public AppDomainManager_AppDomain(
+			string assemblyFileName,
+			string? configFileName,
+			bool shadowCopy,
+			string? shadowCopyFolder)
 		{
-			Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
+			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 
 			assemblyFileName = Path.GetFullPath(assemblyFileName);
-			Guard.FileExists("assemblyFileName", assemblyFileName);
+			Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
 
 			if (configFileName == null)
 				configFileName = GetDefaultConfigFile(assemblyFileName);
@@ -29,15 +33,19 @@ namespace Xunit
 			AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 		}
 
-		public AppDomain AppDomain { get; private set; }
+		public AppDomain AppDomain { get; }
 
-		public string AssemblyFileName { get; private set; }
+		public string AssemblyFileName { get; }
 
-		public string? ConfigFileName { get; private set; }
+		public string? ConfigFileName { get; }
 
 		public bool HasAppDomain => true;
 
-		static AppDomain CreateAppDomain(string assemblyFilename, string? configFilename, bool shadowCopy, string? shadowCopyFolder)
+		static AppDomain CreateAppDomain(
+			string assemblyFilename,
+			string? configFilename,
+			bool shadowCopy,
+			string? shadowCopyFolder)
 		{
 			var setup = new AppDomainSetup
 			{
@@ -61,8 +69,11 @@ namespace Xunit
 			return result;
 		}
 
-		public TObject? CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object?[]? args)
-			where TObject : class
+		public TObject? CreateObjectFrom<TObject>(
+			string assemblyLocation,
+			string typeName,
+			params object?[]? args)
+				where TObject : class
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyLocation), assemblyLocation);
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
@@ -81,8 +92,11 @@ namespace Xunit
 			}
 		}
 
-		public TObject? CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object?[]? args)
-			where TObject : class
+		public TObject? CreateObject<TObject>(
+			AssemblyName assemblyName,
+			string typeName,
+			params object?[]? args)
+				where TObject : class
 		{
 			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
@@ -105,7 +119,7 @@ namespace Xunit
 		{
 			if (AppDomain != null)
 			{
-				string? cachePath = AppDomain.SetupInformation.CachePath;
+				var cachePath = AppDomain.SetupInformation.CachePath;
 
 				try
 				{
@@ -120,7 +134,7 @@ namespace Xunit
 
 		static string? GetDefaultConfigFile(string assemblyFile)
 		{
-			string configFilename = assemblyFile + ".config";
+			var configFilename = assemblyFile + ".config";
 
 			if (File.Exists(configFilename))
 				return configFilename;

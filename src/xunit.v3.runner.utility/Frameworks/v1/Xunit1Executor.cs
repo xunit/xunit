@@ -29,11 +29,12 @@ namespace Xunit
 		/// <param name="shadowCopy">Set to <c>true</c> to enable shadow copying the assemblies.</param>
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
-		public Xunit1Executor(bool useAppDomain,
-							  string testAssemblyFileName,
-							  string? configFileName = null,
-							  bool shadowCopy = true,
-							  string? shadowCopyFolder = null)
+		public Xunit1Executor(
+			bool useAppDomain,
+			string testAssemblyFileName,
+			string? configFileName = null,
+			bool shadowCopy = true,
+			string? shadowCopyFolder = null)
 		{
 			Guard.ArgumentNotNull(nameof(testAssemblyFileName), testAssemblyFileName);
 
@@ -47,27 +48,26 @@ namespace Xunit
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName { get; private set; }
 
-		object? CreateObject(string typeName, params object[] args) =>
-			appDomain.CreateObject<object>(xunitAssemblyName, typeName, args);
+		object? CreateObject(
+			string typeName,
+			params object?[] args) =>
+				appDomain.CreateObject<object>(xunitAssemblyName, typeName, args);
 
 		/// <inheritdoc/>
-		public void Dispose() =>
-			appDomain?.Dispose();
+		public void Dispose() => appDomain?.Dispose();
 
 		/// <inheritdoc/>
-		public void EnumerateTests(ICallbackEventHandler handler)
+		public void EnumerateTests(ICallbackEventHandler? handler)
 		{
-			Guard.ArgumentNotNull(nameof(handler), handler);
-
 			CreateObject("Xunit.Sdk.Executor+EnumerateTests", executor, handler);
 		}
 
 		static string GetXunitAssemblyPath(string testAssemblyFileName)
 		{
-			Guard.FileExists("testAssemblyFileName", testAssemblyFileName);
+			Guard.FileExists(nameof(testAssemblyFileName), testAssemblyFileName);
 
 			var xunitPath = Path.Combine(Path.GetDirectoryName(testAssemblyFileName)!, "xunit.dll");
-			Guard.FileExists("testAssemblyFileName", xunitPath);
+			Guard.FileExists(nameof(testAssemblyFileName), xunitPath);
 
 			return xunitPath;
 		}

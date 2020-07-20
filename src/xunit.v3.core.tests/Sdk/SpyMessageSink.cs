@@ -9,10 +9,8 @@ namespace Xunit.Sdk
 	{
 		public static IMessageSink Create(
 			bool returnResult = true,
-			List<IMessageSinkMessage>? messages = null)
-		{
-			return Create(_ => returnResult, messages);
-		}
+			List<IMessageSinkMessage>? messages = null) =>
+				Create(_ => returnResult, messages);
 
 		public static IMessageSink Create(
 			Func<IMessageSinkMessage, bool> lambda,
@@ -20,8 +18,9 @@ namespace Xunit.Sdk
 		{
 			var result = Substitute.For<IMessageSink>();
 
-			result.OnMessage(null).ReturnsForAnyArgs(
-				callInfo =>
+			result
+				.OnMessage(null)
+				.ReturnsForAnyArgs(callInfo =>
 				{
 					var message = callInfo.Arg<IMessageSinkMessage>();
 

@@ -13,7 +13,9 @@ public static class MessageSinkWithTypesExtensions
 	/// <param name="messageSink">The message sink</param>
 	/// <param name="message">The message to be dispatched</param>
 	/// <returns>The result of calling the message sink</returns>
-	public static bool OnMessage(this IMessageSinkWithTypes messageSink, IMessageSinkMessage message)
+	public static bool OnMessage(
+		this IMessageSinkWithTypes messageSink,
+		IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 		Guard.ArgumentNotNull(nameof(message), message);

@@ -17,27 +17,39 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="stackFrame">The stack frame information</param>
 		/// <param name="message">The message to be logged</param>
-		void LogMessage(StackFrameInfo stackFrame, string message);
+		void LogMessage(
+			StackFrameInfo stackFrame,
+			string message
+		);
 
 		/// <summary>
 		/// Logs a high-priority message with stack frame.
 		/// </summary>
 		/// <param name="stackFrame">The stack frame information</param>
 		/// <param name="message">The message to be logged</param>
-		void LogImportantMessage(StackFrameInfo stackFrame, string message);
+		void LogImportantMessage(
+			StackFrameInfo stackFrame,
+			string message
+		);
 
 		/// <summary>
 		/// Logs a warning message with stack frame.
 		/// </summary>
 		/// <param name="stackFrame">The stack frame information</param>
 		/// <param name="message">The message to be logged</param>
-		void LogWarning(StackFrameInfo stackFrame, string message);
+		void LogWarning(
+			StackFrameInfo stackFrame,
+			string message
+		);
 
 		/// <summary>
 		/// Logs an error message with stack frame.
 		/// </summary>
 		/// <param name="stackFrame">The stack frame information</param>
 		/// <param name="message">The message to be logged</param>
-		void LogError(StackFrameInfo stackFrame, string message);
+		void LogError(
+			StackFrameInfo stackFrame,
+			string message
+		);
 	}
 }

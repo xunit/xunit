@@ -333,12 +333,14 @@ public class DelegatingXmlCreationSinkTests
 		{
 			"\xd800\xdfff This.Is.Valid \xda00\xdd00",
 			"\xd800\xdfff This.Is.Valid \xda00\xdd00" // note: no @
-        };
+		};
 	}
 
 	[Theory]
 	[MemberData(nameof(IllegalXmlTestData))]
-	public void IllegalXmlDoesNotPreventXmlFromBeingSaved(string inputName, string outputName)
+	public void IllegalXmlDoesNotPreventXmlFromBeingSaved(
+		string inputName,
+		string outputName)
 	{
 		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
@@ -354,13 +356,11 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(testSkipped);
 		sink.OnMessage(assemblyFinished);
 
-		using (var writer = new StringWriter())
-		{
-			assemblyElement.Save(writer, SaveOptions.DisableFormatting);
+		using var writer = new StringWriter();
+		assemblyElement.Save(writer, SaveOptions.DisableFormatting);
 
-			var outputXml = writer.ToString();
-			Assert.Equal($@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""{outputName}"" type=""DelegatingXmlCreationSinkTests+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
-		}
+		var outputXml = writer.ToString();
+		Assert.Equal($@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""{outputName}"" type=""DelegatingXmlCreationSinkTests+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
 	}
 
 	class ClassUnderTest
@@ -419,7 +419,10 @@ public class DelegatingXmlCreationSinkTests
 
 	[Theory]
 	[MemberData("Messages", DisableDiscoveryEnumeration = true)]
-	public void AddsErrorMessagesToXml(IMessageSinkMessage errorMessage, string messageType, string name)
+	public void AddsErrorMessagesToXml(
+		IMessageSinkMessage errorMessage,
+		string messageType,
+		string name)
 	{
 		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
 		var assemblyElement = new XElement("assembly");

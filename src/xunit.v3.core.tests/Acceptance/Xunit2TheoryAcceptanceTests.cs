@@ -19,7 +19,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(ClassWithOptionalParameters));
 
-			Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+			Assert.Collection(
+				results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_NonePassed(s: null)", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNonNullPassed(s: ""abc"")", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNullPassed(s: null)", result.Test.DisplayName),
@@ -126,7 +127,8 @@ public class Xunit2TheoryAcceptanceTests
 			var results = await RunAsync<ITestResultMessage>(typeof(ClassWithParamsParameters));
 			var orderedResults = results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName).ToList();
 
-			Assert.Collection(orderedResults,
+			Assert.Collection(
+				orderedResults,
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_ManyPassed(array: [1, 2, 3, 4, 5, ...])", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_NonePassed(array: [])", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_MatchingArray(array: [1])", result.Test.DisplayName),
@@ -260,7 +262,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(ClassWithOperatorConversions));
 
-			Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+			Assert.Collection(
+				results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredImplicitConversion(value: ""abc"")", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", result.Test.DisplayName),
@@ -360,7 +363,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(ClassWithFuncMethod));
 
-			Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+			Assert.Collection(
+				results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
 				result => Assert.StartsWith("Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Double>(source: [4, 5, 6, 7], ", result.Test.DisplayName),
 				result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
 				result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
@@ -391,8 +395,7 @@ public class Xunit2TheoryAcceptanceTests
 			[Theory]
 			[MemberData(nameof(TestData))]
 			public void TestMethod<TResult>(IEnumerable<int> source, Func<int, TResult> selector)
-			{
-			}
+			{ }
 		}
 
 		[Fact]
@@ -421,7 +424,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(GenericWithSerializableData));
 
-			Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+			Assert.Collection(
+				results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", result.Test.DisplayName),
 				result => Assert.Equal($@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: {21.12})", result.Test.DisplayName)
@@ -449,7 +453,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(GenericWithNonSerializableData));
 
-			Assert.Collection(results.Cast<ITestPassed>(),
+			Assert.Collection(
+				results.Cast<ITestPassed>(),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.Test.DisplayName)
 			);
 		}
@@ -1211,7 +1216,8 @@ public class Xunit2TheoryAcceptanceTests
 
 			var types = testMessages.Select(t => t.GetType()).ToList();
 
-			Assert.Collection(testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName),
+			Assert.Collection(
+				testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName),
 				failed => Assert.Equal("Constructor on type 'Xunit2TheoryAcceptanceTests+CustomDataTests+MyCustomData' not found.", failed.Messages[0])
 			);
 			Assert.Empty(testMessages.OfType<ITestPassed>());
@@ -1238,7 +1244,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(ClassWithMemberDataAttributeBase));
 
-			Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+			Assert.Collection(
+				results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""3"")", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""4"")", result.Test.DisplayName),
 				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: 1)", result.Test.DisplayName),
@@ -1342,14 +1349,12 @@ public class Xunit2TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42)]
 			public void Theory(int value)
-			{
-			}
+			{ }
 
 			[Theory]
 			[InlineData("42")]
 			public void Theory(string value)
-			{
-			}
+			{ }
 		}
 	}
 }

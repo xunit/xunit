@@ -15,8 +15,14 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionFinished"/> class.
 		/// </summary>
-		public TestCollectionFinished(IEnumerable<ITestCase> testCases, ITestCollection testCollection, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
-			: base(testCases, testCollection)
+		public TestCollectionFinished(
+			IEnumerable<ITestCase> testCases,
+			ITestCollection testCollection,
+			decimal executionTime,
+			int testsRun,
+			int testsFailed,
+			int testsSkipped)
+				: base(testCases, testCollection)
 		{
 			ExecutionTime = executionTime;
 			TestsRun = testsRun;

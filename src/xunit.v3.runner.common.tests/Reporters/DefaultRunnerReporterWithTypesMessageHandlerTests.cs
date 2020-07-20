@@ -73,13 +73,16 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
 
 		[Theory]
 		[MemberData("Messages")]
-		public void LogsMessage(IMessageSinkMessage message, string messageType)
+		public void LogsMessage(
+			IMessageSinkMessage message,
+			string messageType)
 		{
 			var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
 			handler.OnMessageWithTypes(message, null);
 
-			Assert.Collection(handler.Messages,
+			Assert.Collection(
+				handler.Messages,
 				msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     [" + messageType + "] ExceptionType", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       ExceptionType : This is my message \t", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       Message Line 2", msg),
@@ -99,7 +102,11 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
 		[InlineData(true, 42, 42, "[Imp] =>   Discovered:  testAssembly (found 42 test cases)")]
 		[InlineData(true, 1, 1, "[Imp] =>   Discovered:  testAssembly (found 1 test case)")]
 		[InlineData(true, 0, 1, "[Imp] =>   Discovered:  testAssembly (found 0 of 1 test cases)")]
-		public static void LogsMessage(bool diagnosticMessages, int toRun, int discovered, string expectedResult)
+		public static void LogsMessage(
+			bool diagnosticMessages,
+			int toRun,
+			int discovered,
+			string expectedResult)
 		{
 			var message = Mocks.TestAssemblyDiscoveryFinished(diagnosticMessages, toRun, discovered);
 			var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
@@ -120,7 +127,9 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
 #else
         [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod, method display options = None)")]
 #endif
-		public static void LogsMessage(bool diagnosticMessages, string expectedResult)
+		public static void LogsMessage(
+			bool diagnosticMessages,
+			string expectedResult)
 		{
 			var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages, appDomain: true);
 			var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
@@ -152,7 +161,9 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
 		[Theory]
 		[InlineData(false, "[Imp] =>   Starting:    testAssembly")]
 		[InlineData(true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on, max threads = 42)")]
-		public static void LogsMessage(bool diagnosticMessages, string expectedResult)
+		public static void LogsMessage(
+			bool diagnosticMessages,
+			string expectedResult)
 		{
 			var message = Mocks.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages);
 			var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();

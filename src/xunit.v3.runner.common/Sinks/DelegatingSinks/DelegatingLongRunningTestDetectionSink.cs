@@ -76,7 +76,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual DateTime UtcNow => DateTime.UtcNow;
 
-		static void DispatchLongRunningTestsSummaryAsDiagnosticMessage(LongRunningTestsSummary summary, IMessageSinkWithTypes diagnosticMessageSink)
+		static void DispatchLongRunningTestsSummaryAsDiagnosticMessage(
+			LongRunningTestsSummary summary,
+			IMessageSinkWithTypes diagnosticMessageSink)
 		{
 			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.DisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
 			var message = string.Join(Environment.NewLine, messages.ToArray());
@@ -119,7 +121,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 

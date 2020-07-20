@@ -13,7 +13,8 @@ namespace Xunit
 		{
 			var id = assemblyMappings.GetOrAdd(
 				testCollection.TestAssembly.Assembly.Name,
-				key => Interlocked.Increment(ref assemblyCount));
+				key => Interlocked.Increment(ref assemblyCount)
+			);
 
 			return string.Concat(testCollection.DisplayName, " (", id, ")");
 		}

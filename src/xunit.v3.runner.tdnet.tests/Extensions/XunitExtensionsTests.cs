@@ -3,12 +3,12 @@ using TestDriven.Framework;
 using Xunit;
 using Xunit.Runner.TdNet;
 
-public class TestResultMessageExtensionsTests
+public class XunitExtensionsTests
 {
 	[Fact]
 	public void ConvertsDataFromXunitToTdNetFormat()
 	{
-		var message = Mocks.TestResult<TestResultMessageExtensionsTests>("ConvertsDataFromXunitToTdNetFormat", "Display Name", 123.45M);
+		var message = Mocks.TestResult<XunitExtensionsTests>("ConvertsDataFromXunitToTdNetFormat", "Display Name", 123.45M);
 
 		var result = message.ToTdNetTestResult(TestState.Ignored, 42);
 

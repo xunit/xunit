@@ -31,8 +31,12 @@ namespace Xunit.Runner.Common
 		/// <param name="baseUri">The base URI for talking to Azure DevOps/VSTS</param>
 		/// <param name="accessToken">The access token required to talk to Azure DevOps/VSTS</param>
 		/// <param name="buildId">The ID of build that's currently being run</param>
-		public VstsReporterMessageHandler(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
-			: base(logger)
+		public VstsReporterMessageHandler(
+			IRunnerLogger logger,
+			string baseUri,
+			string accessToken,
+			int buildId)
+				: base(logger)
 		{
 			this.baseUri = baseUri;
 			this.accessToken = accessToken;
@@ -133,7 +137,11 @@ namespace Xunit.Runner.Common
 			base.HandleTestFailed(args);
 		}
 
-		void VstsAddTest(string testName, string displayName, string fileName, ITest uniqueId)
+		void VstsAddTest(
+			string testName,
+			string displayName,
+			string fileName,
+			ITest uniqueId)
 		{
 			var body = new Dictionary<string, object?>
 			{
@@ -141,7 +149,7 @@ namespace Xunit.Runner.Common
 				{ "automatedTestName", testName },
 				{ "automatedTestType", "UnitTest" },
 				{ "automatedTestTypeId", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" }, // This is used in the sample response and also appears in web searches
-                { "automatedTestId", uniqueId },
+				{ "automatedTestId", uniqueId },
 				{ "automatedTestStorage", fileName },
 				{ "state", "InProgress" },
 				{ "startedDate", DateTime.UtcNow }

@@ -25,7 +25,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="innerSink"></param>
 		/// <param name="assemblyElement"></param>
-		public DelegatingXmlCreationSink(IExecutionSink innerSink, XElement assemblyElement)
+		public DelegatingXmlCreationSink(
+			IExecutionSink innerSink,
+			XElement assemblyElement)
 		{
 			Guard.ArgumentNotNull(nameof(innerSink), innerSink);
 			Guard.ArgumentNotNull(nameof(assemblyElement), assemblyElement);
@@ -44,7 +46,9 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished => innerSink.Finished;
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -68,7 +72,10 @@ namespace Xunit.Runner.Common
 				&& result;
 		}
 
-		void AddError(string type, string? name, IFailureInformation failureInfo)
+		void AddError(
+			string type,
+			string? name,
+			IFailureInformation failureInfo)
 		{
 			var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(failureInfo));
 			if (name != null)
@@ -84,7 +91,9 @@ namespace Xunit.Runner.Common
 				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
 			);
 
-		XElement CreateTestResultElement(ITestResultMessage testResult, string resultText)
+		XElement CreateTestResultElement(
+			ITestResultMessage testResult,
+			string resultText)
 		{
 			var test = testResult.Test;
 			var testCase = testResult.TestCase;
@@ -240,21 +249,23 @@ namespace Xunit.Runner.Common
 			if (value == null)
 				return string.Empty;
 
-			value = value.Replace("\\", "\\\\")
-						 .Replace("\r", "\\r")
-						 .Replace("\n", "\\n")
-						 .Replace("\t", "\\t")
-						 .Replace("\0", "\\0")
-						 .Replace("\a", "\\a")
-						 .Replace("\b", "\\b")
-						 .Replace("\v", "\\v")
-						 .Replace("\"", "\\\"")
-						 .Replace("\f", "\\f");
+			value =
+				value
+					.Replace("\\", "\\\\")
+					.Replace("\r", "\\r")
+					.Replace("\n", "\\n")
+					.Replace("\t", "\\t")
+					.Replace("\0", "\\0")
+					.Replace("\a", "\\a")
+					.Replace("\b", "\\b")
+					.Replace("\v", "\\v")
+					.Replace("\"", "\\\"")
+					.Replace("\f", "\\f");
 
 			var escapedValue = new StringBuilder(value.Length);
 			for (var idx = 0; idx < value.Length; ++idx)
 			{
-				char ch = value[idx];
+				var ch = value[idx];
 				if (ch < 32)
 					escapedValue.Append($@"\x{(+ch).ToString("x2")}");
 				else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length

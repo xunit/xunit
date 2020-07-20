@@ -19,7 +19,8 @@ public class TestDiscoverySinkTests
 		visitor.OnMessageWithTypes(new DiscoveryMessage(testCase3), null);
 		visitor.OnMessageWithTypes(Substitute.For<IMessageSinkMessage>(), null); // Ignored
 
-		Assert.Collection(visitor.TestCases,
+		Assert.Collection(
+			visitor.TestCases,
 			msg => Assert.Same(testCase1, msg),
 			msg => Assert.Same(testCase2, msg),
 			msg => Assert.Same(testCase3, msg)
@@ -33,11 +34,16 @@ public class TestDiscoverySinkTests
 			TestCase = testCase;
 		}
 
-		public ITestAssembly TestAssembly { get { return TestCase.TestMethod.TestClass.TestCollection.TestAssembly; } }
+		public ITestAssembly TestAssembly => TestCase.TestMethod.TestClass.TestCollection.TestAssembly;
+
 		public ITestCase TestCase { get; private set; }
-		public IEnumerable<ITestCase> TestCases { get { return new[] { TestCase }; } }
-		public ITestClass TestClass { get { return TestCase.TestMethod.TestClass; } }
-		public ITestCollection TestCollection { get { return TestCase.TestMethod.TestClass.TestCollection; } }
-		public ITestMethod TestMethod { get { return TestCase.TestMethod; } }
+
+		public IEnumerable<ITestCase> TestCases => new[] { TestCase };
+
+		public ITestClass TestClass => TestCase.TestMethod.TestClass;
+
+		public ITestCollection TestCollection => TestCase.TestMethod.TestClass.TestCollection;
+
+		public ITestMethod TestMethod => TestCase.TestMethod;
 	}
 }

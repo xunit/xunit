@@ -18,10 +18,11 @@ namespace Xunit.Runner.Common
 		/// <param name="discoveryOptions">The discovery options</param>
 		/// <param name="testCasesDiscovered">The number of test cases discovered</param>
 		/// <param name="testCasesToRun">The number of test cases to be run</param>
-		public TestAssemblyDiscoveryFinished(XunitProjectAssembly assembly,
-											 ITestFrameworkDiscoveryOptions discoveryOptions,
-											 int testCasesDiscovered,
-											 int testCasesToRun)
+		public TestAssemblyDiscoveryFinished(
+			XunitProjectAssembly assembly,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			int testCasesDiscovered,
+			int testCasesToRun)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);

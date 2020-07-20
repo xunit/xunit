@@ -16,7 +16,8 @@ public class XunitTestCaseRunnerTests
 
 		var runner = new XunitTestCaseRunner(testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
 
-		Assert.Collection(runner.BeforeAfterAttributes,
+		Assert.Collection(
+			runner.BeforeAfterAttributes,
 			attr => Assert.IsType<BeforeAfterOnCollection>(attr),
 			attr => Assert.IsType<BeforeAfterOnClass>(attr),
 			attr => Assert.IsType<BeforeAfterOnMethod>(attr)

@@ -14,8 +14,13 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCaseFinished"/> class.
 		/// </summary>
-		public TestCaseFinished(ITestCase testCase, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
-			: base(testCase)
+		public TestCaseFinished(
+			ITestCase testCase,
+			decimal executionTime,
+			int testsRun,
+			int testsFailed,
+			int testsSkipped)
+				: base(testCase)
 		{
 			ExecutionTime = executionTime;
 			TestsRun = testsRun;

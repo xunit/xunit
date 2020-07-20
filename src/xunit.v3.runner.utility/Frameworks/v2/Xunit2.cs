@@ -33,21 +33,22 @@ namespace Xunit
 		/// will be automatically (randomly) generated</param>
 		/// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="verifyTestAssemblyExists">Determines whether or not the existence of the test assembly is verified.</param>
-		public Xunit2(AppDomainSupport appDomainSupport,
-					  ISourceInformationProvider sourceInformationProvider,
-					  string assemblyFileName,
-					  string? configFileName = null,
-					  bool shadowCopy = true,
-					  string? shadowCopyFolder = null,
-					  IMessageSink? diagnosticMessageSink = null,
-					  bool verifyTestAssemblyExists = true)
-			: base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
+		public Xunit2(
+			AppDomainSupport appDomainSupport,
+			ISourceInformationProvider sourceInformationProvider,
+			string assemblyFileName,
+			string? configFileName = null,
+			bool shadowCopy = true,
+			string? shadowCopyFolder = null,
+			IMessageSink? diagnosticMessageSink = null,
+			bool verifyTestAssemblyExists = true)
+				: base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
 		{
 #if NETFRAMEWORK
 			var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #else
-            var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
-            var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
+			var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
+			var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #endif
 			remoteExecutor = Framework.GetExecutor(assemblyName);
 		}
@@ -97,7 +98,10 @@ namespace Xunit
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
-		public void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
+		public void RunAll(
+			IMessageSink messageSink,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestFrameworkExecutionOptions executionOptions)
 		{
 			remoteExecutor.RunAll(CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions, executionOptions);
 		}
@@ -108,7 +112,10 @@ namespace Xunit
 		/// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
-		public void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
+		public void RunTests(
+			IEnumerable<ITestCase> testCases,
+			IMessageSink messageSink,
+			ITestFrameworkExecutionOptions executionOptions)
 		{
 			remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), executionOptions);
 		}

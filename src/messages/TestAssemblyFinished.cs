@@ -15,8 +15,14 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssemblyFinished"/> class.
 		/// </summary>
-		public TestAssemblyFinished(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
-			: base(testCases, testAssembly)
+		public TestAssemblyFinished(
+			IEnumerable<ITestCase> testCases,
+			ITestAssembly testAssembly,
+			decimal executionTime,
+			int testsRun,
+			int testsFailed,
+			int testsSkipped)
+				: base(testCases, testAssembly)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 			Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);

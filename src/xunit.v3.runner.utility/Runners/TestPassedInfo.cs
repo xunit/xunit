@@ -8,14 +8,15 @@ namespace Xunit.Runners
 	public class TestPassedInfo : TestExecutedInfo
 	{
 		/// <summary/>
-		public TestPassedInfo(string typeName,
-							  string methodName,
-							  Dictionary<string, List<string>>? traits,
-							  string testDisplayName,
-							  string testCollectionDisplayName,
-							  decimal executionTime,
-							  string? output)
-			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName, executionTime, output)
+		public TestPassedInfo(
+			string typeName,
+			string methodName,
+			Dictionary<string, List<string>>? traits,
+			string testDisplayName,
+			string testCollectionDisplayName,
+			decimal executionTime,
+			string? output)
+				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName, executionTime, output)
 		{ }
 	}
 }

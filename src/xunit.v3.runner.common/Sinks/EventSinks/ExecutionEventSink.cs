@@ -163,11 +163,14 @@ namespace Xunit.Runner.Common
 		public void Dispose() { }
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			return message.Dispatch(messageTypes, AfterTestFinishedEvent)
+			return
+				message.Dispatch(messageTypes, AfterTestFinishedEvent)
 				&& message.Dispatch(messageTypes, AfterTestStartingEvent)
 				&& message.Dispatch(messageTypes, BeforeTestFinishedEvent)
 				&& message.Dispatch(messageTypes, BeforeTestStartingEvent)

@@ -12,20 +12,20 @@ namespace Xunit1
 		public void CurrentDirectoryWhenRunningTestsIsTestAssemblyPath()
 		{
 			string code = @"
-            using System.IO;
-            using Xunit;
+				using System.IO;
+				using Xunit;
 
-            public class ChangeDirectoryTests
-            {
-                [Fact]
-                public void ChangeDirectory()
-                {
-                    string tempPath = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar);
-                    string currentPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar);
-                    Assert.Equal(tempPath, currentPath);
-                }
-            }
-        ";
+				public class ChangeDirectoryTests
+				{
+					[Fact]
+					public void ChangeDirectory()
+					{
+						string tempPath = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar);
+						string currentPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar);
+						Assert.Equal(tempPath, currentPath);
+					}
+				}
+			";
 
 			string assemblyName = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
 			XmlNode assemblyNode = ExecuteWithCustomAssemblyName(code, assemblyName);
@@ -38,18 +38,18 @@ namespace Xunit1
 		public void CurrentDirectoryIsRestoredAfterExecution()
 		{
 			string code = @"
-            using System.IO;
-            using Xunit;
+				using System.IO;
+				using Xunit;
 
-            public class ChangeDirectoryTests
-            {
-                [Fact]
-                public void ChangeDirectory()
-                {
-                    Directory.SetCurrentDirectory(Path.GetTempPath());
-                }
-            }
-        ";
+				public class ChangeDirectoryTests
+				{
+					[Fact]
+					public void ChangeDirectory()
+					{
+						Directory.SetCurrentDirectory(Path.GetTempPath());
+					}
+				}
+			";
 
 			string directory = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory());
 			Directory.SetCurrentDirectory(directory);

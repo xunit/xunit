@@ -14,7 +14,7 @@ namespace Xunit
 #if XUNIT_FRAMEWORK
 	public class SourceInformation : ISourceInformation
 #else
-    public class SourceInformation : LongLivedMarshalByRefObject, ISourceInformation
+	public class SourceInformation : LongLivedMarshalByRefObject, ISourceInformation
 #endif
 	{
 		/// <inheritdoc/>

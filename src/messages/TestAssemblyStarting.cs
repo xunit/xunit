@@ -16,8 +16,13 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssemblyStarting"/> class.
 		/// </summary>
-		public TestAssemblyStarting(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly, DateTime startTime, string testEnvironment, string testFrameworkDisplayName)
-			: base(testCases, testAssembly)
+		public TestAssemblyStarting(
+			IEnumerable<ITestCase> testCases,
+			ITestAssembly testAssembly,
+			DateTime startTime,
+			string testEnvironment,
+			string testFrameworkDisplayName)
+				: base(testCases, testAssembly)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 			Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);

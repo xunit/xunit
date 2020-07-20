@@ -17,8 +17,11 @@ namespace Xunit
 
 		public bool HasAppDomain => false;
 
-		public TObject? CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object?[]? args)
-			where TObject : class
+		public TObject? CreateObject<TObject>(
+			AssemblyName assemblyName,
+			string typeName,
+			params object?[]? args)
+				where TObject : class
 		{
 			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
@@ -28,7 +31,7 @@ namespace Xunit
 #if NETFRAMEWORK
 				var type = Assembly.Load(assemblyName).GetType(typeName, throwOnError: true);
 #else
-                var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
+				var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
 #endif
 				if (type == null)
 					return default;
@@ -43,8 +46,11 @@ namespace Xunit
 		}
 
 #if NETFRAMEWORK
-		public TObject? CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object?[]? args)
-			where TObject : class
+		public TObject? CreateObjectFrom<TObject>(
+			string assemblyLocation,
+			string typeName,
+			params object?[]? args)
+				where TObject : class
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyLocation), assemblyLocation);
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
@@ -65,6 +71,7 @@ namespace Xunit
 		}
 #endif
 
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 	}
 }

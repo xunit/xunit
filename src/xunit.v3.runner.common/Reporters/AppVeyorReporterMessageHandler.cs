@@ -27,8 +27,10 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="logger">The logger used to report messages</param>
 		/// <param name="baseUri">The base AppVeyor API URI</param>
-		public AppVeyorReporterMessageHandler(IRunnerLogger logger, string baseUri)
-			: base(logger)
+		public AppVeyorReporterMessageHandler(
+			IRunnerLogger logger,
+			string baseUri)
+				: base(logger)
 		{
 			Guard.ArgumentNotNull(nameof(baseUri), baseUri);
 
@@ -183,19 +185,17 @@ namespace Xunit.Runner.Common
 			long? durationMilliseconds = null,
 			string? errorMessage = null,
 			string? errorStackTrace = null,
-			string? stdOut = null)
-		{
-			return new Dictionary<string, object?>
-			{
-				{ "testName", testName },
-				{ "testFramework", testFramework },
-				{ "fileName", fileName },
-				{ "outcome", outcome },
-				{ "durationMilliseconds", durationMilliseconds },
-				{ "ErrorMessage", errorMessage },
-				{ "ErrorStackTrace", errorStackTrace },
-				{ "StdOut", stdOut?.Length > MaxLength ? stdOut.Substring(0, MaxLength) : stdOut },
-			};
-		}
+			string? stdOut = null) =>
+				new Dictionary<string, object?>
+				{
+					{ "testName", testName },
+					{ "testFramework", testFramework },
+					{ "fileName", fileName },
+					{ "outcome", outcome },
+					{ "durationMilliseconds", durationMilliseconds },
+					{ "ErrorMessage", errorMessage },
+					{ "ErrorStackTrace", errorStackTrace },
+					{ "StdOut", stdOut?.Length > MaxLength ? stdOut.Substring(0, MaxLength) : stdOut },
+				};
 	}
 }

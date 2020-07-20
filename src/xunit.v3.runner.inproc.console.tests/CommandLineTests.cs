@@ -157,7 +157,9 @@ public class CommandLineTests
 			[InlineData("default", 0)]
 			[InlineData("unlimited", -1)]
 			[InlineData("16", 16)]
-			public static void ValidValues(string value, int expected)
+			public static void ValidValues(
+				string value,
+				int expected)
 			{
 				var commandLine = TestableCommandLine.Parse("-maxthreads", value);
 
@@ -295,11 +297,15 @@ public class CommandLineTests
 			static readonly string[] BadFormatValues =
 				new string[]
 				{
-					"foobar",       // Missing equals
-                    "foo=",         // Missing value
-                    "=bar",         // Missing name
-                    "foo=bar=baz",  // Double equal signs
-                };
+					// Missing equals
+					"foobar",
+					// Missing value
+					"foo=",
+					// Missing name
+					"=bar",
+					// Double equal signs
+					"foo=bar=baz",
+				};
 
 			public static readonly TheoryData<string, Expression<Func<CommandLine, Dictionary<string, List<string>>>>> SwitchesLowerCase =
 				new TheoryData<string, Expression<Func<CommandLine, Dictionary<string, List<string>>>>>(
@@ -343,8 +349,8 @@ public class CommandLineTests
 			[Theory]
 			[MemberData(nameof(SwitchesLowerCase))]
 			[MemberData(nameof(SwitchesUpperCase))]
-			public static void MultipleValidTraitArguments_SameName
-				(string @switch,
+			public static void MultipleValidTraitArguments_SameName(
+				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
 			{
 				var commandLine = TestableCommandLine.Parse(@switch, "foo=bar", @switch, "foo=baz");
@@ -389,7 +395,9 @@ public class CommandLineTests
 			[Theory]
 			[MemberData(nameof(SwitchesWithOptionsLowerCase))]
 			[MemberData(nameof(SwitchesWithOptionsUpperCase))]
-			public static void ImproperlyFormattedOptionValue(string @switch, string optionValue)
+			public static void ImproperlyFormattedOptionValue(
+				string @switch,
+				string optionValue)
 			{
 				var ex = Record.Exception(() => TestableCommandLine.Parse(@switch, optionValue));
 
@@ -507,8 +515,7 @@ public class CommandLineTests
 			Reporter = ChooseReporter(reporters);
 		}
 
-		protected override string GetFullPath(string fileName) =>
-			$"/full/path/{fileName}";
+		protected override string GetFullPath(string fileName) => $"/full/path/{fileName}";
 
 		public static TestableCommandLine Parse(params string[] arguments) =>
 			new TestableCommandLine(new IRunnerReporter[0], arguments);

@@ -234,11 +234,9 @@ public class TestClassRunnerTests
 			);
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var other1 = Mocks.TestCase<ClassUnderTest>("Other");

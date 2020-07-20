@@ -15,7 +15,9 @@ namespace Xunit.Runner.MSBuild
 			this.warningHandler = warningHandler;
 		}
 
-		public void Parse(string? traits, Dictionary<string, List<string>> traitsDictionary)
+		public void Parse(
+			string? traits,
+			Dictionary<string, List<string>> traitsDictionary)
 		{
 			if (!string.IsNullOrEmpty(traits))
 			{

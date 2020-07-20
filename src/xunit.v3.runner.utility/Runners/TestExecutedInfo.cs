@@ -8,14 +8,15 @@ namespace Xunit.Runners
 	public abstract class TestExecutedInfo : TestInfo
 	{
 		/// <summary/>
-		public TestExecutedInfo(string typeName,
-								string methodName,
-								Dictionary<string, List<string>>? traits,
-								string testDisplayName,
-								string testCollectionDisplayName,
-								decimal executionTime,
-								string? output)
-			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
+		public TestExecutedInfo(
+			string typeName,
+			string methodName,
+			Dictionary<string, List<string>>? traits,
+			string testDisplayName,
+			string testCollectionDisplayName,
+			decimal executionTime,
+			string? output)
+				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
 		{
 			ExecutionTime = executionTime;
 			Output = output ?? string.Empty;

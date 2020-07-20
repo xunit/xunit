@@ -21,7 +21,8 @@ public class TestRunnerTests
 
 		Assert.Equal(21.12m, result.Time);
 		Assert.False(runner.TokenSource.IsCancellationRequested);
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
@@ -127,17 +128,18 @@ public class TestRunnerTests
 	{
 		var messages = new List<IMessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
-		messageBus.QueueMessage(null!)
-				  .ReturnsForAnyArgs(callInfo =>
-				  {
-					  var msg = callInfo.Arg<IMessageSinkMessage>();
-					  messages.Add(msg);
+		messageBus
+			.QueueMessage(null!)
+			.ReturnsForAnyArgs(callInfo =>
+			{
+				var msg = callInfo.Arg<IMessageSinkMessage>();
+				messages.Add(msg);
 
-					  if (msg is ITestStarting)
-						  throw new InvalidOperationException();
+				if (msg is ITestStarting)
+					throw new InvalidOperationException();
 
-					  return true;
-				  });
+				return true;
+			});
 		var runner = TestableTestRunner.Create(messageBus);
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());

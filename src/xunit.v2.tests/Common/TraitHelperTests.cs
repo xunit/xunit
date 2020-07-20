@@ -87,7 +87,7 @@ public class TraitHelperTests
 
 	class ClassUnderTest
 	{
-		[Obsolete]    // Irrelevant attribute
+		[Obsolete]  // Irrelevant attribute
 		public void NoTraits() { }
 
 		[Trait("foo", "bar")]

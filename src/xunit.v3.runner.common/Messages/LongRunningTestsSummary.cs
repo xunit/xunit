@@ -14,7 +14,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="configuredLongRunningTime">Configured notification time</param>
 		/// <param name="testCases">Tests</param>
-		public LongRunningTestsSummary(TimeSpan configuredLongRunningTime, IDictionary<ITestCase, TimeSpan> testCases)
+		public LongRunningTestsSummary(
+			TimeSpan configuredLongRunningTime,
+			IDictionary<ITestCase, TimeSpan> testCases)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 

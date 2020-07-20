@@ -74,7 +74,8 @@ public class XunitTestCaseTests
 		{
 			var passingTests = await RunAsync<ITestPassed>(typeof(ClassWithCustomTraitTest));
 
-			Assert.Collection(passingTests,
+			Assert.Collection(
+				passingTests,
 				passingTest => Assert.Collection(passingTest.TestCase.Traits.OrderBy(x => x.Key),
 					namedTrait =>
 					{

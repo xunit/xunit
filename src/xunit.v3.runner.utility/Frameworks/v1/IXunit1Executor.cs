@@ -19,8 +19,8 @@ namespace Xunit
 		/// <summary>
 		/// Enumerates the tests in the assembly.
 		/// </summary>
-		/// <param name="handler">The callback handler used to return information.</param>
-		void EnumerateTests(ICallbackEventHandler handler);
+		/// <param name="handler">The optional callback handler used to return information.</param>
+		void EnumerateTests(ICallbackEventHandler? handler);
 
 		/// <summary>
 		/// Runs the tests in a class.
@@ -28,7 +28,11 @@ namespace Xunit
 		/// <param name="type">The class to run.</param>
 		/// <param name="methods">The methods in the class to run.</param>
 		/// <param name="handler">The callback handler used to return information.</param>
-		void RunTests(string type, List<string> methods, ICallbackEventHandler handler);
+		void RunTests(
+			string type,
+			List<string> methods,
+			ICallbackEventHandler handler
+		);
 	}
 }
 

@@ -14,8 +14,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AfterTestFinished"/> class.
 		/// </summary>
-		public AfterTestFinished(ITest test, string attributeName)
-			: base(test)
+		public AfterTestFinished(
+			ITest test,
+			string attributeName)
+				: base(test)
 		{
 			Guard.ArgumentNotNull(nameof(attributeName), attributeName);
 

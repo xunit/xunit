@@ -14,7 +14,9 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionStarting"/> class.
 		/// </summary>
-		public TestExecutionSummary(TimeSpan elapsedClockTime, List<KeyValuePair<string, ExecutionSummary>> summaries)
+		public TestExecutionSummary(
+			TimeSpan elapsedClockTime,
+			List<KeyValuePair<string, ExecutionSummary>> summaries)
 		{
 			ElapsedClockTime = elapsedClockTime;
 			Summaries = summaries;

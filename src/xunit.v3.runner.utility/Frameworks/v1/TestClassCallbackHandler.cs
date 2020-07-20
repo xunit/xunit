@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Web.UI.WebControls;
 using System.Xml;
 using Xunit.Abstractions;
 
@@ -29,8 +28,10 @@ namespace Xunit
 		/// </summary>
 		/// <param name="testCases">The test cases that are being run.</param>
 		/// <param name="messageSink">The message sink to call with the translated results.</param>
-		public TestClassCallbackHandler(IList<ITestCase> testCases, IMessageSink messageSink)
-			: base(lastNodeName: "class")
+		public TestClassCallbackHandler(
+			IList<ITestCase> testCases,
+			IMessageSink messageSink)
+				: base(lastNodeName: "class")
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
@@ -50,12 +51,11 @@ namespace Xunit
 		/// <summary>
 		/// Gets the test class results, after the execution has completed.
 		/// </summary>
-		public Xunit1RunSummary TestClassResults { get; private set; }
+		public Xunit1RunSummary TestClassResults { get; }
 
-		ITestCase FindTestCase(string typeName, string methodName)
-		{
-			return testCases.FirstOrDefault(tc => tc.TestMethod.TestClass.Class.Name == typeName && tc.TestMethod.Method.Name == methodName);
-		}
+		ITestCase FindTestCase(string typeName, string methodName) =>
+			testCases
+				.FirstOrDefault(tc => tc.TestMethod.TestClass.Class.Name == typeName && tc.TestMethod.Method.Name == methodName);
 
 		bool OnClass(XmlNode xml)
 		{
@@ -66,12 +66,14 @@ namespace Xunit
 			if ((failureNode = xml.SelectSingleNode("failure")) != null)
 			{
 				var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failureNode);
+				var errorMessage = new ErrorMessage(
+					testCases,
+					failureInformation.ExceptionTypes,
+					failureInformation.Messages,
+					failureInformation.StackTraces,
+					failureInformation.ExceptionParentIndices
+				);
 
-				var errorMessage = new ErrorMessage(testCases,
-													failureInformation.ExceptionTypes,
-													failureInformation.Messages,
-													failureInformation.StackTraces,
-													failureInformation.ExceptionParentIndices);
 				@continue = messageSink.OnMessage(errorMessage);
 			}
 
@@ -100,7 +102,8 @@ namespace Xunit
 			var output = outputElement == null ? string.Empty : outputElement.InnerText;
 			ITestCaseMessage? resultMessage = null;
 
-			if (currentTest == null)  // There is no <start> node for skipped tests, or with xUnit prior to v1.1
+			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
+			if (currentTest == null)
 				currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value);
 
 			testCaseResults.Total++;
@@ -117,11 +120,15 @@ namespace Xunit
 						testCaseResults.Failed++;
 						var failure = xml.SelectSingleNode("failure");
 						var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failure);
-						resultMessage = new TestFailed(currentTest, time, output,
-													   failureInformation.ExceptionTypes,
-													   failureInformation.Messages,
-													   failureInformation.StackTraces,
-													   failureInformation.ExceptionParentIndices);
+						resultMessage = new TestFailed(
+							currentTest,
+							time,
+							output,
+							failureInformation.ExceptionTypes,
+							failureInformation.Messages,
+							failureInformation.StackTraces,
+							failureInformation.ExceptionParentIndices
+						);
 						break;
 					}
 
@@ -160,12 +167,10 @@ namespace Xunit
 			return TestClassResults.Continue;
 		}
 
-		List<ITestCase> GetTestMethodTestCases(ITestMethod testMethod)
-		{
-			return testCases.Where(tc => tc.TestMethod.Method.Name == testMethod.Method.Name
-									  && tc.TestMethod.TestClass.Class.Name == testMethod.TestClass.Class.Name)
-							.ToList();
-		}
+		List<ITestCase> GetTestMethodTestCases(ITestMethod testMethod) =>
+			testCases
+				.Where(tc => tc.TestMethod.Method.Name == testMethod.Method.Name && tc.TestMethod.TestClass.Class.Name == testMethod.TestClass.Class.Name)
+				.ToList();
 
 		void SendTestCaseMessagesWhenAppropriate(ITestCase? current)
 		{
@@ -181,12 +186,17 @@ namespace Xunit
 				{
 					var testMethodTestCases = GetTestMethodTestCases(lastTestCase.TestMethod);
 
-					results.Continue = messageSink.OnMessage(new TestMethodFinished(testMethodTestCases,
-																					lastTestCase.TestMethod,
-																					testMethodResults.Time,
-																					testMethodResults.Total,
-																					testMethodResults.Failed,
-																					testMethodResults.Skipped)) && results.Continue;
+					results.Continue = messageSink.OnMessage(
+						new TestMethodFinished(
+							testMethodTestCases,
+							lastTestCase.TestMethod,
+							testMethodResults.Time,
+							testMethodResults.Total,
+							testMethodResults.Failed,
+							testMethodResults.Skipped
+						)
+					) && results.Continue;
+
 					testMethodResults.Reset();
 				}
 			}

@@ -5,9 +5,13 @@ namespace Xunit.Runner.MSBuild
 {
 	public class DiagnosticMessageSink : TestMessageSink
 	{
-		DiagnosticMessageSink() { }
+		DiagnosticMessageSink()
+		{ }
 
-		public static DiagnosticMessageSink ForDiagnostics(TaskLoggingHelper log, string assemblyDisplayName, bool showDiagnostics)
+		public static DiagnosticMessageSink ForDiagnostics(
+			TaskLoggingHelper log,
+			string assemblyDisplayName,
+			bool showDiagnostics)
 		{
 			var result = new DiagnosticMessageSink();
 
@@ -17,7 +21,9 @@ namespace Xunit.Runner.MSBuild
 			return result;
 		}
 
-		public static DiagnosticMessageSink ForInternalDiagnostics(TaskLoggingHelper log, bool showDiagnostics)
+		public static DiagnosticMessageSink ForInternalDiagnostics(
+			TaskLoggingHelper log,
+			bool showDiagnostics)
 		{
 			var result = new DiagnosticMessageSink();
 

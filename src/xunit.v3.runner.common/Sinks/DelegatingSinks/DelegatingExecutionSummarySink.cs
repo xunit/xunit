@@ -59,13 +59,16 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			var result = innerSink.OnMessageWithTypes(message, messageTypes);
 
-			return message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
+			return
+				message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))

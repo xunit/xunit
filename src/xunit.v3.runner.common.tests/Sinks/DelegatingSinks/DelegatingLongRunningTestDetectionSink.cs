@@ -14,18 +14,16 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	{
 		var events = new List<LongRunningTestsSummary>();
 
-		using (var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary)))
-		{
-			var testCase1 = Substitute.For<ITestCase>();
+		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
+		var testCase1 = Substitute.For<ITestCase>();
 
-			sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
-			sink.OnMessage(new TestCaseStarting(testCase1));
-			await sink.AdvanceClockAsync(100);
-			sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
-			sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new TestCaseStarting(testCase1));
+		await sink.AdvanceClockAsync(100);
+		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
+		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
-			Assert.Empty(events);
-		}
+		Assert.Empty(events);
 	}
 
 	[Fact]
@@ -33,22 +31,20 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	{
 		var events = new List<LongRunningTestsSummary>();
 
-		using (var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary)))
-		{
-			var testCase = Substitute.For<ITestCase>();
+		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
+		var testCase = Substitute.For<ITestCase>();
 
-			sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
-			sink.OnMessage(new TestCaseStarting(testCase));
-			await sink.AdvanceClockAsync(1500);
-			sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-			sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new TestCaseStarting(testCase));
+		await sink.AdvanceClockAsync(1500);
+		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
+		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
-			var @event = Assert.Single(events);
-			Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-			var receivedTestCasePair = Assert.Single(@event.TestCases);
-			Assert.Same(testCase, receivedTestCasePair.Key);
-			Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
-		}
+		var @event = Assert.Single(events);
+		Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
+		var receivedTestCasePair = Assert.Single(@event.TestCases);
+		Assert.Same(testCase, receivedTestCasePair.Key);
+		Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
 	}
 
 	[Fact]
@@ -56,26 +52,24 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	{
 		var events = new List<LongRunningTestsSummary>();
 
-		using (var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary)))
-		{
-			var testCase1 = Substitute.For<ITestCase>();
-			var testCase2 = Substitute.For<ITestCase>();
+		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
+		var testCase1 = Substitute.For<ITestCase>();
+		var testCase2 = Substitute.For<ITestCase>();
 
-			sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
-			sink.OnMessage(new TestCaseStarting(testCase1));
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(new TestCaseStarting(testCase2));  // Started later, hasn't run long enough
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
-			sink.OnMessage(new TestCaseFinished(testCase2, 8009, 1, 0, 0));
-			sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new TestCaseStarting(testCase1));
+		await sink.AdvanceClockAsync(500);
+		sink.OnMessage(new TestCaseStarting(testCase2));  // Started later, hasn't run long enough
+		await sink.AdvanceClockAsync(500);
+		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
+		sink.OnMessage(new TestCaseFinished(testCase2, 8009, 1, 0, 0));
+		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
-			var @event = Assert.Single(events);
-			Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-			var receivedTestCasePair = Assert.Single(@event.TestCases);
-			Assert.Same(testCase1, receivedTestCasePair.Key);
-			Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
-		}
+		var @event = Assert.Single(events);
+		Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
+		var receivedTestCasePair = Assert.Single(@event.TestCases);
+		Assert.Same(testCase1, receivedTestCasePair.Key);
+		Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
 	}
 
 	[Fact]
@@ -83,35 +77,34 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	{
 		var events = new List<LongRunningTestsSummary>();
 
-		using (var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary)))
-		{
-			var testCase = Substitute.For<ITestCase>();
+		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
+		var testCase = Substitute.For<ITestCase>();
 
-			sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
-			sink.OnMessage(new TestCaseStarting(testCase));
-			await sink.AdvanceClockAsync(1000);
-			await sink.AdvanceClockAsync(500);
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-			sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new TestCaseStarting(testCase));
+		await sink.AdvanceClockAsync(1000);
+		await sink.AdvanceClockAsync(500);
+		await sink.AdvanceClockAsync(500);
+		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
+		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
-			Assert.Collection(events,
-				@event =>
-				{
-					Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-					var receivedTestCasePair = Assert.Single(@event.TestCases);
-					Assert.Same(testCase, receivedTestCasePair.Key);
-					Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
-				},
-				@event =>
-				{
-					Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-					var receivedTestCasePair = Assert.Single(@event.TestCases);
-					Assert.Same(testCase, receivedTestCasePair.Key);
-					Assert.Equal(TimeSpan.FromSeconds(2), receivedTestCasePair.Value);
-				}
-			);
-		}
+		Assert.Collection(
+			events,
+			@event =>
+			{
+				Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
+				var receivedTestCasePair = Assert.Single(@event.TestCases);
+				Assert.Same(testCase, receivedTestCasePair.Key);
+				Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
+			},
+			@event =>
+			{
+				Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
+				var receivedTestCasePair = Assert.Single(@event.TestCases);
+				Assert.Same(testCase, receivedTestCasePair.Key);
+				Assert.Equal(TimeSpan.FromSeconds(2), receivedTestCasePair.Value);
+			}
+		);
 	}
 
 	[Fact]
@@ -119,28 +112,27 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	{
 		var events = new List<IDiagnosticMessage>();
 		var diagSink = Substitute.For<IMessageSinkWithTypes>();
-		diagSink.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
-				.Do(callInfo =>
-				{
-					var message = callInfo.Arg<IMessageSinkMessage>();
-					if (message is IDiagnosticMessage diagnosticMessage)
-						events.Add(diagnosticMessage);
-				});
+		diagSink
+			.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
+			.Do(callInfo =>
+			{
+				var message = callInfo.Arg<IMessageSinkMessage>();
+				if (message is IDiagnosticMessage diagnosticMessage)
+					events.Add(diagnosticMessage);
+			});
 
-		using (var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, diagnosticMessageSink: diagSink))
-		{
-			var testCase = Substitute.For<ITestCase>();
-			testCase.DisplayName.Returns("My test display name");
+		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, diagnosticMessageSink: diagSink);
+		var testCase = Substitute.For<ITestCase>();
+		testCase.DisplayName.Returns("My test display name");
 
-			sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
-			sink.OnMessage(new TestCaseStarting(testCase));
-			await sink.AdvanceClockAsync(1500);
-			sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-			sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new TestCaseStarting(testCase));
+		await sink.AdvanceClockAsync(1500);
+		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
+		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
-			var @event = Assert.Single(events);
-			Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message);
-		}
+		var @event = Assert.Single(events);
+		Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message);
 	}
 
 	[Fact]
@@ -148,32 +140,32 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	{
 		var events = new List<IDiagnosticMessage>();
 		var diagSink = Substitute.For<IMessageSinkWithTypes>();
-		diagSink.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
-				.Do(callInfo =>
-				{
-					var message = callInfo.Arg<IMessageSinkMessage>();
-					if (message is IDiagnosticMessage diagnosticMessage)
-						events.Add(diagnosticMessage);
-				});
+		diagSink
+			.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
+			.Do(callInfo =>
+			{
+				var message = callInfo.Arg<IMessageSinkMessage>();
+				if (message is IDiagnosticMessage diagnosticMessage)
+					events.Add(diagnosticMessage);
+			});
 
-		using (var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, diagnosticMessageSink: diagSink))
-		{
-			var testCase = Substitute.For<ITestCase>();
-			testCase.DisplayName.Returns("My test display name");
+		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, diagnosticMessageSink: diagSink);
+		var testCase = Substitute.For<ITestCase>();
+		testCase.DisplayName.Returns("My test display name");
 
-			sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
-			sink.OnMessage(new TestCaseStarting(testCase));
-			await sink.AdvanceClockAsync(1000);
-			await sink.AdvanceClockAsync(500);
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-			sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new TestCaseStarting(testCase));
+		await sink.AdvanceClockAsync(1000);
+		await sink.AdvanceClockAsync(500);
+		await sink.AdvanceClockAsync(500);
+		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
+		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
-			Assert.Collection(events,
-				@event => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message),
-				@event => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:02", @event.Message)
-			);
-		}
+		Assert.Collection(
+			events,
+			@event => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message),
+			@event => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:02", @event.Message)
+		);
 	}
 
 	class TestableDelegatingLongRunningTestDetectionSink : DelegatingLongRunningTestDetectionSink
@@ -181,13 +173,19 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		volatile bool stop = false;
 		volatile int stopEventTriggerCount;
 		DateTime utcNow = DateTime.UtcNow;
-		AutoResetEvent workEvent = new AutoResetEvent(initialState: false);
+		readonly AutoResetEvent workEvent = new AutoResetEvent(initialState: false);
 
-		public TestableDelegatingLongRunningTestDetectionSink(int longRunningSeconds, IMessageSinkWithTypes diagnosticMessageSink)
-			: base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink) { }
+		public TestableDelegatingLongRunningTestDetectionSink(
+			int longRunningSeconds,
+			IMessageSinkWithTypes diagnosticMessageSink)
+				: base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink)
+		{ }
 
-		public TestableDelegatingLongRunningTestDetectionSink(int longRunningSeconds, Action<LongRunningTestsSummary>? callback = null)
-			: base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), callback ?? (_ => { })) { }
+		public TestableDelegatingLongRunningTestDetectionSink(
+			int longRunningSeconds,
+			Action<LongRunningTestsSummary>? callback = null)
+				: base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), callback ?? (_ => { }))
+		{ }
 
 		protected override DateTime UtcNow => utcNow;
 
@@ -245,7 +243,6 @@ public class DelegatingLongRunningTestDetectionSinkTests
 			return false;
 		}
 
-		public bool OnMessage(IMessageSinkMessage message)
-			=> OnMessageWithTypes(message, null);
+		public bool OnMessage(IMessageSinkMessage message) => OnMessageWithTypes(message, null);
 	}
 }

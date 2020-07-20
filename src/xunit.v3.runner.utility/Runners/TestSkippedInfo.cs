@@ -8,13 +8,14 @@ namespace Xunit.Runners
 	public class TestSkippedInfo : TestInfo
 	{
 		/// <summary/>
-		public TestSkippedInfo(string typeName,
-							   string methodName,
-							   Dictionary<string, List<string>>? traits,
-							   string testDisplayName,
-							   string testCollectionDisplayName,
-							   string skipReason)
-			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
+		public TestSkippedInfo(
+			string typeName,
+			string methodName,
+			Dictionary<string, List<string>>? traits,
+			string testDisplayName,
+			string testCollectionDisplayName,
+			string skipReason)
+				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
 		{
 			Guard.ArgumentNotNull(nameof(skipReason), skipReason);
 

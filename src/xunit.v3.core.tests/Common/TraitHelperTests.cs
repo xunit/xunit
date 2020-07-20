@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -27,7 +24,8 @@ public class TraitHelperTests
 
 		var traits = TraitHelper.GetTraits(method!);
 
-		Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+		Assert.Collection(
+			traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
 			value => Assert.Equal("foo = bar", value)
 		);
 	}
@@ -39,7 +37,8 @@ public class TraitHelperTests
 
 		var traits = TraitHelper.GetTraits(method!);
 
-		Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+		Assert.Collection(
+			traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
 			value => Assert.Equal("Baz = 2112", value),
 			value => Assert.Equal("Foo = Biff", value)
 		);
@@ -52,7 +51,8 @@ public class TraitHelperTests
 
 		var traits = TraitHelper.GetTraits(method!);
 
-		Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+		Assert.Collection(
+			traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
 			value => Assert.Equal("Baz = 2112", value),
 			value => Assert.Equal("foo = bar", value),
 			value => Assert.Equal("Foo = Biff", value),
@@ -67,7 +67,8 @@ public class TraitHelperTests
 
 		var traits = TraitHelper.GetTraits(method!);
 
-		Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+		Assert.Collection(
+			traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
 			value => Assert.Equal("Baz = 2112", value),
 			value => Assert.Equal("Foo = Biff", value)
 		);
@@ -80,7 +81,8 @@ public class TraitHelperTests
 
 		var traits = TraitHelper.GetTraits(method!);
 
-		Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+		Assert.Collection(
+			traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
 			value => Assert.Equal("Baz = 2112", value),
 			value => Assert.Equal("foo = bar", value),
 			value => Assert.Equal("Foo = Biff", value),

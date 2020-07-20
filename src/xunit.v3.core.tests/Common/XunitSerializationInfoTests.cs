@@ -99,7 +99,9 @@ public class XunitSerializationInfoTests
 		[Theory]
 		[InlineData(0.0, false)]
 		[InlineData(-0.0, true)]
-		public void SerializesNegativeZeroFloatCorrectly(double value, bool isNegativeZero)
+		public void SerializesNegativeZeroFloatCorrectly(
+			double value,
+			bool isNegativeZero)
 		{
 			var expected = isNegativeZero ? -0.0 : 0.0;
 			var expectedBits = BitConverter.DoubleToInt64Bits(expected);
@@ -111,7 +113,9 @@ public class XunitSerializationInfoTests
 		[Theory]
 		[InlineData(0.0f, false)]
 		[InlineData(-0.0f, true)]
-		public void SerializesNegativeZeroDoubleCorrectly(float value, bool isNegativeZero)
+		public void SerializesNegativeZeroDoubleCorrectly(
+			float value,
+			bool isNegativeZero)
 		{
 			var expected = isNegativeZero ? -0.0f : 0.0f;
 			var expectedBytes = BitConverter.GetBytes(expected);

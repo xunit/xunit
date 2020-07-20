@@ -98,7 +98,8 @@ public class XunitTestClassRunnerTests
 
 		await runner.RunAsync();
 
-		Assert.Collection(runner.ClassFixtureMappings.OrderBy(mapping => mapping.Key.Name),
+		Assert.Collection(
+			runner.ClassFixtureMappings.OrderBy(mapping => mapping.Key.Name),
 			mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
 			mapping => Assert.IsType<object>(mapping.Value)
 		);
@@ -314,11 +315,9 @@ public class XunitTestClassRunnerTests
 			public void Passing() { }
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var testCase = Mocks.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 
@@ -357,7 +356,8 @@ public class XunitTestClassRunnerTests
 		await runner.RunAsync();
 
 		var args = Assert.Single(runner.ConstructorArguments);
-		Assert.Collection(args,
+		Assert.Collection(
+			args,
 			arg => Assert.IsType<FixtureUnderTest>(arg),
 			arg => Assert.Equal("Hello, world!", arg),
 			arg => Assert.Equal(21.12m, arg)
@@ -412,17 +412,14 @@ public class XunitTestClassRunnerTests
 			DiagnosticMessages = diagnosticMessages;
 		}
 
-		public new Dictionary<Type, object> ClassFixtureMappings
-			=> base.ClassFixtureMappings;
+		public new Dictionary<Type, object> ClassFixtureMappings => base.ClassFixtureMappings;
 
-		public new ITestCaseOrderer TestCaseOrderer
-			=> base.TestCaseOrderer;
+		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 
-		public new IMessageSink DiagnosticMessageSink
-			=> base.DiagnosticMessageSink;
+		public new IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
-		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures)
-			=> new TestableXunitTestClassRunner(
+		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
+			new TestableXunitTestClassRunner(
 				testCase.TestMethod.TestClass,
 				(IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
 				new[] { testCase },

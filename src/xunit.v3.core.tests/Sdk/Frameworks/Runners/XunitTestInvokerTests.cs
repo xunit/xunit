@@ -21,7 +21,8 @@ public class XunitTestInvokerTests
 			await invoker.RunAsync();
 
 			Assert.Null(invoker.Aggregator.ToException());
-			Assert.Collection(messageBus.Messages,
+			Assert.Collection(
+				messageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),  // From TestInvoker
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),  // From TestInvoker
 				msg =>
@@ -70,7 +71,8 @@ public class XunitTestInvokerTests
 			await invoker.RunAsync();
 
 			Assert.IsType<SpyBeforeAfterTest.BeforeException>(invoker.Aggregator.ToException());
-			Assert.Collection(messageBus.Messages,
+			Assert.Collection(
+				messageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
@@ -88,11 +90,13 @@ public class XunitTestInvokerTests
 			await invoker.RunAsync();
 
 			var aggEx = Assert.IsType<AggregateException>(invoker.Aggregator.ToException());
-			Assert.Collection(aggEx.InnerExceptions,
+			Assert.Collection(
+				aggEx.InnerExceptions,
 				ex => Assert.IsType<TrueException>(ex),
 				ex => Assert.IsType<SpyBeforeAfterTest.AfterException>(ex)
 			);
-			Assert.Collection(messageBus.Messages,
+			Assert.Collection(
+				messageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
@@ -140,7 +144,8 @@ public class XunitTestInvokerTests
 
 			await invoker.RunAsync();
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg => Assert.Equal("Before #1", msg)
 			// No cleanup for anything, so we had nothing run successfully
 			);
@@ -180,7 +185,8 @@ public class XunitTestInvokerTests
 
 			await invoker.RunAsync();
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg => Assert.Equal("Before #1", msg),
 				msg => Assert.Equal("Before #2", msg),
 				msg => Assert.Equal("Test method invocation", msg),
@@ -202,7 +208,8 @@ public class XunitTestInvokerTests
 
 			await invoker.RunAsync();
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg => Assert.Equal("Before #1", msg),
 				msg => Assert.Equal("Before #2", msg),
 				msg => Assert.Equal("Test method invocation", msg),
@@ -224,7 +231,8 @@ public class XunitTestInvokerTests
 
 			await invoker.RunAsync();
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg => Assert.Equal("Before #1", msg),
 				msg => Assert.Equal("Before #2", msg),
 				msg => Assert.Equal("Test method invocation", msg),

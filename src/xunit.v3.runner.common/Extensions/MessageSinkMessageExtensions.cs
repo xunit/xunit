@@ -15,8 +15,10 @@ public static class MessageSinkMessageExtensions
 	/// <param name="message">The message to test and cast.</param>
 	/// <param name="typeNames">The implemented interfaces, if known.</param>
 	/// <returns>The message as <typeparamref name="TMessage"/>, or <c>null</c>.</returns>
-	public static TMessage? Cast<TMessage>(this IMessageSinkMessage message, HashSet<string>? typeNames)
-		where TMessage : class, IMessageSinkMessage
+	public static TMessage? Cast<TMessage>(
+		this IMessageSinkMessage message,
+		HashSet<string>? typeNames)
+			where TMessage : class, IMessageSinkMessage
 	{
 		Guard.ArgumentNotNull(nameof(message), message);
 
@@ -31,8 +33,11 @@ public static class MessageSinkMessageExtensions
 	/// <param name="messageTypes">The implemented interfaces, if known.</param>
 	/// <param name="callback">The callback to dispatch the message to.</param>
 	/// <returns>Returns <c>true</c> if processing should continue; <c>false</c> otherwise.</returns>
-	public static bool Dispatch<TMessage>(this IMessageSinkMessage message, HashSet<string>? messageTypes, MessageHandler<TMessage>? callback)
-		where TMessage : class, IMessageSinkMessage
+	public static bool Dispatch<TMessage>(
+		this IMessageSinkMessage message,
+		HashSet<string>? messageTypes,
+		MessageHandler<TMessage>? callback)
+			where TMessage : class, IMessageSinkMessage
 	{
 		Guard.ArgumentNotNull(nameof(message), message);
 

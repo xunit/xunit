@@ -21,7 +21,8 @@ public class TestCaseRunnerTests
 
 		Assert.Same(result, summary);
 		Assert.False(runner.TokenSource.IsCancellationRequested);
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);
@@ -46,17 +47,18 @@ public class TestCaseRunnerTests
 	{
 		var messages = new List<IMessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
-		messageBus.QueueMessage(null!)
-				  .ReturnsForAnyArgs(callInfo =>
-				  {
-					  var msg = callInfo.Arg<IMessageSinkMessage>();
-					  messages.Add(msg);
+		messageBus
+			.QueueMessage(null!)
+			.ReturnsForAnyArgs(callInfo =>
+			{
+				var msg = callInfo.Arg<IMessageSinkMessage>();
+				messages.Add(msg);
 
-					  if (msg is ITestCaseStarting)
-						  throw new InvalidOperationException();
+				if (msg is ITestCaseStarting)
+					throw new InvalidOperationException();
 
-					  return true;
-				  });
+				return true;
+			});
 		var runner = TestableTestCaseRunner.Create(messageBus);
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
@@ -225,7 +227,6 @@ public class TestCaseRunnerTests
 		{
 			RunTestAsync_AggregatorResult = Aggregator.ToException();
 			RunTestAsync_Called = true;
-
 			return Task.FromResult(result);
 		}
 	}

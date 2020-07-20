@@ -102,7 +102,8 @@ namespace Xunit.Runner.Common
 			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var directoryName = Path.GetDirectoryName(assemblyFileName)!;
 
-			return LoadFile(Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json"))
+			return
+				LoadFile(Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json"))
 				?? LoadFile(Path.Combine(directoryName, "xunit.runner.json"));
 		}
 

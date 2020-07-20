@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common.tests\Utility\EnvironmentHelper.cs" LinkBase="Common.Tests" />
   </ItemGroup>
 
   <ItemGroup>

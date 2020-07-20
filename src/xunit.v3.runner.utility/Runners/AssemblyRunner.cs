@@ -48,11 +48,12 @@ namespace Xunit.Runners
 			AddMessageTypeName<ITestStarting>();
 		}
 
-		AssemblyRunner(AppDomainSupport appDomainSupport,
-					   string assemblyFileName,
-					   string? configFileName = null,
-					   bool shadowCopy = true,
-					   string? shadowCopyFolder = null)
+		AssemblyRunner(
+			AppDomainSupport appDomainSupport,
+			string assemblyFileName,
+			string? configFileName = null,
+			bool shadowCopy = true,
+			string? shadowCopyFolder = null)
 		{
 			controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: MessageSinkAdapter.Wrap(this));
 			configuration = ConfigReader.Load(assemblyFileName, configFileName);

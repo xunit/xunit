@@ -24,14 +24,18 @@ namespace Xunit
 		/// Constructs an instance using the given <paramref name="directory"/> for resolution.
 		/// </summary>
 		/// <param name="directory">The directory to use for resolving assemblies.</param>
-		public AssemblyHelper(string directory) : this(directory, null) { }
+		public AssemblyHelper(string directory)
+			: this(directory, null)
+		{ }
 
 		/// <summary>
 		/// Constructs an instance using the given <paramref name="directory"/> for resolution.
 		/// </summary>
 		/// <param name="directory">The directory to use for resolving assemblies.</param>
 		/// <param name="internalDiagnosticsMessageSink">The message sink to send internal diagnostics messages to</param>
-		public AssemblyHelper(string directory, IMessageSink? internalDiagnosticsMessageSink)
+		public AssemblyHelper(
+			string directory,
+			IMessageSink? internalDiagnosticsMessageSink)
 		{
 			Guard.ArgumentNotNull(nameof(directory), directory);
 
@@ -76,7 +80,9 @@ namespace Xunit
 			return LoadAssembly(new AssemblyName(args.Name));
 		}
 
-		Assembly? ResolveAndLoadAssembly(string pathWithoutExtension, out string? resolvedAssemblyPath)
+		Assembly? ResolveAndLoadAssembly(
+			string pathWithoutExtension,
+			out string? resolvedAssemblyPath)
 		{
 			foreach (var extension in Extensions)
 			{
@@ -100,8 +106,10 @@ namespace Xunit
 		/// of the .deps.json file generated during the build process.
 		/// </summary>
 		/// <returns>An object which, when disposed, un-subscribes.</returns>
-		public static IDisposable? SubscribeResolveForAssembly(string assemblyFileName, IMessageSink? internalDiagnosticsMessageSink = null) =>
-			new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, internalDiagnosticsMessageSink);
+		public static IDisposable? SubscribeResolveForAssembly(
+			string assemblyFileName,
+			IMessageSink? internalDiagnosticsMessageSink = null) =>
+				new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, internalDiagnosticsMessageSink);
 
 		/// <summary>
 		/// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
@@ -109,8 +117,10 @@ namespace Xunit
 		/// of the .deps.json file generated during the build process.
 		/// </summary>
 		/// <returns>An object which, when disposed, un-subscribes.</returns>
-		public static IDisposable? SubscribeResolveForAssembly(Type typeInAssembly, IMessageSink? internalDiagnosticsMessageSink = null) =>
-			new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, internalDiagnosticsMessageSink);
+		public static IDisposable? SubscribeResolveForAssembly(
+			Type typeInAssembly,
+			IMessageSink? internalDiagnosticsMessageSink = null) =>
+				new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, internalDiagnosticsMessageSink);
 	}
 }
 

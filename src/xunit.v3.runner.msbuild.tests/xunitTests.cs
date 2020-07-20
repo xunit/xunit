@@ -16,25 +16,25 @@ public class xunitTests
 		[Fact, PreserveWorkingDirectory]
 		public static void ChangesCurrentDirectoryWhenWorkingFolderIsNotNull()
 		{
-			var tempFolder = Environment.GetEnvironmentVariable("TEMP")
-						  ?? Environment.GetEnvironmentVariable("TMP")
-						  ?? "/tmp";
+			var tempFolder =
+				Environment.GetEnvironmentVariable("TEMP")
+				?? Environment.GetEnvironmentVariable("TMP")
+				?? Environment.GetEnvironmentVariable("TMPDIR")
+				?? "/tmp";
+
 			tempFolder = Path.GetFullPath(tempFolder); // Ensure that the 8.3 path is not used
 			var xunit = new Testable_xunit { WorkingFolder = tempFolder };
 
 			xunit.Execute();
 
-			string actual = Directory.GetCurrentDirectory();
-			string expected = tempFolder;
+			var actual = Directory.GetCurrentDirectory();
+			var expected = tempFolder;
 
 			if (actual[actual.Length - 1] != Path.DirectorySeparatorChar)
-			{
 				actual += Path.DirectorySeparatorChar;
-			}
+
 			if (expected[expected.Length - 1] != Path.DirectorySeparatorChar)
-			{
 				expected += Path.DirectorySeparatorChar;
-			}
 
 			Assert.Equal(expected, actual);
 		}
@@ -48,7 +48,7 @@ public class xunitTests
 
 			var versionAttribute = typeof(xunit).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 			var eventArgs = Assert.IsType<BuildMessageEventArgs>(xunit.BuildEngine.Captured(x => x.LogMessageEvent(null)).Args().Single());
-			Assert.Equal($"xUnit.net MSBuild Runner v{versionAttribute!.InformationalVersion} ({IntPtr.Size * 8}-bit Desktop .NET {Environment.Version})", eventArgs.Message);
+			Assert.Equal($"xUnit.net v3 MSBuild Runner v{versionAttribute!.InformationalVersion} ({IntPtr.Size * 8}-bit Desktop .NET {Environment.Version})", eventArgs.Message);
 			Assert.Equal(MessageImportance.High, eventArgs.Importance);
 		}
 
@@ -77,7 +77,9 @@ public class xunitTests
 	{
 		public readonly List<IRunnerReporter> AvailableReporters = new List<IRunnerReporter>();
 
-		public Testable_xunit() : this(0) { }
+		public Testable_xunit()
+			: this(0)
+		{ }
 
 		public Testable_xunit(int exitCode)
 		{
@@ -86,11 +88,9 @@ public class xunitTests
 			ExitCode = exitCode;
 		}
 
-		protected override List<IRunnerReporter> GetAvailableRunnerReporters() =>
-			AvailableReporters;
+		protected override List<IRunnerReporter> GetAvailableRunnerReporters() => AvailableReporters;
 
-		public new IRunnerReporter? GetReporter() =>
-			base.GetReporter();
+		public new IRunnerReporter? GetReporter() => base.GetReporter();
 	}
 
 	public class GetReporter

@@ -17,16 +17,14 @@ public class SerializationTests
 	public static void CanSerializeAndDeserializeObjectsInATest()
 	{
 		var bf = new BinaryFormatter();
+		using var ms = new MemoryStream();
 
-		using (var ms = new MemoryStream())
-		{
-			bf.Serialize(ms, (object)new SerializableObject());
-			ms.Position = 0;
-			object o = bf.Deserialize(ms);
+		bf.Serialize(ms, new SerializableObject());
+		ms.Position = 0;
+		var o = bf.Deserialize(ms);
 
-			Assert.IsType(typeof(SerializableObject), o);
-			var o2 = (SerializableObject)o;  // Should not throw
-		}
+		Assert.IsType(typeof(SerializableObject), o);
+		var o2 = (SerializableObject)o;  // Should not throw
 	}
 
 	[Fact]

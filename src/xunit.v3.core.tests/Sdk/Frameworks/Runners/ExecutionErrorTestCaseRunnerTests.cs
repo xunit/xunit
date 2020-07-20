@@ -12,8 +12,8 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 
 	public void Dispose()
 	{
-		if (messageBus != null) messageBus.Dispose();
-		if (tokenSource != null) tokenSource.Dispose();
+		messageBus?.Dispose();
+		tokenSource?.Dispose();
 	}
 
 	[Fact]
@@ -26,7 +26,8 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);

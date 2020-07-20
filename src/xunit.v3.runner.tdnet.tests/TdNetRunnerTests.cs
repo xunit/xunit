@@ -31,7 +31,8 @@ public class TdNetRunnerTests
 
 			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest));
 
-			Assert.Collection(runner.Operations,
+			Assert.Collection(
+				runner.Operations,
 				msg => Assert.Equal("RunClass(type: TdNetRunnerTests+RunMember+TypeUnderTest, initialRunState: NoTests)", msg)
 			);
 		}
@@ -44,7 +45,8 @@ public class TdNetRunnerTests
 
 			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetMethod(nameof(TypeUnderTest.Method))!);
 
-			Assert.Collection(runner.Operations,
+			Assert.Collection(
+				runner.Operations,
 				msg => Assert.Equal("RunMethod(method: TdNetRunnerTests+RunMember+TypeUnderTest.Method, initialRunState: NoTests)", msg)
 			);
 		}
@@ -78,11 +80,13 @@ public class TdNetRunnerTests
 
 			runner.RunNamespace(listener, typeof(DummyNamespace.ClassInNamespace).Assembly, "DummyNamespace");
 
-			Assert.Collection(runner.Operations,
+			Assert.Collection(
+				runner.Operations,
 				msg => Assert.Equal("Discovery()", msg),
 				msg => Assert.Equal("Run(initialRunState: NoTests)", msg)
 			);
-			Assert.Collection(runner.TestsRun,
+			Assert.Collection(
+				runner.TestsRun,
 				testCase => Assert.Same(testCaseInNamespace, testCase)
 			);
 		}
@@ -99,30 +103,34 @@ public class TdNetRunnerTests
 		{
 			Helper = Substitute.For<TdNetRunnerHelper>();
 
-			Helper.Discover().Returns(
-				callInfo =>
+			Helper
+				.Discover()
+				.Returns(callInfo =>
 				{
 					Operations.Add("Discovery()");
 					return TestsToDiscover;
 				});
 
-			Helper.Run(null, TestRunState.NoTests).ReturnsForAnyArgs(
-				callInfo =>
+			Helper
+				.Run(null, TestRunState.NoTests)
+				.ReturnsForAnyArgs(callInfo =>
 				{
 					Operations.Add($"Run(initialRunState: {callInfo[1]})");
 					TestsRun.AddRange((IEnumerable<ITestCase>)callInfo[0]);
 					return TestRunState.NoTests;
 				});
 
-			Helper.RunClass(null!, TestRunState.NoTests).ReturnsForAnyArgs(
-				callInfo =>
+			Helper
+				.RunClass(null!, TestRunState.NoTests)
+				.ReturnsForAnyArgs(callInfo =>
 				{
 					Operations.Add($"RunClass(type: {callInfo[0]}, initialRunState: {callInfo[1]})");
 					return TestRunState.NoTests;
 				});
 
-			Helper.RunMethod(null!, TestRunState.NoTests).ReturnsForAnyArgs(
-				callInfo =>
+			Helper
+				.RunMethod(null!, TestRunState.NoTests)
+				.ReturnsForAnyArgs(callInfo =>
 				{
 					var method = (MethodInfo)callInfo[0];
 					Operations.Add($"RunMethod(method: {method.DeclaringType!.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
@@ -130,10 +138,7 @@ public class TdNetRunnerTests
 				});
 		}
 
-		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly)
-		{
-			return Helper;
-		}
+		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly) => Helper;
 	}
 }
 
@@ -141,6 +146,7 @@ namespace DummyNamespace
 {
 	public class ClassInNamespace
 	{
-		public void TestMethod() { }
+		public void TestMethod()
+		{ }
 	}
 }

@@ -56,7 +56,8 @@ public class TestAssemblyRunnerTests
 			Assert.Equal(2, result.Failed);
 			Assert.Equal(1, result.Skipped);
 			Assert.NotEqual(21.12m, result.Time);  // Uses clock time, not result time
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg =>
 				{
 					var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
@@ -84,17 +85,18 @@ public class TestAssemblyRunnerTests
 		{
 			var messages = new List<IMessageSinkMessage>();
 			var messageSink = Substitute.For<IMessageSink>();
-			messageSink.OnMessage(null)
-					   .ReturnsForAnyArgs(callInfo =>
-					   {
-						   var msg = callInfo.Arg<IMessageSinkMessage>();
-						   messages.Add(msg);
+			messageSink
+				.OnMessage(null)
+				.ReturnsForAnyArgs(callInfo =>
+				{
+					var msg = callInfo.Arg<IMessageSinkMessage>();
+					messages.Add(msg);
 
-						   if (msg is ITestAssemblyStarting)
-							   throw new InvalidOperationException();
+					if (msg is ITestAssemblyStarting)
+						throw new InvalidOperationException();
 
-						   return true;
-					   });
+					return true;
+				});
 			var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
@@ -181,7 +183,8 @@ public class TestAssemblyRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.CollectionsRun.OrderBy(c => c.Item1.DisplayName),
+			Assert.Collection(
+				runner.CollectionsRun.OrderBy(c => c.Item1.DisplayName),
 				tuple =>
 				{
 					Assert.Same(collection1, tuple.Item1);
@@ -255,7 +258,8 @@ public class TestAssemblyRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.CollectionsRun,
+			Assert.Collection(
+				runner.CollectionsRun,
 				collection =>
 				{
 					Assert.Same(collection2, collection.Item1);
@@ -282,11 +286,9 @@ public class TestAssemblyRunnerTests
 			}
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var collection1 = Mocks.TestCollection(displayName: "AAA");
 			var testCase1 = Mocks.TestCase(collection1);
 			var collection2 = Mocks.TestCollection(displayName: "ZZZZ");
@@ -299,7 +301,8 @@ public class TestAssemblyRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.CollectionsRun,
+			Assert.Collection(
+				runner.CollectionsRun,
 				collection => Assert.Same(collection1, collection.Item1),
 				collection => Assert.Same(collection2, collection.Item1),
 				collection => Assert.Same(collection3, collection.Item1)
@@ -364,10 +367,7 @@ public class TestAssemblyRunnerTests
 			);
 		}
 
-		public new ITestCaseOrderer TestCaseOrderer
-		{
-			get { return base.TestCaseOrderer; }
-		}
+		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 
 		public new ITestCollectionOrderer TestCollectionOrderer
 		{
@@ -375,10 +375,7 @@ public class TestAssemblyRunnerTests
 			set { base.TestCollectionOrderer = value; }
 		}
 
-		public IMessageBus CreateMessageBus_Public()
-		{
-			return base.CreateMessageBus();
-		}
+		public IMessageBus CreateMessageBus_Public() => base.CreateMessageBus();
 
 		protected override IMessageBus CreateMessageBus()
 		{
@@ -386,15 +383,9 @@ public class TestAssemblyRunnerTests
 			return new SynchronousMessageBus(ExecutionMessageSink);
 		}
 
-		protected override string GetTestFrameworkDisplayName()
-		{
-			return "The test framework display name";
-		}
+		protected override string GetTestFrameworkDisplayName() => "The test framework display name";
 
-		protected override string GetTestFrameworkEnvironment()
-		{
-			return "The test framework environment";
-		}
+		protected override string GetTestFrameworkEnvironment() => "The test framework environment";
 
 		protected override Task AfterTestAssemblyStartingAsync()
 		{
@@ -410,7 +401,11 @@ public class TestAssemblyRunnerTests
 			return Task.CompletedTask;
 		}
 
-		protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<ITestCase> testCases, CancellationTokenSource cancellationTokenSource)
+		protected override Task<RunSummary> RunTestCollectionAsync(
+			IMessageBus messageBus,
+			ITestCollection testCollection,
+			IEnumerable<ITestCase> testCases,
+			CancellationTokenSource cancellationTokenSource)
 		{
 			if (cancelInRunTestCollectionAsync)
 				cancellationTokenSource.Cancel();

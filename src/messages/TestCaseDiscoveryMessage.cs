@@ -15,6 +15,7 @@ namespace Xunit
 		/// Initializes a new instance of the <see cref="TestCaseDiscoveryMessage"/> class.
 		/// </summary>
 		public TestCaseDiscoveryMessage(ITestCase testCase)
-			: base(testCase) { }
+			: base(testCase)
+		{ }
 	}
 }

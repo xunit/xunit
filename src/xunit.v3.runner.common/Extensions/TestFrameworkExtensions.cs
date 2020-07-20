@@ -14,10 +14,11 @@ public static class TestFrameworkExtensions
 	/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 	/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
 	/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-	public static void Find(this ITestFrameworkDiscoverer discoverer,
-							bool includeSourceInformation,
-							IMessageSinkWithTypes discoveryMessageSink,
-							ITestFrameworkDiscoveryOptions discoveryOptions)
+	public static void Find(
+		this ITestFrameworkDiscoverer discoverer,
+		bool includeSourceInformation,
+		IMessageSinkWithTypes discoveryMessageSink,
+		ITestFrameworkDiscoveryOptions discoveryOptions)
 	{
 		Guard.ArgumentNotNull(nameof(discoverer), discoverer);
 		Guard.ArgumentNotNull(nameof(discoveryMessageSink), discoveryMessageSink);
@@ -34,11 +35,12 @@ public static class TestFrameworkExtensions
 	/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 	/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
 	/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-	public static void Find(this ITestFrameworkDiscoverer discoverer,
-							string typeName,
-							bool includeSourceInformation,
-							IMessageSinkWithTypes discoveryMessageSink,
-							ITestFrameworkDiscoveryOptions discoveryOptions)
+	public static void Find(
+		this ITestFrameworkDiscoverer discoverer,
+		string typeName,
+		bool includeSourceInformation,
+		IMessageSinkWithTypes discoveryMessageSink,
+		ITestFrameworkDiscoveryOptions discoveryOptions)
 	{
 		Guard.ArgumentNotNull(nameof(discoverer), discoverer);
 		Guard.ArgumentNotNull(nameof(typeName), typeName);
@@ -55,10 +57,11 @@ public static class TestFrameworkExtensions
 	/// <param name="executionMessageSink">The message sink to report results back to.</param>
 	/// <param name="discoveryOptions">The options to be used during test discovery.</param>
 	/// <param name="executionOptions">The options to be used during test execution.</param>
-	public static void RunAll(this ITestFrameworkExecutor executor,
-							  IMessageSinkWithTypes executionMessageSink,
-							  ITestFrameworkDiscoveryOptions discoveryOptions,
-							  ITestFrameworkExecutionOptions executionOptions)
+	public static void RunAll(
+		this ITestFrameworkExecutor executor,
+		IMessageSinkWithTypes executionMessageSink,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executor), executor);
 		Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
@@ -75,10 +78,11 @@ public static class TestFrameworkExtensions
 	/// <param name="testCases">The test cases to run.</param>
 	/// <param name="executionMessageSink">The message sink to report results back to.</param>
 	/// <param name="executionOptions">The options to be used during test execution.</param>
-	public static void RunTests(this ITestFrameworkExecutor executor,
-								IEnumerable<ITestCase> testCases,
-								IMessageSinkWithTypes executionMessageSink,
-								ITestFrameworkExecutionOptions executionOptions)
+	public static void RunTests(
+		this ITestFrameworkExecutor executor,
+		IEnumerable<ITestCase> testCases,
+		IMessageSinkWithTypes executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executor), executor);
 		Guard.ArgumentNotNull(nameof(testCases), testCases);

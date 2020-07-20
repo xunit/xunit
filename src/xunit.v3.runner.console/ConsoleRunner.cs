@@ -79,10 +79,20 @@ namespace Xunit.Runner.SystemConsole
 				if (!commandLine.NoLogo)
 					PrintHeader();
 
-				var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
-										   commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
-										   commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.AppDomains,
-										   commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages, reporterMessageHandler);
+				var failCount = RunProject(
+					commandLine.Project,
+					commandLine.Serialize,
+					commandLine.ParallelizeAssemblies,
+					commandLine.ParallelizeTestCollections,
+					commandLine.MaxParallelThreads,
+					commandLine.DiagnosticMessages,
+					commandLine.NoColor,
+					commandLine.AppDomains,
+					commandLine.FailSkips,
+					commandLine.StopOnFail,
+					commandLine.InternalDiagnosticMessages,
+					reporterMessageHandler
+				);
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -165,7 +175,9 @@ namespace Xunit.Runner.SystemConsole
 			return result;
 		}
 
-		void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+		void OnUnhandledException(
+			object sender,
+			UnhandledExceptionEventArgs e)
 		{
 			if (e.ExceptionObject is Exception ex)
 				Console.WriteLine(ex.ToString());
@@ -180,7 +192,7 @@ namespace Xunit.Runner.SystemConsole
 #if NET472
 			var platformSuffix = $"net472";
 #elif NET48
-            var platformSuffix = $"net48";
+			var platformSuffix = $"net48";
 #else
 #error Unknown target framework
 #endif
@@ -280,18 +292,19 @@ namespace Xunit.Runner.SystemConsole
 				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
 		}
 
-		int RunProject(XunitProject project,
-					   bool serialize,
-					   bool? parallelizeAssemblies,
-					   bool? parallelizeTestCollections,
-					   int? maxThreadCount,
-					   bool diagnosticMessages,
-					   bool noColor,
-					   AppDomainSupport? appDomains,
-					   bool failSkips,
-					   bool stopOnFail,
-					   bool internalDiagnosticMessages,
-					   IMessageSinkWithTypes reporterMessageHandler)
+		int RunProject(
+			XunitProject project,
+			bool serialize,
+			bool? parallelizeAssemblies,
+			bool? parallelizeTestCollections,
+			int? maxThreadCount,
+			bool diagnosticMessages,
+			bool noColor,
+			AppDomainSupport? appDomains,
+			bool failSkips,
+			bool stopOnFail,
+			bool internalDiagnosticMessages,
+			IMessageSinkWithTypes reporterMessageHandler)
 		{
 			XElement? assembliesElement = null;
 			var clockTime = Stopwatch.StartNew();
@@ -308,7 +321,26 @@ namespace Xunit.Runner.SystemConsole
 
 			if (parallelizeAssemblies.GetValueOrDefault())
 			{
-				var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, reporterMessageHandler)));
+				var tasks = project.Assemblies.Select(
+					assembly => Task.Run(
+						() => ExecuteAssembly(
+							consoleLock,
+							assembly,
+							serialize,
+							needsXml,
+							parallelizeTestCollections,
+							maxThreadCount,
+							diagnosticMessages,
+							noColor,
+							appDomains,
+							failSkips,
+							stopOnFail,
+							project.Filters,
+							internalDiagnosticMessages,
+							reporterMessageHandler
+						)
+					)
+				);
 				var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
 				foreach (var assemblyElement in results.Where(result => result != null))
 					assembliesElement?.Add(assemblyElement);
@@ -317,7 +349,23 @@ namespace Xunit.Runner.SystemConsole
 			{
 				foreach (var assembly in project.Assemblies)
 				{
-					var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, reporterMessageHandler);
+					var assemblyElement = ExecuteAssembly(
+						consoleLock,
+						assembly,
+						serialize,
+						needsXml,
+						parallelizeTestCollections,
+						maxThreadCount,
+						diagnosticMessages,
+						noColor,
+						appDomains,
+						failSkips,
+						stopOnFail,
+						project.Filters,
+						internalDiagnosticMessages,
+						reporterMessageHandler
+					);
+
 					if (assemblyElement != null)
 						assembliesElement?.Add(assemblyElement);
 				}
@@ -339,20 +387,21 @@ namespace Xunit.Runner.SystemConsole
 			return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
 		}
 
-		XElement? ExecuteAssembly(object consoleLock,
-								  XunitProjectAssembly assembly,
-								  bool serialize,
-								  bool needsXml,
-								  bool? parallelizeTestCollections,
-								  int? maxThreadCount,
-								  bool diagnosticMessages,
-								  bool noColor,
-								  AppDomainSupport? appDomains,
-								  bool failSkips,
-								  bool stopOnFail,
-								  XunitFilters filters,
-								  bool internalDiagnosticMessages,
-								  IMessageSinkWithTypes reporterMessageHandler)
+		XElement? ExecuteAssembly(
+			object consoleLock,
+			XunitProjectAssembly assembly,
+			bool serialize,
+			bool needsXml,
+			bool? parallelizeTestCollections,
+			int? maxThreadCount,
+			bool diagnosticMessages,
+			bool noColor,
+			AppDomainSupport? appDomains,
+			bool failSkips,
+			bool stopOnFail,
+			XunitFilters filters,
+			bool internalDiagnosticMessages,
+			IMessageSinkWithTypes reporterMessageHandler)
 		{
 			if (cancel)
 				return null;

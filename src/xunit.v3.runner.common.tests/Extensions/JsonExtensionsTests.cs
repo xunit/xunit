@@ -21,7 +21,7 @@ public class JsonExtensionsTests
 			{ "guid", Guid.Empty },
 			{ "stringWithQuote", "\"bar\"" },
 			{ "nullValue", null }  // does not serialize nulls
-        };
+		};
 
 		var result = JsonExtensions.ToJson(data);
 

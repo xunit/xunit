@@ -14,7 +14,10 @@ namespace Xunit.Runner.Common
 		/// <param name="id">The transform ID</param>
 		/// <param name="description">The transform description</param>
 		/// <param name="outputHandler">The handler which will write the v2 XML to the given file</param>
-		public Transform(string id, string description, Action<XElement, string> outputHandler)
+		public Transform(
+			string id,
+			string description,
+			Action<XElement, string> outputHandler)
 		{
 			Guard.ArgumentNotNull(nameof(id), id);
 			Guard.ArgumentNotNull(nameof(description), description);

@@ -262,8 +262,8 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		string WildcardToRegex(string pattern)
-			=> $"^{Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".")}$";
+		string WildcardToRegex(string pattern) =>
+			$"^{Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".")}$";
 
 		// This class wraps HashSet<T>, tracking the last mutation date, and using itself
 		// as a lock for mutation (so that we can guarantee a stable data set when transferring

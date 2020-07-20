@@ -20,14 +20,18 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
 
 		/// <inheritdoc/>
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? typeNames)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? typeNames)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			return message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
+			return
+				message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
 				&& message.Dispatch(typeNames, DiscoveryCompleteMessageEvent);
 		}
 	}

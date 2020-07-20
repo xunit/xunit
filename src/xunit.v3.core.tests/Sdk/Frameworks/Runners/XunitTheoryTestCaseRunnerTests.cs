@@ -28,11 +28,9 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
 	}
 
-	[Fact]
+	[CulturedFact("en-US")]
 	public static async void DiscovererWhichThrowsReturnsASingleFailedTest()
 	{
-		Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithThrowingData", messageBus, "Display Name");
 
@@ -87,7 +85,8 @@ public class XunitTheoryTestCaseRunnerTests
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassWithThrowingToString>("Test", messageBus, "Display Name");
 
-		var summary = await runner.RunAsync();
+		await runner.RunAsync();
+
 		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
 		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passed.Test.DisplayName);
 	}
@@ -213,14 +212,12 @@ public class XunitTheoryTestCaseRunnerTests
 		public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(
 			string methodName,
 			IMessageBus messageBus,
-			string displayName = "MockDisplayName")
-		{
-			return new TestableXunitTheoryTestCaseRunner(
-				Mocks.XunitTestCase<TClassUnderTest>(methodName),
-				displayName,
-				SpyMessageSink.Create(),
-				messageBus
-			);
-		}
+			string displayName = "MockDisplayName") =>
+				new TestableXunitTheoryTestCaseRunner(
+					Mocks.XunitTestCase<TClassUnderTest>(methodName),
+					displayName,
+					SpyMessageSink.Create(),
+					messageBus
+				);
 	}
 }

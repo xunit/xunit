@@ -16,13 +16,15 @@ namespace Xunit
 #if XUNIT_FRAMEWORK
 	public class TestAssemblyMessage : ITestAssemblyMessage, IExecutionMessage
 #else
-    public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage, IExecutionMessage
+	public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage, IExecutionMessage
 #endif
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssemblyMessage"/> class.
 		/// </summary>
-		public TestAssemblyMessage(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly)
+		public TestAssemblyMessage(
+			IEnumerable<ITestCase> testCases,
+			ITestAssembly testAssembly)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 			Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
@@ -34,7 +36,9 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssemblyMessage"/> class.
 		/// </summary>
-		internal TestAssemblyMessage(ITestCase testCase, ITestAssembly testAssembly)
+		internal TestAssemblyMessage(
+			ITestCase testCase,
+			ITestAssembly testAssembly)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 			Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
@@ -48,6 +52,5 @@ namespace Xunit
 
 		/// <inheritdoc/>
 		public IEnumerable<ITestCase> TestCases { get; }
-
 	}
 }

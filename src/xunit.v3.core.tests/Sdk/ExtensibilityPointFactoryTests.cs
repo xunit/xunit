@@ -15,13 +15,7 @@ public class ExtensibilityPointFactoryTests
 		spy = SpyMessageSink.Create(messages: messages);
 	}
 
-	public IEnumerable<string> DiagnosticMessages
-	{
-		get
-		{
-			return messages.OfType<IDiagnosticMessage>().Select(m => m.Message);
-		}
-	}
+	public IEnumerable<string> DiagnosticMessages => messages.OfType<IDiagnosticMessage>().Select(m => m.Message);
 
 	public class GetXunitTestCollectionFactory : ExtensibilityPointFactoryTests
 	{
@@ -70,21 +64,21 @@ public class ExtensibilityPointFactoryTests
 
 			public readonly ITestAssembly Assembly;
 
-			public string DisplayName { get { return "My Factory"; } }
+			public string DisplayName => "My Factory";
 
-			public ITestCollection Get(ITypeInfo testClass)
-			{
-				throw new NotImplementedException();
-			}
+			public ITestCollection Get(ITypeInfo testClass) => throw new NotImplementedException();
 		}
 
 		[Theory]
-		[InlineData("ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor",
-					"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.Sdk.TestAssembly")]
-		[InlineData("ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface",
-					"Test collection factory type 'xunit.v3.core.tests, ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface' does not implement IXunitTestCollectionFactory")]
-		[InlineData("ThisIsNotARealType",
-					"Unable to create test collection factory type 'xunit.v3.core.tests, ThisIsNotARealType'")]
+		[InlineData(
+			"ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor",
+			"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.Sdk.TestAssembly")]
+		[InlineData(
+			"ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface",
+			"Test collection factory type 'xunit.v3.core.tests, ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface' does not implement IXunitTestCollectionFactory")]
+		[InlineData(
+			"ThisIsNotARealType",
+			"Unable to create test collection factory type 'xunit.v3.core.tests, ThisIsNotARealType'")]
 		public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName, string expectedMessage)
 		{
 			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests");
@@ -92,22 +86,17 @@ public class ExtensibilityPointFactoryTests
 
 			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
-			Assert.Collection(DiagnosticMessages,
+			Assert.Collection(
+				DiagnosticMessages,
 				msg => Assert.Equal(expectedMessage, msg)
 			);
 		}
 
 		class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory
 		{
-			public string DisplayName
-			{
-				get { throw new NotImplementedException(); }
-			}
+			public string DisplayName => throw new NotImplementedException();
 
-			public ITestCollection Get(ITypeInfo testClass)
-			{
-				throw new NotImplementedException();
-			}
+			public ITestCollection Get(ITypeInfo testClass) => throw new NotImplementedException();
 		}
 
 		class TestCollectionFactory_DoesNotImplementInterface

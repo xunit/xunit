@@ -210,11 +210,9 @@ public class XunitTestCollectionRunnerTests
 		[TestCaseOrderer("UnknownType", "UnknownAssembly")]
 		class CollectionWithUnknownTestCaseOrderer { }
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCtorThrowingTestCaseOrderer)), "TestCollectionDisplayName");
 			var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
 			var runner = TestableXunitTestCollectionRunner.Create(testCase);

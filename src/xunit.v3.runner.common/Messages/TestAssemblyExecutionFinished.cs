@@ -17,9 +17,10 @@ namespace Xunit.Runner.Common
 		/// <param name="assembly">Information about the assembly that is being discovered</param>
 		/// <param name="executionOptions">The execution options</param>
 		/// <param name="executionSummary">The execution summary</param>
-		public TestAssemblyExecutionFinished(XunitProjectAssembly assembly,
-											 ITestFrameworkExecutionOptions executionOptions,
-											 ExecutionSummary executionSummary)
+		public TestAssemblyExecutionFinished(
+			XunitProjectAssembly assembly,
+			ITestFrameworkExecutionOptions executionOptions,
+			ExecutionSummary executionSummary)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);

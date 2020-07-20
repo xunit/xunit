@@ -25,7 +25,8 @@ public class TestMethodRunnerTests
 		Assert.Equal(result.Skipped, summary.Skipped);
 		Assert.Equal(result.Time, summary.Time);
 		Assert.False(runner.TokenSource.IsCancellationRequested);
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var starting = Assert.IsAssignableFrom<ITestMethodStarting>(msg);
@@ -52,17 +53,18 @@ public class TestMethodRunnerTests
 	{
 		var messages = new List<IMessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
-		messageBus.QueueMessage(null!)
-				  .ReturnsForAnyArgs(callInfo =>
-				  {
-					  var msg = callInfo.Arg<IMessageSinkMessage>();
-					  messages.Add(msg);
+		messageBus
+			.QueueMessage(null!)
+			.ReturnsForAnyArgs(callInfo =>
+			{
+				var msg = callInfo.Arg<IMessageSinkMessage>();
+				messages.Add(msg);
 
-					  if (msg is ITestMethodStarting)
-						  throw new InvalidOperationException();
+				if (msg is ITestMethodStarting)
+					throw new InvalidOperationException();
 
-					  return true;
-				  });
+				return true;
+			});
 		var runner = TestableTestMethodRunner.Create(messageBus);
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());

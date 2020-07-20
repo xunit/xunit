@@ -22,7 +22,8 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() { }    // Assume the thing we're wrapping gets disposed elsewhere
+		public void Dispose()  // Assume the thing we're wrapping gets disposed elsewhere
+		{ }
 
 		/// <summary>
 		/// Returns the implemented interface types, if known.
@@ -54,7 +55,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 			Guard.ArgumentNotNull(nameof(messageTypes), messageTypes);

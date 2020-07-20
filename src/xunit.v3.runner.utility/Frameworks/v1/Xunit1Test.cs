@@ -13,16 +13,18 @@ namespace Xunit
 		/// </summary>
 		/// <param name="testCase">The test case this test belongs to.</param>
 		/// <param name="displayName">The display name for this test.</param>
-		public Xunit1Test(ITestCase testCase, string displayName)
+		public Xunit1Test(
+			ITestCase testCase,
+			string displayName)
 		{
 			TestCase = testCase;
 			DisplayName = displayName;
 		}
 
 		/// <inheritdoc/>
-		public string DisplayName { get; private set; }
+		public string DisplayName { get; }
 
 		/// <inheritdoc/>
-		public ITestCase TestCase { get; private set; }
+		public ITestCase TestCase { get; }
 	}
 }

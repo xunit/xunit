@@ -34,7 +34,8 @@ public class TraitParserTests
 
 			new TraitParser().Parse("One=1;Two=2", traits);
 
-			Assert.Collection(traits.Keys,
+			Assert.Collection(
+				traits.Keys,
 				key =>
 				{
 					Assert.Equal("One", key);
@@ -44,7 +45,8 @@ public class TraitParserTests
 				{
 					Assert.Equal("Two", key);
 					Assert.Equal("2", Assert.Single(traits[key]));
-				});
+				}
+			);
 		}
 
 		[Fact]
@@ -54,12 +56,14 @@ public class TraitParserTests
 
 			new TraitParser().Parse("; One = 1 ;;", traits);
 
-			Assert.Collection(traits.Keys,
+			Assert.Collection(
+				traits.Keys,
 				key =>
 				{
 					Assert.Equal("One", key);
 					Assert.Equal("1", Assert.Single(traits[key]));
-				});
+				}
+			);
 		}
 
 		[Fact]
@@ -69,12 +73,14 @@ public class TraitParserTests
 
 			new TraitParser().Parse("One=1=2=3", traits);
 
-			Assert.Collection(traits.Keys,
+			Assert.Collection(
+				traits.Keys,
 				key =>
 				{
 					Assert.Equal("One", key);
 					Assert.Equal("1=2=3", Assert.Single(traits[key]));
-				});
+				}
+			);
 		}
 
 		[Fact]
@@ -114,12 +120,14 @@ public class TraitParserTests
 
 			new TraitParser().Parse("One;Two=2", traits);
 
-			Assert.Collection(traits.Keys,
+			Assert.Collection(
+				traits.Keys,
 				key =>
 				{
 					Assert.Equal("Two", key);
 					Assert.Equal("2", Assert.Single(traits[key]));
-				});
+				}
+			);
 		}
 
 		[Fact]
@@ -131,8 +139,10 @@ public class TraitParserTests
 
 			parser.Parse("One1", traits);
 
-			Assert.Collection(messages,
-				msg => Assert.Equal("Invalid trait 'One1'. The format should be 'name=value'. This trait will be ignored.", msg));
+			Assert.Collection(
+				messages,
+				msg => Assert.Equal("Invalid trait 'One1'. The format should be 'name=value'. This trait will be ignored.", msg)
+			);
 		}
 	}
 }

@@ -11,7 +11,9 @@ namespace Xunit.Runner.SystemConsole
 		readonly Stack<string> arguments = new Stack<string>();
 		readonly List<string> unknownOptions = new List<string>();
 
-		protected CommandLine(string[] args, Predicate<string>? fileExists = null)
+		protected CommandLine(
+			string[] args,
+			Predicate<string>? fileExists = null)
 		{
 			fileExists ??= File.Exists;
 
@@ -73,8 +75,7 @@ namespace Xunit.Runner.SystemConsole
 			return result ?? new DefaultRunnerReporterWithTypes();
 		}
 
-		protected virtual string GetFullPath(string fileName) =>
-			Path.GetFullPath(fileName);
+		protected virtual string GetFullPath(string fileName) => Path.GetFullPath(fileName);
 
 		XunitProject GetProjectFile(List<(string assemblyFileName, string? configFileName)> assemblies)
 		{

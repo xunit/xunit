@@ -22,7 +22,7 @@ namespace Xunit
 		static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
 		readonly AssemblyHelper? assemblyHelper;
 #else
-        static readonly string[] SupportedPlatforms = { "dotnet" };
+		static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
 
 		ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
@@ -39,38 +39,63 @@ namespace Xunit
 		/// will be automatically (randomly) generated</param>
 		/// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
-		public Xunit2Discoverer(AppDomainSupport appDomainSupport,
-								ISourceInformationProvider sourceInformationProvider,
-								IAssemblyInfo assemblyInfo,
-								string? xunitExecutionAssemblyPath = null,
-								string? shadowCopyFolder = null,
-								IMessageSink? diagnosticMessageSink = null,
-								bool verifyAssembliesOnDisk = true)
-			: this(appDomainSupport, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
+		public Xunit2Discoverer(
+			AppDomainSupport appDomainSupport,
+			ISourceInformationProvider sourceInformationProvider,
+			IAssemblyInfo assemblyInfo,
+			string? xunitExecutionAssemblyPath = null,
+			string? shadowCopyFolder = null,
+			IMessageSink? diagnosticMessageSink = null,
+			bool verifyAssembliesOnDisk = true)
+				: this(
+					appDomainSupport,
+					sourceInformationProvider,
+					assemblyInfo,
+					null,
+					xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
+					null,
+					true,
+					shadowCopyFolder,
+					diagnosticMessageSink,
+					verifyAssembliesOnDisk
+				)
 		{ }
 
 		// Used by Xunit2 when initializing for both discovery and execution.
-		internal Xunit2Discoverer(AppDomainSupport appDomainSupport,
-								  ISourceInformationProvider sourceInformationProvider,
-								  string assemblyFileName,
-								  string? configFileName,
-								  bool shadowCopy,
-								  string? shadowCopyFolder = null,
-								  IMessageSink? diagnosticMessageSink = null,
-								  bool verifyAssembliesOnDisk = true)
-			: this(appDomainSupport, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
+		internal Xunit2Discoverer(
+			AppDomainSupport appDomainSupport,
+			ISourceInformationProvider sourceInformationProvider,
+			string assemblyFileName,
+			string? configFileName,
+			bool shadowCopy,
+			string? shadowCopyFolder = null,
+			IMessageSink? diagnosticMessageSink = null,
+			bool verifyAssembliesOnDisk = true)
+				: this(
+					appDomainSupport,
+					sourceInformationProvider,
+					null,
+					assemblyFileName,
+					GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk),
+					configFileName,
+					shadowCopy,
+					shadowCopyFolder,
+					diagnosticMessageSink,
+					verifyAssembliesOnDisk
+				)
 		{ }
 
-		Xunit2Discoverer(AppDomainSupport appDomainSupport,
-						 ISourceInformationProvider sourceInformationProvider,
-						 IAssemblyInfo? assemblyInfo,
-						 string? assemblyFileName,
-						 string xunitExecutionAssemblyPath,
-						 string? configFileName,
-						 bool shadowCopy,
-						 string? shadowCopyFolder,
-						 IMessageSink? diagnosticMessageSink,
-						 bool verifyAssembliesOnDisk)
+		Xunit2Discoverer(
+			AppDomainSupport appDomainSupport,
+			ISourceInformationProvider sourceInformationProvider,
+			IAssemblyInfo? assemblyInfo,
+			string? assemblyFileName,
+			string xunitExecutionAssemblyPath,
+			string? configFileName,
+			bool shadowCopy,
+			string? shadowCopyFolder,
+			IMessageSink? diagnosticMessageSink,
+			bool verifyAssembliesOnDisk)
 		{
 			Guard.ArgumentNotNull("assemblyInfo", (object?)assemblyInfo ?? assemblyFileName);
 
@@ -81,7 +106,7 @@ namespace Xunit
 
 			CanUseAppDomains = !IsDotNet(xunitExecutionAssemblyPath);
 #else
-            CanUseAppDomains = false;
+			CanUseAppDomains = false;
 #endif
 
 			DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
@@ -231,13 +256,13 @@ namespace Xunit
 				if (File.Exists(fileName))
 					return fileName;
 #else
-                try
-                {
-                    var assemblyName = $"xunit.execution.{suffix}";
-                    Assembly.Load(new AssemblyName { Name = assemblyName });
-                    return assemblyName + ".dll";
-                }
-                catch { }
+				try
+				{
+					var assemblyName = $"xunit.execution.{suffix}";
+					Assembly.Load(new AssemblyName { Name = assemblyName });
+					return assemblyName + ".dll";
+				}
+				catch { }
 #endif
 			}
 
@@ -249,7 +274,7 @@ namespace Xunit
 #if NETFRAMEWORK
 			return appDomainSupport == AppDomainSupport.Required ? SupportedPlatforms_ForcedAppDomains : SupportedPlatforms;
 #else
-            return SupportedPlatforms;
+			return SupportedPlatforms;
 #endif
 		}
 
@@ -258,8 +283,8 @@ namespace Xunit
 #if NETFRAMEWORK
 			return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
 #else
-            // Make sure we only use the short form
-            return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
+			// Make sure we only use the short form
+			return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
 #endif
 		}
 
@@ -280,8 +305,10 @@ namespace Xunit
 			return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyInfo.AssemblyPath)!);
 		}
 
+#if NETFRAMEWORK
 		static bool IsDotNet(string executionAssemblyFileName) =>
 			executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
+#endif
 
 		/// <inheritdoc/>
 		public string Serialize(ITestCase testCase) =>

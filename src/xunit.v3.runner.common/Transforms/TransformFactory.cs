@@ -52,8 +52,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Gets the list of available transforms.
 		/// </summary>
-		public static IReadOnlyList<Transform> AvailableTransforms =>
-			instance.availableTransforms;
+		public static IReadOnlyList<Transform> AvailableTransforms => instance.availableTransforms;
 
 		/// <summary>
 		/// Gets the list of XML transformer functions for the given project.
@@ -65,7 +64,8 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(project), project);
 
 			return
-				project.Output
+				project
+					.Output
 					.Select(output => new Action<XElement>(xml => instance.availableTransforms.Single(t => t.ID == output.Key).OutputHandler(xml, output.Value)))
 					.ToList();
 		}
@@ -92,6 +92,28 @@ namespace Xunit.Runner.Common
 			using var xmlReader = xml.CreateReader();
 			xmlTransform.Load(xsltReader);
 			xmlTransform.Transform(xmlReader, writer);
+		}
+
+		/// <summary>
+		/// Runs the transformation for the given ID and XML, and writes it to the given output file.
+		/// </summary>
+		/// <param name="id">The transform ID</param>
+		/// <param name="assembliesElement">The assembly XML to transform</param>
+		/// <param name="outputFileName">The output file name</param>
+		public static void Transform(
+			string id,
+			XElement assembliesElement,
+			string outputFileName)
+		{
+			Guard.ArgumentNotNull(nameof(id), id);
+			Guard.ArgumentNotNull(nameof(assembliesElement), assembliesElement);
+			Guard.ArgumentNotNull(nameof(outputFileName), outputFileName);
+
+			var transform = AvailableTransforms.FirstOrDefault(t => string.Equals(t.ID, id, StringComparison.OrdinalIgnoreCase));
+
+			Guard.NotNull($"Cannot find transform with ID '{id}'", transform);
+
+			transform.OutputHandler(assembliesElement, outputFileName);
 		}
 	}
 }

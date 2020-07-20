@@ -20,7 +20,8 @@ namespace Xunit
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public Xunit1TestCase() { }
+		public Xunit1TestCase()
+		{ }
 
 		/// <summary>
 		/// Initializes a new instance  of the <see cref="Xunit1TestCase"/> class.
@@ -32,13 +33,14 @@ namespace Xunit
 		/// <param name="displayName">The display name of the unit test.</param>
 		/// <param name="traits">The traits of the unit test.</param>
 		/// <param name="skipReason">The skip reason, if the test is skipped.</param>
-		public Xunit1TestCase(string assemblyFileName,
-							  string? configFileName,
-							  string typeName,
-							  string methodName,
-							  string? displayName,
-							  Dictionary<string, List<string>>? traits = null,
-							  string? skipReason = null)
+		public Xunit1TestCase(
+			string assemblyFileName,
+			string? configFileName,
+			string typeName,
+			string methodName,
+			string? displayName,
+			Dictionary<string, List<string>>? traits = null,
+			string? skipReason = null)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
@@ -58,8 +60,7 @@ namespace Xunit
 		/// <inheritdoc/>
 		public string? DisplayName { get; set; }
 
-		Xunit1ReflectionWrapper ReflectionWrapper =>
-			Guard.NotNull("Tried to use an initialized Xunit1TestCase", reflectionWrapper);
+		Xunit1ReflectionWrapper ReflectionWrapper => Guard.NotNull($"Attempted to get ReflectionWrapper on an uninitialized '{GetType().FullName}' object", reflectionWrapper);
 
 		/// <inheritdoc/>
 		public string? SkipReason { get; set; }
@@ -80,7 +81,8 @@ namespace Xunit
 		public string UniqueID => ReflectionWrapper.UniqueID;
 
 		/// <inheritdoc/>
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 
 		/// <inheritdoc/>
 		public void Deserialize(IXunitSerializationInfo data)

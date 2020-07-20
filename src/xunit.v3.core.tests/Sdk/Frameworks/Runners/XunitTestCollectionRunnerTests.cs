@@ -19,7 +19,8 @@ public class XunitTestCollectionRunnerTests
 
 		await runner.RunAsync();
 
-		Assert.Collection(runner.CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
+		Assert.Collection(
+			runner.CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
 			mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
 			mapping => Assert.IsType<object>(mapping.Value)
 		);
@@ -210,11 +211,9 @@ public class XunitTestCollectionRunnerTests
 		[TestCaseOrderer("UnknownType", "UnknownAssembly")]
 		class CollectionWithUnknownTestCaseOrderer { }
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCtorThrowingTestCaseOrderer)), "TestCollectionDisplayName");
 			var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
 			var runner = TestableXunitTestCollectionRunner.Create(testCase);
@@ -283,9 +282,8 @@ public class XunitTestCollectionRunnerTests
 			DiagnosticMessages = diagnosticMessages;
 		}
 
-		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase)
-		{
-			return new TestableXunitTestCollectionRunner(
+		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
+			new TestableXunitTestCollectionRunner(
 				testCase.TestMethod.TestClass.TestCollection,
 				new[] { testCase },
 				new List<IMessageSinkMessage>(),
@@ -294,22 +292,12 @@ public class XunitTestCollectionRunnerTests
 				new ExceptionAggregator(),
 				new CancellationTokenSource()
 			);
-		}
 
-		public new Dictionary<Type, object> CollectionFixtureMappings
-		{
-			get { return base.CollectionFixtureMappings; }
-		}
+		public new Dictionary<Type, object> CollectionFixtureMappings => base.CollectionFixtureMappings;
 
-		public new ITestCaseOrderer TestCaseOrderer
-		{
-			get { return base.TestCaseOrderer; }
-		}
+		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 
-		public new IMessageSink DiagnosticMessageSink
-		{
-			get { return base.DiagnosticMessageSink; }
-		}
+		public new IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
 		protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
 		{

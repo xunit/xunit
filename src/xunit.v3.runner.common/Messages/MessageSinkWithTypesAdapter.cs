@@ -19,7 +19,8 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() { }    // Assume the thing we're wrapping gets disposed elsewhere
+		public void Dispose()  // Assume the thing we're wrapping gets disposed elsewhere
+		{ }
 
 		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
@@ -30,7 +31,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		public bool OnMessageWithTypes(
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -54,7 +57,7 @@ namespace Xunit.Runner.Common
 		/// and if not, creates a wrapper to adapt it.
 		/// </summary>
 		/// <param name="sink">The sink to test, and potentially adapt.</param>
-		public static IMessageSinkWithTypes? WrapMaybeNull(IMessageSink? sink)
-			=> sink == null ? null : (sink as IMessageSinkWithTypes ?? new MessageSinkWithTypesAdapter(sink));
+		public static IMessageSinkWithTypes? WrapMaybeNull(IMessageSink? sink) =>
+			sink == null ? null : (sink as IMessageSinkWithTypes ?? new MessageSinkWithTypesAdapter(sink));
 	}
 }

@@ -14,8 +14,11 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestResultMessage"/> class.
 		/// </summary>
-		public TestResultMessage(ITest test, decimal executionTime, string? output)
-			: base(test)
+		public TestResultMessage(
+			ITest test,
+			decimal executionTime,
+			string? output)
+				: base(test)
 		{
 			ExecutionTime = executionTime;
 			Output = output ?? string.Empty;

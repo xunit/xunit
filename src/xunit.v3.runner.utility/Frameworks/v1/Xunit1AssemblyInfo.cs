@@ -24,18 +24,16 @@ namespace Xunit
 		/// <summary>
 		/// Gets the filename of the test assembly.
 		/// </summary>
-		public string AssemblyFileName { get; private set; }
+		public string AssemblyFileName { get; }
 
 		string IAssemblyInfo.AssemblyPath => AssemblyFileName;
 
 		string IAssemblyInfo.Name => Path.GetFileNameWithoutExtension(AssemblyFileName);
 
-		IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
-			Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
 
 		ITypeInfo? IAssemblyInfo.GetType(string? typeName) => null;
 
-		IEnumerable<ITypeInfo> IAssemblyInfo.GetTypes(bool includePrivateTypes) =>
-			Enumerable.Empty<ITypeInfo>();
+		IEnumerable<ITypeInfo> IAssemblyInfo.GetTypes(bool includePrivateTypes) => Enumerable.Empty<ITypeInfo>();
 	}
 }

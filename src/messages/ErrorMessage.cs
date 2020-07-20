@@ -16,13 +16,18 @@ namespace Xunit
 #if XUNIT_FRAMEWORK
 	public class ErrorMessage : IErrorMessage
 #else
-    public class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
+	public class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
 #endif
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ErrorMessage"/> class.
 		/// </summary>
-		public ErrorMessage(IEnumerable<ITestCase> testCases, string?[] exceptionTypes, string[] messages, string?[] stackTraces, int[] exceptionParentIndices)
+		public ErrorMessage(
+			IEnumerable<ITestCase> testCases,
+			string?[] exceptionTypes,
+			string[] messages,
+			string?[] stackTraces,
+			int[] exceptionParentIndices)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 			Guard.ArgumentNotNull(nameof(exceptionTypes), exceptionTypes);
@@ -40,7 +45,9 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ErrorMessage"/> class.
 		/// </summary>
-		public ErrorMessage(IEnumerable<ITestCase> testCases, Exception ex)
+		public ErrorMessage(
+			IEnumerable<ITestCase> testCases,
+			Exception ex)
 		{
 			TestCases = testCases;
 

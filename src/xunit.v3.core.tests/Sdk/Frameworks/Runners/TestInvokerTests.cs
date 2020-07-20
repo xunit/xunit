@@ -29,7 +29,8 @@ public class TestInvokerTests
 
 		await invoker.RunAsync();
 
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var starting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg);
@@ -55,7 +56,8 @@ public class TestInvokerTests
 
 		await invoker.RunAsync();
 
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 			msg =>

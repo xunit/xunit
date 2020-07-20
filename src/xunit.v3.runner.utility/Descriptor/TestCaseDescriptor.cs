@@ -13,7 +13,8 @@ namespace Xunit
 		const string SeparatorEscape = "\\n";
 
 		/// <summary/>
-		public TestCaseDescriptor() { }
+		public TestCaseDescriptor()
+		{ }
 
 		/// <summary/>
 		public TestCaseDescriptor(string descriptorText)
@@ -101,7 +102,9 @@ namespace Xunit
 		/// <summary/>
 		public string? UniqueID { get; set; }
 
-		static string? Decode(string value)
-			=> string.IsNullOrEmpty(value) ? null : value.Replace(SeparatorEscape, Separator);
+		static string? Decode(string value) =>
+			string.IsNullOrEmpty(value)
+				? null
+				: value.Replace(SeparatorEscape, Separator);
 	}
 }

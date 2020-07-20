@@ -28,7 +28,8 @@ public class TestClassRunnerTests
 		Assert.Equal(result.Skipped, summary.Skipped);
 		Assert.Equal(result.Time, summary.Time);
 		Assert.False(runner.TokenSource.IsCancellationRequested);
-		Assert.Collection(messageBus.Messages,
+		Assert.Collection(
+			messageBus.Messages,
 			msg =>
 			{
 				var starting = Assert.IsAssignableFrom<ITestClassStarting>(msg);
@@ -53,17 +54,18 @@ public class TestClassRunnerTests
 	{
 		var messages = new List<IMessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
-		messageBus.QueueMessage(null!)
-				  .ReturnsForAnyArgs(callInfo =>
-				  {
-					  var msg = callInfo.Arg<IMessageSinkMessage>();
-					  messages.Add(msg);
+		messageBus
+			.QueueMessage(null!)
+			.ReturnsForAnyArgs(callInfo =>
+			{
+				var msg = callInfo.Arg<IMessageSinkMessage>();
+				messages.Add(msg);
 
-					  if (msg is ITestClassStarting)
-						  throw new InvalidOperationException();
+				if (msg is ITestClassStarting)
+					throw new InvalidOperationException();
 
-					  return true;
-				  });
+				return true;
+			});
 		var runner = TestableTestClassRunner.Create(messageBus);
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
@@ -168,7 +170,8 @@ public class TestClassRunnerTests
 
 		await runner.RunAsync();
 
-		Assert.Collection(runner.MethodsRun,
+		Assert.Collection(
+			runner.MethodsRun,
 			tuple =>
 			{
 				Assert.Equal("Passing", tuple.Item1.Name);
@@ -214,7 +217,8 @@ public class TestClassRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.MethodsRun,
+			Assert.Collection(
+				runner.MethodsRun,
 				tuple =>
 				{
 					Assert.Equal("Other", tuple.Item1.Name);
@@ -234,11 +238,9 @@ public class TestClassRunnerTests
 			);
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]
 		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var other1 = Mocks.TestCase<ClassUnderTest>("Other");
@@ -247,7 +249,8 @@ public class TestClassRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.MethodsRun,
+			Assert.Collection(
+				runner.MethodsRun,
 				tuple =>
 				{
 					Assert.Equal("Passing", tuple.Item1.Name);
@@ -315,7 +318,8 @@ public class TestClassRunnerTests
 		await runner.RunAsync();
 
 		var tuple = Assert.Single(runner.MethodsRun);
-		Assert.Collection(tuple.Item3,
+		Assert.Collection(
+			tuple.Item3,
 			arg => Assert.Equal(42, arg),
 			arg => Assert.Equal("Hello, world!", arg),
 			arg => Assert.Equal(21.12m, arg)
@@ -450,7 +454,11 @@ public class TestClassRunnerTests
 			return constructor ?? base.SelectTestClassConstructor();
 		}
 
-		protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, [MaybeNullWhen(false)] out object argumentValue)
+		protected override bool TryGetConstructorArgument(
+			ConstructorInfo constructor,
+			int index,
+			ParameterInfo parameter,
+			[MaybeNullWhen(false)] out object argumentValue)
 		{
 			argumentValue = availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType()));
 			if (argumentValue != null)

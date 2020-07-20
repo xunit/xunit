@@ -18,10 +18,11 @@ namespace Xunit.Runner.Common
 		/// <param name="appDomain">Indicates whether the tests will be discovered and run in a separate app domain</param>
 		/// <param name="shadowCopy">Indicates whether shadow copying is being used</param>
 		/// <param name="discoveryOptions">The discovery options</param>
-		public TestAssemblyDiscoveryStarting(XunitProjectAssembly assembly,
-											 bool appDomain,
-											 bool shadowCopy,
-											 ITestFrameworkDiscoveryOptions discoveryOptions)
+		public TestAssemblyDiscoveryStarting(
+			XunitProjectAssembly assembly,
+			bool appDomain,
+			bool shadowCopy,
+			ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);

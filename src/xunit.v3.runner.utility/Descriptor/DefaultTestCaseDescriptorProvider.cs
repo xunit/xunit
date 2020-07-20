@@ -20,7 +20,9 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
+		public List<TestCaseDescriptor> GetTestCaseDescriptors(
+			List<ITestCase> testCases,
+			bool includeSerialization)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 

@@ -14,8 +14,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestOutput"/> class.
 		/// </summary>
-		public TestOutput(ITest test, string output)
-			: base(test)
+		public TestOutput(
+			ITest test,
+			string output)
+				: base(test)
 		{
 			Output = output;
 		}

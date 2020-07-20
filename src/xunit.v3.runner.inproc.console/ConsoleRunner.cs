@@ -82,11 +82,17 @@ namespace Xunit.Runner.InProc.SystemConsole
 				if (!commandLine.NoLogo)
 					PrintHeader();
 
-				// TODO: Will need more things here, like filters and output transform, when they're back
-				var failCount = RunProject(commandLine.Project,
-										   commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
-										   commandLine.DiagnosticMessages, commandLine.NoColor,
-										   commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages, reporterMessageHandler);
+				var failCount = RunProject(
+					commandLine.Project,
+					commandLine.ParallelizeTestCollections,
+					commandLine.MaxParallelThreads,
+					commandLine.DiagnosticMessages,
+					commandLine.NoColor,
+					commandLine.FailSkips,
+					commandLine.StopOnFail,
+					commandLine.InternalDiagnosticMessages,
+					reporterMessageHandler
+				);
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -140,7 +146,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 #if NETFRAMEWORK
 					var assembly = Assembly.LoadFile(dllFile);
 #else
-                   var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
+					var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
 #endif
 					types = assembly.GetTypes();
 				}
@@ -174,7 +180,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 		}
 
 #if NETFRAMEWORK
-		void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+		void OnUnhandledException(
+			object sender,
+			UnhandledExceptionEventArgs e)
 		{
 			if (e.ExceptionObject is Exception ex)
 				Console.WriteLine(ex.ToString());
@@ -185,8 +193,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 		}
 #endif
 
-		void PrintHeader()
-			=> Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+		void PrintHeader() =>
+			Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 
 		void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
 		{
@@ -267,15 +275,16 @@ namespace Xunit.Runner.InProc.SystemConsole
 				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
 		}
 
-		int RunProject(XunitProject project,
-					   bool? parallelizeTestCollections,
-					   int? maxThreadCount,
-					   bool diagnosticMessages,
-					   bool noColor,
-					   bool failSkips,
-					   bool stopOnFail,
-					   bool internalDiagnosticMessages,
-					   IMessageSinkWithTypes reporterMessageHandler)
+		int RunProject(
+			XunitProject project,
+			bool? parallelizeTestCollections,
+			int? maxThreadCount,
+			bool diagnosticMessages,
+			bool noColor,
+			bool failSkips,
+			bool stopOnFail,
+			bool internalDiagnosticMessages,
+			IMessageSinkWithTypes reporterMessageHandler)
 		{
 			XElement? assembliesElement = null;
 			var clockTime = Stopwatch.StartNew();
@@ -288,7 +297,21 @@ namespace Xunit.Runner.InProc.SystemConsole
 			var originalWorkingFolder = Directory.GetCurrentDirectory();
 
 			var assembly = project.Assemblies.Single();
-			var assemblyElement = ExecuteAssembly(consoleLock, assembly, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, reporterMessageHandler);
+			var assemblyElement = ExecuteAssembly(
+				consoleLock,
+				assembly,
+				needsXml,
+				parallelizeTestCollections,
+				maxThreadCount,
+				diagnosticMessages,
+				noColor,
+				failSkips,
+				stopOnFail,
+				project.Filters,
+				internalDiagnosticMessages,
+				reporterMessageHandler
+			);
+
 			if (assemblyElement != null)
 				assembliesElement?.Add(assemblyElement);
 
@@ -311,18 +334,19 @@ namespace Xunit.Runner.InProc.SystemConsole
 			return failed ? 1 : executionSummary.Failed;
 		}
 
-		XElement? ExecuteAssembly(object consoleLock,
-								  XunitProjectAssembly assembly,
-								  bool needsXml,
-								  bool? parallelizeTestCollections,
-								  int? maxThreadCount,
-								  bool diagnosticMessages,
-								  bool noColor,
-								  bool failSkips,
-								  bool stopOnFail,
-								  XunitFilters filters,
-								  bool internalDiagnosticMessages,
-								  IMessageSinkWithTypes reporterMessageHandler)
+		XElement? ExecuteAssembly(
+			object consoleLock,
+			XunitProjectAssembly assembly,
+			bool needsXml,
+			bool? parallelizeTestCollections,
+			int? maxThreadCount,
+			bool diagnosticMessages,
+			bool noColor,
+			bool failSkips,
+			bool stopOnFail,
+			XunitFilters filters,
+			bool internalDiagnosticMessages,
+			IMessageSinkWithTypes reporterMessageHandler)
 		{
 			if (cancel)
 				return null;
@@ -420,7 +444,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 			return assemblyElement;
 		}
 
-		bool ValidateFileExists(object consoleLock, string? fileName)
+		bool ValidateFileExists(
+			object consoleLock,
+			string? fileName)
 		{
 			if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
 				return true;

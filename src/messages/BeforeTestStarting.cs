@@ -14,8 +14,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BeforeTestStarting"/> class.
 		/// </summary>
-		public BeforeTestStarting(ITest test, string attributeName)
-			: base(test)
+		public BeforeTestStarting(
+			ITest test,
+			string attributeName)
+				: base(test)
 		{
 			Guard.ArgumentNotNull(nameof(attributeName), attributeName);
 

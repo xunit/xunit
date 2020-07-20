@@ -16,8 +16,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="assembly">Information about the assembly that is being discovered</param>
 		/// <param name="executionOptions">The execution options</param>
-		public TestAssemblyExecutionStarting(XunitProjectAssembly assembly,
-											 ITestFrameworkExecutionOptions executionOptions)
+		public TestAssemblyExecutionStarting(
+			XunitProjectAssembly assembly,
+			ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);

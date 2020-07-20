@@ -14,7 +14,7 @@ namespace Xunit
 #if XUNIT_FRAMEWORK
 	public class DiscoveryCompleteMessage : IDiscoveryCompleteMessage
 #else
-    public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
+	public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
 #endif
 	{ }
 }

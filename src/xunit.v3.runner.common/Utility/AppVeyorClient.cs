@@ -23,7 +23,9 @@ namespace Xunit.Runner.Common
 		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
 		readonly ManualResetEventSlim workEvent = new ManualResetEventSlim(false);
 
-		public AppVeyorClient(IRunnerLogger logger, string baseUri)
+		public AppVeyorClient(
+			IRunnerLogger logger,
+			string baseUri)
 		{
 			this.logger = logger;
 			this.baseUri = $"{baseUri}/api/tests/batch";
@@ -83,7 +85,9 @@ namespace Xunit.Runner.Common
 			workEvent.Set();
 		}
 
-		async Task SendRequest(HttpMethod method, ICollection<IDictionary<string, object?>> body)
+		async Task SendRequest(
+			HttpMethod method,
+			ICollection<IDictionary<string, object?>> body)
 		{
 			if (body.Count == 0)
 				return;

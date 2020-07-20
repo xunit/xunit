@@ -15,8 +15,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodMessage"/> class.
 		/// </summary>
-		public TestMethodMessage(IEnumerable<ITestCase> testCases, ITestMethod testMethod)
-			: base(testCases, testMethod.TestClass)
+		public TestMethodMessage(
+			IEnumerable<ITestCase> testCases,
+			ITestMethod testMethod)
+				: base(testCases, testMethod.TestClass)
 		{
 			TestMethod = testMethod;
 		}
@@ -24,8 +26,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodMessage"/> class.
 		/// </summary>
-		internal TestMethodMessage(ITestCase testCase, ITestMethod testMethod)
-			: base(testCase, testMethod.TestClass)
+		internal TestMethodMessage(
+			ITestCase testCase,
+			ITestMethod testMethod)
+				: base(testCase, testMethod.TestClass)
 		{
 			TestMethod = testMethod;
 		}

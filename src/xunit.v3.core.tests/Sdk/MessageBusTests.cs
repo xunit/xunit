@@ -24,7 +24,8 @@ public class MessageBusTests
 			bus.QueueMessage(msg3);
 		}
 
-		Assert.Collection(messages,
+		Assert.Collection(
+			messages,
 			message => Assert.Same(msg1, message),
 			message => Assert.Same(msg2, message),
 			message => Assert.Same(msg3, message)
@@ -52,7 +53,8 @@ public class MessageBusTests
 		var msg2 = Substitute.For<IMessageSinkMessage>();
 		var msg3 = Substitute.For<IMessageSinkMessage>();
 		var messages = new List<IMessageSinkMessage>();
-		sink.OnMessage(Arg.Any<IMessageSinkMessage>())
+		sink
+			.OnMessage(Arg.Any<IMessageSinkMessage>())
 			.Returns(callInfo =>
 			{
 				var msg = (IMessageSinkMessage)callInfo[0];
@@ -71,7 +73,8 @@ public class MessageBusTests
 			bus.QueueMessage(msg3);
 		}
 
-		Assert.Collection(messages,
+		Assert.Collection(
+			messages,
 			message => Assert.Same(message, msg1),
 			message =>
 			{
@@ -99,7 +102,8 @@ public class MessageBusTests
 			Assert.True(bus.QueueMessage(msg3));
 		}
 
-		Assert.Collection(messages,
+		Assert.Collection(
+			messages,
 			message => Assert.Same(msg1, message),
 			message => Assert.Same(msg2, message),
 			message => Assert.Same(msg3, message)
@@ -122,7 +126,8 @@ public class MessageBusTests
 			Assert.False(bus.QueueMessage(msg3));
 		}
 
-		Assert.Collection(messages,
+		Assert.Collection(
+			messages,
 			message => Assert.Same(msg1, message),
 			message => Assert.Same(msg2, message),
 			message => Assert.Same(msg3, message)

@@ -17,7 +17,8 @@ namespace Xunit.Runner.Common
 		readonly Dictionary<string, object> properties = new Dictionary<string, object>();
 
 		// Force users to use one of the factory methods
-		TestFrameworkOptions() { }
+		TestFrameworkOptions()
+		{ }
 
 		/// <summary>
 		/// Creates an instance of <see cref="TestFrameworkOptions"/>
@@ -93,7 +94,9 @@ namespace Xunit.Runner.Common
 		/// <typeparam name="TValue">The type of the value.</typeparam>
 		/// <param name="name">The name of the value.</param>
 		/// <param name="value">The value.</param>
-		public void SetValue<TValue>(string name, TValue value)
+		public void SetValue<TValue>(
+			string name,
+			TValue value)
 		{
 			if (value == null)
 				properties.Remove(name);

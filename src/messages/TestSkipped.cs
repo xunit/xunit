@@ -14,8 +14,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestSkipped"/> class.
 		/// </summary>
-		public TestSkipped(ITest test, string reason)
-			: base(test, 0, null)
+		public TestSkipped(
+			ITest test,
+			string reason)
+				: base(test, 0, null)
 		{
 			Reason = reason;
 		}

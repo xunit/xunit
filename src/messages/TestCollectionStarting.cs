@@ -15,7 +15,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionStarting"/> class.
 		/// </summary>
-		public TestCollectionStarting(IEnumerable<ITestCase> testCases, ITestCollection testCollection)
-			: base(testCases, testCollection) { }
+		public TestCollectionStarting(
+			IEnumerable<ITestCase> testCases,
+			ITestCollection testCollection)
+				: base(testCases, testCollection)
+		{ }
 	}
 }

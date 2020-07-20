@@ -102,15 +102,17 @@ public class XunitTestFrameworkDiscovererTests
 		public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
 		{
 			var sourceProvider = Substitute.For<ISourceInformationProvider>();
-			sourceProvider.GetSourceInformation(null)
-						  .ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
+			sourceProvider
+				.GetSourceInformation(null)
+				.ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
 			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 			var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
 			var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
 
 			framework.Find(includeSourceInformation: true);
 
-			Assert.Collection(framework.TestCases,
+			Assert.Collection(
+				framework.TestCases,
 				testCase =>
 				{
 					Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
@@ -192,15 +194,17 @@ public class XunitTestFrameworkDiscovererTests
 		public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
 		{
 			var sourceProvider = Substitute.For<ISourceInformationProvider>();
-			sourceProvider.GetSourceInformation(null)
-						  .ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
+			sourceProvider
+				.GetSourceInformation(null)
+				.ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
 			var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
 			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 			framework.Assembly.GetType("abc").Returns(typeInfo);
 
 			framework.Find("abc", includeSourceInformation: true);
 
-			Assert.Collection(framework.TestCases,
+			Assert.Collection(
+				framework.TestCases,
 				testCase =>
 				{
 					Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
@@ -243,7 +247,8 @@ public class XunitTestFrameworkDiscovererTests
 
 			framework.FindTestsForClass(testClass);
 
-			Assert.Collection(framework.Sink.TestCases,
+			Assert.Collection(
+				framework.Sink.TestCases,
 				testCase => Assert.IsType<XunitTestCase>(testCase)
 			);
 		}
@@ -447,11 +452,7 @@ public class XunitTestFrameworkDiscovererTests
 			ISourceInformationProvider? sourceProvider,
 			IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
-				: base(assembly,
-					   configFileName: null,
-					   sourceProvider ?? Substitute.For<ISourceInformationProvider>(),
-					   diagnosticMessageSink ?? new NullMessageSink(),
-					   collectionFactory)
+				: base(assembly, configFileName: null, sourceProvider ?? Substitute.For<ISourceInformationProvider>(), diagnosticMessageSink ?? new NullMessageSink(), collectionFactory)
 		{
 			Assembly = assembly;
 			Sink = new TestDiscoverySink();
@@ -492,14 +493,14 @@ public class XunitTestFrameworkDiscovererTests
 
 		public void Find(string typeName, bool includeSourceInformation = false)
 		{
-			base.Find(typeName, includeSourceInformation, Sink, TestFrameworkOptions.ForDiscovery());
+			Find(typeName, includeSourceInformation, Sink, TestFrameworkOptions.ForDiscovery());
 			Sink.Finished.WaitOne();
 		}
 
 		public virtual bool FindTestsForClass(ITestClass testClass, bool includeSourceInformation = false)
 		{
-			using (var messageBus = new MessageBus(Sink))
-				return base.FindTestsForType(testClass, includeSourceInformation, messageBus, TestFrameworkOptions.ForDiscovery());
+			using var messageBus = new MessageBus(Sink);
+			return base.FindTestsForType(testClass, includeSourceInformation, messageBus, TestFrameworkOptions.ForDiscovery());
 		}
 
 		protected sealed override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)

@@ -394,7 +394,6 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		public static TestableTheoryDiscoverer Create()
 		{
-			var messages = new List<IMessageSinkMessage>();
 			return new TestableTheoryDiscoverer(new List<IMessageSinkMessage>());
 		}
 	}

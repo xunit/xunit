@@ -15,7 +15,8 @@ public class FixtureAcceptanceTests
 		{
 			var messages = await RunAsync(typeof(ClassWithTooManyConstructors));
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
 				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
 				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
@@ -92,7 +93,7 @@ public class FixtureAcceptanceTests
 		{
 			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
 
-			var msg = Assert.Single(messages);
+			Assert.Single(messages);
 		}
 
 		class ClassWithMissingCtorArg : IClassFixture<EmptyFixtureData>, IClassFixture<object>
@@ -370,7 +371,7 @@ public class FixtureAcceptanceTests
 		{
 			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
 
-			var msg = Assert.Single(messages);
+			Assert.Single(messages);
 		}
 
 		[Collection("Collection with empty fixture data")]

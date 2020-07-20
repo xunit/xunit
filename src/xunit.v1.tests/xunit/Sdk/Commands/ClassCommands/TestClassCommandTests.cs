@@ -295,7 +295,7 @@ namespace Xunit1
 				TestClassCommandRunner.Execute(command, null, null, null);
 
 				Assert.Equal(1, InstrumentedTestClass.dataCtorCalled);
-				Assert.Equal(2, InstrumentedTestClass.ctorCalled);        // Two non-skipped tests, the skipped test does not create an instance
+				Assert.Equal(2, InstrumentedTestClass.ctorCalled);  // Two non-skipped tests, the skipped test does not create an instance
 				Assert.Equal(1, InstrumentedTestClass.passedTestCalled);
 				Assert.Equal(1, InstrumentedTestClass.failedTestCalled);
 				Assert.Equal(0, InstrumentedTestClass.skipTestCalled);

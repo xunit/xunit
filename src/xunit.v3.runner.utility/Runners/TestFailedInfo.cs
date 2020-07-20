@@ -8,17 +8,18 @@ namespace Xunit.Runners
 	public class TestFailedInfo : TestExecutedInfo
 	{
 		/// <summary/>
-		public TestFailedInfo(string typeName,
-							  string methodName,
-							  Dictionary<string, List<string>>? traits,
-							  string testDisplayName,
-							  string testCollectionDisplayName,
-							  decimal executionTime,
-							  string? output,
-							  string? exceptionType,
-							  string exceptionMessage,
-							  string? exceptionStackTrace)
-			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName, executionTime, output)
+		public TestFailedInfo(
+			string typeName,
+			string methodName,
+			Dictionary<string, List<string>>? traits,
+			string testDisplayName,
+			string testCollectionDisplayName,
+			decimal executionTime,
+			string? output,
+			string? exceptionType,
+			string exceptionMessage,
+			string? exceptionStackTrace)
+				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName, executionTime, output)
 		{
 			Guard.ArgumentNotNull(nameof(exceptionMessage), exceptionMessage);
 

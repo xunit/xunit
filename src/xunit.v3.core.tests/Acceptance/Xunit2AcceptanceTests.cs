@@ -18,7 +18,8 @@ public class Xunit2AcceptanceTests
 		{
 			var results = await RunAsync(typeof(NoTestsClass));
 
-			Assert.Collection(results,
+			Assert.Collection(
+				results,
 				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
 				message =>
 				{
@@ -35,7 +36,8 @@ public class Xunit2AcceptanceTests
 		{
 			var results = await RunAsync(typeof(SinglePassingTestClass));
 
-			Assert.Collection(results,
+			Assert.Collection(
+				results,
 				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
 				message =>
 				{
@@ -231,7 +233,8 @@ public class Xunit2AcceptanceTests
 		{
 			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
 			);
 		}
@@ -241,7 +244,8 @@ public class Xunit2AcceptanceTests
 		{
 			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
-			Assert.Collection(messages,
+			Assert.Collection(
+				messages,
 				msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
 			);
 		}
@@ -256,10 +260,13 @@ public class Xunit2AcceptanceTests
 			var msg = Assert.Single(messages);
 			var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
 			Assert.StartsWith("System.AggregateException : One or more errors occurred.", combinedMessage);
-			Assert.EndsWith("---- Assert.Equal() Failure" + Environment.NewLine +
-							"Expected: 2" + Environment.NewLine +
-							"Actual:   3" + Environment.NewLine +
-							"---- System.DivideByZeroException : Attempted to divide by zero.", combinedMessage);
+			Assert.EndsWith(
+				"---- Assert.Equal() Failure" + Environment.NewLine +
+				"Expected: 2" + Environment.NewLine +
+				"Actual:   3" + Environment.NewLine +
+				"---- System.DivideByZeroException : Attempted to divide by zero.",
+				combinedMessage
+			);
 		}
 
 		class ClassUnderTest_CtorFailure
@@ -355,7 +362,8 @@ public class Xunit2AcceptanceTests
 		{
 			var testMessages = await RunAsync<ITestPassed>(typeof(TestClassUsingCollection));
 
-			Assert.Collection(testMessages,
+			Assert.Collection(
+				testMessages,
 				message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
 				message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
 				message => Assert.Equal("Test3", message.TestCase.TestMethod.Method.Name)
@@ -384,7 +392,8 @@ public class Xunit2AcceptanceTests
 		{
 			var testMessages = await RunAsync<ITestPassed>(typeof(TestClassWithoutCollection));
 
-			Assert.Collection(testMessages,
+			Assert.Collection(
+				testMessages,
 				message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
 				message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
 				message => Assert.Equal("Test3", message.TestCase.TestMethod.Method.Name)
@@ -426,7 +435,8 @@ public class Xunit2AcceptanceTests
 				typeof(TestClassParallelCollection)
 			});
 
-			Assert.Collection(testMessages,
+			Assert.Collection(
+				testMessages,
 				message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
 				message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
 				message => Assert.Equal("IShouldBeLast1", message.TestCase.TestMethod.Method.Name),
@@ -507,9 +517,10 @@ public class Xunit2AcceptanceTests
 		[Fact]
 		public async void CannotMixMultipleFactDerivedAttributes()
 		{
-			var msgs = (await RunAsync<ITestFailed>(typeof(ClassWithMultipleFacts))).ToList();
+			var msgs = await RunAsync<ITestFailed>(typeof(ClassWithMultipleFacts));
 
-			Assert.Collection(msgs,
+			Assert.Collection(
+				msgs,
 				msg =>
 				{
 					Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing", msg.Test.DisplayName);
@@ -541,7 +552,8 @@ public class Xunit2AcceptanceTests
 			Assert.True(idxOfFirstTestOutput >= 0, "Test should have output");
 			Assert.True(idxOfFirstTestOutput < idxOfTestPassed, "Test output messages should precede test result");
 
-			Assert.Collection(msgs.OfType<ITestOutput>(),
+			Assert.Collection(
+				msgs.OfType<ITestOutput>(),
 				msg =>
 				{
 					var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);

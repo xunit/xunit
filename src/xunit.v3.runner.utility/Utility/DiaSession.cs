@@ -33,7 +33,7 @@ namespace Xunit
 
 		public DiaSession(string assemblyFileName)
 		{
-			this.AssemblyFileName = assemblyFileName;
+			AssemblyFileName = assemblyFileName;
 			sessionHasErrors |= (typeDiaSession == null || Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null);
 			wrappedSessions = new Dictionary<string, IDisposable>();
 		}
@@ -58,9 +58,9 @@ namespace Xunit
 					if (!wrappedSessions.ContainsKey(owningAssemblyFilename))
 					{
 #if WINDOWS_UAP
-                        // Use overload with search path since pdb isn't next to the exe
-                        wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename,
-                            Windows.ApplicationModel.Package.Current.InstalledLocation.Path);
+						// Use overload with search path since pdb isn't next to the exe
+						wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename,
+							Windows.ApplicationModel.Package.Current.InstalledLocation.Path);
 #else
 						wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
 #endif

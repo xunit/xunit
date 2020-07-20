@@ -58,7 +58,10 @@ namespace Xunit
 			return ConvertToFailureInformation(exceptionType, message, stackTrace);
 		}
 
-		static IFailureInformation ConvertToFailureInformation(string outermostExceptionType, string nestedExceptionMessages, string nestedStackTraces)
+		static IFailureInformation ConvertToFailureInformation(
+			string outermostExceptionType,
+			string nestedExceptionMessages,
+			string nestedStackTraces)
 		{
 			var exceptionTypes = new List<string?>();
 			var messages = new List<string>();
@@ -101,8 +104,11 @@ namespace Xunit
 			}
 
 			public string?[] ExceptionTypes { get; set; }
+
 			public string[] Messages { get; set; }
+
 			public string?[] StackTraces { get; set; }
+
 			public int[] ExceptionParentIndices { get; set; }
 		}
 	}

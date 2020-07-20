@@ -12,9 +12,10 @@ namespace Xunit.Runner.InProc.SystemConsole
 		readonly string assemblyFileName;
 		readonly List<string> unknownOptions = new List<string>();
 
-		protected CommandLine(string assemblyFileName,
-							  string[] args,
-							  Predicate<string>? fileExists = null)
+		protected CommandLine(
+			string assemblyFileName,
+			string[] args,
+			Predicate<string>? fileExists = null)
 		{
 			this.assemblyFileName = assemblyFileName;
 
@@ -75,15 +76,17 @@ namespace Xunit.Runner.InProc.SystemConsole
 		protected virtual string GetFullPath(string fileName) =>
 			Path.GetFullPath(fileName);
 
-		XunitProject GetProjectFile(string assemblyFileName, string? configFileName)
-			=> new XunitProject
-			{
-				new XunitProjectAssembly
+		XunitProject GetProjectFile(
+			string assemblyFileName,
+			string? configFileName) =>
+				new XunitProject
 				{
-					AssemblyFilename = assemblyFileName,
-					ConfigFilename = configFileName != null ? GetFullPath(configFileName) : null
-				}
-			};
+					new XunitProjectAssembly
+					{
+						AssemblyFilename = assemblyFileName,
+						ConfigFilename = configFileName != null ? GetFullPath(configFileName) : null
+					}
+				};
 
 		static void GuardNoOptionValue(KeyValuePair<string, string?> option)
 		{
@@ -91,11 +94,13 @@ namespace Xunit.Runner.InProc.SystemConsole
 				throw new ArgumentException($"error: unknown command line option: {option.Value}");
 		}
 
-		static bool IsConfigFile(string fileName)
-			=> fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+		static bool IsConfigFile(string fileName) =>
+			fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 
-		public static CommandLine Parse(string assemblyFileName, params string[] args)
-			=> new CommandLine(assemblyFileName, args);
+		public static CommandLine Parse(
+			string assemblyFileName,
+			params string[] args) =>
+				new CommandLine(assemblyFileName, args);
 
 		protected XunitProject Parse(Predicate<string> fileExists)
 		{

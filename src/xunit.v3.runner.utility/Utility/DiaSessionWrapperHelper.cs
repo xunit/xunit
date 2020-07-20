@@ -120,8 +120,7 @@ namespace Xunit
 			var constructorEquality = Expression.Equal(constructorProperty, asyncMachineAttributeConstructorValue);
 			var attributeSelector = Expression.Lambda<Func<CustomAttributeData, bool>>(constructorEquality, new[] { attrParameter });
 
-			// var attribute = CustomAttributeData.GetCustomAttributes(method)
-			//                                    .SingleOrDefault(attr => attr.Constructor == asyncStateMachineAttributeConstructor);
+			// var attribute = CustomAttributeData.GetCustomAttributes(method).SingleOrDefault(attr => attr.Constructor == asyncStateMachineAttributeConstructor);
 			var attribute = Expression.Call(
 				enumerableType,
 				"SingleOrDefault",

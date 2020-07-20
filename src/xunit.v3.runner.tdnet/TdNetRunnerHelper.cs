@@ -22,7 +22,9 @@ namespace Xunit.Runner.TdNet
 		protected TdNetRunnerHelper()
 		{ }
 
-		public TdNetRunnerHelper(Assembly assembly, ITestListener testListener)
+		public TdNetRunnerHelper(
+			Assembly assembly,
+			ITestListener testListener)
 		{
 			this.testListener = testListener;
 
@@ -73,7 +75,9 @@ namespace Xunit.Runner.TdNet
 				disposable.Dispose();
 		}
 
-		public virtual TestRunState Run(IReadOnlyList<ITestCase>? testCases = null, TestRunState initialRunState = TestRunState.NoTests)
+		public virtual TestRunState Run(
+			IReadOnlyList<ITestCase>? testCases = null,
+			TestRunState initialRunState = TestRunState.NoTests)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
@@ -100,7 +104,9 @@ namespace Xunit.Runner.TdNet
 			}
 		}
 
-		public virtual TestRunState RunClass(Type type, TestRunState initialRunState = TestRunState.NoTests)
+		public virtual TestRunState RunClass(
+			Type type,
+			TestRunState initialRunState = TestRunState.NoTests)
 		{
 			var state = Run(Discover(type), initialRunState);
 
@@ -114,7 +120,9 @@ namespace Xunit.Runner.TdNet
 			return state;
 		}
 
-		public virtual TestRunState RunMethod(MethodInfo method, TestRunState initialRunState = TestRunState.NoTests)
+		public virtual TestRunState RunMethod(
+			MethodInfo method,
+			TestRunState initialRunState = TestRunState.NoTests)
 		{
 			var testCases = Discover(method.ReflectedType).Where(tc =>
 			{

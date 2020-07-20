@@ -55,7 +55,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected IRunnerLogger Logger { get; }
 
-		void AddExecutionOptions(string? assemblyFilename, ITestFrameworkExecutionOptions executionOptions)
+		void AddExecutionOptions(
+			string? assemblyFilename,
+			ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.NotNull("Attempted to log messages for an XunitProjectAssembly without first setting AssemblyFilename", assemblyFilename);
 
@@ -122,7 +124,9 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="failureType">The type of the failure</param>
 		/// <param name="failureInfo">The failure information</param>
-		protected void LogError(string failureType, IFailureInformation failureInfo)
+		protected void LogError(
+			string failureType,
+			IFailureInformation failureInfo)
 		{
 			Guard.ArgumentNotNull(nameof(failureType), failureType);
 			Guard.ArgumentNotNull(nameof(failureInfo), failureInfo);
@@ -143,7 +147,9 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Logs a stack trace to the logger.
 		/// </summary>
-		protected virtual void LogStackTrace(StackFrameInfo frameInfo, string? stackTrace)
+		protected virtual void LogStackTrace(
+			StackFrameInfo frameInfo,
+			string? stackTrace)
 		{
 			if (string.IsNullOrEmpty(stackTrace))
 				return;
@@ -157,7 +163,9 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Lots test output to the logger.
 		/// </summary>
-		protected virtual void LogOutput(StackFrameInfo frameInfo, string? output)
+		protected virtual void LogOutput(
+			StackFrameInfo frameInfo,
+			string? output)
 		{
 			if (string.IsNullOrEmpty(output))
 				return;

@@ -15,8 +15,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionMessage"/> class.
 		/// </summary>
-		public TestCollectionMessage(IEnumerable<ITestCase> testCases, ITestCollection testCollection)
-			: base(testCases, testCollection.TestAssembly)
+		public TestCollectionMessage(
+			IEnumerable<ITestCase> testCases,
+			ITestCollection testCollection)
+				: base(testCases, testCollection.TestAssembly)
 		{
 			TestCollection = testCollection;
 		}
@@ -24,8 +26,10 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionMessage"/> class.
 		/// </summary>
-		internal TestCollectionMessage(ITestCase testCase, ITestCollection testCollection)
-			: base(testCase, testCollection.TestAssembly)
+		internal TestCollectionMessage(
+			ITestCase testCase,
+			ITestCollection testCollection)
+				: base(testCase, testCollection.TestAssembly)
 		{
 			TestCollection = testCollection;
 		}

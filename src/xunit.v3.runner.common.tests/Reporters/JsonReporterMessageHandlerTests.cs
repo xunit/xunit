@@ -122,7 +122,9 @@ public class JsonReporterMessageHandlerTests
 
 	[Theory]
 	[MemberData("Messages")]
-	public static void LogsMessage(IMessageSinkMessage message, string expectedJson)
+	public static void LogsMessage(
+		IMessageSinkMessage message,
+		string expectedJson)
 	{
 		var logger = Substitute.For<IRunnerLogger>();
 		var jsonReporterMessageHandler = new JsonReporterMessageHandler(logger, _ => $"mappedFlow");

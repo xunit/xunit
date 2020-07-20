@@ -147,7 +147,7 @@ public class TestMethodTestCaseTests
 		{
 			var value42 = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { 42 }).UniqueID;
 			var valueHelloWorld = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { "Hello, world!" }).UniqueID;
-			var valueNull = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { (string?)null }).UniqueID;
+			var valueNull = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { null }).UniqueID;
 
 			Assert.NotEmpty(value42);
 			Assert.NotEqual(value42, valueHelloWorld);

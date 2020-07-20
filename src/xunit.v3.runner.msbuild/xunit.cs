@@ -69,8 +69,8 @@ namespace Xunit.Runner.MSBuild
 
 		public string? MaxParallelThreads { get; set; }
 
-		protected bool NeedsXml
-			=> Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
+		protected bool NeedsXml =>
+			Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
 
 		public bool NoAutoReporters { get; set; }
 
@@ -109,13 +109,13 @@ namespace Xunit.Runner.MSBuild
 			RemotingUtility.CleanUpRegisteredChannels();
 
 			XElement? assembliesElement = null;
-			var environment = $"{IntPtr.Size * 8}-bit {CrossPlatform.Version}";
+			var environment = $"{IntPtr.Size * 8}-bit {$"Desktop .NET {Environment.Version}"}";
 
 			if (NeedsXml)
 				assembliesElement = new XElement("assemblies");
 
 			var appDomains = default(AppDomainSupport?);
-			switch (AppDomains?.ToLowerInvariant())    // Using ToLowerInvariant() here for back compat for when this was a boolean
+			switch (AppDomains?.ToLowerInvariant())
 			{
 				case null:
 					break;
@@ -174,7 +174,7 @@ namespace Xunit.Runner.MSBuild
 				reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
 				if (!NoLogo)
-					Log.LogMessage(MessageImportance.High, $"xUnit.net MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
+					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
 
 				var project = new XunitProject();
 				foreach (var assembly in Assemblies)
@@ -230,20 +230,19 @@ namespace Xunit.Runner.MSBuild
 			if (NeedsXml && assembliesElement != null)
 			{
 				if (Xml != null)
-					using (var xmlStream = new FileStream(Xml.GetMetadata("FullPath"), FileMode.OpenOrCreate, FileAccess.Write))
-						assembliesElement.Save(xmlStream);
+					TransformFactory.Transform("xml", assembliesElement, Xml.GetMetadata("FullPath"));
 
 				if (XmlV1 != null)
-					CrossPlatform.Transform(logger, "XmlV1", "xUnit1.xslt", assembliesElement, XmlV1);
+					TransformFactory.Transform("xmlv1", assembliesElement, XmlV1.GetMetadata("FullPath"));
 
 				if (Html != null)
-					CrossPlatform.Transform(logger, "Html", "HTML.xslt", assembliesElement, Html);
+					TransformFactory.Transform("html", assembliesElement, Html.GetMetadata("FullPath"));
 
 				if (NUnit != null)
-					CrossPlatform.Transform(logger, "NUnit", "NUnitXml.xslt", assembliesElement, NUnit);
+					TransformFactory.Transform("nunit", assembliesElement, NUnit.GetMetadata("FullPath"));
 
 				if (JUnit != null)
-					CrossPlatform.Transform(logger, "JUnit", "JUnitXml.xslt", assembliesElement, JUnit);
+					TransformFactory.Transform("junit", assembliesElement, JUnit.GetMetadata("FullPath"));
 			}
 
 			// ExitCode is set to 1 for test failures and -1 for Exceptions.
@@ -285,52 +284,51 @@ namespace Xunit.Runner.MSBuild
 				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-				using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename!, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
-				using (var discoverySink = new TestDiscoverySink(() => cancel))
+				using var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename!, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink);
+				using var discoverySink = new TestDiscoverySink(() => cancel);
+
+				// Discover & filter the tests
+				reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
+
+				controller.Find(false, discoverySink, discoveryOptions);
+				discoverySink.Finished.WaitOne();
+
+				var testCasesDiscovered = discoverySink.TestCases.Count;
+				var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
+				var testCasesToRun = filteredTestCases.Count;
+
+				reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
+
+				// Run the filtered tests
+				if (testCasesToRun == 0)
+					completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename)!, new ExecutionSummary());
+				else
 				{
-					// Discover & filter the tests
-					reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
+					if (SerializeTestCases)
+						filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-					controller.Find(false, discoverySink, discoveryOptions);
-					discoverySink.Finished.WaitOne();
+					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+					if (assemblyElement != null)
+						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+					if (longRunningSeconds > 0)
+						resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
+					if (FailSkips)
+						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-					var testCasesDiscovered = discoverySink.TestCases.Count;
-					var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
-					var testCasesToRun = filteredTestCases.Count;
+					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-					reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
+					controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+					resultsSink.Finished.WaitOne();
 
-					// Run the filtered tests
-					if (testCasesToRun == 0)
-						completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename)!, new ExecutionSummary());
-					else
+					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+
+					if (resultsSink.ExecutionSummary.Failed != 0)
 					{
-						if (SerializeTestCases)
-							filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
-
-						IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
-						if (assemblyElement != null)
-							resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-						if (longRunningSeconds > 0)
-							resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-						if (FailSkips)
-							resultsSink = new DelegatingFailSkipSink(resultsSink);
-
-						reporterMessageHandler!.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
-
-						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
-						resultsSink.Finished.WaitOne();
-
-						reporterMessageHandler!.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
-
-						if (resultsSink.ExecutionSummary.Failed != 0)
+						ExitCode = 1;
+						if (stopOnFail == true)
 						{
-							ExitCode = 1;
-							if (stopOnFail == true)
-							{
-								Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
-								Cancel();
-							}
+							Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+							Cancel();
 						}
 					}
 				}
@@ -367,7 +365,7 @@ namespace Xunit.Runner.MSBuild
 
 				try
 				{
-					var assembly = CrossPlatform.LoadAssembly(dllFile);
+					var assembly = Assembly.LoadFile(dllFile);
 					types = assembly.GetTypes();
 				}
 				catch (ReflectionTypeLoadException ex)
@@ -381,10 +379,8 @@ namespace Xunit.Runner.MSBuild
 
 				foreach (var type in types)
 				{
-#pragma warning disable CS0618
 					if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 						continue;
-#pragma warning restore CS0618
 
 					var ctor = type.GetConstructor(new Type[0]);
 					if (ctor == null)

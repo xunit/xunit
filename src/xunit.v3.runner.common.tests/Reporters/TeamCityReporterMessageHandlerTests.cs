@@ -65,7 +65,9 @@ public class TeamCityReporterMessageHandlerTests
 
 		[Theory]
 		[MemberData("Messages")]
-		public static void LogsMessage(IMessageSinkMessage message, string messageType)
+		public static void LogsMessage(
+			IMessageSinkMessage message,
+			string messageType)
 		{
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
@@ -116,7 +118,8 @@ public class TeamCityReporterMessageHandlerTests
 
 			handler.OnMessageWithTypes(message, null);
 
-			Assert.Collection(handler.Messages,
+			Assert.Collection(
+				handler.Messages,
 				msg => Assert.Equal("[Imp] => ##teamcity[testFailed name='FORMATTED:This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
 				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput']", msg),
 				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
@@ -134,7 +137,8 @@ public class TeamCityReporterMessageHandlerTests
 
 			handler.OnMessageWithTypes(message, null);
 
-			Assert.Collection(handler.Messages,
+			Assert.Collection(
+				handler.Messages,
 				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput']", msg),
 				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
 			);
@@ -151,7 +155,8 @@ public class TeamCityReporterMessageHandlerTests
 
 			handler.OnMessageWithTypes(message, null);
 
-			Assert.Collection(handler.Messages,
+			Assert.Collection(
+				handler.Messages,
 				msg => Assert.Equal("[Imp] => ##teamcity[testIgnored name='FORMATTED:This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='myFlowId']", msg),
 				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
 			);
@@ -179,8 +184,10 @@ public class TeamCityReporterMessageHandlerTests
 	{
 		public IReadOnlyList<string> Messages;
 
-		TestableTeamCityReporterMessageHandler(SpyRunnerLogger logger, TeamCityDisplayNameFormatter formatter)
-			: base(logger, _ => "myFlowId", formatter)
+		TestableTeamCityReporterMessageHandler(
+			SpyRunnerLogger logger,
+			TeamCityDisplayNameFormatter formatter)
+				: base(logger, _ => "myFlowId", formatter)
 		{
 			Messages = logger.Messages;
 		}
@@ -192,15 +199,9 @@ public class TeamCityReporterMessageHandlerTests
 
 		class PassThroughFormatter : TeamCityDisplayNameFormatter
 		{
-			public override string DisplayName(ITestCollection testCollection)
-			{
-				return "FORMATTED:" + testCollection.DisplayName;
-			}
+			public override string DisplayName(ITestCollection testCollection) => $"FORMATTED:{testCollection.DisplayName}";
 
-			public override string DisplayName(ITest test)
-			{
-				return "FORMATTED:" + test.DisplayName;
-			}
+			public override string DisplayName(ITest test) => $"FORMATTED:{test.DisplayName}";
 		}
 	}
 }
