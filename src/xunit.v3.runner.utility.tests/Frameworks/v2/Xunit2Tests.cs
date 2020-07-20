@@ -9,10 +9,10 @@ public class Xunit2Tests
 {
 	public class EnumerateTests
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void NoTestMethods()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void NoTestMethods()
 		{
-			using var assm = CSharpAcceptanceTestV2Assembly.Create(code: "");
+			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			using var controller = new TestableXunit2(assm.FileName, null, true);
 			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -23,8 +23,8 @@ public class Xunit2Tests
 			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void SingleTestMethod()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void SingleTestMethod()
 		{
 			var code = @"
 using Xunit;
@@ -35,7 +35,7 @@ public class Foo
 	public void Bar() { }
 }";
 
-			using var assm = CSharpAcceptanceTestV2Assembly.Create(code);
+			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assm.FileName, null, true);
 			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -50,8 +50,8 @@ public class Foo
 
 	public class CSharp
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void FactAcceptanceTest()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void FactAcceptanceTest()
 		{
 			var code = @"
 using System;
@@ -85,7 +85,7 @@ namespace Namespace2
 	}
 }";
 
-			using var assembly = CSharpAcceptanceTestV2Assembly.Create(code);
+			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -109,8 +109,8 @@ namespace Namespace2
 			Assert.Single(testCases, tc => tc.DisplayName == "Namespace2.OuterClass+Class2.TestMethod");
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void TheoryWithInlineData()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void TheoryWithInlineData()
 		{
 			var code = @"
 using System;
@@ -125,7 +125,7 @@ public class TestClass
 	public void TestMethod(int x) { }
 }";
 
-			using var assembly = CSharpAcceptanceTestV2Assembly.Create(code);
+			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -142,11 +142,10 @@ public class TestClass
 		}
 	}
 
-#if false
 	public class FSharp
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void FactAcceptanceTest()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void FactAcceptanceTest()
 		{
 			var code = @"
 module FSharpTests
@@ -156,18 +155,18 @@ open Xunit
 [<Fact>]
 [<Trait(""Name!"", ""Value!"")>]
 let Trait() =
-	Assert.True(true)
+    Assert.True(true)
 
 [<Fact(Skip = ""Skipping"")>]
 let Skipped() =
-	Assert.True(false)
+    Assert.True(false)
 
 [<Fact(DisplayName=""Custom Test Name"")>]
 let CustomName() =
-	Assert.True(true)
+    Assert.True(true)
 ";
 
-			using var assembly = FSharpAcceptanceTestV2Assembly.Create(code);
+			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
 
@@ -196,8 +195,8 @@ let CustomName() =
 			);
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void TheoryWithInlineData()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void TheoryWithInlineData()
 		{
 			var code = @"
 module FSharpTests
@@ -209,10 +208,10 @@ open Xunit
 [<InlineData(42)>]
 [<InlineData(42, 21.12)>]
 let TestMethod (x:int) =
-	Assert.True(true)
+    Assert.True(true)
 ";
 
-			using var assembly = FSharpAcceptanceTestV2Assembly.Create(code);
+			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
 
@@ -227,8 +226,8 @@ let TestMethod (x:int) =
 			);
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void SupportsAsyncReturningMethods()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void SupportsAsyncReturningMethods()
 		{
 			var code = @"
 module FSharpTests
@@ -237,13 +236,13 @@ open Xunit
 
 [<Fact>]
 let AsyncFailing() =
-	async {
-		do! Async.Sleep(10)
-		Assert.True(false)
-	}
+    async {
+        do! Async.Sleep(10)
+        Assert.True(false)
+    }
 ";
 
-			using var assembly = FSharpAcceptanceTestV2Assembly.Create(code);
+			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
@@ -255,7 +254,6 @@ let AsyncFailing() =
 			Assert.Equal("FSharpTests.AsyncFailing", failure.TestCase.DisplayName);
 		}
 	}
-#endif
 
 	class TestableXunit2 : Xunit2
 	{

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 public class CSharpAcceptanceTestV1Assembly : CSharpAcceptanceTestAssembly
 {
@@ -16,11 +17,11 @@ public class CSharpAcceptanceTestV1Assembly : CSharpAcceptanceTestAssembly
 			.GetStandardReferences()
 			.Concat(new[] { "xunit.dll", "xunit.extensions.dll" });
 
-	public static CSharpAcceptanceTestV1Assembly Create(string code, params string[] references)
+	public static async Task<CSharpAcceptanceTestV1Assembly> Create(string code, params string[] references)
 	{
 		var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
 		var assembly = new CSharpAcceptanceTestV1Assembly(basePath);
-		assembly.Compile(code, references);
+		await assembly.Compile(code, references);
 		return assembly;
 	}
 }

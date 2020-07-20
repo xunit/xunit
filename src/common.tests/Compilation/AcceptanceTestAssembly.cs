@@ -1,9 +1,8 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 public abstract class AcceptanceTestAssembly : IDisposable
 {
@@ -37,7 +36,7 @@ public abstract class AcceptanceTestAssembly : IDisposable
 			File.Delete(PdbName);
 	}
 
-	protected abstract void Compile(string code, string[] references);
+	protected abstract Task Compile(string code, string[] references);
 
 	protected virtual IEnumerable<string> GetStandardReferences()
 		=> new[] {
@@ -55,5 +54,3 @@ public abstract class AcceptanceTestAssembly : IDisposable
 		return File.Exists(localFilename) ? localFilename : reference;
 	}
 }
-
-#endif

@@ -813,8 +813,8 @@ public class Xunit1Tests
 
 	public class AcceptanceTests
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
 		{
 			var code = @"
 using Xunit;
@@ -835,7 +835,7 @@ public class AmbiguouslyNamedTestMethods
 	}
 }";
 
-			using var assembly = CSharpAcceptanceTestV1Assembly.Create(code);
+			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
 			using var xunit1 = new Xunit1(AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName);
 			var spy = new SpyMessageSink<ITestAssemblyFinished>();
 			xunit1.Run(spy);

@@ -11,8 +11,8 @@ public class XunitFrontControllerTests
 {
 	public class DescriptorsAndBulkDeserialization
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-		public void RoundTrip()
+		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		public async void RoundTrip()
 		{
 			var code = @"
 using System;
@@ -31,7 +31,7 @@ namespace Namespace1
 	}
 }";
 
-			using var assembly = CSharpAcceptanceTestV2Assembly.Create(code);
+			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var serializations = default(List<string?>);
 			var testCollectionId = default(Guid);
 

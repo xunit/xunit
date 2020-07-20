@@ -1,9 +1,8 @@
-#if NETFRAMEWORK
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 {
@@ -16,13 +15,11 @@ public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 			.GetStandardReferences()
 			.Concat(new[] { "xunit.assert.dll", "xunit.core.dll", "xunit.execution.dotnet.dll" });
 
-	public static CSharpAcceptanceTestV2Assembly Create(string code, params string[] references)
+	public static async Task<CSharpAcceptanceTestV2Assembly> Create(string code, params string[] references)
 	{
 		var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
 		var assembly = new CSharpAcceptanceTestV2Assembly(basePath);
-		assembly.Compile(code, references);
+		await assembly.Compile(code, references);
 		return assembly;
 	}
 }
-
-#endif

@@ -1,9 +1,8 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CSharp;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
@@ -12,7 +11,7 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		: base(basePath)
 	{ }
 
-	protected override void Compile(string code, string[] references)
+	protected override Task Compile(string code, string[] references)
 	{
 		var parameters = new CompilerParameters()
 		{
@@ -40,7 +39,7 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 
 			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
 		}
+
+		return Task.CompletedTask;
 	}
 }
-
-#endif
