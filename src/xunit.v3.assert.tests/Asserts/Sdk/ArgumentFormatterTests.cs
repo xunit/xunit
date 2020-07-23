@@ -378,8 +378,7 @@ public class ArgumentFormatterTests
 		[Fact]
 		public void ArgumentFormatterFormatTypeNameGenericTypeParameter()
 		{
-			var typeInfo = typeof(List<>).GetTypeInfo();
-			var genericTypeParameters = typeInfo.GenericTypeParameters;
+			var genericTypeParameters = typeof(List<>).GetGenericArguments();
 			var parameterType = genericTypeParameters.First();
 
 			Assert.Equal("typeof(T)", ArgumentFormatter.Format(parameterType));
@@ -388,8 +387,7 @@ public class ArgumentFormatterTests
 		[Fact]
 		public void ArgumentFormatterFormatTypeNameGenericTypeParameters()
 		{
-			var typeInfo = typeof(Dictionary<,>).GetTypeInfo();
-			var genericTypeParameters = typeInfo.GenericTypeParameters;
+			var genericTypeParameters = typeof(Dictionary<,>).GetGenericArguments();
 			var parameterTKey = genericTypeParameters.First();
 
 			Assert.Equal("typeof(TKey)", ArgumentFormatter.Format(parameterTKey));

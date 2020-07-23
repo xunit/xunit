@@ -130,7 +130,7 @@ namespace Xunit.Sdk
 				if (parameter.HasDefaultValue)
 					newArguments[i] = parameter.DefaultValue;
 				else
-					newArguments[i] = parameter.ParameterType.GetTypeInfo().GetDefaultValue();
+					newArguments[i] = parameter.ParameterType.GetDefaultValue();
 			}
 
 			return newArguments;
@@ -383,7 +383,7 @@ namespace Xunit.Sdk
 			ref Type? resultType)
 		{
 			// Do we have Class : BaseClass<T>, Class: BaseClass<T, U> etc.
-			var baseType = passedParameterType.GetTypeInfo().BaseType;
+			var baseType = passedParameterType.BaseType;
 			if (baseType != null && baseType.IsGenericType)
 			{
 				var baseGenericTypeArguments = baseType.GetGenericArguments();
@@ -469,10 +469,10 @@ namespace Xunit.Sdk
 			return resolvedTypes;
 		}
 
-		internal static object? GetDefaultValue(this TypeInfo typeInfo)
+		internal static object? GetDefaultValue(this Type type)
 		{
-			if (typeInfo.IsValueType)
-				return Activator.CreateInstance(typeInfo.AsType());
+			if (type.IsValueType)
+				return Activator.CreateInstance(type);
 
 			return null;
 		}

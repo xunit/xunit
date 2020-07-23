@@ -91,7 +91,7 @@ namespace Xunit
 		Func<object?>? GetFieldAccessor(Type? type)
 		{
 			FieldInfo? fieldInfo = null;
-			for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
+			for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
 			{
 				fieldInfo = reflectionType.GetRuntimeField(MemberName);
 				if (fieldInfo != null)
@@ -108,7 +108,7 @@ namespace Xunit
 		{
 			MethodInfo? methodInfo = null;
 			var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(p => p?.GetType()).ToArray();
-			for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
+			for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
 			{
 				methodInfo =
 					reflectionType
@@ -128,7 +128,7 @@ namespace Xunit
 		Func<object?>? GetPropertyAccessor(Type? type)
 		{
 			PropertyInfo? propInfo = null;
-			for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
+			for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
 			{
 				propInfo = reflectionType.GetRuntimeProperty(MemberName);
 				if (propInfo != null)
@@ -149,7 +149,7 @@ namespace Xunit
 				return false;
 
 			for (var idx = 0; idx < parameters.Length; ++idx)
-				if (parameterTypes[idx] != null && !parameters[idx].ParameterType.GetTypeInfo().IsAssignableFrom(parameterTypes[idx]!.GetTypeInfo()))
+				if (parameterTypes[idx] != null && !parameters[idx].ParameterType.IsAssignableFrom(parameterTypes[idx]!))
 					return false;
 
 			return true;

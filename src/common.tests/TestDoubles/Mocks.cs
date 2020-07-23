@@ -262,7 +262,7 @@ public static class Mocks
 			configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
 
-		return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).GetTypeInfo().Assembly), configFileName);
+		return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 	}
 
 	public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
@@ -429,7 +429,7 @@ public static class Mocks
 		ITestCollection? collection = null)
 	{
 		if (collection == null)
-			collection = TestCollection(type.GetTypeInfo().Assembly);
+			collection = TestCollection(type.Assembly);
 
 		return new TestClass(collection, Reflector.Wrap(type));
 	}
@@ -440,7 +440,7 @@ public static class Mocks
 		string? displayName = null)
 	{
 		if (assembly == null)
-			assembly = typeof(Mocks).GetTypeInfo().Assembly;
+			assembly = typeof(Mocks).Assembly;
 		if (displayName == null)
 			displayName = "Mock test collection for " + assembly.CodeBase;
 
@@ -546,7 +546,7 @@ public static class Mocks
 		result.GetCustomAttributes(null).ReturnsForAnyArgs(
 			callInfo => LookupAttribute(
 				callInfo.Arg<string>(),
-				CustomAttributeData.GetCustomAttributes(attribute.GetType().GetTypeInfo()).Select(Reflector.Wrap).ToArray()
+				CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(x => Reflector.Wrap(x)).ToArray()
 			)
 		);
 		return result;

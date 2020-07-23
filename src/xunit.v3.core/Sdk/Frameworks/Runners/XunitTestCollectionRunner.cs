@@ -80,8 +80,7 @@ namespace Xunit.Sdk
 		{
 			var ctors =
 				fixtureType
-					.GetTypeInfo()
-					.DeclaredConstructors
+					.GetConstructors()
 					.Where(ci => !ci.IsStatic && ci.IsPublic)
 					.ToList();
 
@@ -117,7 +116,7 @@ namespace Xunit.Sdk
 				return Task.CompletedTask;
 
 			var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
-			foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+			foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
 			{
 				var fixtureType = interfaceType.GenericTypeArguments.Single();
 				CreateCollectionFixture(fixtureType);

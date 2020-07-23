@@ -74,8 +74,7 @@ namespace Xunit.Sdk
 		{
 			var ctors =
 				fixtureType
-					.GetTypeInfo()
-					.DeclaredConstructors
+					.GetConstructors()
 					.Where(ci => !ci.IsStatic && ci.IsPublic)
 					.ToList();
 
@@ -153,19 +152,19 @@ namespace Xunit.Sdk
 				}
 			}
 
-			var testClassTypeInfo = Class.Type.GetTypeInfo();
-			if (testClassTypeInfo.ImplementedInterfaces.Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+			var testClassType = Class.Type;
+			if (testClassType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
 				Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
 			var createClassFixtureAsyncTasks = new List<Task>();
-			foreach (var interfaceType in testClassTypeInfo.ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-				createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single()));
+			foreach (var interfaceType in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+				createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()));
 
 			if (TestClass.TestCollection.CollectionDefinition != null)
 			{
 				var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
-				foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-					createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single()));
+				foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+					createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()));
 			}
 
 			await Task.WhenAll(createClassFixtureAsyncTasks);
@@ -206,8 +205,7 @@ namespace Xunit.Sdk
 			var ctors =
 				Class
 					.Type
-					.GetTypeInfo()
-					.DeclaredConstructors
+					.GetConstructors()
 					.Where(ci => !ci.IsStatic && ci.IsPublic)
 					.ToList();
 

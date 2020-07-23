@@ -379,7 +379,7 @@ namespace Xunit.Runner.MSBuild
 
 				foreach (var type in types)
 				{
-					if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 						continue;
 
 					var ctor = type.GetConstructor(new Type[0]);

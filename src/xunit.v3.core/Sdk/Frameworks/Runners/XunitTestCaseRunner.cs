@@ -159,12 +159,12 @@ namespace Xunit.Sdk
 			IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
 
 			if (TestCase.TestMethod.TestClass.TestCollection.CollectionDefinition is IReflectionTypeInfo collectionDefinition)
-				beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute));
+				beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetCustomAttributes(typeof(BeforeAfterTestAttribute));
 			else
 				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
 
 			return beforeAfterTestCollectionAttributes
-				.Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+				.Concat(TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
 				.Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
 				.Cast<BeforeAfterTestAttribute>()
 				.ToList();

@@ -101,7 +101,7 @@ public static class ReflectionAbstractionExtensions
 
 	static MethodInfo? GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
 	{
-		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo().DeclaredMethods;
+		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();
 
 		return
 			methods
@@ -120,7 +120,7 @@ public static class ReflectionAbstractionExtensions
 		Guard.ArgumentNotNull(nameof(type), type);
 		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
 
-		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo().DeclaredMethods;
+		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();
 
 		return methods.Where(method => method.IsPublic == methodInfo.IsPublic && method.IsStatic == methodInfo.IsStatic);
 	}

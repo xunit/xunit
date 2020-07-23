@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,10 +25,10 @@ namespace Xunit.Sdk
 			foreach (var traitAttributeData in member.CustomAttributes)
 			{
 				var traitAttributeType = traitAttributeData.AttributeType;
-				if (!typeof(ITraitAttribute).GetTypeInfo().IsAssignableFrom(traitAttributeType.GetTypeInfo()))
+				if (!typeof(ITraitAttribute).IsAssignableFrom(traitAttributeType))
 					continue;
 
-				var discovererAttributeData = FindDiscovererAttributeType(traitAttributeType.GetTypeInfo());
+				var discovererAttributeData = FindDiscovererAttributeType(traitAttributeType);
 				if (discovererAttributeData == null)
 					continue;
 
@@ -43,7 +44,7 @@ namespace Xunit.Sdk
 			return result;
 		}
 
-		static CustomAttributeData? FindDiscovererAttributeType(TypeInfo traitAttribute)
+		static CustomAttributeData? FindDiscovererAttributeType(Type traitAttribute)
 		{
 			static bool IsTraitDiscovererAttribute(CustomAttributeData t) =>
 				t.AttributeType == typeof(TraitDiscovererAttribute);
@@ -55,7 +56,7 @@ namespace Xunit.Sdk
 			do
 			{
 				result = typeChecking.CustomAttributes.FirstOrDefault(IsTraitDiscovererAttribute);
-				typeChecking = traitAttribute.BaseType?.GetTypeInfo();
+				typeChecking = traitAttribute.BaseType;
 			} while (result == null && typeChecking != null);
 
 			return result;

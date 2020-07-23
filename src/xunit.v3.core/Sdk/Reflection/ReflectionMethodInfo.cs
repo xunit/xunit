@@ -80,7 +80,7 @@ namespace Xunit.Sdk
 
 			foreach (var attr in method.CustomAttributes)
 			{
-				if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+				if (attributeType.IsAssignableFrom(attr.AttributeType))
 				{
 					if (list == null)
 						list = new List<ReflectionAttributeInfo>();
@@ -121,7 +121,7 @@ namespace Xunit.Sdk
 
 			while (currentType != typeof(object) && currentType != null)
 			{
-				currentType = currentType.GetTypeInfo().BaseType;
+				currentType = currentType.BaseType;
 				if (currentType == null)
 					return null;
 

@@ -138,7 +138,7 @@ namespace Xunit.Sdk
 		/// <returns>The test class constructor arguments.</returns>
 		protected virtual object?[] CreateTestClassConstructorArguments()
 		{
-			var isStaticClass = Class.Type.GetTypeInfo().IsAbstract && Class.Type.GetTypeInfo().IsSealed;
+			var isStaticClass = Class.Type.IsAbstract && Class.Type.IsSealed;
 			if (!isStaticClass)
 			{
 				var ctor = SelectTestClassConstructor();
@@ -157,7 +157,7 @@ namespace Xunit.Sdk
 						else if (parameter.HasDefaultValue)
 							constructorArguments[idx] = parameter.DefaultValue;
 						else if (parameter.IsOptional)
-							constructorArguments[idx] = parameter.ParameterType.GetTypeInfo().GetDefaultValue();
+							constructorArguments[idx] = parameter.ParameterType.GetDefaultValue();
 						else if (parameter.GetCustomAttribute<ParamArrayAttribute>() != null)
 							constructorArguments[idx] = Array.CreateInstance(parameter.ParameterType, 0);
 						else
@@ -282,7 +282,7 @@ namespace Xunit.Sdk
 		/// <returns>The constructor to be used for creating the test class.</returns>
 		protected virtual ConstructorInfo? SelectTestClassConstructor()
 		{
-			var result = Class.Type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
+			var result = Class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
 			if (result == null)
 				Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
 

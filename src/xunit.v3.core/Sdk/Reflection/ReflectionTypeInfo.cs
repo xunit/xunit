@@ -21,28 +21,28 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IAssemblyInfo Assembly => Reflector.Wrap(Type.GetTypeInfo().Assembly);
+		public IAssemblyInfo Assembly => Reflector.Wrap(Type.Assembly);
 
 		/// <inheritdoc/>
-		public ITypeInfo? BaseType => Type.GetTypeInfo().BaseType == null ? null : Reflector.Wrap(Type.GetTypeInfo().BaseType!);
+		public ITypeInfo? BaseType => Type.BaseType == null ? null : Reflector.Wrap(Type.BaseType!);
 
 		/// <inheritdoc/>
-		public IEnumerable<ITypeInfo> Interfaces => Type.GetTypeInfo().ImplementedInterfaces.Select(i => Reflector.Wrap(i)).ToList();
+		public IEnumerable<ITypeInfo> Interfaces => Type.GetInterfaces().Select(i => Reflector.Wrap(i)).ToList();
 
 		/// <inheritdoc/>
-		public bool IsAbstract => Type.GetTypeInfo().IsAbstract;
+		public bool IsAbstract => Type.IsAbstract;
 
 		/// <inheritdoc/>
 		public bool IsGenericParameter => Type.IsGenericParameter;
 
 		/// <inheritdoc/>
-		public bool IsGenericType => Type.GetTypeInfo().IsGenericType;
+		public bool IsGenericType => Type.IsGenericType;
 
 		/// <inheritdoc/>
-		public bool IsSealed => Type.GetTypeInfo().IsSealed;
+		public bool IsSealed => Type.IsSealed;
 
 		/// <inheritdoc/>
-		public bool IsValueType => Type.GetTypeInfo().IsValueType;
+		public bool IsValueType => Type.IsValueType;
 
 		/// <inheritdoc/>
 		public string Name => Type.FullName ?? Type.Name;
@@ -61,7 +61,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IEnumerable<ITypeInfo> GetGenericArguments() =>
 			Type
-				.GetTypeInfo().GenericTypeArguments
+				.GenericTypeArguments
 				.Select(t => Reflector.Wrap(t))
 				.ToList();
 

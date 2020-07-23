@@ -41,10 +41,10 @@ namespace Xunit.Sdk
 				// being the exact matching type, so the inner values must be converted.
 				if (value is IEnumerable<CustomAttributeTypedArgument> valueAsEnumerable)
 					value = Convert(valueAsEnumerable).ToArray();
-				else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
+				else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsEnum)
 					value = Enum.Parse(argument.ArgumentType, value.ToString()!);
 
-				if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
+				if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsArray)
 					value = Reflector.ConvertArgument(value, argument.ArgumentType);
 
 				yield return value;
@@ -55,7 +55,7 @@ namespace Xunit.Sdk
 		{
 			return attributeUsageCache.GetOrAdd(
 				attributeType,
-				at => (AttributeUsageAttribute)at.GetTypeInfo().GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
+				at => (AttributeUsageAttribute)at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
 					?? DefaultAttributeUsageAttribute
 			);
 		}
@@ -93,9 +93,9 @@ namespace Xunit.Sdk
 			if (type != null)
 			{
 				List<ReflectionAttributeInfo>? list = null;
-				foreach (var attr in type.GetTypeInfo().CustomAttributes)
+				foreach (var attr in type.CustomAttributes)
 				{
-					if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+					if (attributeType.IsAssignableFrom(attr.AttributeType))
 					{
 						if (list == null)
 							list = new List<ReflectionAttributeInfo>();
@@ -110,7 +110,7 @@ namespace Xunit.Sdk
 				results = list ?? Enumerable.Empty<IAttributeInfo>();
 
 				if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
-					results = results.Concat(GetCustomAttributes(type.GetTypeInfo().BaseType, attributeType, attributeUsage));
+					results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage));
 			}
 
 			return results;

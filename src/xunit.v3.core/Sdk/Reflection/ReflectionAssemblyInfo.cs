@@ -52,7 +52,7 @@ namespace Xunit.Sdk
 			return
 				Assembly
 					.CustomAttributes
-					.Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+					.Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
 					.OrderBy(attr => attr.AttributeType.Name)
 					.Select(a => Reflector.Wrap(a))
 					.Cast<IAttributeInfo>()

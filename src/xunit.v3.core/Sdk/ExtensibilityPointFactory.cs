@@ -374,8 +374,7 @@ namespace Xunit.Sdk
 			}
 			else if (ctorArgs.Count == 1 && ctorArgs[0] is Type factoryType)
 			{
-				var resultTypeInfo = factoryType.GetTypeInfo();
-				if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
+				if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(factoryType))
 					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection factory type '{factoryType.FullName}' does not implement IXunitTestCollectionFactory"));
 				else
 					return factoryType;
@@ -387,8 +386,7 @@ namespace Xunit.Sdk
 					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Unable to create test collection factory type '{assemblyName}, {typeName}'"));
 				else
 				{
-					var resultTypeInfo = result.GetTypeInfo();
-					if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
+					if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result))
 						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection factory type '{assemblyName}, {typeName}' does not implement IXunitTestCollectionFactory"));
 					else
 						return result;

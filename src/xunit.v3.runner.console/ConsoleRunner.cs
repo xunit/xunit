@@ -135,7 +135,7 @@ namespace Xunit.Runner.SystemConsole
 		{
 			var result = new List<IRunnerReporter>();
 
-			var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
+			var runnerPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
 			foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath!, f)))
 			{
@@ -157,7 +157,7 @@ namespace Xunit.Runner.SystemConsole
 
 				foreach (var type in types ?? new Type[0])
 				{
-					if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 						continue;
 					var ctor = type.GetConstructor(new Type[0]);
 					if (ctor == null)
