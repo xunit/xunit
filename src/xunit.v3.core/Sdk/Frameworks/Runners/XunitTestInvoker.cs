@@ -58,7 +58,7 @@ namespace Xunit.Sdk
 				{
 					try
 					{
-						Timer.Aggregate(() => beforeAfterAttribute.Before(TestMethod));
+						Timer.Aggregate(() => beforeAfterAttribute.Before(TestMethod, Test));
 						beforeAfterAttributesRun.Push(beforeAfterAttribute);
 					}
 					catch (Exception ex)
@@ -89,7 +89,7 @@ namespace Xunit.Sdk
 				if (!MessageBus.QueueMessage(new AfterTestStarting(Test, attributeName)))
 					CancellationTokenSource.Cancel();
 
-				Aggregator.Run(() => Timer.Aggregate(() => beforeAfterAttribute.After(TestMethod)));
+				Aggregator.Run(() => Timer.Aggregate(() => beforeAfterAttribute.After(TestMethod, Test)));
 
 				if (!MessageBus.QueueMessage(new AfterTestFinished(Test, attributeName)))
 					CancellationTokenSource.Cancel();

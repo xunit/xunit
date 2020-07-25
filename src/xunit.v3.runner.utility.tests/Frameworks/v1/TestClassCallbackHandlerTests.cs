@@ -120,7 +120,8 @@ public class TestClassCallbackHandlerTests
 		/// and replaces them with the new cultures defined in the constructor.
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		public override void Before(MethodInfo methodUnderTest)
+		/// <param name="test">The current <see cref="ITest"/></param>
+		public override void Before(MethodInfo methodUnderTest, ITest test)
 		{
 			originalCulture = CultureInfo.CurrentCulture;
 			originalUICulture = CultureInfo.CurrentUICulture;
@@ -134,7 +135,8 @@ public class TestClassCallbackHandlerTests
 		/// <see cref="CultureInfo.CurrentUICulture" /> to <see cref="Thread.CurrentPrincipal" />
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		public override void After(MethodInfo methodUnderTest)
+		/// <param name="test">The current <see cref="ITest"/></param>
+		public override void After(MethodInfo methodUnderTest, ITest test)
 		{
 			if (originalCulture != null)
 				CultureInfo.CurrentCulture = originalCulture;

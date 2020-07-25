@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -14,14 +15,16 @@ namespace Xunit.Sdk
 		/// This method is called after the test method is executed.
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		public virtual void After(MethodInfo methodUnderTest)
+		/// <param name="test">The current <see cref="ITest"/></param>
+		public virtual void After(MethodInfo methodUnderTest, ITest test)
 		{ }
 
 		/// <summary>
 		/// This method is called before the test method is executed.
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		public virtual void Before(MethodInfo methodUnderTest)
+		/// <param name="test">The current <see cref="ITest"/></param>
+		public virtual void Before(MethodInfo methodUnderTest, ITest test)
 		{ }
 	}
 }

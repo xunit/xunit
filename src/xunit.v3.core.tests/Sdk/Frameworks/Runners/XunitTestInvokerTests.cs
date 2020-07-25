@@ -253,16 +253,16 @@ public class XunitTestInvokerTests
 			this.identifier = identifier;
 		}
 
-		public override void After(MethodInfo methodUnderTest)
+		public override void After(MethodInfo methodUnderTest, ITest test)
 		{
 			messages.Add("After #" + identifier);
-			base.After(methodUnderTest);
+			base.After(methodUnderTest, test);
 		}
 
-		public override void Before(MethodInfo methodUnderTest)
+		public override void Before(MethodInfo methodUnderTest, ITest test)
 		{
 			messages.Add("Before #" + identifier);
-			base.Before(methodUnderTest);
+			base.Before(methodUnderTest, test);
 		}
 	}
 
