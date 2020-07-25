@@ -8,7 +8,7 @@ namespace Xunit.Sdk
 	/// Base attribute which indicates a test method interception (allows code to be run before and
 	/// after the test is run).
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+	[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
 	public abstract class BeforeAfterTestAttribute : Attribute
 	{
 		/// <summary>

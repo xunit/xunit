@@ -3,6 +3,8 @@ using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
+[assembly: XunitTestCaseRunnerTests.BeforeAfterOnAssembly]
+
 public class XunitTestCaseRunnerTests
 {
 	[Fact]
@@ -20,6 +22,7 @@ public class XunitTestCaseRunnerTests
 			runner.BeforeAfterAttributes,
 			attr => Assert.IsType<BeforeAfterOnCollection>(attr),
 			attr => Assert.IsType<BeforeAfterOnClass>(attr),
+			attr => Assert.IsType<BeforeAfterOnAssembly>(attr),
 			attr => Assert.IsType<BeforeAfterOnMethod>(attr)
 		);
 	}
@@ -38,4 +41,5 @@ public class XunitTestCaseRunnerTests
 	class BeforeAfterOnCollection : BeforeAfterTestAttribute { }
 	class BeforeAfterOnClass : BeforeAfterTestAttribute { }
 	class BeforeAfterOnMethod : BeforeAfterTestAttribute { }
+	public class BeforeAfterOnAssembly : BeforeAfterTestAttribute { }
 }

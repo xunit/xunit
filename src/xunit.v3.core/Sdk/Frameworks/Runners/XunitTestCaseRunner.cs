@@ -166,6 +166,7 @@ namespace Xunit.Sdk
 			return beforeAfterTestCollectionAttributes
 				.Concat(TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
 				.Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+				.Concat(TestClass.Assembly.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
 				.Cast<BeforeAfterTestAttribute>()
 				.ToList();
 		}
