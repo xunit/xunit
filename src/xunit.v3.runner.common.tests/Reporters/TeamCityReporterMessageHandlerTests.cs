@@ -121,7 +121,7 @@ public class TeamCityReporterMessageHandlerTests
 			Assert.Collection(
 				handler.Messages,
 				msg => Assert.Equal("[Imp] => ##teamcity[testFailed name='FORMATTED:This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput' flowId='myFlowId']", msg),
 				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
 			);
 		}
@@ -139,7 +139,7 @@ public class TeamCityReporterMessageHandlerTests
 
 			Assert.Collection(
 				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput' flowId='myFlowId']", msg),
 				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
 			);
 		}

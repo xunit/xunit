@@ -205,11 +205,12 @@ namespace Xunit.Runner.Common
 		void LogFinish(ITestResultMessage testResult)
 		{
 			var formattedName = Escape(displayNameFormatter.DisplayName(testResult.Test));
+			var flowId = ToFlowId(testResult.TestCollection.DisplayName);
 
 			if (!string.IsNullOrWhiteSpace(testResult.Output))
-				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}']");
+				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{flowId}']");
 
-			logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{ToFlowId(testResult.TestCollection.DisplayName)}']");
+			logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{flowId}']");
 		}
 
 		static bool IsAscii(char ch) => ch <= '\x007f';
