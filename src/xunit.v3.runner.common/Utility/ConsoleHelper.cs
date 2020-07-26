@@ -66,11 +66,7 @@ namespace Xunit.Runner.Common
 				_ => "",
 			};
 
-			if ("" != colorString)
-			{
-				colorString += "m";
-				Console.Out.Write(colorString);
-			}
+			Console.Out.Write(colorString);
 		}
 
 		static void SetBackgroundColorConsole(ConsoleColor c) =>
@@ -99,18 +95,14 @@ namespace Xunit.Runner.Common
 				_ => "",
 			};
 
-			if ("" != colorString)
-			{
-				colorString += "m";
-				Console.Out.Write(colorString);
-			}
+			Console.Out.Write(colorString);
 		}
 
 		static void SetForegroundColorConsole(ConsoleColor c) =>
 			Console.ForegroundColor = c;
 
 		static void ResetColorANSI() =>
-			Console.Out.Write("\x1b[m");
+			Console.Out.Write("\x1b[0m");
 
 		static void ResetColorConsole() =>
 			Console.ResetColor();
