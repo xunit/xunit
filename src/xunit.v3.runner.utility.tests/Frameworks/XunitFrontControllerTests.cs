@@ -11,7 +11,7 @@ public class XunitFrontControllerTests
 {
 	public class DescriptorsAndBulkDeserialization
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void RoundTrip()
 		{
 			var code = @"

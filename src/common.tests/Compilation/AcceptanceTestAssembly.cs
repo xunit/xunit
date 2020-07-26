@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -6,9 +8,9 @@ using System.Threading.Tasks;
 
 public abstract class AcceptanceTestAssembly : IDisposable
 {
-	protected AcceptanceTestAssembly(string? basePath)
+	protected AcceptanceTestAssembly(string? basePath = null)
 	{
-		BasePath = basePath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
+		BasePath = basePath ?? Path.GetDirectoryName(typeof(AcceptanceTestAssembly).Assembly.GetLocalCodeBase())!;
 		FileName = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
 		PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 
@@ -54,3 +56,5 @@ public abstract class AcceptanceTestAssembly : IDisposable
 		return File.Exists(localFilename) ? localFilename : reference;
 	}
 }
+
+#endif

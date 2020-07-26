@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,10 +13,6 @@ using Microsoft.FSharp.Core;
 
 public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-	protected FSharpAcceptanceTestAssembly(string basePath)
-		: base(basePath)
-	{ }
-
 	protected override IEnumerable<string> GetStandardReferences() => Enumerable.Empty<string>();
 
 	protected override async Task Compile(string code, string[] references)
@@ -61,3 +59,5 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		}
 	}
 }
+
+#endif

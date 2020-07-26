@@ -9,7 +9,7 @@ public class Xunit2Tests
 {
 	public class EnumerateTests
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void NoTestMethods()
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
@@ -23,7 +23,7 @@ public class Xunit2Tests
 			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void SingleTestMethod()
 		{
 			var code = @"
@@ -50,7 +50,7 @@ public class Foo
 
 	public class CSharp
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void FactAcceptanceTest()
 		{
 			var code = @"
@@ -109,7 +109,7 @@ namespace Namespace2
 			Assert.Single(testCases, tc => tc.DisplayName == "Namespace2.OuterClass+Class2.TestMethod");
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void TheoryWithInlineData()
 		{
 			var code = @"
@@ -144,7 +144,7 @@ public class TestClass
 
 	public class FSharp
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void FactAcceptanceTest()
 		{
 			var code = @"
@@ -195,7 +195,7 @@ let CustomName() =
 			);
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void TheoryWithInlineData()
 		{
 			var code = @"
@@ -226,7 +226,7 @@ let TestMethod (x:int) =
 			);
 		}
 
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void SupportsAsyncReturningMethods()
 		{
 			var code = @"

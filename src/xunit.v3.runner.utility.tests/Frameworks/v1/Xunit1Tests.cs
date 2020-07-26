@@ -813,7 +813,7 @@ public class Xunit1Tests
 
 	public class AcceptanceTests
 	{
-		[Fact(Skip = "Compiled acceptance tests are currently broken")]
+		[Fact]
 		public async void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
 		{
 			var code = @"

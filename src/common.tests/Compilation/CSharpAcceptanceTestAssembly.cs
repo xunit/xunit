@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +9,6 @@ using Microsoft.CSharp;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-	protected CSharpAcceptanceTestAssembly(string? basePath)
-		: base(basePath)
-	{ }
-
 	protected override Task Compile(string code, string[] references)
 	{
 		var parameters = new CompilerParameters()
@@ -43,3 +41,5 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		return Task.CompletedTask;
 	}
 }
+
+#endif
