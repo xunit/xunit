@@ -159,6 +159,9 @@ public class ExceptionUtilityTests
 		[CulturedFact("en-US")]
 		public void XunitException()
 		{
+#if DEBUG
+			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
+#else
 			static void testCode()
 			{
 				throw new XunitException();
@@ -171,11 +174,15 @@ public class ExceptionUtilityTests
 			Assert.DoesNotContain(typeof(Record).FullName!, result);
 			Assert.DoesNotContain(typeof(XunitException).FullName!, result);
 			Assert.Contains("XunitException", result);
+#endif
 		}
 
 		[CulturedFact("en-US")]
 		public void NonXunitException()
 		{
+#if DEBUG
+			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
+#else
 			static void testCode()
 			{
 				throw new Exception();
@@ -188,11 +195,15 @@ public class ExceptionUtilityTests
 			Assert.DoesNotContain(typeof(Record).FullName!, result);
 			Assert.DoesNotContain(typeof(XunitException).FullName!, result);
 			Assert.Contains("NonXunitException", result);
+#endif
 		}
 
 		[CulturedFact("en-US")]
 		public void NonXunitExceptionWithInnerExceptions()
 		{
+#if DEBUG
+			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
+#else
 			static void innerTestCode()
 			{
 				throw new DivideByZeroException();
@@ -214,11 +225,15 @@ public class ExceptionUtilityTests
 				line => Assert.Equal("----- Inner Stack Trace -----", line),
 				line => Assert.Contains("NonXunitExceptionWithInnerExceptions", line)
 			);
+#endif
 		}
 
 		[CulturedFact("en-US")]
 		public void HandlesAggregateException()
 		{
+#if DEBUG
+			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
+#else
 			static void inner1TestCode()
 			{
 				throw new DivideByZeroException();
@@ -254,6 +269,7 @@ public class ExceptionUtilityTests
 				line => Assert.Equal("----- Inner Stack Trace #3 (Xunit.Sdk.XunitException) -----", line),
 				line => Assert.Contains("HandlesAggregateException", line)
 			);
+#endif
 		}
 
 		[Fact]

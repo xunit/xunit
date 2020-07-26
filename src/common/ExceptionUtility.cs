@@ -33,7 +33,11 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull("stackFrame", stackFrame);
 
+#if DEBUG
+			return false;
+#else
 			return stackFrame.StartsWith("at Xunit.", StringComparison.Ordinal);
+#endif
 		}
 
 		static string? FilterStackTrace(string? stack)
