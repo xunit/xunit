@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Sdk;
 
@@ -39,9 +40,11 @@ public class SerializationHelperTests
 		}
 
 #if NETFRAMEWORK
-		[Fact(Skip = "Not working on Linux")]
+		[Fact]
 		public static void CannotRoundTripTypesFromTheGAC()
 		{
+			Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "The GAC is only available on Windows");
+
 			var ex = Assert.Throws<ArgumentException>("type", () => SerializationHelper.GetTypeNameForSerialization(typeof(Uri)));
 
 			Assert.StartsWith("We cannot serialize type System.Uri because it lives in the GAC", ex.Message);
@@ -51,7 +54,7 @@ public class SerializationHelperTests
 
 	public class IsSerializable
 	{
-		[Fact(Skip = "Not working on Linux")]
+		[Fact]
 		public void TypeSerialization()
 		{
 			// Can serialization types from mscorlib
@@ -62,7 +65,8 @@ public class SerializationHelperTests
 
 #if NETFRAMEWORK
 			// Can't serialize types from the GAC
-			Assert.False(SerializationHelper.IsSerializable(typeof(Uri)));
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				Assert.False(SerializationHelper.IsSerializable(typeof(Uri)));
 #endif
 		}
 	}

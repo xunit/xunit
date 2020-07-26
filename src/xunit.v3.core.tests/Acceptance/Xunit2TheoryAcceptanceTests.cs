@@ -121,11 +121,11 @@ public class Xunit2TheoryAcceptanceTests
 			}
 		}
 
-		[Fact(Skip = "Flaky sort order? I'm unhappy :(")]
+		[Fact]
 		public async void ParamsParameters_Valid()
 		{
 			var results = await RunAsync<ITestResultMessage>(typeof(ClassWithParamsParameters));
-			var orderedResults = results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName).ToList();
+			var orderedResults = results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
 
 			Assert.Collection(
 				orderedResults,

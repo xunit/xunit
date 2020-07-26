@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
@@ -204,9 +205,11 @@ public class XunitSerializationInfoTests
 		}
 
 #if NETFRAMEWORK
-		[Fact(Skip = "Not working on Linux")]
+		[Fact]
 		public static void CannotSerializeEnumFromGAC()
 		{
+			Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "The GAC is only available on Windows");
+
 			var data = ConformanceLevel.Auto;
 
 			var ex = Record.Exception(() => XunitSerializationInfo.Serialize(data));
@@ -238,9 +241,11 @@ public class XunitSerializationInfoTests
 		}
 
 #if NETFRAMEWORK
-		[Fact(Skip = "Not working on Linux")]
+		[Fact]
 		public static void CannotSerializeTypeFromGAC()
 		{
+			Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "The GAC is only available on Windows");
+
 			var data = typeof(XmlDocument);
 
 			var ex = Record.Exception(() => XunitSerializationInfo.Serialize(data));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
@@ -224,9 +225,12 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public void TheoryMethod(object a) { }
 	}
 
-	[Fact(Skip = "Not working on Linux")]
+#if NETFRAMEWORK
+	[Fact]
 	public void TheoryWithNonSerializableEnumYieldsSingleTheoryTestCase()
 	{
+		Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "The GAC is only available on Windows");
+
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod(typeof(NonSerializableEnumDataClass), "TheTest");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
@@ -245,6 +249,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[InlineData(ConformanceLevel.Auto)]
 		public void TheTest(object x) { }
 	}
+#endif
 
 	[Fact]
 	public async void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
