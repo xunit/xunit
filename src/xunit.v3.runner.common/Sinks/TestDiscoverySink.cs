@@ -14,6 +14,7 @@ namespace Xunit.Runner.Common
 	{
 		readonly Func<bool> cancelThunk;
 		readonly DiscoveryEventSink discoverySink = new DiscoveryEventSink();
+		bool disposed;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestDiscoverySink"/> class.
@@ -44,7 +45,15 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
 
 		/// <inheritdoc/>
-		public void Dispose() => Finished.Dispose();
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			Finished.Dispose();
+		}
 
 		bool IMessageSink.OnMessage(IMessageSinkMessage message)
 		{

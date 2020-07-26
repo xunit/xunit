@@ -11,6 +11,7 @@ namespace Xunit
 	class DiaSessionWrapper : IDisposable
 	{
 		readonly AppDomainManager_AppDomain appDomainManager;
+		bool disposed;
 		readonly DiaSessionWrapperHelper helper;
 		readonly DiaSession session;
 
@@ -33,6 +34,11 @@ namespace Xunit
 
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			session.Dispose();
 			appDomainManager.Dispose();
 		}

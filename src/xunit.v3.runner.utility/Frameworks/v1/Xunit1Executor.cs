@@ -1,5 +1,6 @@
 #if NETFRAMEWORK
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -14,9 +15,9 @@ namespace Xunit
 	/// </summary>
 	public class Xunit1Executor : IXunit1Executor
 	{
-		readonly object executor;
-
 		readonly IAppDomainManager appDomain;
+		bool disposed;
+		readonly object executor;
 		readonly AssemblyName xunitAssemblyName;
 		readonly string xunitAssemblyPath;
 
@@ -54,7 +55,15 @@ namespace Xunit
 				appDomain.CreateObject<object>(xunitAssemblyName, typeName, args);
 
 		/// <inheritdoc/>
-		public void Dispose() => appDomain?.Dispose();
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			appDomain?.Dispose();
+		}
 
 		/// <inheritdoc/>
 		public void EnumerateTests(ICallbackEventHandler? handler)

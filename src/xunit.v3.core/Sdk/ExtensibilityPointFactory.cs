@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -11,7 +10,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public static class ExtensibilityPointFactory
 	{
-		static readonly DisposalTracker disposalTracker = new DisposalTracker();
+		static DisposalTracker disposalTracker = new DisposalTracker();
 		static readonly ConcurrentDictionary<(Type type, IMessageSink diagnosticMessageSink), object?> instances = new ConcurrentDictionary<(Type type, IMessageSink diagnosticMessageSink), object?>();
 
 		static object? CreateInstance(
@@ -53,6 +52,7 @@ namespace Xunit.Sdk
 		{
 			instances.Clear();
 			disposalTracker.Dispose();
+			disposalTracker = new DisposalTracker();
 		}
 
 		/// <summary>

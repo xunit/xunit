@@ -1,5 +1,6 @@
 ﻿#if !NETSTANDARD
 
+using System;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -13,6 +14,7 @@ namespace Xunit
 	{
 		static readonly SourceInformation EmptySourceInformation = new SourceInformation();
 
+		bool disposed;
 		readonly DiaSessionWrapper session;
 
 		/// <summary>
@@ -47,6 +49,11 @@ namespace Xunit
 		/// <inheritdoc/>
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			if (session != null)
 				session.Dispose();
 		}

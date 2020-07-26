@@ -27,7 +27,8 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 
 		/// <inheritdoc/>
 		public virtual bool OnMessage(IMessageSinkMessage message)

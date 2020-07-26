@@ -151,7 +151,7 @@ namespace Xunit.Runners
 			lock (statusLock)
 			{
 				if (disposed)
-					return;
+					throw new ObjectDisposedException(GetType().FullName);
 
 				if (Status != AssemblyRunnerStatus.Idle)
 					throw new InvalidOperationException("Cannot dispose the assembly runner when it's not idle");

@@ -35,7 +35,8 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestExecutionSummary>? TestExecutionSummaryEvent;
 
 		/// <inheritdoc/>
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 
 		/// <inheritdoc/>
 		public bool OnMessageWithTypes(

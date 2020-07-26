@@ -15,9 +15,9 @@ namespace Xunit.Sdk
 	public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor
 		where TTestCase : ITestCase
 	{
-		DisposalTracker disposalTracker = new DisposalTracker();
 		IAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
+		bool disposed;
 		ISourceInformationProvider sourceInformationProvider;
 
 		/// <summary>
@@ -62,11 +62,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the disposal tracker for the test framework discoverer.
 		/// </summary>
-		protected DisposalTracker DisposalTracker
-		{
-			get => disposalTracker;
-			set => disposalTracker = Guard.ArgumentNotNull(nameof(DisposalTracker), value);
-		}
+		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <summary>
 		/// Gets the source information provider.
@@ -93,8 +89,15 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() =>
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			DisposalTracker.Dispose();
+		}
 
 		/// <inheritdoc/>
 		public virtual void RunAll(

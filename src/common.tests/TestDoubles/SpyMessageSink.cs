@@ -10,6 +10,7 @@ public class SpyMessageSink<TFinalMessage> : Xunit.Sdk.LongLivedMarshalByRefObje
 #endif
 {
 	readonly Func<IMessageSinkMessage, bool> cancellationThunk;
+	bool disposed;
 
 	public SpyMessageSink(Func<IMessageSinkMessage, bool>? cancellationThunk = null)
 	{
@@ -23,6 +24,11 @@ public class SpyMessageSink<TFinalMessage> : Xunit.Sdk.LongLivedMarshalByRefObje
 	/// <inheritdoc/>
 	public void Dispose()
 	{
+		if (disposed)
+			throw new ObjectDisposedException(GetType().FullName);
+
+		disposed = true;
+
 		Finished.Dispose();
 	}
 

@@ -12,6 +12,7 @@ namespace Xunit.Runner.TdNet
 	public class TdNetRunnerHelper : IDisposable
 	{
 		readonly TestAssemblyConfiguration? configuration;
+		bool disposed;
 		readonly ITestListener? testListener;
 		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 		readonly Xunit2? xunit;
@@ -71,6 +72,11 @@ namespace Xunit.Runner.TdNet
 
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			foreach (var disposable in toDispose)
 				disposable.Dispose();
 		}

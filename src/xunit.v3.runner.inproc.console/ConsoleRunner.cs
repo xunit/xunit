@@ -383,14 +383,12 @@ namespace Xunit.Runner.InProc.SystemConsole
 				using var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
 				var discoverySink = new TestDiscoverySink(() => cancel);
 
-				using (var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo))
-				{
-					// Discover & filter the tests
-					reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomain: false, shadowCopy: false, discoveryOptions));
+				// Discover & filter the tests
+				var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
+				reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomain: false, shadowCopy: false, discoveryOptions));
 
-					testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
-					discoverySink.Finished.WaitOne();
-				}
+				testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
+				discoverySink.Finished.WaitOne();
 
 				var testCasesDiscovered = discoverySink.TestCases.Count;
 				var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
@@ -411,7 +409,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					if (failSkips)
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-					using var executor = testFramework.GetExecutor(entryAssembly.GetName());
+					var executor = testFramework.GetExecutor(entryAssembly.GetName());
 					executor.RunTests(filteredTestCases, resultsSink, executionOptions);
 					resultsSink.Finished.WaitOne();
 

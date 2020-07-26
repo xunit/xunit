@@ -7,6 +7,8 @@ namespace Xunit.Sdk
 {
 	class TestDiscoveryVisitor : IMessageSink, IDisposable
 	{
+		bool disposed;
+
 		public TestDiscoveryVisitor()
 		{
 			Finished = new ManualResetEvent(initialState: false);
@@ -20,6 +22,11 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			Finished.Dispose();
 		}
 

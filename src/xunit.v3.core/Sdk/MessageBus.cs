@@ -12,6 +12,7 @@ namespace Xunit.Sdk
 	public class MessageBus : IMessageBus
 	{
 		volatile bool continueRunning = true;
+		bool disposed;
 		readonly IMessageSink messageSink;
 		readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
 		readonly XunitWorkerThread reporterThread;
@@ -52,6 +53,11 @@ namespace Xunit.Sdk
 		/// <summary/>
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			shutdownRequested = true;
 
 			reporterWorkEvent.Set();

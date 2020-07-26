@@ -21,6 +21,7 @@ namespace Xunit
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
 		readonly string? configFileName;
+		bool disposed;
 		IXunit1Executor? executor;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
@@ -97,6 +98,11 @@ namespace Xunit
 		/// <inheritdoc/>
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			foreach (var disposable in toDispose)
 				disposable.Dispose();
 

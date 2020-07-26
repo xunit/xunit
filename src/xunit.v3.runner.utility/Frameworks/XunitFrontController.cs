@@ -20,8 +20,9 @@ namespace Xunit
 		readonly string assemblyFileName;
 		ITestCaseBulkDeserializer? bulkDeserializer;
 		readonly string? configFileName;
-		ITestCaseDescriptorProvider? descriptorProvider;
 		readonly IMessageSink? diagnosticMessageSink;
+		bool disposed;
+		ITestCaseDescriptorProvider? descriptorProvider;
 		IFrontController? innerController;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
@@ -162,6 +163,11 @@ namespace Xunit
 		/// <inheritdoc/>
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			foreach (var disposable in toDispose)
 				disposable.Dispose();
 		}

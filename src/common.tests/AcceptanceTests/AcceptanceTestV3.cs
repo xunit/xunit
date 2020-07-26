@@ -9,12 +9,8 @@ using Xunit.Runner.Common;
 using Xunit.Sdk;
 using NullMessageSink = Xunit.Sdk.NullMessageSink;
 
-public class AcceptanceTestV3 : IDisposable
+public class AcceptanceTestV3
 {
-	protected XunitTestFramework? TestFramework { get; private set; }
-
-	public void Dispose() => TestFramework?.Dispose();
-
 	public Task<List<IMessageSinkMessage>> RunAsync(Type type) => RunAsync(new[] { type });
 
 	public Task<List<IMessageSinkMessage>> RunAsync(Type[] types)
@@ -26,11 +22,11 @@ public class AcceptanceTestV3 : IDisposable
 			try
 			{
 				var diagnosticMessageSink = new NullMessageSink();
-				TestFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
+				using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
 				var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
-				using var discoverer = TestFramework.GetDiscoverer(assemblyInfo);
+				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
 				{
 					discoverer.Find(type.FullName, includeSourceInformation: false, discoverySink, TestFrameworkOptions.ForDiscovery());
@@ -41,7 +37,7 @@ public class AcceptanceTestV3 : IDisposable
 				var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
 				var runSink = new SpyMessageSink<ITestAssemblyFinished>();
-				using var executor = TestFramework.GetExecutor(Assembly.GetEntryAssembly()!.GetName());
+				var executor = testFramework.GetExecutor(Assembly.GetEntryAssembly()!.GetName());
 				executor.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
 				runSink.Finished.WaitOne();
 

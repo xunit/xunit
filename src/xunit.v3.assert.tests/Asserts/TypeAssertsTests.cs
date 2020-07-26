@@ -232,6 +232,7 @@ public class TypeAssertsTests
 
 	class DisposableClass : IDisposable
 	{
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 	}
 }

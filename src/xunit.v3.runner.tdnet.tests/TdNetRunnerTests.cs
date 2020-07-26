@@ -94,16 +94,15 @@ public class TdNetRunnerTests
 
 	class TestableTdNetRunner : TdNetRunner
 	{
-		public TdNetRunnerHelper Helper;
 		public List<string> Operations = new List<string>();
 		public List<ITestCase> TestsRun = new List<ITestCase>();
 		public List<ITestCase> TestsToDiscover = new List<ITestCase> { Substitute.For<ITestCase>() };
 
-		public TestableTdNetRunner()
+		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly)
 		{
-			Helper = Substitute.For<TdNetRunnerHelper>();
+			var helper = Substitute.For<TdNetRunnerHelper>();
 
-			Helper
+			helper
 				.Discover()
 				.Returns(callInfo =>
 				{
@@ -111,7 +110,7 @@ public class TdNetRunnerTests
 					return TestsToDiscover;
 				});
 
-			Helper
+			helper
 				.Run(null, TestRunState.NoTests)
 				.ReturnsForAnyArgs(callInfo =>
 				{
@@ -120,7 +119,7 @@ public class TdNetRunnerTests
 					return TestRunState.NoTests;
 				});
 
-			Helper
+			helper
 				.RunClass(null!, TestRunState.NoTests)
 				.ReturnsForAnyArgs(callInfo =>
 				{
@@ -128,7 +127,7 @@ public class TdNetRunnerTests
 					return TestRunState.NoTests;
 				});
 
-			Helper
+			helper
 				.RunMethod(null!, TestRunState.NoTests)
 				.ReturnsForAnyArgs(callInfo =>
 				{
@@ -136,9 +135,9 @@ public class TdNetRunnerTests
 					Operations.Add($"RunMethod(method: {method.DeclaringType!.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
 					return TestRunState.NoTests;
 				});
-		}
 
-		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly) => Helper;
+			return helper;
+		}
 	}
 }
 

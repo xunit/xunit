@@ -14,7 +14,7 @@ namespace Xunit.Sdk
 	{
 		IAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
-		DisposalTracker disposalTracker = new DisposalTracker();
+		bool disposed;
 		ISourceInformationProvider sourceProvider;
 		readonly Lazy<string> targetFramework;
 
@@ -66,11 +66,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the disposal tracker for the test framework discoverer.
 		/// </summary>
-		protected DisposalTracker DisposalTracker
-		{
-			get => disposalTracker;
-			set => disposalTracker = Guard.ArgumentNotNull(nameof(DisposalTracker), value);
-		}
+		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <summary>
 		/// Get the source code information provider used during discovery.
@@ -95,8 +91,15 @@ namespace Xunit.Sdk
 		protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
 
 		/// <inheritdoc/>
-		public void Dispose() =>
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			DisposalTracker.Dispose();
+		}
 
 		/// <inheritdoc/>
 		public void Find(

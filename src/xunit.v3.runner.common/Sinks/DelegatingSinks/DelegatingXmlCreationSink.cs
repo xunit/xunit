@@ -16,6 +16,7 @@ namespace Xunit.Runner.Common
 	public class DelegatingXmlCreationSink : LongLivedMarshalByRefObject, IExecutionSink
 	{
 		readonly XElement assemblyElement;
+		bool disposed;
 		readonly XElement errorsElement;
 		readonly IExecutionSink innerSink;
 		readonly Dictionary<Guid, XElement> testCollectionElements = new Dictionary<Guid, XElement>();
@@ -149,7 +150,15 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() => innerSink.Dispose();
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			innerSink.Dispose();
+		}
 
 		XElement GetTestCollectionElement(ITestCollection testCollection)
 		{

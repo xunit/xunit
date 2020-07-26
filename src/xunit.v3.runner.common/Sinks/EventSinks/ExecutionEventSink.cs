@@ -160,7 +160,8 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestStarting>? TestStartingEvent;
 
 		/// <inheritdoc/>
-		public void Dispose() { }
+		public void Dispose()
+		{ }
 
 		/// <inheritdoc/>
 		public bool OnMessageWithTypes(

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -11,6 +12,7 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class DelegatingFailSkipSink : LongLivedMarshalByRefObject, IExecutionSink
 	{
+		bool disposed;
 		readonly IExecutionSink innerSink;
 		int skipCount;
 
@@ -32,7 +34,15 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished => innerSink.Finished;
 
 		/// <inheritdoc/>
-		public void Dispose() => innerSink.Dispose();
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			innerSink.Dispose();
+		}
 
 		/// <inheritdoc/>
 		public bool OnMessageWithTypes(

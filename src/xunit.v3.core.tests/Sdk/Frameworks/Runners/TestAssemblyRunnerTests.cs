@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -18,9 +17,9 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static void DefaultMessageBus()
 		{
-			var runner = TestableTestAssemblyRunner.Create();
+			using var runner = TestableTestAssemblyRunner.Create();
 
-			var messageBus = runner.CreateMessageBus_Public();
+			using var messageBus = runner.CreateMessageBus_Public();
 
 			Assert.IsType<MessageBus>(messageBus);
 		}
@@ -30,9 +29,9 @@ public class TestAssemblyRunnerTests
 		{
 			var executionOptions = TestFrameworkOptions.ForExecution();
 			executionOptions.SetSynchronousMessageReporting(true);
-			var runner = TestableTestAssemblyRunner.Create(executionOptions: executionOptions);
+			using var runner = TestableTestAssemblyRunner.Create(executionOptions: executionOptions);
 
-			var messageBus = runner.CreateMessageBus_Public();
+			using var messageBus = runner.CreateMessageBus_Public();
 
 			Assert.IsType<SynchronousMessageBus>(messageBus);
 		}
@@ -46,7 +45,7 @@ public class TestAssemblyRunnerTests
 			var summary = new RunSummary { Total = 4, Failed = 2, Skipped = 1, Time = 21.12m };
 			var messages = new List<IMessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
-			var runner = TestableTestAssemblyRunner.Create(messageSink, summary);
+			using var runner = TestableTestAssemblyRunner.Create(messageSink, summary);
 			var thisAssembly = Assembly.GetExecutingAssembly();
 			var thisAppDomain = AppDomain.CurrentDomain;
 
@@ -97,7 +96,7 @@ public class TestAssemblyRunnerTests
 
 					return true;
 				});
-			var runner = TestableTestAssemblyRunner.Create(messageSink);
+			using var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
@@ -111,7 +110,7 @@ public class TestAssemblyRunnerTests
 		{
 			var messages = new List<IMessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
-			var runner = TestableTestAssemblyRunner.Create(messageSink);
+			using var runner = TestableTestAssemblyRunner.Create(messageSink);
 			var ex = new DivideByZeroException();
 			runner.AfterTestAssemblyStarting_Callback = aggregator => aggregator.Add(ex);
 
@@ -129,7 +128,7 @@ public class TestAssemblyRunnerTests
 			var messages = new List<IMessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
 			var testCases = new[] { Mocks.TestCase() };
-			var runner = TestableTestAssemblyRunner.Create(messageSink, testCases: testCases);
+			using var runner = TestableTestAssemblyRunner.Create(messageSink, testCases: testCases);
 			var startingException = new DivideByZeroException();
 			var finishedException = new InvalidOperationException();
 			runner.AfterTestAssemblyStarting_Callback = aggregator => aggregator.Add(startingException);
@@ -150,7 +149,7 @@ public class TestAssemblyRunnerTests
 		public static async void Cancellation_TestAssemblyStarting_DoesNotCallExtensibilityCallbacks()
 		{
 			var messageSink = SpyMessageSink.Create(msg => !(msg is ITestAssemblyStarting));
-			var runner = TestableTestAssemblyRunner.Create(messageSink);
+			using var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await runner.RunAsync();
 
@@ -162,7 +161,7 @@ public class TestAssemblyRunnerTests
 		public static async void Cancellation_TestAssemblyFinished_CallsCallExtensibilityCallbacks()
 		{
 			var messageSink = SpyMessageSink.Create(msg => !(msg is ITestAssemblyFinished));
-			var runner = TestableTestAssemblyRunner.Create(messageSink);
+			using var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await runner.RunAsync();
 
@@ -179,7 +178,7 @@ public class TestAssemblyRunnerTests
 			var collection2 = Mocks.TestCollection(displayName: "2");
 			var testCase2a = Mocks.TestCase(collection2);
 			var testCase2b = Mocks.TestCase(collection2);
-			var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1a, testCase2a, testCase2b, testCase1b });
+			using var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1a, testCase2a, testCase2b, testCase1b });
 
 			await runner.RunAsync();
 
@@ -211,7 +210,7 @@ public class TestAssemblyRunnerTests
 			var testCase1 = Mocks.TestCase(collection1);
 			var collection2 = Mocks.TestCollection();
 			var testCase2 = Mocks.TestCase(collection2);
-			var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1, testCase2 }, cancelInRunTestCollectionAsync: true);
+			using var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1, testCase2 }, cancelInRunTestCollectionAsync: true);
 
 			await runner.RunAsync();
 
@@ -224,7 +223,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static void DefaultTestCaseOrderer()
 		{
-			var runner = TestableTestAssemblyRunner.Create();
+			using var runner = TestableTestAssemblyRunner.Create();
 
 			Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
 		}
@@ -235,7 +234,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static void DefaultTestCaseOrderer()
 		{
-			var runner = TestableTestAssemblyRunner.Create();
+			using var runner = TestableTestAssemblyRunner.Create();
 
 			Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
 		}
@@ -253,7 +252,7 @@ public class TestAssemblyRunnerTests
 			var testCase3a = Mocks.TestCase(collection3);
 			var testCase3b = Mocks.TestCase(collection3);
 			var testCases = new[] { testCase1a, testCase3a, testCase2a, testCase3b, testCase2b, testCase1b };
-			var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
+			using var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
 			runner.TestCollectionOrderer = new MyTestCollectionOrderer();
 
 			await runner.RunAsync();
@@ -296,7 +295,7 @@ public class TestAssemblyRunnerTests
 			var collection3 = Mocks.TestCollection(displayName: "MM");
 			var testCase3 = Mocks.TestCase(collection3);
 			var testCases = new[] { testCase1, testCase2, testCase3 };
-			var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
+			using var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
 			runner.TestCollectionOrderer = new ThrowingOrderer();
 
 			await runner.RunAsync();

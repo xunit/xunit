@@ -9,6 +9,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class DisposalTracker : IDisposable
 	{
+		bool disposed;
 		readonly Stack<IDisposable?> toDispose = new Stack<IDisposable?>();
 
 		/// <summary>
@@ -23,10 +24,13 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			foreach (var disposable in toDispose)
 				disposable?.Dispose();
-
-			toDispose.Clear();
 		}
 	}
 }

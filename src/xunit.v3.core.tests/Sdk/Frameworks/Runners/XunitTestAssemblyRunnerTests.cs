@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ public class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static void IsXunit()
 		{
-			var runner = TestableXunitTestAssemblyRunner.Create();
+			using var runner = TestableXunitTestAssemblyRunner.Create();
 
 			var result = runner.GetTestFrameworkDisplayName();
 
@@ -30,7 +29,7 @@ public class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static void Default()
 		{
-			var runner = TestableXunitTestAssemblyRunner.Create();
+			using var runner = TestableXunitTestAssemblyRunner.Create();
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -42,7 +41,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -54,7 +53,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -66,7 +65,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: -1);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -80,7 +79,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -93,7 +92,7 @@ public class XunitTestAssemblyRunnerTests
 			var factoryType = typeof(MyTestCollectionFactory);
 			var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!, disableTestParallelization: true);
 			var assembly = Mocks.TestAssembly(new[] { attr });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -117,7 +116,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetDisableParallelization(true);
-			var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+			using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -129,7 +128,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(3);
-			var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+			using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -141,7 +140,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(-1);
-			var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+			using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -156,7 +155,7 @@ public class XunitTestAssemblyRunnerTests
 			options.SetDisableParallelization(false);
 			options.SetMaxParallelThreads(3);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, executionOptions: options);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -173,7 +172,7 @@ public class XunitTestAssemblyRunnerTests
 			var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(1);
-			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
+			using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();
 
@@ -188,7 +187,7 @@ public class XunitTestAssemblyRunnerTests
 			var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetDisableParallelization(true);
-			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
+			using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();
 
@@ -204,7 +203,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyTestCaseOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -224,7 +223,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute("UnknownType", "UnknownAssembly");
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -238,7 +237,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -268,7 +267,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyTestCollectionOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -288,7 +287,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute("UnknownType", "UnknownAssembly");
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -302,7 +301,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyCtorThrowingTestCollectionOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 

@@ -17,6 +17,7 @@ namespace Xunit
 		static readonly string[] Extensions = { ".dll", ".exe" };
 
 		readonly string directory;
+		bool disposed;
 		readonly IMessageSink? internalDiagnosticsMessageSink;
 		readonly Dictionary<string, Assembly?> lookupCache = new Dictionary<string, Assembly?>();
 
@@ -46,8 +47,15 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() =>
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+		}
 
 		Assembly? LoadAssembly(AssemblyName assemblyName)
 		{

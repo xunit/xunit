@@ -8,14 +8,13 @@ namespace Xunit
 {
 	class DiaSession : IDisposable
 	{
+		bool disposed;
 		static readonly MethodInfo methodGetNavigationData;
 		static readonly PropertyInfo propertyFileName;
 		static readonly PropertyInfo propertyMinLineNumber;
+		bool sessionHasErrors;
 		static readonly Type typeDiaSession;
 		static readonly Type typeDiaNavigationData;
-
-		public readonly string AssemblyFileName;
-		bool sessionHasErrors;
 		readonly Dictionary<string, IDisposable> wrappedSessions;
 
 		static DiaSession()
@@ -38,8 +37,15 @@ namespace Xunit
 			wrappedSessions = new Dictionary<string, IDisposable>();
 		}
 
+		public string AssemblyFileName { get; }
+
 		public void Dispose()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
 			foreach (var wrappedSession in wrappedSessions.Values)
 				wrappedSession.Dispose();
 		}

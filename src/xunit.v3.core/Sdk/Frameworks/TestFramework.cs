@@ -12,7 +12,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public abstract class TestFramework : ITestFramework
 	{
-		DisposalTracker disposalTracker = new DisposalTracker();
+		bool disposed;
 		ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
 
 		/// <summary>
@@ -32,11 +32,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the disposal tracker for the test framework.
 		/// </summary>
-		protected DisposalTracker DisposalTracker
-		{
-			get => disposalTracker;
-			set => disposalTracker = Guard.ArgumentNotNull(nameof(DisposalTracker), value);
-		}
+		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <inheritdoc/>
 		public ISourceInformationProvider SourceInformationProvider
@@ -46,11 +42,12 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public async void Dispose()
+		public void Dispose()
 		{
-			// We want to immediately return before we call DisconnectAll, since we are in the list
-			// of things that will be disconnected.
-			await Task.Delay(1);
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
 
 			ExtensibilityPointFactory.Dispose();
 			DisposalTracker.Dispose();
@@ -97,7 +94,8 @@ namespace Xunit.Sdk
 			public ISourceInformation GetSourceInformation(ITestCase testCase) =>
 				new SourceInformation();
 
-			public void Dispose() { }
+			public void Dispose()
+			{ }
 		}
 	}
 }

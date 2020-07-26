@@ -15,6 +15,7 @@ namespace Xunit.Runner.Common
 	{
 		readonly Func<bool> cancelThunk;
 		readonly Action<string, ExecutionSummary>? completionCallback;
+		bool disposed;
 		volatile int errors;
 		readonly IMessageSinkWithTypes innerSink;
 
@@ -43,7 +44,15 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
 
 		/// <inheritdoc/>
-		public void Dispose() => Finished.Dispose();
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			Finished.Dispose();
+		}
 
 		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
 		{

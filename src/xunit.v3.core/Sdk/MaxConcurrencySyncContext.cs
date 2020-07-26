@@ -41,16 +41,14 @@ namespace Xunit.Sdk
 		public void Dispose()
 		{
 			if (disposed)
-				return;
+				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
+
 			terminate.Set();
 
 			foreach (var workerThread in workerThreads)
-			{
 				workerThread.Join();
-				workerThread.Dispose();
-			}
 
 			terminate.Dispose();
 			workReady.Dispose();
