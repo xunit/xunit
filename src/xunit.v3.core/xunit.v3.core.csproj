@@ -26,6 +26,7 @@
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\AssertEqualityComparer.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\DynamicSkipToken.cs" LinkBase="Common\Asserts" />
   </ItemGroup>
 
   <!-- <ItemGroup>

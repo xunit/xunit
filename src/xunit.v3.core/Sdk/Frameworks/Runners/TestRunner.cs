@@ -199,6 +199,10 @@ namespace Xunit.Sdk
 
 					if (exception == null)
 						testResult = new TestPassed(Test, runSummary.Time, output);
+					// We don't want a strongly typed contract here; any exception can be a dynamically
+					// skipped exception so long as its message starts with the special token.
+					else if (exception.Message.StartsWith(DynamicSkipToken.Value))
+						testResult = new TestSkipped(Test, exception.Message.Substring(DynamicSkipToken.Value.Length));
 					else
 					{
 						testResult = new TestFailed(Test, runSummary.Time, output, exception);
