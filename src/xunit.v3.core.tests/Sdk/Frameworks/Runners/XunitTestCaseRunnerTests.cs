@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
@@ -19,10 +20,10 @@ public class XunitTestCaseRunnerTests
 		var runner = new XunitTestCaseRunner(testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
 
 		Assert.Collection(
-			runner.BeforeAfterAttributes,
-			attr => Assert.IsType<BeforeAfterOnCollection>(attr),
-			attr => Assert.IsType<BeforeAfterOnClass>(attr),
+			runner.BeforeAfterAttributes.OrderBy(a => a.GetType().Name),
 			attr => Assert.IsType<BeforeAfterOnAssembly>(attr),
+			attr => Assert.IsType<BeforeAfterOnClass>(attr),
+			attr => Assert.IsType<BeforeAfterOnCollection>(attr),
 			attr => Assert.IsType<BeforeAfterOnMethod>(attr)
 		);
 	}

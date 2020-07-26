@@ -28,6 +28,10 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsAssignableFrom<ITestStarting>(message),
 			message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
 			message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+			message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+			message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+			message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+			message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
 			message =>
 			{
 				var passed = Assert.IsAssignableFrom<ITestPassed>(message);
