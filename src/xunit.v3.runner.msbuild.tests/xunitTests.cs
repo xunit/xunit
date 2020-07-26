@@ -23,6 +23,14 @@ public class xunitTests
 				?? "/tmp";
 
 			tempFolder = Path.GetFullPath(tempFolder); // Ensure that the 8.3 path is not used
+
+			// For macOS compatibility, switch to the folder and then get it, because the temp folder
+			// is usually under /var/folders/... which is softlinked to /private/var/folders
+			var originalDirectory = Directory.GetCurrentDirectory();
+			Directory.SetCurrentDirectory(tempFolder);
+			tempFolder = Directory.GetCurrentDirectory();
+			Directory.SetCurrentDirectory(originalDirectory);
+
 			var xunit = new Testable_xunit { WorkingFolder = tempFolder };
 
 			xunit.Execute();
