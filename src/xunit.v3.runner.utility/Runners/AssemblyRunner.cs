@@ -252,7 +252,7 @@ namespace Xunit.Runners
 				executionCompleteEvent.Reset();
 			}
 
-			XunitWorkerThread.QueueUserWorkItem(() =>
+			ThreadPool.QueueUserWorkItem(_ =>
 			{
 				var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
 				if (typeName != null)

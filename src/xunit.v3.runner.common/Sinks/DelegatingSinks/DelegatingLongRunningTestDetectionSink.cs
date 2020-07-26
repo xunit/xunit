@@ -102,7 +102,7 @@ namespace Xunit.Runner.Common
 		{
 			stopEvent = new ManualResetEvent(initialState: false);
 			lastTestActivity = UtcNow;
-			XunitWorkerThread.QueueUserWorkItem(ThreadWorker);
+			ThreadPool.QueueUserWorkItem(ThreadWorker);
 		}
 
 		void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
@@ -146,7 +146,7 @@ namespace Xunit.Runner.Common
 				callback(new LongRunningTestsSummary(longRunningTestTime, longRunningTestCases));
 		}
 
-		void ThreadWorker()
+		void ThreadWorker(object? _)
 		{
 			// Fire the loop approximately every 1/10th of our delay time, but no more frequently than every
 			// second (so we don't over-fire the timer). This should give us reasonable precision for the

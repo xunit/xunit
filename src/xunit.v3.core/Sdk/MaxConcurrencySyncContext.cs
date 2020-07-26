@@ -15,7 +15,7 @@ namespace Xunit.Sdk
 	{
 		bool disposed = false;
 		readonly ManualResetEvent terminate = new ManualResetEvent(false);
-		readonly List<XunitWorkerThread> workerThreads;
+		readonly List<Thread> workerThreads;
 		readonly ConcurrentQueue<(SendOrPostCallback callback, object? state, ExecutionContext? context)> workQueue = new ConcurrentQueue<(SendOrPostCallback callback, object? state, ExecutionContext? context)>();
 		readonly AutoResetEvent workReady = new AutoResetEvent(false);
 
@@ -28,7 +28,7 @@ namespace Xunit.Sdk
 			workerThreads =
 				Enumerable
 					.Range(0, maximumConcurrencyLevel)
-					.Select(_ => new XunitWorkerThread(WorkerThreadProc))
+					.Select(_ => { var result = new Thread(WorkerThreadProc); result.Start(); return result; })
 					.ToList();
 		}
 

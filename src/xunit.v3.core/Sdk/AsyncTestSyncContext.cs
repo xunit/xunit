@@ -51,7 +51,7 @@ namespace Xunit.Sdk
 			{
 				if (innerContext == null)
 				{
-					XunitWorkerThread.QueueUserWorkItem(() =>
+					ThreadPool.QueueUserWorkItem(_ =>
 					{
 						try
 						{

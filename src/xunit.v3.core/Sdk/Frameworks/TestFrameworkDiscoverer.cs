@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -110,7 +111,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-			XunitWorkerThread.QueueUserWorkItem(() =>
+			ThreadPool.QueueUserWorkItem(_ =>
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
@@ -148,7 +149,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-			XunitWorkerThread.QueueUserWorkItem(() =>
+			ThreadPool.QueueUserWorkItem(_ =>
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))

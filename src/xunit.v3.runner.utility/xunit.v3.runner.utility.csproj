@@ -17,7 +17,6 @@
     <Compile Include="..\common\NullMessageSink.cs" LinkBase="Common" />
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
-    <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
