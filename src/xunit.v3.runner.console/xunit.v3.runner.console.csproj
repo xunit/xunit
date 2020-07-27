@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net472;net48</TargetFrameworks>
   </PropertyGroup>

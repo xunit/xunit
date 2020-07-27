@@ -71,6 +71,7 @@
   <Choose>
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
+        <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
       </PropertyGroup>
