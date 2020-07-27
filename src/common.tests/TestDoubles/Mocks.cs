@@ -370,9 +370,11 @@ public static class Mocks
 		string methodName,
 		string? displayName = null,
 		string? skipReason = null,
-		string? uniqueID = null)
+		string? uniqueID = null,
+		string? fileName = null,
+		int? lineNumber = null)
 	{
-		return TestCase(typeof(TClassUnderTest), methodName, displayName, skipReason, uniqueID);
+		return TestCase(typeof(TClassUnderTest), methodName, displayName, skipReason, uniqueID, fileName, lineNumber);
 	}
 
 	public static ITestCase TestCase(
@@ -380,7 +382,9 @@ public static class Mocks
 		string methodName,
 		string? displayName = null,
 		string? skipReason = null,
-		string? uniqueID = null)
+		string? uniqueID = null,
+		string? fileName = null,
+		int? lineNumber = null)
 	{
 		var testMethod = TestMethod(type, methodName);
 		var traits = GetTraits(testMethod.Method);
@@ -391,6 +395,13 @@ public static class Mocks
 		result.TestMethod.Returns(testMethod);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID ?? Guid.NewGuid().ToString());
+
+		if (fileName != null && lineNumber != null)
+		{
+			var sourceInfo = new Xunit.SourceInformation { FileName = fileName, LineNumber = lineNumber };
+			result.SourceInformation.Returns(sourceInfo);
+		}
+
 		return result;
 	}
 

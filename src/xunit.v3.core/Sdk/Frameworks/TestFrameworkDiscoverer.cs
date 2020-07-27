@@ -198,6 +198,9 @@ namespace Xunit.Sdk
 			}
 		}
 
+		bool IsEmpty(ISourceInformation sourceInformation) =>
+			sourceInformation == null || (string.IsNullOrWhiteSpace(sourceInformation.FileName) && sourceInformation.LineNumber == null);
+
 		/// <summary>
 		/// Determines if a type should be used for discovery. Can be used to filter out types that
 		/// are not desirable. The default implementation filters out abstract (non-static) classes.
@@ -213,12 +216,12 @@ namespace Xunit.Sdk
 
 		/// <summary>
 		/// Reports a discovered test case to the message bus, after updating the source code information
-		/// (if desired).
+		/// (if desired and not already provided).
 		/// </summary>
-		/// <param name="testCase"></param>
-		/// <param name="includeSourceInformation"></param>
-		/// <param name="messageBus"></param>
-		/// <returns></returns>
+		/// <param name="testCase">The test case to report</param>
+		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
+		/// <param name="messageBus">The message bus to report to the test case to</param>
+		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(IMessageSinkMessage)"/>.</returns>
 		protected bool ReportDiscoveredTestCase(
 			ITestCase testCase,
 			bool includeSourceInformation,
@@ -227,7 +230,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 			Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 
-			if (includeSourceInformation && SourceProvider != null)
+			if (includeSourceInformation && SourceProvider != null && IsEmpty(testCase.SourceInformation))
 				testCase.SourceInformation = SourceProvider.GetSourceInformation(testCase);
 
 			return messageBus.QueueMessage(new TestCaseDiscoveryMessage(testCase));

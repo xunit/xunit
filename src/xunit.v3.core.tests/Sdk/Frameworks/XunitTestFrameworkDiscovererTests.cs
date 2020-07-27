@@ -97,30 +97,6 @@ public class XunitTestFrameworkDiscovererTests
 
 			sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
 		}
-
-		[Fact]
-		public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
-		{
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
-			sourceProvider
-				.GetSourceInformation(null)
-				.ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
-			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-			var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
-			var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
-
-			framework.Find(includeSourceInformation: true);
-
-			Assert.Collection(
-				framework.TestCases,
-				testCase =>
-				{
-					Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
-					Assert.Equal("Source File", testCase.SourceInformation.FileName);
-					Assert.Equal(42, testCase.SourceInformation.LineNumber);
-				}
-			);
-		}
 	}
 
 	public class FindByTypeName
@@ -188,30 +164,6 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 
 			sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
-		}
-
-		[Fact]
-		public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
-		{
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
-			sourceProvider
-				.GetSourceInformation(null)
-				.ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
-			var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
-			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-			framework.Assembly.GetType("abc").Returns(typeInfo);
-
-			framework.Find("abc", includeSourceInformation: true);
-
-			Assert.Collection(
-				framework.TestCases,
-				testCase =>
-				{
-					Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
-					Assert.Equal("Source File", testCase.SourceInformation.FileName);
-					Assert.Equal(42, testCase.SourceInformation.LineNumber);
-				}
-			);
 		}
 	}
 
@@ -439,6 +391,52 @@ public class XunitTestFrameworkDiscovererTests
 		public static void ATestNotToBeRun() { }
 	}
 
+	public class ReportDiscoveredTestCase
+	{
+		TestableXunitTestFrameworkDiscoverer framework;
+		SpyMessageBus messageBus;
+
+		public ReportDiscoveredTestCase()
+		{
+			messageBus = new SpyMessageBus();
+
+			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			sourceProvider
+				.GetSourceInformation(null)
+				.ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
+
+			framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
+		}
+
+		[Fact]
+		public void CallsSourceProviderWhenTestCaseSourceInformationIsMissing()
+		{
+			var testCase = Mocks.TestCase<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod));
+
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
+
+			var msg = Assert.Single(messageBus.Messages);
+			var discoveryMsg = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(msg);
+			Assert.Same(testCase, discoveryMsg.TestCase);
+			Assert.Equal("Source File", testCase.SourceInformation.FileName);
+			Assert.Equal(42, testCase.SourceInformation.LineNumber);
+		}
+
+		[Fact]
+		public void DoesNotCallSourceProviderWhenTestCaseSourceInformationIsPresent()
+		{
+			var testCase = Mocks.TestCase<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod), fileName: "Alt Source File", lineNumber: 2112);
+
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
+
+			var msg = Assert.Single(messageBus.Messages);
+			var discoveryMsg = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(msg);
+			Assert.Same(testCase, discoveryMsg.TestCase);
+			Assert.Equal("Alt Source File", testCase.SourceInformation.FileName);
+			Assert.Equal(2112, testCase.SourceInformation.LineNumber);
+		}
+	}
+
 	public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer
 	{
 		protected TestableXunitTestFrameworkDiscoverer()
@@ -512,5 +510,11 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			return base.IsValidTestClass(type);
 		}
+
+		public bool ReportDiscoveredTestCase_Public(
+			ITestCase testCase,
+			bool includeSourceInformation,
+			IMessageBus messageBus) =>
+				ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 	}
 }
