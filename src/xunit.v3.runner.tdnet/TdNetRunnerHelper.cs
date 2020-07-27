@@ -32,7 +32,7 @@ namespace Xunit.Runner.TdNet
 			var assemblyFileName = assembly.GetLocalCodeBase();
 			configuration = ConfigReader.Load(assemblyFileName);
 			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-			xunit = new Xunit2(configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false, diagnosticMessageSink: diagnosticMessageSink);
+			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false);
 			toDispose.Push(xunit);
 		}
 

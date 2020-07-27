@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Web.UI;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -24,6 +25,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1Executor" /> class.
 		/// </summary>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="testAssemblyFileName">The filename of the test assembly.</param>
 		/// <param name="configFileName">The filename of the configuration file.</param>
@@ -31,6 +33,7 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		public Xunit1Executor(
+			IMessageSink diagnosticMessageSink,
 			bool useAppDomain,
 			string testAssemblyFileName,
 			string? configFileName = null,
@@ -39,7 +42,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(nameof(testAssemblyFileName), testAssemblyFileName);
 
-			appDomain = AppDomainManagerFactory.Create(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+			appDomain = AppDomainManagerFactory.Create(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 			xunitAssemblyPath = GetXunitAssemblyPath(testAssemblyFileName);
 			xunitAssemblyName = AssemblyName.GetAssemblyName(xunitAssemblyPath);
 			executor = Guard.NotNull("Could not create Xunit.Sdk.Executor object for v1 test assembly", CreateObject("Xunit.Sdk.Executor", testAssemblyFileName));

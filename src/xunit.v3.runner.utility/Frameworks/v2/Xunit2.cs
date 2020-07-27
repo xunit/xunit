@@ -23,6 +23,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2"/> class.
 		/// </summary>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">The source code information provider.</param>
 		/// <param name="assemblyFileName">The test assembly.</param>
@@ -31,19 +32,20 @@ namespace Xunit
 		/// tests to be discovered and run without locking assembly files on disk.</param>
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
-		/// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="verifyTestAssemblyExists">Determines whether or not the existence of the test assembly is verified.</param>
 		public Xunit2(
+			IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			ISourceInformationProvider sourceInformationProvider,
 			string assemblyFileName,
 			string? configFileName = null,
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null,
-			IMessageSink? diagnosticMessageSink = null,
 			bool verifyTestAssemblyExists = true)
-				: base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
+				: base(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, verifyTestAssemblyExists)
 		{
+			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+
 #if NETFRAMEWORK
 			var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #else

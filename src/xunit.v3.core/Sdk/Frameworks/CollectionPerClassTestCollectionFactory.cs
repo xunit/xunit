@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="CollectionPerClassTestCollectionFactory" /> class.
 		/// </summary>
 		/// <param name="testAssembly">The assembly info.</param>
-		/// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		public CollectionPerClassTestCollectionFactory(ITestAssembly testAssembly, IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);

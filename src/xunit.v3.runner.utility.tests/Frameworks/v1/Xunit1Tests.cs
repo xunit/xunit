@@ -9,6 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using NullMessageSink = Xunit.NullMessageSink;
 using SourceInformation = Xunit.SourceInformation;
 
 public class Xunit1Tests
@@ -836,7 +837,7 @@ public class AmbiguouslyNamedTestMethods
 }";
 
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
-			using var xunit1 = new Xunit1(AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName);
+			using var xunit1 = new Xunit1(new NullMessageSink(), AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName);
 			var spy = new SpyMessageSink<ITestAssemblyFinished>();
 			xunit1.Run(spy);
 			spy.Finished.WaitOne();
@@ -879,7 +880,7 @@ public class AmbiguouslyNamedTestMethods
 			bool shadowCopy,
 			string? shadowCopyFolder,
 			ISourceInformationProvider sourceInformationProvider)
-				: base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
+				: base(new NullMessageSink(), appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
 		{
 			Executor_TestAssemblyFileName = assemblyFileName;
 			Executor_ConfigFileName = configFileName;

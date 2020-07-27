@@ -262,7 +262,7 @@ let AsyncFailing() =
 			string? configFileName = null,
 			bool shadowCopy = true,
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
-				: base(appDomainSupport, new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
+				: base(new NullMessageSink(), appDomainSupport, new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
 		{ }
 	}
 }

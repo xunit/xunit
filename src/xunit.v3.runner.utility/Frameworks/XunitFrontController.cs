@@ -20,7 +20,7 @@ namespace Xunit
 		readonly string assemblyFileName;
 		ITestCaseBulkDeserializer? bulkDeserializer;
 		readonly string? configFileName;
-		readonly IMessageSink? diagnosticMessageSink;
+		readonly IMessageSink diagnosticMessageSink;
 		bool disposed;
 		ITestCaseDescriptorProvider? descriptorProvider;
 		IFrontController? innerController;
@@ -35,6 +35,7 @@ namespace Xunit
 		protected XunitFrontController()
 		{
 			assemblyFileName = "<test value>";
+			diagnosticMessageSink = new NullMessageSink();
 			sourceInformationProvider = new NullSourceInformationProvider();
 		}
 
@@ -49,7 +50,7 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		/// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
-		/// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		public XunitFrontController(
 			AppDomainSupport appDomainSupport,
 			string assemblyFileName,
@@ -73,7 +74,7 @@ namespace Xunit
 #if NETSTANDARD
 				this.sourceInformationProvider = new NullSourceInformationProvider();
 #else
-				this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
+				this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, this.diagnosticMessageSink);
 				toDispose.Push(this.sourceInformationProvider);
 #endif
 			}
@@ -140,15 +141,15 @@ namespace Xunit
 #if NETFRAMEWORK
 			var assemblyFolder = Path.GetDirectoryName(assemblyFileName)!;
 			if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
-				return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
+				return new Xunit2(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
 			var xunitPath = Path.Combine(assemblyFolder, "xunit.dll");
 			if (File.Exists(xunitPath))
-				return new Xunit1(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+				return new Xunit1(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
 			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder}");
 #else
-			return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
+			return new Xunit2(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
 		}
 

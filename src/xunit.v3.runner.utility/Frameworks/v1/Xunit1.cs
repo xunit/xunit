@@ -21,6 +21,7 @@ namespace Xunit
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
 		readonly string? configFileName;
+		readonly IMessageSink diagnosticMessageSink;
 		bool disposed;
 		IXunit1Executor? executor;
 		readonly bool shadowCopy;
@@ -31,6 +32,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
 		/// </summary>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">Source code information provider.</param>
 		/// <param name="assemblyFileName">The test assembly.</param>
@@ -40,6 +42,7 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		public Xunit1(
+			IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			ISourceInformationProvider sourceInformationProvider,
 			string assemblyFileName,
@@ -50,6 +53,7 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 
+			this.diagnosticMessageSink = diagnosticMessageSink;
 			this.appDomainSupport = appDomainSupport;
 			this.sourceInformationProvider = sourceInformationProvider;
 			this.assemblyFileName = assemblyFileName;
@@ -85,7 +89,7 @@ namespace Xunit
 		/// </summary>
 		/// <returns>The executor wrapper.</returns>
 		protected virtual IXunit1Executor CreateExecutor() =>
-			new Xunit1Executor(appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+			new Xunit1Executor(diagnosticMessageSink, appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
 		/// <inheritdoc/>
 		public ITestCase? Deserialize(string value)

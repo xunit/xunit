@@ -15,7 +15,7 @@ namespace Xunit.Sdk
 		/// Gets the test collection definitions for the given assembly.
 		/// </summary>
 		/// <param name="assemblyInfo">The assembly.</param>
-		/// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="ITypeInfo"/></returns>
 		public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(
 			IAssemblyInfo assemblyInfo,

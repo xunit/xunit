@@ -28,7 +28,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="innerSink">The inner sink to delegate to.</param>
 		/// <param name="longRunningTestTime">The minimum amount of time a test runs to be considered long running.</param>
-		/// <param name="diagnosticMessageSink">The message sink to send messages to.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		public DelegatingLongRunningTestDetectionSink(
 			IExecutionSink innerSink,
 			TimeSpan longRunningTestTime,

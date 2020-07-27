@@ -20,7 +20,7 @@ namespace Xunit.Sdk
 		/// <param name="assemblyName">Name of the test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		public XunitTestFrameworkExecutor(
 			AssemblyName assemblyName,
 			string? configFileName,

@@ -30,6 +30,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
 		/// </summary>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">The source code information provider.</param>
 		/// <param name="assemblyInfo">The assembly to use for discovery</param>
@@ -37,17 +38,17 @@ namespace Xunit
 		/// the location of xunit.execution.*.dll is implied based on the location of the test assembly</param>
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
-		/// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 		public Xunit2Discoverer(
+			IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			ISourceInformationProvider sourceInformationProvider,
 			IAssemblyInfo assemblyInfo,
 			string? xunitExecutionAssemblyPath = null,
 			string? shadowCopyFolder = null,
-			IMessageSink? diagnosticMessageSink = null,
 			bool verifyAssembliesOnDisk = true)
 				: this(
+					diagnosticMessageSink,
 					appDomainSupport,
 					sourceInformationProvider,
 					assemblyInfo,
@@ -56,22 +57,22 @@ namespace Xunit
 					null,
 					true,
 					shadowCopyFolder,
-					diagnosticMessageSink,
 					verifyAssembliesOnDisk
 				)
 		{ }
 
 		// Used by Xunit2 when initializing for both discovery and execution.
 		internal Xunit2Discoverer(
+			IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			ISourceInformationProvider sourceInformationProvider,
 			string assemblyFileName,
 			string? configFileName,
 			bool shadowCopy,
 			string? shadowCopyFolder = null,
-			IMessageSink? diagnosticMessageSink = null,
 			bool verifyAssembliesOnDisk = true)
 				: this(
+					diagnosticMessageSink,
 					appDomainSupport,
 					sourceInformationProvider,
 					null,
@@ -80,12 +81,12 @@ namespace Xunit
 					configFileName,
 					shadowCopy,
 					shadowCopyFolder,
-					diagnosticMessageSink,
 					verifyAssembliesOnDisk
 				)
 		{ }
 
 		Xunit2Discoverer(
+			IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			ISourceInformationProvider sourceInformationProvider,
 			IAssemblyInfo? assemblyInfo,
@@ -94,10 +95,10 @@ namespace Xunit
 			string? configFileName,
 			bool shadowCopy,
 			string? shadowCopyFolder,
-			IMessageSink? diagnosticMessageSink,
 			bool verifyAssembliesOnDisk)
 		{
-			Guard.ArgumentNotNull("assemblyInfo", (object?)assemblyInfo ?? assemblyFileName);
+			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			Guard.ArgumentNotNull(nameof(assemblyInfo), (object?)assemblyInfo ?? assemblyFileName);
 
 #if NETFRAMEWORK
 			// Only safe to assume the execution reference is copied in a desktop project
@@ -109,10 +110,10 @@ namespace Xunit
 			CanUseAppDomains = false;
 #endif
 
-			DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
+			DiagnosticMessageSink = diagnosticMessageSink;
 
 			var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
-			AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
+			AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder, DiagnosticMessageSink);
 
 #if NETFRAMEWORK
 			var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());

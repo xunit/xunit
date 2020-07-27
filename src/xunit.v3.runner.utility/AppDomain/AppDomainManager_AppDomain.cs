@@ -6,16 +6,20 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Security.Permissions;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
 	class AppDomainManager_AppDomain : IAppDomainManager
 	{
+		readonly IMessageSink diagnosticMessageSink;
+
 		public AppDomainManager_AppDomain(
 			string assemblyFileName,
 			string? configFileName,
 			bool shadowCopy,
-			string? shadowCopyFolder)
+			string? shadowCopyFolder,
+			IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 
@@ -30,6 +34,7 @@ namespace Xunit
 
 			AssemblyFileName = assemblyFileName;
 			ConfigFileName = configFileName;
+			this.diagnosticMessageSink = diagnosticMessageSink;
 			AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 		}
 

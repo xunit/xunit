@@ -21,11 +21,14 @@ namespace Xunit
 		/// Initializes a new instance of the <see cref="VisualStudioSourceInformationProvider" /> class.
 		/// </summary>
 		/// <param name="assemblyFileName">The assembly file name.</param>
-		public VisualStudioSourceInformationProvider(string assemblyFileName)
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		public VisualStudioSourceInformationProvider(
+			string assemblyFileName,
+			IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 
-			session = new DiaSessionWrapper(assemblyFileName);
+			session = new DiaSessionWrapper(assemblyFileName, diagnosticMessageSink);
 		}
 
 		/// <inheritdoc/>

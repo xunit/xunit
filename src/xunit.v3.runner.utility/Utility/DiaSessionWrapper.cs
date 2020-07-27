@@ -3,6 +3,7 @@
 #if NETFRAMEWORK
 
 using System;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -15,13 +16,15 @@ namespace Xunit
 		readonly DiaSessionWrapperHelper helper;
 		readonly DiaSession session;
 
-		public DiaSessionWrapper(string assemblyFilename)
+		public DiaSessionWrapper(
+			string assemblyFilename,
+			IMessageSink diagnosticMessageSink)
 		{
 			session = new DiaSession(assemblyFilename);
 
 			var assemblyFileName = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
 
-			appDomainManager = new AppDomainManager_AppDomain(assemblyFileName, null, true, null);
+			appDomainManager = new AppDomainManager_AppDomain(assemblyFileName, null, true, null, diagnosticMessageSink);
 			helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.GetName(), typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
 		}
 

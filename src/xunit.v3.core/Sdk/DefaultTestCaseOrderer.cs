@@ -17,7 +17,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultTestCaseOrderer"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">Message sink to report diagnostic messages to</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		public DefaultTestCaseOrderer(IMessageSink diagnosticMessageSink)
 		{
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
