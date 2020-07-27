@@ -20,7 +20,7 @@ namespace Xunit.Runner.Common
 		/// <param name="discoveryOptions">The discovery options</param>
 		public TestAssemblyDiscoveryStarting(
 			XunitProjectAssembly assembly,
-			bool appDomain,
+			AppDomainOption appDomain,
 			bool shadowCopy,
 			ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
@@ -34,7 +34,7 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool AppDomain { get; }
+		public AppDomainOption AppDomain { get; }
 
 		/// <inheritdoc/>
 		public XunitProjectAssembly Assembly { get; }

@@ -282,14 +282,16 @@ public static class Mocks
 
 	public static ITestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(
 		bool diagnosticMessages = false,
-		bool appDomain = false)
+		AppDomainOption appDomain = AppDomainOption.Disabled,
+		bool shadowCopy = false)
 	{
 		var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
+		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = shadowCopy };
 		var result = Substitute.For<ITestAssemblyDiscoveryStarting, InterfaceProxy<ITestAssemblyDiscoveryStarting>>();
 		result.AppDomain.Returns(appDomain);
 		result.Assembly.Returns(assembly);
 		result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
+		result.ShadowCopy.Returns(shadowCopy);
 		return result;
 	}
 

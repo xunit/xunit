@@ -385,7 +385,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 				// Discover & filter the tests
 				var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-				reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomain: false, shadowCopy: false, discoveryOptions));
+				reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomain: AppDomainOption.NotAvailable, shadowCopy: false, discoveryOptions));
 
 				testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
 				discoverySink.Finished.WaitOne();

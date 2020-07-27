@@ -443,7 +443,8 @@ namespace Xunit.Runner.SystemConsole
 				using (var discoverySink = new TestDiscoverySink(() => cancel))
 				{
 					// Discover & filter the tests
-					reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
+					var appDomainOption = controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied ? AppDomainOption.Enabled : AppDomainOption.Disabled;
+					reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomainOption, shadowCopy, discoveryOptions));
 
 					controller.Find(false, discoverySink, discoveryOptions);
 					discoverySink.Finished.WaitOne();

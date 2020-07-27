@@ -237,11 +237,14 @@ namespace Xunit.Runner.Common
 
 			if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
 			{
-#if NETFRAMEWORK
-				Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? $"on [{(discoveryStarting.ShadowCopy ? "shadow copy" : "no shadow copy")}]" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})");
-#else
-                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})");
-#endif
+				var appDomainText = discoveryStarting.AppDomain switch
+				{
+					AppDomainOption.Enabled => $"app domain = on [{(discoveryStarting.ShadowCopy ? "shadow copy" : "no shadow copy")}], ",
+					AppDomainOption.Disabled => $"app domain = off, ",
+					_ => "",
+				};
+
+				Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} ({appDomainText}method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})");
 			}
 			else
 				Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName}");
