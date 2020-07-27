@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Security.Permissions;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -124,16 +125,45 @@ namespace Xunit
 		{
 			if (AppDomain != null)
 			{
+				Exception? failure = null;
+
 				var cachePath = AppDomain.SetupInformation.CachePath;
 
 				try
 				{
-					AppDomain.Unload(AppDomain);
+					void CleanupThread()
+					{
+						try
+						{
+							AppDomain.Unload(AppDomain);
+						}
+						catch (Exception ex)
+						{
+							failure = ex;
+						}
+					}
 
-					if (cachePath != null)
-						Directory.Delete(cachePath, true);
+					var thread = new Thread(CleanupThread);
+					thread.Start();
+
+					if (!thread.Join(TimeSpan.FromSeconds(10)))
+						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"AppDomain.Unload for '{AssemblyFileName}' timed out"));
+					else
+					{
+						if (cachePath != null)
+							Directory.Delete(cachePath, true);
+					}
 				}
-				catch { }
+				catch (Exception ex)
+				{
+					if (failure == null)
+						failure = ex;
+					else
+						failure = new AggregateException(failure, ex);
+				}
+
+				if (failure != null)
+					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}"));
 			}
 		}
 
