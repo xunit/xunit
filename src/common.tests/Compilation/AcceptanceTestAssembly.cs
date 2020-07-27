@@ -11,7 +11,7 @@ public abstract class AcceptanceTestAssembly : IDisposable
 	protected AcceptanceTestAssembly(string? basePath = null)
 	{
 		BasePath = basePath ?? Path.GetDirectoryName(typeof(AcceptanceTestAssembly).Assembly.GetLocalCodeBase())!;
-		FileName = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
+		FileName = Path.Combine(BasePath, Path.GetRandomFileName() + AssemblyFileExtension);
 		PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 
 		AssemblyName = new AssemblyName()
@@ -20,6 +20,8 @@ public abstract class AcceptanceTestAssembly : IDisposable
 			CodeBase = Path.GetDirectoryName(Path.GetFullPath(FileName))
 		};
 	}
+
+	protected virtual string AssemblyFileExtension => ".dll";
 
 	public AssemblyName AssemblyName { get; protected set; }
 
