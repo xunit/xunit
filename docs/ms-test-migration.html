@@ -1,0 +1,112 @@
+---
+layout: default
+title: Migrating from MSTest to xUnit.net
+breadcrumb: Documentation
+---
+
+<h1>Migrating from MSTest to xUnit.net</h1>
+
+<p>
+    In order to assist in migrating unit tests from
+	[MSTest V2](https://github.com/microsoft/testfx) to xUnit.net, it can often
+	be helpful to have unit tests from MSTest and xUnit.net side by side. Tests
+	can then be migrated gradually without breaking the compiler nor the test
+	results in most cases.
+</p>
+
+<ul>
+    <li><a href="#1-add-nuget-package">Step 1: Add nuget package</a></li>
+    <li><a href="#2-apply-changes">Step 2: Apply changes</a></li>
+    <li><a href="#3-switch-xunit">Step 3: Switch to Xunit</a></li>
+    <li><a href="#4-remove-nuget-package">Step 4: Remove nuget package</a></li>
+</ul>
+
+<h2 id="1-add-nuget-package">Step 1: Add nuget package</h2>
+
+<p>
+    Install xUnit.net nuget packages
+    <a href="https://www.nuget.org/packages/xunit"><img src="https://img.shields.io/nuget/v/xunit.svg?style=flat"></a>
+    <a href="https://www.nuget.org/packages/xunit.runner.visualstudio"><img src="https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat"></a>
+	and MSTest backwards compatibility nuget
+	package [xunit.MSTest](https://www.nuget.org/packages/xunit.MSTest)
+    <a href="https://www.nuget.org/packages/Xunit.MSTest"><img src="https://img.shields.io/nuget/v/Xunit.MSTest.svg?style=flat"></a>
+	instead of MSTest nuget packages.
+</p>
+
+{% highlight diff %}
+<ItemGroup>
+  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+-  <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+-  <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
++  <PackageReference Include="xunit" Version="2.4.0" />
++  <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
++  <PackageReference Include="xunit.MSTest" Version="1.0.0" />
+  <PackageReference Include="coverlet.collector" Version="1.2.0" />
+</ItemGroup>
+{% endhighlight %}
+
+<h2 id="2-apply-changes">Step 2: Apply changes</h2>
+
+<p>
+    Apply all suggested changes from compiler warnings, e.g.
+</p>
+
+{% highlight diff %}
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+-// Warning CS0618 'TestClassAttribute' is obsolete: 'Remove this attribute.'
+-[TestClass]
+public class UnitTest1
+{
+-  // Warning CS0618 'TestMethodAttribute' is obsolete: 'Use Fact instead.'
+-  [TestMethod]
++  [Fact]
+  public void TestMethod1()
+  {
+-    // Warning CS0618 'Assert.IsTrue(bool, string)' is obsolete: 'Use True instead.'
+-    Assert.IsTrue(true);
++    Assert.True(true);
+  }
+}
+{% endhighlight %}
+
+<p class="note">
+    Some of these text replacements can be automated with the command line tool
+	from [XUnitConverter](https://github.com/dotnet/codeformatter/tree/master/src/XUnitConverter).
+</p>
+
+<h2 id="3-switch-xunit">Step 3: Switch to Xunit</h2>
+
+<p>
+    Change import statements from MSTest to xUnit.net
+</p>
+
+{% highlight diff %}
+-using Microsoft.VisualStudio.TestTools.UnitTesting;
++using Xunit;
+
+public class UnitTest1
+{
+{% endhighlight %}
+
+<h2 id="4-remove-nuget-package">Step 4: Remove nuget package</h2>
+
+<p>
+    Remove backwards compatibility nuget package
+</p>
+
+{% highlight diff %}
+<ItemGroup>
+  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+  <PackageReference Include="xunit" Version="2.4.0" />
+  <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+-  <PackageReference Include="xunit.MSTest" Version="1.0.0" />
+  <PackageReference Include="coverlet.collector" Version="1.2.0" />
+</ItemGroup>
+{% endhighlight %}
+
+<section class="related-topics">Related topics:</section>
+<ul>
+  <li><a href="comparisons">Comparing xUnit.net to other frameworks</a></li>
+</ul>
+
