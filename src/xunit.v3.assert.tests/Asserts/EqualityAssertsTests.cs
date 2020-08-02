@@ -808,6 +808,29 @@ public class EqualityAssertsTests
 		}
 	}
 
+	public class Equal_Double_MidPointRounding
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.Equal(10.566, 10.565, 2, MidpointRounding.AwayFromZero);
+		}
+
+		[Fact]
+		public void Success_Zero()
+		{
+			Assert.Equal(0.00, 0.05, 1, MidpointRounding.ToEven);
+		}
+
+		[CulturedFact]
+		public void Failure()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
+			Assert.Equal($"{0.1111} (rounded from {0.11113})", ex.Expected);
+			Assert.Equal($"{0.1112} (rounded from {0.11115})", ex.Actual);
+		}
+	}
+
 	public class StrictEqual
 	{
 		[Fact]
