@@ -813,15 +813,13 @@ public class EqualityAssertsTests
 		[Fact]
 		public void Success()
 		{
-			Assert.Equal(10.563, 10.565, 2, MidpointRounding.ToEven);
 			Assert.Equal(10.566, 10.565, 2, MidpointRounding.AwayFromZero);
 		}
 
 		[Fact]
 		public void Success_Zero()
 		{
-			Assert.Equal(0.0, 0.05, 1, MidpointRounding.ToEven);
-			Assert.Equal(0.1, 0.05, 1, MidpointRounding.AwayFromZero);
+			Assert.Equal(0.00, 0.05, 1, MidpointRounding.ToEven);
 		}
 
 
