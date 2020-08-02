@@ -822,7 +822,6 @@ public class EqualityAssertsTests
 			Assert.Equal(0.00, 0.05, 1, MidpointRounding.ToEven);
 		}
 
-
 		[CulturedFact]
 		public void Failure()
 		{
