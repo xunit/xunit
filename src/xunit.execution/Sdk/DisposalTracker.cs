@@ -17,16 +17,20 @@ namespace Xunit.Sdk
         /// <param name="disposable">The object to be disposed.</param>
         public void Add(IDisposable disposable)
         {
-            toDispose.Push(disposable);
+            lock (toDispose)
+                toDispose.Push(disposable);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            foreach (var disposable in toDispose)
-                disposable.Dispose();
+            lock (toDispose)
+            {
+                foreach (var disposable in toDispose)
+                    disposable.Dispose();
 
-            toDispose.Clear();
+                toDispose.Clear();
+            }
         }
     }
 }
