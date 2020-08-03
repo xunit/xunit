@@ -18,19 +18,28 @@ namespace Xunit.Sdk
 		/// <param name="disposable">The object to be disposed.</param>
 		public void Add(IDisposable? disposable)
 		{
-			toDispose.Push(disposable);
+			lock (toDispose)
+			{
+				if (disposed)
+					throw new ObjectDisposedException(GetType().FullName);
+
+				toDispose.Push(disposable);
+			}
 		}
 
 		/// <inheritdoc/>
 		public void Dispose()
 		{
-			if (disposed)
-				throw new ObjectDisposedException(GetType().FullName);
+			lock (toDispose)
+			{
+				if (disposed)
+					throw new ObjectDisposedException(GetType().FullName);
 
-			disposed = true;
+				disposed = true;
 
-			foreach (var disposable in toDispose)
-				disposable?.Dispose();
+				foreach (var disposable in toDispose)
+					disposable?.Dispose();
+			}
 		}
 	}
 }
