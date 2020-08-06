@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -88,7 +88,7 @@ namespace Xunit.Runner.Common
 		static XElement CreateFailureElement(IFailureInformation failureInfo) =>
 			new XElement("failure",
 				new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
-				new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
+				new XElement("message", new XCData(ExceptionUtility.CombineMessages(failureInfo))),
 				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
 			);
 
@@ -245,7 +245,7 @@ namespace Xunit.Runner.Common
 		{
 			var testSkipped = args.Message;
 			var testElement = CreateTestResultElement(testSkipped, "Skip");
-			testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason))));
+			testElement.Add(new XElement("reason", new XCData(testSkipped.Reason)));
 		}
 
 		/// <summary>
