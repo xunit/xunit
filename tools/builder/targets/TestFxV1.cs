@@ -21,6 +21,6 @@ public static class TestFxV1
 
 		var v1Folder = Path.Combine(context.BaseFolder, "src", "xunit.v1.tests", "bin", context.ConfigurationText, "net45");
 		var v1OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v1.tests-net45");
-		await context.Exec(context.ConsoleRunnerExe, $"{v1Folder}/xunit.v1.tests.dll -appdomains denied {context.TestFlagsParallel} -xml \"{v1OutputFileName}.xml\" -html \"{v1OutputFileName}.html\"", workingDirectory: v1Folder);
+		await context.Exec(context.ConsoleRunnerExe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains denied -xml \"{v1OutputFileName}.xml\" -html \"{v1OutputFileName}.html\"", workingDirectory: v1Folder);
 	}
 }

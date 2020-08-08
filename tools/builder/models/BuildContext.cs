@@ -84,9 +84,8 @@ public class BuildContext
 		try
 		{
 			NeedMono = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-			TestFlagsNonParallel = "-parallel none -maxthreads 1";
-			// TestFlagsParallel = "-parallel all -maxthreads 16";
-			TestFlagsParallel = "-parallel collections -maxthreads 16";
+			TestFlagsNonParallel = "-parallel none -maxthreads 1 ";
+			TestFlagsParallel = "";
 
 			// Find the folder with the solution file
 			BaseFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
