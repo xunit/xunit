@@ -1,8 +1,7 @@
 Before you file a bug...
 
 * Is this a question?
-  Ask it on our Slack server: https://xunit.slack.com/
-  Not a member? Sign up here: https://xunit-slackin.herokuapp.com/
+  Ask it on our discussion area: https://github.com/xunit/xunit/discussions
 * Is this a bug with VSTest (aka Visual Studio Test Explorer, `dotnet test`, `dotnet vstest`,
   or `vstest.console.exe`)? Open those issues here:
   https://github.com/xunit/visualstudio.xunit/issues/
