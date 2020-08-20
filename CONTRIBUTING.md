@@ -4,7 +4,7 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 
 # Before you file a bug...
 
-* Is this a question? Ask it on our [Slack server](https://xunit.slack.com) instead. (Not a member? It's easy [to sign up](https://xunit-slackin.herokuapp.com/).)
+* Is this a question, or are you looking for help? Ask it in our [discussions area](https://github.com/xunit/xunit/discussions/) instead.
 * Did you [read the documentation](https://xunit.net/)?
 * Did you search the issues list to see if someone already reported it?
 * Did you create a simple repro for the problem?

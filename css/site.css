@@ -57,11 +57,6 @@ ul ul {
   padding-left: 1em;
   font-size: 90%;
 }
-.slack-float {
-  position: relative;
-  float: right;
-  margin-left: 30px;
-}
 table, .table {
   width: auto;
 }
