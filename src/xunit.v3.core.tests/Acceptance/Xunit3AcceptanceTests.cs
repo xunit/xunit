@@ -244,6 +244,21 @@ public class Xunit3AcceptanceTests
 			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
+
+		[Fact]
+		public async void SingleFailingTestReturningValueTask()
+		{
+			var results = await RunAsync(typeof(SingleFailingValueTaskTestClass));
+
+			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
+
+			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			Assert.Equal(1, classFinishedMessage.TestsFailed);
+
+			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
+		}
 	}
 
 	public class ClassFailures : AcceptanceTestV3
@@ -775,6 +790,16 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public void TestMethod()
 		{
+			Assert.True(false);
+		}
+	}
+
+	class SingleFailingValueTaskTestClass
+	{
+		[Fact]
+		public async ValueTask TestMethod()
+		{
+			await Task.Delay(1);
 			Assert.True(false);
 		}
 	}

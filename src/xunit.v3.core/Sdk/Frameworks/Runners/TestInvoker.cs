@@ -18,7 +18,8 @@ namespace Xunit.Sdk
 	public abstract class TestInvoker<TTestCase>
 		where TTestCase : ITestCase
 	{
-		static MethodInfo? startAsTaskOpenGenericMethod;
+		static MethodInfo? fSharpStartAsTaskOpenGenericMethod;
+		static MethodInfo? valueTaskAsTaskMethod;
 
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
@@ -206,21 +207,33 @@ namespace Xunit.Sdk
 			var type = obj.GetType();
 			if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
 			{
-				if (startAsTaskOpenGenericMethod == null)
+				if (fSharpStartAsTaskOpenGenericMethod == null)
 				{
-					startAsTaskOpenGenericMethod = type
+					fSharpStartAsTaskOpenGenericMethod = type
 						.Assembly
 						.GetType("Microsoft.FSharp.Control.FSharpAsync")?
 						.GetRuntimeMethods()
 						.FirstOrDefault(m => m.Name == "StartAsTask");
 
-					if (startAsTaskOpenGenericMethod == null)
+					if (fSharpStartAsTaskOpenGenericMethod == null)
 						throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
 				}
 
-				return startAsTaskOpenGenericMethod
+				return fSharpStartAsTaskOpenGenericMethod
 					.MakeGenericMethod(type.GetGenericArguments()[0])
 					.Invoke(null, new[] { obj, null, null }) as Task;
+			}
+
+			if (type.FullName == "System.Threading.Tasks.ValueTask")
+			{
+				if (valueTaskAsTaskMethod == null)
+				{
+					valueTaskAsTaskMethod = type.GetMethod("AsTask", Array.Empty<Type>());
+					if (valueTaskAsTaskMethod == null)
+						throw new InvalidOperationException("Test returned a ValueTask result, but could not find 'System.Threading.Tasks.ValueTask`1.AsTask'");
+				}
+
+				return valueTaskAsTaskMethod.Invoke(obj, Array.Empty<object>()) as Task;
 			}
 
 			return null;
