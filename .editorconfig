@@ -9,7 +9,7 @@ end_of_line = lf
 
 # Visual Studio demands 2-spaced project files
 # Tabs are not legal whitespace for YAML files
-[*.{csproj,json,props,targets,yaml,yml}]
+[*.{csproj,json,props,targets,xslt,yaml,yml}]
 indent_style = space
 indent_size = 2
 
