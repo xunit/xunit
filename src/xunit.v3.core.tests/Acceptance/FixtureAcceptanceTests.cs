@@ -249,15 +249,15 @@ public class FixtureAcceptanceTests
 
 		class ThrowIfNotCompleted<T> : IAsyncLifetime
 		{
-			public Task InitializeAsync()
+			public ValueTask InitializeAsync()
 			{
 				++SetupCalls;
-				return Task.CompletedTask;
+				return default;
 			}
 
-			public Task DisposeAsync()
+			public ValueTask DisposeAsync()
 			{
-				return Task.CompletedTask;
+				return default;
 			}
 
 			public int SetupCalls = 0;
@@ -282,14 +282,14 @@ public class FixtureAcceptanceTests
 
 		class ThrowingSetup : IAsyncLifetime
 		{
-			public Task InitializeAsync()
+			public ValueTask InitializeAsync()
 			{
 				throw new DivideByZeroException();
 			}
 
-			public Task DisposeAsync()
+			public ValueTask DisposeAsync()
 			{
-				return Task.CompletedTask;
+				return default;
 			}
 		}
 
@@ -312,12 +312,37 @@ public class FixtureAcceptanceTests
 
 		class ThrowingDisposeAsync : IAsyncLifetime
 		{
-			public Task InitializeAsync()
+			public ValueTask InitializeAsync()
 			{
-				return Task.CompletedTask;
+				return default;
 			}
 
-			public Task DisposeAsync()
+			public ValueTask DisposeAsync()
+			{
+				throw new DivideByZeroException();
+			}
+		}
+
+		[Fact]
+		public async void TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest_Disposable()
+		{
+			var messages = await RunAsync<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
+
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+		}
+
+		class ClassWithThrowingFixtureDisposeAsync_Disposable : IClassFixture<ThrowingDisposeAsync_Disposable>
+		{
+			public ClassWithThrowingFixtureDisposeAsync_Disposable(ThrowingDisposeAsync_Disposable ignore) { }
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		class ThrowingDisposeAsync_Disposable : IAsyncDisposable
+		{
+			public ValueTask DisposeAsync()
 			{
 				throw new DivideByZeroException();
 			}
@@ -550,14 +575,14 @@ public class FixtureAcceptanceTests
 
 		class ThrowingSetupAsync : IAsyncLifetime
 		{
-			public Task InitializeAsync()
+			public ValueTask InitializeAsync()
 			{
 				throw new DivideByZeroException();
 			}
 
-			public Task DisposeAsync()
+			public ValueTask DisposeAsync()
 			{
-				return Task.CompletedTask;
+				return default;
 			}
 		}
 
@@ -582,12 +607,39 @@ public class FixtureAcceptanceTests
 
 		class ThrowingDisposeAsync : IAsyncLifetime
 		{
-			public Task InitializeAsync()
+			public ValueTask InitializeAsync()
 			{
-				return Task.CompletedTask;
+				return default;
 			}
 
-			public Task DisposeAsync()
+			public ValueTask DisposeAsync()
+			{
+				throw new DivideByZeroException();
+			}
+		}
+
+		[Fact]
+		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest_Disposable()
+		{
+			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose_Disposable));
+
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+		}
+
+		[CollectionDefinition("Collection with throwing async Dispose (Disposable)")]
+		public class CollectionWithThrowingAsyncDispose_Disposable : ICollectionFixture<ThrowingDisposeAsync_Disposable> { }
+
+		[Collection("Collection with throwing async Dispose (Disposable)")]
+		class ClassWithThrowingFixtureAsyncDispose_Disposable
+		{
+			[Fact]
+			public void TheTest() { }
+		}
+
+		class ThrowingDisposeAsync_Disposable : IAsyncDisposable
+		{
+			public ValueTask DisposeAsync()
 			{
 				throw new DivideByZeroException();
 			}
@@ -639,15 +691,15 @@ public class FixtureAcceptanceTests
 		class CountedAsyncFixture<T> : IAsyncLifetime
 		{
 			public int Count = 0;
-			public Task InitializeAsync()
+			public ValueTask InitializeAsync()
 			{
 				Count += 1;
-				return Task.CompletedTask;
+				return default;
 			}
 
-			public Task DisposeAsync()
+			public ValueTask DisposeAsync()
 			{
-				return Task.CompletedTask;
+				return default;
 			}
 		}
 	}

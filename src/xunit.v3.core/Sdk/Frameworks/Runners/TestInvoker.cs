@@ -258,8 +258,9 @@ namespace Xunit.Sdk
 							await AfterTestMethodInvokedAsync();
 						}
 
-						if (asyncLifetime != null)
-							await Aggregator.RunAsync(asyncLifetime.DisposeAsync);
+						var asyncDisposable = testClassInstance as IAsyncDisposable;
+						if (asyncDisposable != null)
+							await Aggregator.RunAsync(asyncDisposable.DisposeAsync);
 					}
 					finally
 					{

@@ -118,7 +118,7 @@ namespace Xunit.Sdk
 
 			InitializedAsyncFixtures.UnionWith(uninitializedFixtures);
 
-			return Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync)));
+			return Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask()));
 		}
 
 		/// <inheritdoc/>
@@ -173,7 +173,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		protected override async Task BeforeTestClassFinishedAsync()
 		{
-			var disposeAsyncTasks = ClassFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync)).ToList();
+			var disposeAsyncTasks = ClassFixtureMappings.Values.OfType<IAsyncDisposable>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask()).ToList();
 
 			await Task.WhenAll(disposeAsyncTasks);
 

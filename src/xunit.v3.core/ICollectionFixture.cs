@@ -1,4 +1,6 @@
-﻿namespace Xunit
+﻿using System;
+
+namespace Xunit
 {
 	/// <summary>
 	/// Used to decorate xUnit.net test classes and collections to indicate a test which has
@@ -11,7 +13,9 @@
 	/// <typeparam name="TFixture">The type of the fixture.</typeparam>
 	/// <remarks>
 	/// If asynchronous setup of <typeparamref name="TFixture"/> is required
-	/// it should implement the <see cref="IAsyncLifetime"/> interface.
+	/// it should implement the <see cref="IAsyncLifetime"/> interface; if
+	/// asynchronous disposal of <typeparamref name="TFixture"/> is required
+	/// it should implement the <see cref="IAsyncDisposable"/> interface.
 	/// </remarks>
 	public interface ICollectionFixture<TFixture>
 		where TFixture : class

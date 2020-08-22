@@ -110,6 +110,25 @@ namespace Xunit.Sdk
 		/// the aggregate.
 		/// </summary>
 		/// <param name="code">The code to be run.</param>
+		public async ValueTask RunAsync(Func<ValueTask> code)
+		{
+			Guard.ArgumentNotNull(nameof(code), code);
+
+			try
+			{
+				await code();
+			}
+			catch (Exception ex)
+			{
+				exceptions.Add(ex.Unwrap());
+			}
+		}
+
+		/// <summary>
+		/// Runs the code, catching the exception that is thrown and adding it to
+		/// the aggregate.
+		/// </summary>
+		/// <param name="code">The code to be run.</param>
 		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
 		public async Task<T> RunAsync<T>(Func<Task<T>> code, T defaultValue = default)
 		{
@@ -128,7 +147,7 @@ namespace Xunit.Sdk
 
 		/// <summary>
 		/// Returns an exception that represents the exceptions thrown by the code
-		/// passed to the <see cref="Run"/> or <see cref="RunAsync"/> method.
+		/// passed to the <see cref="Run"/> or RunAsync methods.
 		/// </summary>
 		/// <returns>Returns <c>null</c> if no exceptions were thrown; returns the
 		/// exact exception if a single exception was thrown; returns <see cref="AggregateException"/>

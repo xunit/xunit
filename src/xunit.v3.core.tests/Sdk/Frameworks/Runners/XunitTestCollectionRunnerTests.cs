@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,17 +39,17 @@ public class XunitTestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposeAndAsyncLifetimeShouldBeCalledInTheRightOrder()
+	public static async void DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
 	{
-		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionForFixtureAsyncLifetimeAndDisposableUnderTest)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposeAndAsyncLifetimeShouldBeCalledInTheRightOrder", collection);
+		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionForFixtureAsyncDisposableUnderTest)), "Mock Test Collection");
+		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		var runnerSessionTask = runner.RunAsync();
 
 		await Task.Delay(500);
 
-		var fixtureUnderTest = runner.CollectionFixtureMappings.Values.OfType<FixtureAsyncLifetimeAndDisposableUnderTest>().Single();
+		var fixtureUnderTest = runner.CollectionFixtureMappings.Values.OfType<FixtureAsyncDisposableUnderTest>().Single();
 
 		Assert.True(fixtureUnderTest.DisposeAsyncCalled);
 		Assert.False(fixtureUnderTest.Disposed);
@@ -62,9 +61,9 @@ public class XunitTestCollectionRunnerTests
 		Assert.True(fixtureUnderTest.Disposed);
 	}
 
-	class CollectionForFixtureAsyncLifetimeAndDisposableUnderTest : ICollectionFixture<FixtureAsyncLifetimeAndDisposableUnderTest> { }
+	class CollectionForFixtureAsyncDisposableUnderTest : ICollectionFixture<FixtureAsyncDisposableUnderTest> { }
 
-	class FixtureAsyncLifetimeAndDisposableUnderTest : IAsyncLifetime, IDisposable
+	class FixtureAsyncDisposableUnderTest : IAsyncDisposable, IDisposable
 	{
 		public bool Disposed;
 
@@ -77,12 +76,7 @@ public class XunitTestCollectionRunnerTests
 			Disposed = true;
 		}
 
-		public Task InitializeAsync()
-		{
-			return Task.FromResult(true);
-		}
-
-		public async Task DisposeAsync()
+		public async ValueTask DisposeAsync()
 		{
 			DisposeAsyncCalled = true;
 

@@ -118,16 +118,16 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposeAndAsyncLifetimeShouldBeCalledInTheRightOrder()
+	public static async void DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassForFixtureAsyncLifetimeAndDisposableUnderTest>("Passing");
+		var testCase = Mocks.XunitTestCase<TestClassForFixtureAsyncDisposableUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		var runnerSessionTask = runner.RunAsync();
 
 		await Task.Delay(500);
 
-		var fixtureUnderTest = runner.ClassFixtureMappings.Values.OfType<FixtureAsyncLifetimeAndDisposableUnderTest>().Single();
+		var fixtureUnderTest = runner.ClassFixtureMappings.Values.OfType<FixtureAsyncDisposableUnderTest>().Single();
 
 		Assert.True(fixtureUnderTest.DisposeAsyncCalled);
 		Assert.False(fixtureUnderTest.Disposed);
@@ -139,13 +139,13 @@ public class XunitTestClassRunnerTests
 		Assert.True(fixtureUnderTest.Disposed);
 	}
 
-	class TestClassForFixtureAsyncLifetimeAndDisposableUnderTest : IClassFixture<FixtureAsyncLifetimeAndDisposableUnderTest>
+	class TestClassForFixtureAsyncDisposableUnderTest : IClassFixture<FixtureAsyncDisposableUnderTest>
 	{
 		[Fact]
 		public void Passing() { }
 	}
 
-	class FixtureAsyncLifetimeAndDisposableUnderTest : IAsyncLifetime, IDisposable
+	class FixtureAsyncDisposableUnderTest : IAsyncDisposable, IDisposable
 	{
 		public bool Disposed;
 
@@ -158,12 +158,7 @@ public class XunitTestClassRunnerTests
 			Disposed = true;
 		}
 
-		public Task InitializeAsync()
-		{
-			return Task.FromResult(true);
-		}
-
-		public async Task DisposeAsync()
+		public async ValueTask DisposeAsync()
 		{
 			DisposeAsyncCalled = true;
 

@@ -654,10 +654,10 @@ public class Xunit3AcceptanceTests
 				output.WriteLine("Constructor");
 			}
 
-			public virtual Task InitializeAsync()
+			public virtual ValueTask InitializeAsync()
 			{
 				output.WriteLine("InitializeAsync");
-				return Task.CompletedTask;
+				return default;
 			}
 
 			public virtual void Dispose()
@@ -665,10 +665,48 @@ public class Xunit3AcceptanceTests
 				output.WriteLine("Dispose");
 			}
 
-			public virtual Task DisposeAsync()
+			public virtual ValueTask DisposeAsync()
 			{
 				output.WriteLine("DisposeAsync");
-				return Task.CompletedTask;
+				return default;
+			}
+
+			[Fact]
+			public virtual void TheTest()
+			{
+				output.WriteLine("Run Test");
+			}
+		}
+
+		[Fact]
+		public async void AsyncDisposableAcceptanceTest()
+		{
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithAsyncDisposable));
+
+			var message = Assert.Single(messages);
+			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync", "Dispose");
+		}
+
+		class ClassWithAsyncDisposable : IAsyncDisposable, IDisposable
+		{
+			protected readonly ITestOutputHelper output;
+
+			public ClassWithAsyncDisposable(ITestOutputHelper output)
+			{
+				this.output = output;
+
+				output.WriteLine("Constructor");
+			}
+
+			public virtual void Dispose()
+			{
+				output.WriteLine("Dispose");
+			}
+
+			public virtual ValueTask DisposeAsync()
+			{
+				output.WriteLine("DisposeAsync");
+				return default;
 			}
 
 			[Fact]
@@ -709,7 +747,7 @@ public class Xunit3AcceptanceTests
 		{
 			public ClassWithAsyncLifetime_ThrowingInitializeAsync(ITestOutputHelper output) : base(output) { }
 
-			public override async Task InitializeAsync()
+			public override async ValueTask InitializeAsync()
 			{
 				await base.InitializeAsync();
 
@@ -730,7 +768,28 @@ public class Xunit3AcceptanceTests
 		{
 			public ClassWithAsyncLifetime_ThrowingDisposeAsync(ITestOutputHelper output) : base(output) { }
 
-			public override async Task DisposeAsync()
+			public override async ValueTask DisposeAsync()
+			{
+				await base.DisposeAsync();
+
+				throw new DivideByZeroException();
+			}
+		}
+
+		[Fact]
+		public async void ThrowingDisposeAsync_Disposable()
+		{
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncDisposable_ThrowingDisposeAsync));
+
+			var message = Assert.Single(messages);
+			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync", "Dispose");
+		}
+
+		class ClassWithAsyncDisposable_ThrowingDisposeAsync : ClassWithAsyncDisposable
+		{
+			public ClassWithAsyncDisposable_ThrowingDisposeAsync(ITestOutputHelper output) : base(output) { }
+
+			public override async ValueTask DisposeAsync()
 			{
 				await base.DisposeAsync();
 
