@@ -117,7 +117,10 @@
               <xsl:if test="count(key('tests-by-class', @type)[@result='Fail']) > 0">
                 <span class="failure">&#x2718;</span>
               </xsl:if>
-              <xsl:if test="count(key('tests-by-class', @type)[@result='Fail']) = 0">
+              <xsl:if test="(count(key('tests-by-class', @type)[@result='Fail']) = 0) and (count(key('tests-by-class', @type)[@result='Skip']) > 0)">
+                <span class="skipped">&#x2762;</span>
+              </xsl:if>
+              <xsl:if test="(count(key('tests-by-class', @type)[@result='Fail']) = 0) and (count(key('tests-by-class', @type)[@result='Skip']) = 0)">
                 <span class="success">&#x2714;</span>
               </xsl:if>
               &#160;<xsl:value-of select="@type"/>
@@ -167,6 +170,9 @@
       </xsl:if>
       &#160;<xsl:value-of select="@name"/>
       <br clear="all" />
+      <xsl:if test="reason">
+        <pre><xsl:value-of select="reason"/></pre>
+      </xsl:if>
       <xsl:if test="child::node()/message">
         <pre><xsl:value-of select="child::node()/message"/></pre>
       </xsl:if>
