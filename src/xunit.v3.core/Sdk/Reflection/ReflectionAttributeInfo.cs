@@ -141,7 +141,7 @@ namespace Xunit.Sdk
 					ctorArgTypes[i] = attributeData.ConstructorArguments[i].ArgumentType;
 			}
 
-			var attribute = (Attribute?)Activator.CreateInstance(attributeData.AttributeType, Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
+			var attribute = (Attribute?)attributeData.Constructor.Invoke(Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
 			if (attribute == null)
 				throw new ArgumentException($"Unable to create attribute of type '{attributeData.AttributeType.FullName}'", nameof(attributeData));
 

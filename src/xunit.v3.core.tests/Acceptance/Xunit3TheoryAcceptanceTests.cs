@@ -1208,19 +1208,18 @@ public class Xunit3TheoryAcceptanceTests
 	public class CustomDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestDataWithInternalConstructor_ReturnsSingleFailingTheory()
+		public async void TestDataWithInternalConstructor_ReturnsTwoPassingTheories()
 		{
 			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 
 			var testMessages = await RunAsync<IMessageSinkMessage>(typeof(ClassWithCustomDataWithInternalDataCtor));
 
-			var types = testMessages.Select(t => t.GetType()).ToList();
-
 			Assert.Collection(
-				testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName),
-				failed => Assert.Equal("Constructor on type 'Xunit3TheoryAcceptanceTests+CustomDataTests+MyCustomData' not found.", failed.Messages[0])
+				testMessages.OfType<ITestPassed>().OrderBy(t => t.TestCase.DisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 2112)", passed.Test.DisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 42)", passed.Test.DisplayName)
 			);
-			Assert.Empty(testMessages.OfType<ITestPassed>());
+			Assert.Empty(testMessages.OfType<ITestFailed>());
 			Assert.Empty(testMessages.OfType<ITestSkipped>());
 		}
 
@@ -1237,6 +1236,42 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[MyCustomData]
 			public void Passing(int unused) { }
+		}
+
+		[Fact]
+		public async void CanSupportConstructorOverloadingWithDataAttribute()  // https://github.com/xunit/xunit/issues/1711
+		{
+			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
+			var testMessages = await RunAsync<IMessageSinkMessage>(typeof(DataConstructorOverloadExample));
+
+			Assert.Single(testMessages.OfType<ITestPassed>().OrderBy(t => t.TestCase.DisplayName));
+			Assert.Empty(testMessages.OfType<ITestFailed>());
+			Assert.Empty(testMessages.OfType<ITestSkipped>());
+		}
+
+		class DataConstructorOverloadExample
+		{
+			[Theory]
+			[MyData((object?)null)]
+			public void TestMethod(object? data)
+			{ }
+		}
+
+		internal class MyDataAttribute : DataAttribute
+		{
+			public MyDataAttribute(object? value)
+			{ }
+
+			public MyDataAttribute(string parameter2Name)
+			{
+				Assert.False(true);
+			}
+
+			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+			{
+				return new[] { new[] { new object() } };
+			}
 		}
 
 		[Fact]
