@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class Xunit2AcceptanceTests
+public class Xunit3AcceptanceTests
 {
 	public class EndToEndMessageInspection : AcceptanceTestV3
 	{
@@ -48,18 +48,18 @@ public class Xunit2AcceptanceTests
 				message =>
 				{
 					var classStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-					Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", classStarting.TestClass.Class.Name);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClass.Class.Name);
 				},
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodStarting.TestClass.Class.Name);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", testMethodStarting.TestClass.Class.Name);
 					Assert.Equal("TestMethod", testMethodStarting.TestMethod.Method.Name);
 				},
 				message =>
 				{
 					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCase.DisplayName);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCase.DisplayName);
 				},
 				message =>
 				{
@@ -118,7 +118,7 @@ public class Xunit2AcceptanceTests
 				message =>
 				{
 					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodFinished.TestClass.Class.Name);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", testMethodFinished.TestClass.Class.Name);
 					Assert.Equal("TestMethod", testMethodFinished.TestMethod.Method.Name);
 				},
 				message =>
@@ -159,7 +159,7 @@ public class Xunit2AcceptanceTests
 			var results = await RunAsync(typeof(SingleSkippedTestClass));
 
 			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
-			Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
+			Assert.Equal("Xunit3AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
 			Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
@@ -188,10 +188,10 @@ public class Xunit2AcceptanceTests
 			stopwatch.Stop();
 
 			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
-			Assert.Equal("Xunit2AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passedMessage.Test.DisplayName);
+			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passedMessage.Test.DisplayName);
 
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
-			Assert.Equal("Xunit2AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedMessage.Test.DisplayName);
+			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedMessage.Test.DisplayName);
 			Assert.Equal("Test execution timed out after 10 milliseconds", failedMessage.Messages.Single());
 
 			Assert.True(stopwatch.ElapsedMilliseconds < 10000, "Elapsed time should be less than 10 seconds");
@@ -217,7 +217,7 @@ public class Xunit2AcceptanceTests
 			stopwatch.Stop();
 
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
-			Assert.Equal("Xunit2AcceptanceTests+NonStartedTasks+ClassUnderTest.NonStartedTask", failedMessage.Test.DisplayName);
+			Assert.Equal("Xunit3AcceptanceTests+NonStartedTasks+ClassUnderTest.NonStartedTask", failedMessage.Test.DisplayName);
 			Assert.Equal("Test method returned a non-started Task (tasks must be started before being returned)", failedMessage.Messages.Single());
 		}
 
@@ -334,7 +334,7 @@ public class Xunit2AcceptanceTests
 			var testMessages = await RunAsync<ITestResultMessage>(typeof(StaticClassUnderTest));
 
 			var testMessage = Assert.Single(testMessages);
-			Assert.Equal("Xunit2AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.Test.DisplayName);
+			Assert.Equal("Xunit3AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.Test.DisplayName);
 			Assert.IsAssignableFrom<ITestPassed>(testMessage);
 		}
 
@@ -352,10 +352,10 @@ public class Xunit2AcceptanceTests
 		{
 			var testMessages = await RunAsync<ITestFailed>(typeof(ClassUnderTest));
 
-			var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
+			var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit3AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
 			Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-			var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
+			var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit3AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
 
@@ -501,7 +501,7 @@ public class Xunit2AcceptanceTests
 			var msgs = await RunAsync<ITestPassed>(typeof(ClassWithCustomFact));
 
 			Assert.Collection(msgs,
-				msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName)
+				msg => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName)
 			);
 		}
 
@@ -519,7 +519,7 @@ public class Xunit2AcceptanceTests
 			var msgs = await RunAsync<ITestPassed>(typeof(ClassWithCustomArrayFact));
 
 			Assert.Collection(msgs,
-				msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName)
+				msg => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName)
 			);
 		}
 
@@ -543,9 +543,9 @@ public class Xunit2AcceptanceTests
 				msgs,
 				msg =>
 				{
-					Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing", msg.Test.DisplayName);
+					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing", msg.Test.DisplayName);
 					Assert.Equal("System.InvalidOperationException", msg.ExceptionTypes.Single());
-					Assert.Equal("Test method 'Xunit2AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
+					Assert.Equal("Test method 'Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
 				}
 			);
 		}
