@@ -22,6 +22,50 @@
       "cwd": "${workspaceFolder}/src/xunit.v3.core.tests",
       "stopAtEntry": false,
       "console": "internalConsole"
-    }
+    },
+    {
+      "name": "xunit.v3.runner.common.tests",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.common.tests.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.common.tests",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.console.tests",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.console.tests.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.console.tests",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.inproc.console.tests",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.inproc.console.tests.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.inproc.console.tests",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.utility.tests",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.utility.tests.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.utility.tests",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
   ]
 }
