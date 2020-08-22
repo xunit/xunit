@@ -19,7 +19,6 @@ namespace Xunit.Sdk
 		where TTestCase : ITestCase
 	{
 		static MethodInfo? fSharpStartAsTaskOpenGenericMethod;
-		static MethodInfo? valueTaskAsTaskMethod;
 
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
@@ -204,6 +203,9 @@ namespace Xunit.Sdk
 			if (obj is Task task)
 				return task;
 
+			if (obj is ValueTask valueTask)
+				return valueTask.AsTask();
+
 			var type = obj.GetType();
 			if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
 			{
@@ -222,18 +224,6 @@ namespace Xunit.Sdk
 				return fSharpStartAsTaskOpenGenericMethod
 					.MakeGenericMethod(type.GetGenericArguments()[0])
 					.Invoke(null, new[] { obj, null, null }) as Task;
-			}
-
-			if (type.FullName == "System.Threading.Tasks.ValueTask")
-			{
-				if (valueTaskAsTaskMethod == null)
-				{
-					valueTaskAsTaskMethod = type.GetMethod("AsTask", Array.Empty<Type>());
-					if (valueTaskAsTaskMethod == null)
-						throw new InvalidOperationException("Test returned a ValueTask result, but could not find 'System.Threading.Tasks.ValueTask`1.AsTask'");
-				}
-
-				return valueTaskAsTaskMethod.Invoke(obj, Array.Empty<object>()) as Task;
 			}
 
 			return null;

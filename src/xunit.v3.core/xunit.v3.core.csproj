@@ -28,6 +28,10 @@
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\DynamicSkipToken.cs" LinkBase="Common\Asserts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+  </ItemGroup>
+
   <!-- <ItemGroup>
     <Content Include="xunit.core.dll.tdnet">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
