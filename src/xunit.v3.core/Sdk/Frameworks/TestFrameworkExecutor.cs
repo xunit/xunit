@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -15,7 +14,7 @@ namespace Xunit.Sdk
 	public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor
 		where TTestCase : ITestCase
 	{
-		IAssemblyInfo assemblyInfo;
+		IReflectionAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
 		bool disposed;
 		ISourceInformationProvider sourceInformationProvider;
@@ -23,28 +22,23 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="assemblyName">Name of the test assembly.</param>
+		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		protected TestFrameworkExecutor(
-			AssemblyName assemblyName,
+			IReflectionAssemblyInfo assemblyInfo,
 			ISourceInformationProvider sourceInformationProvider,
 			IMessageSink diagnosticMessageSink)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
-
+			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
 			this.sourceInformationProvider = Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-
-			var assembly = Assembly.Load(assemblyName);
-
-			assemblyInfo = Reflector.Wrap(assembly);
 		}
 
 		/// <summary>
 		/// Gets the assembly information of the assembly under test.
 		/// </summary>
-		protected IAssemblyInfo AssemblyInfo
+		protected IReflectionAssemblyInfo AssemblyInfo
 		{
 			get => assemblyInfo;
 			set => assemblyInfo = Guard.ArgumentNotNull(nameof(AssemblyInfo), value);

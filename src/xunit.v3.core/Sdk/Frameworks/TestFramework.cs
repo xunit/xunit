@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Reflection;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// A default implementation of <see cref="ITestFramework"/> that tracks objects to be
+	/// A default implementation of <see cref="_ITestFramework"/> that tracks objects to be
 	/// disposed when the framework is disposed. The discoverer and executor are automatically
 	/// tracked for disposal, since those interfaces mandate an implementation of <see cref="IDisposable"/>.
 	/// </summary>
-	public abstract class TestFramework : ITestFramework
+	public abstract class TestFramework : _ITestFramework
 	{
 		bool disposed;
 		ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
@@ -56,33 +54,33 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Override this method to provide the implementation of <see cref="ITestFrameworkDiscoverer"/>.
 		/// </summary>
-		/// <param name="assemblyInfo">The assembly that is being discovered.</param>
+		/// <param name="assembly">The assembly that is being discovered.</param>
 		/// <returns>Returns the test framework discoverer.</returns>
-		protected abstract ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo);
+		protected abstract ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly);
 
 		/// <summary>
 		/// Override this method to provide the implementation of <see cref="ITestFrameworkExecutor"/>.
 		/// </summary>
-		/// <param name="assemblyName">The assembly that is being executed.</param>
+		/// <param name="assembly">The assembly that is being executed.</param>
 		/// <returns>Returns the test framework executor.</returns>
-		protected abstract ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName);
+		protected abstract ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly);
 
 		/// <inheritdoc/>
-		public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
+		public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
-			var discoverer = CreateDiscoverer(assemblyInfo);
+			var discoverer = CreateDiscoverer(assembly);
 			DisposalTracker.Add(discoverer);
 			return discoverer;
 		}
 
 		/// <inheritdoc/>
-		public ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
+		public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
+			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
-			var executor = CreateExecutor(assemblyName);
+			var executor = CreateExecutor(assembly);
 			DisposalTracker.Add(executor);
 			return executor;
 		}

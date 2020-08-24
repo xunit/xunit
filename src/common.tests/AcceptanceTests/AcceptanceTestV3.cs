@@ -37,7 +37,7 @@ public class AcceptanceTestV3
 				var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
 				var runSink = new SpyMessageSink<ITestAssemblyFinished>();
-				var executor = testFramework.GetExecutor(Assembly.GetEntryAssembly()!.GetName());
+				var executor = testFramework.GetExecutor(assemblyInfo);
 				executor.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
 				runSink.Finished.WaitOne();
 

@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// The implementation of <see cref="ITestFramework"/> that supports discovery and
+	/// The implementation of <see cref="_ITestFramework"/> that supports discovery and
 	/// execution of unit tests linked against xunit.v3.core.dll.
 	/// </summary>
 	public class XunitTestFramework : TestFramework
@@ -33,11 +32,11 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo) =>
-			new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName, SourceInformationProvider, DiagnosticMessageSink);
+		protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly) =>
+			new XunitTestFrameworkDiscoverer(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 
 		/// <inheritdoc/>
-		protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName) =>
-			new XunitTestFrameworkExecutor(assemblyName, configFileName, SourceInformationProvider, DiagnosticMessageSink);
+		protected override ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly) =>
+			new XunitTestFrameworkExecutor(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 	}
 }

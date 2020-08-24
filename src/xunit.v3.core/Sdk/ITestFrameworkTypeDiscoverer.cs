@@ -9,7 +9,7 @@ namespace Xunit.Sdk
 	public interface ITestFrameworkTypeDiscoverer
 	{
 		/// <summary>
-		/// Gets the type that implements <see cref="ITestFramework"/> to be used to discover
+		/// Gets the type that implements <see cref="_ITestFramework"/> to be used to discover
 		/// and run tests.
 		/// </summary>
 		/// <param name="attribute">The test framework attribute that decorated the assembly</param>

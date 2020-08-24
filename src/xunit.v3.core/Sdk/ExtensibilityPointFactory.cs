@@ -173,18 +173,18 @@ namespace Xunit.Sdk
 		/// <param name="testAssembly">The test assembly to get the test framework for</param>
 		/// <param name="sourceInformationProvider">The optional source information provider</param>
 		/// <returns>The test framework object</returns>
-		public static ITestFramework GetTestFramework(
+		public static _ITestFramework GetTestFramework(
 			IMessageSink diagnosticMessageSink,
 			IAssemblyInfo testAssembly,
 			ISourceInformationProvider? sourceInformationProvider = null)
 		{
 			// TODO Guard
-			ITestFramework result;
+			_ITestFramework result;
 
 			var testFrameworkType = GetTestFrameworkType(diagnosticMessageSink, testAssembly);
-			if (!typeof(ITestFramework).IsAssignableFrom(testFrameworkType))
+			if (!typeof(_ITestFramework).IsAssignableFrom(testFrameworkType))
 			{
-				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test framework type '{testFrameworkType.FullName}' does not implement '{typeof(ITestFramework).FullName}'; falling back to '{typeof(XunitTestFramework).FullName}'"));
+				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test framework type '{testFrameworkType.FullName}' does not implement '{typeof(_ITestFramework).FullName}'; falling back to '{typeof(XunitTestFramework).FullName}'"));
 				testFrameworkType = typeof(XunitTestFramework);
 			}
 
@@ -200,9 +200,9 @@ namespace Xunit.Sdk
 						});
 
 				if (ctorWithSink != null)
-					result = (ITestFramework)ctorWithSink.Invoke(new object[] { diagnosticMessageSink });
+					result = (_ITestFramework)ctorWithSink.Invoke(new object[] { diagnosticMessageSink });
 				else
-					result = (ITestFramework)Activator.CreateInstance(testFrameworkType)!;
+					result = (_ITestFramework)Activator.CreateInstance(testFrameworkType)!;
 			}
 			catch (Exception ex)
 			{
