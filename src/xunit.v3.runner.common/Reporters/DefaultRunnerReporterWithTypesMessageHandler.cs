@@ -87,7 +87,10 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(assemblyMessage), assemblyMessage);
 
-			return Path.GetFileNameWithoutExtension(assemblyMessage.TestAssembly.Assembly.AssemblyPath);
+			return
+				string.IsNullOrWhiteSpace(assemblyMessage.TestAssembly.Assembly.AssemblyPath)
+					? "<dynamic>"
+					: Path.GetFileNameWithoutExtension(assemblyMessage.TestAssembly.Assembly.AssemblyPath);
 		}
 
 		/// <summary>
@@ -98,9 +101,8 @@ namespace Xunit.Runner.Common
 		protected virtual string GetAssemblyDisplayName(XunitProjectAssembly assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
-			Guard.NotNull("Attempted to get assembly display name for XunitProjectAssembly without first setting AssemblyFilename", assembly.AssemblyFilename);
 
-			return Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+			return assembly.AssemblyDisplayName;
 		}
 
 		/// <summary>

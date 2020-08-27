@@ -12,43 +12,72 @@ using Xunit.Sdk;
 
 namespace Xunit.Runner.InProc.SystemConsole
 {
+	/// <summary>
+	/// This class is the entry point for the in-process console-based runner used for
+	/// xUnit.net v3 test projects.
+	/// </summary>
 	public class ConsoleRunner
 	{
+		string[] args;
 		volatile bool cancel;
-		CommandLine? commandLine;
+		CommandLine commandLine;
 		readonly object consoleLock;
+		bool executed = false;
 		ExecutionSummary executionSummary = new ExecutionSummary();
 		bool failed;
 		IRunnerLogger? logger;
+		IReadOnlyList<IRunnerReporter> runnerReporters;
+		Assembly testAssembly;
 
-		public ConsoleRunner(object? consoleLock = null)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ConsoleRunner"/> class.
+		/// </summary>
+		/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
+		/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
+		/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
+		/// <param name="consoleLock">The (optional) lock used around all console output to ensure there are no write collisions.</param>
+		public ConsoleRunner(
+			string[] args,
+			Assembly? testAssembly = null,
+			IEnumerable<IRunnerReporter>? runnerReporters = null,
+			object? consoleLock = null)
 		{
+			this.args = Guard.ArgumentNotNull(nameof(args), args);
+			this.testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", testAssembly ?? Assembly.GetEntryAssembly());
 			this.consoleLock = consoleLock ?? new object();
+
+			commandLine = CommandLine.Parse(this.testAssembly.Location, args);
+
+			var projectAssembly = commandLine.Project.Assemblies.SingleOrDefault();
+			Guard.NotNull("commandLine.Project.Assemblies is empty", projectAssembly);
+
+			this.runnerReporters =
+				runnerReporters != null
+					? runnerReporters.ToList()
+					: GetAvailableRunnerReporters(projectAssembly.AssemblyFilename);
 		}
 
-		public static int Run(string[] args)
-			=> new ConsoleRunner().EntryPoint(args);
-
-		public int EntryPoint(string[] args)
+		/// <summary>
+		/// The entry point to begin running tests.
+		/// </summary>
+		/// <returns>The return value intended to be returned by the Main method.</returns>
+		public int EntryPoint()
 		{
-			var assemblyUnderTest = Guard.NotNull("Could not get Assembly.EntryAssembly", Assembly.GetEntryAssembly());
-			commandLine = CommandLine.Parse(assemblyUnderTest.GetLocalCodeBase()!, args);
+			if (executed)
+				throw new InvalidOperationException("The EntryPoint method can only be called once.");
+
+			executed = true;
 
 			try
 			{
-				var reporters = GetAvailableRunnerReporters();
-
 				if (args.Length > 0 && (args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help"))
 				{
 					PrintHeader();
-					PrintUsage(reporters);
+					PrintUsage();
 					return 2;
 				}
 
-				// TODO: What is the portable version of this?
-#if NETFRAMEWORK
 				AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-#endif
 
 				Console.CancelKeyPress += (sender, e) =>
 				{
@@ -64,7 +93,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar }), StringComparison.Ordinal))
 					defaultDirectory += Path.DirectorySeparatorChar;
 
-				var reporter = commandLine.ChooseReporter(reporters);
+				var reporter = commandLine.ChooseReporter(runnerReporters);
 
 				if (commandLine.Pause)
 				{
@@ -131,55 +160,58 @@ namespace Xunit.Runner.InProc.SystemConsole
 			}
 		}
 
-		List<IRunnerReporter> GetAvailableRunnerReporters()
+		List<IRunnerReporter> GetAvailableRunnerReporters(string? testAssemblyFileName)
 		{
 			var result = new List<IRunnerReporter>();
 
-			var runnerPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
-
-			foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath!, f)))
+			var runnerPath = string.IsNullOrWhiteSpace(testAssemblyFileName) ? null : Path.GetDirectoryName(testAssemblyFileName);
+			if (!string.IsNullOrWhiteSpace(runnerPath))
 			{
-				Type[]? types;
+				foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+				{
+					Type[]? types;
 
-				try
-				{
-#if NETFRAMEWORK
-					var assembly = Assembly.LoadFile(dllFile);
-#else
-					var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-#endif
-					types = assembly.GetTypes();
-				}
-				catch (ReflectionTypeLoadException ex)
-				{
-					types = ex.Types;
-				}
-				catch
-				{
-					continue;
-				}
-
-				foreach (var type in types ?? new Type[0])
-				{
-					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-						continue;
-					var ctor = type.GetConstructor(new Type[0]);
-					if (ctor == null)
+					try
 					{
-						ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-						Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-						ConsoleHelper.ResetColor();
+#if NETFRAMEWORK
+						var assembly = Assembly.LoadFile(dllFile);
+#else
+						var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
+#endif
+						types = assembly.GetTypes();
+					}
+					catch (ReflectionTypeLoadException ex)
+					{
+						types = ex.Types;
+					}
+					catch
+					{
 						continue;
 					}
 
-					result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+					foreach (var type in types ?? new Type[0])
+					{
+						if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+							continue;
+						var ctor = type.GetConstructor(new Type[0]);
+						if (ctor == null)
+						{
+							if (!commandLine.NoColor)
+								ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+							Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
+							if (!commandLine.NoColor)
+								ConsoleHelper.ResetColor();
+							continue;
+						}
+
+						result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+					}
 				}
 			}
 
 			return result;
 		}
 
-#if NETFRAMEWORK
 		void OnUnhandledException(
 			object sender,
 			UnhandledExceptionEventArgs e)
@@ -191,12 +223,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 			Environment.Exit(1);
 		}
-#endif
 
 		void PrintHeader() =>
 			Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 
-		void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
+		void PrintUsage()
 		{
 			Console.WriteLine("Copyright (C) .NET Foundation.");
 			Console.WriteLine();
@@ -251,17 +282,17 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
 			Console.WriteLine();
 
-			if (reporters.Count > 0)
+			if (runnerReporters.Count > 0)
 			{
 				Console.WriteLine("Reporters (optional, choose only one)");
 				Console.WriteLine();
 
-				var longestSwitch = reporters.Max(r => r.RunnerSwitch?.Length ?? 0);
+				var longestSwitch = runnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
-				foreach (var switchableReporter in reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
+				foreach (var switchableReporter in runnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
 					Console.WriteLine($"  -{switchableReporter.RunnerSwitch!.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
 
-				foreach (var environmentalReporter in reporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
+				foreach (var environmentalReporter in runnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
 					Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");
 
 				Console.WriteLine();
@@ -274,6 +305,21 @@ namespace Xunit.Runner.InProc.SystemConsole
 			foreach (var transform in TransformFactory.AvailableTransforms)
 				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
 		}
+
+		/// <summary>
+		/// Creates a new <see cref="ConsoleRunner"/> instance and runs it via <see cref="EntryPoint"/>.
+		/// </summary>
+		/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
+		/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
+		/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
+		/// <param name="consoleLock">The (optional) lock used around all console output to ensure there are no write collisions.</param>
+		/// <returns>The return value intended to be returned by the Main method.</returns>
+		public static int Run(
+			string[] args,
+			Assembly? testAssembly = null,
+			IEnumerable<IRunnerReporter>? runnerReporters = null,
+			object? consoleLock = null) =>
+				new ConsoleRunner(args, testAssembly, runnerReporters, consoleLock).EntryPoint();
 
 		int RunProject(
 			XunitProject project,
@@ -320,8 +366,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			if (assembliesElement != null)
 				assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
 
-			var assemblyFilename = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
-			var summary = new KeyValuePair<string, ExecutionSummary>(Path.GetFileNameWithoutExtension(assemblyFilename), executionSummary);
+			var summary = new KeyValuePair<string, ExecutionSummary>(assembly.AssemblyDisplayName, executionSummary);
 			var summaries = new List<KeyValuePair<string, ExecutionSummary>> { summary };
 
 			reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, summaries));
@@ -372,14 +417,12 @@ namespace Xunit.Runner.InProc.SystemConsole
 				if (parallelizeTestCollections.HasValue)
 					executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
-				var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
-				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+				var assemblyDisplayName = assembly.AssemblyDisplayName;
 				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
 				var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-				var entryAssembly = Assembly.GetEntryAssembly()!;
-				var assemblyInfo = new ReflectionAssemblyInfo(entryAssembly);
+				var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 				using var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
 				var discoverySink = new TestDiscoverySink(() => cancel);
 

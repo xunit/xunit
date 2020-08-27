@@ -6,53 +6,135 @@ using Xunit.Runner.Common;
 
 namespace Xunit.Runner.InProc.SystemConsole
 {
+	/// <summary>
+	/// The command line parser for the console runner.
+	/// </summary>
 	public class CommandLine
 	{
 		readonly Stack<string> arguments = new Stack<string>();
-		readonly string assemblyFileName;
 		readonly List<string> unknownOptions = new List<string>();
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CommandLine"/> class.
+		/// </summary>
+		/// <param name="assemblyFileName">The assembly filename.</param>
+		/// <param name="args">The command line arguments passed to the Main method.</param>
+		/// <param name="fileExists">An optional delegate which checks for file existence.
+		/// Available as an override solely for testing purposes.</param>
 		protected CommandLine(
 			string assemblyFileName,
 			string[] args,
 			Predicate<string>? fileExists = null)
 		{
-			this.assemblyFileName = assemblyFileName;
-
 			fileExists ??= File.Exists;
 
 			for (var i = args.Length - 1; i >= 0; i--)
 				arguments.Push(args[i]);
 
-			Project = Parse(fileExists);
+			Project = Parse(assemblyFileName, fileExists);
 		}
 
+		/// <summary>
+		/// <para>Option: -debug</para>
+		/// <para>When set to <c>true</c>, will launch/attach the debugger before
+		/// running any tests.</para>
+		/// </summary>
 		public bool Debug { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -diagnostics</para>
+		/// <para>When set to <c>true</c>, will emit diagnostic messages to the console.</para>
+		/// </summary>
 		public bool DiagnosticMessages { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -failskips</para>
+		/// <para>When set to <c>true</c>, converts skipped tests into failed tests.</para>
+		/// </summary>
 		public bool FailSkips { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -internaldiagnostics</para>
+		/// <para>When set to <c>true</c>, will emit internal diagnostic messages to
+		/// the console. This is typically only useful for the developers of xUnit.net
+		/// itself, but may be requested when diagnosing issues.</para>
+		/// </summary>
 		public bool InternalDiagnosticMessages { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -maxthreads &lt;default | unlimited | n&gt;</para>
+		/// <para>Sets the maximum number of simultaneous threads that will be allowed
+		/// to run when tests are parallelized. The default is one thread per CPU core;
+		/// unlimited will not limit threads; any number greater than 0 will use the
+		/// given number of threads.</para>
+		/// </summary>
 		public int? MaxParallelThreads { get; set; }
 
+		/// <summary>
+		/// <para>Option: -noautoreporters</para>
+		/// <para>When set to <c>true</c>, will prevent automatic reporters from
+		/// being used. This typically includes environmentally-enabled reporters
+		/// used in continuous integration systems like TeamCity, AppVeyor, or
+		/// Azure DevOps.</para>
+		/// </summary>
 		public bool NoAutoReporters { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -nocolor</para>
+		/// <para>When set to <c>true</c>, will prevent using any colors when printing
+		/// messages to the console.</para>
+		/// </summary>
 		public bool NoColor { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -nologo</para>
+		/// <para>When set to <c>true</c>, will suppress the copyright and version information
+		/// that's normally printed at the top of the console output.</para>
+		/// </summary>
 		public bool NoLogo { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -pause</para>
+		/// <para>When set to <c>true</c>, will pause the test runner just before running tests.</para>
+		/// </summary>
 		public bool Pause { get; protected set; }
 
+		/// <summary>
+		/// Gets or sets the project that describes the assembly to be tested.
+		/// </summary>
 		public XunitProject Project { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -parallel &lt;none | collections&gt;</para>
+		/// <para>Will be <c>true</c> when the "collections" flag is passed; will be <c>false</c>
+		/// when the "none" flag is passed.</para>
+		/// </summary>
 		public bool? ParallelizeTestCollections { get; set; }
 
+		/// <summary>
+		/// <para>Option: -stoponfail</para>
+		/// <para>When set to <c>true</c>, will attempt to stop running tests as soon as one
+		/// has failed (by default, all tests will be run regardless of failures).</para>
+		/// </summary>
 		public bool StopOnFail { get; protected set; }
 
+		/// <summary>
+		/// <para>Option: -wait</para>
+		/// <para>When set to <c>true</c>, will pause the test runner after all tests have
+		/// finished running, but before exiting.</para>
+		/// </summary>
 		public bool Wait { get; protected set; }
 
+		/// <summary>
+		/// Chooses a reporter from the list of available reporters. Unless <see cref="NoAutoReporters"/>
+		/// is set to <c>true</c>, it will first look for an environmentally enabled reporter;
+		/// if none is available, then it will search through the command line options to
+		/// determine which one to run. If there are no environmentally enabled reporters and
+		/// no reporters passed on the command line, it will return an instance of
+		/// <see cref="DefaultRunnerReporterWithTypes"/>.
+		/// </summary>
+		/// <param name="reporters">The list of available reporters to choose from</param>
+		/// <returns>The reporter that should be used during testing</returns>
 		public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
 		{
 			var result = default(IRunnerReporter);
@@ -73,11 +155,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 			return result ?? new DefaultRunnerReporterWithTypes();
 		}
 
+		/// <summary>
+		/// For testing purposes only. Do not use.
+		/// </summary>
 		protected virtual string GetFullPath(string fileName) =>
 			Path.GetFullPath(fileName);
 
 		XunitProject GetProjectFile(
-			string assemblyFileName,
+			string? assemblyFileName,
 			string? configFileName) =>
 				new XunitProject
 				{
@@ -97,12 +182,24 @@ namespace Xunit.Runner.InProc.SystemConsole
 		static bool IsConfigFile(string fileName) =>
 			fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 
+		/// <summary>
+		/// Parses the command line, and returns an instance of <see cref="CommandLine"/> that
+		/// has been populated based on the command line options that were passed.
+		/// </summary>
+		/// <param name="assemblyFileName">The optional assembly filename.</param>
+		/// <param name="args">The command line arguments passed to the Main method.</param>
+		/// <returns>The instance of the <see cref="CommandLine"/> object.</returns>
 		public static CommandLine Parse(
 			string assemblyFileName,
 			params string[] args) =>
 				new CommandLine(assemblyFileName, args);
 
-		protected XunitProject Parse(Predicate<string> fileExists)
+		/// <summary>
+		/// For testing purposes only. Do not use.
+		/// </summary>
+		protected XunitProject Parse(
+			string assemblyFileName,
+			Predicate<string> fileExists)
 		{
 			var configFileName = default(string);
 

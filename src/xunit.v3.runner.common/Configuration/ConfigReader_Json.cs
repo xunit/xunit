@@ -92,12 +92,15 @@ namespace Xunit.Runner.Common
 		/// <param name="assemblyFileName">The test assembly.</param>
 		/// <param name="configFileName">The test assembly configuration file.</param>
 		/// <returns>The test assembly configuration.</returns>
-		public static TestAssemblyConfiguration? Load(string assemblyFileName, string? configFileName = null)
+		public static TestAssemblyConfiguration? Load(
+			string assemblyFileName,
+			string? configFileName = null)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyFileName), assemblyFileName);
-
 			if (configFileName != null)
 				return configFileName.EndsWith(".json", StringComparison.Ordinal) ? LoadFile(configFileName) : null;
+
+			if (string.IsNullOrWhiteSpace(assemblyFileName))
+				return null;
 
 			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var directoryName = Path.GetDirectoryName(assemblyFileName)!;

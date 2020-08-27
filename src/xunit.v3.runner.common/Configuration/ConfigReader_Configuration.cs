@@ -21,12 +21,10 @@ namespace Xunit.Runner.Common
 			string assemblyFileName,
 			string? configFileName = null)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyFileName), assemblyFileName);
-
-			if (configFileName == null)
+			if (configFileName == null && !string.IsNullOrWhiteSpace(assemblyFileName))
 				configFileName = assemblyFileName + ".config";
 
-			if (configFileName.EndsWith(".config", StringComparison.Ordinal))
+			if (configFileName?.EndsWith(".config", StringComparison.Ordinal) == true)
 			{
 				try
 				{

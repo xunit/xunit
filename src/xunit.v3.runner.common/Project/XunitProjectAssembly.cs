@@ -1,4 +1,6 @@
-﻿namespace Xunit.Runner.Common
+﻿using System.IO;
+
+namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Represents an assembly in an <see cref="XunitProject"/>.
@@ -6,6 +8,13 @@
 	public class XunitProjectAssembly
 	{
 		TestAssemblyConfiguration? configuration;
+
+		/// <summary>
+		/// Gets the assembly display name. Will return the value "&lt;dynamic&gt;" if the
+		/// assembly does not have a file name.
+		/// </summary>
+		public string AssemblyDisplayName =>
+			string.IsNullOrWhiteSpace(AssemblyFilename) ? "<dynamic>" : Path.GetFileNameWithoutExtension(AssemblyFilename);
 
 		/// <summary>
 		/// Gets or sets the assembly filename.
@@ -24,10 +33,8 @@
 		{
 			get
 			{
-				Guard.NotNull("Tried to get configuration for an XunitProjectAssembly before setting AssemblyFilename", AssemblyFilename);
-
-				if (configuration == null)
-					configuration = ConfigReader.Load(AssemblyFilename, ConfigFilename);
+				if (configuration is null)
+					configuration = ConfigReader.Load(AssemblyFilename ?? string.Empty, ConfigFilename);
 
 				return configuration;
 			}

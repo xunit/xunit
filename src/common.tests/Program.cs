@@ -6,7 +6,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 	{
 		// TODO: This should be (optionally?) auto-injected
 		[STAThread]
-		public static int Main(string[] args)
-			=> ConsoleRunner.Run(args);
+		public static int Main(string[] args) =>
+			ConsoleRunner.Run(args);
 	}
 }
