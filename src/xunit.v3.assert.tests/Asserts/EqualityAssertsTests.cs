@@ -6,6 +6,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
+#if XUNIT_ASSERT_ARRAY_AS_SPAN
+using System.Diagnostics;
+using System.Linq;
+#endif
 
 public class EqualityAssertsTests
 {
@@ -1094,6 +1098,51 @@ public class EqualityAssertsTests
 			);
 		}
 	}
+
+#if XUNIT_ASSERT_ARRAY_AS_SPAN
+	public class Equal_ArrayOfUnmanagedT_AsSpan
+	{
+		[Fact]
+		public void IsMuchFaster()
+		{
+			var buffer1 = new byte[1024 * 1024];
+			for (var i = 0; i < buffer1.Length; i++)
+				buffer1[i] = (byte)(i % 256);
+
+			var buffer2 = buffer1.ToArray();
+
+			var sw = Stopwatch.StartNew();
+			Assert.Equal(buffer1, buffer2);
+			var eqFastElapsedTime = sw.Elapsed.TotalMilliseconds;
+
+			sw.Restart();
+			Assert.Equal((object)buffer1, (object)buffer2);
+			var eqSlowElapsedTime = sw.Elapsed.TotalMilliseconds;
+
+			buffer2[1024 * 1024 - 1] = (byte)0;
+
+			sw.Restart();
+			Assert.NotEqual(buffer1, buffer2);
+			var notEqFastElapsedTime = sw.Elapsed.TotalMilliseconds;
+
+			sw.Restart();
+			Assert.NotEqual((object)buffer1, (object)buffer2);
+			var notEqSlowElapsedTime = sw.Elapsed.TotalMilliseconds;
+#if DEBUG
+			const double expectedMinGain = 25;
+#else
+			const double expectedMinGain = 150;
+#endif
+			var actualGain = eqSlowElapsedTime / eqFastElapsedTime;
+			Assert.True(actualGain > expectedMinGain,
+				$"Assert.Equal on Span<T> should be at least {expectedMinGain} times faster than on T[], but was {actualGain:F1}");
+
+			actualGain = notEqSlowElapsedTime / notEqFastElapsedTime;
+			Assert.True(actualGain > expectedMinGain,
+				$"Assert.NotEqual on Span<T> should be at least {expectedMinGain} times faster than on T[], but was {actualGain:F1}");
+		}
+	}
+#endif
 
 	private class BaseClass { }
 
