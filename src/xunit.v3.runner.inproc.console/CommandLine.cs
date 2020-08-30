@@ -100,6 +100,13 @@ namespace Xunit.Runner.InProc.SystemConsole
 		public bool Pause { get; protected set; }
 
 		/// <summary>
+		/// <para>Option: -preenumeratetheories</para>
+		/// <para>When set to <c>true</c>, will force the pre-enumeration of theories before running
+		/// tests. This is disabled by default for performance reasons.</para>
+		/// </summary>
+		public bool PreEnumerateTheories { get; protected set; }
+
+		/// <summary>
 		/// Gets or sets the project that describes the assembly to be tested.
 		/// </summary>
 		public XunitProject Project { get; protected set; }
@@ -253,6 +260,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 				{
 					GuardNoOptionValue(option);
 					Pause = true;
+				}
+				else if (optionName == "preenumeratetheories")
+				{
+					GuardNoOptionValue(option);
+					PreEnumerateTheories = true;
 				}
 				else if (optionName == "debug")
 				{

@@ -235,24 +235,25 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine();
 			Console.WriteLine("Options");
 			Console.WriteLine();
-			Console.WriteLine("  -nologo              : do not show the copyright message");
-			Console.WriteLine("  -nocolor             : do not output results with colors");
-			Console.WriteLine("  -failskips           : convert skipped tests into failures");
-			Console.WriteLine("  -stoponfail          : stop on first test failure");
-			Console.WriteLine("  -parallel option     : set parallelization based on option");
-			Console.WriteLine("                       :   none        - turn off all parallelization");
-			Console.WriteLine("                       :   collections - only parallelize collections");
-			Console.WriteLine("  -maxthreads count    : maximum thread count for collection parallelization");
-			Console.WriteLine("                       :   default   - run with default (1 thread per CPU thread)");
-			Console.WriteLine("                       :   unlimited - run with unbounded thread count");
-			Console.WriteLine("                       :   (number)  - limit task thread pool size to 'count'");
-			Console.WriteLine("  -wait                : wait for input after completion");
-			Console.WriteLine("  -diagnostics         : enable diagnostics messages for all test assemblies");
-			Console.WriteLine("  -internaldiagnostics : enable internal diagnostics messages for all test assemblies");
-			Console.WriteLine("  -pause               : pause before doing any work, to help attach a debugger");
-			Console.WriteLine("  -debug               : launch the debugger to debug the tests");
-			Console.WriteLine("  -noautoreporters     : do not allow reporters to be auto-enabled by environment");
-			Console.WriteLine("                       : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -nologo               : do not show the copyright message");
+			Console.WriteLine("  -nocolor              : do not output results with colors");
+			Console.WriteLine("  -failskips            : convert skipped tests into failures");
+			Console.WriteLine("  -stoponfail           : stop on first test failure");
+			Console.WriteLine("  -parallel option      : set parallelization based on option");
+			Console.WriteLine("                        :   none        - turn off all parallelization");
+			Console.WriteLine("                        :   collections - only parallelize collections");
+			Console.WriteLine("  -maxthreads count     : maximum thread count for collection parallelization");
+			Console.WriteLine("                        :   default   - run with default (1 thread per CPU thread)");
+			Console.WriteLine("                        :   unlimited - run with unbounded thread count");
+			Console.WriteLine("                        :   (number)  - limit task thread pool size to 'count'");
+			Console.WriteLine("  -wait                 : wait for input after completion");
+			Console.WriteLine("  -diagnostics          : enable diagnostics messages for all test assemblies");
+			Console.WriteLine("  -internaldiagnostics  : enable internal diagnostics messages for all test assemblies");
+			Console.WriteLine("  -pause                : pause before doing any work, to help attach a debugger");
+			Console.WriteLine("  -debug                : launch the debugger to debug the tests");
+			Console.WriteLine("  -noautoreporters      : do not allow reporters to be auto-enabled by environment");
+			Console.WriteLine("                        : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -preenumeratetheories : enable theory pre-enumeration (disabled by default)");
 			Console.WriteLine();
 			// TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
 			Console.WriteLine("Filtering (optional, choose one or more)");
@@ -403,8 +404,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				if (!ValidateFileExists(consoleLock, assembly.ConfigFilename))
 					return null;
 
-				// Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
-				assembly.Configuration.PreEnumerateTheories = false;
+				assembly.Configuration.PreEnumerateTheories = commandLine.PreEnumerateTheories;
 				assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
 				assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 

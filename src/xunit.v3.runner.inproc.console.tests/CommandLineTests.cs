@@ -80,6 +80,7 @@ public class CommandLineTests
 			("-nocolor", cmd => cmd.NoColor),
 			("-nologo", cmd => cmd.NoLogo),
 			("-pause", cmd => cmd.Pause),
+			("-preenumeratetheories", cmd => cmd.PreEnumerateTheories),
 			("-stoponfail", cmd => cmd.StopOnFail),
 			("-wait", cmd => cmd.Wait),
 		};
