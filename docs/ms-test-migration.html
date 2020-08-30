@@ -1,0 +1,120 @@
+---
+layout: default
+title: Migrating from MSTest to xUnit.net
+breadcrumb: Documentation
+---
+
+<h1>Migrating from MSTest to xUnit.net</h1>
+
+<p>
+  In order to assist in migrating unit tests from <a href="https://github.com/microsoft/testfx">MSTest V2</a>
+  to xUnit.net, it can often be helpful to have unit tests from MSTest and xUnit.net side by side.
+  Tests can then be migrated gradually without breaking the compiler nor the test results in
+  most cases.
+</p>
+
+<p><em>
+  Note: The version numbers in this example may change over time. Please always use the latest versions of
+  packages that are available.
+</em></p>
+
+<ul>
+  <li><a href="#1-add-nuget-package">Step 1: Add NuGet packages</a></li>
+  <li><a href="#2-apply-changes">Step 2: Apply changes</a></li>
+  <li><a href="#3-switch-xunit">Step 3: Switch to xUnit.net</a></li>
+  <li><a href="#4-remove-nuget-package">Step 4: Remove NuGet package</a></li>
+</ul>
+
+<h2 id="1-add-nuget-package">Step 1: Add NuGet packages</h2>
+
+<p>
+  Remove packages:
+  <code>MSTest.TestAdapter</code>,
+  and <code>MSTest.TestFramework</code>.
+</p>
+<p>
+  Install packages:
+  <code><a href="https://www.nuget.org/packages/xunit">xunit</a></code>,
+  <code><a href="https://www.nuget.org/packages/xunit.runner.visualstudio">xunit.runner.visualstudio</a></code>,
+  and <code><a href="https://www.nuget.org/packages/xunit.MSTest">xunit.MSTest</a></code>.
+</p>
+
+<p>Example:</p>
+
+{% highlight diff %}
+ <ItemGroup>
+   <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+-  <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+-  <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
++  <PackageReference Include="xunit" Version="2.4.1" />
++  <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
++  <PackageReference Include="xunit.MSTest" Version="1.0.3" />
+   <PackageReference Include="coverlet.collector" Version="1.3.0" />
+ </ItemGroup>
+{% endhighlight %}
+
+<p>
+  The <code>xunit</code> package replaces <code>MSTest.TestFramework</code>, and the
+  <code>xunit.runner.visualstudio</code> package replaces <code>MSTest.TestAdapter</code>.
+  The <code>xunit.MSTest</code> package provides a backward compatibility layer that makes
+  porting your tests easier, and will be removed after all your tests have been ported.
+</p>
+
+<h2 id="2-apply-changes">Step 2: Apply changes</h2>
+
+<p>Apply all suggested changes from compiler warnings. Example:</p>
+
+{% highlight diff %}
+ using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+ // Warning CS0618 'TestClassAttribute' is obsolete: 'Remove this attribute.'
+-[TestClass]
+ public class UnitTest1
+ {
+     // Warning CS0618 'TestMethodAttribute' is obsolete: 'Use Fact instead.'
+-    [TestMethod]
++    [Fact]
+     public void TestMethod1()
+     {
+         // Warning CS0618 'Assert.IsTrue(bool, string)' is obsolete: 'Use True instead.'
+-        Assert.IsTrue(true);
++        Assert.True(true);
+     }
+ }
+{% endhighlight %}
+
+<p class="note">
+  Some of these text replacements can be automated with the command line tool from
+  <a href="https://github.com/dotnet/codeformatter/tree/master/src/XUnitConverter">XUnitConverter</a>.
+</p>
+
+<h2 id="3-switch-xunit">Step 3: Switch to xUnit.net</h2>
+
+<p>Change import statements from MSTest to xUnit.net. Example:</p>
+
+{% highlight diff %}
+-using Microsoft.VisualStudio.TestTools.UnitTesting;
++using Xunit;
+
+ public class UnitTest1
+ {
+{% endhighlight %}
+
+<h2 id="4-remove-nuget-package">Step 4: Remove NuGet package</h2>
+
+<p>Remove backwards compatibility NuGet package. Example:</p>
+
+{% highlight diff %}
+ <ItemGroup>
+   <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+   <PackageReference Include="xunit" Version="2.4.1" />
+   <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+-  <PackageReference Include="xunit.MSTest" Version="1.0.3" />
+   <PackageReference Include="coverlet.collector" Version="1.3.0" />
+ </ItemGroup>
+{% endhighlight %}
+
+<section class="related-topics">Related topics:</section>
+<ul>
+  <li><a href="comparisons">Comparing xUnit.net to other frameworks</a></li>
+</ul>
