@@ -121,7 +121,7 @@ public class JsonReporterMessageHandlerTests
 	}
 
 	[Theory]
-	[MemberData("Messages")]
+	[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 	public static void LogsMessage(
 		IMessageSinkMessage message,
 		string expectedJson)

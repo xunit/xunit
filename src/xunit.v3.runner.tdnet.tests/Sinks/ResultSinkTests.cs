@@ -147,7 +147,7 @@ public class ResultSinkTests
 		}
 
 		[Theory]
-		[MemberData("Messages")]
+		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 		public static void LogsTestFailure(IMessageSinkMessage message, string messageType)
 		{
 			var listener = Substitute.For<ITestListener>();

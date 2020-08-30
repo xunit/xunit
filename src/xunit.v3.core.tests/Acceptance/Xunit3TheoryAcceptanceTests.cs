@@ -273,7 +273,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		public class ClassWithOperatorConversions
+		class ClassWithOperatorConversions
 		{
 			// Explicit conversion defined on the parameter's type
 			[Theory]
@@ -432,7 +432,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		public class GenericWithSerializableData
+		class GenericWithSerializableData
 		{
 			public static IEnumerable<object?[]> GenericData
 			{
@@ -459,7 +459,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		public class GenericWithNonSerializableData
+		class GenericWithNonSerializableData
 		{
 			public static IEnumerable<object?[]> GenericData
 			{

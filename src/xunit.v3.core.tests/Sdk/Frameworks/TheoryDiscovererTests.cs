@@ -39,7 +39,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("Test data returned null for TheoryDiscovererTests+NullDataClass.NullMemberData. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
 	}
 
-	public class NullDataClass
+	class NullDataClass
 	{
 		public static IEnumerable<object[]>? InitializedInConstructor;
 
@@ -164,7 +164,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
 	}
 
-	public class ThrowingDataAttribute : DataAttribute
+	class ThrowingDataAttribute : DataAttribute
 	{
 		public override IEnumerable<object[]> GetData(MethodInfo method)
 		{
@@ -210,7 +210,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("Non-serializable data ('System.Object[]') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
 	}
 
-	public class NonSerializableDataAttribute : DataAttribute
+	class NonSerializableDataAttribute : DataAttribute
 	{
 		public override IEnumerable<object[]> GetData(MethodInfo method)
 		{
@@ -242,7 +242,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("TheoryDiscovererTests+NonSerializableEnumDataClass.TheTest", theoryTestCase.DisplayName);
 	}
 
-	public class NonSerializableEnumDataClass
+	class NonSerializableEnumDataClass
 	{
 		[Theory]
 		[InlineData(42)]
@@ -261,7 +261,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NoSuchDataDiscovererAttribute on TheoryDiscovererTests+NoSuchDataDiscovererClass.Test does not exist.", failure.Messages.Single());
 	}
 
-	public class NoSuchDataDiscovererClass
+	class NoSuchDataDiscovererClass
 	{
 		[Theory]
 		[NoSuchDataDiscoverer]
@@ -287,7 +287,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NotADataDiscovererAttribute on TheoryDiscovererTests+NotADataDiscovererClass.Test does not implement IDataDiscoverer.", failure.Messages.Single());
 	}
 
-	public class NotADataDiscovererClass
+	class NotADataDiscovererClass
 	{
 		[Theory]
 		[NotADataDiscoverer]

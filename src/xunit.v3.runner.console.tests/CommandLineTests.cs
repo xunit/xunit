@@ -156,8 +156,8 @@ public class CommandLineTests
 			);
 
 		[Theory]
-		[MemberData(nameof(SwitchesLowerCase))]
-		[MemberData(nameof(SwitchesUpperCase))]
+		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 		public static void SwitchOptionIsFalseByDefault(
 			string _,
 			Expression<Func<CommandLine, bool>> accessor)
@@ -170,8 +170,8 @@ public class CommandLineTests
 		}
 
 		[Theory]
-		[MemberData(nameof(SwitchesLowerCase))]
-		[MemberData(nameof(SwitchesUpperCase))]
+		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 		public static void SwitchOptionIsTrueWhenSpecified(
 			string @switch,
 			Expression<Func<CommandLine, bool>> accessor)
@@ -348,8 +348,8 @@ public class CommandLineTests
 			);
 
 		[Theory]
-		[MemberData(nameof(SwitchesLowerCase))]
-		[MemberData(nameof(SwitchesUpperCase))]
+		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 		public static void MissingOptionValue(
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> _)
@@ -361,8 +361,8 @@ public class CommandLineTests
 		}
 
 		[Theory]
-		[MemberData(nameof(SwitchesLowerCase))]
-		[MemberData(nameof(SwitchesUpperCase))]
+		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 		public static void SingleValidArgument(
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> accessor)
@@ -377,8 +377,8 @@ public class CommandLineTests
 		}
 
 		[Theory]
-		[MemberData(nameof(SwitchesLowerCase))]
-		[MemberData(nameof(SwitchesUpperCase))]
+		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 		public static void MultipleValidArguments(
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> accessor)
@@ -440,8 +440,8 @@ public class CommandLineTests
 				);
 
 			[Theory]
-			[MemberData(nameof(SwitchesLowerCase))]
-			[MemberData(nameof(SwitchesUpperCase))]
+			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 			public static void SingleValidTraitArgument(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
@@ -455,8 +455,8 @@ public class CommandLineTests
 			}
 
 			[Theory]
-			[MemberData(nameof(SwitchesLowerCase))]
-			[MemberData(nameof(SwitchesUpperCase))]
+			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 			public static void MultipleValidTraitArguments_SameName(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
@@ -471,8 +471,8 @@ public class CommandLineTests
 			}
 
 			[Theory]
-			[MemberData(nameof(SwitchesLowerCase))]
-			[MemberData(nameof(SwitchesUpperCase))]
+			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 			public static void MultipleValidTraitArguments_DifferentName(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
@@ -488,8 +488,8 @@ public class CommandLineTests
 			}
 
 			[Theory]
-			[MemberData(nameof(SwitchesLowerCase))]
-			[MemberData(nameof(SwitchesUpperCase))]
+			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
 			public static void MissingOptionValue(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> _)

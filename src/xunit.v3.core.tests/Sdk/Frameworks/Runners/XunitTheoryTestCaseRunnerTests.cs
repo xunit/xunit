@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using NSubstitute;
@@ -91,7 +90,7 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passed.Test.DisplayName);
 	}
 
-	public class ClassWithThrowingToString
+	class ClassWithThrowingToString
 	{
 		public static IEnumerable<object[]> TestData()
 		{
@@ -122,7 +121,7 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal("Display Name(c: [ClassWithThrowingEnumerator { }])", passed.Test.DisplayName);
 	}
 
-	public class ClassWithThrowingEnumerator
+	class ClassWithThrowingEnumerator
 	{
 		public static IEnumerable<object[]> TestData()
 		{

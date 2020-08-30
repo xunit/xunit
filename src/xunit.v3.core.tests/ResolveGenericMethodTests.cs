@@ -460,8 +460,8 @@ public class ResolveGenericMethodTests
 	}
 
 	[Theory]
-	[MemberData(nameof(ResolveGenericType_TestData))]
-	[MemberData(nameof(ResolveGenericType_MismatchedGenericTypeArguments_TestData))]
+	[MemberData(nameof(ResolveGenericType_TestData), DisableDiscoveryEnumeration = true)]
+	[MemberData(nameof(ResolveGenericType_MismatchedGenericTypeArguments_TestData), DisableDiscoveryEnumeration = true)]
 	public static void ResolveGenericType(string methodName, object?[] parameters, Type[] expected)
 	{
 		var methodInfo = typeof(ResolveGenericMethodTests).GetMethod(methodName);
