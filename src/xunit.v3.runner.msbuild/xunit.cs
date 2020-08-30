@@ -82,6 +82,8 @@ namespace Xunit.Runner.MSBuild
 
 		public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
 
+		public bool PreEnumerateTheories { get; set; }
+
 		public string? Reporter { get; set; }
 
 		// To be used by the xUnit.net team for diagnostic purposes only
@@ -260,8 +262,7 @@ namespace Xunit.Runner.MSBuild
 
 			try
 			{
-				// Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
-				assembly.Configuration.PreEnumerateTheories = false;
+				assembly.Configuration.PreEnumerateTheories = PreEnumerateTheories;
 				assembly.Configuration.DiagnosticMessages |= DiagnosticMessages;
 				assembly.Configuration.InternalDiagnosticMessages |= InternalDiagnosticMessages;
 
