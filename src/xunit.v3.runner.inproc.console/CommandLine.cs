@@ -315,7 +315,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -parallel");
 
-					if (!Enum.TryParse(option.Value, out ParallelismOption parallelismOption))
+					if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelismOption parallelismOption))
 						throw new ArgumentException("incorrect argument value for -parallel");
 
 					ParallelizeTestCollections = parallelismOption switch
