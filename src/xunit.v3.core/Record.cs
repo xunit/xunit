@@ -62,12 +62,65 @@ namespace Xunit
 		[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
 		public static Exception Exception(Func<Task> testCode) => throw new NotImplementedException();
 
+		/// <summary/>
+		[EditorBrowsable(EditorBrowsableState.Never)]
+		[DoesNotReturn]
+		[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
+		public static Exception Exception(Func<ValueTask> testCode) => throw new NotImplementedException();
+
+		/// <summary/>
+		[EditorBrowsable(EditorBrowsableState.Never)]
+		[DoesNotReturn]
+		[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
+		public static Exception Exception<T>(Func<ValueTask<T>> testCode) => throw new NotImplementedException();
+
 		/// <summary>
 		/// Records any exception which is thrown by the given task.
 		/// </summary>
 		/// <param name="testCode">The task which may throw an exception.</param>
 		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
 		public static async Task<Exception?> ExceptionAsync(Func<Task> testCode)
+		{
+			Guard.ArgumentNotNull(nameof(testCode), testCode);
+
+			try
+			{
+				await testCode();
+				return null;
+			}
+			catch (Exception ex)
+			{
+				return ex;
+			}
+		}
+
+		/// <summary>
+		/// Records any exception which is thrown by the given task.
+		/// </summary>
+		/// <param name="testCode">The task which may throw an exception.</param>
+		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
+		public static async ValueTask<Exception?> ExceptionAsync(Func<ValueTask> testCode)
+		{
+			Guard.ArgumentNotNull(nameof(testCode), testCode);
+
+			try
+			{
+				await testCode();
+				return null;
+			}
+			catch (Exception ex)
+			{
+				return ex;
+			}
+		}
+
+		/// <summary>
+		/// Records any exception which is thrown by the given task.
+		/// </summary>
+		/// <param name="testCode">The task which may throw an exception.</param>
+		/// <typeparam name="T">The type of the value returned by the value task.</typeparam>
+		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
+		public static async ValueTask<Exception?> ExceptionAsync<T>(Func<ValueTask<T>> testCode)
 		{
 			Guard.ArgumentNotNull(nameof(testCode), testCode);
 

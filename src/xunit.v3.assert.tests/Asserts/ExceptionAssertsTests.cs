@@ -205,6 +205,62 @@ public class ExceptionAssertsTests
 		}
 	}
 
+	public class ThrowsAsync_Generic_ValueTask
+	{
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		{
+			try
+			{
+				await Assert.ThrowsAsync<ArgumentException>(() => default(ValueTask));
+			}
+			catch (AssertActualExpectedException exception)
+			{
+				Assert.Equal("(No exception was thrown)", exception.Actual);
+			}
+		}
+
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeThrowsDerivedException()
+		{
+			try
+			{
+				static ValueTask testCode() => throw new InvalidOperationException();
+
+				await Assert.ThrowsAsync<Exception>(testCode);
+			}
+			catch (XunitException exception)
+			{
+				Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+			}
+		}
+
+		[Fact]
+		public static async ValueTask UnexpectedExceptionCapturedAsyncAsInnerException()
+		{
+			try
+			{
+				static ValueTask testCode() => throw new InvalidOperationException();
+
+				await Assert.ThrowsAsync<Exception>(testCode);
+			}
+			catch (XunitException exception)
+			{
+				Assert.IsType<InvalidOperationException>(exception.InnerException);
+			}
+		}
+
+		[Fact]
+		public static async ValueTask GotExpectedException()
+		{
+			static ValueTask testCode() => throw new ArgumentException();
+
+			var ex = await Assert.ThrowsAsync<ArgumentException>(testCode);
+
+			Assert.NotNull(ex);
+		}
+	}
+
 	public class ThrowsAny_Generic_Action
 	{
 		[Fact]
@@ -364,6 +420,47 @@ public class ExceptionAssertsTests
 		}
 	}
 
+	public class ThrowsAnyAsync_Generic_ValueTask
+	{
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		{
+			try
+			{
+				await Assert.ThrowsAnyAsync<ArgumentException>(() => default(ValueTask));
+			}
+			catch (AssertActualExpectedException exception)
+			{
+				Assert.Equal("(No exception was thrown)", exception.Actual);
+			}
+		}
+
+		[Fact]
+		public static async ValueTask GotExpectedException()
+		{
+			static ValueTask testCode() => throw new ArgumentException();
+
+			var ex = await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
+
+			Assert.NotNull(ex);
+		}
+
+		[Fact]
+		public static async ValueTask GotDerivedException()
+		{
+			try
+			{
+				static ValueTask testCode() => throw new InvalidOperationException();
+
+				await Assert.ThrowsAnyAsync<Exception>(testCode);
+			}
+			catch (XunitException exception)
+			{
+				Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+			}
+		}
+	}
+
 	public class Throws_NonGeneric_Action
 	{
 		[Fact]
@@ -493,6 +590,50 @@ public class ExceptionAssertsTests
 		public static async void GotExpectedException()
 		{
 			static Task testCode() => Task.Run(() => throw new ArgumentException());
+
+			var ex = await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
+
+			Assert.NotNull(ex);
+			Assert.IsType<ArgumentException>(ex);
+		}
+	}
+
+	public class ThrowsAsync_NonGeneric_ValueTask
+	{
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		{
+			try
+			{
+				static ValueTask testCode() => default;
+
+				await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
+			}
+			catch (AssertActualExpectedException exception)
+			{
+				Assert.Equal("(No exception was thrown)", exception.Actual);
+			}
+		}
+
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeThrowsDerivedException()
+		{
+			try
+			{
+				static ValueTask testCode() => throw new InvalidOperationException();
+
+				await Assert.ThrowsAsync(typeof(Exception), testCode);
+			}
+			catch (XunitException exception)
+			{
+				Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+			}
+		}
+
+		[Fact]
+		public static async ValueTask GotExpectedException()
+		{
+			static ValueTask testCode() => throw new ArgumentException();
 
 			var ex = await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
 
@@ -642,6 +783,76 @@ public class ExceptionAssertsTests
 		public static async void MismatchedParameterName()
 		{
 			static Task testCode() => Task.Run(() => { throw new ArgumentException("message", "paramName2"); });
+
+			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
+
+			var eqEx = Assert.IsType<EqualException>(ex);
+			Assert.Equal("paramName", eqEx.Expected);
+			Assert.Equal("paramName2", eqEx.Actual);
+		}
+	}
+
+	public class ThrowsArgumentAsync_ValueTask
+	{
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		{
+			static ValueTask testCode() => default;
+
+			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
+
+			var throwsEx = Assert.IsType<ThrowsException>(ex);
+			Assert.Equal("(No exception was thrown)", throwsEx.Actual);
+		}
+
+		[Fact]
+		public static async ValueTask ExpectExceptionButCodeThrowsDerivedException()
+		{
+			static ValueTask testCode() => throw new InvalidOperationException();
+
+			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
+
+			Assert.IsType<ThrowsException>(ex);
+			Assert.Contains(
+				"Assert.Throws() Failure" + Environment.NewLine +
+				"Expected: typeof(System.ArgumentException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidOperationException)",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static async ValueTask StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+		{
+			static ValueTask testCode() => ThrowingMethod();
+
+			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
+
+			Assert.NotNull(ex);
+			Assert.Contains("ThrowsArgumentAsync_ValueTask.ThrowingMethod", ex.StackTrace);
+			Assert.DoesNotContain("Xunit.Assert.ThrowsAsync", ex.StackTrace);
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		static ValueTask ThrowingMethod()
+		{
+			throw new InvalidCastException();
+		}
+
+		[Fact]
+		public static async ValueTask GotExpectedException()
+		{
+			static ValueTask testCode() => throw new ArgumentException("message", "paramName");
+
+			var ex = await Assert.ThrowsAsync<ArgumentException>("paramName", testCode);
+
+			Assert.NotNull(ex);
+		}
+
+		[Fact]
+		public static async void MismatchedParameterName()
+		{
+			static ValueTask testCode() => throw new ArgumentException("message", "paramName2");
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
