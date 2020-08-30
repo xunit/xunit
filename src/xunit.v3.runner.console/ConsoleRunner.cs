@@ -15,22 +15,26 @@ namespace Xunit.Runner.SystemConsole
 {
 	class ConsoleRunner
 	{
+		string[] args;
 		volatile bool cancel;
-		CommandLine? commandLine;
+		CommandLine commandLine;
 		readonly object consoleLock = new object();
 		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
 		bool failed;
 		IRunnerLogger? logger;
 
-		public ConsoleRunner(object? consoleLock = null)
+		public ConsoleRunner(
+			string[] args,
+			object? consoleLock = null)
 		{
+			this.args = Guard.ArgumentNotNull(nameof(args), args);
 			this.consoleLock = consoleLock ?? new object();
+
+			commandLine = CommandLine.Parse(args);
 		}
 
-		public int EntryPoint(string[] args)
+		public int EntryPoint()
 		{
-			commandLine = CommandLine.Parse(args);
-
 			try
 			{
 				var reporters = GetAvailableRunnerReporters();
@@ -238,6 +242,7 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
 			Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
 			Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -preenumeratetheories  : enable theory pre-enumeration (disabled by default)");
 			Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
 			Console.WriteLine();
 			// TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
@@ -414,8 +419,7 @@ namespace Xunit.Runner.SystemConsole
 				if (!ValidateFileExists(consoleLock, assemblyFileName) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
 					return null;
 
-				// Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
-				assembly.Configuration.PreEnumerateTheories = false;
+				assembly.Configuration.PreEnumerateTheories = commandLine.PreEnumerateTheories;
 				assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
 				assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 

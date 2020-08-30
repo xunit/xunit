@@ -43,6 +43,8 @@ namespace Xunit.Runner.SystemConsole
 
 		public bool Pause { get; protected set; }
 
+		public bool PreEnumerateTheories { get; protected set; }
+
 		public XunitProject Project { get; protected set; }
 
 		public bool? ParallelizeAssemblies { get; protected set; }
@@ -182,6 +184,11 @@ namespace Xunit.Runner.SystemConsole
 				{
 					GuardNoOptionValue(option);
 					Pause = true;
+				}
+				else if (optionName == "preenumeratetheories")
+				{
+					GuardNoOptionValue(option);
+					PreEnumerateTheories = true;
 				}
 				else if (optionName == "debug")
 				{
