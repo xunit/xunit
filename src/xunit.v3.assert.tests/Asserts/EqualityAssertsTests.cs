@@ -1100,46 +1100,79 @@ public class EqualityAssertsTests
 	}
 
 #if XUNIT_ASSERT_ARRAY_AS_SPAN
-	public class Equal_ArrayOfUnmanagedT_AsSpan
+	public abstract class Equal_ArrayOfUnmanagedT_AsSpan<T>
+		where T : unmanaged, IEquatable<T>
 	{
 		[Fact]
-		public void IsMuchFaster()
+		public void BenchmarkPerformanceGain()
 		{
-			var buffer1 = new byte[1024 * 1024];
-			for (var i = 0; i < buffer1.Length; i++)
-				buffer1[i] = (byte)(i % 256);
-
-			var buffer2 = buffer1.ToArray();
+			var buffer1 = GetBigRandomBuffer();
+			var buffer2 = CopyBuffer(buffer1);
 
 			var sw = Stopwatch.StartNew();
 			Assert.Equal(buffer1, buffer2);
-			var eqFastElapsedTime = sw.Elapsed.TotalMilliseconds;
+			var fastAssertEqualTime = sw.Elapsed.TotalMilliseconds;
 
 			sw.Restart();
 			Assert.Equal((object)buffer1, (object)buffer2);
-			var eqSlowElapsedTime = sw.Elapsed.TotalMilliseconds;
+			var slowAssertEqualTime = sw.Elapsed.TotalMilliseconds;
 
-			buffer2[1024 * 1024 - 1] = (byte)0;
+			ModifyBuffer(buffer2);
 
 			sw.Restart();
 			Assert.NotEqual(buffer1, buffer2);
-			var notEqFastElapsedTime = sw.Elapsed.TotalMilliseconds;
+			var fastAssertNotEqualTime = sw.Elapsed.TotalMilliseconds;
 
 			sw.Restart();
 			Assert.NotEqual((object)buffer1, (object)buffer2);
-			var notEqSlowElapsedTime = sw.Elapsed.TotalMilliseconds;
-#if DEBUG
-			const double expectedMinGain = 25;
-#else
-			const double expectedMinGain = 150;
-#endif
-			var actualGain = eqSlowElapsedTime / eqFastElapsedTime;
-			Assert.True(actualGain > expectedMinGain,
-				$"Assert.Equal on Span<T> should be at least {expectedMinGain} times faster than on T[], but was {actualGain:F1}");
+			var slowAssertNotEqualTime = sw.Elapsed.TotalMilliseconds;
 
-			actualGain = notEqSlowElapsedTime / notEqFastElapsedTime;
+			const double expectedMinGain = 25;
+			var actualGain = slowAssertEqualTime / fastAssertEqualTime;
 			Assert.True(actualGain > expectedMinGain,
-				$"Assert.NotEqual on Span<T> should be at least {expectedMinGain} times faster than on T[], but was {actualGain:F1}");
+				$"Assert.Equal on Span<{typeof(T).Name}> should be at least {expectedMinGain} times faster than on {typeof(T).Name}[], but was {actualGain:F1}");
+
+			actualGain = slowAssertNotEqualTime / fastAssertNotEqualTime;
+			Assert.True(actualGain > expectedMinGain,
+				$"Assert.NotEqual on Span<{typeof(T).Name}> should be at least {expectedMinGain} times faster than on {typeof(T).Name}[], but was {actualGain:F1}");
+		}
+
+		protected abstract T[] GetBigRandomBuffer();
+
+		protected T[] CopyBuffer(T[] buffer) { return buffer.ToArray(); }
+
+		protected abstract void ModifyBuffer(T[] buffer);
+	}
+
+	public sealed class Equal_ArrayOfByte_AsSpan : Equal_ArrayOfUnmanagedT_AsSpan<byte>
+	{
+		protected override byte[] GetBigRandomBuffer()
+		{
+			var buffer = new byte[1024 * 1024];
+			for (var i = 0; i < buffer.Length; i++)
+				buffer[i] = (byte)(i % 256);
+			return buffer;
+		}
+
+		protected override void ModifyBuffer(byte[] buffer)
+		{
+			buffer[buffer.Length - 1] += 1;
+		}
+	}
+
+	public sealed class Equal_ArrayOfDouble_AsSpan : Equal_ArrayOfUnmanagedT_AsSpan<double>
+	{
+		protected override double[] GetBigRandomBuffer()
+		{
+			var buffer = new double[1024 * 1024];
+			for (var i = 0; i < buffer.Length; i++)
+				buffer[i] = i;
+			return buffer;
+		}
+
+		protected override void ModifyBuffer(double[] buffer)
+		{
+			buffer[buffer.Length - 1] += 1;
 		}
 	}
 #endif
