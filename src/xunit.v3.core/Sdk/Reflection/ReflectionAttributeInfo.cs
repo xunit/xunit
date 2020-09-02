@@ -13,7 +13,10 @@ namespace Xunit.Sdk
 	public class ReflectionAttributeInfo : IReflectionAttributeInfo
 	{
 		static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
-		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();
+		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>
+		{
+			[typeof(ITraitAttribute)] = new AttributeUsageAttribute(AttributeTargets.All) { AllowMultiple = true }
+		};
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
