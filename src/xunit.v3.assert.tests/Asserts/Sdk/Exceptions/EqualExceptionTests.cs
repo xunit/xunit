@@ -71,7 +71,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -90,7 +90,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -111,7 +111,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -132,7 +132,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -153,7 +153,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -174,7 +174,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -195,7 +195,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -215,7 +215,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -235,7 +235,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -256,7 +256,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -277,7 +277,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 
 		[Fact]
@@ -298,7 +298,7 @@ public class EqualExceptionTests
 			);
 
 			Assert.NotNull(ex);
-			Assert.Equal<object>(expectedMessage, ex.Message);
+			Assert.Equal(expectedMessage, ex.Message);
 		}
 	}
 }
