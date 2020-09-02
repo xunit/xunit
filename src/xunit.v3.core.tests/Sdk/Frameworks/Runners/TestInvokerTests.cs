@@ -140,6 +140,45 @@ public class TestInvokerTests
 		Assert.False(invoker.AfterTestMethodInvoked_Called);
 	}
 
+	[Fact]
+	public static async void CancellationRequested_DisposeCalledIfClassConstructed()
+	{
+		var classConstructed = false;
+
+		bool cancelThunk(IMessageSinkMessage msg)
+		{
+			if (msg is ITestClassConstructionFinished)
+				classConstructed = true;
+			return !classConstructed;
+		}
+
+		var messageBus = new SpyMessageBus(cancelThunk);
+		var invoker = TestableTestInvoker.Create<DisposableClass>("Passing", messageBus, "Display Name");
+
+		await invoker.RunAsync();
+
+		Assert.Collection(
+			messageBus.Messages,
+			msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+			msg =>
+			{
+				var starting = Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg);
+				Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
+				Assert.Same(invoker.TestCase, starting.TestCase);
+				Assert.Equal("Display Name", starting.Test.DisplayName);
+			},
+			msg =>
+			{
+				var finished = Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg);
+				Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
+				Assert.Same(invoker.TestCase, finished.TestCase);
+				Assert.Equal("Display Name", finished.Test.DisplayName);
+			}
+		);
+	}
+
+
 	class NonDisposableClass
 	{
 		[Fact]
