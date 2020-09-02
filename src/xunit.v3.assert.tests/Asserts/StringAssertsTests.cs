@@ -102,6 +102,22 @@ public class StringAssertsTests
 		[InlineData(" ", "\t", false, false, true)]
 		[InlineData(" \t", "\t ", false, false, true)]
 		[InlineData("    ", "\t", false, false, true)]
+		[InlineData(" ", " \u180E", false, false, true)]
+		[InlineData(" \u180E", "\u180E ", false, false, true)]
+		[InlineData("    ", "\u180E", false, false, true)]
+		[InlineData(" ", " \u200B", false, false, true)]
+		[InlineData(" \u200B", "\u200B ", false, false, true)]
+		[InlineData("    ", "\u200B", false, false, true)]
+		[InlineData(" ", " \u200B\uFEFF", false, false, true)]
+		[InlineData(" \u180E", "\u200B\u202F\u1680\u180E ", false, false, true)]
+		[InlineData("    ", "\u200B", false, false, true)]
+		[InlineData("\u2001\u2002\u2003\u2006\u2009    ", "\u200B", false, false, true)]
+		[InlineData("\u00A0\u200A\u2009\u2006\u2009    ", "\u200B", false, false, true)]
+		// The ogham space mark (\u1680) kind of looks like a faint dash, but Microsoft has put it
+		// inside the SpaceSeparator unicode category, so we also treat it as a space
+		[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true)]
+		[InlineData("\u1680", "\t", false, false, true)]
+		[InlineData("\u1680", "       ", false, false, true)]
 		public void SuccessCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal
