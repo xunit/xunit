@@ -75,6 +75,20 @@ public class TraitHelperTests
 	}
 
 	[Fact]
+	public void MethodWithInheritedTriceCustomTraitAttribute_ReturnsTraitValues()
+	{
+		var method = typeof(ClassUnderTest).GetMethod("InheritedTriceTrait");
+
+		var traits = TraitHelper.GetTraits(method!);
+
+		Assert.Collection(
+			traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+			value => Assert.Equal("Baz = 2112", value),
+			value => Assert.Equal("Foo = Biff", value)
+		);
+	}
+
+	[Fact]
 	public void CombinesInheritedMultipleTraitSources()
 	{
 		var method = typeof(ClassUnderTest).GetMethod("InheritedMultipleTraits");
@@ -109,11 +123,18 @@ public class TraitHelperTests
 		[InheritedCustomTrait]
 		public void InheritedTrait() { }
 
+		[InheritedTriceCustomTrait]
+		public void InheritedTriceTrait() { }
+
 		[Trait("foo", "bar")]
 		[Trait("Hello", "World")]
 		[InheritedCustomTrait]
 		public void InheritedMultipleTraits() { }
 	}
+
+	class InheritedTriceCustomTrait : InheritedTwiceCustomTrait { }
+
+	class InheritedTwiceCustomTrait : InheritedCustomTrait { }
 
 	class InheritedCustomTrait : CustomTraitAttribute { }
 

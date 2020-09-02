@@ -56,7 +56,7 @@ namespace Xunit.Sdk
 			do
 			{
 				result = typeChecking.CustomAttributes.FirstOrDefault(IsTraitDiscovererAttribute);
-				typeChecking = traitAttribute.BaseType;
+				typeChecking = typeChecking.BaseType;
 			} while (result == null && typeChecking != null);
 
 			return result;
