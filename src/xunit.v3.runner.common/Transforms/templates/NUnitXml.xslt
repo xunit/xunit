@@ -143,6 +143,12 @@
   <xsl:template match="traits">
     <properties>
       <xsl:apply-templates select="trait"/>
+      <property>
+        <xsl:attribute name="name">MethodName</xsl:attribute>
+        <xsl:attribute name="value">
+          <xsl:value-of select="../@method"/>
+        </xsl:attribute>
+      </property>
     </properties>
   </xsl:template>
 
