@@ -136,6 +136,134 @@ public class XunitTestCaseTests
 		{
 			public BugAttribute(int id) { }
 		}
+
+		public static TheoryData<Type, IEnumerable<string>> CustomAttributeTestCases() =>
+			new TheoryData<Type, IEnumerable<string>>
+			{
+				{ typeof(ClassWithSingleTrait), new[] { "One" } },
+				{ typeof(ClassWithMultipleTraits), new[] { "One", "Two" } },
+				{ typeof(InheritedClassWithOnlyOwnTrait), new[] { "One" } },
+				{ typeof(InheritedClassWithOnlyOwnMultipleTraits), new[] { "One", "Two" } },
+				{ typeof(InheritedClassWithSingleBaseClassTrait), new[] { "BaseOne" } },
+				{ typeof(InheritedClassWithMultipleBaseClassTraits), new[] { "BaseOne", "BaseTwo" } },
+				{ typeof(InheritedClassWithOwnSingleTraitAndSingleBaseClassTrait), new[] { "One", "BaseOne" } },
+				{ typeof(InheritedClassWithOwnSingleTraitAndMultipleBaseClassTrait), new[] { "One", "BaseOne", "BaseTwo" } },
+				{ typeof(InheritedClassWithOwnMultipleTraitsAndSingleBaseClassTrait), new[] { "One", "Two", "BaseOne" } },
+				{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
+			};
+
+		[Theory]
+		[MemberData(nameof(CustomAttributeTestCases))]
+		public void ReturnsCorrectCustomAttributes(Type classType, IEnumerable<string> expectedTraits)
+		{
+			var testAssembly = new TestAssembly(new ReflectionAssemblyInfo(classType.Assembly));
+			var testCollection = new TestCollection(testAssembly, null, "Trait inheritance tests");
+			var @class = new ReflectionTypeInfo(classType);
+			var testClass = new TestClass(testCollection, @class);
+			var methodInfo = new ReflectionMethodInfo(classType.GetMethod("TraitsTest")!);
+			var testMethod = new TestMethod(testClass, methodInfo);
+			var testCase = new XunitTestCase(
+				SpyMessageSink.Create(),
+				TestMethodDisplay.ClassAndMethod,
+				TestMethodDisplayOptions.None,
+				testMethod
+			);
+
+			var testTraits = testCase.Traits["Test"];
+
+			Assert.NotNull(testTraits);
+			foreach (var expectedTrait in expectedTraits)
+				Assert.Contains(expectedTrait, testTraits);
+		}
+
+		class BaseClassWithoutTraits
+		{ }
+
+		[Trait("Test", "BaseOne")]
+		class BaseClassWithSingleTrait
+		{ }
+
+		[Trait("Test", "BaseOne"), Trait("Test", "BaseTwo")]
+		class BaseClassWithMultipleTraits
+		{ }
+
+		[Trait("Test", "One")]
+		class ClassWithSingleTrait
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One"), Trait("Test", "Two")]
+		class ClassWithMultipleTraits
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One")]
+		class InheritedClassWithOnlyOwnTrait : BaseClassWithoutTraits
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One"), Trait("Test", "Two")]
+		class InheritedClassWithOnlyOwnMultipleTraits : BaseClassWithoutTraits
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		class InheritedClassWithSingleBaseClassTrait : BaseClassWithSingleTrait
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		class InheritedClassWithMultipleBaseClassTraits : BaseClassWithMultipleTraits
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One")]
+		class InheritedClassWithOwnSingleTraitAndSingleBaseClassTrait : BaseClassWithSingleTrait
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One")]
+		class InheritedClassWithOwnSingleTraitAndMultipleBaseClassTrait : BaseClassWithMultipleTraits
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One"), Trait("Test", "Two")]
+		class InheritedClassWithOwnMultipleTraitsAndSingleBaseClassTrait : BaseClassWithSingleTrait
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
+
+		[Trait("Test", "One"), Trait("Test", "Two")]
+		class InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait : BaseClassWithMultipleTraits
+		{
+			[Fact]
+			public void TraitsTest()
+			{ }
+		}
 	}
 
 	public class DisplayName
