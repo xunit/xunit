@@ -11,7 +11,7 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(DefineConstants.Contains('XUNIT_ASSERT_ARRAY_AS_SPAN'))">
+  <ItemGroup Condition="$(DefineConstants.Contains('XUNIT_SPAN'))">
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 

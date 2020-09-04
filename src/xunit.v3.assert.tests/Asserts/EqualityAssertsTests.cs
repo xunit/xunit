@@ -1,4 +1,9 @@
-﻿using System;
+﻿#if XUNIT_SPAN
+using System.Diagnostics;
+using System.Linq;
+#endif
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,10 +11,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
-#if XUNIT_ASSERT_ARRAY_AS_SPAN
-using System.Diagnostics;
-using System.Linq;
-#endif
 
 public class EqualityAssertsTests
 {
@@ -1099,7 +1100,7 @@ public class EqualityAssertsTests
 		}
 	}
 
-#if XUNIT_ASSERT_ARRAY_AS_SPAN
+#if XUNIT_SPAN
 	public abstract class Equal_ArrayOfUnmanagedT_AsSpan<T>
 		where T : unmanaged, IEquatable<T>
 	{
