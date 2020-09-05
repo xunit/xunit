@@ -10,4 +10,8 @@
     <Compile Include="..\xunit.v3.assert\Asserts\**\*.cs" LinkBase="Asserts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
 </Project>
