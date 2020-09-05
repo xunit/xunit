@@ -196,6 +196,12 @@ public class MemoryAssertsTests
 
 	public class Equal
 	{
+		[Fact]
+		public void SuccessReadonlyCasesIntVoid()
+		{
+			Assert.Equal(new int[] { }.RoMemoryify(), null);
+		}
+
 		[Theory]
 		// Null values
 		[InlineData(null, null, false, false, false)]
@@ -281,7 +287,6 @@ public class MemoryAssertsTests
 			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
 			Assert.Equal(actualIndex, eqEx.ActualIndex);
 		}
-
 
 		[Theory]
 		// Null values
