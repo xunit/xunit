@@ -98,6 +98,8 @@ public class StringAssertsTests
 		[Theory]
 		// Null values
 		[InlineData(null, null, false, false, false)]
+		// Empty values
+		[InlineData("", "", false, false, false)]
 		// Identical values
 		[InlineData("foo", "foo", false, false, false)]
 		// Case differences

@@ -233,8 +233,11 @@ public class SpanAssertsTests
 		[Theory]
 		// Null values
 		[InlineData(null, null, false, false, false)]
-		[InlineData(null, "", false, false, false)] // Null ReadOnlySpan<char> acts like an empty string
+		// Null ReadOnlySpan<char> acts like an empty string
+		[InlineData(null, "", false, false, false)]
 		[InlineData("", null, false, false, false)]
+		// Empty values
+		[InlineData("", "", false, false, false)]
 		// Identical values
 		[InlineData("foo", "foo", false, false, false)]
 		// Case differences
