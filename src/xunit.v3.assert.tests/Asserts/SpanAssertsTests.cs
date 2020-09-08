@@ -93,6 +93,19 @@ public class SpanAssertsTests
 		{
 			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
 		}
+
+		[Fact]
+		public void FindingNonEmptySpanInsideEmptySpanFails()
+		{
+			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 3, 4, }.Spanify(), Span<int>.Empty));
+		}
+
+		[Fact]
+		public void FindingEmptySpanInsideAnySpanSucceeds()
+		{
+			Assert.Contains(Span<int>.Empty, new int[] { 3, 4, }.Spanify());
+			Assert.Contains(Span<int>.Empty, Span<int>.Empty);
+		}
 	}
 
 	public class Contains_WithComparisonType
@@ -145,7 +158,15 @@ public class SpanAssertsTests
 		[Fact]
 		public void SubstringSpanFound()
 		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
+			var ex = Record.Exception(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure" + Environment.NewLine +
+				"Found:    world" + Environment.NewLine +
+				"In value: Hello, world!",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -176,6 +197,19 @@ public class SpanAssertsTests
 		public void NotFoundWithNonStringSpan()
 		{
 			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
+		}
+
+		[Fact]
+		public void FindingNonEmptySpanInsideEmptySpanSucceeds()
+		{
+			Assert.DoesNotContain(new int[] { 3, 4, }.Spanify(), Span<int>.Empty);
+		}
+
+		[Fact]
+		public void FindingEmptySpanInsideAnySpanFails()
+		{
+			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(Span<int>.Empty, new int[] { 3, 4, }.Spanify()));
+			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(Span<int>.Empty, Span<int>.Empty));
 		}
 	}
 
@@ -282,6 +316,26 @@ public class SpanAssertsTests
 			Assert.Equal(actualIndex, eqEx.ActualIndex);
 		}
 
+		[Fact]
+		public void StringMessageFormatting()
+		{
+			var ex = Record.Exception(() =>
+				Assert.Equal(
+					"Why hello there world, you're a long string with some truncation!".Spanify(),
+					"Why hello there world! You're a long string!".Spanify()
+				)
+			);
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure" + Environment.NewLine +
+				"                                 ↓ (pos 21)" + Environment.NewLine +
+				"Expected: ···hy hello there world, you're a long string with some truncati···" + Environment.NewLine +
+				"Actual:   ···hy hello there world! You're a long string!" + Environment.NewLine +
+				"                                 ↑ (pos 21)",
+				ex.Message
+			);
+		}
 
 		[Theory]
 		// Null values
@@ -411,7 +465,6 @@ public class SpanAssertsTests
 		{
 			Assert.StartsWith("Hello".Spanify(), "Hello, world!".Spanify());
 		}
-
 
 		[Fact]
 		public void IsCaseSensitiveByDefaultReadOnly()

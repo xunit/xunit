@@ -66,7 +66,15 @@ public class StringAssertsTests
 		[Fact]
 		public void SubstringFound()
 		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("world", "Hello, world!"));
+			var ex = Record.Exception(() => Assert.DoesNotContain("world", "Hello, world!"));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure" + Environment.NewLine +
+				"Found:    world" + Environment.NewLine +
+				"In value: Hello, world!",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -147,6 +155,27 @@ public class StringAssertsTests
 			var eqEx = Assert.IsType<EqualException>(ex);
 			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
 			Assert.Equal(actualIndex, eqEx.ActualIndex);
+		}
+
+		[Fact]
+		public void MessageFormatting()
+		{
+			var ex = Record.Exception(() =>
+				Assert.Equal(
+					"Why hello there world, you're a long string with some truncation!",
+					"Why hello there world! You're a long string!"
+				)
+			);
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure" + Environment.NewLine +
+				"                                 ↓ (pos 21)" + Environment.NewLine +
+				"Expected: ···hy hello there world, you're a long string with some truncati···" + Environment.NewLine +
+				"Actual:   ···hy hello there world! You're a long string!" + Environment.NewLine +
+				"                                 ↑ (pos 21)",
+				ex.Message
+			);
 		}
 	}
 

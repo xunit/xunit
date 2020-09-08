@@ -196,12 +196,6 @@ public class MemoryAssertsTests
 
 	public class Equal
 	{
-		[Fact]
-		public void SuccessReadOnlyCasesIntVoid()
-		{
-			Assert.Equal(new int[] { }.RoMemoryify(), null);
-		}
-
 		[Theory]
 		// Null values
 		[InlineData(null, null, false, false, false)]
