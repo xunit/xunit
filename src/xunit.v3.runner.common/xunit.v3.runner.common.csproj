@@ -21,6 +21,7 @@
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
+    <Compile Include="..\messages\**\*.cs" LinkBase="Messages\v2" />
   </ItemGroup>
 
   <ItemGroup>
