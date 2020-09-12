@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Xunit.Abstractions;
+using Xunit.v2;
 
 namespace Xunit.Sdk
 {

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 
 namespace Xunit
 {

@@ -22,6 +22,7 @@
     <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages\v2" />
+    <Compile Include="..\messages\v2\**\*.cs" LinkBase="Frameworks\v2\Messages" />
   </ItemGroup>
 
   <ItemGroup>

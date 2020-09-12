@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.Common
 {

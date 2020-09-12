@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.SystemConsole
 {

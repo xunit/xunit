@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 #else
 using System.Collections.Generic;
-using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 namespace Xunit

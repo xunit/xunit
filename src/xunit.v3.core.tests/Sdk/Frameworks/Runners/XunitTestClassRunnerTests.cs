@@ -267,7 +267,7 @@ public class XunitTestClassRunnerTests
 		public ClassFixtureWithMessageSinkDependency(IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new Xunit.Sdk.DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
+			MessageSink.OnMessage(new Xunit.v2.DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
 		}
 	}
 

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild

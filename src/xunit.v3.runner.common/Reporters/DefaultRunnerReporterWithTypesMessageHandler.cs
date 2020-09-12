@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.Common
 {
