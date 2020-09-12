@@ -20,9 +20,8 @@
     <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
-    <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
-    <Compile Include="..\messages\**\*.cs" LinkBase="Messages\v2" />
     <Compile Include="..\messages\v2\**\*.cs" LinkBase="Frameworks\v2\Messages" />
+    <Compile Include="..\messages\v3\**\*.cs" LinkBase="Frameworks\v3\Messages" />
   </ItemGroup>
 
   <ItemGroup>
