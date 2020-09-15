@@ -20,6 +20,7 @@
     <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
+    <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />

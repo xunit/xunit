@@ -19,6 +19,7 @@
     <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
+    <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
   </ItemGroup>
 
