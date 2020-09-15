@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -137,7 +138,7 @@ namespace Xunit.Sdk
 		/// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
 		/// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
 		/// </summary>
-		protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit .NET Standard";
+		protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}";
 
 		/// <summary>
 		/// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
