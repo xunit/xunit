@@ -6,33 +6,23 @@ namespace Xunit.v3
 namespace Xunit.Runner.v3
 #endif
 {
-	/// <summary />
+	/// <summary>
+	/// Base message for all messages related to test assemblies.
+	/// </summary>
 	public class _TestAssemblyMessage : _MessageSinkMessage
 	{
-		string? assemblyName;
+		string? assemblyUniqueID;
 
 		/// <summary>
-		/// Gets the assembly name. May return a fully qualified name for assemblies found via
-		/// reflection (i.e., "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-		/// or may return just assembly name only for assemblies found via source code introspection
-		/// (i.e., "mscorlib").
+		/// Gets the assembly's unique ID. Can be used to correlate test messages with the appropriate
+		/// assembly that they're related to. Assembly metadata (as <see cref="_IAssemblyMetadata"/>) is
+		/// provided via <see cref="_DiscoveryStarting"/> (during discovery) and/or
+		/// <see cref="_TestAssemblyStarting"/> (during execution) and should be cached as needed.
 		/// </summary>
-		public string AssemblyName
+		public string AssemblyUniqueID
 		{
-			get => assemblyName ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyName)} on an uninitialized '{GetType().FullName}' object");
-			set => assemblyName = Guard.ArgumentNotNullOrEmpty(nameof(AssemblyName), value);
+			get => assemblyUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyUniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => assemblyUniqueID = Guard.ArgumentNotNullOrEmpty(nameof(AssemblyUniqueID), value);
 		}
-
-		/// <summary>
-		/// Gets the on-disk location of the assembly under test. If the assembly path is not
-		/// known (for example, in AST-based runners), you must return <c>null</c>.
-		/// </summary>
-		public string? AssemblyPath { get; set; }
-
-		/// <summary>
-		/// Gets the full path of the configuration file name, if one is present.
-		/// May be <c>null</c> if there is no configuration file.
-		/// </summary>
-		public string? ConfigFilePath { get; set; }
 	}
 }

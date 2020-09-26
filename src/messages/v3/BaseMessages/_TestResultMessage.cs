@@ -4,13 +4,16 @@ namespace Xunit.v3
 namespace Xunit.Runner.v3
 #endif
 {
-	/// <summary />
-	public class _TestResultMessage : _TestMessage
+	/// <summary>
+	/// This is the base message for all individual test results (e.g., tests which
+	/// pass, fail, or are skipped).
+	/// </summary>
+	public class _TestResultMessage : _TestMessage, _IExecutionMetadata
 	{
-		/// <summary />
+		/// <inheritdoc/>
 		public decimal? ExecutionTime { get; set; }
 
-		/// <summary />
+		/// <inheritdoc/>
 		public string? Output { get; set; }
 	}
 }

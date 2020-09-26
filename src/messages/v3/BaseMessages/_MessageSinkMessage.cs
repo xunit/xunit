@@ -11,7 +11,10 @@ namespace Xunit.v3
 namespace Xunit.Runner.v3
 #endif
 {
-	/// <summary />
+	/// <summary>
+	/// The base type for all messages. It provides serialization support. Because of the way type
+	/// serialization works, messages can only be defined by xUnit.net itself.
+	/// </summary>
 	public class _MessageSinkMessage
 	{
 		delegate void PropertyWriter(Utf8JsonWriter writer, object? value, JsonSerializerOptions options);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.v3
@@ -7,41 +6,22 @@ namespace Xunit.v3
 namespace Xunit.Runner.v3
 #endif
 {
-	/// <summary />
+	/// <summary>
+	/// Base message for all messages related to test cases.
+	/// </summary>
 	public class _TestCaseMessage : _TestMethodMessage
 	{
-		string? testCaseDisplayName;
-		string? testCaseId;
-		Dictionary<string, string[]> traits = new Dictionary<string, string[]>();
+		string? testCaseUniqueID;
 
-		/// <summary />
-		public string? SkipReason { get; set; }
-
-		/// <summary />
-		public string? SourceFilePath { get; set; }
-
-		/// <summary />
-		public int? SourceLineNumber { get; set; }
-
-		/// <summary />
-		public string TestCaseDisplayName
+		/// <summary>
+		/// Gets the test case's unique ID. Can be used to correlate test messages with the appropriate
+		/// test case that they're related to. Test case metadata is provided via <see cref="_TestCaseStarting"/>
+		/// and/or <see cref="_TestCaseDiscovered"/> and should be cached if required.
+		/// </summary>
+		public string TestCaseUniqueID
 		{
-			get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
-			set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(nameof(TestCaseDisplayName), value);
-		}
-
-		/// <summary />
-		public string TestCaseId
-		{
-			get => testCaseId ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseId)} on an uninitialized '{GetType().FullName}' object");
-			set => testCaseId = Guard.ArgumentNotNullOrEmpty(nameof(TestCaseId), value);
-		}
-
-		/// <summary />
-		public Dictionary<string, string[]> Traits
-		{
-			get => traits;
-			set => traits = value ?? new Dictionary<string, string[]>();
+			get => testCaseUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseUniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => testCaseUniqueID = Guard.ArgumentNotNullOrEmpty(nameof(TestCaseUniqueID), value);
 		}
 	}
 }
