@@ -101,7 +101,7 @@ namespace Xunit.Runner.Common
 			VstsAddTest(testName, args.Message.Test.DisplayName, assemblyName, args.Message.Test);
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 		{
 			var testPassed = args.Message;
@@ -111,7 +111,7 @@ namespace Xunit.Runner.Common
 			base.HandleTestPassed(args);
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
 		{
 			var testSkipped = args.Message;
@@ -121,7 +121,7 @@ namespace Xunit.Runner.Common
 			base.HandleTestSkipped(args);
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
 		{
 			var testFailed = args.Message;

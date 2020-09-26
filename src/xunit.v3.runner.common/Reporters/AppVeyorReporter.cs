@@ -10,17 +10,17 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class AppVeyorReporter : IRunnerReporter
 	{
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string Description => "AppVeyor CI support";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled =>
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("APPVEYOR_API_URL"));
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string? RunnerSwitch => null;
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public IMessageSink CreateMessageHandler(IRunnerLogger logger)
 		{
 			var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");

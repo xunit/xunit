@@ -8,16 +8,16 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class JsonReporter : IRunnerReporter
 	{
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string Description => "show progress messages in JSON format";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled => false;
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string? RunnerSwitch => "json";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
 			new JsonReporterMessageHandler(logger);
 	}

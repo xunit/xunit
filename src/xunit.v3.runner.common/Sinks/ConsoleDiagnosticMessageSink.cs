@@ -58,7 +58,7 @@ namespace Xunit.Runner.Common
 			bool noColor) =>
 				new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
@@ -82,7 +82,7 @@ namespace Xunit.Runner.Common
 
 #if NETFRAMEWORK
 #nullable disable  // The original signature is not compatibility with nullable reference type support
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		[System.Security.SecurityCritical]
 		public override sealed object InitializeLifetimeService()
 		{

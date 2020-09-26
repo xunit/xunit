@@ -33,7 +33,7 @@ namespace Xunit.Sdk
 				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{ }
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public override Task<RunSummary> RunAsync(
 			IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,

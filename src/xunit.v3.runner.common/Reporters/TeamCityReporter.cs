@@ -9,17 +9,17 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class TeamCityReporter : IRunnerReporter
 	{
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string Description => "TeamCity CI support [normally auto-enabled]";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled =>
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string RunnerSwitch => "teamcity";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
 			new TeamCityReporterMessageHandler(logger);
 	}

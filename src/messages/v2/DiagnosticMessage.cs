@@ -61,7 +61,7 @@ namespace Xunit.Runner.v2
 		/// <inheritdoc/>
 		public string Message { get; }
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public override string ToString() => Message;
 	}
 }
