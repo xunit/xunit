@@ -106,6 +106,8 @@ namespace Xunit.Sdk
 					foreach (var dataRow in data)
 					{
 						toDispose.AddRange(dataRow.OfType<IDisposable>());
+						if (data is IDisposable)
+							toDispose.Add((IDisposable)data);
 
 						ITypeInfo[]? resolvedTypes = null;
 						var methodToRun = TestMethod;
