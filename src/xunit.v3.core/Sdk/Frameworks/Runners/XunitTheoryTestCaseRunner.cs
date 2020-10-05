@@ -103,8 +103,9 @@ namespace Xunit.Sdk
 						continue;
 					}
 
-					if (data is IDisposable)
-						toDispose.Add((IDisposable)data);
+					var disposable = data as IDisposable;
+					if (disposable != null)
+						toDispose.Add(disposable);
 
 					foreach (var dataRow in data)
 					{
