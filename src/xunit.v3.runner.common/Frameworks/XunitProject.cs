@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common
 {

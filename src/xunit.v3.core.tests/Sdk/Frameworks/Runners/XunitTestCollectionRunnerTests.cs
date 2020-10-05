@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 public class XunitTestCollectionRunnerTests
@@ -168,7 +169,7 @@ public class XunitTestCollectionRunnerTests
 		public CollectionFixtureWithMessageSinkDependency(IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new Xunit.v2.DiagnosticMessage("CollectionFixtureWithMessageSinkDependency constructor message"));
+			MessageSink.OnMessage(new DiagnosticMessage("CollectionFixtureWithMessageSinkDependency constructor message"));
 		}
 	}
 

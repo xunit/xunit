@@ -6,12 +6,10 @@ using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
-using NullMessageSink = Xunit.Sdk.NullMessageSink;
-using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
-using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 
 // TODO: Split Mocks into v2 and v3 via a shared partial class
 public static class Mocks
@@ -288,7 +286,7 @@ public static class Mocks
 		bool shadowCopy = false)
 	{
 		var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = shadowCopy };
+		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = shadowCopy };
 		var result = Substitute.For<ITestAssemblyDiscoveryStarting, InterfaceProxy<ITestAssemblyDiscoveryStarting>>();
 		result.AppDomain.Returns(appDomain);
 		result.Assembly.Returns(assembly);
@@ -320,7 +318,7 @@ public static class Mocks
 		string? assemblyFilename = null)
 	{
 		var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
+		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
 		var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
 		result.Assembly.Returns(assembly);
 		result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
@@ -400,7 +398,7 @@ public static class Mocks
 
 		if (fileName != null && lineNumber != null)
 		{
-			var sourceInfo = new Xunit.SourceInformation { FileName = fileName, LineNumber = lineNumber };
+			var sourceInfo = new SourceInformation { FileName = fileName, LineNumber = lineNumber };
 			result.SourceInformation.Returns(sourceInfo);
 		}
 
@@ -514,7 +512,7 @@ public static class Mocks
 	{
 		var testCase = TestCase(type, methodName);
 		var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
-		var failureInfo = Xunit.Sdk.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
+		var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
 		var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
 		result.ExceptionParentIndices.Returns(failureInfo.ExceptionParentIndices);

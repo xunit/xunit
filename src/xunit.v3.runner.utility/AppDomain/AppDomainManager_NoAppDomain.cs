@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using Xunit.Internal;
 
 namespace Xunit
 {

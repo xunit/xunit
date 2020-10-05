@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 
 namespace Xunit
 {

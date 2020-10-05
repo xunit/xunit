@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common.tests\Utility\EnvironmentHelper.cs" LinkBase="Common.Tests" />
+    <Compile Include="..\xunit.v3.common\Internal\AssemblyExtensions.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>

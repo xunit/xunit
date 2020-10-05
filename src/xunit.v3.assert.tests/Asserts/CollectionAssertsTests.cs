@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 public class CollectionAssertsTests

@@ -1,4 +1,6 @@
-﻿namespace Xunit.Runners
+﻿using Xunit.Internal;
+
+namespace Xunit.Runners
 {
 	/// <summary>
 	/// Represents an error that happened outside the scope of a running test.

@@ -9,20 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
-    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\NullMessageSink.cs" LinkBase="Common" />
-    <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
-    <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
-    <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
-    <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
-    <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\AssertEqualityComparer.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" LinkBase="Common\Asserts" />
@@ -31,7 +17,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
 
@@ -46,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
   </ItemGroup>
 
 </Project>

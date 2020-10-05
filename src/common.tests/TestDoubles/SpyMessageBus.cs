@@ -6,6 +6,8 @@ using Xunit.Sdk;
 #if XUNIT_FRAMEWORK
 public class SpyMessageBus : IMessageBus
 #else
+using Xunit.Runner.v2;
+
 public class SpyMessageBus : LongLivedMarshalByRefObject, IMessageBus
 #endif
 {

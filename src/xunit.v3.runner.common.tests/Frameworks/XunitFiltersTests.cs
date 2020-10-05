@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 
 public class XunitFiltersTests

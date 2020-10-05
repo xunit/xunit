@@ -4,6 +4,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 public class XunitTestFrameworkDiscovererTests
@@ -403,7 +404,7 @@ public class XunitTestFrameworkDiscovererTests
 			var sourceProvider = Substitute.For<ISourceInformationProvider>();
 			sourceProvider
 				.GetSourceInformation(null)
-				.ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
+				.ReturnsForAnyArgs(new SourceInformation { FileName = "Source File", LineNumber = 42 });
 
 			framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
 		}

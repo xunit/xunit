@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.Common
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 public class TestCaseSerializerTests

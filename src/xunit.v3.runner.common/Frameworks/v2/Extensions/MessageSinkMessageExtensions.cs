@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 
 /// <summary>

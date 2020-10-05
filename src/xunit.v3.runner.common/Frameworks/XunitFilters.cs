@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// Represents a set of filters for an <see cref="XunitProject"/>.
+	/// Represents a set of filters for an <see cref="T:Xunit.Runner.Common.XunitProject"/>.
 	/// </summary>
 	public partial class XunitFilters
 	{

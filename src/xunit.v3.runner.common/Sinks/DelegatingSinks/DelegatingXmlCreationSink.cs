@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.Common
 {

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 public class Xunit3AcceptanceTests
@@ -293,7 +294,7 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
 			var msg = Assert.Single(messages);
-			var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
+			var combinedMessage = ExceptionUtility.CombineMessages(msg);
 			Assert.StartsWith("System.AggregateException : One or more errors occurred.", combinedMessage);
 			Assert.EndsWith(
 				"---- Assert.Equal() Failure" + Environment.NewLine +

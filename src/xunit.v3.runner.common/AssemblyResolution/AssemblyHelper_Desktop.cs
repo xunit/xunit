@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
 
 namespace Xunit
 {

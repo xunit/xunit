@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Xunit.Abstractions;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common
 {

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
-using Xunit.v2;
 
 /// <summary>
 /// This class represents utility methods needed to supplement the

@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
-using NullMessageSink = Xunit.Sdk.NullMessageSink;
 
 public class AcceptanceTestV3
 {

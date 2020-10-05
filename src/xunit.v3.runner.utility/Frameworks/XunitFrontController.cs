@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 
 #if NETFRAMEWORK
 using System.Linq;

@@ -7,7 +7,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.v2;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 
 namespace Xunit.Sdk
 {
@@ -175,8 +176,9 @@ namespace Xunit.Sdk
 		protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCollections()
 		{
 			var testCasesByCollection =
-				TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
-						 .ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
+				TestCases
+					.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+					.ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
 			IEnumerable<ITestCollection> orderedTestCollections;
 
@@ -191,8 +193,10 @@ namespace Xunit.Sdk
 				orderedTestCollections = testCasesByCollection.Keys.ToList();
 			}
 
-			return orderedTestCollections.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
-										 .ToList();
+			return
+				orderedTestCollections
+					.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
+					.ToList();
 		}
 
 		/// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit.Runner.SystemConsole

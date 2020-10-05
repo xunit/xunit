@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Web.UI;
 using Xunit.Abstractions;
+using Xunit.Internal;
 
 namespace Xunit
 {

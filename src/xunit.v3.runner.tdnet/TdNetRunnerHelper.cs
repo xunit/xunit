@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using TestDriven.Framework;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 

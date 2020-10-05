@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
 
 namespace Xunit.Runner.Common
 {

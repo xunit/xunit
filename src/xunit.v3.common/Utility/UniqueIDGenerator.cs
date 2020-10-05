@@ -1,0 +1,100 @@
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using Xunit.Internal;
+
+namespace Xunit
+{
+	/// <summary>
+	/// Generates unique IDs from multiple string inputs. Used to compute the unique
+	/// IDs that are used inside the test framework.
+	/// </summary>
+	public class UniqueIDGenerator : IDisposable
+	{
+		bool disposed;
+		HashAlgorithm hasher;
+		Stream stream;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="UniqueIDGenerator"/> class.
+		/// </summary>
+		public UniqueIDGenerator()
+		{
+			hasher = SHA256.Create();
+			stream = new MemoryStream();
+		}
+
+		/// <summary>
+		/// Add a string value into the unique ID computation.
+		/// </summary>
+		/// <param name="value">The value to be added to the unique ID computation</param>
+		public void Add(string value)
+		{
+			Guard.ArgumentNotNull(nameof(value), value);
+
+			lock (stream)
+			{
+				if (disposed)
+					throw new ObjectDisposedException(nameof(UniqueIDGenerator), "Cannot use UniqueIDGenerator after you have called Compute or Dispose");
+
+				var bytes = Encoding.UTF8.GetBytes(value);
+				stream.Write(bytes, 0, bytes.Length);
+				stream.WriteByte(0);
+			}
+		}
+
+		/// <summary>
+		/// Compute the unique ID for the given input values. Note that once the unique
+		/// ID has been computed, no further <see cref="Add"/> operations will be allowed.
+		/// </summary>
+		/// <returns>The computed unique ID</returns>
+		public string Compute()
+		{
+			lock (stream)
+			{
+				if (disposed)
+					throw new ObjectDisposedException(nameof(UniqueIDGenerator), "Cannot use UniqueIDGenerator after you have called Compute or Dispose");
+
+				stream.Seek(0, SeekOrigin.Begin);
+
+				var hashBytes = hasher.ComputeHash(stream);
+
+				Dispose();
+
+				return ToHexString(hashBytes);
+			}
+		}
+
+		/// <inheritdoc/>
+		public void Dispose()
+		{
+			lock (stream)
+			{
+				if (!disposed)
+				{
+					disposed = true;
+					stream?.Dispose();
+					hasher?.Dispose();
+				}
+			}
+		}
+
+		static char ToHexChar(int b) =>
+			(char)(b < 10 ? b + '0' : b - 10 + 'a');
+
+		static string ToHexString(byte[] bytes)
+		{
+			var chars = new char[bytes.Length * 2];
+			var idx = 0;
+
+			foreach (var @byte in bytes)
+			{
+				chars[idx++] = ToHexChar(@byte >> 4);
+				chars[idx++] = ToHexChar(@byte & 0xF);
+			}
+
+			return new string(chars);
+		}
+	}
+}

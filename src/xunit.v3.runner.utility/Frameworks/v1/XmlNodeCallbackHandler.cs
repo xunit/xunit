@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Web.UI;
 using System.Xml;
-using Xunit.Sdk;
+using Xunit.Runner.v2;
 
 namespace Xunit
 {

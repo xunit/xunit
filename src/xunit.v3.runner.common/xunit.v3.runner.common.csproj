@@ -12,19 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
-    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
-    <Compile Include="..\common\UniqueIDGenerator.cs" LinkBase="Common" />
-    <Compile Include="..\messages\v2\**\*.cs" LinkBase="Frameworks\v2\Messages" />
-    <Compile Include="..\messages\v3\**\*.cs" LinkBase="Frameworks\v3\Messages" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Transforms\templates\*.xslt" />
   </ItemGroup>
 
@@ -34,12 +21,15 @@
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
   </ItemGroup>
 
 </Project>

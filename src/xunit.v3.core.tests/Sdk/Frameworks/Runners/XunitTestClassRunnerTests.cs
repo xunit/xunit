@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 public class XunitTestClassRunnerTests
@@ -267,7 +267,7 @@ public class XunitTestClassRunnerTests
 		public ClassFixtureWithMessageSinkDependency(IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new Xunit.v2.DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
+			MessageSink.OnMessage(new DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
 		}
 	}
 

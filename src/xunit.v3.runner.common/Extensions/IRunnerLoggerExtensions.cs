@@ -1,3 +1,4 @@
+using Xunit.Internal;
 using Xunit.Runner.Common;
 
 /// <summary>

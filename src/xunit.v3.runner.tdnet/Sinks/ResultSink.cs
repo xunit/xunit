@@ -3,6 +3,7 @@ using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.TdNet
 {

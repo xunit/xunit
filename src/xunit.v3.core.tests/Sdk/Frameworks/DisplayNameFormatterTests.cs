@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
-using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
-using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 
 public class DisplayNameFormatterTests
 {

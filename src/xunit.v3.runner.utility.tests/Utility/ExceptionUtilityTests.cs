@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
-using ExceptionUtility = Xunit.Sdk.ExceptionUtility;
 
 public class ExceptionUtilityTests
 {

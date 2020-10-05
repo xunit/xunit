@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common
 {
