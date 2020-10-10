@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Security;
@@ -191,21 +192,34 @@ namespace Xunit.Sdk
 			TestMethod.Invoke(testClassInstance, TestMethodArguments);
 
 		/// <summary>
-		/// Given an object, will determine if it is an instance of <see cref="Task"/> (in which case, it is
-		/// directly returned), or an instance of <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/>
-		/// (in which case it is converted), or neither (in which case <c>null</c> is returned).
+		/// This method is obsolete. Call <see cref="GetValueTaskFromResult(object?)"/> instead.
+		/// </summary>
+		[EditorBrowsable(EditorBrowsableState.Never)]
+		[Obsolete("This method has been removed in favor of GetValueTaskFromResult", true)]
+		public static Task? GetTaskFromResult(object? obj) =>
+			throw new NotImplementedException();
+
+		/// <summary>
+		/// Given an object, will attempt to convert instances of <see cref="Task"/> or
+		/// <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/> into <see cref="ValueTask"/>
+		/// as appropriate.
 		/// </summary>
 		/// <param name="obj">The object to convert</param>
-		public static Task? GetTaskFromResult(object? obj)
+		public static ValueTask? GetValueTaskFromResult(object? obj)
 		{
 			if (obj == null)
 				return null;
 
 			if (obj is Task task)
-				return task;
+			{
+				if (task.Status == TaskStatus.Created)
+					throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
+
+				return new ValueTask(task);
+			}
 
 			if (obj is ValueTask valueTask)
-				return valueTask.AsTask();
+				return valueTask;
 
 			var type = obj.GetType();
 			if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
@@ -222,9 +236,13 @@ namespace Xunit.Sdk
 						throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
 				}
 
-				return fSharpStartAsTaskOpenGenericMethod
-					.MakeGenericMethod(type.GetGenericArguments()[0])
-					.Invoke(null, new[] { obj, null, null }) as Task;
+				var fsharpTask =
+					fSharpStartAsTaskOpenGenericMethod
+						.MakeGenericMethod(type.GetGenericArguments()[0])
+						.Invoke(null, new[] { obj, null, null }) as Task;
+
+				if (fsharpTask != null)
+					return new ValueTask(fsharpTask);
 			}
 
 			return null;
@@ -307,14 +325,9 @@ namespace Xunit.Sdk
 							else
 							{
 								var result = CallTestMethod(testClassInstance);
-								var task = GetTaskFromResult(result);
-								if (task != null)
-								{
-									if (task.Status == TaskStatus.Created)
-										throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
-
-									await task;
-								}
+								var valueTask = GetValueTaskFromResult(result);
+								if (valueTask.HasValue)
+									await valueTask.Value;
 								else
 								{
 									var ex = await asyncSyncContext.WaitForCompletionAsync();
