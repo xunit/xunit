@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using TestDriven.Framework;
 
 namespace Xunit.Runner.TdNet
@@ -12,29 +13,50 @@ namespace Xunit.Runner.TdNet
 
 		public TestRunState RunAssembly(ITestListener testListener, Assembly assembly)
 		{
-			using var helper = CreateHelper(testListener, assembly);
-			return helper.Run();
+			var helper = CreateHelper(testListener, assembly);
+			try
+			{
+				return helper.Run();
+			}
+			finally
+			{
+				ThreadPool.QueueUserWorkItem(_ => helper.DisposeAsync());
+			}
 		}
 
 		public TestRunState RunMember(ITestListener testListener, Assembly assembly, MemberInfo member)
 		{
-			using var helper = CreateHelper(testListener, assembly);
-			var type = member as Type;
-			if (type != null)
-				return helper.RunClass(type);
+			var helper = CreateHelper(testListener, assembly);
+			try
+			{
+				var type = member as Type;
+				if (type != null)
+					return helper.RunClass(type);
 
-			var method = member as MethodInfo;
-			if (method != null)
-				return helper.RunMethod(method);
+				var method = member as MethodInfo;
+				if (method != null)
+					return helper.RunMethod(method);
 
-			return TestRunState.NoTests;
+				return TestRunState.NoTests;
+			}
+			finally
+			{
+				ThreadPool.QueueUserWorkItem(_ => helper.DisposeAsync());
+			}
 		}
 
 		public TestRunState RunNamespace(ITestListener testListener, Assembly assembly, string ns)
 		{
-			using var helper = CreateHelper(testListener, assembly);
-			var testCases = helper.Discover().Where(tc => ns == null || tc.GetClass()?.Namespace == ns).ToList();
-			return helper.Run(testCases);
+			var helper = CreateHelper(testListener, assembly);
+			try
+			{
+				var testCases = helper.Discover().Where(tc => ns == null || tc.GetClass()?.Namespace == ns).ToList();
+				return helper.Run(testCases);
+			}
+			finally
+			{
+				ThreadPool.QueueUserWorkItem(_ => helper.DisposeAsync());
+			}
 		}
 	}
 }

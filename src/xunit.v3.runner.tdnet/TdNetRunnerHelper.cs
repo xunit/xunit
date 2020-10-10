@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -11,12 +12,12 @@ using Xunit.Runner.v2;
 
 namespace Xunit.Runner.TdNet
 {
-	public class TdNetRunnerHelper : IDisposable
+	public class TdNetRunnerHelper : IAsyncDisposable
 	{
 		readonly TestAssemblyConfiguration? configuration;
 		bool disposed;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly ITestListener? testListener;
-		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 		readonly Xunit2? xunit;
 
 		/// <summary>
@@ -35,7 +36,7 @@ namespace Xunit.Runner.TdNet
 			configuration = ConfigReader.Load(assemblyFileName);
 			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
 			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false);
-			toDispose.Push(xunit);
+			disposalTracker.Add(xunit);
 		}
 
 		public virtual IReadOnlyList<ITestCase> Discover()
@@ -60,7 +61,7 @@ namespace Xunit.Runner.TdNet
 			try
 			{
 				var sink = new TestDiscoverySink();
-				toDispose.Push(sink);
+				disposalTracker.Add(sink);
 				discoveryAction(sink);
 				sink.Finished.WaitOne();
 				return sink.TestCases.ToList();
@@ -72,15 +73,14 @@ namespace Xunit.Runner.TdNet
 			}
 		}
 
-		public void Dispose()
+		public ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			foreach (var disposable in toDispose)
-				disposable.Dispose();
+			return disposalTracker.DisposeAsync();
 		}
 
 		public virtual TestRunState Run(
@@ -96,7 +96,7 @@ namespace Xunit.Runner.TdNet
 					testCases = Discover();
 
 				var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
-				toDispose.Push(resultSink);
+				disposalTracker.Add(resultSink);
 
 				var executionOptions = TestFrameworkOptions.ForExecution(configuration);
 				xunit.RunTests(testCases, resultSink, executionOptions);
