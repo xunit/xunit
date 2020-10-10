@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -26,6 +27,7 @@ namespace Xunit
 		static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
 
+		bool disposed;
 		ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
 
 		/// <summary>
@@ -115,10 +117,12 @@ namespace Xunit
 
 			var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
 			AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder, DiagnosticMessageSink);
+			DisposalTracker.Add(AppDomain);
 
 #if NETFRAMEWORK
 			var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());
 			assemblyHelper = AppDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName!, runnerUtilityAssemblyLocation);
+			DisposalTracker.Add(assemblyHelper);
 #endif
 
 			TestFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
@@ -128,7 +132,10 @@ namespace Xunit
 				assemblyInfo = AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
 			Framework = Guard.NotNull("Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test", AppDomain.CreateObject<ITestFramework>(TestFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink));
+			DisposalTracker.Add(Framework);
+
 			RemoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", Framework.GetDiscoverer(assemblyInfo));
+			DisposalTracker.Add(RemoteDiscoverer);
 		}
 
 		internal IAppDomainManager AppDomain { get; }
@@ -142,6 +149,11 @@ namespace Xunit
 		/// Gets the message sink used to report diagnostic messages.
 		/// </summary>
 		public IMessageSink DiagnosticMessageSink { get; }
+
+		/// <summary>
+		/// Gets a tracker for disposable objects.
+		/// </summary>
+		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <summary>
 		/// Returns the test framework from the remote app domain.
@@ -181,14 +193,17 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public virtual void Dispose()
+		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
+
+		/// <inheritdoc/>
+		public virtual ValueTask DisposeAsync()
 		{
-			RemoteDiscoverer?.Dispose();
-			Framework?.Dispose();
-#if NETFRAMEWORK
-			assemblyHelper?.Dispose();
-#endif
-			AppDomain?.Dispose();
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			return DisposalTracker.DisposeAsync();
 		}
 
 		/// <summary>

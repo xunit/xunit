@@ -54,6 +54,7 @@ namespace Xunit
 			var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #endif
 			remoteExecutor = Framework.GetExecutor(assemblyName);
+			DisposalTracker.Add(remoteExecutor);
 		}
 
 		/// <inheritdoc/>
@@ -85,14 +86,6 @@ namespace Xunit
 		public ITestCase Deserialize(string value)
 		{
 			return remoteExecutor.Deserialize(value);
-		}
-
-		/// <inheritdoc/>
-		public override sealed void Dispose()
-		{
-			remoteExecutor?.Dispose();
-
-			base.Dispose();
 		}
 
 		/// <summary>
