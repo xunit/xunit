@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Xunit.Sdk
+namespace Xunit
 {
 	/// <summary>
 	/// Tracks disposable objects, and disposes them in the reverse order they were added to
 	/// the tracker. Supports both <see cref="IDisposable"/> and <see cref="IAsyncDisposable"/>.
+	/// You can either directly dispose this object (via <see cref="DisposeAsync"/>), or you
+	/// can enumerate the items contained inside of it (via <see cref="Disposables"/> and
+	/// <see cref="AsyncDisposables"/>).
 	/// </summary>
 	public class DisposalTracker : IAsyncDisposable
 	{
