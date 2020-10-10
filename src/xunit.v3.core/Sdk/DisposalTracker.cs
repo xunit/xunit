@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Xunit.Sdk
@@ -13,6 +14,48 @@ namespace Xunit.Sdk
 		bool disposed;
 		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 		readonly Stack<IAsyncDisposable> toAsyncDispose = new Stack<IAsyncDisposable>();
+
+		/// <summary>
+		/// Gets a list of the async disposable items (and then clears the list).
+		/// </summary>
+		public IEnumerable<IAsyncDisposable> AsyncDisposables
+		{
+			get
+			{
+				List<IAsyncDisposable> result;
+
+				lock (toDispose)
+				{
+					GuardNotDisposed();
+
+					result = toAsyncDispose.ToList();
+					toAsyncDispose.Clear();
+				}
+
+				return result;
+			}
+		}
+
+		/// <summary>
+		/// Gets a list of the disposable items (and then clears the list).
+		/// </summary>
+		public IEnumerable<IDisposable> Disposables
+		{
+			get
+			{
+				List<IDisposable> result;
+
+				lock (toDispose)
+				{
+					GuardNotDisposed();
+
+					result = toDispose.ToList();
+					toDispose.Clear();
+				}
+
+				return result;
+			}
+		}
 
 		/// <summary>
 		/// Add an object to be disposed. It may optionally support <see cref="IDisposable"/>

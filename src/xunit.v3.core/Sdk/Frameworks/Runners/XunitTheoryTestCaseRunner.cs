@@ -19,8 +19,8 @@ namespace Xunit.Sdk
 
 		readonly ExceptionAggregator cleanupAggregator = new ExceptionAggregator();
 		Exception? dataDiscoveryException;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
-		readonly List<IDisposable> toDispose = new List<IDisposable>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTheoryTestCaseRunner"/> class.
@@ -107,7 +107,8 @@ namespace Xunit.Sdk
 
 					foreach (var dataRow in data)
 					{
-						toDispose.AddRange(dataRow.OfType<IDisposable>());
+						foreach (var dataRowItem in dataRow)
+							disposalTracker.Add(dataRowItem);
 
 						ITypeInfo[]? resolvedTypes = null;
 						var methodToRun = TestMethod;
@@ -158,7 +159,9 @@ namespace Xunit.Sdk
 			// but save any exceptions so we can surface them during the cleanup phase,
 			// so they get properly reported as test case cleanup failures.
 			var timer = new ExecutionTimer();
-			foreach (var disposable in toDispose)
+			foreach (var asyncDisposable in disposalTracker.AsyncDisposables)
+				await timer.AggregateAsync(() => cleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
+			foreach (var disposable in disposalTracker.Disposables)
 				timer.Aggregate(() => cleanupAggregator.Run(disposable.Dispose));
 
 			runSummary.Time += timer.Total;

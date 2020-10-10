@@ -41,7 +41,7 @@ namespace Xunit.Sdk
 		/// Executes an asynchronous action and aggregates its run time into the total.
 		/// </summary>
 		/// <param name="asyncAction">The action to measure.</param>
-		public async Task AggregateAsync(Func<Task> asyncAction)
+		public async ValueTask AggregateAsync(Func<ValueTask> asyncAction)
 		{
 			Guard.ArgumentNotNull(nameof(asyncAction), asyncAction);
 
