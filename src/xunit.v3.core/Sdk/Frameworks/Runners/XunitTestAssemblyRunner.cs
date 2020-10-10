@@ -39,8 +39,10 @@ namespace Xunit.Sdk
 		{ }
 
 		/// <inheritdoc/>
-		public override void Dispose()
+		public override async ValueTask DisposeAsync()
 		{
+			if (syncContext is IAsyncDisposable asyncDisposable)
+				await asyncDisposable.DisposeAsync();
 			if (syncContext is IDisposable disposable)
 				disposable.Dispose();
 		}

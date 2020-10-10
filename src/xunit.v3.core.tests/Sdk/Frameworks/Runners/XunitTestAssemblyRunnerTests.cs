@@ -14,9 +14,9 @@ public class XunitTestAssemblyRunnerTests
 	public class GetTestFrameworkDisplayName
 	{
 		[Fact]
-		public static void IsXunit()
+		public static async ValueTask IsXunit()
 		{
-			using var runner = TestableXunitTestAssemblyRunner.Create();
+			await using var runner = TestableXunitTestAssemblyRunner.Create();
 
 			var result = runner.GetTestFrameworkDisplayName();
 
@@ -27,9 +27,9 @@ public class XunitTestAssemblyRunnerTests
 	public class GetTestFrameworkEnvironment
 	{
 		[Fact]
-		public static void Default()
+		public static async ValueTask Default()
 		{
-			using var runner = TestableXunitTestAssemblyRunner.Create();
+			await using var runner = TestableXunitTestAssemblyRunner.Create();
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -37,11 +37,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void Attribute_NonParallel()
+		public static async ValueTask Attribute_NonParallel()
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -49,11 +49,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void Attribute_MaxThreads()
+		public static async ValueTask Attribute_MaxThreads()
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -61,11 +61,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void Attribute_Unlimited()
+		public static async ValueTask Attribute_Unlimited()
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: -1);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -75,11 +75,11 @@ public class XunitTestAssemblyRunnerTests
 		[Theory]
 		[InlineData(CollectionBehavior.CollectionPerAssembly, "collection-per-assembly")]
 		[InlineData(CollectionBehavior.CollectionPerClass, "collection-per-class")]
-		public static void Attribute_CollectionBehavior(CollectionBehavior behavior, string expectedDisplayText)
+		public static async ValueTask Attribute_CollectionBehavior(CollectionBehavior behavior, string expectedDisplayText)
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -87,12 +87,12 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void Attribute_CustomCollectionFactory()
+		public static async ValueTask Attribute_CustomCollectionFactory()
 		{
 			var factoryType = typeof(MyTestCollectionFactory);
 			var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!, disableTestParallelization: true);
 			var assembly = Mocks.TestAssembly(new[] { attr });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -112,11 +112,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void TestOptions_NonParallel()
+		public static async ValueTask TestOptions_NonParallel()
 		{
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetDisableParallelization(true);
-			using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -124,11 +124,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void TestOptions_MaxThreads()
+		public static async ValueTask TestOptions_MaxThreads()
 		{
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(3);
-			using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -136,11 +136,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void TestOptions_Unlimited()
+		public static async ValueTask TestOptions_Unlimited()
 		{
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(-1);
-			using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -148,14 +148,14 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void TestOptionsOverrideAttribute()
+		public static async ValueTask TestOptionsOverrideAttribute()
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetDisableParallelization(false);
 			options.SetMaxParallelThreads(3);
 			var assembly = Mocks.TestAssembly(new[] { attribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, executionOptions: options);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, executionOptions: options);
 
 			var result = runner.GetTestFrameworkEnvironment();
 
@@ -166,13 +166,13 @@ public class XunitTestAssemblyRunnerTests
 	public class RunAsync
 	{
 		[Fact]
-		public static async void Parallel_SingleThread()
+		public static async ValueTask Parallel_SingleThread()
 		{
 			var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
 			var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(1);
-			using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();
 
@@ -181,13 +181,13 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static async void NonParallel()
+		public static async ValueTask NonParallel()
 		{
 			var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
 			var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
 			var options = TestFrameworkOptions.ForExecution();
 			options.SetDisableParallelization(true);
-			using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();
 
@@ -199,11 +199,11 @@ public class XunitTestAssemblyRunnerTests
 	public class TestCaseOrderer
 	{
 		[Fact]
-		public static void CanSetTestCaseOrdererInAssemblyAttribute()
+		public static async ValueTask CanSetTestCaseOrdererInAssemblyAttribute()
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyTestCaseOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -219,11 +219,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
+		public static async ValueTask SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute("UnknownType", "UnknownAssembly");
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -233,11 +233,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[CulturedFact("en-US")]
-		public static void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
+		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -263,11 +263,11 @@ public class XunitTestAssemblyRunnerTests
 	public class TestCollectionOrderer
 	{
 		[Fact]
-		public static void CanSetTestCollectionOrdererInAssemblyAttribute()
+		public static async ValueTask CanSetTestCollectionOrdererInAssemblyAttribute()
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyTestCollectionOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -283,11 +283,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static void SettingUnknownTestCollectionOrderLogsDiagnosticMessage()
+		public static async ValueTask SettingUnknownTestCollectionOrderLogsDiagnosticMessage()
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute("UnknownType", "UnknownAssembly");
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
@@ -297,11 +297,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		[CulturedFact("en-US")]
-		public static void SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
+		public static async ValueTask SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyCtorThrowingTestCollectionOrderer>();
 			var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
-			using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 

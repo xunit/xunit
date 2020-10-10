@@ -18,7 +18,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 	/// derive from <see cref="ITestCase"/>.</typeparam>
-	public abstract class TestAssemblyRunner<TTestCase> : IDisposable
+	public abstract class TestAssemblyRunner<TTestCase> : IAsyncDisposable
 		where TTestCase : ITestCase
 	{
 		ExceptionAggregator aggregator = new ExceptionAggregator();
@@ -127,8 +127,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public virtual void Dispose()
-		{ }
+		public virtual ValueTask DisposeAsync() => default;
 
 		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").

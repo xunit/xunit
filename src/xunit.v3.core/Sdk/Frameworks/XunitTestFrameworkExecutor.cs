@@ -106,7 +106,7 @@ namespace Xunit.Sdk
 			IMessageSink executionMessageSink,
 			ITestFrameworkExecutionOptions executionOptions)
 		{
-			using var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions);
+			await using var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions);
 			await assemblyRunner.RunAsync();
 		}
 	}
