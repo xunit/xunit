@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -63,7 +64,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// The entry point to begin running tests.
 		/// </summary>
 		/// <returns>The return value intended to be returned by the Main method.</returns>
-		public int EntryPoint()
+		public async ValueTask<int> EntryPoint()
 		{
 			if (executed)
 				throw new InvalidOperationException("The EntryPoint method can only be called once.");
@@ -113,7 +114,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				if (!commandLine.NoLogo)
 					PrintHeader();
 
-				var failCount = RunProject(
+				var failCount = await RunProject(
 					commandLine.Project,
 					commandLine.ParallelizeTestCollections,
 					commandLine.MaxParallelThreads,
@@ -317,14 +318,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
 		/// <param name="consoleLock">The (optional) lock used around all console output to ensure there are no write collisions.</param>
 		/// <returns>The return value intended to be returned by the Main method.</returns>
-		public static int Run(
+		public static ValueTask<int> Run(
 			string[] args,
 			Assembly? testAssembly = null,
 			IEnumerable<IRunnerReporter>? runnerReporters = null,
 			object? consoleLock = null) =>
 				new ConsoleRunner(args, testAssembly, runnerReporters, consoleLock).EntryPoint();
 
-		int RunProject(
+		async ValueTask<int> RunProject(
 			XunitProject project,
 			bool? parallelizeTestCollections,
 			int? maxThreadCount,
@@ -346,7 +347,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			var originalWorkingFolder = Directory.GetCurrentDirectory();
 
 			var assembly = project.Assemblies.Single();
-			var assemblyElement = ExecuteAssembly(
+			var assemblyElement = await ExecuteAssembly(
 				consoleLock,
 				assembly,
 				needsXml,
@@ -382,7 +383,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			return failed ? 1 : executionSummary.Failed;
 		}
 
-		XElement? ExecuteAssembly(
+		async ValueTask<XElement?> ExecuteAssembly(
 			object consoleLock,
 			XunitProjectAssembly assembly,
 			bool needsXml,
@@ -425,7 +426,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 				var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
-				using var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
+
+				await using var disposalTracker = new DisposalTracker();
+				var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
+				disposalTracker.Add(testFramework);
+
 				var discoverySink = new TestDiscoverySink(() => cancel);
 
 				// Discover & filter the tests

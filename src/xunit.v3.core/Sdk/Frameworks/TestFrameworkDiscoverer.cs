@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
@@ -13,7 +14,7 @@ namespace Xunit.Sdk
 	/// A base implementation of <see cref="ITestFrameworkDiscoverer"/> that supports test filtering
 	/// and runs the discovery process on a thread pool thread.
 	/// </summary>
-	public abstract class TestFrameworkDiscoverer : ITestFrameworkDiscoverer
+	public abstract class TestFrameworkDiscoverer : ITestFrameworkDiscoverer, IAsyncDisposable
 	{
 		IAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
@@ -94,14 +95,17 @@ namespace Xunit.Sdk
 		protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
 
 		/// <inheritdoc/>
-		public void Dispose()
+		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
+
+		/// <inheritdoc/>
+		public virtual ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			DisposalTracker.Dispose();
+			return DisposalTracker.DisposeAsync();
 		}
 
 		/// <inheritdoc/>

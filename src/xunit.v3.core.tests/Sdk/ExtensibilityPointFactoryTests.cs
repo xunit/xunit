@@ -6,6 +6,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ExtensibilityPointFactoryTests
 {
@@ -134,9 +135,6 @@ public class ExtensibilityPointFactoryTests
 
 			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
-
-			public void Dispose()
-			{ }
 		}
 
 		[Fact]
@@ -171,9 +169,6 @@ public class ExtensibilityPointFactoryTests
 				throw new NotImplementedException();
 
 			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
-				throw new NotImplementedException();
-
-			public void Dispose() =>
 				throw new NotImplementedException();
 		}
 
@@ -217,9 +212,6 @@ public class ExtensibilityPointFactoryTests
 				throw new NotImplementedException();
 
 			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
-				throw new NotImplementedException();
-
-			public void Dispose() =>
 				throw new NotImplementedException();
 		}
 

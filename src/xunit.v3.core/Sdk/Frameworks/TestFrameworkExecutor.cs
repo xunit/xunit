@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
@@ -13,7 +14,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 	/// derive from <see cref="ITestCase"/>.</typeparam>
-	public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor
+	public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor, IAsyncDisposable
 		where TTestCase : ITestCase
 	{
 		IReflectionAssemblyInfo assemblyInfo;
@@ -85,14 +86,17 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
+
+		/// <inheritdoc/>
+		public virtual ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			DisposalTracker.Dispose();
+			return DisposalTracker.DisposeAsync();
 		}
 
 		/// <inheritdoc/>

@@ -17,12 +17,12 @@ public class AcceptanceTestV3
 	{
 		var tcs = new TaskCompletionSource<List<IMessageSinkMessage>>();
 
-		ThreadPool.QueueUserWorkItem(_ =>
+		ThreadPool.QueueUserWorkItem(async _ =>
 		{
 			try
 			{
 				var diagnosticMessageSink = new NullMessageSink();
-				using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
+				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
 				var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -10,7 +12,7 @@ namespace Xunit.Sdk
 	/// disposed when the framework is disposed. The discoverer and executor are automatically
 	/// tracked for disposal, since those interfaces mandate an implementation of <see cref="IDisposable"/>.
 	/// </summary>
-	public abstract class TestFramework : _ITestFramework
+	public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	{
 		bool disposed;
 		ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
@@ -42,15 +44,15 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		public virtual async ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			ExtensibilityPointFactory.Dispose();
-			DisposalTracker.Dispose();
+			await ExtensibilityPointFactory.DisposeAsync();
+			await DisposalTracker.DisposeAsync();
 		}
 
 		/// <summary>

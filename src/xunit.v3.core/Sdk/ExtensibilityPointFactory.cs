@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -50,10 +52,10 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Disposes the instances that are contained in the cache.
 		/// </summary>
-		public static void Dispose()
+		public static async ValueTask DisposeAsync()
 		{
 			instances.Clear();
-			disposalTracker.Dispose();
+			await disposalTracker.DisposeAsync();
 			disposalTracker = new DisposalTracker();
 		}
 
