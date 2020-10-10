@@ -35,7 +35,7 @@ namespace Xunit.Runner.SystemConsole
 			commandLine = CommandLine.Parse(args);
 		}
 
-		public int EntryPoint()
+		public async ValueTask<int> EntryPoint()
 		{
 			try
 			{
@@ -85,7 +85,7 @@ namespace Xunit.Runner.SystemConsole
 				if (!commandLine.NoLogo)
 					PrintHeader();
 
-				var failCount = RunProject(
+				var failCount = await RunProject(
 					commandLine.Project,
 					commandLine.Serialize,
 					commandLine.ParallelizeAssemblies,
@@ -299,7 +299,7 @@ namespace Xunit.Runner.SystemConsole
 				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
 		}
 
-		int RunProject(
+		async ValueTask<int> RunProject(
 			XunitProject project,
 			bool serialize,
 			bool? parallelizeAssemblies,
@@ -356,7 +356,7 @@ namespace Xunit.Runner.SystemConsole
 			{
 				foreach (var assembly in project.Assemblies)
 				{
-					var assemblyElement = ExecuteAssembly(
+					var assemblyElement = await ExecuteAssembly(
 						consoleLock,
 						assembly,
 						serialize,
@@ -394,7 +394,7 @@ namespace Xunit.Runner.SystemConsole
 			return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
 		}
 
-		XElement? ExecuteAssembly(
+		async ValueTask<XElement?> ExecuteAssembly(
 			object consoleLock,
 			XunitProjectAssembly assembly,
 			bool serialize,
@@ -445,7 +445,7 @@ namespace Xunit.Runner.SystemConsole
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 				using (AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink))
-				using (var controller = new XunitFrontController(appDomainSupport, assemblyFileName, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+				await using (var controller = new XunitFrontController(appDomainSupport, assemblyFileName, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
 				using (var discoverySink = new TestDiscoverySink(() => cancel))
 				{
 					// Discover & filter the tests

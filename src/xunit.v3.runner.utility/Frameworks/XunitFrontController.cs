@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using System.Threading.Tasks;
 
 #if NETFRAMEWORK
 using System.Linq;
@@ -16,20 +17,20 @@ namespace Xunit
 	/// Default implementation of <see cref="IFrontController"/> which supports running tests from
 	/// both xUnit.net v1 and v2.
 	/// </summary>
-	public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider, ITestCaseBulkDeserializer
+	public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider, ITestCaseBulkDeserializer, IAsyncDisposable
 	{
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
 		ITestCaseBulkDeserializer? bulkDeserializer;
 		readonly string? configFileName;
 		readonly IMessageSink diagnosticMessageSink;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		bool disposed;
 		ITestCaseDescriptorProvider? descriptorProvider;
 		IFrontController? innerController;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly ISourceInformationProvider sourceInformationProvider;
-		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
 		/// <summary>
 		/// This constructor is for unit testing purposes only.
@@ -77,7 +78,7 @@ namespace Xunit
 				this.sourceInformationProvider = new NullSourceInformationProvider();
 #else
 				this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, this.diagnosticMessageSink);
-				toDispose.Push(this.sourceInformationProvider);
+				disposalTracker.Add(this.sourceInformationProvider);
 #endif
 			}
 			else
@@ -118,7 +119,7 @@ namespace Xunit
 				if (innerController == null)
 				{
 					innerController = CreateInnerController();
-					toDispose.Push(innerController);
+					disposalTracker.Add(innerController);
 				}
 
 				return innerController;
@@ -164,15 +165,17 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
+
+		/// <inheritdoc/>
+		public ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			foreach (var disposable in toDispose)
-				disposable.Dispose();
+			return disposalTracker.DisposeAsync();
 		}
 
 		/// <inheritdoc/>
