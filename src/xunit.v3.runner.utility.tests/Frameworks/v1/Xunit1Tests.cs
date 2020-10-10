@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.UI;
 using NSubstitute;
 using Xunit;
@@ -30,12 +31,12 @@ public class Xunit1Tests
 	public class Dispose
 	{
 		[Fact]
-		public void DisposesExecutor()
+		public async ValueTask DisposesExecutor()
 		{
 			var xunit1 = new TestableXunit1();
 			_ = xunit1.TestFrameworkDisplayName;  // Ensure the executor gets created
 
-			xunit1.Dispose();
+			await xunit1.DisposeAsync();
 
 			xunit1.Executor.Received(1).Dispose();
 		}

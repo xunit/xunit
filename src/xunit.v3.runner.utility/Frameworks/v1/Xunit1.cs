@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -17,18 +18,18 @@ namespace Xunit
 	/// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
 	/// instead of using this class directly.
 	/// </summary>
-	public class Xunit1 : IFrontController
+	public class Xunit1 : IFrontController, IAsyncDisposable
 	{
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
 		readonly string? configFileName;
 		readonly IMessageSink diagnosticMessageSink;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		bool disposed;
 		IXunit1Executor? executor;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly ISourceInformationProvider sourceInformationProvider;
-		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -101,16 +102,17 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
+
+		/// <inheritdoc/>
+		public async ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			foreach (var disposable in toDispose)
-				disposable.Dispose();
-
+			await disposalTracker.DisposeAsync();
 			executor?.Dispose();
 		}
 
@@ -205,7 +207,7 @@ namespace Xunit
 		public void Run(IMessageSink messageSink)
 		{
 			var discoverySink = new TestDiscoverySink();
-			toDispose.Push(discoverySink);
+			disposalTracker.Add(discoverySink);
 
 			Find(false, discoverySink);
 			discoverySink.Finished.WaitOne();
