@@ -4,11 +4,11 @@ using System.Threading;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
-public class SpyMessageSink<TFinalMessage> : IMessageSink
+public class SpyMessageSink<TFinalMessage> : IMessageSink, IDisposable
 #else
 using Xunit.Runner.v2;
 
-public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink
+public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink, IDisposable
 #endif
 {
 	readonly Func<IMessageSinkMessage, bool> cancellationThunk;

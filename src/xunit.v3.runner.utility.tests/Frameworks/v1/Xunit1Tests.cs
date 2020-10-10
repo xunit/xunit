@@ -235,7 +235,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='type2.skipping_with_start' type='type2' method='skipping_with_start' result='Skip'><reason><message>Skip message</message></reason></test>");
 					callback.RaiseCallbackEvent("<class name='type2' time='0.000' total='1' failed='0' skipped='1'/>");
 				});
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -543,7 +543,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
 				.Do(callInfo => { throw exception; });
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -570,7 +570,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
 				.Do(callInfo => { throw exception; });
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -607,7 +607,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent($"<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{exception.GetType().FullName}'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></test>");
 					callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
 				});
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -648,7 +648,7 @@ public class Xunit1Tests
 					var callback = callInfo.Arg<ICallbackEventHandler>();
 					callback.RaiseCallbackEvent($"<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
 				});
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -687,7 +687,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
 				});
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -720,7 +720,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></class>");
 				});
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -838,7 +838,7 @@ public class AmbiguouslyNamedTestMethods
 
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
 			using var xunit1 = new Xunit1(new NullMessageSink(), AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName);
-			var spy = new SpyMessageSink<ITestAssemblyFinished>();
+			using var spy = new SpyMessageSink<ITestAssemblyFinished>();
 			xunit1.Run(spy);
 			spy.Finished.WaitOne();
 

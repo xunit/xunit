@@ -15,7 +15,7 @@ public class Xunit2Tests
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			using var controller = new TestableXunit2(assm.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			using var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
@@ -38,7 +38,7 @@ public class Foo
 
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assm.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			using var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
@@ -88,7 +88,7 @@ namespace Namespace2
 
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			using var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
@@ -128,7 +128,7 @@ public class TestClass
 
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			using var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
@@ -245,7 +245,7 @@ let AsyncFailing() =
 
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			using var controller = new TestableXunit2(assembly.FileName, null, true);
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
 			controller.RunAll(sink, discoveryOptions: TestFrameworkOptions.ForDiscovery(), executionOptions: TestFrameworkOptions.ForExecution());
 			sink.Finished.WaitOne();

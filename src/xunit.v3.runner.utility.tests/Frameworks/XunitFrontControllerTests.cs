@@ -37,7 +37,7 @@ namespace Namespace1
 
 			using (var serializationController = new TestableXunitFrontController(assembly.FileName))
 			{
-				var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+				using var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 				serializationController.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 				sink.Finished.WaitOne();
 

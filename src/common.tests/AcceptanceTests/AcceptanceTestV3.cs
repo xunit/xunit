@@ -24,7 +24,7 @@ public class AcceptanceTestV3
 				var diagnosticMessageSink = new NullMessageSink();
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
-				var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+				using var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
@@ -36,7 +36,7 @@ public class AcceptanceTestV3
 
 				var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
-				var runSink = new SpyMessageSink<ITestAssemblyFinished>();
+				using var runSink = new SpyMessageSink<ITestAssemblyFinished>();
 				var executor = testFramework.GetExecutor(assemblyInfo);
 				executor.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
 				runSink.Finished.WaitOne();
