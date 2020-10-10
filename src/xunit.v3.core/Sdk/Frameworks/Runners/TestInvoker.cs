@@ -295,7 +295,8 @@ namespace Xunit.Sdk
 		/// Invokes the test method on the given test class instance. This method sets up support for "async void"
 		/// test methods, ensures that the test method has the correct number of arguments, then calls <see cref="CallTestMethod"/>
 		/// to do the actual method invocation. It ensure that any async test method is fully completed before returning, and
-		/// returns the measured clock time that the invocation took.
+		/// returns the measured clock time that the invocation took. This method should NEVER throw; any exceptions should be
+		/// placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		/// <param name="testClassInstance">The test class instance</param>
 		/// <returns>Returns the time taken to invoke the test method</returns>
