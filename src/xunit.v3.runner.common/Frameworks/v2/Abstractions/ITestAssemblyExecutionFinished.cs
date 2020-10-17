@@ -1,5 +1,6 @@
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 // TODO: These will be replaced by their counterparts in xunit.v3.common/v3/Messages once we replace the message sink.
 namespace Xunit.Runner.v2
@@ -18,7 +19,7 @@ namespace Xunit.Runner.v2
 		/// <summary>
 		/// Gets the options that were used during execution.
 		/// </summary>
-		ITestFrameworkExecutionOptions ExecutionOptions { get; }
+		_ITestFrameworkExecutionOptions ExecutionOptions { get; }
 
 		/// <summary>
 		/// Gets the summary of the execution results for the test assembly.

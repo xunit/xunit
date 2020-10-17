@@ -10,6 +10,7 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TestAssemblyRunnerTests
 {
@@ -28,7 +29,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask SyncMessageBusOption()
 		{
-			var executionOptions = TestFrameworkOptions.ForExecution();
+			var executionOptions = _TestFrameworkOptions.ForExecution();
 			executionOptions.SetSynchronousMessageReporting(true);
 			await using var runner = TestableTestAssemblyRunner.Create(executionOptions: executionOptions);
 
@@ -338,7 +339,7 @@ public class TestAssemblyRunnerTests
 			IEnumerable<ITestCase> testCases,
 			List<IMessageSinkMessage> diagnosticMessages,
 			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions,
+			_ITestFrameworkExecutionOptions executionOptions,
 			RunSummary result,
 			bool cancelInRunTestCollectionAsync)
 				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
@@ -353,7 +354,7 @@ public class TestAssemblyRunnerTests
 			IMessageSink? executionMessageSink = null,
 			RunSummary? result = null,
 			ITestCase[]? testCases = null,
-			ITestFrameworkExecutionOptions? executionOptions = null,
+			_ITestFrameworkExecutionOptions? executionOptions = null,
 			bool cancelInRunTestCollectionAsync = false)
 		{
 			return new TestableTestAssemblyRunner(
@@ -361,7 +362,7 @@ public class TestAssemblyRunnerTests
 				testCases ?? new[] { Substitute.For<ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
 				new List<IMessageSinkMessage>(),
 				executionMessageSink ?? SpyMessageSink.Create(),
-				executionOptions ?? TestFrameworkOptions.ForExecution(),
+				executionOptions ?? _TestFrameworkOptions.ForExecution(),
 				result ?? new RunSummary(),
 				cancelInRunTestCollectionAsync
 			);

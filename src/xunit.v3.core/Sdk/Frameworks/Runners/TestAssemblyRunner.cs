@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -24,7 +25,7 @@ namespace Xunit.Sdk
 		ExceptionAggregator aggregator = new ExceptionAggregator();
 		IMessageSink diagnosticMessageSink;
 		IMessageSink executionMessageSink;
-		ITestFrameworkExecutionOptions executionOptions;
+		_ITestFrameworkExecutionOptions executionOptions;
 		ITestAssembly testAssembly;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
@@ -43,7 +44,7 @@ namespace Xunit.Sdk
 			IEnumerable<TTestCase> testCases,
 			IMessageSink diagnosticMessageSink,
 			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
 			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
@@ -66,7 +67,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the user's requested execution options.
 		/// </summary>
-		protected ITestFrameworkExecutionOptions ExecutionOptions
+		protected _ITestFrameworkExecutionOptions ExecutionOptions
 		{
 			get => executionOptions;
 			set => executionOptions = Guard.ArgumentNotNull(nameof(ExecutionOptions), value);

@@ -126,6 +126,12 @@ namespace Xunit.Runner.Common
 		public static ITestFrameworkDiscoveryOptions Wrap(_ITestFrameworkDiscoveryOptions options) =>
 			new OptionsWrapper(options);
 
+		/// <summary>
+		/// TEMPORARY METHOD. DO NOT USE.
+		/// </summary>
+		public static ITestFrameworkExecutionOptions Wrap(_ITestFrameworkExecutionOptions options) =>
+			new OptionsWrapper(options);
+
 		class OptionsWrapper : ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
 		{
 			readonly _ITestFrameworkOptions innerOptions;

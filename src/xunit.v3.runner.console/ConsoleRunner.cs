@@ -479,7 +479,7 @@ namespace Xunit.Runner.SystemConsole
 						if (failSkips)
 							resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+						controller.RunTests(filteredTestCases, MessageSinkAdapter.Wrap(resultsSink), TestFrameworkOptions.Wrap(executionOptions));
 						resultsSink.Finished.WaitOne();
 
 						reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));

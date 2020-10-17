@@ -6,6 +6,8 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
+using ExceptionUtility = Xunit.Runner.v2.ExceptionUtility;
 
 namespace Xunit.Runner.Common
 {
@@ -16,8 +18,8 @@ namespace Xunit.Runner.Common
 	public class DefaultRunnerReporterWithTypesMessageHandler : TestMessageSink
 	{
 		readonly string? defaultDirectory = null;
-		readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.ForExecution();
-		readonly Dictionary<string, ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
+		readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
+		readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, _ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultRunnerReporterWithTypesMessageHandler"/> class.
@@ -59,7 +61,7 @@ namespace Xunit.Runner.Common
 
 		void AddExecutionOptions(
 			string? assemblyFilename,
-			ITestFrameworkExecutionOptions executionOptions)
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.NotNull("Attempted to log messages for an XunitProjectAssembly without first setting AssemblyFilename", assemblyFilename);
 
@@ -112,7 +114,7 @@ namespace Xunit.Runner.Common
 		/// returns a default set of options.
 		/// </summary>
 		/// <param name="assemblyFilename">The test assembly filename</param>
-		protected ITestFrameworkExecutionOptions GetExecutionOptions(string assemblyFilename)
+		protected _ITestFrameworkExecutionOptions GetExecutionOptions(string assemblyFilename)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyFilename), assemblyFilename);
 

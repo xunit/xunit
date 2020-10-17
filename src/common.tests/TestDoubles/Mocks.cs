@@ -308,7 +308,7 @@ public static class Mocks
 		var summary = new ExecutionSummary { Total = total, Failed = failed, Skipped = skipped, Errors = errors, Time = time };
 		var result = Substitute.For<ITestAssemblyExecutionFinished, InterfaceProxy<ITestAssemblyExecutionFinished>>();
 		result.Assembly.Returns(assembly);
-		result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
+		result.ExecutionOptions.Returns(_TestFrameworkOptions.ForExecution(config));
 		result.ExecutionSummary.Returns(summary);
 		return result;
 	}
@@ -321,7 +321,7 @@ public static class Mocks
 		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
 		var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
 		result.Assembly.Returns(assembly);
-		result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
+		result.ExecutionOptions.Returns(_TestFrameworkOptions.ForExecution(config));
 		return result;
 	}
 

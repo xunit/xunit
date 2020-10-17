@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -34,7 +35,7 @@ namespace Xunit.Sdk
 			IEnumerable<IXunitTestCase> testCases,
 			IMessageSink diagnosticMessageSink,
 			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_ITestFrameworkExecutionOptions executionOptions)
 				: base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 		{ }
 

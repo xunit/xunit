@@ -101,7 +101,7 @@ namespace Xunit.Sdk
 		public virtual async void RunAll(
 			IMessageSink executionMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestFrameworkExecutionOptions executionOptions)
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
@@ -123,7 +123,7 @@ namespace Xunit.Sdk
 		public virtual void RunTests(
 			IEnumerable<ITestCase> testCases,
 			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull("testCases", testCases);
 			Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
@@ -141,7 +141,7 @@ namespace Xunit.Sdk
 		protected abstract void RunTestCases(
 			IEnumerable<TTestCase> testCases,
 			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions
+			_ITestFrameworkExecutionOptions executionOptions
 		);
 	}
 }

@@ -29,7 +29,7 @@ namespace Xunit.v3
 		void RunAll(
 			IMessageSink executionMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestFrameworkExecutionOptions executionOptions
+			_ITestFrameworkExecutionOptions executionOptions
 		);
 
 		/// <summary>
@@ -41,7 +41,7 @@ namespace Xunit.v3
 		void RunTests(
 			IEnumerable<ITestCase> testCases,
 			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions
+			_ITestFrameworkExecutionOptions executionOptions
 		);
 	}
 }

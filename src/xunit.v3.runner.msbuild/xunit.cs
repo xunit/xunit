@@ -321,7 +321,7 @@ namespace Xunit.Runner.MSBuild
 
 					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-					controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+					controller.RunTests(filteredTestCases, MessageSinkAdapter.Wrap(resultsSink), TestFrameworkOptions.Wrap(executionOptions));
 					resultsSink.Finished.WaitOne();
 
 					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));

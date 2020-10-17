@@ -1,11 +1,10 @@
 using System;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.v3;
 
 /// <summary>
-/// Extension methods for reading <see cref="_ITestFrameworkDiscoveryOptions"/> and <see cref="ITestFrameworkExecutionOptions"/>.
+/// Extension methods for reading <see cref="_ITestFrameworkDiscoveryOptions"/> and <see cref="_ITestFrameworkExecutionOptions"/>.
 /// </summary>
 public static class TestFrameworkOptionsReadExtensions
 {
@@ -127,7 +126,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// <summary>
 	/// Gets a flag that determines whether diagnostic messages will be emitted.
 	/// </summary>
-	public static bool? DiagnosticMessages(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool? DiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -138,7 +137,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not
 	/// present, returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool DiagnosticMessagesOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool DiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -148,7 +147,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// <summary>
 	/// Gets a flag to disable parallelization.
 	/// </summary>
-	public static bool? DisableParallelization(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool? DisableParallelization(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -159,7 +158,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag to disable parallelization. If the flag is not present, returns the
 	/// default value (<c>false</c>).
 	/// </summary>
-	public static bool DisableParallelizationOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool DisableParallelizationOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -169,7 +168,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// <summary>
 	/// Gets the maximum number of threads to use when running tests in parallel.
 	/// </summary>
-	public static int? MaxParallelThreads(this ITestFrameworkExecutionOptions executionOptions)
+	public static int? MaxParallelThreads(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -181,7 +180,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// the value of <see cref="Environment.ProcessorCount"/> is used; if set to a value less
 	/// than 0, does not limit the number of threads.
 	/// </summary>
-	public static int MaxParallelThreadsOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+	public static int MaxParallelThreadsOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -195,7 +194,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// <summary>
 	/// Gets a flag to stop testing on test failure.
 	/// </summary>
-	public static bool? StopOnTestFail(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool? StopOnTestFail(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -206,7 +205,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag to stop testing on test failure. If the flag is not present, returns the 
 	/// default value (<c>false</c>).
 	/// </summary>
-	public static bool StopOnTestFailOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool StopOnTestFailOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -216,7 +215,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// </summary>
-	public static bool? SynchronousMessageReporting(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool? SynchronousMessageReporting(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
@@ -227,7 +226,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// If the flag is not set, returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool SynchronousMessageReportingOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+	public static bool SynchronousMessageReportingOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -15,7 +14,7 @@ namespace Xunit.Runner.Common
 #if NETFRAMEWORK
 	[System.Serializable]
 #endif
-	public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
+	public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFrameworkExecutionOptions
 	{
 		readonly Dictionary<string, object> properties = new Dictionary<string, object>();
 
@@ -47,9 +46,9 @@ namespace Xunit.Runner.Common
 		/// Creates an instance of <see cref="TestFrameworkOptions"/>
 		/// </summary>
 		/// <param name="configuration">The optional configuration to copy values from.</param>
-		public static ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration? configuration = null)
+		public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration? configuration = null)
 		{
-			ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
+			_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
 
 			if (configuration != null)
 			{
@@ -78,18 +77,6 @@ namespace Xunit.Runner.Common
 
 			return default;
 		}
-
-#nullable disable  // The original signature is not compatibility with nullable reference type support
-		TValue ITestFrameworkOptions.GetValue<TValue>(string name)
-		{
-			Guard.ArgumentNotNullOrEmpty(nameof(name), name);
-
-			if (properties.TryGetValue(name, out var result))
-				return (TValue)result;
-
-			return default;
-		}
-#nullable enable
 
 		/// <summary>
 		/// Sets a value into the options collection.
