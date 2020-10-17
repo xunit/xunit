@@ -8,7 +8,7 @@ using Xunit.v3;
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// The implementation of <see cref="ITestFrameworkExecutor"/> that supports execution
+	/// The implementation of <see cref="_ITestFrameworkExecutor"/> that supports execution
 	/// of unit tests linked against xunit.v3.core.dll.
 	/// </summary>
 	public class XunitTestFrameworkExecutor : TestFrameworkExecutor<IXunitTestCase>

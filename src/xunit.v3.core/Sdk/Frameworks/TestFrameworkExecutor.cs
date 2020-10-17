@@ -10,12 +10,12 @@ using Xunit.v3;
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// A reusable implementation of <see cref="ITestFrameworkExecutor"/> which contains the basic behavior
+	/// A reusable implementation of <see cref="_ITestFrameworkExecutor"/> which contains the basic behavior
 	/// for running tests.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 	/// derive from <see cref="ITestCase"/>.</typeparam>
-	public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor, IAsyncDisposable
+	public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor, IAsyncDisposable
 		where TTestCase : ITestCase
 	{
 		IReflectionAssemblyInfo assemblyInfo;
@@ -85,9 +85,6 @@ namespace Xunit.Sdk
 
 			return SerializationHelper.Deserialize<ITestCase>(value) ?? throw new ArgumentException($"Could not deserialize test case: {value}", nameof(value));
 		}
-
-		/// <inheritdoc/>
-		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()

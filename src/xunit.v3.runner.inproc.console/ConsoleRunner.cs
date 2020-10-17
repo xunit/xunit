@@ -460,7 +460,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
 					var executor = testFramework.GetExecutor(assemblyInfo);
-					executor.RunTests(filteredTestCases, resultsSink, executionOptions);
+					executor.RunTests(filteredTestCases, MessageSinkAdapter.Wrap(resultsSink), executionOptions);
 					resultsSink.Finished.WaitOne();
 
 					executionSummary = resultsSink.ExecutionSummary;

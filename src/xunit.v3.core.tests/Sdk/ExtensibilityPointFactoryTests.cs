@@ -133,7 +133,7 @@ public class ExtensibilityPointFactoryTests
 			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
@@ -168,7 +168,7 @@ public class ExtensibilityPointFactoryTests
 			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
@@ -211,7 +211,7 @@ public class ExtensibilityPointFactoryTests
 			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -12,12 +13,12 @@ namespace Xunit.v3
 	{
 		// TODO: Can we get away without Deserialize?
 
-		///// <summary>
-		///// De-serializes a test case.
-		///// </summary>
-		///// <param name="value">The string representation of the test case.</param>
-		///// <returns>The de-serialized test case.</returns>
-		//ITestCase Deserialize(string value);
+		/// <summary>
+		/// De-serializes a test case.
+		/// </summary>
+		/// <param name="value">The string representation of the test case.</param>
+		/// <returns>The de-serialized test case.</returns>
+		ITestCase Deserialize(string value);
 
 		/// <summary>
 		/// Starts the process of running all the tests in the assembly.
@@ -26,9 +27,9 @@ namespace Xunit.v3
 		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunAll(
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestFrameworkExecutionOptions executionOptions
+			IMessageSink executionMessageSink,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestFrameworkExecutionOptions executionOptions
 		);
 
 		/// <summary>
@@ -38,9 +39,9 @@ namespace Xunit.v3
 		/// <param name="executionMessageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunTests(
-			IEnumerable<_ITestCaseMetadata> testCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions
+			IEnumerable<ITestCase> testCases,
+			IMessageSink executionMessageSink,
+			ITestFrameworkExecutionOptions executionOptions
 		);
 	}
 }

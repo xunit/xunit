@@ -37,7 +37,7 @@ namespace Xunit.Sdk
 			new XunitTestFrameworkDiscoverer(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 
 		/// <inheritdoc/>
-		protected override ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly) =>
+		protected override _ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly) =>
 			new XunitTestFrameworkExecutor(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 	}
 }

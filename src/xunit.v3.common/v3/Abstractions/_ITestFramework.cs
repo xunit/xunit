@@ -30,6 +30,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assembly">The assembly to run tests from.</param>
 		/// <returns>The test executor.</returns>
-		ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly);
+		_ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly);
 	}
 }
