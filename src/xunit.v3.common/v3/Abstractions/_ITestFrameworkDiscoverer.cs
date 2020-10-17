@@ -29,7 +29,7 @@ namespace Xunit.v3
 		void Find(
 			bool includeSourceInformation,
 			IMessageSink discoveryMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions
+			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace Xunit.v3
 			string typeName,
 			bool includeSourceInformation,
 			IMessageSink discoveryMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions
+			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
 		// TODO: Can we get away without Serialize?

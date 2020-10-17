@@ -28,7 +28,7 @@ namespace Xunit.v3
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunAll(
 			IMessageSink executionMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestFrameworkExecutionOptions executionOptions
 		);
 

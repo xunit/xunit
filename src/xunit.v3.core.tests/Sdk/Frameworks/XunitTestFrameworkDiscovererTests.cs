@@ -32,7 +32,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
-			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: null!, discoveryOptions: TestFrameworkOptions.ForDiscovery()));
+			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()));
 			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: Substitute.For<IMessageSink>(), discoveryOptions: null!));
 		}
 
@@ -109,7 +109,7 @@ public class XunitTestFrameworkDiscovererTests
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var typeName = typeof(object).FullName!;
 			var sink = Substitute.For<IMessageSink>();
-			var options = TestFrameworkOptions.ForDiscovery();
+			var options = _TestFrameworkOptions.ForDiscovery();
 
 			Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null!, includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
 			Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
@@ -487,23 +487,31 @@ public class XunitTestFrameworkDiscovererTests
 
 		public void Find(bool includeSourceInformation = false)
 		{
-			base.Find(includeSourceInformation, Sink, TestFrameworkOptions.ForDiscovery());
+			base.Find(includeSourceInformation, Sink, _TestFrameworkOptions.ForDiscovery());
 			Sink.Finished.WaitOne();
 		}
 
-		public void Find(string typeName, bool includeSourceInformation = false)
+		public void Find(
+			string typeName,
+			bool includeSourceInformation = false)
 		{
-			Find(typeName, includeSourceInformation, Sink, TestFrameworkOptions.ForDiscovery());
+			Find(typeName, includeSourceInformation, Sink, _TestFrameworkOptions.ForDiscovery());
 			Sink.Finished.WaitOne();
 		}
 
-		public virtual bool FindTestsForClass(ITestClass testClass, bool includeSourceInformation = false)
+		public virtual bool FindTestsForClass(
+			ITestClass testClass,
+			bool includeSourceInformation = false)
 		{
 			using var messageBus = new MessageBus(Sink);
-			return base.FindTestsForType(testClass, includeSourceInformation, messageBus, TestFrameworkOptions.ForDiscovery());
+			return base.FindTestsForType(testClass, includeSourceInformation, messageBus, _TestFrameworkOptions.ForDiscovery());
 		}
 
-		protected sealed override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
+		protected sealed override bool FindTestsForType(
+			ITestClass testClass,
+			bool includeSourceInformation,
+			IMessageBus messageBus,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			return FindTestsForClass(testClass, includeSourceInformation);
 		}

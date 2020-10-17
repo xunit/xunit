@@ -2,6 +2,7 @@
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -33,7 +34,7 @@ namespace Xunit.Sdk
 		/// <param name="factAttribute">The attribute that decorates the test method.</param>
 		/// <returns></returns>
 		protected virtual IXunitTestCase CreateTestCase(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo factAttribute)
 		{
@@ -59,7 +60,7 @@ namespace Xunit.Sdk
 		/// <param name="factAttribute">The fact attribute attached to the test method.</param>
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
 		public virtual IEnumerable<IXunitTestCase> Discover(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo factAttribute)
 		{
@@ -79,13 +80,16 @@ namespace Xunit.Sdk
 			return new[] { testCase };
 		}
 
-		ExecutionErrorTestCase ErrorTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, string message) =>
-			new ExecutionErrorTestCase(
-				DiagnosticMessageSink,
-				discoveryOptions.MethodDisplayOrDefault(),
-				discoveryOptions.MethodDisplayOptionsOrDefault(),
-				testMethod,
-				message
-			);
+		ExecutionErrorTestCase ErrorTestCase(
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestMethod testMethod,
+			string message) =>
+				new ExecutionErrorTestCase(
+					DiagnosticMessageSink,
+					discoveryOptions.MethodDisplayOrDefault(),
+					discoveryOptions.MethodDisplayOptionsOrDefault(),
+					testMethod,
+					message
+				);
 	}
 }

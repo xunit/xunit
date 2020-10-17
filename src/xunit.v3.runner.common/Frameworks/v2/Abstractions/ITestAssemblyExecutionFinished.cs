@@ -1,6 +1,7 @@
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 
+// TODO: These will be replaced by their counterparts in xunit.v3.common/v3/Messages once we replace the message sink.
 namespace Xunit.Runner.v2
 {
 	/// <summary>

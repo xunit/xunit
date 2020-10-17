@@ -110,7 +110,7 @@ namespace Xunit.Sdk
 		public void Find(
 			bool includeSourceInformation,
 			IMessageSink discoveryMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
@@ -134,7 +134,7 @@ namespace Xunit.Sdk
 
 		static IMessageBus CreateMessageBus(
 			IMessageSink messageSink,
-			ITestFrameworkDiscoveryOptions options)
+			_ITestFrameworkDiscoveryOptions options)
 		{
 			if (options.SynchronousMessageReportingOrDefault())
 				return new SynchronousMessageBus(messageSink);
@@ -147,7 +147,7 @@ namespace Xunit.Sdk
 			string typeName,
 			bool includeSourceInformation,
 			IMessageSink discoveryMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNullOrEmpty("typeName", typeName);
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
@@ -182,14 +182,14 @@ namespace Xunit.Sdk
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions
+			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
 		bool FindTestsForTypeAndWrapExceptions(
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			try
 			{

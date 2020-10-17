@@ -1,6 +1,8 @@
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
+// TODO: These will be replaced by their counterparts in xunit.v3.common/v3/Messages once we replace the message sink.
 namespace Xunit.Runner.v2
 {
 	/// <summary>
@@ -23,7 +25,7 @@ namespace Xunit.Runner.v2
 		/// <summary>
 		/// Gets the options that will be used during discovery.
 		/// </summary>
-		ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
+		_ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
 
 		/// <summary>
 		/// Gets a flag which indicates whether shadow copies are being used. If app domains are

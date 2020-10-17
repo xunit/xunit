@@ -100,7 +100,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public virtual async void RunAll(
 			IMessageSink executionMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);

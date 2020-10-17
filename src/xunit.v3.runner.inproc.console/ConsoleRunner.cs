@@ -412,8 +412,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 				assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 
 				// Setup discovery and execution options with command-line overrides
-				var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-				var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 				executionOptions.SetStopOnTestFail(stopOnFail);
 				if (maxThreadCount.HasValue)
 					executionOptions.SetMaxParallelThreads(maxThreadCount);

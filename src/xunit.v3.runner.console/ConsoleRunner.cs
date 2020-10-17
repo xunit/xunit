@@ -429,8 +429,8 @@ namespace Xunit.Runner.SystemConsole
 					assembly.Configuration.AppDomain = appDomains;
 
 				// Setup discovery and execution options with command-line overrides
-				var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-				var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 				executionOptions.SetStopOnTestFail(stopOnFail);
 				if (maxThreadCount.HasValue)
 					executionOptions.SetMaxParallelThreads(maxThreadCount);
@@ -452,7 +452,7 @@ namespace Xunit.Runner.SystemConsole
 					var appDomainOption = controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied ? AppDomainOption.Enabled : AppDomainOption.Disabled;
 					reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomainOption, shadowCopy, discoveryOptions));
 
-					controller.Find(false, discoverySink, discoveryOptions);
+					controller.Find(false, discoverySink, TestFrameworkOptions.Wrap(discoveryOptions));
 					discoverySink.Finished.WaitOne();
 
 					var testCasesDiscovered = discoverySink.TestCases.Count;

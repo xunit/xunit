@@ -274,7 +274,7 @@ public static class Mocks
 		var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, ShadowCopy = true };
 		var result = Substitute.For<ITestAssemblyDiscoveryFinished, InterfaceProxy<ITestAssemblyDiscoveryFinished>>();
 		result.Assembly.Returns(assembly);
-		result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
+		result.DiscoveryOptions.Returns(_TestFrameworkOptions.ForDiscovery(config));
 		result.TestCasesDiscovered.Returns(discovered);
 		result.TestCasesToRun.Returns(toRun);
 		return result;
@@ -290,7 +290,7 @@ public static class Mocks
 		var result = Substitute.For<ITestAssemblyDiscoveryStarting, InterfaceProxy<ITestAssemblyDiscoveryStarting>>();
 		result.AppDomain.Returns(appDomain);
 		result.Assembly.Returns(assembly);
-		result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
+		result.DiscoveryOptions.Returns(_TestFrameworkOptions.ForDiscovery(config));
 		result.ShadowCopy.Returns(shadowCopy);
 		return result;
 	}

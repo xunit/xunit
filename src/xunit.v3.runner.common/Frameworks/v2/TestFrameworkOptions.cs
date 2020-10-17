@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -117,6 +118,28 @@ namespace Xunit.Runner.Common
 				return $"\"{stringValue}\"";
 
 			return value.ToString()!;
+		}
+
+		/// <summary>
+		/// TEMPORARY METHOD. DO NOT USE.
+		/// </summary>
+		public static ITestFrameworkDiscoveryOptions Wrap(_ITestFrameworkDiscoveryOptions options) =>
+			new OptionsWrapper(options);
+
+		class OptionsWrapper : ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
+		{
+			readonly _ITestFrameworkOptions innerOptions;
+
+			public OptionsWrapper(_ITestFrameworkOptions innerOptions)
+			{
+				this.innerOptions = innerOptions;
+			}
+
+			public TValue GetValue<TValue>(string name)
+				=> innerOptions.GetValue<TValue>(name);
+
+			public void SetValue<TValue>(string name, TValue value)
+				=> innerOptions.SetValue<TValue>(name, value);
 		}
 	}
 }

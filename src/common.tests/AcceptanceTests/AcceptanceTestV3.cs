@@ -29,7 +29,7 @@ public class AcceptanceTestV3
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
 				{
-					discoverer.Find(type.FullName!, includeSourceInformation: false, discoverySink, TestFrameworkOptions.ForDiscovery());
+					discoverer.Find(type.FullName!, includeSourceInformation: false, discoverySink, _TestFrameworkOptions.ForDiscovery());
 					discoverySink.Finished.WaitOne();
 					discoverySink.Finished.Reset();
 				}
@@ -38,7 +38,7 @@ public class AcceptanceTestV3
 
 				using var runSink = new SpyMessageSink<ITestAssemblyFinished>();
 				var executor = testFramework.GetExecutor(assemblyInfo);
-				executor.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
+				executor.RunTests(testCases, runSink, _TestFrameworkOptions.ForExecution());
 				runSink.Finished.WaitOne();
 
 				tcs.TrySetResult(runSink.Messages.ToList());

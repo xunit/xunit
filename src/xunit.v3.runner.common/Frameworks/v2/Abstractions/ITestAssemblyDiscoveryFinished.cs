@@ -1,6 +1,8 @@
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
+// TODO: These will be replaced by their counterparts in xunit.v3.common/v3/Messages once we replace the message sink.
 namespace Xunit.Runner.v2
 {
 	/// <summary>
@@ -17,7 +19,7 @@ namespace Xunit.Runner.v2
 		/// <summary>
 		/// Gets the options that were used during discovery.
 		/// </summary>
-		ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
+		_ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
 
 		/// <summary>
 		/// Gets the number of test cases that were discovered. This is the raw

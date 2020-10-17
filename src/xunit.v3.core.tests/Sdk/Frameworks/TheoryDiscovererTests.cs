@@ -8,10 +8,11 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TheoryDiscovererTests : AcceptanceTestV3
 {
-	readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestFrameworkOptions.ForDiscovery();
+	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
 
 	[Fact]
 	public async void NoDataAttributes()

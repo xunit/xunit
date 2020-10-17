@@ -36,7 +36,7 @@ public class SerializationTests
 		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 		var sink = new TestDiscoverySink();
 
-		discoverer.Find(typeof(ClassWithFacts).FullName!, false, sink, TestFrameworkOptions.ForDiscovery());
+		discoverer.Find(typeof(ClassWithFacts).FullName!, false, sink, _TestFrameworkOptions.ForDiscovery());
 		sink.Finished.WaitOne();
 
 		var first = sink.TestCases[0];
@@ -70,7 +70,7 @@ public class SerializationTests
 		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 		var sink = new TestDiscoverySink();
 
-		discoverer.Find(typeof(ClassWithTheory).FullName!, false, sink, TestFrameworkOptions.ForDiscovery());
+		discoverer.Find(typeof(ClassWithTheory).FullName!, false, sink, _TestFrameworkOptions.ForDiscovery());
 		sink.Finished.WaitOne();
 
 		var first = sink.TestCases[0];
@@ -103,7 +103,7 @@ public class SerializationTests
 		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 		var sink = new TestDiscoverySink();
 
-		discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName!, false, sink, TestFrameworkOptions.ForDiscovery());
+		discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName!, false, sink, _TestFrameworkOptions.ForDiscovery());
 		sink.Finished.WaitOne();
 
 		var testCase = Assert.Single(sink.TestCases);

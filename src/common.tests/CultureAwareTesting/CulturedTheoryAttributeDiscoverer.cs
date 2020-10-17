@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -10,7 +11,7 @@ namespace Xunit.Sdk
 			: base(diagnosticMessageSink) { }
 
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow)
@@ -30,7 +31,7 @@ namespace Xunit.Sdk
 		}
 
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{

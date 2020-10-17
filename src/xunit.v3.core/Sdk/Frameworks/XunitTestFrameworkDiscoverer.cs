@@ -94,7 +94,7 @@ namespace Xunit.Sdk
 			ITestMethod testMethod,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
@@ -140,7 +140,7 @@ namespace Xunit.Sdk
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			foreach (var method in testClass.Class.GetMethods(true))
 			{

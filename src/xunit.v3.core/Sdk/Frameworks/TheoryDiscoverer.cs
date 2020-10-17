@@ -4,6 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -37,7 +38,7 @@ namespace Xunit.Sdk
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <returns>The test cases</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow)
@@ -63,7 +64,7 @@ namespace Xunit.Sdk
 		/// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
 		/// <returns>The test cases</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkip(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			string skipReason)
@@ -90,7 +91,7 @@ namespace Xunit.Sdk
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>The test case</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{
@@ -117,7 +118,7 @@ namespace Xunit.Sdk
 		/// <param name="skipReason">The reason this test case is to be skipped</param>
 		/// <returns>The test cases</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow,
@@ -150,7 +151,7 @@ namespace Xunit.Sdk
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
 		public virtual IEnumerable<IXunitTestCase> Discover(
-			ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{
