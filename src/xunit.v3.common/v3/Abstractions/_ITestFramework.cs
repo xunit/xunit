@@ -23,7 +23,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assembly">The assembly to discover tests from.</param>
 		/// <returns>The test discoverer.</returns>
-		ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly);
+		_ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly);
 
 		/// <summary>
 		/// Get a test executor.

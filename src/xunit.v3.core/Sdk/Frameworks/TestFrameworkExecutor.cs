@@ -76,7 +76,7 @@ namespace Xunit.Sdk
 		/// tests when the user asks to run all test.
 		/// </summary>
 		/// <returns>The test framework discoverer</returns>
-		protected abstract ITestFrameworkDiscoverer CreateDiscoverer();
+		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer();
 
 		/// <inheritdoc/>
 		public virtual ITestCase Deserialize(string value)
@@ -101,7 +101,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public virtual void RunAll(
+		public virtual async void RunAll(
 			IMessageSink executionMessageSink,
 			ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestFrameworkExecutionOptions executionOptions)
@@ -112,11 +112,12 @@ namespace Xunit.Sdk
 
 			var discoverySink = new TestDiscoveryVisitor();
 
-			using (var discoverer = CreateDiscoverer())
-			{
-				discoverer.Find(false, discoverySink, discoveryOptions);
-				discoverySink.Finished.WaitOne();
-			}
+			await using var tracker = new DisposalTracker();
+			var discoverer = CreateDiscoverer();
+			tracker.Add(discoverer);
+
+			discoverer.Find(false, discoverySink, discoveryOptions);
+			discoverySink.Finished.WaitOne();
 
 			RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
 		}

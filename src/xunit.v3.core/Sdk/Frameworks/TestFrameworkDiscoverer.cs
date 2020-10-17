@@ -12,10 +12,10 @@ using Xunit.v3;
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// A base implementation of <see cref="ITestFrameworkDiscoverer"/> that supports test filtering
+	/// A base implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports test filtering
 	/// and runs the discovery process on a thread pool thread.
 	/// </summary>
-	public abstract class TestFrameworkDiscoverer : ITestFrameworkDiscoverer, IAsyncDisposable
+	public abstract class TestFrameworkDiscoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
 	{
 		IAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
@@ -94,9 +94,6 @@ namespace Xunit.Sdk
 		/// <param name="class">The CLR type.</param>
 		/// <returns>The test class.</returns>
 		protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
-
-		/// <inheritdoc/>
-		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()

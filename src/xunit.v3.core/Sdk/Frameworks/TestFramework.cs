@@ -55,11 +55,11 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Override this method to provide the implementation of <see cref="ITestFrameworkDiscoverer"/>.
+		/// Override this method to provide the implementation of <see cref="_ITestFrameworkDiscoverer"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly that is being discovered.</param>
 		/// <returns>Returns the test framework discoverer.</returns>
-		protected abstract ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly);
+		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly);
 
 		/// <summary>
 		/// Override this method to provide the implementation of <see cref="ITestFrameworkExecutor"/>.
@@ -69,7 +69,7 @@ namespace Xunit.Sdk
 		protected abstract ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly);
 
 		/// <inheritdoc/>
-		public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
+		public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 

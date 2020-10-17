@@ -33,7 +33,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly) =>
+		protected override _ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly) =>
 			new XunitTestFrameworkDiscoverer(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 
 		/// <inheritdoc/>

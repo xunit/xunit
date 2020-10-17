@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		protected override ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
+		protected override _ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
 
 		/// <inheritdoc/>
 		public override ITestCase Deserialize(string value)

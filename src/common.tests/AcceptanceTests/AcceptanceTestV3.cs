@@ -29,7 +29,7 @@ public class AcceptanceTestV3
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
 				{
-					discoverer.Find(type.FullName, includeSourceInformation: false, discoverySink, TestFrameworkOptions.ForDiscovery());
+					discoverer.Find(type.FullName!, includeSourceInformation: false, discoverySink, TestFrameworkOptions.ForDiscovery());
 					discoverySink.Finished.WaitOne();
 					discoverySink.Finished.Reset();
 				}
