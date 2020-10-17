@@ -4,6 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -33,7 +34,7 @@ namespace Xunit.Sdk
 		public XunitTestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
 			string? configFileName,
-			ISourceInformationProvider sourceProvider,
+			_ISourceInformationProvider sourceProvider,
 			IMessageSink diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory = null)
 				: base(assemblyInfo, sourceProvider, diagnosticMessageSink)

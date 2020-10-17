@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class XunitTestFrameworkDiscovererTests
 {
@@ -15,7 +16,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void GuardClause()
 		{
 			var assembly = Substitute.For<IAssemblyInfo>();
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 			var diagnosticMessageSink = SpyMessageSink.Create();
 
 			Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(assemblyInfo: null!, configFileName: null, sourceProvider, diagnosticMessageSink));
@@ -88,7 +89,7 @@ public class XunitTestFrameworkDiscovererTests
 		[Fact]
 		public static void DoesNotCallSourceProviderWhenNotAskedFor()
 		{
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 			var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
 			var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
@@ -96,7 +97,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
+			sourceProvider.Received(0).GetSourceInformation(Arg.Any<string?>(), Arg.Any<string?>());
 		}
 	}
 
@@ -159,12 +160,12 @@ public class XunitTestFrameworkDiscovererTests
 		[Fact]
 		public static void DoesNotCallSourceProviderWhenNotAskedFor()
 		{
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 			var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
 
 			framework.Find("abc");
 
-			sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
+			sourceProvider.Received(0).GetSourceInformation(Arg.Any<string?>(), Arg.Any<string?>());
 		}
 	}
 
@@ -401,10 +402,10 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			messageBus = new SpyMessageBus();
 
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 			sourceProvider
-				.GetSourceInformation(null)
-				.ReturnsForAnyArgs(new SourceInformation { FileName = "Source File", LineNumber = 42 });
+				.GetSourceInformation(null, null)
+				.ReturnsForAnyArgs(new _SourceInformation { FileName = "Source File", LineNumber = 42 });
 
 			framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
 		}
@@ -448,10 +449,10 @@ public class XunitTestFrameworkDiscovererTests
 
 		protected TestableXunitTestFrameworkDiscoverer(
 			IAssemblyInfo assembly,
-			ISourceInformationProvider? sourceProvider,
+			_ISourceInformationProvider? sourceProvider,
 			IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
-				: base(assembly, configFileName: null, sourceProvider ?? Substitute.For<ISourceInformationProvider>(), diagnosticMessageSink ?? new NullMessageSink(), collectionFactory)
+				: base(assembly, configFileName: null, sourceProvider ?? Substitute.For<_ISourceInformationProvider>(), diagnosticMessageSink ?? new NullMessageSink(), collectionFactory)
 		{
 			Assembly = assembly;
 			Sink = new TestDiscoverySink();
@@ -472,7 +473,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		public static TestableXunitTestFrameworkDiscoverer Create(
 			IAssemblyInfo? assembly = null,
-			ISourceInformationProvider? sourceProvider = null,
+			_ISourceInformationProvider? sourceProvider = null,
 			IMessageSink? diagnosticMessageSink = null,
 			IXunitTestCollectionFactory? collectionFactory = null)
 		{

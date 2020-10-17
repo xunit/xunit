@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -19,7 +20,7 @@ namespace Xunit.Sdk
 		IAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
 		bool disposed;
-		ISourceInformationProvider sourceProvider;
+		_ISourceInformationProvider sourceProvider;
 		readonly Lazy<string> targetFramework;
 
 		/// <summary>
@@ -30,7 +31,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		protected TestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
-			ISourceInformationProvider sourceProvider,
+			_ISourceInformationProvider sourceProvider,
 			IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
@@ -75,7 +76,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Get the source code information provider used during discovery.
 		/// </summary>
-		protected ISourceInformationProvider SourceProvider
+		protected _ISourceInformationProvider SourceProvider
 		{
 			get => sourceProvider;
 			set => sourceProvider = Guard.ArgumentNotNull(nameof(SourceProvider), value);
@@ -237,7 +238,10 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 
 			if (includeSourceInformation && SourceProvider != null && IsEmpty(testCase.SourceInformation))
-				testCase.SourceInformation = SourceProvider.GetSourceInformation(testCase);
+			{
+				var result = SourceProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+				testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+			}
 
 			return messageBus.QueueMessage(new TestCaseDiscoveryMessage(testCase));
 		}

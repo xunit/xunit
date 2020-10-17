@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -20,7 +21,7 @@ namespace Xunit.Sdk
 		IReflectionAssemblyInfo assemblyInfo;
 		IMessageSink diagnosticMessageSink;
 		bool disposed;
-		ISourceInformationProvider sourceInformationProvider;
+		_ISourceInformationProvider sourceInformationProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
@@ -30,7 +31,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		protected TestFrameworkExecutor(
 			IReflectionAssemblyInfo assemblyInfo,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
@@ -64,7 +65,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the source information provider.
 		/// </summary>
-		protected ISourceInformationProvider SourceInformationProvider
+		protected _ISourceInformationProvider SourceInformationProvider
 		{
 			get => sourceInformationProvider;
 			set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);

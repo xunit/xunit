@@ -11,13 +11,12 @@ namespace Xunit.v3
 	/// either <see cref="IDisposable"/> or <see cref="IAsyncDisposable"/>.
 	/// </summary>
 	// TODO: Do we still think this is the right way to do constructors?
-	// TODO: How to reconcile removing IDisposable, and people implementing Dispose now as a naked method?
 	public interface _ITestFramework
 	{
 		/// <summary>
 		/// Sets the source information provider to be used during discovery.
 		/// </summary>
-		ISourceInformationProvider SourceInformationProvider { set; }
+		_ISourceInformationProvider SourceInformationProvider { set; }
 
 		/// <summary>
 		/// Get a test discoverer.

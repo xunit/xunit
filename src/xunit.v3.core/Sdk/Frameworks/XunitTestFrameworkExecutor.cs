@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -25,7 +26,7 @@ namespace Xunit.Sdk
 		public XunitTestFrameworkExecutor(
 			IReflectionAssemblyInfo assemblyInfo,
 			string? configFileName,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			IMessageSink diagnosticMessageSink)
 				: base(assemblyInfo, sourceInformationProvider, diagnosticMessageSink)
 		{

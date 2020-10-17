@@ -180,7 +180,7 @@ namespace Xunit.Sdk
 		public static _ITestFramework GetTestFramework(
 			IMessageSink diagnosticMessageSink,
 			IAssemblyInfo testAssembly,
-			ISourceInformationProvider? sourceInformationProvider = null)
+			_ISourceInformationProvider? sourceInformationProvider = null)
 		{
 			// TODO Guard
 			_ITestFramework result;

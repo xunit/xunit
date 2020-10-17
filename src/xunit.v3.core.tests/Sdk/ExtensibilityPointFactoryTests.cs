@@ -128,7 +128,7 @@ public class ExtensibilityPointFactoryTests
 			public ThrowingTestFrameworkCtor() =>
 				throw new DivideByZeroException();
 
-			public ISourceInformationProvider SourceInformationProvider { get; set; }
+			public _ISourceInformationProvider SourceInformationProvider { get; set; }
 
 			public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
@@ -142,7 +142,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithDiscoverer));
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly, sourceProvider);
 
@@ -163,7 +163,7 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyTestFramework : _ITestFramework
 		{
-			public ISourceInformationProvider? SourceInformationProvider { get; set; }
+			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
 			public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
@@ -177,7 +177,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithDiscovererWithMessageSink));
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly, sourceProvider);
 
@@ -206,7 +206,7 @@ public class ExtensibilityPointFactoryTests
 				MessageSink = messageSink;
 			}
 
-			public ISourceInformationProvider? SourceInformationProvider { get; set; }
+			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
 			public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();

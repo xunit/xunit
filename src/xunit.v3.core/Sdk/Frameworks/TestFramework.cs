@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -15,7 +14,7 @@ namespace Xunit.Sdk
 	public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	{
 		bool disposed;
-		ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
+		_ISourceInformationProvider sourceInformationProvider = _NullSourceInformationProvider.Instance;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFramework"/> class.
@@ -37,7 +36,7 @@ namespace Xunit.Sdk
 		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <inheritdoc/>
-		public ISourceInformationProvider SourceInformationProvider
+		public _ISourceInformationProvider SourceInformationProvider
 		{
 			get => sourceInformationProvider;
 			set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
@@ -87,17 +86,6 @@ namespace Xunit.Sdk
 			var executor = CreateExecutor(assembly);
 			DisposalTracker.Add(executor);
 			return executor;
-		}
-
-		class NullSourceInformationProvider : ISourceInformationProvider
-		{
-			public static readonly NullSourceInformationProvider Instance = new NullSourceInformationProvider();
-
-			public ISourceInformation GetSourceInformation(ITestCase testCase) =>
-				new SourceInformation();
-
-			public void Dispose()
-			{ }
 		}
 	}
 }
