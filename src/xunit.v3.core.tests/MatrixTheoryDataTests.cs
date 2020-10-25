@@ -51,5 +51,4 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 			Assert.Equal(y, x.Length);
 		}
 	}
-
 }
