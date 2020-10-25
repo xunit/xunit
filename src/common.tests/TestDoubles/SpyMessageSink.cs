@@ -1,46 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using NSubstitute;
 using Xunit.Abstractions;
 
-#if XUNIT_FRAMEWORK
-public class SpyMessageSink<TFinalMessage> : IMessageSink, IDisposable
-#else
-using Xunit.Runner.v2;
-
-public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink, IDisposable
-#endif
+namespace Xunit.v3
 {
-	readonly Func<IMessageSinkMessage, bool> cancellationThunk;
-	bool disposed;
-
-	public SpyMessageSink(Func<IMessageSinkMessage, bool>? cancellationThunk = null)
+	public static class SpyMessageSink
 	{
-		this.cancellationThunk = cancellationThunk ?? (msg => true);
+		public static IMessageSink Create(
+			bool returnResult = true,
+			List<IMessageSinkMessage>? messages = null) =>
+				Create(_ => returnResult, messages);
+
+		public static IMessageSink Create(
+			Func<IMessageSinkMessage, bool> lambda,
+			List<IMessageSinkMessage>? messages = null)
+		{
+			var result = Substitute.For<IMessageSink>();
+
+			result
+				.OnMessage(null)
+				.ReturnsForAnyArgs(callInfo =>
+				{
+					var message = callInfo.Arg<IMessageSinkMessage>();
+
+					if (messages != null)
+						messages.Add(message);
+
+					return lambda(message);
+				});
+
+			return result;
+		}
 	}
 
-	public ManualResetEvent Finished = new ManualResetEvent(initialState: false);
-
-	public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
-
-	/// <inheritdoc/>
-	public void Dispose()
+	public class SpyMessageSink<TFinalMessage> : IMessageSink, IDisposable
 	{
-		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+		readonly Func<IMessageSinkMessage, bool> cancellationThunk;
+		bool disposed;
 
-		disposed = true;
+		SpyMessageSink(Func<IMessageSinkMessage, bool>? cancellationThunk)
+		{
+			this.cancellationThunk = cancellationThunk ?? (msg => true);
+		}
 
-		Finished.Dispose();
-	}
+		public ManualResetEvent Finished = new ManualResetEvent(initialState: false);
 
-	public bool OnMessage(IMessageSinkMessage message)
-	{
-		Messages.Add(message);
+		public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
 
-		if (message is TFinalMessage)
-			Finished.Set();
+		public static SpyMessageSink<TFinalMessage> Create(Func<IMessageSinkMessage, bool>? cancellationThunk = null) =>
+			new SpyMessageSink<TFinalMessage>(cancellationThunk);
 
-		return cancellationThunk(message);
+		public void Dispose()
+		{
+			if (disposed)
+				throw new ObjectDisposedException(GetType().FullName);
+
+			disposed = true;
+
+			Finished.Dispose();
+		}
+
+		public bool OnMessage(IMessageSinkMessage message)
+		{
+			Messages.Add(message);
+
+			if (message is TFinalMessage)
+				Finished.Set();
+
+			return cancellationThunk(message);
+		}
 	}
 }
