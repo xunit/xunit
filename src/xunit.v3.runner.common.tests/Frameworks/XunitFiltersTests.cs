@@ -1,6 +1,7 @@
 ﻿using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 public class XunitFiltersTests
 {

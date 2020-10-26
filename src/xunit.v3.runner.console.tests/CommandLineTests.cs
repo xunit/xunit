@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.SystemConsole;
+using Xunit.v3;
 
 public class CommandLineTests
 {

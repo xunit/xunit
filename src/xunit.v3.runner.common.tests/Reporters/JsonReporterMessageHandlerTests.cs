@@ -3,6 +3,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 public class JsonReporterMessageHandlerTests
 {

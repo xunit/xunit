@@ -10,6 +10,7 @@ using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class DelegatingXmlCreationSinkTests
 {

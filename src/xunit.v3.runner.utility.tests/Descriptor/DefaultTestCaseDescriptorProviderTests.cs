@@ -3,6 +3,7 @@ using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 public class DefaultTestCaseDescriptorProviderTests
 {

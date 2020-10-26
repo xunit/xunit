@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using NSubstitute;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Runner.MSBuild.Visitors
 {

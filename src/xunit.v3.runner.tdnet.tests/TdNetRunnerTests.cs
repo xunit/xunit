@@ -6,6 +6,7 @@ using TestDriven.Framework;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
+using Xunit.v3;
 
 public class TdNetRunnerTests
 {

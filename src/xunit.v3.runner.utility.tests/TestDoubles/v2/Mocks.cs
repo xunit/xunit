@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,12 +7,9 @@ using NSubstitute;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 
-// This is just a copy of the v2 Mocks for now, until we can sever v2 ties from the v3 code.
-
-namespace Xunit.v3
+namespace Xunit.Runner.v2
 {
 	public static class Mocks
 	{
@@ -514,7 +511,7 @@ namespace Xunit.v3
 		{
 			var testCase = TestCase(type, methodName);
 			var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
-			var failureInfo = Runner.v2.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
+			var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
 			var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
 			result.ExceptionParentIndices.Returns(failureInfo.ExceptionParentIndices);
