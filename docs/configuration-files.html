@@ -18,6 +18,7 @@ redirect_from:
   <ul>
     <li><a href="#appDomain"><code>appDomain</code></a></li>
     <li><a href="#diagnosticMessages"><code>diagnosticMessages</code></a></li>
+    <li><a href="#internalDiagnosticMessages"><code>internalDiagnosticMessages</code></a></li>
     <li><a href="#longRunningTestSeconds"><code>longRunningTestSeconds</code></a></li>
     <li><a href="#maxParallelThreads"><code>maxParallelThreads</code></a></li>
     <li><a href="#methodDisplay"><code>methodDisplay</code></a></li>
@@ -120,6 +121,21 @@ redirect_from:
         Set this value to <code>true</code> to include diagnostic information during test
         discovery and execution. Each runner has a unique method of presenting diagnostic
         messages.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="internalDiagnosticMessages"><code>internalDiagnosticMessages</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to <code>true</code> to include internals diagnostic information during test
+        discovery and execution. Each runner has a unique method of presenting diagnostic
+        messages. Internal diagnostics often include information that is only useful when debugging
+        the test framework itself.
       </p>
       <p>
         <em>JSON schema type: <strong>boolean</strong><br />
