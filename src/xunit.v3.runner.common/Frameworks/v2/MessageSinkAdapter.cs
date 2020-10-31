@@ -42,7 +42,13 @@ namespace Xunit.Runner.v2
 				return null;
 #endif
 
-			return new HashSet<string>(message.GetType().GetInterfaces().Select(i => i.FullName!), StringComparer.OrdinalIgnoreCase);
+			var result = new HashSet<string>(message.GetType().GetInterfaces().Select(i => i.FullName!), StringComparer.OrdinalIgnoreCase);
+
+			// TODO: Hack this to include the concrete type, while we transition from v2 to v3 so that we
+			// can support our new message types which aren't interfaces.
+			result.Add(message.GetType().FullName!);
+
+			return result;
 		}
 
 		/// <inheritdoc/>

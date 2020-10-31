@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class Xunit1Tests
 {
@@ -235,7 +236,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='type2.skipping_with_start' type='type2' method='skipping_with_start' result='Skip'><reason><message>Skip message</message></reason></test>");
 					callback.RaiseCallbackEvent("<class name='type2' time='0.000' total='1' failed='0' skipped='1'/>");
 				});
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -247,14 +248,14 @@ public class Xunit1Tests
 				sink.Messages,
 				message =>
 				{
-					var assemblyStarting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
-					Assert.Same(testAssembly, assemblyStarting.TestAssembly);
+					var assemblyStarting = Assert.IsAssignableFrom<_TestAssemblyStarting>(message);
+					Assert.Equal("assembly", assemblyStarting.AssemblyName);
+					Assert.Equal("assembly", assemblyStarting.AssemblyPath);
+					//Assert.Equal("?", assemblyStarting.AssemblyUniqueID);
+					Assert.Equal("config", assemblyStarting.ConfigFilePath);
+					Assert.Null(assemblyStarting.TargetFramework);  // Always null with v1
 					Assert.Contains("-bit .NET ", assemblyStarting.TestEnvironment);
 					Assert.Equal("Test framework display name", assemblyStarting.TestFrameworkDisplayName);
-					Assert.Equal(testCases, assemblyStarting.TestCases);
-
-					Assert.Equal("assembly", assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-					Assert.Equal("config", assemblyStarting.TestAssembly.ConfigFileName);
 				},
 				message =>
 				{
@@ -543,7 +544,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
 				.Do(callInfo => { throw exception; });
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -570,7 +571,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
 				.Do(callInfo => { throw exception; });
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -607,7 +608,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent($"<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{exception.GetType().FullName}'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></test>");
 					callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
 				});
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -648,7 +649,7 @@ public class Xunit1Tests
 					var callback = callInfo.Arg<ICallbackEventHandler>();
 					callback.RaiseCallbackEvent($"<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
 				});
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -687,7 +688,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
 				});
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -720,7 +721,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></class>");
 				});
-			using var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -838,13 +839,13 @@ public class AmbiguouslyNamedTestMethods
 
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
 			using var xunit1 = new Xunit1(new NullMessageSink(), AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName);
-			using var spy = new SpyMessageSink<ITestAssemblyFinished>();
+			using var spy = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
 			xunit1.Run(spy);
 			spy.Finished.WaitOne();
 
 			Assert.Collection(
 				spy.Messages,
-				msg => Assert.IsAssignableFrom<ITestAssemblyStarting>(msg),
+				msg => Assert.IsAssignableFrom<_TestAssemblyStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestCollectionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),

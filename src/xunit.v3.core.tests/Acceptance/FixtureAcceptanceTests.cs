@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class FixtureAcceptanceTests
 {
@@ -17,7 +18,7 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
 				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
 				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 

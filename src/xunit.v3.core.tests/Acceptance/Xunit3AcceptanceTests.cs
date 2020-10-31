@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class Xunit3AcceptanceTests
 {
@@ -21,7 +21,7 @@ public class Xunit3AcceptanceTests
 
 			Assert.Collection(
 				results,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
 				message =>
 				{
 					var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
@@ -39,7 +39,7 @@ public class Xunit3AcceptanceTests
 
 			Assert.Collection(
 				results,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
 				message =>
 				{
 					var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);

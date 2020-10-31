@@ -7,6 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 public class DelegatingLongRunningTestDetectionSinkTests
 {
@@ -18,7 +19,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase1 = Substitute.For<ITestCase>();
 
-		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new _TestAssemblyStarting());
 		sink.OnMessage(new TestCaseStarting(testCase1));
 		await sink.AdvanceClockAsync(100);
 		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
@@ -35,7 +36,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase = Substitute.For<ITestCase>();
 
-		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new _TestAssemblyStarting());
 		sink.OnMessage(new TestCaseStarting(testCase));
 		await sink.AdvanceClockAsync(1500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
@@ -57,7 +58,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		var testCase1 = Substitute.For<ITestCase>();
 		var testCase2 = Substitute.For<ITestCase>();
 
-		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new _TestAssemblyStarting());
 		sink.OnMessage(new TestCaseStarting(testCase1));
 		await sink.AdvanceClockAsync(500);
 		sink.OnMessage(new TestCaseStarting(testCase2));  // Started later, hasn't run long enough
@@ -81,7 +82,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase = Substitute.For<ITestCase>();
 
-		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new _TestAssemblyStarting());
 		sink.OnMessage(new TestCaseStarting(testCase));
 		await sink.AdvanceClockAsync(1000);
 		await sink.AdvanceClockAsync(500);
@@ -126,7 +127,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		var testCase = Substitute.For<ITestCase>();
 		testCase.DisplayName.Returns("My test display name");
 
-		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new _TestAssemblyStarting());
 		sink.OnMessage(new TestCaseStarting(testCase));
 		await sink.AdvanceClockAsync(1500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
@@ -154,7 +155,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		var testCase = Substitute.For<ITestCase>();
 		testCase.DisplayName.Returns("My test display name");
 
-		sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
+		sink.OnMessage(new _TestAssemblyStarting());
 		sink.OnMessage(new TestCaseStarting(testCase));
 		await sink.AdvanceClockAsync(1000);
 		await sink.AdvanceClockAsync(500);

@@ -5,6 +5,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -99,7 +100,7 @@ namespace Xunit.Runner.Common
 			stopEvent?.Set();
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
 			stopEvent = new ManualResetEvent(initialState: false);
 			lastTestActivity = UtcNow;

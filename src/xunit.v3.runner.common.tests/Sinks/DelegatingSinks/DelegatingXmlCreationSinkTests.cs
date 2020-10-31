@@ -26,18 +26,21 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void AddsAssemblyStartingInformationToXml()
 	{
-		var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-		assemblyStarting.TestAssembly.Assembly.AssemblyPath.Returns("assembly");
-		assemblyStarting.TestAssembly.ConfigFileName.Returns("config");
-		assemblyStarting.StartTime.Returns(new DateTime(2013, 7, 6, 16, 24, 32));
-		assemblyStarting.TestEnvironment.Returns("256-bit MentalFloss");
-		assemblyStarting.TestFrameworkDisplayName.Returns("xUnit.net v14.42");
+		var assemblyStarting = new _TestAssemblyStarting
+		{
+			AssemblyPath = "assembly",
+			ConfigFilePath = "config",
+			StartTime = new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
+			TestEnvironment = "256-bit MentalFloss",
+			TestFrameworkDisplayName = "xUnit.net v14.42"
+		};
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
 		sink.OnMessage(assemblyStarting);
 
+		// TODO: Should we put target framework into the XML?
 		Assert.Equal("assembly", assemblyElement.Attribute("name").Value);
 		Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment").Value);
 		Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework").Value);
@@ -49,8 +52,13 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void AssemblyStartingDoesNotIncludeNullConfigFile()
 	{
-		var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-		assemblyStarting.TestAssembly.ConfigFileName.Returns((string?)null);
+		var assemblyStarting = new _TestAssemblyStarting
+		{
+			AssemblyPath = "assembly",
+			StartTime = new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
+			TestEnvironment = "256-bit MentalFloss",
+			TestFrameworkDisplayName = "xUnit.net v14.42"
+		};
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);

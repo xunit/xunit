@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -131,19 +132,30 @@ namespace Xunit.Sdk
 		public virtual ValueTask DisposeAsync() => default;
 
 		/// <summary>
+		/// Override this to provide the target framework against which the assembly was compiled
+		/// (f.e., ".NETFramework,Version=v4.7.2"). This value is placed into
+		/// <see cref="_TestAssemblyStarting.TargetFramework"/>.
+		/// </summary>
+		protected virtual string? GetTargetFramework()
+		{
+			var attrib = TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
+			return attrib?.GetConstructorArguments().FirstOrDefault() as string;
+		}
+
+		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").
-		/// This value is placed into <see cref="ITestAssemblyStarting.TestFrameworkDisplayName"/>.
+		/// This value is placed into <see cref="_TestAssemblyStarting.TestFrameworkDisplayName"/>.
 		/// </summary>
 		protected abstract string GetTestFrameworkDisplayName();
 
 		/// <summary>
 		/// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
-		/// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
+		/// placed into <see cref="_TestAssemblyStarting.TestEnvironment"/>.
 		/// </summary>
 		protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}";
 
 		/// <summary>
-		/// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
+		/// This method is called just after <see cref="_TestAssemblyStarting"/> is sent, but before any test collections are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task AfterTestAssemblyStartingAsync() => Task.CompletedTask;
@@ -208,6 +220,7 @@ namespace Xunit.Sdk
 			var cancellationTokenSource = new CancellationTokenSource();
 			var totalSummary = new RunSummary();
 			var currentDirectory = Directory.GetCurrentDirectory();
+			var targetFramework = GetTargetFramework();
 			var testFrameworkEnvironment = GetTestFrameworkEnvironment();
 			var testFrameworkDisplayName = GetTestFrameworkDisplayName();
 
@@ -219,7 +232,19 @@ namespace Xunit.Sdk
 				}
 				catch { }
 
-				if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
+				var testAssemblyStartingMessage = new _TestAssemblyStarting
+				{
+					AssemblyName = TestAssembly.Assembly.Name,
+					AssemblyPath = TestAssembly.Assembly.AssemblyPath,
+					AssemblyUniqueID = "?",
+					ConfigFilePath = TestAssembly.ConfigFileName,
+					StartTime = DateTimeOffset.Now,
+					TargetFramework = targetFramework,
+					TestEnvironment = testFrameworkEnvironment,
+					TestFrameworkDisplayName = testFrameworkDisplayName,
+				};
+
+				if (messageBus.QueueMessage(testAssemblyStartingMessage))
 				{
 					try
 					{

@@ -343,14 +343,6 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestAssemblyStarting TestAssemblyStarting()
-		{
-			var testAssembly = TestAssembly("testAssembly.dll");
-			var result = Substitute.For<ITestAssemblyStarting, InterfaceProxy<ITestAssemblyStarting>>();
-			result.TestAssembly.Returns(testAssembly);
-			return result;
-		}
-
 		public static ITestCase TestCase(ITestCollection? collection = null)
 		{
 			if (collection == null)

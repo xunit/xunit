@@ -9,6 +9,7 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -241,7 +242,18 @@ namespace Xunit
 			{
 				try
 				{
-					if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
+					var testAssemblyStartingMessage = new _TestAssemblyStarting
+					{
+						AssemblyName = testCollection.TestAssembly.Assembly.Name,
+						AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
+						AssemblyUniqueID = "?",
+						ConfigFilePath = testCollection.TestAssembly.ConfigFileName,
+						StartTime = DateTimeOffset.Now,
+						TestEnvironment = environment,
+						TestFrameworkDisplayName = TestFrameworkDisplayName,
+					};
+
+					if (messageSink.OnMessage(testAssemblyStartingMessage))
 						results = RunTestCollection(testCollection, testCases, messageSink);
 				}
 				catch (Exception ex)

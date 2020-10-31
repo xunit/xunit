@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace Xunit.Internal
 {
@@ -53,6 +54,13 @@ namespace Xunit.Internal
 			}
 
 			throw new ArgumentException($"Unknown directory separator '{directorySeparator}'; must be one of '/' or '\\'.", nameof(directorySeparator));
+		}
+
+		/// <summary/>
+		public static string? GetTargetFramework(this Assembly? assembly)
+		{
+			var attrib = assembly?.GetCustomAttribute<TargetFrameworkAttribute>();
+			return attrib?.FrameworkName;
 		}
 	}
 }

@@ -61,10 +61,13 @@ public class TestAssemblyRunnerTests
 				messages,
 				msg =>
 				{
-					var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
+					var starting = Assert.IsAssignableFrom<_TestAssemblyStarting>(msg);
 #if NETFRAMEWORK
-					Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.TestAssembly.Assembly.AssemblyPath);
-					Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.TestAssembly.ConfigFileName);
+					Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.AssemblyPath);
+					Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.ConfigFilePath);
+					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
+#else
+					Assert.Equal(".NETCoreApp,Version=v2.1", starting.TargetFramework);
 #endif
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);
@@ -93,7 +96,7 @@ public class TestAssemblyRunnerTests
 					var msg = callInfo.Arg<IMessageSinkMessage>();
 					messages.Add(msg);
 
-					if (msg is ITestAssemblyStarting)
+					if (msg is _TestAssemblyStarting)
 						throw new InvalidOperationException();
 
 					return true;
@@ -103,7 +106,7 @@ public class TestAssemblyRunnerTests
 			await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 			var starting = Assert.Single(messages);
-			Assert.IsAssignableFrom<ITestAssemblyStarting>(starting);
+			Assert.IsAssignableFrom<_TestAssemblyStarting>(starting);
 			Assert.Empty(runner.CollectionsRun);
 		}
 
@@ -150,7 +153,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask Cancellation_TestAssemblyStarting_DoesNotCallExtensibilityCallbacks()
 		{
-			var messageSink = SpyMessageSink.Create(msg => !(msg is ITestAssemblyStarting));
+			var messageSink = SpyMessageSink.Create(msg => !(msg is _TestAssemblyStarting));
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await runner.RunAsync();

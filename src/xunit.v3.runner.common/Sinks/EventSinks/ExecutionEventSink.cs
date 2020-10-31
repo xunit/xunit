@@ -2,6 +2,7 @@
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -41,9 +42,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestAssemblyFinished>? TestAssemblyFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestAssemblyStarting"/> message is received.
+		/// Occurs when a <see cref="_TestAssemblyStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyStarting>? TestAssemblyStartingEvent;
+		public event MessageHandler<_TestAssemblyStarting>? TestAssemblyStartingEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="ITestCaseCleanupFailure"/> message is received.

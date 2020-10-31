@@ -2,11 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -71,19 +71,19 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
 			lock (clientLock)
 			{
 				assembliesInFlight++;
 
-				// Look for the TFM attrib to disambiguate
-				var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
-				var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
-				if (attrib?.GetConstructorArguments().FirstOrDefault() is string arg)
-					assemblyFileName = $"{assemblyFileName} ({arg})";
+				// Use the TFM attrib to disambiguate
+				var tfm = args.Message.TargetFramework;
+				var assemblyFileName = Path.GetFileName(args.Message.AssemblyPath) ?? "<unknown filename>";
+				if (!string.IsNullOrWhiteSpace(tfm))
+					assemblyFileName = $"{assemblyFileName} ({tfm})";
 
-				assemblyNames[args.Message.TestAssembly.Assembly.Name] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+				assemblyNames[args.Message.AssemblyName] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 			}
 		}
 

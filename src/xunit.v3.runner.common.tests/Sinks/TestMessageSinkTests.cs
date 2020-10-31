@@ -5,6 +5,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 public class TestMessageSinkTests
 {
@@ -30,7 +31,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(IBeforeTestFinished))]
 	[InlineData(typeof(IBeforeTestStarting))]
 	[InlineData(typeof(ITestAssemblyFinished))]
-	[InlineData(typeof(ITestAssemblyStarting))]
+	[InlineData(typeof(_TestAssemblyStarting))]
 	[InlineData(typeof(ITestCaseFinished))]
 	[InlineData(typeof(ITestCaseStarting))]
 	[InlineData(typeof(ITestClassConstructionFinished))]

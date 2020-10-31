@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -61,7 +62,7 @@ namespace Xunit.Runner.Common
 			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
 				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
 				&& message.Dispatch<ITestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
-				&& message.Dispatch<ITestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
+				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
 				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
@@ -188,19 +189,19 @@ namespace Xunit.Runner.Common
 				assemblyElement.Add(element);
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
 			var assemblyStarting = args.Message;
 			assemblyElement.Add(
-				new XAttribute("name", assemblyStarting.TestAssembly.Assembly.AssemblyPath),
+				new XAttribute("name", assemblyStarting.AssemblyPath),
 				new XAttribute("environment", assemblyStarting.TestEnvironment),
 				new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
 				new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
 				new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture))
 			);
 
-			if (assemblyStarting.TestAssembly.ConfigFileName != null)
-				assemblyElement.Add(new XAttribute("config-file", assemblyStarting.TestAssembly.ConfigFileName));
+			if (assemblyStarting.ConfigFilePath != null)
+				assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
 		}
 
 		void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
