@@ -13,7 +13,7 @@ namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// A delegating implementation of <see cref="IExecutionSink"/> which is responsible for
-	/// creating the xUnit.net v2 XML output from the execution test results.
+	/// creating the xUnit.net v2/v3 XML output from the execution test results.
 	/// </summary>
 	public class DelegatingXmlCreationSink : LongLivedMarshalByRefObject, IExecutionSink
 	{
@@ -202,6 +202,8 @@ namespace Xunit.Runner.Common
 
 			if (assemblyStarting.ConfigFilePath != null)
 				assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
+			if (assemblyStarting.TargetFramework != null)
+				assemblyElement.Add(new XAttribute("target-framework", assemblyStarting.TargetFramework));
 		}
 
 		void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)

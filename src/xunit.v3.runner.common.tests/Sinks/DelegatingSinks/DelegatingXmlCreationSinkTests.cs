@@ -31,6 +31,7 @@ public class DelegatingXmlCreationSinkTests
 			AssemblyPath = "assembly",
 			ConfigFilePath = "config",
 			StartTime = new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
+			TargetFramework = "MentalFloss,Version=v21.12",
 			TestEnvironment = "256-bit MentalFloss",
 			TestFrameworkDisplayName = "xUnit.net v14.42"
 		};
@@ -40,8 +41,8 @@ public class DelegatingXmlCreationSinkTests
 
 		sink.OnMessage(assemblyStarting);
 
-		// TODO: Should we put target framework into the XML?
 		Assert.Equal("assembly", assemblyElement.Attribute("name").Value);
+		Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework").Value);
 		Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment").Value);
 		Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework").Value);
 		Assert.Equal("config", assemblyElement.Attribute("config-file").Value);
@@ -50,7 +51,7 @@ public class DelegatingXmlCreationSinkTests
 	}
 
 	[Fact]
-	public void AssemblyStartingDoesNotIncludeNullConfigFile()
+	public void AssemblyStartingDoesNotIncludeNullValues()
 	{
 		var assemblyStarting = new _TestAssemblyStarting
 		{
@@ -66,6 +67,7 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyStarting);
 
 		Assert.Null(assemblyElement.Attribute("config-file"));
+		Assert.Null(assemblyElement.Attribute("target-framework"));
 	}
 
 	[CulturedFact]
