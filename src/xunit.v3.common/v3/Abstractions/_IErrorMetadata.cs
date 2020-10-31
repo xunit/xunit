@@ -1,10 +1,14 @@
+using Xunit.Abstractions;
+
 namespace Xunit.v3
 {
 	/// <summary>
 	/// Represents metadata about an error during test discovery or execution.
 	/// </summary>
-	public interface _IErrorMetadata
+	// TODO: Remove the reference to IFailureInformation
+	public interface _IErrorMetadata : IFailureInformation
 	{
+#if false
 		/// <summary>
 		/// Gets the parent exception index(es) for the exception(s); a -1 indicates
 		/// that the exception in question has no parent.
@@ -25,5 +29,6 @@ namespace Xunit.v3
 		/// Gets the stack trace(s) of the exception(s).
 		/// </summary>
 		string?[] StackTraces { get; }
+#endif
 	}
 }

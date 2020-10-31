@@ -7,7 +7,6 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.v3;
-using ExceptionUtility = Xunit.Runner.v2.ExceptionUtility;
 
 namespace Xunit.Runner.Common
 {

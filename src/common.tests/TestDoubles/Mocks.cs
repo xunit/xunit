@@ -514,7 +514,7 @@ namespace Xunit.v3
 		{
 			var testCase = TestCase(type, methodName);
 			var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
-			var failureInfo = Runner.v2.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
+			var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
 			var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
 			result.ExceptionParentIndices.Returns(failureInfo.ExceptionParentIndices);
