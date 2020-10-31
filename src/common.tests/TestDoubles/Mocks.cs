@@ -124,11 +124,11 @@ namespace Xunit.v3
 
 		public static ExecutionErrorTestCase ExecutionErrorTestCase(
 			string message,
-			IMessageSink? diagnosticMessageSink = null)
+			_IMessageSink? diagnosticMessageSink = null)
 		{
 			var testMethod = TestMethod();
 			return new ExecutionErrorTestCase(
-				diagnosticMessageSink ?? new NullMessageSink(),
+				diagnosticMessageSink ?? new _NullMessageSink(),
 				TestMethodDisplay.ClassAndMethod,
 				TestMethodDisplayOptions.None,
 				testMethod,
@@ -774,21 +774,21 @@ namespace Xunit.v3
 			string methodName,
 			ITestCollection? collection = null,
 			object[]? testMethodArguments = null,
-			IMessageSink? diagnosticMessageSink = null)
+			_IMessageSink? diagnosticMessageSink = null)
 		{
 			var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-			return new XunitTestCase(diagnosticMessageSink ?? new NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method, testMethodArguments);
+			return new XunitTestCase(diagnosticMessageSink ?? new _NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method, testMethodArguments);
 		}
 
 		public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(
 			string methodName,
 			ITestCollection? collection = null,
-			IMessageSink? diagnosticMessageSink = null)
+			_IMessageSink? diagnosticMessageSink = null)
 		{
 			var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-			return new XunitTheoryTestCase(diagnosticMessageSink ?? new NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method);
+			return new XunitTheoryTestCase(diagnosticMessageSink ?? new _NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method);
 		}
 
 		// Helpers

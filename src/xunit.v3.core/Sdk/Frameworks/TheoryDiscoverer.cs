@@ -18,7 +18,7 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="TheoryDiscoverer"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public TheoryDiscoverer(IMessageSink diagnosticMessageSink)
+		public TheoryDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
@@ -26,7 +26,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink to be used to send diagnostic messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink { get; }
+		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <summary>
 		/// Creates test cases for a single row of data. By default, returns a single instance of <see cref="XunitTestCase"/>

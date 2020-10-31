@@ -2,14 +2,15 @@
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Implementation of <see cref="IMessageSink" /> that delegates to another implementation of
-	/// <see cref="IMessageSink" /> while calling into a callback for each message.
+	/// Implementation of <see cref="_IMessageSink" /> that delegates to another implementation of
+	/// <see cref="_IMessageSink" /> while calling into a callback for each message.
 	/// </summary>
-	public class DelegatingMessageSink : IMessageSink
+	public class DelegatingMessageSink : _IMessageSink
 	{
 		readonly Action<IMessageSinkMessage>? callback;
 		readonly IMessageSink innerSink;

@@ -15,7 +15,7 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="XunitTestFramework"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public XunitTestFramework(IMessageSink diagnosticMessageSink)
+		public XunitTestFramework(_IMessageSink diagnosticMessageSink)
 			: this(diagnosticMessageSink, null)
 		{ }
 
@@ -25,7 +25,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="configFileName">The test configuration file.</param>
 		public XunitTestFramework(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			string? configFileName)
 				: base(diagnosticMessageSink)
 		{

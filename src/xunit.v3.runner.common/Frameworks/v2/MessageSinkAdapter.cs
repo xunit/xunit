@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.v2
 {
@@ -10,7 +11,7 @@ namespace Xunit.Runner.v2
 	/// Adapts an implementation of <see cref="IMessageSinkWithTypes"/> to provide an implementation
 	/// of <see cref="IMessageSink"/>.
 	/// </summary>
-	public class MessageSinkAdapter : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+	public class MessageSinkAdapter : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes, _IMessageSink
 	{
 		readonly IMessageSinkWithTypes inner;
 
@@ -73,6 +74,19 @@ namespace Xunit.Runner.v2
 			Guard.ArgumentNotNull(nameof(sink), sink);
 
 			return sink as IMessageSink ?? new MessageSinkAdapter(sink);
+		}
+
+		/// <summary>
+		/// Determines whether the given sink is already an implementation of <see cref="IMessageSink"/>,
+		/// and if not, creates a wrapper to adapt it.
+		/// </summary>
+		/// <param name="sink">The sink to test, and potentially adapt.</param>
+		// TODO: This should be temporary, once we move all to v3 the wrapping will go away.
+		public static _IMessageSink WrapV3(IMessageSinkWithTypes sink)
+		{
+			Guard.ArgumentNotNull(nameof(sink), sink);
+
+			return sink as _IMessageSink ?? new MessageSinkAdapter(sink);
 		}
 
 		/// <summary>

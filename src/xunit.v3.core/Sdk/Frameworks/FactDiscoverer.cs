@@ -16,7 +16,7 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="FactDiscoverer"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public FactDiscoverer(IMessageSink diagnosticMessageSink)
+		public FactDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
@@ -24,7 +24,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink { get; }
+		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <summary>
 		/// Creates a single <see cref="XunitTestCase"/> for the given test method.

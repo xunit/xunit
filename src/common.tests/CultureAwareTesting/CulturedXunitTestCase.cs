@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -18,7 +19,7 @@ namespace Xunit.Sdk
 		public CulturedXunitTestCase() { }
 
 		public CulturedXunitTestCase(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
@@ -55,7 +56,7 @@ namespace Xunit.Sdk
 		}
 
 		public override async Task<RunSummary> RunAsync(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

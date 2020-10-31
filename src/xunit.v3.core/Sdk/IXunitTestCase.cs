@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -37,7 +38,7 @@ namespace Xunit.Sdk
 		/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
 		/// <returns>Returns the summary of the test case run.</returns>
 		Task<RunSummary> RunAsync(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

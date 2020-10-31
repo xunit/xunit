@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -31,7 +32,7 @@ namespace Xunit.Sdk
 		{
 			// No way for us to get access to the message sink on the execution deserialization path, but that should
 			// be okay, because we assume all the issues were reported during discovery.
-			DiagnosticMessageSink = new NullMessageSink();
+			DiagnosticMessageSink = new _NullMessageSink();
 		}
 
 		/// <summary>
@@ -43,7 +44,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method this test case belongs to.</param>
 		/// <param name="testMethodArguments">The arguments for the test method.</param>
 		public XunitTestCase(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
@@ -56,7 +57,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink { get; }
+		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
 		public int Timeout
@@ -170,7 +171,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public virtual Task<RunSummary> RunAsync(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

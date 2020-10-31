@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 		where TTestCase : ITestCase
 	{
 		IReflectionAssemblyInfo assemblyInfo;
-		IMessageSink diagnosticMessageSink;
+		_IMessageSink diagnosticMessageSink;
 		bool disposed;
 		_ISourceInformationProvider sourceInformationProvider;
 
@@ -32,7 +32,7 @@ namespace Xunit.Sdk
 		protected TestFrameworkExecutor(
 			IReflectionAssemblyInfo assemblyInfo,
 			_ISourceInformationProvider sourceInformationProvider,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
 			this.sourceInformationProvider = Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
@@ -51,7 +51,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink to send diagnostic messages to.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -99,7 +99,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public virtual async void RunAll(
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
@@ -122,7 +122,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public virtual void RunTests(
 			IEnumerable<ITestCase> testCases,
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull("testCases", testCases);
@@ -140,7 +140,7 @@ namespace Xunit.Sdk
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected abstract void RunTestCases(
 			IEnumerable<TTestCase> testCases,
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);
 	}

@@ -4,6 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -14,13 +15,13 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class DefaultTestCaseOrderer : ITestCaseOrderer
 	{
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultTestCaseOrderer"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public DefaultTestCaseOrderer(IMessageSink diagnosticMessageSink)
+		public DefaultTestCaseOrderer(_IMessageSink diagnosticMessageSink)
 		{
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}

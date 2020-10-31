@@ -8,19 +8,19 @@ namespace Xunit.v3
 {
 	public static class SpyMessageSink
 	{
-		public static IMessageSink Create(
+		public static _IMessageSink Create(
 			bool returnResult = true,
 			List<IMessageSinkMessage>? messages = null) =>
 				Create(_ => returnResult, messages);
 
-		public static IMessageSink Create(
+		public static _IMessageSink Create(
 			Func<IMessageSinkMessage, bool> lambda,
 			List<IMessageSinkMessage>? messages = null)
 		{
-			var result = Substitute.For<IMessageSink>();
+			var result = Substitute.For<_IMessageSink>();
 
 			result
-				.OnMessage(null)
+				.OnMessage(null!)
 				.ReturnsForAnyArgs(callInfo =>
 				{
 					var message = callInfo.Arg<IMessageSinkMessage>();
@@ -35,7 +35,7 @@ namespace Xunit.v3
 		}
 	}
 
-	public class SpyMessageSink<TFinalMessage> : IMessageSink, IDisposable
+	public class SpyMessageSink<TFinalMessage> : _IMessageSink, IDisposable
 	{
 		readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 		bool disposed;

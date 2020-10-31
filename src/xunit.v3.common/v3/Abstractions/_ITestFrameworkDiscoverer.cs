@@ -28,7 +28,7 @@ namespace Xunit.v3
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		void Find(
 			bool includeSourceInformation,
-			IMessageSink discoveryMessageSink,
+			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
@@ -42,7 +42,7 @@ namespace Xunit.v3
 		void Find(
 			string typeName,
 			bool includeSourceInformation,
-			IMessageSink discoveryMessageSink,
+			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 

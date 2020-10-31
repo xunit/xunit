@@ -1,13 +1,15 @@
 ﻿using System;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Logs diagnostic messages to the system console.
 	/// </summary>
-	public class ConsoleDiagnosticMessageSink : MarshalByRefObject, IMessageSink
+	// TODO: When we shift runner over to v3, we can remove IMessageSink.
+	public class ConsoleDiagnosticMessageSink : MarshalByRefObject, IMessageSink, _IMessageSink
 	{
 		readonly string assemblyDisplayName;
 		readonly object consoleLock;

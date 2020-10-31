@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -30,7 +31,7 @@ namespace Xunit.Sdk
 		public XunitTestCollectionRunner(
 			ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -52,7 +53,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to send diagnostic messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink { get; }
+		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
 		protected override async Task AfterTestCollectionStartingAsync()
@@ -97,7 +98,7 @@ namespace Xunit.Sdk
 			var ctorArgs = ctor.GetParameters().Select(p =>
 			{
 				object? arg = null;
-				if (p.ParameterType == typeof(IMessageSink))
+				if (p.ParameterType == typeof(_IMessageSink))
 					arg = DiagnosticMessageSink;
 				else
 					missingParameters.Add(p);

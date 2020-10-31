@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -24,7 +25,9 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="testAssembly">The assembly.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly, IMessageSink diagnosticMessageSink)
+		public CollectionPerAssemblyTestCollectionFactory(
+			ITestAssembly testAssembly,
+			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 

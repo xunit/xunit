@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if false
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -804,3 +806,5 @@ namespace Xunit.Runner.v2
 		}
 	}
 }
+
+#endif

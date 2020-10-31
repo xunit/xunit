@@ -263,9 +263,9 @@ public class XunitTestClassRunnerTests
 
 	class ClassFixtureWithMessageSinkDependency
 	{
-		public IMessageSink MessageSink;
+		public _IMessageSink MessageSink;
 
-		public ClassFixtureWithMessageSinkDependency(IMessageSink messageSink)
+		public ClassFixtureWithMessageSinkDependency(_IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
 			MessageSink.OnMessage(new DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
@@ -412,7 +412,7 @@ public class XunitTestClassRunnerTests
 
 		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 
-		public new IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
+		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
 		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
 			new TestableXunitTestClassRunner(

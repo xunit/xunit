@@ -35,7 +35,7 @@ namespace Xunit.Sdk
 			IAssemblyInfo assemblyInfo,
 			string? configFileName,
 			_ISourceInformationProvider sourceProvider,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory = null)
 				: base(assemblyInfo, sourceProvider, diagnosticMessageSink)
 		{

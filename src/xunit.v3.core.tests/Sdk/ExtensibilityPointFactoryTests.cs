@@ -11,7 +11,7 @@ using Xunit.v3;
 public class ExtensibilityPointFactoryTests
 {
 	readonly List<IMessageSinkMessage> messages = new List<IMessageSinkMessage>();
-	protected IMessageSink spy;
+	protected _IMessageSink spy;
 
 	public ExtensibilityPointFactoryTests()
 	{
@@ -199,9 +199,9 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyTestFrameworkWithMessageSink : _ITestFramework
 		{
-			public readonly IMessageSink MessageSink;
+			public readonly _IMessageSink MessageSink;
 
-			public MyTestFrameworkWithMessageSink(IMessageSink messageSink)
+			public MyTestFrameworkWithMessageSink(_IMessageSink messageSink)
 			{
 				MessageSink = messageSink;
 			}

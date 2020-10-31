@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -30,7 +31,7 @@ namespace Xunit.Sdk
 		/// <param name="skipReason">The reason that this test case will be skipped</param>
 		/// <param name="testMethodArguments">The arguments for the test method.</param>
 		public XunitSkippedDataRowTestCase(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,

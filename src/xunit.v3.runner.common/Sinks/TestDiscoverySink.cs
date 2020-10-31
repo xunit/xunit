@@ -4,6 +4,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -11,7 +12,8 @@ namespace Xunit.Runner.Common
 	/// An implementation of <see cref="IMessageSinkWithTypes"/> designed for test discovery for a
 	/// single test assembly. The <see cref="Finished"/> event is triggered when discovery is complete.
 	/// </summary>
-	public class TestDiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+	// TODO: When we shift runner over to v3, we can remove IMessageSink/IMessageSinkWithTypes.
+	public class TestDiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes, _IMessageSink
 	{
 		readonly Func<bool> cancelThunk;
 		readonly DiscoveryEventSink discoverySink = new DiscoveryEventSink();
@@ -57,6 +59,13 @@ namespace Xunit.Runner.Common
 		}
 
 		bool IMessageSink.OnMessage(IMessageSinkMessage message)
+		{
+			Guard.ArgumentNotNull(nameof(message), message);
+
+			return OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+		}
+
+		bool _IMessageSink.OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 

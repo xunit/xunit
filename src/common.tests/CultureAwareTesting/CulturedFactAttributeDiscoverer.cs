@@ -7,9 +7,9 @@ namespace Xunit.Sdk
 {
 	public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 	{
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
 
-		public CulturedFactAttributeDiscoverer(IMessageSink diagnosticMessageSink)
+		public CulturedFactAttributeDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
 			this.diagnosticMessageSink = diagnosticMessageSink;
 		}

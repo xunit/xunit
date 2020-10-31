@@ -53,7 +53,7 @@ namespace Xunit.Sdk
 		TFinalMessage? finalMessage;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="DelegatingMessageSink{TFinalMessage}" /> class.
+		/// Initializes a new instance of the <see cref="DelegatingMessageBus{TFinalMessage}" /> class.
 		/// </summary>
 		/// <param name="innerMessageBus">The message bus to delegate to.</param>
 		/// <param name="callback">The callback to send messages to.</param>

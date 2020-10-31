@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -20,7 +21,7 @@ namespace Xunit.Sdk
 		/// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="ITypeInfo"/></returns>
 		public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(
 			IAssemblyInfo assemblyInfo,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			var attributeTypesByName =
 				assemblyInfo

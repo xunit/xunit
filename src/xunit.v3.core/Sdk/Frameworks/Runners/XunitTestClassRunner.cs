@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -37,7 +38,7 @@ namespace Xunit.Sdk
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -91,7 +92,7 @@ namespace Xunit.Sdk
 			var ctorArgs = ctor.GetParameters().Select(p =>
 			{
 				object? arg;
-				if (p.ParameterType == typeof(IMessageSink))
+				if (p.ParameterType == typeof(_IMessageSink))
 					arg = DiagnosticMessageSink;
 				else
 				if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))

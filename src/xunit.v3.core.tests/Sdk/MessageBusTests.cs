@@ -49,7 +49,7 @@ public class MessageBusTests
 	[Fact]
 	public static void WhenSinkThrowsMessagesContinueToBeDelivered()
 	{
-		var sink = Substitute.For<IMessageSink>();
+		var sink = Substitute.For<_IMessageSink>();
 		var msg1 = Substitute.For<IMessageSinkMessage>();
 		var msg2 = Substitute.For<IMessageSinkMessage>();
 		var msg3 = Substitute.For<IMessageSinkMessage>();

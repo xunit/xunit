@@ -5,6 +5,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -15,7 +16,7 @@ namespace Xunit.Sdk
 	{
 		volatile bool continueRunning = true;
 		bool disposed;
-		readonly IMessageSink messageSink;
+		readonly _IMessageSink messageSink;
 		readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
 		readonly Thread reporterThread;
 		readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(false);
@@ -24,7 +25,7 @@ namespace Xunit.Sdk
 
 		/// <summary/>
 		public MessageBus(
-			IMessageSink messageSink,
+			_IMessageSink messageSink,
 			bool stopOnFail = false)
 		{
 			this.messageSink = messageSink;

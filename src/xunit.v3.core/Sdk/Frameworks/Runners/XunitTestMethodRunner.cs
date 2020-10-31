@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -12,7 +13,7 @@ namespace Xunit.Sdk
 	public class XunitTestMethodRunner : TestMethodRunner<IXunitTestCase>
 	{
 		readonly object?[] constructorArguments;
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestMethodRunner"/> class.
@@ -31,7 +32,7 @@ namespace Xunit.Sdk
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,

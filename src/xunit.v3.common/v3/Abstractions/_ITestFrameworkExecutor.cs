@@ -27,7 +27,7 @@ namespace Xunit.v3
 		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunAll(
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestFrameworkExecutionOptions executionOptions
 		);
@@ -40,7 +40,7 @@ namespace Xunit.v3
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunTests(
 			IEnumerable<ITestCase> testCases,
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);
 	}

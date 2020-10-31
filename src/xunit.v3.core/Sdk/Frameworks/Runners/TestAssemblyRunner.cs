@@ -23,8 +23,8 @@ namespace Xunit.Sdk
 		where TTestCase : ITestCase
 	{
 		ExceptionAggregator aggregator = new ExceptionAggregator();
-		IMessageSink diagnosticMessageSink;
-		IMessageSink executionMessageSink;
+		_IMessageSink diagnosticMessageSink;
+		_IMessageSink executionMessageSink;
 		_ITestFrameworkExecutionOptions executionOptions;
 		ITestAssembly testAssembly;
 		ITestCaseOrderer testCaseOrderer;
@@ -42,8 +42,8 @@ namespace Xunit.Sdk
 		protected TestAssemblyRunner(
 			ITestAssembly testAssembly,
 			IEnumerable<TTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
-			IMessageSink executionMessageSink,
+			_IMessageSink diagnosticMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
@@ -76,7 +76,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the message sink to report diagnostic messages to.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the message sink to report run status to.
 		/// </summary>
-		protected IMessageSink ExecutionMessageSink
+		protected _IMessageSink ExecutionMessageSink
 		{
 			get => executionMessageSink;
 			set => executionMessageSink = Guard.ArgumentNotNull(nameof(ExecutionMessageSink), value);

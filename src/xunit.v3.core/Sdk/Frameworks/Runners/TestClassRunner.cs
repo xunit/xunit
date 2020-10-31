@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -23,7 +24,7 @@ namespace Xunit.Sdk
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
 		IReflectionTypeInfo @class;
-		IMessageSink diagnosticMessageSink;
+		_IMessageSink diagnosticMessageSink;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
@@ -44,7 +45,7 @@ namespace Xunit.Sdk
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -90,7 +91,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to send diagnostic messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);

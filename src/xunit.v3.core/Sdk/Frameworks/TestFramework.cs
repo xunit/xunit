@@ -20,7 +20,7 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="TestFramework"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		protected TestFramework(IMessageSink diagnosticMessageSink)
+		protected TestFramework(_IMessageSink diagnosticMessageSink)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
@@ -28,7 +28,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to send diagnostic messages.
 		/// </summary>
-		public IMessageSink DiagnosticMessageSink { get; }
+		public _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <summary>
 		/// Gets the disposal tracker for the test framework.

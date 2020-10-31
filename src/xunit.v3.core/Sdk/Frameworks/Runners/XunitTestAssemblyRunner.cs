@@ -33,8 +33,8 @@ namespace Xunit.Sdk
 		public XunitTestAssemblyRunner(
 			ITestAssembly testAssembly,
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
-			IMessageSink executionMessageSink,
+			_IMessageSink diagnosticMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 				: base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 		{ }

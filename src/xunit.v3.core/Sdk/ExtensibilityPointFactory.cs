@@ -15,10 +15,10 @@ namespace Xunit.Sdk
 	public static class ExtensibilityPointFactory
 	{
 		static DisposalTracker disposalTracker = new DisposalTracker();
-		static readonly ConcurrentDictionary<(Type type, IMessageSink diagnosticMessageSink), object?> instances = new ConcurrentDictionary<(Type type, IMessageSink diagnosticMessageSink), object?>();
+		static readonly ConcurrentDictionary<(Type type, _IMessageSink diagnosticMessageSink), object?> instances = new ConcurrentDictionary<(Type type, _IMessageSink diagnosticMessageSink), object?>();
 
 		static object? CreateInstance(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type type,
 			object?[]? ctorArgs)
 		{
@@ -72,7 +72,7 @@ namespace Xunit.Sdk
 		/// falls back to the message sink-less constructor if none was found.</param>
 		/// <returns>The instance of the type.</returns>
 		public static TInterface? Get<TInterface>(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type type,
 			object?[]? ctorArgs = null)
 				where TInterface : class
@@ -89,7 +89,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="discovererType">The discoverer type</param>
 		public static IDataDiscoverer? GetDataDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type discovererType) =>
 				Get<IDataDiscoverer>(diagnosticMessageSink, discovererType);
 
@@ -100,7 +100,7 @@ namespace Xunit.Sdk
 		/// <param name="dataDiscovererAttribute">The data discoverer attribute</param>
 		/// <returns>The data discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static IDataDiscoverer? GetDataDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo dataDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(dataDiscovererAttribute), dataDiscovererAttribute);
@@ -118,7 +118,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="ordererType">The test case orderer type</param>
 		public static ITestCaseOrderer? GetTestCaseOrderer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type ordererType) =>
 				Get<ITestCaseOrderer>(diagnosticMessageSink, ordererType);
 
@@ -129,7 +129,7 @@ namespace Xunit.Sdk
 		/// <param name="testCaseOrdererAttribute">The test case orderer attribute.</param>
 		/// <returns>The test case orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static ITestCaseOrderer? GetTestCaseOrderer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo testCaseOrdererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(testCaseOrdererAttribute), testCaseOrdererAttribute);
@@ -147,7 +147,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="ordererType">The test collection orderer type</param>
 		public static ITestCollectionOrderer? GetTestCollectionOrderer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type ordererType) =>
 				Get<ITestCollectionOrderer>(diagnosticMessageSink, ordererType);
 
@@ -158,7 +158,7 @@ namespace Xunit.Sdk
 		/// <param name="testCollectionOrdererAttribute">The test collection orderer attribute.</param>
 		/// <returns>The test collection orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static ITestCollectionOrderer? GetTestCollectionOrderer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo testCollectionOrdererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(testCollectionOrdererAttribute), testCollectionOrdererAttribute);
@@ -178,7 +178,7 @@ namespace Xunit.Sdk
 		/// <param name="sourceInformationProvider">The optional source information provider</param>
 		/// <returns>The test framework object</returns>
 		public static _ITestFramework GetTestFramework(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAssemblyInfo testAssembly,
 			_ISourceInformationProvider? sourceInformationProvider = null)
 		{
@@ -200,7 +200,7 @@ namespace Xunit.Sdk
 						.FirstOrDefault(ctor =>
 						{
 							var paramInfos = ctor.GetParameters();
-							return paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(IMessageSink);
+							return paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(_IMessageSink);
 						});
 
 				if (ctorWithSink != null)
@@ -221,7 +221,7 @@ namespace Xunit.Sdk
 		}
 
 		static Type GetTestFrameworkType(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAssemblyInfo testAssembly)
 		{
 			try
@@ -262,7 +262,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="frameworkType">The test framework type discoverer type</param>
 		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type frameworkType) =>
 				Get<ITestFrameworkTypeDiscoverer>(diagnosticMessageSink, frameworkType);
 
@@ -272,7 +272,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="testFrameworkDiscovererAttribute">The test framework discoverer attribute</param>
 		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo testFrameworkDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(testFrameworkDiscovererAttribute), testFrameworkDiscovererAttribute);
@@ -290,7 +290,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="traitDiscovererType">The trait discoverer type</param>
 		public static ITraitDiscoverer? GetTraitDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type traitDiscovererType) =>
 				Get<ITraitDiscoverer>(diagnosticMessageSink, traitDiscovererType);
 
@@ -301,7 +301,7 @@ namespace Xunit.Sdk
 		/// <param name="traitDiscovererAttribute">The trait discoverer attribute.</param>
 		/// <returns>The trait discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static ITraitDiscoverer? GetTraitDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo traitDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(traitDiscovererAttribute), traitDiscovererAttribute);
@@ -319,7 +319,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="testCaseDiscovererType">The test case discoverer type</param>
 		public static IXunitTestCaseDiscoverer? GetXunitTestCaseDiscoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type testCaseDiscovererType) =>
 				Get<IXunitTestCaseDiscoverer>(diagnosticMessageSink, testCaseDiscovererType);
 
@@ -330,7 +330,7 @@ namespace Xunit.Sdk
 		/// <param name="testCollectionFactoryType">The test collection factory type</param>
 		/// <param name="testAssembly">The test assembly under test</param>
 		public static IXunitTestCollectionFactory? GetXunitTestCollectionFactory(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			Type testCollectionFactoryType,
 			ITestAssembly testAssembly) =>
 				Get<IXunitTestCollectionFactory>(diagnosticMessageSink, testCollectionFactoryType, new object[] { testAssembly });
@@ -343,7 +343,7 @@ namespace Xunit.Sdk
 		/// <param name="testAssembly">The test assembly.</param>
 		/// <returns>The collection factory.</returns>
 		public static IXunitTestCollectionFactory? GetXunitTestCollectionFactory(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo? collectionBehaviorAttribute,
 			ITestAssembly testAssembly)
 		{
@@ -359,7 +359,7 @@ namespace Xunit.Sdk
 		}
 
 		static Type GetTestCollectionFactoryType(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo? collectionBehaviorAttribute)
 		{
 			if (collectionBehaviorAttribute == null)

@@ -81,11 +81,11 @@ public class FactDiscovererTests
 
 	class TestableFactDiscoverer : FactDiscoverer
 	{
-		public TestableFactDiscoverer(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink) { }
+		public TestableFactDiscoverer(_IMessageSink diagnosticMessageSink)
+			: base(diagnosticMessageSink)
+		{ }
 
-		public static TestableFactDiscoverer Create()
-		{
-			return new TestableFactDiscoverer(SpyMessageSink.Create());
-		}
+		public static TestableFactDiscoverer Create() =>
+			new TestableFactDiscoverer(SpyMessageSink.Create());
 	}
 }

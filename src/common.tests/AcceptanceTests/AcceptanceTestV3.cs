@@ -8,6 +8,7 @@ using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class AcceptanceTestV3
 {
@@ -21,7 +22,7 @@ public class AcceptanceTestV3
 		{
 			try
 			{
-				var diagnosticMessageSink = new NullMessageSink();
+				var diagnosticMessageSink = new _NullMessageSink();
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
 				using var discoverySink = Xunit.v3.SpyMessageSink<IDiscoveryCompleteMessage>.Create();

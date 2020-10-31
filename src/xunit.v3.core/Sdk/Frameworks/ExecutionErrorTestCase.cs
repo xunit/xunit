@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -31,7 +32,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method.</param>
 		/// <param name="errorMessage">The error message to report for the test.</param>
 		public ExecutionErrorTestCase(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
@@ -52,7 +53,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public override Task<RunSummary> RunAsync(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

@@ -1,4 +1,5 @@
 ﻿using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -6,7 +7,7 @@ namespace Xunit.Sdk
 	/// This interface is intended to be implemented by components which generate test collections.
 	/// End users specify the desired test collection factory by applying <see cref="CollectionBehaviorAttribute"/>
 	/// at the assembly level. Classes which implement this interface must have a constructor
-	/// that takes <see cref="ITestAssembly"/> and <see cref="IMessageSink"/>.
+	/// that takes <see cref="ITestAssembly"/> and <see cref="_IMessageSink"/>.
 	/// </summary>
 	public interface IXunitTestCollectionFactory
 	{

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -38,7 +39,7 @@ namespace Xunit.Sdk
 			string displayName,
 			string? skipReason,
 			object?[] constructorArguments,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
@@ -50,7 +51,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink { get; }
+		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
 		protected override async Task AfterTestCaseStartingAsync()

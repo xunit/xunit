@@ -4,7 +4,6 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -33,7 +32,7 @@ public class XunitTestFrameworkDiscovererTests
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
 			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()));
-			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: Substitute.For<IMessageSink>(), discoveryOptions: null!));
+			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: Substitute.For<_IMessageSink>(), discoveryOptions: null!));
 		}
 
 		[Fact]
@@ -108,7 +107,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var typeName = typeof(object).FullName!;
-			var sink = Substitute.For<IMessageSink>();
+			var sink = Substitute.For<_IMessageSink>();
 			var options = _TestFrameworkOptions.ForDiscovery();
 
 			Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null!, includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
@@ -450,9 +449,9 @@ public class XunitTestFrameworkDiscovererTests
 		protected TestableXunitTestFrameworkDiscoverer(
 			IAssemblyInfo assembly,
 			_ISourceInformationProvider? sourceProvider,
-			IMessageSink? diagnosticMessageSink,
+			_IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
-				: base(assembly, configFileName: null, sourceProvider ?? Substitute.For<_ISourceInformationProvider>(), diagnosticMessageSink ?? new NullMessageSink(), collectionFactory)
+				: base(assembly, configFileName: null, sourceProvider ?? Substitute.For<_ISourceInformationProvider>(), diagnosticMessageSink ?? new _NullMessageSink(), collectionFactory)
 		{
 			Assembly = assembly;
 			Sink = new TestDiscoverySink();
@@ -474,7 +473,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static TestableXunitTestFrameworkDiscoverer Create(
 			IAssemblyInfo? assembly = null,
 			_ISourceInformationProvider? sourceProvider = null,
-			IMessageSink? diagnosticMessageSink = null,
+			_IMessageSink? diagnosticMessageSink = null,
 			IXunitTestCollectionFactory? collectionFactory = null)
 		{
 			return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, diagnosticMessageSink, collectionFactory);

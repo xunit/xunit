@@ -7,7 +7,7 @@ namespace Xunit.Sdk
 {
 	public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 	{
-		public CulturedTheoryAttributeDiscoverer(IMessageSink diagnosticMessageSink)
+		public CulturedTheoryAttributeDiscoverer(_IMessageSink diagnosticMessageSink)
 			: base(diagnosticMessageSink) { }
 
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(

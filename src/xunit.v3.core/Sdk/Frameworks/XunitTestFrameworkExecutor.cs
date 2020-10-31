@@ -27,7 +27,7 @@ namespace Xunit.Sdk
 			IReflectionAssemblyInfo assemblyInfo,
 			string? configFileName,
 			_ISourceInformationProvider sourceInformationProvider,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 				: base(assemblyInfo, sourceInformationProvider, diagnosticMessageSink)
 		{
 			testAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyInfo.Assembly.GetName().Version);
@@ -104,7 +104,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		protected override async void RunTestCases(
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			await using var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions);

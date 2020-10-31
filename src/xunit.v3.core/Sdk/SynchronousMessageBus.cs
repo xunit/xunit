@@ -1,5 +1,6 @@
 ﻿using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -8,10 +9,10 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class SynchronousMessageBus : IMessageBus
 	{
-		readonly IMessageSink messageSink;
+		readonly _IMessageSink messageSink;
 
 		/// <summary/>
-		public SynchronousMessageBus(IMessageSink messageSink)
+		public SynchronousMessageBus(_IMessageSink messageSink)
 		{
 			this.messageSink = Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 		}

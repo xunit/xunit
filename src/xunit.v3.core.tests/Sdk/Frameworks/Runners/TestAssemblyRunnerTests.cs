@@ -85,9 +85,9 @@ public class TestAssemblyRunnerTests
 		public static async ValueTask FailureInQueueOfTestAssemblyStarting_DoesNotQueueTestAssemblyFinished_DoesNotRunTestCollections()
 		{
 			var messages = new List<IMessageSinkMessage>();
-			var messageSink = Substitute.For<IMessageSink>();
+			var messageSink = Substitute.For<_IMessageSink>();
 			messageSink
-				.OnMessage(null)
+				.OnMessage(null!)
 				.ReturnsForAnyArgs(callInfo =>
 				{
 					var msg = callInfo.Arg<IMessageSinkMessage>();
@@ -338,7 +338,7 @@ public class TestAssemblyRunnerTests
 			ITestAssembly testAssembly,
 			IEnumerable<ITestCase> testCases,
 			List<IMessageSinkMessage> diagnosticMessages,
-			IMessageSink executionMessageSink,
+			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions,
 			RunSummary result,
 			bool cancelInRunTestCollectionAsync)
@@ -351,7 +351,7 @@ public class TestAssemblyRunnerTests
 		}
 
 		public static TestableTestAssemblyRunner Create(
-			IMessageSink? executionMessageSink = null,
+			_IMessageSink? executionMessageSink = null,
 			RunSummary? result = null,
 			ITestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null,

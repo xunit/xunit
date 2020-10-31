@@ -204,7 +204,7 @@ public class XunitTheoryTestCaseRunnerTests
 		TestableXunitTheoryTestCaseRunner(
 			IXunitTestCase testCase,
 			string displayName,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus)
 				: base(testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
 		{ }

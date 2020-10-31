@@ -18,7 +18,7 @@ namespace Xunit.Sdk
 	public abstract class TestFrameworkDiscoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
 	{
 		IAssemblyInfo assemblyInfo;
-		IMessageSink diagnosticMessageSink;
+		_IMessageSink diagnosticMessageSink;
 		bool disposed;
 		_ISourceInformationProvider sourceProvider;
 		readonly Lazy<string> targetFramework;
@@ -32,7 +32,7 @@ namespace Xunit.Sdk
 		protected TestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
 			_ISourceInformationProvider sourceProvider,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
@@ -62,7 +62,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to report diagnostic messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -109,7 +109,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public void Find(
 			bool includeSourceInformation,
-			IMessageSink discoveryMessageSink,
+			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
@@ -133,7 +133,7 @@ namespace Xunit.Sdk
 		}
 
 		static IMessageBus CreateMessageBus(
-			IMessageSink messageSink,
+			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions options)
 		{
 			if (options.SynchronousMessageReportingOrDefault())
@@ -146,7 +146,7 @@ namespace Xunit.Sdk
 		public void Find(
 			string typeName,
 			bool includeSourceInformation,
-			IMessageSink discoveryMessageSink,
+			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNullOrEmpty("typeName", typeName);
