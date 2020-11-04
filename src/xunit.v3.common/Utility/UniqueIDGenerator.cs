@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -78,6 +79,27 @@ namespace Xunit
 					hasher?.Dispose();
 				}
 			}
+		}
+
+		/// <summary>
+		/// Computes a unique ID for an assembly, to be placed into <see cref="_TestAssemblyMessage.AssemblyUniqueID"/>
+		/// </summary>
+		/// <param name="assemblyName">The assembly name</param>
+		/// <param name="assemblyPath">The optional assembly path</param>
+		/// <param name="configFilePath">The optional configuration file path</param>
+		/// <returns>The computed unique ID for the assembly</returns>
+		public static string ForAssembly(
+			string assemblyName,
+			string? assemblyPath,
+			string? configFilePath)
+		{
+			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
+
+			using var generator = new UniqueIDGenerator();
+			generator.Add(assemblyName);
+			generator.Add(assemblyPath ?? string.Empty);
+			generator.Add(configFilePath ?? string.Empty);
+			return generator.Compute();
 		}
 
 		static char ToHexChar(int b) =>

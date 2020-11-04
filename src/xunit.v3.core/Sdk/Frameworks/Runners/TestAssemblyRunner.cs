@@ -232,11 +232,12 @@ namespace Xunit.Sdk
 				}
 				catch { }
 
+				var uniqueID = UniqueIDGenerator.ForAssembly(TestAssembly.Assembly.Name, TestAssembly.Assembly.AssemblyPath, TestAssembly.ConfigFileName);
 				var testAssemblyStartingMessage = new _TestAssemblyStarting
 				{
 					AssemblyName = TestAssembly.Assembly.Name,
 					AssemblyPath = TestAssembly.Assembly.AssemblyPath,
-					AssemblyUniqueID = "?",
+					AssemblyUniqueID = uniqueID,
 					ConfigFilePath = TestAssembly.ConfigFileName,
 					StartTime = DateTimeOffset.Now,
 					TargetFramework = targetFramework,

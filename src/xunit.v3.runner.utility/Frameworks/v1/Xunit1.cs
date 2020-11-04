@@ -242,11 +242,16 @@ namespace Xunit
 			{
 				try
 				{
+					var uniqueID = UniqueIDGenerator.ForAssembly(
+						testCollection.TestAssembly.Assembly.Name,
+						testCollection.TestAssembly.Assembly.AssemblyPath,
+						testCollection.TestAssembly.ConfigFileName
+					);
 					var testAssemblyStartingMessage = new _TestAssemblyStarting
 					{
 						AssemblyName = testCollection.TestAssembly.Assembly.Name,
 						AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
-						AssemblyUniqueID = "?",
+						AssemblyUniqueID = uniqueID,
 						ConfigFilePath = testCollection.TestAssembly.ConfigFileName,
 						StartTime = DateTimeOffset.Now,
 						TestEnvironment = environment,

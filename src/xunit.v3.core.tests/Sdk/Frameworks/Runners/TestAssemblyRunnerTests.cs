@@ -72,6 +72,12 @@ public class TestAssemblyRunnerTests
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);
 					Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
+					var expectedUniqueID = UniqueIDGenerator.ForAssembly(
+						runner.TestAssembly.Assembly.Name,
+						runner.TestAssembly.Assembly.AssemblyPath,
+						runner.TestAssembly.ConfigFileName
+					);
+					Assert.Equal(expectedUniqueID, starting.AssemblyUniqueID);
 				},
 				msg =>
 				{
@@ -352,6 +358,8 @@ public class TestAssemblyRunnerTests
 			this.result = result;
 			this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
 		}
+
+		public new ITestAssembly TestAssembly => base.TestAssembly;
 
 		public static TestableTestAssemblyRunner Create(
 			_IMessageSink? executionMessageSink = null,

@@ -251,7 +251,7 @@ public class Xunit1Tests
 					var assemblyStarting = Assert.IsAssignableFrom<_TestAssemblyStarting>(message);
 					Assert.Equal("assembly", assemblyStarting.AssemblyName);
 					Assert.Equal("assembly", assemblyStarting.AssemblyPath);
-					//Assert.Equal("?", assemblyStarting.AssemblyUniqueID);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", assemblyStarting.AssemblyUniqueID);
 					Assert.Equal("config", assemblyStarting.ConfigFilePath);
 					Assert.Null(assemblyStarting.TargetFramework);  // Always null with v1
 					Assert.Contains("-bit .NET ", assemblyStarting.TestEnvironment);
