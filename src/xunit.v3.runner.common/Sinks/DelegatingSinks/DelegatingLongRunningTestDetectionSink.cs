@@ -95,7 +95,7 @@ namespace Xunit.Runner.Common
 			innerSink.Dispose();
 		}
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			stopEvent?.Set();
 		}

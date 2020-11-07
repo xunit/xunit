@@ -327,20 +327,21 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestAssemblyFinished TestAssemblyFinished(
+		public static _TestAssemblyFinished TestAssemblyFinished(
+			string assemblyUniqueID = "asm-unique-id",
 			int testsRun = 2112,
 			int testsFailed = 42,
 			int testsSkipped = 6,
 			decimal executionTime = 123.4567M)
 		{
-			var testAssembly = TestAssembly("testAssembly.dll");
-			var result = Substitute.For<ITestAssemblyFinished, InterfaceProxy<ITestAssemblyFinished>>();
-			result.TestAssembly.Returns(testAssembly);
-			result.TestsRun.Returns(testsRun);
-			result.TestsFailed.Returns(testsFailed);
-			result.TestsSkipped.Returns(testsSkipped);
-			result.ExecutionTime.Returns(executionTime);
-			return result;
+			return new _TestAssemblyFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = executionTime,
+				TestsFailed = testsFailed,
+				TestsRun = testsRun,
+				TestsSkipped = testsSkipped
+			};
 		}
 
 		public static ITestCase TestCase(ITestCollection? collection = null)

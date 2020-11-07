@@ -14,7 +14,7 @@ public class ResultSinkTests
 	{
 		var listener = Substitute.For<ITestListener>();
 		await using var sink = new ResultSink(listener, 42);
-		var message = Substitute.For<ITestAssemblyFinished>();
+		var message = Substitute.For<_TestAssemblyFinished>();
 
 		sink.OnMessage(message);
 

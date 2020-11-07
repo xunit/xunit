@@ -35,9 +35,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestAssemblyFinished"/> message is received.
+		/// Occurs when a <see cref="_TestAssemblyFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyFinished>? TestAssemblyFinishedEvent;
+		public event MessageHandler<_TestAssemblyFinished>? TestAssemblyFinishedEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestAssemblyStarting"/> message is received.

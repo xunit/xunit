@@ -23,8 +23,27 @@ namespace Xunit.Runner.v2
 			HashSet<string>? messageTypes = null)
 		{
 			return
+				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
 				message;
+		}
+
+		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished testAssemblyFinished)
+		{
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testAssemblyFinished.TestAssembly.Assembly.Name,
+				testAssemblyFinished.TestAssembly.Assembly.AssemblyPath,
+				testAssemblyFinished.TestAssembly.ConfigFileName
+			);
+
+			return new _TestAssemblyFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = testAssemblyFinished.ExecutionTime,
+				TestsFailed = testAssemblyFinished.TestsFailed,
+				TestsRun = testAssemblyFinished.TestsRun,
+				TestsSkipped = testAssemblyFinished.TestsSkipped
+			};
 		}
 
 		static _MessageSinkMessage AdaptTestAssemblyStarting(ITestAssemblyStarting testAssemblyStarting)

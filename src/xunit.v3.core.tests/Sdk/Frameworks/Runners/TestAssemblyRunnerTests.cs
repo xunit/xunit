@@ -81,7 +81,7 @@ public class TestAssemblyRunnerTests
 				},
 				msg =>
 				{
-					var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(msg);
+					var finished = Assert.IsAssignableFrom<_TestAssemblyFinished>(msg);
 					Assert.Equal(4, finished.TestsRun);
 					Assert.Equal(2, finished.TestsFailed);
 					Assert.Equal(1, finished.TestsSkipped);
@@ -171,7 +171,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask Cancellation_TestAssemblyFinished_CallsCallExtensibilityCallbacks()
 		{
-			var messageSink = SpyMessageSink.Create(msg => !(msg is ITestAssemblyFinished));
+			var messageSink = SpyMessageSink.Create(msg => !(msg is _TestAssemblyFinished));
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await runner.RunAsync();

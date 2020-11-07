@@ -241,18 +241,19 @@ namespace Xunit
 
 			if (testCollection != null)
 			{
+				var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+					testCollection.TestAssembly.Assembly.Name,
+					testCollection.TestAssembly.Assembly.AssemblyPath,
+					testCollection.TestAssembly.ConfigFileName
+				);
+
 				try
 				{
-					var uniqueID = UniqueIDGenerator.ForAssembly(
-						testCollection.TestAssembly.Assembly.Name,
-						testCollection.TestAssembly.Assembly.AssemblyPath,
-						testCollection.TestAssembly.ConfigFileName
-					);
 					var testAssemblyStartingMessage = new _TestAssemblyStarting
 					{
 						AssemblyName = testCollection.TestAssembly.Assembly.Name,
 						AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
-						AssemblyUniqueID = uniqueID,
+						AssemblyUniqueID = assemblyUniqueID,
 						ConfigFilePath = testCollection.TestAssembly.ConfigFileName,
 						StartTime = DateTimeOffset.Now,
 						TestEnvironment = environment,
@@ -272,7 +273,16 @@ namespace Xunit
 				}
 				finally
 				{
-					messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
+					var assemblyFinished = new _TestAssemblyFinished
+					{
+						AssemblyUniqueID = assemblyUniqueID,
+						ExecutionTime = results.Time,
+						TestsFailed = results.Failed,
+						TestsRun = results.Total,
+						TestsSkipped = results.Skipped
+					};
+
+					messageSink.OnMessage(assemblyFinished);
 				}
 			}
 		}

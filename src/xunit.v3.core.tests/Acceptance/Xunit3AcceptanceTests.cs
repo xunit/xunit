@@ -24,7 +24,7 @@ public class Xunit3AcceptanceTests
 				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
 				message =>
 				{
-					var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+					var finished = Assert.IsAssignableFrom<_TestAssemblyFinished>(message);
 					Assert.Equal(0, finished.TestsRun);
 					Assert.Equal(0, finished.TestsFailed);
 					Assert.Equal(0, finished.TestsSkipped);
@@ -142,7 +142,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var assemblyFinished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+					var assemblyFinished = Assert.IsAssignableFrom<_TestAssemblyFinished>(message);
 					Assert.Equal(1, assemblyFinished.TestsRun);
 					Assert.Equal(0, assemblyFinished.TestsFailed);
 					Assert.Equal(0, assemblyFinished.TestsSkipped);

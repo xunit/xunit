@@ -4,6 +4,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -83,17 +84,17 @@ namespace Xunit.Runner.Common
 				return innerSink.OnMessage(testCollectionFinished);
 			}
 
-			var assemblyFinished = message.Cast<ITestAssemblyFinished>(messageTypes);
+			var assemblyFinished = message.Cast<_TestAssemblyFinished>(messageTypes);
 			if (assemblyFinished != null)
 			{
-				assemblyFinished = new TestAssemblyFinished(
-					assemblyFinished.TestCases,
-					assemblyFinished.TestAssembly,
-					assemblyFinished.ExecutionTime,
-					assemblyFinished.TestsRun,
-					assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
-					0
-				);
+				assemblyFinished = new _TestAssemblyFinished
+				{
+					AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
+					ExecutionTime = assemblyFinished.ExecutionTime,
+					TestsFailed = assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
+					TestsRun = assemblyFinished.TestsRun,
+					TestsSkipped = 0
+				};
 
 				return innerSink.OnMessage(assemblyFinished);
 			}

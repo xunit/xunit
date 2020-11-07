@@ -23,7 +23,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		sink.OnMessage(new TestCaseStarting(testCase1));
 		await sink.AdvanceClockAsync(100);
 		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
-		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(new _TestAssemblyFinished());
 
 		Assert.Empty(events);
 	}
@@ -40,7 +40,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		sink.OnMessage(new TestCaseStarting(testCase));
 		await sink.AdvanceClockAsync(1500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(new _TestAssemblyFinished());
 
 		var @event = Assert.Single(events);
 		Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
@@ -65,7 +65,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		await sink.AdvanceClockAsync(500);
 		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
 		sink.OnMessage(new TestCaseFinished(testCase2, 8009, 1, 0, 0));
-		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(new _TestAssemblyFinished());
 
 		var @event = Assert.Single(events);
 		Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
@@ -88,7 +88,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		await sink.AdvanceClockAsync(500);
 		await sink.AdvanceClockAsync(500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(new _TestAssemblyFinished());
 
 		Assert.Collection(
 			events,
@@ -131,7 +131,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		sink.OnMessage(new TestCaseStarting(testCase));
 		await sink.AdvanceClockAsync(1500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(new _TestAssemblyFinished());
 
 		var @event = Assert.Single(events);
 		Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message);
@@ -161,7 +161,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		await sink.AdvanceClockAsync(500);
 		await sink.AdvanceClockAsync(500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
-		sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+		sink.OnMessage(new _TestAssemblyFinished());
 
 		Assert.Collection(
 			events,

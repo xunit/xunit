@@ -161,7 +161,7 @@ namespace Xunit.Sdk
 		protected virtual Task AfterTestAssemblyStartingAsync() => Task.CompletedTask;
 
 		/// <summary>
-		/// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
+		/// This method is called just before <see cref="_TestAssemblyFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task BeforeTestAssemblyFinishedAsync() => Task.CompletedTask;
@@ -232,12 +232,12 @@ namespace Xunit.Sdk
 				}
 				catch { }
 
-				var uniqueID = UniqueIDGenerator.ForAssembly(TestAssembly.Assembly.Name, TestAssembly.Assembly.AssemblyPath, TestAssembly.ConfigFileName);
+				var assemblyUniqueID = UniqueIDGenerator.ForAssembly(TestAssembly.Assembly.Name, TestAssembly.Assembly.AssemblyPath, TestAssembly.ConfigFileName);
 				var testAssemblyStartingMessage = new _TestAssemblyStarting
 				{
 					AssemblyName = TestAssembly.Assembly.Name,
 					AssemblyPath = TestAssembly.Assembly.AssemblyPath,
-					AssemblyUniqueID = uniqueID,
+					AssemblyUniqueID = assemblyUniqueID,
 					ConfigFilePath = TestAssembly.ConfigFileName,
 					StartTime = DateTimeOffset.Now,
 					TargetFramework = targetFramework,
@@ -264,7 +264,16 @@ namespace Xunit.Sdk
 					}
 					finally
 					{
-						messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+						var assemblyFinished = new _TestAssemblyFinished
+						{
+							AssemblyUniqueID = assemblyUniqueID,
+							ExecutionTime = totalSummary.Time,
+							TestsFailed = totalSummary.Failed,
+							TestsRun = totalSummary.Total,
+							TestsSkipped = totalSummary.Skipped
+						};
+
+						messageBus.QueueMessage(assemblyFinished);
 
 						try
 						{

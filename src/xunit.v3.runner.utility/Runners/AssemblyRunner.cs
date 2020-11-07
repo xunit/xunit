@@ -37,7 +37,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<IDiscoveryCompleteMessage>();
 			AddMessageTypeName<IErrorMessage>();
 			AddMessageTypeName<ITestAssemblyCleanupFailure>();
-			AddMessageTypeName<ITestAssemblyFinished>();
+			AddMessageTypeName<_TestAssemblyFinished>();
 			AddMessageTypeName<ITestCaseCleanupFailure>();
 			AddMessageTypeName<ITestCaseDiscoveryMessage>();
 			AddMessageTypeName<ITestClassCleanupFailure>();
@@ -344,7 +344,7 @@ namespace Xunit.Runners
 			}))
 				return !cancelled;
 
-			if (DispatchMessage<ITestAssemblyFinished>(message, messageTypes, assemblyFinished =>
+			if (DispatchMessage<_TestAssemblyFinished>(message, messageTypes, assemblyFinished =>
 			{
 				OnExecutionComplete?.Invoke(new ExecutionCompleteInfo(assemblyFinished.TestsRun, assemblyFinished.TestsFailed, assemblyFinished.TestsSkipped, assemblyFinished.ExecutionTime));
 				executionCompleteEvent.Set();

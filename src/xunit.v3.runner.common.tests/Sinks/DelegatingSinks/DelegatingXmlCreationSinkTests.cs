@@ -79,7 +79,7 @@ public class DelegatingXmlCreationSinkTests
 		executionSummary.Time = 123.4567M;
 		executionSummary.Errors = 1;
 
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 		var errorMessage = Substitute.For<IErrorMessage>();
@@ -101,7 +101,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsTestCollectionElementsToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCollection = Substitute.For<ITestCollection>();
 		testCollection.DisplayName.Returns("Collection Name");
 		var testCollectionFinished = Substitute.For<ITestCollectionFinished>();
@@ -129,7 +129,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsPassingTestElementToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		testCase.SourceInformation.Returns(new SourceInformation());
 		var test = Mocks.Test(testCase, "Test Display Name");
@@ -162,7 +162,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void EmptyOutputStringDoesNotShowUpInResultingXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		testCase.SourceInformation.Returns(new SourceInformation());
 		var test = Mocks.Test(testCase, "Test Display Name");
@@ -195,7 +195,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsFailingTestElementToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, "Test Display Name");
 		var testFailed = Substitute.For<ITestFailed>();
@@ -230,7 +230,7 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void NullStackTraceInFailedTestResultsInEmptyStackTraceXmlElement()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var testFailed = Substitute.For<ITestFailed>();
 		testFailed.TestCase.Returns(testCase);
@@ -253,7 +253,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsSkippedTestElementToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, "Test Display Name");
 		var testSkipped = Substitute.For<ITestSkipped>();
@@ -282,7 +282,7 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void TestElementSourceInfoIsPlacedInXmlWhenPresent()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		testCase.SourceInformation.Returns(new SourceInformation { FileName = "source file", LineNumber = 42 });
 		var testPassed = Substitute.For<ITestPassed>();
@@ -307,7 +307,7 @@ public class DelegatingXmlCreationSinkTests
 			{ "name1", new List<string> { "value1" }},
 			{ "name2", new List<string> { "value2" }}
 		};
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var passingTestCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		passingTestCase.Traits.Returns(traits);
 		var testPassed = Substitute.For<ITestPassed>();
@@ -353,7 +353,7 @@ public class DelegatingXmlCreationSinkTests
 		string inputName,
 		string outputName)
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, inputName);
 		var testSkipped = Substitute.For<ITestSkipped>();
@@ -435,7 +435,7 @@ public class DelegatingXmlCreationSinkTests
 		string messageType,
 		string name)
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = new _TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 

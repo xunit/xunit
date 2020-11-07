@@ -60,7 +60,7 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			lock (clientLock)
 			{

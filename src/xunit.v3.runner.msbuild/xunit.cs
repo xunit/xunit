@@ -306,7 +306,7 @@ namespace Xunit.Runner.MSBuild
 
 				// Run the filtered tests
 				if (testCasesToRun == 0)
-					completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename)!, new ExecutionSummary());
+					completionMessages.TryAdd(UniqueIDGenerator.ForAssembly(assembly.AssemblyDisplayName, assembly.AssemblyFilename, assembly.ConfigFilename), new ExecutionSummary());
 				else
 				{
 					if (SerializeTestCases)
@@ -315,7 +315,7 @@ namespace Xunit.Runner.MSBuild
 							select controller.Deserialize(controller.Serialize(testCase))
 						).ToList();
 
-					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, assemblyID) => completionMessages.TryAdd(assemblyID, summary));
 					if (assemblyElement != null)
 						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 					if (longRunningSeconds > 0)

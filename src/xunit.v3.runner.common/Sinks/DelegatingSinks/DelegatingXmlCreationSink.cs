@@ -60,7 +60,7 @@ namespace Xunit.Runner.Common
 
 			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
 				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
-				&& message.Dispatch<ITestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
+				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
 				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
@@ -173,7 +173,7 @@ namespace Xunit.Runner.Common
 		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
 			=> AddError("assembly-cleanup", args.Message.TestAssembly.Assembly.AssemblyPath, args.Message);
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			assemblyElement.Add(
 				new XAttribute("total", ExecutionSummary.Total),

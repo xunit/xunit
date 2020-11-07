@@ -245,7 +245,7 @@ let AsyncFailing() =
 
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
-			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
+			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
 			controller.RunAll(sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery(), executionOptions: _TestFrameworkOptions.ForExecution());
 			sink.Finished.WaitOne();
