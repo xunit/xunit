@@ -49,15 +49,14 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished => innerSink.Finished;
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			// Call the inner sink first, because we want to be able to depend on ExecutionSummary
 			// being correctly filled out.
-			var result = innerSink.OnMessageWithTypes(message, messageTypes);
+			var result = innerSink.OnMessage(message);
+			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
 				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)

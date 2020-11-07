@@ -448,7 +448,7 @@ public class CommandLineTests
 		{
 			var commandLine = TestableCommandLine.Parse();
 
-			Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
+			Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
 		}
 
 		[Fact]
@@ -458,7 +458,7 @@ public class CommandLineTests
 
 			var commandLine = TestableCommandLine.Parse(new[] { implicitReporter });
 
-			Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
+			Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
 		}
 
 		[Fact]
@@ -489,7 +489,7 @@ public class CommandLineTests
 
 			var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "-noautoreporters");
 
-			Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
+			Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
 		}
 
 		[Fact]

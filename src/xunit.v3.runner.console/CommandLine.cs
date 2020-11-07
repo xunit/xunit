@@ -75,7 +75,7 @@ namespace Xunit.Runner.SystemConsole
 			if (!NoAutoReporters)
 				result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
 
-			return result ?? new DefaultRunnerReporterWithTypes();
+			return result ?? new DefaultRunnerReporter();
 		}
 
 		protected virtual string GetFullPath(string fileName) => Path.GetFullPath(fileName);

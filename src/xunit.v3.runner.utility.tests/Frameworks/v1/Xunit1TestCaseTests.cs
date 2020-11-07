@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Internal;
+using Xunit.Runner.v1;
 
 public class Xunit1TestCaseTests
 {

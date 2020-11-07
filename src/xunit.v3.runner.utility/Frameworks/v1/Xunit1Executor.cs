@@ -8,8 +8,9 @@ using System.Reflection;
 using System.Web.UI;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// Default implementation of <see cref="IXunit1Executor"/>. Creates a remote app domain for the test
@@ -34,7 +35,7 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		public Xunit1Executor(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			bool useAppDomain,
 			string testAssemblyFileName,
 			string? configFileName = null,

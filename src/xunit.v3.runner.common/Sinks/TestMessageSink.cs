@@ -1,14 +1,12 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
-using Xunit.Runner.v2;
+﻿using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSinkWithTypes"/> that provides access to events for all
+	/// An implementation of <see cref="_IMessageSink"/> that provides access to events for all
 	/// levels of reporting.
 	/// </summary>
-	public class TestMessageSink : AggregateMessageSink, IMessageSink
+	public class TestMessageSink : AggregateMessageSink, _IMessageSink
 	{
 		DiagnosticEventSink? diagnostics;
 		DiscoveryEventSink? discovery;
@@ -34,13 +32,5 @@ namespace Xunit.Runner.Common
 		/// Gets a list of runner events that can be subscribed to.
 		/// </summary>
 		public RunnerEventSink Runner => GetOrCreateAggregatedSink(ref runner);
-
-		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
-		{
-			Guard.ArgumentNotNull(nameof(message), message);
-
-			return OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
-		}
 	}
 }

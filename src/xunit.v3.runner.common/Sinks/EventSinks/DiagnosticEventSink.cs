@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Class that maps diagnostic messages to events.
 	/// </summary>
-	public class DiagnosticEventSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+	public class DiagnosticEventSink : _IMessageSink
 	{
 		/// <summary>
 		/// Occurs when a <see cref="IDiagnosticMessage"/> message is received.
@@ -21,18 +20,13 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<IErrorMessage>? ErrorMessageEvent;
 
 		/// <inheritdoc/>
-		public void Dispose()
-		{ }
-
-		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? typeNames)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			return message.Dispatch(typeNames, DiagnosticMessageEvent)
-				&& message.Dispatch(typeNames, ErrorMessageEvent);
+			return
+				message.Dispatch(null, DiagnosticMessageEvent) &&
+				message.Dispatch(null, ErrorMessageEvent);
 		}
 	}
 }

@@ -7,13 +7,13 @@ using Xunit.v3;
 
 public class DefaultTestCaseDescriptorProviderTests
 {
-	ITestFrameworkDiscoverer discoverer;
+	_ITestFrameworkDiscoverer discoverer;
 	DefaultTestCaseDescriptorProvider provider;
 
 	public DefaultTestCaseDescriptorProviderTests()
 	{
-		discoverer = Substitute.For<ITestFrameworkDiscoverer>();
-		discoverer.Serialize(null).ReturnsForAnyArgs(callInfo => $"Serialization of test case ID '{callInfo.Arg<ITestCase>().UniqueID}'");
+		discoverer = Substitute.For<_ITestFrameworkDiscoverer>();
+		discoverer.Serialize(null!).ReturnsForAnyArgs(callInfo => $"Serialization of test case ID '{callInfo.Arg<ITestCase>().UniqueID}'");
 
 		provider = new DefaultTestCaseDescriptorProvider(discoverer);
 	}

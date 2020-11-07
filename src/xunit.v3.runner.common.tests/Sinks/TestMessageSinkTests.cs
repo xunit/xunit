@@ -61,7 +61,7 @@ public class TestMessageSinkTests
 		var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] })!;
 		var sink = new SpyTestMessageSink();
 
-		sink.OnMessageWithTypes(substitute, null);
+		sink.OnMessage(substitute);
 
 		Assert.Collection(
 			sink.Calls,

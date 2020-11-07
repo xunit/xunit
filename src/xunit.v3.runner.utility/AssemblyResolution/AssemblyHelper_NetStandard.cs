@@ -1,7 +1,7 @@
 ﻿#if NETSTANDARD
 
 using System;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -18,7 +18,7 @@ namespace Xunit
 		/// <returns>An object which, when disposed, un-subscribes.</returns>
 		public static IDisposable? SubscribeResolveForAssembly(
 			string assemblyFileName,
-			IMessageSink? internalDiagnosticsMessageSink = null) =>
+			_IMessageSink? internalDiagnosticsMessageSink = null) =>
 				null;
 
 		/// <summary>
@@ -29,7 +29,7 @@ namespace Xunit
 		/// <returns>An object which, when disposed, un-subscribes.</returns>
 		public static IDisposable? SubscribeResolveForAssembly(
 			Type typeInAssembly,
-			IMessageSink? internalDiagnosticsMessageSink = null) =>
+			_IMessageSink? internalDiagnosticsMessageSink = null) =>
 				null;
 	}
 }

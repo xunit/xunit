@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 
 namespace Xunit.Runner.TdNet
 {
@@ -104,9 +104,9 @@ namespace Xunit.Runner.TdNet
 				TestListener.WriteLine($"  {line}", Category.Output);
 		}
 
-		public override void Dispose()
+		public override async ValueTask DisposeAsync()
 		{
-			base.Dispose();
+			await base.DisposeAsync();
 			Finished.Dispose();
 		}
 	}

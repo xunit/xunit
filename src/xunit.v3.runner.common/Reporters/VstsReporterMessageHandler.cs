@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that
-	/// supports <see cref="VstsReporter" />.
+	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="VstsReporter" />.
 	/// </summary>
-	public class VstsReporterMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
+	public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	{
 		const int MaxLength = 4096;
 

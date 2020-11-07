@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// An implementation of <see cref="ITestCase"/> that adapts xUnit.net v1's XML-based APIs

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// An implementation of <see cref="IAssemblyInfo"/>, <see cref="ITypeInfo"/>

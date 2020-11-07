@@ -13,7 +13,7 @@ namespace Xunit.Sdk
 	public class DelegatingMessageSink : _IMessageSink
 	{
 		readonly Action<IMessageSinkMessage>? callback;
-		readonly IMessageSink innerSink;
+		readonly _IMessageSink innerSink;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingMessageSink"/> class.
@@ -21,7 +21,7 @@ namespace Xunit.Sdk
 		/// <param name="innerSink">The inner message sink.</param>
 		/// <param name="callback">The callback.</param>
 		public DelegatingMessageSink(
-			IMessageSink innerSink,
+			_IMessageSink innerSink,
 			Action<IMessageSinkMessage>? callback = null)
 		{
 			this.innerSink = Guard.ArgumentNotNull(nameof(innerSink), innerSink);
@@ -42,8 +42,8 @@ namespace Xunit.Sdk
 	}
 
 	/// <summary>
-	/// Implementation of <see cref="IMessageSink" /> that delegates to another implementation of
-	/// <see cref="IMessageSink" /> while calling into a callback for each message. In addition,
+	/// Implementation of <see cref="_IMessageSink" /> that delegates to another implementation of
+	/// <see cref="_IMessageSink" /> while calling into a callback for each message. In addition,
 	/// it issues a <see cref="Finished" /> event when a message of the type <typeparamref name="TFinalMessage"/>
 	/// is seen.
 	/// </summary>
@@ -59,7 +59,7 @@ namespace Xunit.Sdk
 		/// <param name="innerSink">The inner message sink.</param>
 		/// <param name="callback">The callback.</param>
 		public DelegatingMessageSink(
-			IMessageSink innerSink,
+			_IMessageSink innerSink,
 			Action<IMessageSinkMessage>? callback = null)
 				: base(innerSink, callback)
 		{

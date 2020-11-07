@@ -132,7 +132,7 @@ public class JsonReporterMessageHandlerTests
 		var output = default(string);
 		logger.LogImportantMessage(Arg.Any<StackFrameInfo>(), Arg.Do<string>(str => output = str));
 
-		jsonReporterMessageHandler.OnMessageWithTypes(message, null);
+		jsonReporterMessageHandler.OnMessage(message);
 
 		Assert.Equal(expectedJson, output);
 	}

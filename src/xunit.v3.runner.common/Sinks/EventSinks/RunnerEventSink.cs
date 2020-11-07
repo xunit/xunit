@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Class that maps test runner messages to events.
 	/// </summary>
-	public class RunnerEventSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+	public class RunnerEventSink : _IMessageSink
 	{
 		/// <summary>
 		/// Occurs when the runner is starting discovery for a given test assembly.
@@ -36,22 +36,16 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestExecutionSummary>? TestExecutionSummaryEvent;
 
 		/// <inheritdoc/>
-		public void Dispose()
-		{ }
-
-		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(messageTypes, TestAssemblyDiscoveryFinishedEvent)
-				&& message.Dispatch(messageTypes, TestAssemblyDiscoveryStartingEvent)
-				&& message.Dispatch(messageTypes, TestAssemblyExecutionFinishedEvent)
-				&& message.Dispatch(messageTypes, TestAssemblyExecutionStartingEvent)
-				&& message.Dispatch(messageTypes, TestExecutionSummaryEvent);
+				message.Dispatch(null, TestAssemblyDiscoveryFinishedEvent) &&
+				message.Dispatch(null, TestAssemblyDiscoveryStartingEvent) &&
+				message.Dispatch(null, TestAssemblyExecutionFinishedEvent) &&
+				message.Dispatch(null, TestAssemblyExecutionStartingEvent) &&
+				message.Dispatch(null, TestExecutionSummaryEvent);
 		}
 	}
 }

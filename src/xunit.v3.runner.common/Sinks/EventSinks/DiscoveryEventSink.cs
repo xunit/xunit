@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Class that maps test framework discovery messages to events.
 	/// </summary>
-	public class DiscoveryEventSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+	public class DiscoveryEventSink : _IMessageSink
 	{
 		/// <summary>
 		/// Occurs when a <see cref="IDiscoveryCompleteMessage"/> message is received.
@@ -21,19 +20,13 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
 
 		/// <inheritdoc/>
-		public void Dispose()
-		{ }
-
-		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? typeNames)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
-				&& message.Dispatch(typeNames, DiscoveryCompleteMessageEvent);
+				message.Dispatch(null, TestCaseDiscoveryMessageEvent) &&
+				message.Dispatch(null, DiscoveryCompleteMessageEvent);
 		}
 	}
 }

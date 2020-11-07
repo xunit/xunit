@@ -4,16 +4,17 @@ using System;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
 	/// <summary>
-	/// An implementation of <see cref="ISourceInformationProvider"/> that will provide source information
+	/// An implementation of <see cref="_ISourceInformationProvider"/> that will provide source information
 	/// when running inside of Visual Studio (via the DiaSession class).
 	/// </summary>
-	public class VisualStudioSourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
+	public class VisualStudioSourceInformationProvider : LongLivedMarshalByRefObject, _ISourceInformationProvider
 	{
-		static readonly SourceInformation EmptySourceInformation = new SourceInformation();
+		static readonly _SourceInformation EmptySourceInformation = new _SourceInformation();
 
 		bool disposed;
 		readonly DiaSessionWrapper session;
@@ -25,7 +26,7 @@ namespace Xunit
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		public VisualStudioSourceInformationProvider(
 			string assemblyFileName,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 
@@ -33,17 +34,19 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public ISourceInformation GetSourceInformation(ITestCase? testCase)
+		public _ISourceInformation GetSourceInformation(
+			string? testClassName,
+			string? testMethodName)
 		{
 			var navData = default(DiaNavigationData?);
 
-			if (testCase != null)
-				navData = session.GetNavigationData(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+			if (testClassName != null && testMethodName != null)
+				navData = session.GetNavigationData(testClassName, testMethodName);
 
 			if (navData == null)
 				return EmptySourceInformation;
 
-			return new SourceInformation
+			return new _SourceInformation
 			{
 				FileName = navData.FileName,
 				LineNumber = navData.LineNumber

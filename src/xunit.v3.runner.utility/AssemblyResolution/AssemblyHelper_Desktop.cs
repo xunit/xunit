@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -19,7 +19,7 @@ namespace Xunit
 
 		readonly string directory;
 		bool disposed;
-		readonly IMessageSink? internalDiagnosticsMessageSink;
+		readonly _IMessageSink? internalDiagnosticsMessageSink;
 		readonly Dictionary<string, Assembly?> lookupCache = new Dictionary<string, Assembly?>();
 
 		/// <summary>
@@ -37,11 +37,9 @@ namespace Xunit
 		/// <param name="internalDiagnosticsMessageSink">The message sink to send internal diagnostics messages to</param>
 		public AssemblyHelper(
 			string directory,
-			IMessageSink? internalDiagnosticsMessageSink)
+			_IMessageSink? internalDiagnosticsMessageSink)
 		{
-			Guard.ArgumentNotNull(nameof(directory), directory);
-
-			this.directory = directory;
+			this.directory = Guard.ArgumentNotNull(nameof(directory), directory);
 			this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
 			AppDomain.CurrentDomain.AssemblyResolve += Resolve;
@@ -117,7 +115,7 @@ namespace Xunit
 		/// <returns>An object which, when disposed, un-subscribes.</returns>
 		public static IDisposable? SubscribeResolveForAssembly(
 			string assemblyFileName,
-			IMessageSink? internalDiagnosticsMessageSink = null) =>
+			_IMessageSink? internalDiagnosticsMessageSink = null) =>
 				new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, internalDiagnosticsMessageSink);
 
 		/// <summary>
@@ -128,7 +126,7 @@ namespace Xunit
 		/// <returns>An object which, when disposed, un-subscribes.</returns>
 		public static IDisposable? SubscribeResolveForAssembly(
 			Type typeInAssembly,
-			IMessageSink? internalDiagnosticsMessageSink = null) =>
+			_IMessageSink? internalDiagnosticsMessageSink = null) =>
 				new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, internalDiagnosticsMessageSink);
 	}
 }

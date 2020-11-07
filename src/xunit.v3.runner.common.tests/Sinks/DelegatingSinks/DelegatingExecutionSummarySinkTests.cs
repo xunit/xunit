@@ -2,17 +2,17 @@
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 public class DelegatingExecutionSummarySinkTests
 {
-	readonly IMessageSinkWithTypes innerSink;
+	readonly _IMessageSink innerSink;
 	readonly IMessageSinkMessage testMessage;
 
 	public DelegatingExecutionSummarySinkTests()
 	{
-		innerSink = Substitute.For<IMessageSinkWithTypes>();
-		innerSink.OnMessageWithTypes(null!, null).ReturnsForAnyArgs(true);
+		innerSink = Substitute.For<_IMessageSink>();
+		innerSink.OnMessage(null!).ReturnsForAnyArgs(true);
 
 		testMessage = Substitute.For<IMessageSinkMessage>();
 	}

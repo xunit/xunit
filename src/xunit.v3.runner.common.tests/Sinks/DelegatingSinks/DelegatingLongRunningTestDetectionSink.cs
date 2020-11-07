@@ -113,9 +113,9 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	public async void LongRunningTest_Once_WithDiagnosticMessageSink()
 	{
 		var events = new List<IDiagnosticMessage>();
-		var diagSink = Substitute.For<IMessageSinkWithTypes>();
+		var diagSink = Substitute.For<_IMessageSink>();
 		diagSink
-			.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
+			.WhenForAnyArgs(x => x.OnMessage(null!))
 			.Do(callInfo =>
 			{
 				var message = callInfo.Arg<IMessageSinkMessage>();
@@ -141,9 +141,9 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	public async void LongRunningTest_Twice_WithDiagnosticMessageSink()
 	{
 		var events = new List<IDiagnosticMessage>();
-		var diagSink = Substitute.For<IMessageSinkWithTypes>();
+		var diagSink = Substitute.For<_IMessageSink>();
 		diagSink
-			.WhenForAnyArgs(x => x.OnMessageWithTypes(null!, null))
+			.WhenForAnyArgs(x => x.OnMessage(null!))
 			.Do(callInfo =>
 			{
 				var message = callInfo.Arg<IMessageSinkMessage>();
@@ -179,7 +179,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		public TestableDelegatingLongRunningTestDetectionSink(
 			int longRunningSeconds,
-			IMessageSinkWithTypes diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 				: base(Substitute.For<IExecutionSink>(), TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink)
 		{ }
 
@@ -244,7 +244,5 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 			return false;
 		}
-
-		public bool OnMessage(IMessageSinkMessage message) => OnMessageWithTypes(message, null);
 	}
 }

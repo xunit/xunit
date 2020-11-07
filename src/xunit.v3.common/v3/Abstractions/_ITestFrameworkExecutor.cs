@@ -18,7 +18,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="value">The string representation of the test case.</param>
 		/// <returns>The de-serialized test case.</returns>
-		ITestCase Deserialize(string value);
+		ITestCase? Deserialize(string value);
 
 		/// <summary>
 		/// Starts the process of running all the tests in the assembly.

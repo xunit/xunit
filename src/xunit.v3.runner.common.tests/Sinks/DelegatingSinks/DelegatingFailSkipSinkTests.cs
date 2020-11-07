@@ -23,7 +23,7 @@ public class DelegatingFailSkipSinkTests
 
 		sink.OnMessage(inputMessage);
 
-		var outputMessage = innerSink.Captured(x => x.OnMessageWithTypes(null!, null)).Arg<ITestFailed>();
+		var outputMessage = innerSink.Captured(x => x.OnMessage(null!)).Arg<ITestFailed>();
 		Assert.Equal(inputMessage.Test, outputMessage.Test);
 		Assert.Equal(0M, inputMessage.ExecutionTime);
 		Assert.Empty(inputMessage.Output);
@@ -39,7 +39,7 @@ public class DelegatingFailSkipSinkTests
 
 		sink.OnMessage(inputMessage);
 
-		var outputMessage = innerSink.Captured(x => x.OnMessageWithTypes(null!, null)).Arg<ITestCollectionFinished>();
+		var outputMessage = innerSink.Captured(x => x.OnMessage(null!)).Arg<ITestCollectionFinished>();
 		Assert.Equal(24, outputMessage.TestsRun);
 		Assert.Equal(11, outputMessage.TestsFailed);
 		Assert.Equal(0, outputMessage.TestsSkipped);
@@ -52,7 +52,7 @@ public class DelegatingFailSkipSinkTests
 
 		sink.OnMessage(inputMessage);
 
-		var outputMessage = innerSink.Captured(x => x.OnMessageWithTypes(null!, null)).Arg<ITestAssemblyFinished>();
+		var outputMessage = innerSink.Captured(x => x.OnMessage(null!)).Arg<ITestAssemblyFinished>();
 		Assert.Equal(24, outputMessage.TestsRun);
 		Assert.Equal(11, outputMessage.TestsFailed);
 		Assert.Equal(0, outputMessage.TestsSkipped);

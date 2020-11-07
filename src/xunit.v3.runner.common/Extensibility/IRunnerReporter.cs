@@ -1,5 +1,4 @@
-using Xunit.Abstractions;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -34,12 +33,10 @@ namespace Xunit.Runner.Common
 
 		/// <summary>
 		/// Creates a message handler that will report messages for the given
-		/// test assembly. Ideally, the handler should also implement <see cref="IMessageSinkWithTypes"/>
-		/// for optimal performance, but plain implementations of <see cref="IMessageSink"/> are supported
-		/// for backward compatibility reasons.
+		/// test assembly.
 		/// </summary>
 		/// <param name="logger">The logger used to send result messages to</param>
 		/// <returns>The message handler that handles the messages</returns>
-		IMessageSink CreateMessageHandler(IRunnerLogger logger);
+		_IMessageSink CreateMessageHandler(IRunnerLogger logger);
 	}
 }

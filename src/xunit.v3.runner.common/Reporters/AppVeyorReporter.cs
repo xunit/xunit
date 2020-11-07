@@ -1,5 +1,5 @@
 using System;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -21,12 +21,12 @@ namespace Xunit.Runner.Common
 		public string? RunnerSwitch => null;
 
 		/// <inheritdoc/>
-		public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+		public _IMessageSink CreateMessageHandler(IRunnerLogger logger)
 		{
 			var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
 			return
 				baseUri == null
-					? new DefaultRunnerReporterWithTypesMessageHandler(logger)
+					? new DefaultRunnerReporterMessageHandler(logger)
 					: new AppVeyorReporterMessageHandler(logger, baseUri);
 		}
 	}

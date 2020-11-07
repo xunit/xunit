@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// Represents an <see cref="IMessageSinkWithTypes"/> that collection execution information and
+	/// Represents an <see cref="_IMessageSink"/> that collection execution information and
 	/// provides an <see cref="ExecutionSummary" /> once execution is complete.
 	/// </summary>
-	public interface IExecutionSink : IMessageSinkWithTypes, IDisposable
+	public interface IExecutionSink : _IMessageSink, IDisposable
 	{
 		/// <summary>
 		/// Gets the final execution summary, once the execution is finished.

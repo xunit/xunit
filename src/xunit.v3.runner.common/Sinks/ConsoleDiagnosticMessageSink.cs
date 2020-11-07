@@ -8,8 +8,7 @@ namespace Xunit.Runner.Common
 	/// <summary>
 	/// Logs diagnostic messages to the system console.
 	/// </summary>
-	// TODO: When we shift runner over to v3, we can remove IMessageSink.
-	public class ConsoleDiagnosticMessageSink : MarshalByRefObject, IMessageSink, _IMessageSink
+	public class ConsoleDiagnosticMessageSink : _IMessageSink
 	{
 		readonly string assemblyDisplayName;
 		readonly object consoleLock;
@@ -82,16 +81,5 @@ namespace Xunit.Runner.Common
 
 			return true;
 		}
-
-#if NETFRAMEWORK
-#nullable disable  // The original signature is not compatibility with nullable reference type support
-		/// <inheritdoc/>
-		[System.Security.SecurityCritical]
-		public override sealed object InitializeLifetimeService()
-		{
-			return null;
-		}
-#nullable enable
-#endif
 	}
 }

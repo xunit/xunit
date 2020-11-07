@@ -9,7 +9,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
+using Xunit.Runner.v1;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -20,7 +20,7 @@ public class Xunit1Tests
 		[Fact]
 		public void UsesConstructorArgumentsToCreateExecutor()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config", shadowCopy: true, shadowCopyFolder: @"C:\Path");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config", shadowCopy: true, shadowCopyFolder: @"C:\Path");
 
 			Assert.Equal("AssemblyName.dll", xunit1.Executor_TestAssemblyFileName);
 			Assert.Equal("ConfigFile.config", xunit1.Executor_ConfigFileName);
@@ -48,7 +48,7 @@ public class Xunit1Tests
 		[Fact]
 		public void ReturnsDisplayNameFromExecutor()
 		{
-			using var xunit1 = new TestableXunit1();
+			var xunit1 = new TestableXunit1();
 			xunit1.Executor.TestFrameworkDisplayName.Returns("Test Framework Display Name");
 
 			var result = xunit1.TestFrameworkDisplayName;
@@ -78,7 +78,7 @@ public class Xunit1Tests
 	</class>
 </assembly>";
 
-			using var xunit1 = new TestableXunit1();
+			var xunit1 = new TestableXunit1();
 			xunit1
 				.Executor
 				.WhenForAnyArgs(x => x.EnumerateTests(null))
@@ -147,7 +147,7 @@ public class Xunit1Tests
 	</class>
 </assembly>";
 
-			using var xunit1 = new TestableXunit1();
+			var xunit1 = new TestableXunit1();
 			xunit1
 				.Executor
 				.WhenForAnyArgs(x => x.EnumerateTests(null))
@@ -175,14 +175,14 @@ public class Xunit1Tests
 	</class>
 </assembly>";
 
-			using var xunit1 = new TestableXunit1();
+			var xunit1 = new TestableXunit1();
 			xunit1
 				.Executor
 				.WhenForAnyArgs(x => x.EnumerateTests(null))
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			xunit1.SourceInformationProvider
-				.GetSourceInformation(null)
-				.ReturnsForAnyArgs(callInfo => new SourceInformation { FileName = "File for " + callInfo.Arg<ITestCase>().DisplayName });
+				.GetSourceInformation(null, null)
+				.ReturnsForAnyArgs(callInfo => new _SourceInformation { FileName = $"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}" });
 			var sink = new TestDiscoverySink();
 
 			xunit1.Find(true, sink);
@@ -207,7 +207,7 @@ public class Xunit1Tests
 				new Xunit1TestCase("assembly", "config", "type2", "skipping_with_start", "type2.skipping_with_start")
 			};
 
-			using var xunit1 = new TestableXunit1();
+			var xunit1 = new TestableXunit1();
 			xunit1
 				.Executor
 				.TestFrameworkDisplayName
@@ -236,7 +236,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='type2.skipping_with_start' type='type2' method='skipping_with_start' result='Skip'><reason><message>Skip message</message></reason></test>");
 					callback.RaiseCallbackEvent("<class name='type2' time='0.000' total='1' failed='0' skipped='1'/>");
 				});
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -531,7 +531,7 @@ public class Xunit1Tests
 		[CulturedFact("en-US")]
 		public void ExceptionThrownDuringRunTests_ResultsInErrorMessage()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
 			};
@@ -544,7 +544,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
 				.Do(callInfo => { throw exception; });
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -558,7 +558,7 @@ public class Xunit1Tests
 		[Fact]
 		public void NestedExceptionsThrownDuringRunTests_ResultsInErrorMessage()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
 			};
@@ -571,7 +571,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
 				.Do(callInfo => { throw exception; });
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -589,7 +589,7 @@ public class Xunit1Tests
 		[Fact]
 		public void NestedExceptionResultFromTests_ResultsInErrorMessage()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "type1", "failing", "type1.failing")
 			};
@@ -608,7 +608,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent($"<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{exception.GetType().FullName}'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></test>");
 					callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
 				});
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -626,7 +626,7 @@ public class Xunit1Tests
 		[Fact]
 		public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "type1", "failingclass", "type1.failingclass")
 			};
@@ -649,7 +649,7 @@ public class Xunit1Tests
 					var callback = callInfo.Arg<ICallbackEventHandler>();
 					callback.RaiseCallbackEvent($"<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
 				});
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -663,7 +663,7 @@ public class Xunit1Tests
 		[Fact]
 		public void ExceptionThrownDuringClassFinish_ResultsInErrorMessage()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod")
 			};
@@ -688,7 +688,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
 				});
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -702,7 +702,7 @@ public class Xunit1Tests
 		[Fact]
 		public void NestedExceptionsThrownDuringClassStart_ResultsInErrorMessage()
 		{
-			using var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod")
 			};
@@ -721,7 +721,7 @@ public class Xunit1Tests
 					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></class>");
 				});
-			using var sink = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
@@ -838,8 +838,8 @@ public class AmbiguouslyNamedTestMethods
 }";
 
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
-			using var xunit1 = new Xunit1(new NullMessageSink(), AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName);
-			using var spy = new Xunit.Runner.v2.SpyMessageSink<ITestAssemblyFinished>();
+			var xunit1 = new Xunit1(new _NullMessageSink(), AppDomainSupport.Required, _NullSourceInformationProvider.Instance, assembly.FileName);
+			using var spy = SpyMessageSink<ITestAssemblyFinished>.Create();
 			xunit1.Run(spy);
 			spy.Finished.WaitOne();
 
@@ -863,7 +863,7 @@ public class AmbiguouslyNamedTestMethods
 		public string? Executor_ConfigFileName;
 		public bool Executor_ShadowCopy;
 		public string? Executor_ShadowCopyFolder;
-		public readonly ISourceInformationProvider SourceInformationProvider;
+		public readonly _ISourceInformationProvider SourceInformationProvider;
 
 		public TestableXunit1(
 			string? assemblyFileName = null,
@@ -871,7 +871,7 @@ public class AmbiguouslyNamedTestMethods
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null,
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
-				: this(appDomainSupport, assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<ISourceInformationProvider>())
+				: this(appDomainSupport, assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<_ISourceInformationProvider>())
 		{ }
 
 		TestableXunit1(
@@ -880,8 +880,8 @@ public class AmbiguouslyNamedTestMethods
 			string? configFileName,
 			bool shadowCopy,
 			string? shadowCopyFolder,
-			ISourceInformationProvider sourceInformationProvider)
-				: base(new NullMessageSink(), appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
+			_ISourceInformationProvider sourceInformationProvider)
+				: base(new _NullMessageSink(), appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
 		{
 			Executor_TestAssemblyFileName = assemblyFileName;
 			Executor_ConfigFileName = configFileName;

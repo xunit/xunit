@@ -28,7 +28,7 @@ public static class MessageSinkMessageExtensions
 
 	/// <summary>
 	/// Handles a message of a specific type by testing it for the type, as well as verifying that there
-	/// is a registered callback;
+	/// is a registered callback.
 	/// </summary>
 	/// <param name="message">The message to dispatch.</param>
 	/// <param name="messageTypes">The implemented interfaces, if known.</param>

@@ -8,7 +8,9 @@ using System.Xml;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v1;
 using Xunit.Sdk;
+using Xunit.v3;
 
 [UseCulture("pl-PL")]
 public class TestClassCallbackHandlerTests
@@ -16,7 +18,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithClassNode_ParsesNumbersWithInvariantCulture()
 	{
-		var handler = new TestClassCallbackHandler(new Xunit1TestCase[0], Substitute.For<IMessageSink>());
+		var handler = new TestClassCallbackHandler(new Xunit1TestCase[0], Substitute.For<_IMessageSink>());
 		var xml = new XmlDocument();
 		xml.LoadXml("<class time='1.234' total='4' failed='3' skipped='2' />");
 
@@ -31,7 +33,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithTestNode_ParsesNumberWithInvariantCulture()
 	{
-		var sink = Substitute.For<IMessageSink>();
+		var sink = Substitute.For<_IMessageSink>();
 		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
 		var xml = new XmlDocument();
@@ -39,7 +41,7 @@ public class TestClassCallbackHandlerTests
 
 		handler.OnXmlNode(xml.FirstChild);
 
-		var args = sink.Captured(1, x => x.OnMessage(null));
+		var args = sink.Captured(1, x => x.OnMessage(null!));
 		var message = args.Arg<ITestFinished>();
 		Assert.Equal(1.234M, message.ExecutionTime);
 	}
@@ -47,7 +49,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithTestNode_OutputResultsInOutputMessage()
 	{
-		var sink = Substitute.For<IMessageSink>();
+		var sink = Substitute.For<_IMessageSink>();
 		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
 		var xml = new XmlDocument();
@@ -55,7 +57,7 @@ public class TestClassCallbackHandlerTests
 
 		handler.OnXmlNode(xml.FirstChild);
 
-		var args = sink.Captured(0, x => x.OnMessage(null));
+		var args = sink.Captured(0, x => x.OnMessage(null!));
 		var message = args.Arg<ITestOutput>();
 		Assert.Same(testCase, message.TestCase);
 		Assert.Equal("This is output text", message.Output);

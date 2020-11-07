@@ -1,14 +1,12 @@
-using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that
-	/// supports <see cref="VerboseReporter" />.
+	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="VerboseReporter" />.
 	/// </summary>
-	public class VerboseReporterMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
+	public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="VerboseReporterMessageHandler" /> class.

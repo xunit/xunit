@@ -11,20 +11,19 @@ using Xunit.v3;
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that
-	/// supports <see cref="DefaultRunnerReporterWithTypes" />.
+	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="DefaultRunnerReporter" />.
 	/// </summary>
-	public class DefaultRunnerReporterWithTypesMessageHandler : TestMessageSink
+	public class DefaultRunnerReporterMessageHandler : TestMessageSink
 	{
 		readonly string? defaultDirectory = null;
 		readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
 		readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, _ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="DefaultRunnerReporterWithTypesMessageHandler"/> class.
+		/// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
 		/// </summary>
 		/// <param name="logger">The logger used to report messages</param>
-		public DefaultRunnerReporterWithTypesMessageHandler(IRunnerLogger logger)
+		public DefaultRunnerReporterMessageHandler(IRunnerLogger logger)
 		{
 			Guard.ArgumentNotNull(nameof(logger), logger);
 

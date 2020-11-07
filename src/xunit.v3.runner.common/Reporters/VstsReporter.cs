@@ -1,6 +1,6 @@
 using System;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -25,7 +25,7 @@ namespace Xunit.Runner.Common
 		public string? RunnerSwitch => null;
 
 		/// <inheritdoc/>
-		public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+		public _IMessageSink CreateMessageHandler(IRunnerLogger logger)
 		{
 			var collectionUri = Guard.NotNull("Environment variable SYSTEM_TEAMFOUNDATIONCOLLECTIONURI is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"));
 			var teamProject = Guard.NotNull("Environment variable SYSTEM_TEAMPROJECT is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT"));

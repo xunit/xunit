@@ -8,8 +8,9 @@ using System.Xml;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// A handler that dispatches v1 Executor messages from running a test class.
@@ -17,7 +18,7 @@ namespace Xunit
 	public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	{
 		readonly Dictionary<string, Predicate<XmlNode>> handlers;
-		readonly IMessageSink messageSink;
+		readonly _IMessageSink messageSink;
 		readonly IList<ITestCase> testCases;
 		readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
 		readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
@@ -32,7 +33,7 @@ namespace Xunit
 		/// <param name="messageSink">The message sink to call with the translated results.</param>
 		public TestClassCallbackHandler(
 			IList<ITestCase> testCases,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 				: base(lastNodeName: "class")
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);

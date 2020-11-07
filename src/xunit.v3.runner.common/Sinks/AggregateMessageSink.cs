@@ -1,31 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSinkWithTypes"/> which dispatches messages
+	/// An implementation of <see cref="_IMessageSink"/> which dispatches messages
 	/// to one or more individual message sinks.
 	/// </summary>
-	public class AggregateMessageSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+	public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	{
+		DisposalTracker disposalTracker = new DisposalTracker();
+
 		/// <summary>
 		/// The list of event dispatchers that are registered with the system.
 		/// </summary>
-		protected List<IMessageSinkWithTypes> AggregatedSinks { get; } = new List<IMessageSinkWithTypes>();
+		protected List<_IMessageSink> AggregatedSinks { get; } = new List<_IMessageSink>();
 
 		/// <inheritdoc/>
-		public virtual void Dispose()
+		public virtual ValueTask DisposeAsync()
 		{
-			lock (AggregatedSinks)
-			{
-				foreach (var sink in AggregatedSinks)
-					sink?.Dispose();
+			var tracker = default(DisposalTracker);
 
+			lock (disposalTracker)
+			{
+				tracker = disposalTracker;
+				disposalTracker = new DisposalTracker();
 				AggregatedSinks.Clear();
 			}
+
+			return tracker.DisposeAsync();
 		}
 
 		/// <summary>
@@ -35,7 +42,7 @@ namespace Xunit.Runner.Common
 		/// <param name="value">The dispatcher</param>
 		/// <returns>The dispatcher</returns>
 		protected TDispatcher GetOrCreateAggregatedSink<TDispatcher>(ref TDispatcher? value)
-			where TDispatcher : class, IMessageSinkWithTypes, new()
+			where TDispatcher : class, _IMessageSink, new()
 		{
 			if (value == null)
 			{
@@ -52,16 +59,8 @@ namespace Xunit.Runner.Common
 			return value;
 		}
 
-		/// <summary>
-		/// Reports the presence of a message on the message bus with an optional list of message types.
-		/// This method should never throw exceptions.
-		/// </summary>
-		/// <param name="message">The message from the message bus.</param>
-		/// <param name="messageTypes">The list of message types, or <c>null</c>.</param>
-		/// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
-		public virtual bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		/// <inheritdoc/>
+		public virtual bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -69,7 +68,7 @@ namespace Xunit.Runner.Common
 
 			lock (AggregatedSinks)
 				foreach (var dispatcher in AggregatedSinks)
-					result = dispatcher.OnMessageWithTypes(message, messageTypes) && result;
+					result = dispatcher.OnMessage(message) && result;
 
 			return result;
 		}

@@ -1,4 +1,4 @@
-﻿using Xunit.Abstractions;
+﻿using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -17,7 +17,7 @@ namespace Xunit.Runner.Common
 		public string RunnerSwitch => "quiet";
 
 		/// <inheritdoc/>
-		public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
+		public _IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
 			new QuietReporterMessageHandler(logger);
 	}
 }

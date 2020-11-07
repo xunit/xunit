@@ -9,6 +9,7 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.TdNet
 {
@@ -35,7 +36,7 @@ namespace Xunit.Runner.TdNet
 			var assemblyFileName = assembly.GetLocalCodeBase();
 			configuration = ConfigReader.Load(assemblyFileName);
 			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false);
+			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, _NullSourceInformationProvider.Instance, assemblyFileName, shadowCopy: false);
 			disposalTracker.Add(xunit);
 		}
 
@@ -43,7 +44,7 @@ namespace Xunit.Runner.TdNet
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-			return Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
+			return Discover(sink => xunit.Find(false, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
 		IReadOnlyList<ITestCase> Discover(Type? type)
@@ -53,10 +54,10 @@ namespace Xunit.Runner.TdNet
 			if (type == null)
 				return new ITestCase[0];
 
-			return Discover(sink => xunit.Find(type.FullName!, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
+			return Discover(sink => xunit.Find(type.FullName!, false, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
-		IReadOnlyList<ITestCase> Discover(Action<IMessageSinkWithTypes> discoveryAction)
+		IReadOnlyList<ITestCase> Discover(Action<_IMessageSink> discoveryAction)
 		{
 			try
 			{
@@ -98,7 +99,7 @@ namespace Xunit.Runner.TdNet
 				var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
 				disposalTracker.Add(resultSink);
 
-				var executionOptions = TestFrameworkOptions.ForExecution(configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
 				xunit.RunTests(testCases, resultSink, executionOptions);
 
 				resultSink.Finished.WaitOne();

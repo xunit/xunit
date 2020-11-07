@@ -1,5 +1,5 @@
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -11,7 +11,7 @@ namespace Xunit
 			string? configFileName,
 			bool shadowCopy,
 			string? shadowCopyFolder,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);

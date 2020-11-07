@@ -72,7 +72,7 @@ public class TeamCityReporterMessageHandlerTests
 		{
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
 			Assert.Equal($"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']", msg);
@@ -87,7 +87,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestCollectionFinished();
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
 			Assert.Equal("[Imp] => ##teamcity[testSuiteFinished name='FORMATTED:Display Name' flowId='myFlowId']", msg);
@@ -102,7 +102,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestCollectionStarting();
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
 			Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='FORMATTED:Display Name' flowId='myFlowId']", msg);
@@ -117,7 +117,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, "ExceptionType", "This is my message \t\r\n", "Line 1\r\nLine 2\r\nLine 3", "This is\t\r\noutput");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			Assert.Collection(
 				handler.Messages,
@@ -136,7 +136,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestPassed("This is my display name \t\r\n", "This is\t\r\noutput");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			Assert.Collection(
 				handler.Messages,
@@ -154,7 +154,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestSkipped("This is my display name \t\r\n", "This is my skip reason \t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			Assert.Collection(
 				handler.Messages,
@@ -172,7 +172,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestStarting("This is my display name \t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
 			Assert.Equal(msg, "[Imp] => ##teamcity[testStarted name='FORMATTED:This is my display name \t|r|n' flowId='myFlowId']");

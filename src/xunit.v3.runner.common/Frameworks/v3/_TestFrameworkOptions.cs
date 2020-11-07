@@ -23,7 +23,7 @@ namespace Xunit.Runner.Common
 		{ }
 
 		/// <summary>
-		/// Creates an instance of <see cref="_TestFrameworkOptions"/>
+		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
 		/// </summary>
 		/// <param name="configuration">The optional configuration to copy values from.</param>
 		public static _ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration? configuration = null)
@@ -43,7 +43,7 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="TestFrameworkOptions"/>
+		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 		/// </summary>
 		/// <param name="configuration">The optional configuration to copy values from.</param>
 		public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration? configuration = null)

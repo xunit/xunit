@@ -2,17 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runners
 {
 	/// <summary>
 	/// A class which makes it simpler for casual runner authors to find and run tests and get results.
 	/// </summary>
-	public class AssemblyRunner : LongLivedMarshalByRefObject, IDisposable, IMessageSinkWithTypes
+	public class AssemblyRunner : LongLivedMarshalByRefObject, IAsyncDisposable, _IMessageSink
 	{
 		static readonly Dictionary<Type, string> MessageTypeNames;
 
@@ -21,6 +23,7 @@ namespace Xunit.Runners
 		readonly TestAssemblyConfiguration configuration;
 		readonly IFrontController controller;
 		readonly ManualResetEvent discoveryCompleteEvent = new ManualResetEvent(true);
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly ManualResetEvent executionCompleteEvent = new ManualResetEvent(true);
 		readonly object statusLock = new object();
 		int testCasesDiscovered;
@@ -56,7 +59,9 @@ namespace Xunit.Runners
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null)
 		{
-			controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: MessageSinkAdapter.Wrap(this));
+			controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: this);
+			disposalTracker.Add(controller);
+
 			configuration = ConfigReader.Load(assemblyFileName, configFileName);
 		}
 
@@ -147,7 +152,7 @@ namespace Xunit.Runners
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
 			lock (statusLock)
 			{
@@ -160,19 +165,19 @@ namespace Xunit.Runners
 				disposed = true;
 			}
 
-			controller?.Dispose();
+			await disposalTracker.DisposeAsync();
 			discoveryCompleteEvent?.Dispose();
 			executionCompleteEvent?.Dispose();
 		}
 
-		ITestFrameworkDiscoveryOptions GetDiscoveryOptions(
+		_ITestFrameworkDiscoveryOptions GetDiscoveryOptions(
 			bool? diagnosticMessages,
 			TestMethodDisplay? methodDisplay,
 			TestMethodDisplayOptions? methodDisplayOptions,
 			bool? preEnumerateTheories,
 			bool? internalDiagnosticMessages)
 		{
-			var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
+			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(configuration);
 			discoveryOptions.SetSynchronousMessageReporting(true);
 
 			if (diagnosticMessages.HasValue)
@@ -189,13 +194,13 @@ namespace Xunit.Runners
 			return discoveryOptions;
 		}
 
-		ITestFrameworkExecutionOptions GetExecutionOptions(
+		_ITestFrameworkExecutionOptions GetExecutionOptions(
 			bool? diagnosticMessages,
 			bool? parallel,
 			int? maxParallelThreads,
 			bool? internalDiagnosticMessages)
 		{
-			var executionOptions = TestFrameworkOptions.ForExecution(configuration);
+			var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
 			executionOptions.SetSynchronousMessageReporting(true);
 
 			if (diagnosticMessages.HasValue)
@@ -319,8 +324,11 @@ namespace Xunit.Runners
 			return true;
 		}
 
-		bool IMessageSinkWithTypes.OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+		bool _IMessageSink.OnMessage(IMessageSinkMessage message)
 		{
+			// Temporary
+			var messageTypes = default(HashSet<string>);
+
 			if (DispatchMessage<ITestCaseDiscoveryMessage>(message, messageTypes, testDiscovered =>
 			{
 				++testCasesDiscovered;

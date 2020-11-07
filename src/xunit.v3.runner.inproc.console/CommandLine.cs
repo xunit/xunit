@@ -139,7 +139,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// if none is available, then it will search through the command line options to
 		/// determine which one to run. If there are no environmentally enabled reporters and
 		/// no reporters passed on the command line, it will return an instance of
-		/// <see cref="DefaultRunnerReporterWithTypes"/>.
+		/// <see cref="DefaultRunnerReporter"/>.
 		/// </summary>
 		/// <param name="reporters">The list of available reporters to choose from</param>
 		/// <returns>The reporter that should be used during testing</returns>
@@ -160,7 +160,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			if (!NoAutoReporters)
 				result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
 
-			return result ?? new DefaultRunnerReporterWithTypes();
+			return result ?? new DefaultRunnerReporter();
 		}
 
 		/// <summary>

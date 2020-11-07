@@ -211,14 +211,14 @@ namespace Xunit.v3
 			string? runnerSwitch = null,
 			string? description = null,
 			bool isEnvironmentallyEnabled = false,
-			IMessageSinkWithTypes? messageSink = null)
+			_IMessageSink? messageSink = null)
 		{
 			var result = Substitute.For<IRunnerReporter, InterfaceProxy<IRunnerReporter>>();
 			result.Description.Returns(description ?? "The runner reporter description");
 			result.IsEnvironmentallyEnabled.ReturnsForAnyArgs(isEnvironmentallyEnabled);
 			result.RunnerSwitch.Returns(runnerSwitch);
-			var dualSink = MessageSinkAdapter.Wrap(messageSink ?? Substitute.For<IMessageSinkWithTypes, InterfaceProxy<IMessageSinkWithTypes>>());
-			result.CreateMessageHandler(null!).ReturnsForAnyArgs(dualSink);
+			messageSink ??= Substitute.For<_IMessageSink, InterfaceProxy<_IMessageSink>>();
+			result.CreateMessageHandler(null!).ReturnsForAnyArgs(messageSink);
 			return result;
 		}
 

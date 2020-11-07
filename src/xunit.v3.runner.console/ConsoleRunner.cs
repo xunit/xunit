@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole
 {
@@ -80,7 +81,7 @@ namespace Xunit.Runner.SystemConsole
 					Debugger.Launch();
 
 				logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-				var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
+				var reporterMessageHandler = reporter.CreateMessageHandler(logger);
 
 				if (!commandLine.NoLogo)
 					PrintHeader();
@@ -163,7 +164,7 @@ namespace Xunit.Runner.SystemConsole
 
 				foreach (var type in types ?? new Type[0])
 				{
-					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 						continue;
 					var ctor = type.GetConstructor(new Type[0]);
 					if (ctor == null)
@@ -311,7 +312,7 @@ namespace Xunit.Runner.SystemConsole
 			bool failSkips,
 			bool stopOnFail,
 			bool internalDiagnosticMessages,
-			IMessageSinkWithTypes reporterMessageHandler)
+			_IMessageSink reporterMessageHandler)
 		{
 			XElement? assembliesElement = null;
 			var clockTime = Stopwatch.StartNew();
@@ -345,9 +346,10 @@ namespace Xunit.Runner.SystemConsole
 							project.Filters,
 							internalDiagnosticMessages,
 							reporterMessageHandler
-						)
+						).AsTask()
 					)
 				);
+
 				var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
 				foreach (var assemblyElement in results.Where(result => result != null))
 					assembliesElement?.Add(assemblyElement);
@@ -408,7 +410,7 @@ namespace Xunit.Runner.SystemConsole
 			bool stopOnFail,
 			XunitFilters filters,
 			bool internalDiagnosticMessages,
-			IMessageSinkWithTypes reporterMessageHandler)
+			_IMessageSink reporterMessageHandler)
 		{
 			if (cancel)
 				return null;
@@ -452,7 +454,7 @@ namespace Xunit.Runner.SystemConsole
 					var appDomainOption = controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied ? AppDomainOption.Enabled : AppDomainOption.Disabled;
 					reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomainOption, shadowCopy, discoveryOptions));
 
-					controller.Find(false, discoverySink, TestFrameworkOptions.Wrap(discoveryOptions));
+					controller.Find(false, discoverySink, discoveryOptions);
 					discoverySink.Finished.WaitOne();
 
 					var testCasesDiscovered = discoverySink.TestCases.Count;
@@ -467,7 +469,10 @@ namespace Xunit.Runner.SystemConsole
 					else
 					{
 						if (serialize)
-							filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
+							filteredTestCases = (
+								from testCase in filteredTestCases
+								select controller.Deserialize(controller.Serialize(testCase))
+							).ToList();
 
 						reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
@@ -475,11 +480,11 @@ namespace Xunit.Runner.SystemConsole
 						if (assemblyElement != null)
 							resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 						if (longRunningSeconds > 0)
-							resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
+							resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 						if (failSkips)
 							resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-						controller.RunTests(filteredTestCases, MessageSinkAdapter.Wrap(resultsSink), TestFrameworkOptions.Wrap(executionOptions));
+						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
 						resultsSink.Finished.WaitOne();
 
 						reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));

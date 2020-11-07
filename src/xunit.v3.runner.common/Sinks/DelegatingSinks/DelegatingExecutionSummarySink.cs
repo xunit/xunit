@@ -5,6 +5,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -18,7 +19,7 @@ namespace Xunit.Runner.Common
 		readonly Action<string, ExecutionSummary>? completionCallback;
 		bool disposed;
 		volatile int errors;
-		readonly IMessageSinkWithTypes innerSink;
+		readonly _IMessageSink innerSink;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingExecutionSummarySink"/> class.
@@ -27,7 +28,7 @@ namespace Xunit.Runner.Common
 		/// <param name="cancelThunk"></param>
 		/// <param name="completionCallback"></param>
 		public DelegatingExecutionSummarySink(
-			IMessageSinkWithTypes innerSink,
+			_IMessageSink innerSink,
 			Func<bool>? cancelThunk = null,
 			Action<string, ExecutionSummary>? completionCallback = null)
 		{
@@ -69,13 +70,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			var result = innerSink.OnMessageWithTypes(message, messageTypes);
+			var result = innerSink.OnMessage(message);
+			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return
 				message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))

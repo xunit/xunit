@@ -34,7 +34,7 @@ namespace Xunit.Runner.Common
 		public DelegatingLongRunningTestDetectionSink(
 			IExecutionSink innerSink,
 			TimeSpan longRunningTestTime,
-			IMessageSinkWithTypes diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 				: this(innerSink, longRunningTestTime, summary => DispatchLongRunningTestsSummaryAsDiagnosticMessage(summary, diagnosticMessageSink))
 		{
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
@@ -80,7 +80,7 @@ namespace Xunit.Runner.Common
 
 		static void DispatchLongRunningTestsSummaryAsDiagnosticMessage(
 			LongRunningTestsSummary summary,
-			IMessageSinkWithTypes diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.DisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
 			var message = string.Join(Environment.NewLine, messages.ToArray());
@@ -123,14 +123,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			var result = executionSink.OnMessageWithTypes(message, messageTypes);
-			result = innerSink.OnMessageWithTypes(message, messageTypes) && result;
+			var result = executionSink.OnMessage(message);
+			result = innerSink.OnMessage(message) && result;
 			return result;
 		}
 
@@ -140,8 +138,11 @@ namespace Xunit.Runner.Common
 			lock (executingTestCases)
 			{
 				var now = UtcNow;
-				longRunningTestCases = executingTestCases.Where(kvp => (now - kvp.Value) >= longRunningTestTime)
-														 .ToDictionary(k => k.Key, v => now - v.Value);
+
+				longRunningTestCases =
+					executingTestCases
+						.Where(kvp => (now - kvp.Value) >= longRunningTestTime)
+						.ToDictionary(k => k.Key, v => now - v.Value);
 			}
 
 			if (longRunningTestCases.Count > 0)

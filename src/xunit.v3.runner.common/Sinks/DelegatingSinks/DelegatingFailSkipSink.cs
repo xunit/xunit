@@ -46,11 +46,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
+
+			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			var testSkipped = message.Cast<ITestSkipped>(messageTypes);
 			if (testSkipped != null)
@@ -98,7 +98,7 @@ namespace Xunit.Runner.Common
 				return innerSink.OnMessage(assemblyFinished);
 			}
 
-			return innerSink.OnMessageWithTypes(message, messageTypes);
+			return innerSink.OnMessage(message);
 		}
 	}
 }

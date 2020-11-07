@@ -10,19 +10,20 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
 	class AppDomainManager_AppDomain : IAppDomainManager
 	{
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
 
 		public AppDomainManager_AppDomain(
 			string assemblyFileName,
 			string? configFileName,
 			bool shadowCopy,
 			string? shadowCopyFolder,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 

@@ -8,6 +8,7 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -17,7 +18,7 @@ namespace Xunit
 	/// Resharper. Runner authors who are not using AST-based discovery are strongly
 	/// encouraged to use <see cref="XunitFrontController"/> instead.
 	/// </summary>
-	public class Xunit2Discoverer : ITestFrameworkDiscoverer, ITestCaseDescriptorProvider
+	public class Xunit2Discoverer : _ITestFrameworkDiscoverer, ITestCaseDescriptorProvider
 	{
 #if NETFRAMEWORK
 		static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
@@ -43,9 +44,9 @@ namespace Xunit
 		/// will be automatically (randomly) generated</param>
 		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 		public Xunit2Discoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			IAssemblyInfo assemblyInfo,
 			string? xunitExecutionAssemblyPath = null,
 			string? shadowCopyFolder = null,
@@ -66,9 +67,9 @@ namespace Xunit
 
 		// Used by Xunit2 when initializing for both discovery and execution.
 		internal Xunit2Discoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			string assemblyFileName,
 			string? configFileName,
 			bool shadowCopy,
@@ -89,9 +90,9 @@ namespace Xunit
 		{ }
 
 		Xunit2Discoverer(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			IAssemblyInfo? assemblyInfo,
 			string? assemblyFileName,
 			string xunitExecutionAssemblyPath,
@@ -116,7 +117,7 @@ namespace Xunit
 			DiagnosticMessageSink = diagnosticMessageSink;
 
 			var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
-			AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder, DiagnosticMessageSink);
+			AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 			DisposalTracker.Add(AppDomain);
 
 #if NETFRAMEWORK
@@ -131,7 +132,18 @@ namespace Xunit
 			if (assemblyInfo == null)
 				assemblyInfo = AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
-			Framework = Guard.NotNull("Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test", AppDomain.CreateObject<ITestFramework>(TestFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink));
+			var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
+			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(DiagnosticMessageSink);
+			Framework = Guard.NotNull(
+				"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
+				AppDomain.CreateObject<ITestFramework>(
+					TestFrameworkAssemblyName,
+					"Xunit.Sdk.TestFrameworkProxy",
+					assemblyInfo,
+					v2SourceInformationProvider,
+					v2DiagnosticMessageSink
+				)
+			);
 			DisposalTracker.Add(Framework);
 
 			RemoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", Framework.GetDiscoverer(assemblyInfo));
@@ -148,7 +160,7 @@ namespace Xunit
 		/// <summary>
 		/// Gets the message sink used to report diagnostic messages.
 		/// </summary>
-		public IMessageSink DiagnosticMessageSink { get; }
+		public _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <summary>
 		/// Gets a tracker for disposable objects.
@@ -171,29 +183,27 @@ namespace Xunit
 		public string TestFrameworkDisplayName => RemoteDiscoverer.TestFrameworkDisplayName;
 
 		/// <summary>
-		/// Creates a high performance cross AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
+		/// Creates a high performance cross-AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
 		/// which can be passed to <see cref="ITestFrameworkDiscoverer"/> and <see cref="ITestFrameworkExecutor"/>.
 		/// </summary>
 		/// <param name="sink">The local message sink to receive the messages.</param>
-		protected IMessageSink CreateOptimizedRemoteMessageSink(IMessageSink sink)
+		protected IMessageSink CreateOptimizedRemoteMessageSink(_IMessageSink sink)
 		{
 			Guard.ArgumentNotNull(nameof(sink), sink);
 
+			var v2MessageSink = Xunit2MessageSinkAdapter.Adapt(sink);
+
 			try
 			{
-				var sinkWithTypes = MessageSinkWithTypesAdapter.Wrap(sink);
 				var asssemblyName = typeof(OptimizedRemoteMessageSink).Assembly.GetName();
-				var optimizedSink = AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName!, sinkWithTypes);
+				var optimizedSink = AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName!, v2MessageSink);
 				if (optimizedSink != null)
 					return optimizedSink;
 			}
 			catch { }    // This really shouldn't happen, but falling back makes sense in catastrophic cases
 
-			return sink;
+			return v2MessageSink;
 		}
-
-		/// <inheritdoc/>
-		void IDisposable.Dispose() { }  // TODO: This should be removed once shifting to v3 abstractions
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()
@@ -212,12 +222,15 @@ namespace Xunit
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-		public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
+		public void Find(
+			bool includeSourceInformation,
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
+			RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
 		}
 
 		/// <summary>
@@ -227,16 +240,22 @@ namespace Xunit
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-		public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
+		public void Find(
+			string typeName,
+			bool includeSourceInformation,
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
+			RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
 		}
 
 		/// <inheritdoc/>
-		public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
+		public List<TestCaseDescriptor> GetTestCaseDescriptors(
+			List<ITestCase> testCases,
+			bool includeSerialization)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 
@@ -256,7 +275,7 @@ namespace Xunit
 					catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseDescriptorFactory" doesn't exist
 				}
 
-				defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer);
+				defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(this);
 			}
 
 			return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
