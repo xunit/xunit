@@ -259,10 +259,10 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCollectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
-					Assert.Same(testAssembly, testCollectionStarting.TestAssembly);
-					Assert.Same(testCollection, testCollectionStarting.TestCollection);
-					Assert.Equal(testCases, testCollectionStarting.TestCases);
+					var collectionStarting = Assert.IsAssignableFrom<_TestCollectionStarting>(message);
+					Assert.Null(collectionStarting.TestCollectionClass);
+					Assert.Equal("xUnit.net v1 Tests for assembly", collectionStarting.TestCollectionDisplayName);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", collectionStarting.TestCollectionUniqueID);
 
 					Assert.Equal(Guid.Empty, testCollection.UniqueID);
 					Assert.Equal("xUnit.net v1 Tests for assembly", testCollection.DisplayName);
@@ -846,7 +846,7 @@ public class AmbiguouslyNamedTestMethods
 			Assert.Collection(
 				spy.Messages,
 				msg => Assert.IsAssignableFrom<_TestAssemblyStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCollectionStarting>(msg),
+				msg => Assert.IsAssignableFrom<_TestCollectionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
 				msg => Assert.IsAssignableFrom<ITestCollectionFinished>(msg),

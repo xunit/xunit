@@ -21,6 +21,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly that this collection belongs to.</param>
 		/// <param name="testCollection">The test collection that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
@@ -29,6 +30,7 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestCollectionRunner(
+			string testAssemblyUniqueID,
 			ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
@@ -36,7 +38,7 @@ namespace Xunit.Sdk
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}

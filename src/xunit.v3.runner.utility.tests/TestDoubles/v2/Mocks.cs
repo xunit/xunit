@@ -497,12 +497,20 @@ namespace Xunit.Runner.v2
 		//	return result;
 		//}
 
-		//public static ITestCollectionStarting TestCollectionStarting()
-		//{
-		//	var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
-		//	result.TestCollection.DisplayName.Returns("Display Name");
-		//	return result;
-		//}
+		public static ITestCollectionStarting TestCollectionStarting(
+			string? assemblyPath = null,
+			string? assemblyConfigFilePath = null,
+			ITypeInfo? collectionDefinition = null,
+			string? displayName = null)
+		{
+			var assembly = TestAssembly(assemblyPath ?? typeof(Mocks).Assembly.Location, assemblyConfigFilePath);
+			var testCollection = new TestCollection(assembly, collectionDefinition, displayName ?? "Mock test collection");
+
+			var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
+			result.TestAssembly.Returns(testCollection.TestAssembly);
+			result.TestCollection.Returns(testCollection);
+			return result;
+		}
 
 		//public static IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
 		//{
@@ -774,20 +782,20 @@ namespace Xunit.Runner.v2
 		//public static IAttributeInfo TraitDiscovererAttribute<TDiscoverer>() =>
 		//	TraitDiscovererAttribute(typeof(TDiscoverer));
 
-		//public static ITypeInfo TypeInfo(
-		//	string? typeName = null,
-		//	IMethodInfo[]? methods = null,
-		//	IReflectionAttributeInfo[]? attributes = null,
-		//	string? assemblyFileName = null)
-		//{
-		//	var result = Substitute.For<ITypeInfo, InterfaceProxy<ITypeInfo>>();
-		//	result.Name.Returns(typeName ?? "type:" + Guid.NewGuid().ToString("n"));
-		//	result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
-		//	var assemblyInfo = AssemblyInfo(assemblyFileName: assemblyFileName);
-		//	result.Assembly.Returns(assemblyInfo);
-		//	result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
-		//	return result;
-		//}
+		public static ITypeInfo TypeInfo(
+			string? typeName = null,
+			IMethodInfo[]? methods = null,
+			IReflectionAttributeInfo[]? attributes = null,
+			string? assemblyFileName = null)
+		{
+			var result = Substitute.For<ITypeInfo, InterfaceProxy<ITypeInfo>>();
+			result.Name.Returns(typeName ?? "type:" + Guid.NewGuid().ToString("n"));
+			result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
+			var assemblyInfo = AssemblyInfo(assemblyFileName: assemblyFileName);
+			result.Assembly.Returns(assemblyInfo);
+			result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
+			return result;
+		}
 
 		//public static XunitTestCase XunitTestCase<TClassUnderTest>(
 		//	string methodName,

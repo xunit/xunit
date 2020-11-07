@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -27,6 +28,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionRunner{TTestCase}"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly that this collection belongs to.</param>
 		/// <param name="testCollection">The test collection that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
@@ -34,6 +36,7 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestCollectionRunner(
+			string testAssemblyUniqueID,
 			ITestCollection testCollection,
 			IEnumerable<TTestCase> testCases,
 			IMessageBus messageBus,
@@ -41,12 +44,20 @@ namespace Xunit.Sdk
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
+			Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
+
 			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
 			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
 			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+
+			TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+				testAssemblyUniqueID,
+				testCollection.DisplayName,
+				testCollection.CollectionDefinition?.Name
+			);
 		}
 
 		/// <summary>
@@ -104,7 +115,12 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// This method is called just after <see cref="ITestCollectionStarting"/> is sent, but before any test classes are run.
+		/// Gets the unique ID for the test collection.
+		/// </summary>
+		protected string TestCollectionUniqueID { get; }
+
+		/// <summary>
+		/// This method is called just after <see cref="_TestCollectionStarting"/> is sent, but before any test classes are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task AfterTestCollectionStartingAsync() => Task.CompletedTask;
@@ -122,8 +138,14 @@ namespace Xunit.Sdk
 		public async Task<RunSummary> RunAsync()
 		{
 			var collectionSummary = new RunSummary();
+			var collectionStarting = new _TestCollectionStarting
+			{
+				TestCollectionClass = TestCollection.CollectionDefinition?.Name,
+				TestCollectionDisplayName = TestCollection.DisplayName,
+				TestCollectionUniqueID = TestCollectionUniqueID
+			};
 
-			if (!MessageBus.QueueMessage(new TestCollectionStarting(TestCases.Cast<ITestCase>(), TestCollection)))
+			if (!MessageBus.QueueMessage(collectionStarting))
 				CancellationTokenSource.Cancel();
 			else
 			{

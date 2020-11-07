@@ -72,4 +72,28 @@ public class Xunit2MessageAdapterTests
 		Assert.Equal("test-env", v3Message.TestEnvironment);
 		Assert.Equal("test-framework", v3Message.TestFrameworkDisplayName);
 	}
+
+	[Fact]
+	public void TestCollectionStarting()
+	{
+		var definition = v2Mocks.TypeInfo();
+		var v2Message = v2Mocks.TestCollectionStarting(collectionDefinition: definition, displayName: "My display name");
+		var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+			v2Message.TestAssembly.Assembly.Name,
+			v2Message.TestAssembly.Assembly.AssemblyPath,
+			v2Message.TestAssembly.ConfigFileName
+		);
+		var expectedUniqueID = UniqueIDGenerator.ForTestCollection(
+			assemblyUniqueID,
+			"My display name",
+			definition.Name
+		);
+
+		var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+		var v3Message = Assert.IsType<_TestCollectionStarting>(adapted);
+		Assert.Equal(definition.Name, v3Message.TestCollectionClass);
+		Assert.Equal("My display name", v3Message.TestCollectionDisplayName);
+		Assert.Equal(expectedUniqueID, v3Message.TestCollectionUniqueID);
+	}
 }

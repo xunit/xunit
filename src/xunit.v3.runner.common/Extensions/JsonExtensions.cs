@@ -5,6 +5,7 @@ using System.Text;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -122,7 +123,7 @@ namespace Xunit.Runner.Common
 
 		static readonly Dictionary<Type, List<AddFields>> TypeToFieldAdders = new Dictionary<Type, List<AddFields>>()
 		{
-			{ typeof(ITestCollectionStarting), new List<AddFields> { AddFieldsForITestCollectionMessage } },
+			{ typeof(_TestCollectionStarting), new List<AddFields> { AddFieldsForITestCollectionMessage } },
 			{ typeof(ITestStarting), new List<AddFields> { AddFieldsForITestMessage } },
 			{ typeof(ITestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
 			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
@@ -154,12 +155,11 @@ namespace Xunit.Runner.Common
 		// Json Serializations
 
 		/// <summary />
-		public static string ToJson(this ITestCollectionStarting testCollectionStarting, string flowId)
+		public static string ToJson(this _TestCollectionStarting testCollectionStarting)
 		{
 			Guard.ArgumentNotNull(nameof(testCollectionStarting), testCollectionStarting);
-			Guard.ArgumentNotNull(nameof(flowId), flowId);
 
-			var json = InitObject("testCollectionStarting", testCollectionStarting, typeof(ITestCollectionStarting), flowId);
+			var json = InitObject("testCollectionStarting", testCollectionStarting, typeof(_TestCollectionStarting), testCollectionStarting.TestCollectionUniqueID);
 
 			return ToJson(json);
 		}

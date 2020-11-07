@@ -25,7 +25,30 @@ namespace Xunit.Runner.v2
 			return
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
+				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
 				message;
+		}
+
+		static _MessageSinkMessage AdaptTestCollectionStarting(ITestCollectionStarting testCollectionStarting)
+		{
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testCollectionStarting.TestAssembly.Assembly.Name,
+				testCollectionStarting.TestAssembly.Assembly.AssemblyPath,
+				testCollectionStarting.TestAssembly.ConfigFileName
+			);
+			var result = new _TestCollectionStarting
+			{
+				TestCollectionClass = testCollectionStarting.TestCollection.CollectionDefinition?.Name,
+				TestCollectionDisplayName = testCollectionStarting.TestCollection.DisplayName
+			};
+
+			result.TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+				assemblyUniqueID,
+				result.TestCollectionDisplayName,
+				result.TestCollectionClass
+			);
+
+			return result;
 		}
 
 		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished testAssemblyFinished)

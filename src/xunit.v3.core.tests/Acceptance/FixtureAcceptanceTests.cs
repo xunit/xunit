@@ -19,7 +19,7 @@ public class FixtureAcceptanceTests
 			Assert.Collection(
 				messages,
 				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
+				message => Assert.IsAssignableFrom<_TestCollectionStarting>(message),
 				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
 				// TestMethod1

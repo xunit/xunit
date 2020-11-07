@@ -115,14 +115,14 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCollectionStarting" />.
+		/// Handles instances of <see cref="_TestCollectionStarting" />.
 		/// </summary>
-		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
+		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionStarting = args.Message;
-			logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{Escape(displayNameFormatter.DisplayName(testCollectionStarting.TestCollection))}' flowId='{ToFlowId(testCollectionStarting.TestCollection.DisplayName)}']");
+			logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{testCollectionStarting.TestCollectionDisplayName} ({testCollectionStarting.TestCollectionUniqueID})' flowId='{testCollectionStarting.TestCollectionUniqueID}']");
 		}
 
 		/// <summary>

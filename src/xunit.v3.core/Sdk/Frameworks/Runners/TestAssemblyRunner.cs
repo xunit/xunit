@@ -54,6 +54,12 @@ namespace Xunit.Sdk
 			this.executionOptions = Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
 			testCaseOrderer = new DefaultTestCaseOrderer(DiagnosticMessageSink);
+
+			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testAssembly.Assembly.Name,
+				testAssembly.Assembly.AssemblyPath,
+				testAssembly.ConfigFileName
+			);
 		}
 
 		/// <summary>
@@ -100,6 +106,11 @@ namespace Xunit.Sdk
 			get => testAssembly;
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID of the test assembly.
+		/// </summary>
+		protected string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the tests.
@@ -232,12 +243,11 @@ namespace Xunit.Sdk
 				}
 				catch { }
 
-				var assemblyUniqueID = UniqueIDGenerator.ForAssembly(TestAssembly.Assembly.Name, TestAssembly.Assembly.AssemblyPath, TestAssembly.ConfigFileName);
 				var testAssemblyStartingMessage = new _TestAssemblyStarting
 				{
 					AssemblyName = TestAssembly.Assembly.Name,
 					AssemblyPath = TestAssembly.Assembly.AssemblyPath,
-					AssemblyUniqueID = assemblyUniqueID,
+					AssemblyUniqueID = TestAssemblyUniqueID,
 					ConfigFilePath = TestAssembly.ConfigFileName,
 					StartTime = DateTimeOffset.Now,
 					TargetFramework = targetFramework,
@@ -266,7 +276,7 @@ namespace Xunit.Sdk
 					{
 						var assemblyFinished = new _TestAssemblyFinished
 						{
-							AssemblyUniqueID = assemblyUniqueID,
+							AssemblyUniqueID = TestAssemblyUniqueID,
 							ExecutionTime = totalSummary.Time,
 							TestsFailed = totalSummary.Failed,
 							TestsRun = totalSummary.Total,

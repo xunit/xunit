@@ -121,7 +121,7 @@ public class JsonReporterMessageHandlerTests
 		}
 	}
 
-	[Theory]
+	[Theory(Skip = "This class is in flux, and will need dramatically different tests later")]
 	[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 	public static void LogsMessage(
 		IMessageSinkMessage message,

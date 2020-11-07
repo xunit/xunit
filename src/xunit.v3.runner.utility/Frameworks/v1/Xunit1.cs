@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -261,7 +262,7 @@ namespace Xunit
 					};
 
 					if (messageSink.OnMessage(testAssemblyStartingMessage))
-						results = RunTestCollection(testCollection, testCases, messageSink);
+						results = RunTestCollection(assemblyUniqueID, testCollection, testCases, messageSink);
 				}
 				catch (Exception ex)
 				{
@@ -296,13 +297,25 @@ namespace Xunit
 		}
 
 		Xunit1RunSummary RunTestCollection(
+			string assemblyUniqueID,
 			ITestCollection testCollection,
 			IEnumerable<ITestCase> testCases,
 			_IMessageSink messageSink)
 		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				TestCollectionClass = testCollection.CollectionDefinition?.Name,
+				TestCollectionDisplayName = testCollection.DisplayName
+			};
+			collectionStarting.TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+				assemblyUniqueID,
+				collectionStarting.TestCollectionDisplayName,
+				collectionStarting.TestCollectionClass
+			);
+
 			var results = new Xunit1RunSummary
 			{
-				Continue = messageSink.OnMessage(new TestCollectionStarting(testCases, testCollection))
+				Continue = messageSink.OnMessage(collectionStarting)
 			};
 
 			try

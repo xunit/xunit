@@ -102,6 +102,28 @@ namespace Xunit
 			return generator.Compute();
 		}
 
+		/// <summary>
+		/// Computes a unique ID for a test collection, to be placed into <see cref="_TestCollectionMessage.TestCollectionUniqueID"/>
+		/// </summary>
+		/// <param name="assemblyUniqueID">The unique ID of the assembly the test collection lives in</param>
+		/// <param name="collectionDisplayName">The display name of the test collection</param>
+		/// <param name="collectionDefinitionClassName">The optional class name that contains the test collection definition</param>
+		/// <returns>The computed unique ID for the test collection</returns>
+		public static string ForTestCollection(
+			string assemblyUniqueID,
+			string collectionDisplayName,
+			string? collectionDefinitionClassName)
+		{
+			Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
+			Guard.ArgumentNotNull(nameof(collectionDisplayName), collectionDisplayName);
+
+			using var generator = new UniqueIDGenerator();
+			generator.Add(assemblyUniqueID);
+			generator.Add(collectionDisplayName);
+			generator.Add(collectionDefinitionClassName ?? string.Empty);
+			return generator.Compute();
+		}
+
 		static char ToHexChar(int b) =>
 			(char)(b < 10 ? b + '0' : b - 10 + 'a');
 

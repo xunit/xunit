@@ -332,17 +332,15 @@ namespace Xunit.v3
 			int testsRun = 2112,
 			int testsFailed = 42,
 			int testsSkipped = 6,
-			decimal executionTime = 123.4567M)
-		{
-			return new _TestAssemblyFinished
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = executionTime,
-				TestsFailed = testsFailed,
-				TestsRun = testsRun,
-				TestsSkipped = testsSkipped
-			};
-		}
+			decimal executionTime = 123.4567M) =>
+				new _TestAssemblyFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = executionTime,
+					TestsFailed = testsFailed,
+					TestsRun = testsRun,
+					TestsSkipped = testsSkipped
+				};
 
 		public static ITestCase TestCase(ITestCollection? collection = null)
 		{
@@ -471,12 +469,16 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestCollectionStarting TestCollectionStarting()
-		{
-			var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
-			result.TestCollection.DisplayName.Returns("Display Name");
-			return result;
-		}
+		public static _TestCollectionStarting TestCollectionStarting(
+			string? testCollectionClass = null,
+			string testCollectionDisplayName = "my-test-collection",
+			string testCollectionUniqueID = "test-collection-id") =>
+				new _TestCollectionStarting
+				{
+					TestCollectionClass = testCollectionClass,
+					TestCollectionDisplayName = testCollectionDisplayName,
+					TestCollectionUniqueID = testCollectionUniqueID
+				};
 
 		public static IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
 		{

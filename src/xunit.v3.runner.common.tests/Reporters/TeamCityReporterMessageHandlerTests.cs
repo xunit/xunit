@@ -94,7 +94,7 @@ public class TeamCityReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestCollectionStarting
+	public class OnMessage_TestCollectionStarting
 	{
 		[Fact]
 		public static void LogsMessage()
@@ -105,7 +105,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
-			Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='FORMATTED:Display Name' flowId='myFlowId']", msg);
+			Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg);
 		}
 	}
 

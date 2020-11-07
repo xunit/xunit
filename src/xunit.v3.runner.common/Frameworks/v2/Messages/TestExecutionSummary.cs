@@ -14,7 +14,7 @@ namespace Xunit.Runner.v2
 		static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestExecutionSummary).GetInterfaces().Select(x => x.FullName!));
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TestCollectionStarting"/> class.
+		/// Initializes a new instance of the <see cref="TestExecutionSummary"/> class.
 		/// </summary>
 		public TestExecutionSummary(
 			TimeSpan elapsedClockTime,

@@ -42,9 +42,10 @@ public class Xunit3AcceptanceTests
 				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
 				message =>
 				{
-					var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
-					Assert.NotNull(collectionStarting.TestCollection);
-					// TODO: There will need to be more tests here eventually...
+					var collectionStarting = Assert.IsAssignableFrom<_TestCollectionStarting>(message);
+					Assert.Null(collectionStarting.TestCollectionClass);
+					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass", collectionStarting.TestCollectionDisplayName);
+					Assert.NotEmpty(collectionStarting.TestCollectionUniqueID);
 				},
 				message =>
 				{

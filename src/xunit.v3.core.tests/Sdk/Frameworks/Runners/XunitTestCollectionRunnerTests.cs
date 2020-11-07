@@ -266,6 +266,7 @@ public class XunitTestCollectionRunnerTests
 		public Exception? RunTestClassAsync_AggregatorResult;
 
 		TestableXunitTestCollectionRunner(
+			string testAssemblyUniqueID,
 			ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			List<IMessageSinkMessage> diagnosticMessages,
@@ -273,13 +274,14 @@ public class XunitTestCollectionRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
 
 		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
 			new TestableXunitTestCollectionRunner(
+				"test-assembly-id",
 				testCase.TestMethod.TestClass.TestCollection,
 				new[] { testCase },
 				new List<IMessageSinkMessage>(),
