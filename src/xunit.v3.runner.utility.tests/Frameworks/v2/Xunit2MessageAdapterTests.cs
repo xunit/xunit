@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Xunit;
-using Xunit.Abstractions;
-using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.v3;
 using v2Mocks = Xunit.Runner.v2.Mocks;
@@ -20,6 +16,26 @@ public class Xunit2MessageAdapterTests
 			osSpecificAssemblyPath = @"C:\Users\bradwilson\assembly.dll";
 		else
 			osSpecificAssemblyPath = "/home/bradwilson/assembly.dll";
+	}
+
+	[Fact]
+	public void TestAssemblyFinished()
+	{
+		var v2Message = v2Mocks.TestAssemblyFinished(
+			testsRun: 2112,
+			testsFailed: 42,
+			testsSkipped: 6,
+			executionTime: 123.4567m
+		);
+
+		var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+		var v3Message = Assert.IsType<_TestAssemblyFinished>(adapted);
+		Assert.NotEmpty(v3Message.AssemblyUniqueID);
+		Assert.Equal(123.4567m, v3Message.ExecutionTime);
+		Assert.Equal(42, v3Message.TestsFailed);
+		Assert.Equal(2112, v3Message.TestsRun);
+		Assert.Equal(6, v3Message.TestsSkipped);
 	}
 
 	public static TheoryData<string, string?, string> TestAssemblyStartingData()
@@ -42,70 +58,18 @@ public class Xunit2MessageAdapterTests
 		string? configFilePath,
 		string expectedUniqueID)
 	{
-		var v2TestAssemblyStarting = TestableTestAssemblyStarting.Create(
-			assemblyPath,
-			configFilePath
-		);
+		var v2Message = v2Mocks.TestAssemblyStarting(assemblyPath, configFilePath);
 
-		var adapted = Xunit2MessageAdapter.Adapt(v2TestAssemblyStarting);
+		var adapted = Xunit2MessageAdapter.Adapt(v2Message);
 
-		var v3TestAssemblyStarting = Assert.IsType<_TestAssemblyStarting>(adapted);
-		Assert.Equal(Path.GetFileNameWithoutExtension(assemblyPath), v3TestAssemblyStarting.AssemblyName);
-		Assert.Equal(assemblyPath, v3TestAssemblyStarting.AssemblyPath);
-		Assert.Equal<object>(expectedUniqueID, v3TestAssemblyStarting.AssemblyUniqueID);
-		Assert.Equal(configFilePath, v3TestAssemblyStarting.ConfigFilePath);
-		Assert.Equal(new DateTimeOffset(2020, 11, 3, 17, 55, 0, TimeSpan.Zero), v3TestAssemblyStarting.StartTime);
-		Assert.Equal("target-framework", v3TestAssemblyStarting.TargetFramework);
-		Assert.Equal("test-env", v3TestAssemblyStarting.TestEnvironment);
-		Assert.Equal("test-framework", v3TestAssemblyStarting.TestFrameworkDisplayName);
-	}
-
-	class TestableTestAssemblyStarting : TestAssemblyMessage, ITestAssemblyStarting
-	{
-		TestableTestAssemblyStarting(
-			IEnumerable<ITestCase> testCases,
-			ITestAssembly testAssembly,
-			DateTime startTime,
-			string testEnvironment,
-			string testFrameworkDisplayName)
-				: base(testCases, testAssembly)
-		{
-			Guard.ArgumentNotNull(nameof(testCases), testCases);
-			Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
-			Guard.ArgumentNotNull(nameof(testEnvironment), testEnvironment);
-			Guard.ArgumentNotNull(nameof(testFrameworkDisplayName), testFrameworkDisplayName);
-
-			StartTime = startTime;
-			TestEnvironment = testEnvironment;
-			TestFrameworkDisplayName = testFrameworkDisplayName;
-		}
-
-		/// <inheritdoc/>
-		public DateTime StartTime { get; }
-
-		/// <inheritdoc/>
-		public string TestEnvironment { get; }
-
-		/// <inheritdoc/>
-		public string TestFrameworkDisplayName { get; }
-
-		public static TestableTestAssemblyStarting Create(
-			string? assemblyPath = null,
-			string? configFilePath = null,
-			DateTime? startTime = null,
-			string targetFramework = "target-framework",
-			string testEnvironment = "test-env",
-			string testFrameworkDisplayName = "test-framework")
-		{
-			var attr = v2Mocks.TargetFrameworkAttribute(targetFramework);
-			var attrs = new[] { attr };
-			return new TestableTestAssemblyStarting(
-				Enumerable.Empty<ITestCase>(),
-				v2Mocks.TestAssembly(assemblyPath ?? osSpecificAssemblyPath, configFilePath, attributes: attrs),
-				startTime ?? new DateTime(2020, 11, 3, 17, 55, 0, DateTimeKind.Utc),
-				testEnvironment,
-				testFrameworkDisplayName
-			);
-		}
+		var v3Message = Assert.IsType<_TestAssemblyStarting>(adapted);
+		Assert.Equal(Path.GetFileNameWithoutExtension(assemblyPath), v3Message.AssemblyName);
+		Assert.Equal(assemblyPath, v3Message.AssemblyPath);
+		Assert.Equal(expectedUniqueID, v3Message.AssemblyUniqueID);
+		Assert.Equal(configFilePath, v3Message.ConfigFilePath);
+		Assert.Equal(new DateTimeOffset(2020, 11, 3, 17, 55, 0, TimeSpan.Zero), v3Message.StartTime);
+		Assert.Equal("target-framework", v3Message.TargetFramework);
+		Assert.Equal("test-env", v3Message.TestEnvironment);
+		Assert.Equal("test-framework", v3Message.TestFrameworkDisplayName);
 	}
 }

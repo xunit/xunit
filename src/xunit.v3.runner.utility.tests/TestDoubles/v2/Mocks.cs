@@ -333,27 +333,40 @@ namespace Xunit.Runner.v2
 		//	return result;
 		//}
 
-		//public static ITestAssemblyFinished TestAssemblyFinished(
-		//	int testsRun = 2112,
-		//	int testsFailed = 42,
-		//	int testsSkipped = 6,
-		//	decimal executionTime = 123.4567M)
-		//{
-		//	var testAssembly = TestAssembly("testAssembly.dll");
-		//	var result = Substitute.For<ITestAssemblyFinished, InterfaceProxy<ITestAssemblyFinished>>();
-		//	result.TestAssembly.Returns(testAssembly);
-		//	result.TestsRun.Returns(testsRun);
-		//	result.TestsFailed.Returns(testsFailed);
-		//	result.TestsSkipped.Returns(testsSkipped);
-		//	result.ExecutionTime.Returns(executionTime);
-		//	return result;
-		//}
-
-		public static ITestAssemblyStarting TestAssemblyStarting()
+		public static ITestAssemblyFinished TestAssemblyFinished(
+			int testsRun = 2112,
+			int testsFailed = 42,
+			int testsSkipped = 6,
+			decimal executionTime = 123.4567M)
 		{
 			var testAssembly = TestAssembly("testAssembly.dll");
-			var result = Substitute.For<ITestAssemblyStarting, InterfaceProxy<ITestAssemblyStarting>>();
+			var result = Substitute.For<ITestAssemblyFinished, InterfaceProxy<ITestAssemblyFinished>>();
 			result.TestAssembly.Returns(testAssembly);
+			result.TestsRun.Returns(testsRun);
+			result.TestsFailed.Returns(testsFailed);
+			result.TestsSkipped.Returns(testsSkipped);
+			result.ExecutionTime.Returns(executionTime);
+			return result;
+		}
+
+		public static ITestAssemblyStarting TestAssemblyStarting(
+			string assemblyPath = "testAssembly.dll",
+			string? configFilePath = null,
+			DateTime? startTime = null,
+			string targetFramework = "target-framework",
+			string testEnvironment = "test-env",
+			string testFrameworkDisplayName = "test-framework")
+		{
+			var attr = TargetFrameworkAttribute(targetFramework);
+			var attrs = new[] { attr };
+
+			var testAssembly = TestAssembly(assemblyPath, configFilePath, attributes: attrs);
+
+			var result = Substitute.For<ITestAssemblyStarting, InterfaceProxy<ITestAssemblyStarting>>();
+			result.StartTime.Returns(startTime ?? new DateTime(2020, 11, 3, 17, 55, 0, DateTimeKind.Utc));
+			result.TestAssembly.Returns(testAssembly);
+			result.TestEnvironment.Returns(testEnvironment);
+			result.TestFrameworkDisplayName.Returns(testFrameworkDisplayName);
 			return result;
 		}
 
