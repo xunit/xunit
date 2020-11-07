@@ -45,41 +45,23 @@ namespace Xunit.v3
 		/// Creates a new <see cref="_TestAssemblyCleanupFailure"/> constructed from an <see cref="Exception"/> object.
 		/// </summary>
 		/// <param name="ex">The exception to use</param>
-		/// <param name="assemblyUniqueID">The unique ID of the assembly</param>
-		/// <param name="testCollectionUniqueID">The unique ID of the test collectioon</param>
-		/// <param name="testClass">The (optional) fully qualified test class name</param>
-		/// <param name="testMethod">The (optional) test method name</param>
-		/// <param name="testCaseUniqueID">The unique ID of the test case</param>
-		/// <param name="testDisplayName">The display name of the test</param>
+		/// <param name="testUniqueID">The uniqueID of the test</param>
 		/// <param name="executionTime">The execution time of the test (may be <c>null</c> if the test wasn't executed)</param>
 		/// <param name="output">The (optional) output from the test</param>
 		public static _TestFailed FromException(
 			Exception ex,
-			string assemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClass,
-			string? testMethod,
-			string testCaseUniqueID,
-			string testDisplayName,
+			string testUniqueID,
 			decimal? executionTime,
 			string? output)
 		{
 			Guard.ArgumentNotNull(nameof(ex), ex);
-			Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
-			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
-			Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
-			Guard.ArgumentNotNull(nameof(testDisplayName), testDisplayName);
+			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
 
 			var failureInfo = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
 
 			return new _TestFailed
 			{
-				AssemblyUniqueID = assemblyUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID,
-				TestClass = testClass,
-				TestMethod = testMethod,
-				TestCaseUniqueID = testCaseUniqueID,
-				TestDisplayName = testDisplayName,
+				TestUniqueID = testUniqueID,
 				ExecutionTime = executionTime,
 				Output = output,
 				ExceptionTypes = failureInfo.ExceptionTypes,

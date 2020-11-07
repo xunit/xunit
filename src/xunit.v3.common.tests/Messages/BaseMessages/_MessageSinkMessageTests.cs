@@ -50,10 +50,8 @@ public class _MessageSinkMessageTests
 	{
 		var msg = new _TestCaseDiscovered
 		{
-			AssemblyUniqueID = "asm-id",
 			TestCaseDisplayName = "test-case-display-name",
 			TestCaseUniqueID = "test-case-id",
-			TestCollectionUniqueID = "test-collection-id",
 			Traits = new Dictionary<string, string[]>
 			{
 				{ "foo", new[] { "bar", "baz" } },
@@ -67,10 +65,8 @@ public class _MessageSinkMessageTests
 		Assert.Equal(
 			@"{" +
 				@"""$type"":""_TestCaseDiscovered""," +
-				@"""AssemblyUniqueID"":""asm-id""," +
 				@"""TestCaseDisplayName"":""test-case-display-name""," +
 				@"""TestCaseUniqueID"":""test-case-id""," +
-				@"""TestCollectionUniqueID"":""test-collection-id""," +
 				@"""Traits"":" +
 				@"{" +
 					@"""foo"":[""bar"",""baz""]," +

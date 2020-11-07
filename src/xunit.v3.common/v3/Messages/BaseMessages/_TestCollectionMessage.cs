@@ -6,7 +6,7 @@ namespace Xunit.v3
 	/// <summary>
 	/// Base message for all messages related to test collections.
 	/// </summary>
-	public class _TestCollectionMessage : _TestAssemblyMessage
+	public class _TestCollectionMessage : _MessageSinkMessage
 	{
 		string? testCollectionUniqueID;
 
