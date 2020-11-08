@@ -51,7 +51,7 @@ public class FixtureAcceptanceTests
 				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
 				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
+				message => Assert.IsAssignableFrom<_TestCollectionFinished>(message),
 				message => Assert.IsAssignableFrom<_TestAssemblyFinished>(message)
 			);
 		}

@@ -28,7 +28,7 @@ namespace Xunit.Runner.Common
 			Execution.TestCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 			Execution.TestMethodCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 
-			Execution.TestCollectionFinishedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+			Execution.TestCollectionFinishedEvent += args => logger.LogImportantMessage(args.Message.Serialize());
 			Execution.TestCollectionStartingEvent += args => logger.LogImportantMessage(args.Message.Serialize());
 			Execution.TestFailedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
 			Execution.TestPassedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));

@@ -126,7 +126,7 @@ namespace Xunit.Sdk
 		protected virtual Task AfterTestCollectionStartingAsync() => Task.CompletedTask;
 
 		/// <summary>
-		/// This method is called just before <see cref="ITestCollectionFinished"/> is sent.
+		/// This method is called just before <see cref="_TestCollectionFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task BeforeTestCollectionFinishedAsync() => Task.CompletedTask;
@@ -163,7 +163,16 @@ namespace Xunit.Sdk
 				}
 				finally
 				{
-					if (!MessageBus.QueueMessage(new TestCollectionFinished(TestCases.Cast<ITestCase>(), TestCollection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped)))
+					var collectionFinished = new _TestCollectionFinished
+					{
+						ExecutionTime = collectionSummary.Time,
+						TestCollectionUniqueID = TestCollectionUniqueID,
+						TestsFailed = collectionSummary.Failed,
+						TestsRun = collectionSummary.Total,
+						TestsSkipped = collectionSummary.Skipped
+					};
+
+					if (!MessageBus.QueueMessage(collectionFinished))
 						CancellationTokenSource.Cancel();
 				}
 			}

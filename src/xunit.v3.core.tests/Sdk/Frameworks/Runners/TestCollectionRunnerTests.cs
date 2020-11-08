@@ -37,8 +37,8 @@ public class TestCollectionRunnerTests
 			},
 			msg =>
 			{
-				var finished = Assert.IsAssignableFrom<ITestCollectionFinished>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
+				var finished = Assert.IsAssignableFrom<_TestCollectionFinished>(msg);
+				Assert.NotEmpty(finished.TestCollectionUniqueID);
 				Assert.Equal(21.12m, finished.ExecutionTime);
 				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(2, finished.TestsFailed);
@@ -135,7 +135,7 @@ public class TestCollectionRunnerTests
 	[Fact]
 	public static async void Cancellation_TestCollectionFinished_CallsExtensibilityCallbacks()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCollectionFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCollectionFinished));
 		var runner = TestableTestCollectionRunner.Create(messageBus);
 
 		await runner.RunAsync();

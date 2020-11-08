@@ -453,26 +453,25 @@ namespace Xunit.v3
 			return new TestCollection(TestAssembly(assembly), definition, displayName);
 		}
 
-		public static ITestCollectionFinished TestCollectionFinished(
-			string displayName = "Display Name",
-			int testsRun = 2112,
-			int testsFailed = 42,
-			int testsSkipped = 6,
-			decimal executionTime = 123.4567M)
-		{
-			var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
-			result.TestsRun.Returns(testsRun);
-			result.TestsFailed.Returns(testsFailed);
-			result.TestsSkipped.Returns(testsSkipped);
-			result.ExecutionTime.Returns(executionTime);
-			result.TestCollection.DisplayName.Returns(displayName);
-			return result;
-		}
+		public static _TestCollectionFinished TestCollectionFinished(
+			int testsRun = 0,
+			int testsFailed = 0,
+			int testsSkipped = 0,
+			decimal executionTime = 0m,
+			string testCollectionUniqueID = "<unset>") =>
+				new _TestCollectionFinished
+				{
+					ExecutionTime = executionTime,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestsFailed = testsFailed,
+					TestsRun = testsRun,
+					TestsSkipped = testsSkipped
+				};
 
 		public static _TestCollectionStarting TestCollectionStarting(
 			string? testCollectionClass = null,
-			string testCollectionDisplayName = "my-test-collection",
-			string testCollectionUniqueID = "test-collection-id") =>
+			string testCollectionDisplayName = "<unset>",
+			string testCollectionUniqueID = "<unset>") =>
 				new _TestCollectionStarting
 				{
 					TestCollectionClass = testCollectionClass,

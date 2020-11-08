@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -131,7 +130,7 @@ namespace Xunit.Runner.Common
 			{ typeof(ITestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
 			{ typeof(ITestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(ITestCollectionFinished), new List<AddFields> { AddFieldsForITestCollectionMessage, AddFieldsForIFinishedMessage } },
+			{ typeof(_TestCollectionFinished), new List<AddFields> { AddFieldsForITestCollectionMessage, AddFieldsForIFinishedMessage } },
 			{ typeof(ITestCollectionCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation, AddFieldsForITestCollectionMessage } },
 			{ typeof(ITestClassCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestAssemblyCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
@@ -165,12 +164,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestCollectionFinished testCollectionFinished, string flowId)
+		public static string ToJson(this _TestCollectionFinished testCollectionFinished, string flowId)
 		{
 			Guard.ArgumentNotNull(nameof(testCollectionFinished), testCollectionFinished);
 			Guard.ArgumentNotNull(nameof(flowId), flowId);
 
-			var json = InitObject("testCollectionFinished", testCollectionFinished, typeof(ITestCollectionFinished), flowId);
+			var json = InitObject("testCollectionFinished", testCollectionFinished, typeof(_TestCollectionFinished), flowId);
 
 			return ToJson(json);
 		}

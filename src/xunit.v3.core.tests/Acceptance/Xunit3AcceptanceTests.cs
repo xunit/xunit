@@ -133,13 +133,12 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var collectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
-					Assert.NotNull(collectionFinished.TestCollection);
+					var collectionFinished = Assert.IsAssignableFrom<_TestCollectionFinished>(message);
+					Assert.NotEmpty(collectionFinished.TestCollectionUniqueID);
 					Assert.Equal(1, collectionFinished.TestsRun);
 					Assert.Equal(0, collectionFinished.TestsFailed);
 					Assert.Equal(0, collectionFinished.TestsSkipped);
 					Assert.NotEqual(0M, collectionFinished.ExecutionTime);
-					// TODO: There will need to be more tests here eventually...
 				},
 				message =>
 				{
@@ -167,7 +166,7 @@ public class Xunit3AcceptanceTests
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsSkipped);
 
-			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
 		}
 	}
@@ -243,7 +242,7 @@ public class Xunit3AcceptanceTests
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
-			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
 
@@ -258,7 +257,7 @@ public class Xunit3AcceptanceTests
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
-			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
 	}

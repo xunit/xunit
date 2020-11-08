@@ -69,17 +69,17 @@ namespace Xunit.Runner.Common
 				return innerSink.OnMessage(testFailed);
 			}
 
-			var testCollectionFinished = message.Cast<ITestCollectionFinished>(messageTypes);
+			var testCollectionFinished = message.Cast<_TestCollectionFinished>(messageTypes);
 			if (testCollectionFinished != null)
 			{
-				testCollectionFinished = new TestCollectionFinished(
-					testCollectionFinished.TestCases,
-					testCollectionFinished.TestCollection,
-					testCollectionFinished.ExecutionTime,
-					testCollectionFinished.TestsRun,
-					testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
-					0
-				);
+				testCollectionFinished = new _TestCollectionFinished
+				{
+					ExecutionTime = testCollectionFinished.ExecutionTime,
+					TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
+					TestsFailed = testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
+					TestsRun = testCollectionFinished.TestsRun,
+					TestsSkipped = 0
+				};
 
 				return innerSink.OnMessage(testCollectionFinished);
 			}

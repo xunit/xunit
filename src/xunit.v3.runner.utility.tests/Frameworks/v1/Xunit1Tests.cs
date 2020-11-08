@@ -259,7 +259,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var collectionStarting = Assert.IsAssignableFrom<_TestCollectionStarting>(message);
+					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
 					Assert.Null(collectionStarting.TestCollectionClass);
 					Assert.Equal("xUnit.net v1 Tests for assembly", collectionStarting.TestCollectionDisplayName);
 					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", collectionStarting.TestCollectionUniqueID);
@@ -510,12 +510,12 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCollectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
+					var testCollectionFinished = Assert.IsType<_TestCollectionFinished>(message);
 					Assert.Equal(1.234M, testCollectionFinished.ExecutionTime);
 					Assert.Equal(1, testCollectionFinished.TestsFailed);
 					Assert.Equal(3, testCollectionFinished.TestsRun);
 					Assert.Equal(1, testCollectionFinished.TestsSkipped);
-					Assert.Same(testCollection, testCollectionFinished.TestCollection);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCollectionFinished.TestCollectionUniqueID);
 				},
 				message =>
 				{
@@ -845,13 +845,13 @@ public class AmbiguouslyNamedTestMethods
 
 			Assert.Collection(
 				spy.Messages,
-				msg => Assert.IsAssignableFrom<_TestAssemblyStarting>(msg),
-				msg => Assert.IsAssignableFrom<_TestCollectionStarting>(msg),
+				msg => Assert.IsType<_TestAssemblyStarting>(msg),
+				msg => Assert.IsType<_TestCollectionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCollectionFinished>(msg),
+				msg => Assert.IsType<_TestCollectionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IErrorMessage>(msg),
-				msg => Assert.IsAssignableFrom<_TestAssemblyFinished>(msg)
+				msg => Assert.IsType<_TestAssemblyFinished>(msg)
 			);
 		}
 	}

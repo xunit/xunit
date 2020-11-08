@@ -331,7 +331,16 @@ namespace Xunit
 			}
 			finally
 			{
-				results.Continue = messageSink.OnMessage(new TestCollectionFinished(testCases, testCollection, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
+				var collectionFinished = new _TestCollectionFinished
+				{
+					ExecutionTime = results.Time,
+					TestCollectionUniqueID = collectionStarting.TestCollectionUniqueID,
+					TestsFailed = results.Failed,
+					TestsRun = results.Total,
+					TestsSkipped = results.Skipped
+				};
+
+				results.Continue = messageSink.OnMessage(collectionFinished) && results.Continue;
 			}
 
 			return results;

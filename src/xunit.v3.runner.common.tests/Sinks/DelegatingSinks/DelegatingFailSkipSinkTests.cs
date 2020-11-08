@@ -39,7 +39,7 @@ public class DelegatingFailSkipSinkTests
 
 		sink.OnMessage(inputMessage);
 
-		var outputMessage = innerSink.Captured(x => x.OnMessage(null!)).Arg<ITestCollectionFinished>();
+		var outputMessage = innerSink.Captured(x => x.OnMessage(null!)).Arg<_TestCollectionFinished>();
 		Assert.Equal(24, outputMessage.TestsRun);
 		Assert.Equal(11, outputMessage.TestsFailed);
 		Assert.Equal(0, outputMessage.TestsSkipped);

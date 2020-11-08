@@ -102,18 +102,13 @@ public class DelegatingXmlCreationSinkTests
 	public void AddsTestCollectionElementsToXml()
 	{
 		var assemblyFinished = new _TestAssemblyFinished();
-		var testCollection = Substitute.For<ITestCollection>();
-		testCollection.DisplayName.Returns("Collection Name");
-		var testCollectionFinished = Substitute.For<ITestCollectionFinished>();
-		testCollectionFinished.TestCollection.Returns(testCollection);
-		testCollectionFinished.TestsRun.Returns(2112);
-		testCollectionFinished.TestsFailed.Returns(42);
-		testCollectionFinished.TestsSkipped.Returns(6);
-		testCollectionFinished.ExecutionTime.Returns(123.4567M);
+		var testCollectionStarted = Mocks.TestCollectionStarting(testCollectionDisplayName: "Collection Name", testCollectionUniqueID: "abc123");
+		var testCollectionFinished = Mocks.TestCollectionFinished(2112, 42, 6, 123.4567m, testCollectionUniqueID: "abc123");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(testCollectionStarted);
 		sink.OnMessage(testCollectionFinished);
 		sink.OnMessage(assemblyFinished);
 

@@ -42,7 +42,7 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
 			message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 			message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-			message => Assert.IsAssignableFrom<ITestCollectionFinished>(message)
+			message => Assert.IsAssignableFrom<_TestCollectionFinished>(message)
 		);
 	}
 

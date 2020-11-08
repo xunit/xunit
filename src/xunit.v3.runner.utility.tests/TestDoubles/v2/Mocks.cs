@@ -474,10 +474,10 @@ namespace Xunit.Runner.v2
 
 		public static ITestCollectionFinished TestCollectionFinished(
 			ITestCollection testCollection,
-			int testsRun = 2112,
-			int testsFailed = 42,
-			int testsSkipped = 6,
-			decimal executionTime = 123.4567M)
+			int testsRun = 0,
+			int testsFailed = 0,
+			int testsSkipped = 0,
+			decimal executionTime = 0m)
 		{
 			var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
 			result.ExecutionTime.Returns(executionTime);

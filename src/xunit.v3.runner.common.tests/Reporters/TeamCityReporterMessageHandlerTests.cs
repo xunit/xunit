@@ -79,33 +79,23 @@ public class TeamCityReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestCollectionFinished
+	public class OnMessage_TestCollectionStarting_TestCollectionFinished
 	{
 		[Fact]
 		public static void LogsMessage()
 		{
-			var message = Mocks.TestCollectionFinished();
+			var startingMessage = Mocks.TestCollectionStarting(testCollectionUniqueID: "test-collection-id", testCollectionDisplayName: "my-test-collection");
+			var finishedMessage = Mocks.TestCollectionFinished(testCollectionUniqueID: "test-collection-id");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(finishedMessage);
 
-			var msg = Assert.Single(handler.Messages);
-			Assert.Equal("[Imp] => ##teamcity[testSuiteFinished name='FORMATTED:Display Name' flowId='myFlowId']", msg);
-		}
-	}
-
-	public class OnMessage_TestCollectionStarting
-	{
-		[Fact]
-		public static void LogsMessage()
-		{
-			var message = Mocks.TestCollectionStarting();
-			var handler = TestableTeamCityReporterMessageHandler.Create();
-
-			handler.OnMessage(message);
-
-			var msg = Assert.Single(handler.Messages);
-			Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg);
+			Assert.Collection(
+				handler.Messages,
+				msg => Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testSuiteFinished name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg)
+			);
 		}
 	}
 

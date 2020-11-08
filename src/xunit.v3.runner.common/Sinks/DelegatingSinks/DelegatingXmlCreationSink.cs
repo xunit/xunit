@@ -21,7 +21,7 @@ namespace Xunit.Runner.Common
 		bool disposed;
 		readonly XElement errorsElement;
 		readonly IExecutionSink innerSink;
-		readonly Dictionary<Guid, XElement> testCollectionElements = new Dictionary<Guid, XElement>();
+		readonly Dictionary<string, XElement> testCollectionElements = new Dictionary<string, XElement>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingXmlCreationSink"/> class.
@@ -66,7 +66,8 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
 				&& message.Dispatch<ITestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
-				&& message.Dispatch<ITestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
+				&& message.Dispatch<_TestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
+				&& message.Dispatch<_TestCollectionStarting>(messageTypes, HandleTestCollectionStarting)
 				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
 				&& message.Dispatch<ITestMethodCleanupFailure>(messageTypes, HandleTestMethodCleanupFailure)
 				&& message.Dispatch<ITestPassed>(messageTypes, HandleTestPassed)
@@ -102,7 +103,8 @@ namespace Xunit.Runner.Common
 			var testMethod = testCase.TestMethod;
 			var testClass = testMethod.TestClass;
 
-			var collectionElement = GetTestCollectionElement(testClass.TestCollection);
+			// TODO: This is broken because that's the wrong unique ID
+			var collectionElement = GetTestCollectionElement(testClass.TestCollection.UniqueID.ToString());
 			var testResultElement =
 				new XElement("test",
 					new XAttribute("name", XmlEscape(test.DisplayName)),
@@ -161,10 +163,10 @@ namespace Xunit.Runner.Common
 			innerSink.Dispose();
 		}
 
-		XElement GetTestCollectionElement(ITestCollection testCollection)
+		XElement GetTestCollectionElement(string testCollectionUniqueID)
 		{
 			lock (testCollectionElements)
-				return testCollectionElements.GetOrAdd(testCollection.UniqueID, () => new XElement("collection"));
+				return testCollectionElements.GetOrAdd(testCollectionUniqueID, () => new XElement("collection"));
 		}
 
 		void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
@@ -217,18 +219,25 @@ namespace Xunit.Runner.Common
 		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
 			=> AddError("test-collection-cleanup", args.Message.TestCollection.DisplayName, args.Message);
 
-		void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
+		void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
 			var testCollectionFinished = args.Message;
-			var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollection);
+			var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollectionUniqueID);
 			collectionElement.Add(
 				new XAttribute("total", testCollectionFinished.TestsRun),
 				new XAttribute("passed", testCollectionFinished.TestsRun - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped),
 				new XAttribute("failed", testCollectionFinished.TestsFailed),
 				new XAttribute("skipped", testCollectionFinished.TestsSkipped),
-				new XAttribute("name", XmlEscape(testCollectionFinished.TestCollection.DisplayName)),
 				new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
 			);
+		}
+
+		void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
+		{
+			var testCollectionStarting = args.Message;
+			var collectionElement = GetTestCollectionElement(testCollectionStarting.TestCollectionUniqueID);
+
+			collectionElement.Add(new XAttribute("name", XmlEscape(testCollectionStarting.TestCollectionDisplayName)));
 		}
 
 		void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)

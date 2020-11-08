@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -13,6 +14,7 @@ namespace Xunit.Runner.Common
 	{
 		readonly TeamCityDisplayNameFormatter displayNameFormatter;
 		readonly IRunnerLogger logger;
+		ConcurrentDictionary<string, _ITestCollectionMetadata> testCollectionMetadataByID = new ConcurrentDictionary<string, _ITestCollectionMetadata>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TeamCityReporterMessageHandler" /> class.
@@ -104,14 +106,17 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCollectionFinished" />.
+		/// Handles instances of <see cref="_TestCollectionFinished" />.
 		/// </summary>
-		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
+		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionFinished = args.Message;
-			logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{Escape(displayNameFormatter.DisplayName(testCollectionFinished.TestCollection))}' flowId='{ToFlowId(testCollectionFinished.TestCollection.DisplayName)}']");
+			if (testCollectionMetadataByID.TryRemove(testCollectionFinished.TestCollectionUniqueID, out var metadata))
+				logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{metadata.TestCollectionDisplayName} ({testCollectionFinished.TestCollectionUniqueID})' flowId='{testCollectionFinished.TestCollectionUniqueID}']");
+			else
+				logger.LogImportantMessage($"##teamcity[message status='ERROR' text='Tried to report a completed test collection that was never reported as starting']");
 		}
 
 		/// <summary>
@@ -122,6 +127,8 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionStarting = args.Message;
+			testCollectionMetadataByID.TryAdd(testCollectionStarting.TestCollectionUniqueID, testCollectionStarting);
+
 			logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{testCollectionStarting.TestCollectionDisplayName} ({testCollectionStarting.TestCollectionUniqueID})' flowId='{testCollectionStarting.TestCollectionUniqueID}']");
 		}
 
