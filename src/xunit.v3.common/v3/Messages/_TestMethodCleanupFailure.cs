@@ -45,18 +45,28 @@ namespace Xunit.v3
 		/// Creates a new <see cref="_TestMethodCleanupFailure"/> constructed from an <see cref="Exception"/> object.
 		/// </summary>
 		/// <param name="ex">The exception to use</param>
-		/// <param name="testMethodUniqueID">The unique ID of the test method</param>
+		/// <param name="assemblyUniqueID">The unique ID of the assembly</param>
+		/// <param name="testCollectionUniqueID">The unique ID of the test collectioon</param>
+		/// <param name="testClassUniqueID">The (optional) unique ID of the test class</param>
+		/// <param name="testMethodUniqueID">The (optional) unique ID of the test method</param>
 		public static _TestMethodCleanupFailure FromException(
 			Exception ex,
+			string assemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			string? testMethodUniqueID)
 		{
 			Guard.ArgumentNotNull(nameof(ex), ex);
-			Guard.ArgumentNotNull(nameof(testMethodUniqueID), testMethodUniqueID);
+			Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
+			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
 
 			var failureInfo = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
 
 			return new _TestMethodCleanupFailure
 			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				ExceptionTypes = failureInfo.ExceptionTypes,
 				Messages = failureInfo.Messages,

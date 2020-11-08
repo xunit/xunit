@@ -6,7 +6,7 @@ namespace Xunit.v3
 	/// <summary>
 	/// Base message for all messages related to tests.
 	/// </summary>
-	public class _TestMessage : _MessageSinkMessage
+	public class _TestMessage : _TestCaseMessage
 	{
 		string? testUniqueID;
 
