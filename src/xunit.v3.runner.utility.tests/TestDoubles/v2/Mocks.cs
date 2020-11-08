@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Versioning;
 using NSubstitute;
 using Xunit.Abstractions;
@@ -12,12 +11,14 @@ namespace Xunit.Runner.v2
 {
 	public static class Mocks
 	{
+		static readonly Guid OneGuid = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+
 		public static IAssemblyInfo AssemblyInfo(
 			ITypeInfo[]? types = null,
 			IReflectionAttributeInfo[]? attributes = null,
 			string? assemblyFileName = null)
 		{
-			attributes = attributes ?? new IReflectionAttributeInfo[0];
+			attributes ??= new IReflectionAttributeInfo[0];
 
 			var result = Substitute.For<IAssemblyInfo, InterfaceProxy<IAssemblyInfo>>();
 			result.Name.Returns(assemblyFileName == null ? "assembly:" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
@@ -206,10 +207,10 @@ namespace Xunit.Runner.v2
 		public static IReflectionAttributeInfo TargetFrameworkAttribute(string frameworkName)
 		{
 			var attribute = new TargetFrameworkAttribute(frameworkName);
+
 			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetConstructorArguments().Returns(new object[] { frameworkName });
-
 			return result;
 		}
 
@@ -238,39 +239,26 @@ namespace Xunit.Runner.v2
 		//	return result;
 		//}
 
-		public static ITestAssembly TestAssembly(IReflectionAttributeInfo[] attributes)
-		{
-			var assemblyInfo = AssemblyInfo(attributes: attributes);
-
-			var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
-			result.Assembly.Returns(assemblyInfo);
-			return result;
-		}
-
 		public static ITestAssembly TestAssembly(
-			string assemblyFileName,
+			string? assemblyFileName = null,
 			string? configFileName = null,
+			string targetFrameworkName = ".MockEnvironment,Version=v21.12",
 			ITypeInfo[]? types = null,
 			IReflectionAttributeInfo[]? attributes = null)
 		{
+			assemblyFileName ??= "testAssembly.dll";
+
+			var targetFrameworkAttr = TargetFrameworkAttribute(targetFrameworkName);
+
+			attributes ??= Array.Empty<IReflectionAttributeInfo>();
+			attributes = attributes.Concat(new[] { targetFrameworkAttr }).ToArray();
+
 			var assemblyInfo = AssemblyInfo(types, attributes, assemblyFileName);
 
 			var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
 			result.Assembly.Returns(assemblyInfo);
 			result.ConfigFileName.Returns(configFileName);
 			return result;
-		}
-
-		public static TestAssembly TestAssembly(
-			Assembly? assembly = null,
-			string? configFileName = null)
-		{
-#if NETFRAMEWORK
-			if (configFileName == null)
-				configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-#endif
-
-			return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 		}
 
 		//public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
@@ -334,12 +322,13 @@ namespace Xunit.Runner.v2
 		//}
 
 		public static ITestAssemblyFinished TestAssemblyFinished(
-			int testsRun = 2112,
-			int testsFailed = 42,
-			int testsSkipped = 6,
-			decimal executionTime = 123.4567M)
+			ITestAssembly? testAssembly = null,
+			int testsRun = 0,
+			int testsFailed = 0,
+			int testsSkipped = 0,
+			decimal executionTime = 0m)
 		{
-			var testAssembly = TestAssembly("testAssembly.dll");
+			testAssembly ??= TestAssembly("testAssembly.dll");
 			var result = Substitute.For<ITestAssemblyFinished, InterfaceProxy<ITestAssemblyFinished>>();
 			result.TestAssembly.Returns(testAssembly);
 			result.TestsRun.Returns(testsRun);
@@ -350,20 +339,15 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestAssemblyStarting TestAssemblyStarting(
-			string assemblyPath = "testAssembly.dll",
-			string? configFilePath = null,
+			ITestAssembly? testAssembly = null,
 			DateTime? startTime = null,
-			string targetFramework = "target-framework",
-			string testEnvironment = "test-env",
-			string testFrameworkDisplayName = "test-framework")
+			string testEnvironment = "",
+			string testFrameworkDisplayName = "")
 		{
-			var attr = TargetFrameworkAttribute(targetFramework);
-			var attrs = new[] { attr };
-
-			var testAssembly = TestAssembly(assemblyPath, configFilePath, attributes: attrs);
+			testAssembly ??= TestAssembly();
 
 			var result = Substitute.For<ITestAssemblyStarting, InterfaceProxy<ITestAssemblyStarting>>();
-			result.StartTime.Returns(startTime ?? new DateTime(2020, 11, 3, 17, 55, 0, DateTimeKind.Utc));
+			result.StartTime.Returns(startTime ?? new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc));
 			result.TestAssembly.Returns(testAssembly);
 			result.TestEnvironment.Returns(testEnvironment);
 			result.TestFrameworkDisplayName.Returns(testFrameworkDisplayName);
@@ -458,54 +442,55 @@ namespace Xunit.Runner.v2
 		//	return result;
 		//}
 
-		public static TestClass TestClass(
-			Type type,
-			ITestCollection? collection = null)
-		{
-			if (collection == null)
-				collection = TestCollection(type.Assembly);
+		//public static TestClass TestClass(
+		//	Type type,
+		//	ITestCollection? collection = null)
+		//{
+		//	if (collection == null)
+		//	{
+		//		var assembly = TestAssembly();
+		//		collection = TestCollection(assembly);
+		//	}
 
-			return new TestClass(collection, Reflector.Wrap(type));
-		}
+		//	return new TestClass(collection, Reflector.Wrap(type));
+		//}
 
-		public static TestCollection TestCollection(
-			Assembly? assembly = null,
+		public static ITestCollection TestCollection(
+			ITestAssembly? assembly = null,
 			ITypeInfo? definition = null,
 			string? displayName = null)
 		{
-			if (assembly == null)
-				assembly = typeof(Mocks).Assembly;
-			if (displayName == null)
-				displayName = "Mock test collection for " + assembly.CodeBase;
+			assembly ??= TestAssembly();
+			displayName ??= "Mock test collection";
 
-			return new TestCollection(TestAssembly(assembly), definition, displayName);
+			var result = Substitute.For<ITestCollection, InterfaceProxy<ITestCollection>>();
+			result.CollectionDefinition.Returns(definition);
+			result.DisplayName.Returns(displayName);
+			result.TestAssembly.Returns(assembly);
+			result.UniqueID.Returns(OneGuid);
+
+			return new TestCollection(assembly, definition, displayName);
 		}
 
-		//public static ITestCollectionFinished TestCollectionFinished(
-		//	string displayName = "Display Name",
-		//	int testsRun = 2112,
-		//	int testsFailed = 42,
-		//	int testsSkipped = 6,
-		//	decimal executionTime = 123.4567M)
-		//{
-		//	var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
-		//	result.TestsRun.Returns(testsRun);
-		//	result.TestsFailed.Returns(testsFailed);
-		//	result.TestsSkipped.Returns(testsSkipped);
-		//	result.ExecutionTime.Returns(executionTime);
-		//	result.TestCollection.DisplayName.Returns(displayName);
-		//	return result;
-		//}
-
-		public static ITestCollectionStarting TestCollectionStarting(
-			string? assemblyPath = null,
-			string? assemblyConfigFilePath = null,
-			ITypeInfo? collectionDefinition = null,
-			string? displayName = null)
+		public static ITestCollectionFinished TestCollectionFinished(
+			ITestCollection testCollection,
+			int testsRun = 2112,
+			int testsFailed = 42,
+			int testsSkipped = 6,
+			decimal executionTime = 123.4567M)
 		{
-			var assembly = TestAssembly(assemblyPath ?? typeof(Mocks).Assembly.Location, assemblyConfigFilePath);
-			var testCollection = new TestCollection(assembly, collectionDefinition, displayName ?? "Mock test collection");
+			var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
+			result.ExecutionTime.Returns(executionTime);
+			result.TestAssembly.Returns(testCollection.TestAssembly);
+			result.TestCollection.Returns(testCollection);
+			result.TestsRun.Returns(testsRun);
+			result.TestsFailed.Returns(testsFailed);
+			result.TestsSkipped.Returns(testsSkipped);
+			return result;
+		}
 
+		public static ITestCollectionStarting TestCollectionStarting(ITestCollection testCollection)
+		{
 			var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
 			result.TestAssembly.Returns(testCollection.TestAssembly);
 			result.TestCollection.Returns(testCollection);
