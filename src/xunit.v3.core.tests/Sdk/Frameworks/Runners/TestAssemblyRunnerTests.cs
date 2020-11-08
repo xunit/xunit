@@ -50,6 +50,11 @@ public class TestAssemblyRunnerTests
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink, summary);
 			var thisAssembly = Assembly.GetExecutingAssembly();
 			var thisAppDomain = AppDomain.CurrentDomain;
+			var expectedUniqueID = UniqueIDGenerator.ForAssembly(
+				runner.TestAssembly.Assembly.Name,
+				runner.TestAssembly.Assembly.AssemblyPath,
+				runner.TestAssembly.ConfigFileName
+			);
 
 			var result = await runner.RunAsync();
 
@@ -72,20 +77,16 @@ public class TestAssemblyRunnerTests
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);
 					Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
-					var expectedUniqueID = UniqueIDGenerator.ForAssembly(
-						runner.TestAssembly.Assembly.Name,
-						runner.TestAssembly.Assembly.AssemblyPath,
-						runner.TestAssembly.ConfigFileName
-					);
 					Assert.Equal(expectedUniqueID, starting.AssemblyUniqueID);
 				},
 				msg =>
 				{
 					var finished = Assert.IsAssignableFrom<_TestAssemblyFinished>(msg);
-					Assert.Equal(4, finished.TestsRun);
-					Assert.Equal(2, finished.TestsFailed);
-					Assert.Equal(1, finished.TestsSkipped);
+					Assert.Equal(expectedUniqueID, finished.AssemblyUniqueID);
 					Assert.Equal(result.Time, finished.ExecutionTime);
+					Assert.Equal(2, finished.TestsFailed);
+					Assert.Equal(4, finished.TestsRun);
+					Assert.Equal(1, finished.TestsSkipped);
 				}
 			);
 		}
