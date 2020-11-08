@@ -248,7 +248,7 @@ public class Xunit1Tests
 				sink.Messages,
 				message =>
 				{
-					var assemblyStarting = Assert.IsAssignableFrom<_TestAssemblyStarting>(message);
+					var assemblyStarting = Assert.IsType<_TestAssemblyStarting>(message);
 					Assert.Equal("assembly", assemblyStarting.AssemblyName);
 					Assert.Equal("assembly", assemblyStarting.AssemblyPath);
 					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", assemblyStarting.AssemblyUniqueID);
@@ -270,14 +270,11 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-					Assert.Same(testAssembly, testClassStarting.TestAssembly);
-					Assert.Same(testCollection, testClassStarting.TestCollection);
-					Assert.Equal("type1", testClassStarting.TestClass.Class.Name);
-					Assert.Collection(testClassStarting.TestCases,
-						testCase => Assert.Same(testCases[0], testCase),
-						testCase => Assert.Same(testCases[1], testCase)
-					);
+					var testClassStarting = Assert.IsType<_TestClassStarting>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testClassStarting.AssemblyUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testClassStarting.TestCollectionUniqueID);
+					Assert.Equal("type1", testClassStarting.TestClass);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testClassStarting.TestClassUniqueID);
 				},
 				message =>
 				{
@@ -408,8 +405,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-					Assert.Equal("type2", testClassStarting.TestClass.Class.Name);
+					var testClassStarting = Assert.IsType<_TestClassStarting>(message);
+					Assert.Equal("type2", testClassStarting.TestClass);
 				},
 				message =>
 				{
@@ -519,7 +516,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var assemblyFinished = Assert.IsAssignableFrom<_TestAssemblyFinished>(message);
+					var assemblyFinished = Assert.IsType<_TestAssemblyFinished>(message);
 					Assert.Equal(1.234M, assemblyFinished.ExecutionTime);
 					Assert.Equal(1, assemblyFinished.TestsFailed);
 					Assert.Equal(3, assemblyFinished.TestsRun);
@@ -847,7 +844,7 @@ public class AmbiguouslyNamedTestMethods
 				spy.Messages,
 				msg => Assert.IsType<_TestAssemblyStarting>(msg),
 				msg => Assert.IsType<_TestCollectionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
+				msg => Assert.IsType<_TestClassStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
 				msg => Assert.IsType<_TestCollectionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IErrorMessage>(msg),

@@ -103,6 +103,25 @@ namespace Xunit
 		}
 
 		/// <summary>
+		/// Computes a unique ID for a test class, to be placed into <see cref="_TestClassMessage.TestClassUniqueID"/>
+		/// </summary>
+		/// <param name="testCollectionUniqueID">The parent test collection for the test class</param>
+		/// <param name="className">The fully qualified type name of the test class</param>
+		/// <returns>The computed unique ID for the test class</returns>
+		public static string ForTestClass(
+			string testCollectionUniqueID,
+			string className)
+		{
+			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
+			Guard.ArgumentNotNull(nameof(className), className);
+
+			using var generator = new UniqueIDGenerator();
+			generator.Add(testCollectionUniqueID);
+			generator.Add(className);
+			return generator.Compute();
+		}
+
+		/// <summary>
 		/// Computes a unique ID for a test collection, to be placed into <see cref="_TestCollectionMessage.TestCollectionUniqueID"/>
 		/// </summary>
 		/// <param name="assemblyUniqueID">The unique ID of the assembly the test collection lives in</param>

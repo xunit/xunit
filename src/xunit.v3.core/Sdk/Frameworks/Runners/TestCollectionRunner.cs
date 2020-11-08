@@ -53,6 +53,7 @@ namespace Xunit.Sdk
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 
+			TestAssemblyUniqueID = testAssemblyUniqueID;
 			TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
 				testAssemblyUniqueID,
 				testCollection.DisplayName,
@@ -86,6 +87,11 @@ namespace Xunit.Sdk
 			get => messageBus;
 			set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID of the test assembly.
+		/// </summary>
+		protected string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the test.

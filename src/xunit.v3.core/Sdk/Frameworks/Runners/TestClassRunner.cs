@@ -33,6 +33,8 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly</param>
+		/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 		/// <param name="testClass">The test class to be run.</param>
 		/// <param name="class">The test class that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
@@ -42,6 +44,8 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestClassRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases,
@@ -59,6 +63,10 @@ namespace Xunit.Sdk
 			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+
+			TestAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
+			TestCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
+			TestClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass.Class.Name);
 		}
 
 		/// <summary>
@@ -107,6 +115,11 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
+		/// Gets the unique ID of the test assembly.
+		/// </summary>
+		protected string TestAssemblyUniqueID { get; }
+
+		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the test.
 		/// </summary>
 		protected ITestCaseOrderer TestCaseOrderer
@@ -132,6 +145,16 @@ namespace Xunit.Sdk
 			get => testClass;
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID of the test class.
+		/// </summary>
+		protected string TestClassUniqueID { get; }
+
+		/// <summary>
+		/// Gets the unique ID of the test collection.
+		/// </summary>
+		protected string TestCollectionUniqueID { get; }
 
 		/// <summary>
 		/// Creates the arguments for the test class constructor. Attempts to resolve each parameter
@@ -186,7 +209,7 @@ namespace Xunit.Sdk
 				$"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
 		/// <summary>
-		/// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
+		/// This method is called just after <see cref="_TestClassStarting"/> is sent, but before any test methods are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task AfterTestClassStartingAsync() => Task.CompletedTask;
@@ -205,7 +228,15 @@ namespace Xunit.Sdk
 		{
 			var classSummary = new RunSummary();
 
-			if (!MessageBus.QueueMessage(new TestClassStarting(TestCases.Cast<ITestCase>(), TestClass)))
+			var classStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestClass = TestClass.Class.Name,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID
+			};
+
+			if (!MessageBus.QueueMessage(classStarting))
 				CancellationTokenSource.Cancel();
 			else
 			{

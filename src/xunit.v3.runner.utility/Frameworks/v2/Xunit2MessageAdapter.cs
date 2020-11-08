@@ -25,6 +25,7 @@ namespace Xunit.Runner.v2
 			return
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
+				Convert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
 				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
 				message;
@@ -73,7 +74,32 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		private static _MessageSinkMessage AdaptTestCollectionFinished(ITestCollectionFinished testCollectionFinished)
+		static _MessageSinkMessage AdaptTestClassStarting(ITestClassStarting testClassStarting)
+		{
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testClassStarting.TestAssembly.Assembly.Name,
+				testClassStarting.TestAssembly.Assembly.AssemblyPath,
+				testClassStarting.TestAssembly.ConfigFileName
+			);
+			var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+				assemblyUniqueID,
+				testClassStarting.TestCollection.DisplayName,
+				testClassStarting.TestCollection.CollectionDefinition?.Name
+			);
+
+			var result = new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestClass = testClassStarting.TestClass.Class.Name,
+				TestCollectionUniqueID = testCollectionUniqueID
+			};
+
+			result.TestClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, result.TestClass);
+
+			return result;
+		}
+
+		static _MessageSinkMessage AdaptTestCollectionFinished(ITestCollectionFinished testCollectionFinished)
 		{
 			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
 				testCollectionFinished.TestAssembly.Assembly.Name,
@@ -88,6 +114,7 @@ namespace Xunit.Runner.v2
 
 			return new _TestCollectionFinished
 			{
+				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = testCollectionFinished.ExecutionTime,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testCollectionFinished.TestsFailed,
@@ -106,6 +133,7 @@ namespace Xunit.Runner.v2
 
 			var result = new _TestCollectionStarting
 			{
+				AssemblyUniqueID = assemblyUniqueID,
 				TestCollectionClass = testCollectionStarting.TestCollection.CollectionDefinition?.Name,
 				TestCollectionDisplayName = testCollectionStarting.TestCollection.DisplayName
 			};

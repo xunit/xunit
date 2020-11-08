@@ -90,9 +90,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestClassFinished>? TestClassFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestClassStarting"/> message is received.
+		/// Occurs when a <see cref="_TestClassStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestClassStarting>? TestClassStartingEvent;
+		public event MessageHandler<_TestClassStarting>? TestClassStartingEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="ITestCleanupFailure"/> message is received.

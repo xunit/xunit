@@ -97,6 +97,35 @@ public class Xunit2MessageAdapterTests
 		}
 	}
 
+	public class TestClassTests : TestCollectionTests
+	{
+		protected ITestClass TestClass;
+		protected string TestClassUniqueID;
+
+		public TestClassTests()
+		{
+			TestClass = v2Mocks.TestClass(TestCollection);
+			TestClassUniqueID = UniqueIDGenerator.ForTestClass(
+				TestCollectionUniqueID,
+				TestClass.Class.Name
+			);
+		}
+
+		[Fact]
+		public void TestClassStarting()
+		{
+			var v2Message = v2Mocks.TestClassStarting(TestClass);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestClassStarting>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(v2Message.TestClass.Class.Name, v3Message.TestClass);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+		}
+	}
+
 	public class TestCollectionTests : TestAssemblyTests
 	{
 		protected ITestCollection TestCollection;
@@ -129,6 +158,7 @@ public class Xunit2MessageAdapterTests
 
 			var v3Message = Assert.IsType<_TestCollectionFinished>(adapted);
 			Assert.Equal(123.4567m, v3Message.ExecutionTime);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(42, v3Message.TestsFailed);
 			Assert.Equal(2112, v3Message.TestsRun);
@@ -143,6 +173,7 @@ public class Xunit2MessageAdapterTests
 			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCollectionStarting>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
 			Assert.Equal(TestCollectionDefinition.Name, v3Message.TestCollectionClass);
 			Assert.Equal(TestCollection.DisplayName, v3Message.TestCollectionDisplayName);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);

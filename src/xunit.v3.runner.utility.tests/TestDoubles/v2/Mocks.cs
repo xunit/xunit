@@ -429,18 +429,18 @@ namespace Xunit.Runner.v2
 		//public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>() =>
 		//	TestCaseOrdererAttribute(typeof(TOrderer));
 
-		//public static ITestClass TestClass(
-		//	string? typeName = null,
-		//	IReflectionAttributeInfo[]? attributes = null)
-		//{
-		//	var testCollection = TestCollection();
-		//	var typeInfo = TypeInfo(typeName, attributes: attributes);
+		public static ITestClass TestClass(
+			ITestCollection? testCollection = null,
+			ITypeInfo? classType = null)
+		{
+			testCollection ??= TestCollection();
+			classType ??= TypeInfo();
 
-		//	var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
-		//	result.Class.Returns(typeInfo);
-		//	result.TestCollection.Returns(testCollection);
-		//	return result;
-		//}
+			var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
+			result.Class.Returns(classType);
+			result.TestCollection.Returns(testCollection);
+			return result;
+		}
 
 		//public static TestClass TestClass(
 		//	Type type,
@@ -454,6 +454,17 @@ namespace Xunit.Runner.v2
 
 		//	return new TestClass(collection, Reflector.Wrap(type));
 		//}
+
+		public static ITestClassStarting TestClassStarting(ITestClass testClass)
+		{
+			var result = Substitute.For<ITestClassStarting, InterfaceProxy<ITestClassStarting>>();
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+			result.TestAssembly.Returns(testAssembly);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			return result;
+		}
 
 		public static ITestCollection TestCollection(
 			ITestAssembly? assembly = null,

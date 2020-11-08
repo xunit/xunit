@@ -323,7 +323,7 @@ namespace Xunit
 				if (results.Continue)
 					foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestMethod.TestClass, Comparer.Instance))
 					{
-						var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
+						var classResults = RunTestClass(assemblyUniqueID, collectionStarting.TestCollectionUniqueID, testClassGroup.Key, testClassGroup.ToList(), messageSink);
 						results.Aggregate(classResults);
 						if (!classResults.Continue)
 							break;
@@ -347,13 +347,23 @@ namespace Xunit
 		}
 
 		Xunit1RunSummary RunTestClass(
+			string assemblyUniqueID,
+			string collectionUniqueID,
 			ITestClass testClass,
 			IList<ITestCase> testCases,
 			_IMessageSink messageSink)
 		{
 			var handler = new TestClassCallbackHandler(testCases, messageSink);
 			var results = handler.TestClassResults;
-			results.Continue = messageSink.OnMessage(new TestClassStarting(testCases, testClass));
+			var testClassStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestClass = testClass.Class.Name,
+				TestCollectionUniqueID = collectionUniqueID
+			};
+			testClassStarting.TestClassUniqueID = UniqueIDGenerator.ForTestClass(collectionUniqueID, testClassStarting.TestClass);
+
+			results.Continue = messageSink.OnMessage(testClassStarting);
 
 			try
 			{

@@ -18,9 +18,9 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
-				message => Assert.IsAssignableFrom<_TestCollectionStarting>(message),
-				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+				message => Assert.IsType<_TestAssemblyStarting>(message),
+				message => Assert.IsType<_TestCollectionStarting>(message),
+				message => Assert.IsType<_TestClassStarting>(message),
 
 				// TestMethod1
 				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
@@ -51,8 +51,8 @@ public class FixtureAcceptanceTests
 				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
 				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-				message => Assert.IsAssignableFrom<_TestCollectionFinished>(message),
-				message => Assert.IsAssignableFrom<_TestAssemblyFinished>(message)
+				message => Assert.IsType<_TestCollectionFinished>(message),
+				message => Assert.IsType<_TestAssemblyFinished>(message)
 			);
 		}
 

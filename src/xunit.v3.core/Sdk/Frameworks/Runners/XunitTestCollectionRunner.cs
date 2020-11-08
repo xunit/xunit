@@ -170,6 +170,8 @@ namespace Xunit.Sdk
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases) =>
 				new XunitTestClassRunner(
+					TestAssemblyUniqueID,
+					TestCollectionUniqueID,
 					testClass,
 					@class,
 					testCases,

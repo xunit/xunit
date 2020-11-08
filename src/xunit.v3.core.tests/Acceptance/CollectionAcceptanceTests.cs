@@ -22,8 +22,8 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 	{
 		Assert.Collection(
 			results,
-			message => Assert.IsAssignableFrom<_TestCollectionStarting>(message),
-			message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+			message => Assert.IsType<_TestCollectionStarting>(message),
+			message => Assert.IsType<_TestClassStarting>(message),
 			message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
 			message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
 			message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -42,7 +42,7 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
 			message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 			message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-			message => Assert.IsAssignableFrom<_TestCollectionFinished>(message)
+			message => Assert.IsType<_TestCollectionFinished>(message)
 		);
 	}
 
