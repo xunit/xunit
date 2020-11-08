@@ -30,6 +30,49 @@ namespace Xunit.Runner.v2
 				message;
 		}
 
+		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished testAssemblyFinished)
+		{
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testAssemblyFinished.TestAssembly.Assembly.Name,
+				testAssemblyFinished.TestAssembly.Assembly.AssemblyPath,
+				testAssemblyFinished.TestAssembly.ConfigFileName
+			);
+
+			return new _TestAssemblyFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = testAssemblyFinished.ExecutionTime,
+				TestsFailed = testAssemblyFinished.TestsFailed,
+				TestsRun = testAssemblyFinished.TestsRun,
+				TestsSkipped = testAssemblyFinished.TestsSkipped
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestAssemblyStarting(ITestAssemblyStarting testAssemblyStarting)
+		{
+			var targetFrameworkAttribute = testAssemblyStarting.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
+			var targetFramework = targetFrameworkAttribute?.GetConstructorArguments().Cast<string>().Single();
+
+			var result = new _TestAssemblyStarting
+			{
+				AssemblyName = testAssemblyStarting.TestAssembly.Assembly.Name,
+				AssemblyPath = testAssemblyStarting.TestAssembly.Assembly.AssemblyPath,
+				ConfigFilePath = testAssemblyStarting.TestAssembly.ConfigFileName,
+				StartTime = testAssemblyStarting.StartTime,
+				TargetFramework = targetFramework,
+				TestEnvironment = testAssemblyStarting.TestEnvironment,
+				TestFrameworkDisplayName = testAssemblyStarting.TestFrameworkDisplayName
+			};
+
+			result.AssemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				result.AssemblyName,
+				result.AssemblyPath,
+				result.ConfigFilePath
+			);
+
+			return result;
+		}
+
 		private static _MessageSinkMessage AdaptTestCollectionFinished(ITestCollectionFinished testCollectionFinished)
 		{
 			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
@@ -71,49 +114,6 @@ namespace Xunit.Runner.v2
 				assemblyUniqueID,
 				result.TestCollectionDisplayName,
 				result.TestCollectionClass
-			);
-
-			return result;
-		}
-
-		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished testAssemblyFinished)
-		{
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testAssemblyFinished.TestAssembly.Assembly.Name,
-				testAssemblyFinished.TestAssembly.Assembly.AssemblyPath,
-				testAssemblyFinished.TestAssembly.ConfigFileName
-			);
-
-			return new _TestAssemblyFinished
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = testAssemblyFinished.ExecutionTime,
-				TestsFailed = testAssemblyFinished.TestsFailed,
-				TestsRun = testAssemblyFinished.TestsRun,
-				TestsSkipped = testAssemblyFinished.TestsSkipped
-			};
-		}
-
-		static _MessageSinkMessage AdaptTestAssemblyStarting(ITestAssemblyStarting testAssemblyStarting)
-		{
-			var targetFrameworkAttribute = testAssemblyStarting.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
-			var targetFramework = targetFrameworkAttribute?.GetConstructorArguments().Cast<string>().Single();
-
-			var result = new _TestAssemblyStarting
-			{
-				AssemblyName = testAssemblyStarting.TestAssembly.Assembly.Name,
-				AssemblyPath = testAssemblyStarting.TestAssembly.Assembly.AssemblyPath,
-				ConfigFilePath = testAssemblyStarting.TestAssembly.ConfigFileName,
-				StartTime = testAssemblyStarting.StartTime,
-				TargetFramework = targetFramework,
-				TestEnvironment = testAssemblyStarting.TestEnvironment,
-				TestFrameworkDisplayName = testAssemblyStarting.TestFrameworkDisplayName
-			};
-
-			result.AssemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				result.AssemblyName,
-				result.AssemblyPath,
-				result.ConfigFilePath
 			);
 
 			return result;
