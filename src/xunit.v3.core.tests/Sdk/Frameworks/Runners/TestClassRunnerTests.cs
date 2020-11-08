@@ -40,12 +40,13 @@ public class TestClassRunnerTests
 			},
 			msg =>
 			{
-				var finished = Assert.IsAssignableFrom<ITestClassFinished>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
-				Assert.Equal("TestClassRunnerTests+ClassUnderTest", finished.TestClass.Class.Name);
+				var finished = Assert.IsType<_TestClassFinished>(msg);
+				Assert.Equal("assembly-id", finished.AssemblyUniqueID);
 				Assert.Equal(21.12m, finished.ExecutionTime);
-				Assert.Equal(4, finished.TestsRun);
+				Assert.Equal("6f31e62de7ecf1a1acf6350a67bb6e21b7e54d513925a8498532c7e9545ffd31", finished.TestClassUniqueID);
+				Assert.Equal("collection-id", finished.TestCollectionUniqueID);
 				Assert.Equal(2, finished.TestsFailed);
+				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(1, finished.TestsSkipped);
 			}
 		);
@@ -139,7 +140,7 @@ public class TestClassRunnerTests
 	[Fact]
 	public static async void Cancellation_TestClassFinished_CallsExtensibilityCallbacks()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestClassFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassFinished));
 		var runner = TestableTestClassRunner.Create(messageBus);
 
 		await runner.RunAsync();

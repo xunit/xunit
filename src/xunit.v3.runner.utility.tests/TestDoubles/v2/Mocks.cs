@@ -455,6 +455,27 @@ namespace Xunit.Runner.v2
 		//	return new TestClass(collection, Reflector.Wrap(type));
 		//}
 
+		public static ITestClassFinished TestClassFinished(
+			ITestClass testClass,
+			decimal executionTime,
+			int testsFailed,
+			int testsRun,
+			int testsSkipped)
+		{
+			var result = Substitute.For<ITestClassFinished, InterfaceProxy<ITestClassFinished>>();
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+
+			result.ExecutionTime.Returns(executionTime);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestsFailed.Returns(testsFailed);
+			result.TestsRun.Returns(testsRun);
+			result.TestsSkipped.Returns(testsSkipped);
+			return result;
+		}
+
 		public static ITestClassStarting TestClassStarting(ITestClass testClass)
 		{
 			var result = Substitute.For<ITestClassStarting, InterfaceProxy<ITestClassStarting>>();

@@ -25,6 +25,7 @@ namespace Xunit.Runner.v2
 			return
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
+				Convert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
 				Convert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
 				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
@@ -72,6 +73,32 @@ namespace Xunit.Runner.v2
 			);
 
 			return result;
+		}
+
+		static _MessageSinkMessage AdaptTestClassFinished(ITestClassFinished testClassFinished)
+		{
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testClassFinished.TestAssembly.Assembly.Name,
+				testClassFinished.TestAssembly.Assembly.AssemblyPath,
+				testClassFinished.TestAssembly.ConfigFileName
+			);
+			var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+				assemblyUniqueID,
+				testClassFinished.TestCollection.DisplayName,
+				testClassFinished.TestCollection.CollectionDefinition?.Name
+			);
+			var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClassFinished.TestClass.Class.Name);
+
+			return new _TestClassFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = testClassFinished.ExecutionTime,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestsFailed = testClassFinished.TestsFailed,
+				TestsRun = testClassFinished.TestsRun,
+				TestsSkipped = testClassFinished.TestsSkipped
+			};
 		}
 
 		static _MessageSinkMessage AdaptTestClassStarting(ITestClassStarting testClassStarting)

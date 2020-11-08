@@ -125,7 +125,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var classFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
+					var classFinished = Assert.IsType<_TestClassFinished>(message);
 					Assert.Equal(1, classFinished.TestsRun);
 					Assert.Equal(0, classFinished.TestsFailed);
 					Assert.Equal(0, classFinished.TestsSkipped);
@@ -163,7 +163,7 @@ public class Xunit3AcceptanceTests
 			Assert.Equal("Xunit3AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
 			Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
-			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsSkipped);
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
@@ -239,7 +239,7 @@ public class Xunit3AcceptanceTests
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
 			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
-			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
@@ -254,7 +254,7 @@ public class Xunit3AcceptanceTests
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
 			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
-			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());

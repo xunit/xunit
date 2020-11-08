@@ -396,8 +396,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
-					Assert.Equal("type1", testClassFinished.TestClass.Class.Name);
+					var testClassFinished = Assert.IsType<_TestClassFinished>(message);
 					Assert.Equal(1.234M, testClassFinished.ExecutionTime);
 					Assert.Equal(1, testClassFinished.TestsFailed);
 					Assert.Equal(2, testClassFinished.TestsRun);
@@ -498,8 +497,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
-					Assert.Equal("type2", testClassFinished.TestClass.Class.Name);
+					var testClassFinished = Assert.IsType<_TestClassFinished>(message);
 					Assert.Equal(0M, testClassFinished.ExecutionTime);
 					Assert.Equal(0, testClassFinished.TestsFailed);
 					Assert.Equal(1, testClassFinished.TestsRun);
@@ -845,7 +843,7 @@ public class AmbiguouslyNamedTestMethods
 				msg => Assert.IsType<_TestAssemblyStarting>(msg),
 				msg => Assert.IsType<_TestCollectionStarting>(msg),
 				msg => Assert.IsType<_TestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
+				msg => Assert.IsType<_TestClassFinished>(msg),
 				msg => Assert.IsType<_TestCollectionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IErrorMessage>(msg),
 				msg => Assert.IsType<_TestAssemblyFinished>(msg)

@@ -112,6 +112,29 @@ public class Xunit2MessageAdapterTests
 		}
 
 		[Fact]
+		public void TestClassFinished()
+		{
+			var v2Message = v2Mocks.TestClassFinished(
+				TestClass,
+				testsRun: 2112,
+				testsFailed: 42,
+				testsSkipped: 404,
+				executionTime: 123.4567m
+			);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestClassFinished>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(123.4567m, v3Message.ExecutionTime);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(42, v3Message.TestsFailed);
+			Assert.Equal(2112, v3Message.TestsRun);
+			Assert.Equal(404, v3Message.TestsSkipped);
+		}
+
+		[Fact]
 		public void TestClassStarting()
 		{
 			var v2Message = v2Mocks.TestClassStarting(TestClass);
