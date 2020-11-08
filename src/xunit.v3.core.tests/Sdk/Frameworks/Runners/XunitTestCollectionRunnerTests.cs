@@ -281,7 +281,7 @@ public class XunitTestCollectionRunnerTests
 
 		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
 			new TestableXunitTestCollectionRunner(
-				"test-assembly-id",
+				"assembly-id",
 				testCase.TestMethod.TestClass.TestCollection,
 				new[] { testCase },
 				new List<IMessageSinkMessage>(),

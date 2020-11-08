@@ -412,7 +412,7 @@ public static class Mocks
 		if (assembly == null)
 			assembly = typeof(Mocks).Assembly;
 		if (displayName == null)
-			displayName = "Mock test collection for " + assembly.CodeBase;
+			displayName = "Mock test collection";
 
 		return new TestCollection(TestAssembly(assembly), definition, displayName);
 	}

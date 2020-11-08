@@ -146,6 +146,7 @@ namespace Xunit.Sdk
 			var collectionSummary = new RunSummary();
 			var collectionStarting = new _TestCollectionStarting
 			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
 				TestCollectionClass = TestCollection.CollectionDefinition?.Name,
 				TestCollectionDisplayName = TestCollection.DisplayName,
 				TestCollectionUniqueID = TestCollectionUniqueID
@@ -171,6 +172,7 @@ namespace Xunit.Sdk
 				{
 					var collectionFinished = new _TestCollectionFinished
 					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
 						ExecutionTime = collectionSummary.Time,
 						TestCollectionUniqueID = TestCollectionUniqueID,
 						TestsFailed = collectionSummary.Failed,
