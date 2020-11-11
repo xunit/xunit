@@ -95,14 +95,17 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCollectionCleanupFailure" />.
+		/// Handles instances of <see cref="_TestCollectionCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
+		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
+			if (testCollectionMetadataByID.TryRemove(cleanupFailure.TestCollectionUniqueID, out var metadata))
+				LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", cleanupFailure);
+			else
+				LogError($"Test Collection Cleanup Failure (<unknown test collection>)", cleanupFailure);
 		}
 
 		/// <summary>

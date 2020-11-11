@@ -21,6 +21,7 @@ namespace Xunit.Runner.Common
 		bool disposed;
 		readonly XElement errorsElement;
 		readonly IExecutionSink innerSink;
+		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
 		readonly Dictionary<string, XElement> testCollectionElements = new Dictionary<string, XElement>();
 
 		/// <summary>
@@ -65,7 +66,7 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
 				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
-				&& message.Dispatch<ITestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
+				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
 				&& message.Dispatch<_TestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
 				&& message.Dispatch<_TestCollectionStarting>(messageTypes, HandleTestCollectionStarting)
 				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
@@ -216,8 +217,14 @@ namespace Xunit.Runner.Common
 		void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
 			=> AddError("test-cleanup", args.Message.Test.DisplayName, args.Message);
 
-		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
-			=> AddError("test-collection-cleanup", args.Message.TestCollection.DisplayName, args.Message);
+		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-collection-cleanup", metadata.TestCollectionDisplayName, args.Message);
+			else
+				AddError("test-collection-cleanup", "<unknown test collection>", args.Message);
+		}
 
 		void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
@@ -230,6 +237,8 @@ namespace Xunit.Runner.Common
 				new XAttribute("skipped", testCollectionFinished.TestsSkipped),
 				new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
 			);
+
+			metadataCache.TryRemove(testCollectionFinished);
 		}
 
 		void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
@@ -238,6 +247,8 @@ namespace Xunit.Runner.Common
 			var collectionElement = GetTestCollectionElement(testCollectionStarting.TestCollectionUniqueID);
 
 			collectionElement.Add(new XAttribute("name", XmlEscape(testCollectionStarting.TestCollectionDisplayName)));
+
+			metadataCache.Set(testCollectionStarting);
 		}
 
 		void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)

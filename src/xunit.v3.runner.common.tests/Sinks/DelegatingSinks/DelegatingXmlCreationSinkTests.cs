@@ -375,10 +375,21 @@ public class DelegatingXmlCreationSinkTests
 		public void TestMethod() { }
 	}
 
+	readonly string assemblyID = "assembly-id";
+	//readonly string classID = "test-class-id";
+	readonly string collectionID = "test-collection-id";
+	readonly int[] exceptionParentIndices = new[] { -1 };
+	readonly string[] exceptionTypes = new[] { "ExceptionType" };
+	readonly string[] messages = new[] { "This is my message \t\r\n" };
+	//readonly string methodID = "test-method-id";
+	readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
+	//readonly string testCaseID = "test-case-id";
+	//readonly string testID = "test-id";
+
 	static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 		where TMessageType : class, IFailureInformation
 	{
-		var result = Substitute.For<TMessageType>();
+		var result = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
 		result.ExceptionTypes.Returns(new[] { "ExceptionType" });
 		result.Messages.Returns(new[] { "This is my message \t\r\n" });
 		result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
@@ -395,11 +406,6 @@ public class DelegatingXmlCreationSinkTests
 			var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
 			assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
 			yield return new object?[] { assemblyCleanupFailure, @"assembly-cleanup", @"C:\Foo\bar.dll" };
-
-			var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-			var testCollection = Mocks.TestCollection(displayName: "FooBar");
-			collectionCleanupFailure.TestCollection.Returns(testCollection);
-			yield return new object?[] { collectionCleanupFailure, "test-collection-cleanup", "FooBar" };
 
 			var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
 			var testClass = Mocks.TestClass("MyType");
@@ -423,6 +429,34 @@ public class DelegatingXmlCreationSinkTests
 		}
 	}
 
+	[Fact]
+	public void TestCollectionCleanupFailure()
+	{
+		var collectionStarting = new _TestCollectionStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestCollectionDisplayName = "FooBar",
+			TestCollectionUniqueID = collectionID
+		};
+		var collectionCleanupFailure = new _TestCollectionCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = collectionID
+		};
+		var assemblyFinished = new _TestAssemblyFinished();
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(collectionCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-collection-cleanup", "FooBar");
+	}
+
 	[Theory]
 	[MemberData("Messages", DisableDiscoveryEnumeration = true)]
 	public void AddsErrorMessagesToXml(
@@ -437,6 +471,11 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(errorMessage);
 		sink.OnMessage(assemblyFinished);
 
+		AssertFailureElement(assemblyElement, messageType, name);
+	}
+
+	static void AssertFailureElement(XElement assemblyElement, string messageType, string name)
+	{
 		var errorElement = Assert.Single(assemblyElement.Element("errors").Elements());
 		Assert.Equal(messageType, errorElement.Attribute("type").Value);
 

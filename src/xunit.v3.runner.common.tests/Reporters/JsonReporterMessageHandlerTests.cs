@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if false
+
+using System.Collections.Generic;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -137,3 +139,5 @@ public class JsonReporterMessageHandlerTests
 		Assert.Equal(expectedJson, output);
 	}
 }
+
+#endif

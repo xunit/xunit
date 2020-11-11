@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 namespace Xunit.Runner.TdNet
 {
 	public class ResultSink : TestMessageSink
 	{
+		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
 		readonly int totalTests;
 
 		public ResultSink(ITestListener listener, int totalTests)
@@ -21,13 +23,30 @@ namespace Xunit.Runner.TdNet
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
 
-			Diagnostics.ErrorMessageEvent += args => ReportError("Fatal Error", args.Message);
-			Execution.TestAssemblyCleanupFailureEvent += args => ReportError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
-			Execution.TestCaseCleanupFailureEvent += args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
-			Execution.TestClassCleanupFailureEvent += args => ReportError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
-			Execution.TestCollectionCleanupFailureEvent += args => ReportError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
-			Execution.TestMethodCleanupFailureEvent += args => ReportError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
-			Execution.TestCleanupFailureEvent += args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
+			Diagnostics.ErrorMessageEvent +=
+				args => ReportError("Fatal Error", args.Message);
+
+			Execution.TestAssemblyCleanupFailureEvent +=
+				args => ReportError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
+
+			Execution.TestCaseCleanupFailureEvent +=
+				args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
+
+			Execution.TestClassCleanupFailureEvent +=
+				args => ReportError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
+
+			Execution.TestCollectionCleanupFailureEvent +=
+				args => ReportError($"Test Collection Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestCollectionDisplayName ?? "<unknown test collection>"})", args.Message);
+			Execution.TestCollectionFinishedEvent +=
+				args => metadataCache.TryRemove(args.Message);
+			Execution.TestCollectionStartingEvent +=
+				args => metadataCache.Set(args.Message);
+
+			Execution.TestMethodCleanupFailureEvent +=
+				args => ReportError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
+
+			Execution.TestCleanupFailureEvent +=
+				args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
 
 			Execution.TestAssemblyFinishedEvent += args => Finished.Set();
 		}

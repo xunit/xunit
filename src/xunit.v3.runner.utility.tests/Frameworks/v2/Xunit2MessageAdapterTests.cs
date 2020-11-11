@@ -9,31 +9,67 @@ using v2Mocks = Xunit.Runner.v2.Mocks;
 
 public class Xunit2MessageAdapterTests
 {
-	static readonly string osSpecificAssemblyPath;
+	static readonly string OsSpecificAssemblyPath;
+	static readonly ITestAssembly TestAssembly;
+	static readonly string TestAssemblyUniqueID;
+	static readonly ITestCollection TestCollection;
+	static readonly ITypeInfo TestCollectionDefinition;
+	static readonly string TestCollectionUniqueID;
+	static readonly ITestClass TestClass;
+	static readonly string TestClassUniqueID;
+	static readonly Exception ThrownException;
 
 	static Xunit2MessageAdapterTests()
 	{
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			osSpecificAssemblyPath = @"C:\Users\bradwilson\assembly.dll";
+			OsSpecificAssemblyPath = @"C:\Users\bradwilson\assembly.dll";
 		else
-			osSpecificAssemblyPath = "/home/bradwilson/assembly.dll";
+			OsSpecificAssemblyPath = "/home/bradwilson/assembly.dll";
+
+		try
+		{
+			throw new DivideByZeroException();
+		}
+		catch (Exception ex)
+		{
+			ThrownException = ex;
+		}
+
+		TestAssembly = v2Mocks.TestAssembly("testAssembly.dll", "xunit.runner.json");
+		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(
+			TestAssembly.Assembly.Name,
+			TestAssembly.Assembly.AssemblyPath,
+			TestAssembly.ConfigFileName
+		);
+
+		TestCollectionDefinition = v2Mocks.TypeInfo();
+		TestCollection = v2Mocks.TestCollection(TestAssembly, TestCollectionDefinition, "test-collection-display-name");
+		TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+			TestAssemblyUniqueID,
+			TestCollection.DisplayName,
+			TestCollectionDefinition.Name
+		);
+
+		TestClass = v2Mocks.TestClass(TestCollection);
+		TestClassUniqueID = UniqueIDGenerator.ForTestClass(
+			TestCollectionUniqueID,
+			TestClass.Class.Name
+		);
+	}
+
+	static void AssertErrorMetadata(
+		_IErrorMetadata metadata,
+		Exception ex)
+	{
+		var convertedMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+		Assert.Equal(convertedMetadata.ExceptionParentIndices, metadata.ExceptionParentIndices);
+		Assert.Equal(convertedMetadata.ExceptionTypes, metadata.ExceptionTypes);
+		Assert.Equal(convertedMetadata.Messages, metadata.Messages);
+		Assert.Equal(convertedMetadata.StackTraces, metadata.StackTraces);
 	}
 
 	public class TestAssemblyTests
 	{
-		protected ITestAssembly TestAssembly;
-		protected string TestAssemblyUniqueID;
-
-		public TestAssemblyTests()
-		{
-			TestAssembly = v2Mocks.TestAssembly("testAssembly.dll", "xunit.runner.json");
-			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				TestAssembly.Assembly.Name,
-				TestAssembly.Assembly.AssemblyPath,
-				TestAssembly.ConfigFileName
-			);
-		}
-
 		[Fact]
 		public void TestAssemblyFinished()
 		{
@@ -57,14 +93,14 @@ public class Xunit2MessageAdapterTests
 
 		public static TheoryData<string, string?, string> TestAssemblyStartingData()
 		{
-			var osSpecificConfigPath = osSpecificAssemblyPath + ".json";
-			var osSpecificUniqueID = UniqueIDGenerator.ForAssembly("assembly", osSpecificAssemblyPath, osSpecificConfigPath);
+			var osSpecificConfigPath = OsSpecificAssemblyPath + ".json";
+			var osSpecificUniqueID = UniqueIDGenerator.ForAssembly("assembly", OsSpecificAssemblyPath, osSpecificConfigPath);
 
 			return new TheoryData<string, string?, string>
 			{
 				{ "asm-path", null, "dded4d854ffcc191c6cd019b8c26cd68190c43122fef8a8d812e9e46ab6d640d" },
 				{ "asm-path", "config-path", "7c90ea022d32916680dfa4fb9546e2690a9716c6e8a8b867d62b3c4da5833a91" },
-				{ osSpecificAssemblyPath, osSpecificConfigPath, osSpecificUniqueID }
+				{ OsSpecificAssemblyPath, osSpecificConfigPath, osSpecificUniqueID }
 			};
 		}
 
@@ -97,20 +133,8 @@ public class Xunit2MessageAdapterTests
 		}
 	}
 
-	public class TestClassTests : TestCollectionTests
+	public class TestClassTests
 	{
-		protected ITestClass TestClass;
-		protected string TestClassUniqueID;
-
-		public TestClassTests()
-		{
-			TestClass = v2Mocks.TestClass(TestCollection);
-			TestClassUniqueID = UniqueIDGenerator.ForTestClass(
-				TestCollectionUniqueID,
-				TestClass.Class.Name
-			);
-		}
-
 		[Fact]
 		public void TestClassFinished()
 		{
@@ -149,21 +173,19 @@ public class Xunit2MessageAdapterTests
 		}
 	}
 
-	public class TestCollectionTests : TestAssemblyTests
+	public class TestCollectionTests
 	{
-		protected ITestCollection TestCollection;
-		protected ITypeInfo TestCollectionDefinition;
-		protected string TestCollectionUniqueID;
-
-		public TestCollectionTests()
+		[Fact]
+		public void TestCollectionCleanupFailure()
 		{
-			TestCollectionDefinition = v2Mocks.TypeInfo();
-			TestCollection = v2Mocks.TestCollection(TestAssembly, TestCollectionDefinition, "test-collection-display-name");
-			TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				TestAssemblyUniqueID,
-				TestCollection.DisplayName,
-				TestCollectionDefinition.Name
-			);
+			var v2Message = v2Mocks.TestCollectionCleanupFailure(TestCollection, ThrownException);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestCollectionCleanupFailure>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			AssertErrorMetadata(v3Message, ThrownException);
 		}
 
 		[Fact]

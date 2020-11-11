@@ -433,7 +433,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -590,7 +590,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
 		{
-			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -622,7 +622,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest_Disposable()
 		{
-			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose_Disposable));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose_Disposable));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NSubstitute;
 using TestDriven.Framework;
 using Xunit;
@@ -99,6 +100,17 @@ public class ResultSinkTests
 
 	public class FailureInformation
 	{
+		readonly string assemblyID = "assembly-id";
+		//readonly string classID = "test-class-id";
+		readonly string collectionID = "test-collection-id";
+		readonly int[] exceptionParentIndices = new[] { -1 };
+		readonly string[] exceptionTypes = new[] { "ExceptionType" };
+		readonly string[] messages = new[] { "This is my message \t\r\n" };
+		//readonly string methodID = "test-method-id";
+		readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
+		//readonly string testCaseID = "test-case-id";
+		//readonly string testID = "test-id";
+
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
 		{
@@ -119,11 +131,6 @@ public class ResultSinkTests
 				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
 				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
 				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
-				var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-				var testCollection = Mocks.TestCollection(displayName: "FooBar");
-				collectionCleanupFailure.TestCollection.Returns(testCollection);
-				yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar)" };
 
 				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
 				var testClass = Mocks.TestClass("MyType");
@@ -147,6 +154,33 @@ public class ResultSinkTests
 			}
 		}
 
+		[Fact]
+		public async ValueTask TestCollectionCleanupFailure()
+		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCollectionDisplayName = "FooBar",
+				TestCollectionUniqueID = collectionID
+			};
+			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(collectionStarting);
+			sink.OnMessage(collectionCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Collection Cleanup Failure (FooBar)");
+		}
+
 		[Theory]
 		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 		public static async void LogsTestFailure(IMessageSinkMessage message, string messageType)
@@ -156,7 +190,12 @@ public class ResultSinkTests
 
 			sink.OnMessage(message);
 
-			Assert.Equal(TestRunState.Failure, sink.TestRunState);
+			AssertFailureInformation(listener, sink.TestRunState, messageType);
+		}
+
+		static void AssertFailureInformation(ITestListener listener, TestRunState testRunState, string messageType)
+		{
+			Assert.Equal(TestRunState.Failure, testRunState);
 			var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
 			Assert.Equal($"*** {messageType} ***", testResult.Name);
 			Assert.Equal(TestState.Failed, testResult.State);

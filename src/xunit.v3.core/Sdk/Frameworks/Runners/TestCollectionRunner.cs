@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -165,8 +164,21 @@ namespace Xunit.Sdk
 					await BeforeTestCollectionFinishedAsync();
 
 					if (Aggregator.HasExceptions)
-						if (!MessageBus.QueueMessage(new TestCollectionCleanupFailure(TestCases.Cast<ITestCase>(), TestCollection, Aggregator.ToException()!)))
+					{
+						var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(Aggregator.ToException()!);
+						var collectionCleanupFailure = new _TestCollectionCleanupFailure
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							ExceptionParentIndices = metadata.ExceptionParentIndices,
+							ExceptionTypes = metadata.ExceptionTypes,
+							Messages = metadata.Messages,
+							StackTraces = metadata.StackTraces,
+							TestCollectionUniqueID = TestCollectionUniqueID
+						};
+
+						if (!MessageBus.QueueMessage(collectionCleanupFailure))
 							CancellationTokenSource.Cancel();
+					}
 				}
 				finally
 				{

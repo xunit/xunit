@@ -20,6 +20,17 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class FailureMessages
 	{
+		readonly string assemblyID = "assembly-id";
+		//readonly string classID = "test-class-id";
+		readonly string collectionID = "test-collection-id";
+		readonly int[] exceptionParentIndices = new[] { -1 };
+		readonly string[] exceptionTypes = new[] { "ExceptionType" };
+		readonly string[] messages = new[] { $"This is my message \t{Environment.NewLine}Message Line 2" };
+		//readonly string methodID = "test-method-id";
+		readonly string[] stackTraces = new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" };
+		//readonly string testCaseID = "test-case-id";
+		//readonly string testID = "test-id";
+
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
 		{
@@ -40,12 +51,6 @@ public class DefaultRunnerReporterMessageHandlerTests
 				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
 				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
 				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
-				// ITestCollectionCleanupFailure
-				var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-				var testCollection = Mocks.TestCollection(displayName: "FooBar");
-				collectionCleanupFailure.TestCollection.Returns(testCollection);
-				yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar)" };
 
 				// ITestClassCleanupFailure
 				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
@@ -73,6 +78,32 @@ public class DefaultRunnerReporterMessageHandlerTests
 			}
 		}
 
+		[Fact]
+		public void TestCollectionCleanupFailure()
+		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCollectionDisplayName = "FooBar",
+				TestCollectionUniqueID = collectionID
+			};
+			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID
+			};
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(collectionStarting);
+			handler.OnMessage(collectionCleanupFailure);
+
+			AssertFailureMessages(handler.Messages, "Test Collection Cleanup Failure (FooBar)");
+		}
+
 		[Theory]
 		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 		public void LogsMessage(
@@ -83,8 +114,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			handler.OnMessage(message);
 
+			AssertFailureMessages(handler.Messages, messageType);
+		}
+
+		static void AssertFailureMessages(IEnumerable<string> messages, string messageType)
+		{
 			Assert.Collection(
-				handler.Messages,
+				messages,
 				msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     [" + messageType + "] ExceptionType", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       ExceptionType : This is my message \t", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       Message Line 2", msg),

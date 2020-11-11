@@ -85,7 +85,7 @@ public class TestCollectionRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestClassAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestCollectionCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestCollectionCleanupFailure>());
 	}
 
 	[Fact]
@@ -99,7 +99,7 @@ public class TestCollectionRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestClassAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestCollectionCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestCollectionCleanupFailure>());
 	}
 
 	[Fact]
@@ -115,9 +115,7 @@ public class TestCollectionRunnerTests
 
 		await runner.RunAsync();
 
-		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestCollectionCleanupFailure>());
-		Assert.Same(testCases[0].TestMethod.TestClass.TestCollection, cleanupFailure.TestCollection);
-		Assert.Equal(testCases, cleanupFailure.TestCases);
+		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<_TestCollectionCleanupFailure>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 	}
 
@@ -150,7 +148,7 @@ public class TestCollectionRunnerTests
 	[Fact]
 	public static async void Cancellation_TestCollectionCleanupFailure_SetsCancellationToken()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCollectionCleanupFailure));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCollectionCleanupFailure));
 		var runner = TestableTestCollectionRunner.Create(messageBus);
 		runner.BeforeTestCollectionFinished_Callback = aggregator => aggregator.Add(new Exception());
 

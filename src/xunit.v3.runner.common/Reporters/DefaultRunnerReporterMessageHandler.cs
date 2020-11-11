@@ -18,6 +18,7 @@ namespace Xunit.Runner.Common
 		readonly string? defaultDirectory = null;
 		readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
 		readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, _ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
+		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
@@ -39,6 +40,8 @@ namespace Xunit.Runner.Common
 			Execution.TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
 			Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
 			Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+			Execution.TestCollectionFinishedEvent += HandleTestCollectionFinished;
+			Execution.TestCollectionStartingEvent += HandleTestCollectionStarting;
 			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
 			Execution.TestFailedEvent += HandleTestFailed;
 			Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
@@ -336,14 +339,40 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestCollectionCleanupFailure"/> is raised.
+		/// Called when <see cref="_TestCollectionCleanupFailure"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
+		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			LogError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", args.Message);
+			else
+				LogError($"Test Collection Cleanup Failure (<unknown test collection>)", args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestCollectionFinished"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestCollectionStarting"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>

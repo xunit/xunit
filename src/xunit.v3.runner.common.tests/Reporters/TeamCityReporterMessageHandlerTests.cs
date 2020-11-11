@@ -9,6 +9,17 @@ public class TeamCityReporterMessageHandlerTests
 {
 	public class FailureMessages
 	{
+		readonly string assemblyID = "assembly-id";
+		//readonly string classID = "test-class-id";
+		readonly string collectionID = "test-collection-id";
+		readonly int[] exceptionParentIndices = new[] { -1 };
+		readonly string[] exceptionTypes = new[] { "\x2018ExceptionType\x2019" };
+		readonly string[] messages = new[] { "This is my message \x2020\t\r\n" };
+		//readonly string methodID = "test-method-id";
+		readonly string[] stackTraces = new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" };
+		//readonly string testCaseID = "test-case-id";
+		//readonly string testID = "test-id";
+
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
 		{
@@ -31,12 +42,6 @@ public class TeamCityReporterMessageHandlerTests
 				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
 				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
 				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
-				// ITestCollectionCleanupFailure
-				var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-				var testCollection = Mocks.TestCollection(displayName: "FooBar");
-				collectionCleanupFailure.TestCollection.Returns(testCollection);
-				yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar)" };
 
 				// ITestClassCleanupFailure
 				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
@@ -64,6 +69,32 @@ public class TeamCityReporterMessageHandlerTests
 			}
 		}
 
+		[Fact]
+		public void TestCollectionCleanupFailure()
+		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCollectionDisplayName = "FooBar",
+				TestCollectionUniqueID = collectionID
+			};
+			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(collectionStarting);
+			handler.OnMessage(collectionCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Collection Cleanup Failure (FooBar)");
+		}
+
 		[Theory]
 		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 		public static void LogsMessage(
@@ -74,8 +105,15 @@ public class TeamCityReporterMessageHandlerTests
 
 			handler.OnMessage(message);
 
-			var msg = Assert.Single(handler.Messages);
-			Assert.Equal($"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']", msg);
+			AssertFailureMessage(handler.Messages, messageType);
+		}
+
+		static void AssertFailureMessage(IEnumerable<string> messages, string messageType)
+		{
+			Assert.Contains(
+				$"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']",
+				messages
+			);
 		}
 	}
 

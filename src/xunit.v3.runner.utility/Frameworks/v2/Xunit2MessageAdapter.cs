@@ -27,152 +27,136 @@ namespace Xunit.Runner.v2
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
 				Convert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
 				Convert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
+				Convert<ITestCollectionCleanupFailure>(message, messageTypes, AdaptTestCollectionCleanupFailure) ??
 				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
 				message;
 		}
 
-		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished testAssemblyFinished)
+		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished message)
 		{
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testAssemblyFinished.TestAssembly.Assembly.Name,
-				testAssemblyFinished.TestAssembly.Assembly.AssemblyPath,
-				testAssemblyFinished.TestAssembly.ConfigFileName
-			);
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
 
 			return new _TestAssemblyFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = testAssemblyFinished.ExecutionTime,
-				TestsFailed = testAssemblyFinished.TestsFailed,
-				TestsRun = testAssemblyFinished.TestsRun,
-				TestsSkipped = testAssemblyFinished.TestsSkipped
+				ExecutionTime = message.ExecutionTime,
+				TestsFailed = message.TestsFailed,
+				TestsRun = message.TestsRun,
+				TestsSkipped = message.TestsSkipped
 			};
 		}
 
-		static _MessageSinkMessage AdaptTestAssemblyStarting(ITestAssemblyStarting testAssemblyStarting)
+		static _MessageSinkMessage AdaptTestAssemblyStarting(ITestAssemblyStarting message)
 		{
-			var targetFrameworkAttribute = testAssemblyStarting.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
+			var targetFrameworkAttribute = message.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
 			var targetFramework = targetFrameworkAttribute?.GetConstructorArguments().Cast<string>().Single();
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
 
-			var result = new _TestAssemblyStarting
+			return new _TestAssemblyStarting
 			{
-				AssemblyName = testAssemblyStarting.TestAssembly.Assembly.Name,
-				AssemblyPath = testAssemblyStarting.TestAssembly.Assembly.AssemblyPath,
-				ConfigFilePath = testAssemblyStarting.TestAssembly.ConfigFileName,
-				StartTime = testAssemblyStarting.StartTime,
+				AssemblyName = message.TestAssembly.Assembly.Name,
+				AssemblyPath = message.TestAssembly.Assembly.AssemblyPath,
+				AssemblyUniqueID = assemblyUniqueID,
+				ConfigFilePath = message.TestAssembly.ConfigFileName,
+				StartTime = message.StartTime,
 				TargetFramework = targetFramework,
-				TestEnvironment = testAssemblyStarting.TestEnvironment,
-				TestFrameworkDisplayName = testAssemblyStarting.TestFrameworkDisplayName
+				TestEnvironment = message.TestEnvironment,
+				TestFrameworkDisplayName = message.TestFrameworkDisplayName
 			};
-
-			result.AssemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				result.AssemblyName,
-				result.AssemblyPath,
-				result.ConfigFilePath
-			);
-
-			return result;
 		}
 
-		static _MessageSinkMessage AdaptTestClassFinished(ITestClassFinished testClassFinished)
+		static _MessageSinkMessage AdaptTestClassFinished(ITestClassFinished message)
 		{
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testClassFinished.TestAssembly.Assembly.Name,
-				testClassFinished.TestAssembly.Assembly.AssemblyPath,
-				testClassFinished.TestAssembly.ConfigFileName
-			);
-			var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				assemblyUniqueID,
-				testClassFinished.TestCollection.DisplayName,
-				testClassFinished.TestCollection.CollectionDefinition?.Name
-			);
-			var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClassFinished.TestClass.Class.Name);
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
 
 			return new _TestClassFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = testClassFinished.ExecutionTime,
+				ExecutionTime = message.ExecutionTime,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
-				TestsFailed = testClassFinished.TestsFailed,
-				TestsRun = testClassFinished.TestsRun,
-				TestsSkipped = testClassFinished.TestsSkipped
+				TestsFailed = message.TestsFailed,
+				TestsRun = message.TestsRun,
+				TestsSkipped = message.TestsSkipped
 			};
 		}
 
-		static _MessageSinkMessage AdaptTestClassStarting(ITestClassStarting testClassStarting)
+		static _MessageSinkMessage AdaptTestClassStarting(ITestClassStarting message)
 		{
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testClassStarting.TestAssembly.Assembly.Name,
-				testClassStarting.TestAssembly.Assembly.AssemblyPath,
-				testClassStarting.TestAssembly.ConfigFileName
-			);
-			var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				assemblyUniqueID,
-				testClassStarting.TestCollection.DisplayName,
-				testClassStarting.TestCollection.CollectionDefinition?.Name
-			);
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
 
-			var result = new _TestClassStarting
+			return new _TestClassStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				TestClass = testClassStarting.TestClass.Class.Name,
+				TestClass = message.TestClass.Class.Name,
+				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID
 			};
-
-			result.TestClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, result.TestClass);
-
-			return result;
 		}
 
-		static _MessageSinkMessage AdaptTestCollectionFinished(ITestCollectionFinished testCollectionFinished)
+		static _MessageSinkMessage AdaptTestCollectionCleanupFailure(ITestCollectionCleanupFailure message)
 		{
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testCollectionFinished.TestAssembly.Assembly.Name,
-				testCollectionFinished.TestAssembly.Assembly.AssemblyPath,
-				testCollectionFinished.TestAssembly.ConfigFileName
-			);
-			var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				assemblyUniqueID,
-				testCollectionFinished.TestCollection.DisplayName,
-				testCollectionFinished.TestCollection.CollectionDefinition?.Name
-			);
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+
+			return new _TestCollectionCleanupFailure
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = message.ExceptionParentIndices,
+				ExceptionTypes = message.ExceptionTypes,
+				Messages = message.Messages,
+				StackTraces = message.StackTraces,
+				TestCollectionUniqueID = testCollectionUniqueID
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestCollectionFinished(ITestCollectionFinished message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = testCollectionFinished.ExecutionTime,
+				ExecutionTime = message.ExecutionTime,
 				TestCollectionUniqueID = testCollectionUniqueID,
-				TestsFailed = testCollectionFinished.TestsFailed,
-				TestsRun = testCollectionFinished.TestsRun,
-				TestsSkipped = testCollectionFinished.TestsSkipped
+				TestsFailed = message.TestsFailed,
+				TestsRun = message.TestsRun,
+				TestsSkipped = message.TestsSkipped
 			};
 		}
 
-		static _MessageSinkMessage AdaptTestCollectionStarting(ITestCollectionStarting testCollectionStarting)
+		static _MessageSinkMessage AdaptTestCollectionStarting(ITestCollectionStarting message)
 		{
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testCollectionStarting.TestAssembly.Assembly.Name,
-				testCollectionStarting.TestAssembly.Assembly.AssemblyPath,
-				testCollectionStarting.TestAssembly.ConfigFileName
-			);
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
 
-			var result = new _TestCollectionStarting
+			return new _TestCollectionStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				TestCollectionClass = testCollectionStarting.TestCollection.CollectionDefinition?.Name,
-				TestCollectionDisplayName = testCollectionStarting.TestCollection.DisplayName
+				TestCollectionClass = message.TestCollection.CollectionDefinition?.Name,
+				TestCollectionDisplayName = message.TestCollection.DisplayName,
+				TestCollectionUniqueID = testCollectionUniqueID
 			};
-
-			result.TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				assemblyUniqueID,
-				result.TestCollectionDisplayName,
-				result.TestCollectionClass
-			);
-
-			return result;
 		}
+
+		static string ComputeUniqueID(ITestAssembly testAssembly) =>
+			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
+
+		static string ComputeUniqueID(
+			string testCollectionUniqueID,
+			ITestClass testClass) =>
+				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass.Class.Name);
+
+		static string ComputeUniqueID(
+			string assemblyUniqueID,
+			ITestCollection testCollection) =>
+				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
 
 		static _MessageSinkMessage? Convert<TMessage>(
 			IMessageSinkMessage message,

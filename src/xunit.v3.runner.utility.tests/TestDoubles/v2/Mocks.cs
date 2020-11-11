@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.Versioning;
 using NSubstitute;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Xunit.Runner.v2
 {
@@ -500,8 +499,23 @@ namespace Xunit.Runner.v2
 			result.DisplayName.Returns(displayName);
 			result.TestAssembly.Returns(assembly);
 			result.UniqueID.Returns(OneGuid);
+			return result;
+		}
 
-			return new TestCollection(assembly, definition, displayName);
+		public static ITestCollectionCleanupFailure TestCollectionCleanupFailure(
+			ITestCollection collection,
+			Exception ex)
+		{
+			var testAssembly = collection.TestAssembly;
+			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var result = Substitute.For<ITestCollectionCleanupFailure, InterfaceProxy<ITestCollectionCleanupFailure>>();
+			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
+			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
+			result.Messages.Returns(metadata.Messages);
+			result.StackTraces.Returns(metadata.StackTraces);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestCollection.Returns(collection);
+			return result;
 		}
 
 		public static ITestCollectionFinished TestCollectionFinished(
@@ -511,9 +525,10 @@ namespace Xunit.Runner.v2
 			int testsSkipped = 0,
 			decimal executionTime = 0m)
 		{
+			var testAssembly = testCollection.TestAssembly;
 			var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
 			result.ExecutionTime.Returns(executionTime);
-			result.TestAssembly.Returns(testCollection.TestAssembly);
+			result.TestAssembly.Returns(testAssembly);
 			result.TestCollection.Returns(testCollection);
 			result.TestsRun.Returns(testsRun);
 			result.TestsFailed.Returns(testsFailed);
@@ -523,8 +538,9 @@ namespace Xunit.Runner.v2
 
 		public static ITestCollectionStarting TestCollectionStarting(ITestCollection testCollection)
 		{
+			var testAssembly = testCollection.TestAssembly;
 			var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
-			result.TestAssembly.Returns(testCollection.TestAssembly);
+			result.TestAssembly.Returns(testAssembly);
 			result.TestCollection.Returns(testCollection);
 			return result;
 		}

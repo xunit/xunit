@@ -90,7 +90,7 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestCollectionCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestMethodCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& result
 				&& !cancelThunk();
