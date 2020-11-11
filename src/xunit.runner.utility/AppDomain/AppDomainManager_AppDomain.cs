@@ -36,6 +36,8 @@ namespace Xunit
 
         public bool HasAppDomain => true;
 
+        private bool SkipAppDomainUnload => string.Equals(Environment.GetEnvironmentVariable("XUNIT_SKIP_APPDOMAIN_UNLOAD"), "true", StringComparison.OrdinalIgnoreCase);
+
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy, string shadowCopyFolder)
         {
             var setup = new AppDomainSetup();
@@ -88,7 +90,7 @@ namespace Xunit
 
         public virtual void Dispose()
         {
-            if (AppDomain != null)
+            if (AppDomain != null && !SkipAppDomainUnload)
             {
                 string cachePath = AppDomain.SetupInformation.CachePath;
 
