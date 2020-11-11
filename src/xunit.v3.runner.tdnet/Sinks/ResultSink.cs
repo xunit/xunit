@@ -27,7 +27,11 @@ namespace Xunit.Runner.TdNet
 				args => ReportError("Fatal Error", args.Message);
 
 			Execution.TestAssemblyCleanupFailureEvent +=
-				args => ReportError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
+				args => ReportError($"Test Assembly Cleanup Failure ({metadataCache.TryGet(args.Message)?.AssemblyPath ?? "<unknown test assembly>"})", args.Message);
+			Execution.TestAssemblyFinishedEvent +=
+				args => metadataCache.TryRemove(args.Message);
+			Execution.TestAssemblyStartingEvent +=
+				args => metadataCache.Set(args.Message);
 
 			Execution.TestCaseCleanupFailureEvent +=
 				args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);

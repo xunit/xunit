@@ -60,7 +60,7 @@ namespace Xunit.Runner.Common
 			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
-				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
+				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
@@ -173,8 +173,15 @@ namespace Xunit.Runner.Common
 		void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
 			=> AddError("fatal", null, args.Message);
 
-		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
-			=> AddError("assembly-cleanup", args.Message.TestAssembly.Assembly.AssemblyPath, args.Message);
+		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+
+			if (metadata != null)
+				AddError("assembly-cleanup", metadata.AssemblyPath, args.Message);
+			else
+				AddError("assembly-cleanup", "<unknown test assembly>", args.Message);
+		}
 
 		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
@@ -189,6 +196,8 @@ namespace Xunit.Runner.Common
 
 			foreach (var element in testCollectionElements.Values)
 				assemblyElement.Add(element);
+
+			metadataCache.TryRemove(args.Message);
 		}
 
 		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
@@ -206,6 +215,8 @@ namespace Xunit.Runner.Common
 				assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
 			if (assemblyStarting.TargetFramework != null)
 				assemblyElement.Add(new XAttribute("target-framework", assemblyStarting.TargetFramework));
+
+			metadataCache.Set(assemblyStarting);
 		}
 
 		void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)

@@ -37,6 +37,8 @@ namespace Xunit.Runner.Common
 			Diagnostics.ErrorMessageEvent += HandleErrorMessage;
 
 			Execution.TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
+			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
 			Execution.TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
 			Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
 			Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
@@ -295,14 +297,40 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestAssemblyCleanupFailure"/> is raised.
+		/// Called when <see cref="_TestAssemblyCleanupFailure"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
+		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			LogError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", args.Message);
+			else
+				LogError($"Test Assembly Cleanup Failure (<unknown test assembly>)", args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestAssemblyFinished"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestAssemblyStarting"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>

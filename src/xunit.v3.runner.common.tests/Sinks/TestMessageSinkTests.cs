@@ -23,7 +23,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(IAfterTestStarting))]
 	[InlineData(typeof(IBeforeTestFinished))]
 	[InlineData(typeof(IBeforeTestStarting))]
-	[InlineData(typeof(ITestAssemblyCleanupFailure))]
+	[InlineData(typeof(_TestAssemblyCleanupFailure))]
 	[InlineData(typeof(_TestAssemblyFinished))]
 	[InlineData(typeof(_TestAssemblyStarting))]
 	[InlineData(typeof(ITestCaseCleanupFailure))]

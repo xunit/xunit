@@ -270,7 +270,19 @@ namespace Xunit.Sdk
 						await BeforeTestAssemblyFinishedAsync();
 
 						if (Aggregator.HasExceptions)
-							messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()!));
+						{
+							var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(Aggregator.ToException()!);
+							var cleanupFailure = new _TestAssemblyCleanupFailure
+							{
+								AssemblyUniqueID = TestAssemblyUniqueID,
+								ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+								ExceptionTypes = errorMetadata.ExceptionTypes,
+								Messages = errorMetadata.Messages,
+								StackTraces = errorMetadata.StackTraces
+							};
+
+							messageBus.QueueMessage(cleanupFailure);
+						}
 					}
 					finally
 					{

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -14,7 +13,7 @@ namespace Xunit.Runner.Common
 	{
 		readonly TeamCityDisplayNameFormatter displayNameFormatter;
 		readonly IRunnerLogger logger;
-		ConcurrentDictionary<string, _ITestCollectionMetadata> testCollectionMetadataByID = new ConcurrentDictionary<string, _ITestCollectionMetadata>();
+		MessageMetadataCache metadataCache = new MessageMetadataCache();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TeamCityReporterMessageHandler" /> class.
@@ -37,6 +36,8 @@ namespace Xunit.Runner.Common
 			Diagnostics.ErrorMessageEvent += HandleErrorMessage;
 
 			Execution.TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
+			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
 			Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
 			Execution.TestClassCleanupFailureEvent += HandleTestCaseCleanupFailure;
 			Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
@@ -62,14 +63,38 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestAssemblyCleanupFailure" />.
+		/// Handles instances of <see cref="_TestAssemblyCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
+		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
+			var metadata = metadataCache.TryGet(cleanupFailure);
+			if (metadata != null)
+				LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", cleanupFailure);
+			else
+				LogError("Test Assembly Cleanup Failure (<unknown test assembly>)", cleanupFailure);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestAssemblyFinished" />.
+		/// </summary>
+		protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestAssemblyStarting" />.
+		/// </summary>
+		private void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>
@@ -102,7 +127,8 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			if (testCollectionMetadataByID.TryRemove(cleanupFailure.TestCollectionUniqueID, out var metadata))
+			var metadata = metadataCache.TryGet(cleanupFailure);
+			if (metadata != null)
 				LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", cleanupFailure);
 			else
 				LogError($"Test Collection Cleanup Failure (<unknown test collection>)", cleanupFailure);
@@ -116,9 +142,11 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionFinished = args.Message;
-			if (testCollectionMetadataByID.TryRemove(testCollectionFinished.TestCollectionUniqueID, out var metadata))
+			var metadata = metadataCache.TryRemove(testCollectionFinished);
+			if (metadata != null)
 				logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{metadata.TestCollectionDisplayName} ({testCollectionFinished.TestCollectionUniqueID})' flowId='{testCollectionFinished.TestCollectionUniqueID}']");
 			else
+				// TODO: Can we still report testSuiteFinished with an incorrect name, if the flow ID is correct?
 				logger.LogImportantMessage($"##teamcity[message status='ERROR' text='Tried to report a completed test collection that was never reported as starting']");
 		}
 
@@ -130,7 +158,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionStarting = args.Message;
-			testCollectionMetadataByID.TryAdd(testCollectionStarting.TestCollectionUniqueID, testCollectionStarting);
+			metadataCache.Set(testCollectionStarting);
 
 			logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{testCollectionStarting.TestCollectionDisplayName} ({testCollectionStarting.TestCollectionUniqueID})' flowId='{testCollectionStarting.TestCollectionUniqueID}']");
 		}

@@ -30,9 +30,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<IBeforeTestStarting>? BeforeTestStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestAssemblyCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestAssemblyCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
+		public event MessageHandler<_TestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestAssemblyFinished"/> message is received.

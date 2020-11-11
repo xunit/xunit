@@ -71,6 +71,18 @@ public class Xunit2MessageAdapterTests
 	public class TestAssemblyTests
 	{
 		[Fact]
+		public void TestAssemblyCleanupFailure()
+		{
+			var v2Message = v2Mocks.TestAssemblyCleanupFailure(TestAssembly, ThrownException);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestAssemblyCleanupFailure>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			AssertErrorMetadata(v3Message, ThrownException);
+		}
+
+		[Fact]
 		public void TestAssemblyFinished()
 		{
 			var v2Message = v2Mocks.TestAssemblyFinished(

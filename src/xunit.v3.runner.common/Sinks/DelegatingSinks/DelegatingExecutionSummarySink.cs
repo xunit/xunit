@@ -85,7 +85,7 @@ namespace Xunit.Runner.Common
 
 			return
 				message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))

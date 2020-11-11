@@ -37,12 +37,6 @@ public class TeamCityReporterMessageHandlerTests
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
 
-				// ITestAssemblyCleanupFailure
-				var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
-				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
-				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
 				// ITestClassCleanupFailure
 				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
 				var testClass = Mocks.TestClass("MyType");
@@ -67,6 +61,30 @@ public class TeamCityReporterMessageHandlerTests
 				testCleanupFailure.Test.Returns(test);
 				yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
 			}
+		}
+
+		[Fact]
+		public void TestAssemblyCleanupFailure()
+		{
+			var collectionStarting = new _TestAssemblyStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				AssemblyPath = "assembly-file-path"
+			};
+			var collectionCleanupFailure = new _TestAssemblyCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(collectionStarting);
+			handler.OnMessage(collectionCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Assembly Cleanup Failure (assembly-file-path)");
 		}
 
 		[Fact]

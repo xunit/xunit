@@ -23,6 +23,7 @@ namespace Xunit.Runner.v2
 			HashSet<string>? messageTypes = null)
 		{
 			return
+				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
 				Convert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
@@ -31,6 +32,20 @@ namespace Xunit.Runner.v2
 				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
 				message;
+		}
+
+		static _MessageSinkMessage AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+
+			return new _TestAssemblyCleanupFailure
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = message.ExceptionParentIndices,
+				ExceptionTypes = message.ExceptionTypes,
+				Messages = message.Messages,
+				StackTraces = message.StackTraces
+			};
 		}
 
 		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished message)

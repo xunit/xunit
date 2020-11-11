@@ -133,7 +133,7 @@ namespace Xunit.Runner.Common
 			{ typeof(_TestCollectionFinished), new List<AddFields> { AddFieldsForITestCollectionMessage, AddFieldsForIFinishedMessage } },
 			{ typeof(_TestCollectionCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation, AddFieldsForITestCollectionMessage } },
 			{ typeof(ITestClassCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(ITestAssemblyCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
+			{ typeof(_TestAssemblyCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestCaseCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } }
 		};
 
@@ -269,11 +269,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestAssemblyCleanupFailure testAssemblyCleanupFailure)
+		public static string ToJson(this _TestAssemblyCleanupFailure testAssemblyCleanupFailure)
 		{
 			Guard.ArgumentNotNull(nameof(testAssemblyCleanupFailure), testAssemblyCleanupFailure);
 
-			var json = InitObject("testAssemblyCleanupFailure", testAssemblyCleanupFailure, typeof(ITestAssemblyCleanupFailure));
+			var json = InitObject("testAssemblyCleanupFailure", testAssemblyCleanupFailure, typeof(_TestAssemblyCleanupFailure));
 
 			return ToJson(json);
 		}

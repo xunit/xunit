@@ -46,12 +46,6 @@ public class DefaultRunnerReporterMessageHandlerTests
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
 
-				// ITestAssemblyCleanupFailure
-				var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
-				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
-				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
 				// ITestClassCleanupFailure
 				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
 				var testClass = Mocks.TestClass("MyType");
@@ -76,6 +70,30 @@ public class DefaultRunnerReporterMessageHandlerTests
 				testCleanupFailure.Test.Returns(test);
 				yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
 			}
+		}
+
+		[Fact]
+		public void TestAssemblyCleanupFailure()
+		{
+			var assemblyStarting = new _TestAssemblyStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				AssemblyPath = @"C:\Foo\bar.dll"
+			};
+			var assemblyCleanupFailure = new _TestAssemblyCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(assemblyStarting);
+			handler.OnMessage(assemblyCleanupFailure);
+
+			AssertFailureMessages(handler.Messages, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)");
 		}
 
 		[Fact]

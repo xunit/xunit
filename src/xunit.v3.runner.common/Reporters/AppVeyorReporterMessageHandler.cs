@@ -36,9 +36,7 @@ namespace Xunit.Runner.Common
 
 			this.baseUri = baseUri.TrimEnd('/');
 
-			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
 			Execution.TestStartingEvent += HandleTestStarting;
-			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
 		}
 
 		AppVeyorClient Client
@@ -55,8 +53,11 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
+		/// <inheritdoc/>
+		protected override void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
+			base.HandleTestAssemblyFinished(args);
+
 			lock (clientLock)
 			{
 				assembliesInFlight--;
@@ -69,8 +70,11 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
+		/// <inheritdoc/>
+		protected override void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
+			base.HandleTestAssemblyStarting(args);
+
 			lock (clientLock)
 			{
 				assembliesInFlight++;

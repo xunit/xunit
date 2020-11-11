@@ -15,7 +15,7 @@ public class ResultSinkTests
 	{
 		var listener = Substitute.For<ITestListener>();
 		await using var sink = new ResultSink(listener, 42);
-		var message = Substitute.For<_TestAssemblyFinished>();
+		var message = Mocks.TestAssemblyFinished();
 
 		sink.OnMessage(message);
 
@@ -127,11 +127,6 @@ public class ResultSinkTests
 			{
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "Fatal Error" };
 
-				var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
-				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
-				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
 				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
 				var testClass = Mocks.TestClass("MyType");
 				classCleanupFailure.TestClass.Returns(testClass);
@@ -152,6 +147,31 @@ public class ResultSinkTests
 				testCleanupFailure.Test.Returns(test);
 				yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
 			}
+		}
+
+		[Fact]
+		public async ValueTask TestAssemblyCleanupFailure()
+		{
+			var collectionStarting = new _TestAssemblyStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				AssemblyPath = "assembly-file-path"
+			};
+			var collectionCleanupFailure = new _TestAssemblyCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(collectionStarting);
+			sink.OnMessage(collectionCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Assembly Cleanup Failure (assembly-file-path)");
 		}
 
 		[Fact]

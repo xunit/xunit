@@ -260,6 +260,20 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static ITestAssemblyCleanupFailure TestAssemblyCleanupFailure(
+			ITestAssembly testAssembly,
+			Exception ex)
+		{
+			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var result = Substitute.For<ITestAssemblyCleanupFailure, InterfaceProxy<ITestAssemblyCleanupFailure>>();
+			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
+			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
+			result.Messages.Returns(metadata.Messages);
+			result.StackTraces.Returns(metadata.StackTraces);
+			result.TestAssembly.Returns(testAssembly);
+			return result;
+		}
+
 		//public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
 		//	bool diagnosticMessages = false,
 		//	int toRun = 42,

@@ -129,7 +129,7 @@ public class TestAssemblyRunnerTests
 			await runner.RunAsync();
 
 			Assert.Same(ex, runner.RunTestCollectionAsync_AggregatorResult);
-			Assert.Empty(messages.OfType<ITestAssemblyCleanupFailure>());
+			Assert.Empty(messages.OfType<_TestAssemblyCleanupFailure>());
 		}
 
 		[Fact]
@@ -148,12 +148,12 @@ public class TestAssemblyRunnerTests
 
 			await runner.RunAsync();
 
-			var cleanupFailure = Assert.Single(messages.OfType<ITestAssemblyCleanupFailure>());
+			var assemblyStarting = Assert.Single(messages.OfType<_TestAssemblyStarting>());
+			var cleanupFailure = Assert.Single(messages.OfType<_TestAssemblyCleanupFailure>());
 #if NETFRAMEWORK
-			Assert.Equal(thisAssembly.GetLocalCodeBase(), cleanupFailure.TestAssembly.Assembly.AssemblyPath);
-			Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, cleanupFailure.TestAssembly.ConfigFileName);
+			Assert.Equal(thisAssembly.GetLocalCodeBase(), assemblyStarting.AssemblyPath);
+			Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, assemblyStarting.ConfigFilePath);
 #endif
-			Assert.Equal(testCases, cleanupFailure.TestCases);
 			Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 		}
 
