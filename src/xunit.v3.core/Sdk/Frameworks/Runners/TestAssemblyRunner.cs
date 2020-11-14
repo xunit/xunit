@@ -271,16 +271,7 @@ namespace Xunit.Sdk
 
 						if (Aggregator.HasExceptions)
 						{
-							var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(Aggregator.ToException()!);
-							var cleanupFailure = new _TestAssemblyCleanupFailure
-							{
-								AssemblyUniqueID = TestAssemblyUniqueID,
-								ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
-								ExceptionTypes = errorMetadata.ExceptionTypes,
-								Messages = errorMetadata.Messages,
-								StackTraces = errorMetadata.StackTraces
-							};
-
+							var cleanupFailure = _TestAssemblyCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID);
 							messageBus.QueueMessage(cleanupFailure);
 						}
 					}

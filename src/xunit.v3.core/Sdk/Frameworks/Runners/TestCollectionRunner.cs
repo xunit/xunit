@@ -165,17 +165,7 @@ namespace Xunit.Sdk
 
 					if (Aggregator.HasExceptions)
 					{
-						var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(Aggregator.ToException()!);
-						var collectionCleanupFailure = new _TestCollectionCleanupFailure
-						{
-							AssemblyUniqueID = TestAssemblyUniqueID,
-							ExceptionParentIndices = metadata.ExceptionParentIndices,
-							ExceptionTypes = metadata.ExceptionTypes,
-							Messages = metadata.Messages,
-							StackTraces = metadata.StackTraces,
-							TestCollectionUniqueID = TestCollectionUniqueID
-						};
-
+						var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID);
 						if (!MessageBus.QueueMessage(collectionCleanupFailure))
 							CancellationTokenSource.Cancel();
 					}
