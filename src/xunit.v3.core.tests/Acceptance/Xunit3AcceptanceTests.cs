@@ -136,34 +136,45 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", testMethodFinished.TestClass.Class.Name);
-					Assert.Equal("TestMethod", testMethodFinished.TestMethod.Method.Name);
+					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					Assert.Equal(observedAssemblyID, testMethodFinished.AssemblyUniqueID);
+					Assert.NotEqual(0M, testMethodFinished.ExecutionTime);
+					Assert.Equal(observedClassID, testMethodFinished.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, testMethodFinished.TestCollectionUniqueID);
+					Assert.Equal(observedMethodID, testMethodFinished.TestMethodUniqueID);
+					Assert.Equal(0, testMethodFinished.TestsFailed);
+					Assert.Equal(1, testMethodFinished.TestsRun);
+					Assert.Equal(0, testMethodFinished.TestsSkipped);
 				},
 				message =>
 				{
 					var classFinished = Assert.IsType<_TestClassFinished>(message);
-					Assert.Equal(1, classFinished.TestsRun);
-					Assert.Equal(0, classFinished.TestsFailed);
-					Assert.Equal(0, classFinished.TestsSkipped);
+					Assert.Equal(observedAssemblyID, classFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, classFinished.ExecutionTime);
+					Assert.Equal(observedClassID, classFinished.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, classFinished.TestCollectionUniqueID);
+					Assert.Equal(0, classFinished.TestsFailed);
+					Assert.Equal(1, classFinished.TestsRun);
+					Assert.Equal(0, classFinished.TestsSkipped);
 				},
 				message =>
 				{
 					var collectionFinished = Assert.IsType<_TestCollectionFinished>(message);
-					Assert.NotEmpty(collectionFinished.TestCollectionUniqueID);
-					Assert.Equal(1, collectionFinished.TestsRun);
-					Assert.Equal(0, collectionFinished.TestsFailed);
-					Assert.Equal(0, collectionFinished.TestsSkipped);
+					Assert.Equal(observedAssemblyID, collectionFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, collectionFinished.ExecutionTime);
+					Assert.Equal(observedCollectionID, collectionFinished.TestCollectionUniqueID);
+					Assert.Equal(0, collectionFinished.TestsFailed);
+					Assert.Equal(1, collectionFinished.TestsRun);
+					Assert.Equal(0, collectionFinished.TestsSkipped);
 				},
 				message =>
 				{
 					var assemblyFinished = Assert.IsType<_TestAssemblyFinished>(message);
-					Assert.Equal(1, assemblyFinished.TestsRun);
-					Assert.Equal(0, assemblyFinished.TestsFailed);
-					Assert.Equal(0, assemblyFinished.TestsSkipped);
+					Assert.Equal(observedAssemblyID, assemblyFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, assemblyFinished.ExecutionTime);
+					Assert.Equal(0, assemblyFinished.TestsFailed);
+					Assert.Equal(1, assemblyFinished.TestsRun);
+					Assert.Equal(0, assemblyFinished.TestsSkipped);
 				}
 			);
 		}

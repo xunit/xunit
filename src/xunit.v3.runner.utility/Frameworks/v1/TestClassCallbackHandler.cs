@@ -170,11 +170,6 @@ namespace Xunit.Runner.v1
 			return TestClassResults.Continue;
 		}
 
-		List<ITestCase> GetTestMethodTestCases(ITestMethod testMethod) =>
-			testCases
-				.Where(tc => tc.TestMethod.Method.Name == testMethod.Method.Name && tc.TestMethod.TestClass.Class.Name == testMethod.TestClass.Class.Name)
-				.ToList();
-
 		void SendTestCaseMessagesWhenAppropriate(ITestCase? current)
 		{
 			var results = TestClassResults;
@@ -187,18 +182,23 @@ namespace Xunit.Runner.v1
 
 				if (current == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
 				{
-					var testMethodTestCases = GetTestMethodTestCases(lastTestCase.TestMethod);
+					var assemblyUniqueID = GetAssemblyUniqueID(lastTestCase.TestMethod.TestClass.TestCollection.TestAssembly);
+					var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, lastTestCase.TestMethod.TestClass.TestCollection);
+					var classUniqueID = GetClassUniqueID(collectionUniqueID, lastTestCase.TestMethod.TestClass);
+					var methodUniqueID = GetMethodUniqueID(classUniqueID, lastTestCase.TestMethod);
+					var testMethodFinished = new _TestMethodFinished
+					{
+						AssemblyUniqueID = assemblyUniqueID,
+						ExecutionTime = testMethodResults.Time,
+						TestClassUniqueID = classUniqueID,
+						TestCollectionUniqueID = collectionUniqueID,
+						TestMethodUniqueID = methodUniqueID,
+						TestsFailed = testMethodResults.Failed,
+						TestsRun = testMethodResults.Total,
+						TestsSkipped = testMethodResults.Skipped
+					};
 
-					results.Continue = messageSink.OnMessage(
-						new TestMethodFinished(
-							testMethodTestCases,
-							lastTestCase.TestMethod,
-							testMethodResults.Time,
-							testMethodResults.Total,
-							testMethodResults.Failed,
-							testMethodResults.Skipped
-						)
-					) && results.Continue;
+					results.Continue = messageSink.OnMessage(testMethodFinished) && results.Continue;
 
 					testMethodResults.Reset();
 				}

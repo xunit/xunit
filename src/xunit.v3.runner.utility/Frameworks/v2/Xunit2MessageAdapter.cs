@@ -32,6 +32,7 @@ namespace Xunit.Runner.v2
 				Convert<ITestCollectionCleanupFailure>(message, messageTypes, AdaptTestCollectionCleanupFailure) ??
 				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
+				Convert<ITestMethodFinished>(message, messageTypes, AdaptTestMethodFinished) ??
 				Convert<ITestMethodStarting>(message, messageTypes, AdaptTestMethodStarting) ??
 				message;
 		}
@@ -177,6 +178,26 @@ namespace Xunit.Runner.v2
 				TestCollectionClass = message.TestCollection.CollectionDefinition?.Name,
 				TestCollectionDisplayName = message.TestCollection.DisplayName,
 				TestCollectionUniqueID = testCollectionUniqueID
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestMethodFinished(ITestMethodFinished message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+
+			return new _TestMethodFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = message.ExecutionTime,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestsFailed = message.TestsFailed,
+				TestsRun = message.TestsRun,
+				TestsSkipped = message.TestsSkipped
 			};
 		}
 

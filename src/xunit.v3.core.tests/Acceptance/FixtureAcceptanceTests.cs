@@ -34,7 +34,7 @@ public class FixtureAcceptanceTests
 				},
 				message => Assert.IsAssignableFrom<ITestFinished>(message),
 				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 
 				// TestMethod2
 				message => Assert.IsAssignableFrom<_TestMethodStarting>(message),
@@ -48,7 +48,7 @@ public class FixtureAcceptanceTests
 				},
 				message => Assert.IsAssignableFrom<ITestFinished>(message),
 				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 
 				message => Assert.IsType<_TestClassFinished>(message),
 				message => Assert.IsType<_TestCollectionFinished>(message),

@@ -1374,9 +1374,8 @@ public class Xunit3TheoryAcceptanceTests
 
 			var methodStarting = Assert.Single(testMessages.OfType<_TestMethodStarting>());
 			Assert.Equal("Theory", methodStarting.TestMethod);
-			var methodFinished = Assert.Single(testMessages.OfType<ITestMethodFinished>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.TestClass.Class.Name);
-			Assert.Equal("Theory", methodFinished.TestMethod.Method.Name);
+			var methodFinished = Assert.Single(testMessages.OfType<_TestMethodFinished>());
+			Assert.Equal(methodStarting.TestMethodUniqueID, methodFinished.TestMethodUniqueID);
 		}
 
 		class ClassUnderTest

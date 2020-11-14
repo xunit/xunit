@@ -35,13 +35,10 @@ public class TestMethodRunnerTests
 			},
 			msg =>
 			{
-				var finished = Assert.IsAssignableFrom<ITestMethodFinished>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
-				Assert.Equal("TestMethodRunnerTests+ClassUnderTest", finished.TestClass.Class.Name);
-				Assert.Equal("Passing", finished.TestMethod.Method.Name);
+				var finished = Assert.IsAssignableFrom<_TestMethodFinished>(msg);
 				Assert.Equal(21.12m, finished.ExecutionTime);
-				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(2, finished.TestsFailed);
+				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(1, finished.TestsSkipped);
 			}
 		);
@@ -135,7 +132,7 @@ public class TestMethodRunnerTests
 	[Fact]
 	public static async void Cancellation_TestMethodFinished_CallsExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodFinished));
 		var runner = TestableTestMethodRunner.Create(messageBus);
 
 		await runner.RunAsync();

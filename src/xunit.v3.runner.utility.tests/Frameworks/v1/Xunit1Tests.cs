@@ -338,11 +338,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Same(testAssembly, testMethodFinished.TestAssembly);
-					Assert.Same(testCollection, testMethodFinished.TestCollection);
-					Assert.Equal("type1", testMethodFinished.TestClass.Class.Name);
-					Assert.Equal("passing", testMethodFinished.TestMethod.Method.Name);
+					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
 					Assert.Equal(1M, testMethodFinished.ExecutionTime);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsRun);
@@ -389,9 +385,11 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Equal("type1", testMethodFinished.TestClass.Class.Name);
-					Assert.Equal("failing", testMethodFinished.TestMethod.Method.Name);
+					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					Assert.Equal(0.234M, testMethodFinished.ExecutionTime);
+					Assert.Equal(1, testMethodFinished.TestsFailed);
+					Assert.Equal(1, testMethodFinished.TestsRun);
+					Assert.Equal(0, testMethodFinished.TestsSkipped);
 				},
 				message =>
 				{
@@ -445,9 +443,11 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Equal("type2", testMethodFinished.TestClass.Class.Name);
-					Assert.Equal("skipping", testMethodFinished.TestMethod.Method.Name);
+					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					Assert.Equal(0M, testMethodFinished.ExecutionTime);
+					Assert.Equal(0, testMethodFinished.TestsFailed);
+					Assert.Equal(1, testMethodFinished.TestsRun);
+					Assert.Equal(1, testMethodFinished.TestsSkipped);
 				},
 				message =>
 				{
@@ -488,9 +488,11 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Equal("type2", testMethodFinished.TestClass.Class.Name);
-					Assert.Equal("skipping_with_start", testMethodFinished.TestMethod.Method.Name);
+					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					Assert.Equal(0M, testMethodFinished.ExecutionTime);
+					Assert.Equal(0, testMethodFinished.TestsFailed);
+					Assert.Equal(1, testMethodFinished.TestsRun);
+					Assert.Equal(1, testMethodFinished.TestsSkipped);
 				},
 				message =>
 				{

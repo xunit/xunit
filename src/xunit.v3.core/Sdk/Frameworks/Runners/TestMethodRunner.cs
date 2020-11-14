@@ -155,7 +155,7 @@ namespace Xunit.Sdk
 		{ }
 
 		/// <summary>
-		/// This method is called just before <see cref="ITestMethodFinished"/> is sent.
+		/// This method is called just before <see cref="_TestMethodFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual void BeforeTestMethodFinished()
@@ -195,7 +195,19 @@ namespace Xunit.Sdk
 				}
 				finally
 				{
-					if (!MessageBus.QueueMessage(new TestMethodFinished(TestCases.Cast<ITestCase>(), TestMethod, methodSummary.Time, methodSummary.Total, methodSummary.Failed, methodSummary.Skipped)))
+					var testMethodFinished = new _TestMethodFinished
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = methodSummary.Time,
+						TestClassUniqueID = TestClassUniqueID,
+						TestCollectionUniqueID = TestCollectionUniqueID,
+						TestMethodUniqueID = TestMethodUniqueID,
+						TestsFailed = methodSummary.Failed,
+						TestsRun = methodSummary.Total,
+						TestsSkipped = methodSummary.Skipped
+					};
+
+					if (!MessageBus.QueueMessage(testMethodFinished))
 						CancellationTokenSource.Cancel();
 
 				}
