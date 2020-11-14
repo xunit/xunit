@@ -18,6 +18,8 @@ public class Xunit2MessageAdapterTests
 	static readonly ITestClass TestClass;
 	static readonly ITypeInfo TestClassType;
 	static readonly string? TestClassUniqueID;
+	static readonly ITestMethod TestMethod;
+	static readonly string? TestMethodUniqueID;
 	static readonly Exception ThrownException;
 
 	static Xunit2MessageAdapterTests()
@@ -56,6 +58,12 @@ public class Xunit2MessageAdapterTests
 		TestClassUniqueID = UniqueIDGenerator.ForTestClass(
 			TestCollectionUniqueID,
 			TestClass.Class.Name
+		);
+
+		TestMethod = v2Mocks.TestMethod(TestClass, "MyTestMethod");
+		TestMethodUniqueID = UniqueIDGenerator.ForTestMethod(
+			TestClassUniqueID,
+			TestMethod.Method.Name
 		);
 	}
 
@@ -250,6 +258,24 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal(TestCollectionDefinition.Name, v3Message.TestCollectionClass);
 			Assert.Equal(TestCollection.DisplayName, v3Message.TestCollectionDisplayName);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+		}
+	}
+
+	public class TestMethodTests
+	{
+		[Fact]
+		public void TestMethodStarting()
+		{
+			var v2Message = v2Mocks.TestMethodStarting(TestMethod);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestMethodStarting>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethod.Method.Name, v3Message.TestMethod);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
 		}
 	}
 }

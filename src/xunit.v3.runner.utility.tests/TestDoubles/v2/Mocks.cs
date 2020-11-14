@@ -660,51 +660,32 @@ namespace Xunit.Runner.v2
 		//	return result;
 		//}
 
-		//public static ITestMethod TestMethod(
-		//	string? typeName = null,
-		//	string? methodName = null,
-		//	string? displayName = null,
-		//	string? skip = null,
-		//	int timeout = 0,
-		//	IEnumerable<IParameterInfo>? parameters = null,
-		//	IEnumerable<IReflectionAttributeInfo>? classAttributes = null,
-		//	IEnumerable<IReflectionAttributeInfo>? methodAttributes = null)
-		//{
-		//	if (classAttributes == null)
-		//		classAttributes = Enumerable.Empty<IReflectionAttributeInfo>();
-		//	if (methodAttributes == null)
-		//		methodAttributes = Enumerable.Empty<IReflectionAttributeInfo>();
-		//	if (parameters == null)
-		//		parameters = Enumerable.Empty<IParameterInfo>();
+		public static ITestMethod TestMethod(
+			ITestClass testClass,
+			string methodName)
+		{
+			var method = Substitute.For<IMethodInfo, InterfaceProxy<IMethodInfo>>();
+			method.Name.Returns(methodName);
 
-		//	var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.Attribute.GetType()));
-		//	if (factAttribute == null)
-		//	{
-		//		factAttribute = FactAttribute(displayName, skip, timeout);
-		//		methodAttributes = methodAttributes.Concat(new[] { factAttribute });
-		//	}
+			var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
+			result.Method.Returns(method);
+			result.TestClass.Returns(testClass);
+			return result;
+		}
 
-		//	var testClass = TestClass(typeName, attributes: classAttributes.ToArray());
-		//	var methodInfo = MethodInfo(methodName, methodAttributes.ToArray(), parameters.ToArray(), testClass.Class);
+		public static ITestMethodStarting TestMethodStarting(ITestMethod testMethod)
+		{
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
 
-		//	var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
-		//	result.Method.Returns(methodInfo);
-		//	result.TestClass.Returns(testClass);
-		//	return result;
-		//}
-
-		//public static TestMethod TestMethod(
-		//	Type type,
-		//	string methodName,
-		//	ITestCollection? collection = null)
-		//{
-		//	var @class = TestClass(type, collection);
-		//	var methodInfo = type.GetMethod(methodName);
-		//	if (methodInfo == null)
-		//		throw new Exception($"Unknown method: {type.FullName}.{methodName}");
-
-		//	return new TestMethod(@class, Reflector.Wrap(methodInfo));
-		//}
+			var result = Substitute.For<ITestMethodStarting, InterfaceProxy<ITestMethodStarting>>();
+			result.TestAssembly.Returns(testAssembly);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			return result;
+		}
 
 		//public static ITestPassed TestPassed(
 		//	Type type,
