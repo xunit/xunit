@@ -12,8 +12,8 @@ namespace Xunit.Runner.Common
 	/// The callback passed to <see cref="DelegatingExecutionSummarySink"/> when execution is complete.
 	/// </summary>
 	/// <param name="summary">The summary of the execution</param>
-	/// <param name="assemblyUniqueID">The assembly for which this summary applies</param>
-	public delegate void DelegatingExecutionSummarySinkCallback(ExecutionSummary summary, string assemblyUniqueID);
+	/// <param name="assemblyMetadata">The assembly for which this summary applies</param>
+	public delegate void DelegatingExecutionSummarySinkCallback(ExecutionSummary summary, _IAssemblyMetadata? assemblyMetadata);
 
 	/// <summary>
 	/// A delegating implementation of <see cref="IExecutionSink"/> which provides the execution
@@ -26,6 +26,7 @@ namespace Xunit.Runner.Common
 		bool disposed;
 		volatile int errors;
 		readonly _IMessageSink innerSink;
+		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingExecutionSummarySink"/> class.
@@ -62,6 +63,9 @@ namespace Xunit.Runner.Common
 			Finished.Dispose();
 		}
 
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args) =>
+			metadataCache.Set(args.Message);
+
 		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			ExecutionSummary.Total = args.Message.TestsRun;
@@ -70,7 +74,11 @@ namespace Xunit.Runner.Common
 			ExecutionSummary.Time = args.Message.ExecutionTime;
 			ExecutionSummary.Errors = errors;
 
-			completionCallback?.Invoke(ExecutionSummary, args.Message.AssemblyUniqueID);
+			var metadata = metadataCache.TryRemove(args.Message);
+			if (metadata != null)
+				completionCallback?.Invoke(ExecutionSummary, metadata);
+			else
+				completionCallback?.Invoke(ExecutionSummary, null);
 
 			Finished.Set();
 		}
@@ -87,6 +95,7 @@ namespace Xunit.Runner.Common
 				message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
+				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))

@@ -465,7 +465,7 @@ namespace Xunit.Runner.SystemConsole
 
 					// Run the filtered tests
 					if (testCasesToRun == 0)
-						completionMessages.TryAdd(UniqueIDGenerator.ForAssembly(assembly.AssemblyDisplayName, assembly.AssemblyFilename, assembly.ConfigFilename), new ExecutionSummary());
+						completionMessages.TryAdd(assembly.AssemblyDisplayName, new ExecutionSummary());
 					else
 					{
 						if (serialize)
@@ -476,7 +476,7 @@ namespace Xunit.Runner.SystemConsole
 
 						reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-						IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (summary, uniqueID) => completionMessages.TryAdd(uniqueID, summary));
+						IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (summary, _) => completionMessages.TryAdd(assembly.AssemblyDisplayName, summary));
 						if (assemblyElement != null)
 							resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 						if (longRunningSeconds > 0)
