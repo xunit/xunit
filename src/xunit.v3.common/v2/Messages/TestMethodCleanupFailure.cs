@@ -11,7 +11,7 @@ namespace Xunit.Runner.v2
 	public class TestMethodCleanupFailure : TestMethodMessage, ITestMethodCleanupFailure
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TestClassCleanupFailure"/> class.
+		/// Initializes a new instance of the <see cref="TestMethodCleanupFailure"/> class.
 		/// </summary>
 		public TestMethodCleanupFailure(
 			IEnumerable<ITestCase> testCases,
@@ -34,7 +34,7 @@ namespace Xunit.Runner.v2
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TestClassCleanupFailure"/> class.
+		/// Initializes a new instance of the <see cref="TestMethodCleanupFailure"/> class.
 		/// </summary>
 		public TestMethodCleanupFailure(
 			IEnumerable<ITestCase> testCases,

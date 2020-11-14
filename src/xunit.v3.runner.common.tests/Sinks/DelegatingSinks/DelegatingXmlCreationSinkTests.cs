@@ -378,7 +378,7 @@ public class DelegatingXmlCreationSinkTests
 	}
 
 	readonly string assemblyID = "assembly-id";
-	//readonly string classID = "test-class-id";
+	readonly string classID = "test-class-id";
 	readonly string collectionID = "test-collection-id";
 	readonly int[] exceptionParentIndices = new[] { -1 };
 	readonly string[] exceptionTypes = new[] { "ExceptionType" };
@@ -403,11 +403,6 @@ public class DelegatingXmlCreationSinkTests
 		get
 		{
 			yield return new object?[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
-
-			var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
-			var testClass = Mocks.TestClass("MyType");
-			classCleanupFailure.TestClass.Returns(testClass);
-			yield return new object?[] { classCleanupFailure, "test-class-cleanup", "MyType" };
 
 			var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
 			var testMethod = Mocks.TestMethod(methodName: "MyMethod");
@@ -455,6 +450,35 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(collectionCleanupFailure);
 
 		AssertFailureElement(assemblyElement, "assembly-cleanup", "assembly-file-path");
+	}
+
+	[Fact]
+	public void TestClassCleanupFailure()
+	{
+		var classStarting = new _TestClassStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestClass = "MyType",
+			TestClassUniqueID = classID,
+			TestCollectionUniqueID = collectionID
+		};
+		var classCleanupFailure = new _TestClassCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = collectionID,
+			TestClassUniqueID = classID
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(classStarting);
+		sink.OnMessage(classCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-class-cleanup", "MyType");
 	}
 
 	[Fact]

@@ -10,7 +10,7 @@ public class TeamCityReporterMessageHandlerTests
 	public class FailureMessages
 	{
 		readonly string assemblyID = "assembly-id";
-		//readonly string classID = "test-class-id";
+		readonly string classID = "test-class-id";
 		readonly string collectionID = "test-collection-id";
 		readonly int[] exceptionParentIndices = new[] { -1 };
 		readonly string[] exceptionTypes = new[] { "\x2018ExceptionType\x2019" };
@@ -36,12 +36,6 @@ public class TeamCityReporterMessageHandlerTests
 			{
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
-
-				// ITestClassCleanupFailure
-				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
-				var testClass = Mocks.TestClass("MyType");
-				classCleanupFailure.TestClass.Returns(testClass);
-				yield return new object[] { classCleanupFailure, "Test Class Cleanup Failure (MyType)" };
 
 				// ITestMethodCleanupFailure
 				var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
@@ -85,6 +79,34 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(collectionCleanupFailure);
 
 			AssertFailureMessage(handler.Messages, "Test Assembly Cleanup Failure (assembly-file-path)");
+		}
+
+		[Fact]
+		public void TestClassCleanupFailure()
+		{
+			var classStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClass = "MyType",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID
+			};
+			var classCleanupFailure = new _TestClassCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(classStarting);
+			handler.OnMessage(classCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Class Cleanup Failure (MyType)");
 		}
 
 		[Fact]

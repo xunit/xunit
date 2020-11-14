@@ -64,7 +64,9 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
 				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
-				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
+				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
+				&& message.Dispatch<_TestClassFinished>(messageTypes, HandleTestClassFinished)
+				&& message.Dispatch<_TestClassStarting>(messageTypes, HandleTestClassStarting)
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
 				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
 				&& message.Dispatch<_TestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
@@ -222,8 +224,20 @@ namespace Xunit.Runner.Common
 		void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
 			=> AddError("test-case-cleanup", args.Message.TestCase.DisplayName, args.Message);
 
-		void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
-			=> AddError("test-class-cleanup", args.Message.TestClass.Class.Name, args.Message);
+		void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-class-cleanup", metadata.TestClass, args.Message);
+			else
+				AddError("test-class-cleanup", "<unknown test class>", args.Message);
+		}
+
+		void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args) =>
+			metadataCache.TryRemove(args.Message);
+
+		void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args) =>
+			metadataCache.Set(args.Message);
 
 		void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
 			=> AddError("test-cleanup", args.Message.Test.DisplayName, args.Message);

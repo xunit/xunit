@@ -149,7 +149,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the unique ID of the test class.
 		/// </summary>
-		protected string TestClassUniqueID { get; }
+		protected string? TestClassUniqueID { get; }
 
 		/// <summary>
 		/// Gets the unique ID of the test collection.
@@ -249,8 +249,11 @@ namespace Xunit.Sdk
 					await BeforeTestClassFinishedAsync();
 
 					if (Aggregator.HasExceptions)
-						if (!MessageBus.QueueMessage(new TestClassCleanupFailure(TestCases.Cast<ITestCase>(), TestClass, Aggregator.ToException()!)))
+					{
+						var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID);
+						if (!MessageBus.QueueMessage(classCleanupFailure))
 							CancellationTokenSource.Cancel();
+					}
 				}
 				finally
 				{

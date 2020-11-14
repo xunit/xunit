@@ -26,6 +26,7 @@ namespace Xunit.Runner.v2
 				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
+				Convert<ITestClassCleanupFailure>(message, messageTypes, AdaptTestClassCleanupFailure) ??
 				Convert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
 				Convert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
 				Convert<ITestCollectionCleanupFailure>(message, messageTypes, AdaptTestCollectionCleanupFailure) ??
@@ -78,6 +79,24 @@ namespace Xunit.Runner.v2
 				TargetFramework = targetFramework,
 				TestEnvironment = message.TestEnvironment,
 				TestFrameworkDisplayName = message.TestFrameworkDisplayName
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestClassCleanupFailure(ITestClassCleanupFailure message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+
+			return new _TestClassCleanupFailure
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = message.ExceptionParentIndices,
+				ExceptionTypes = message.ExceptionTypes,
+				Messages = message.Messages,
+				StackTraces = message.StackTraces,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID
 			};
 		}
 
@@ -163,10 +182,10 @@ namespace Xunit.Runner.v2
 		static string ComputeUniqueID(ITestAssembly testAssembly) =>
 			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
 
-		static string ComputeUniqueID(
+		static string? ComputeUniqueID(
 			string testCollectionUniqueID,
-			ITestClass testClass) =>
-				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass.Class.Name);
+			ITestClass? testClass) =>
+				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass?.Class?.Name);
 
 		static string ComputeUniqueID(
 			string assemblyUniqueID,

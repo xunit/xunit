@@ -39,7 +39,9 @@ namespace Xunit.Runner.Common
 			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
 			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
 			Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
-			Execution.TestClassCleanupFailureEvent += HandleTestCaseCleanupFailure;
+			Execution.TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+			Execution.TestClassFinishedEvent += HandleTestClassFinished;
+			Execution.TestClassStartingEvent += HandleTestClassStarting;
 			Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
 			Execution.TestCollectionFinishedEvent += HandleTestCollectionFinished;
 			Execution.TestCollectionStartingEvent += HandleTestCollectionStarting;
@@ -90,7 +92,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Handles instances of <see cref="_TestAssemblyStarting" />.
 		/// </summary>
-		private void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
+		protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
@@ -109,14 +111,38 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestClassCleanupFailure" />.
+		/// Handles instances of <see cref="_TestClassCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
+		protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
+			var metadata = metadataCache.TryGet(cleanupFailure);
+			if (metadata != null)
+				LogError($"Test Class Cleanup Failure ({metadata.TestClass})", cleanupFailure);
+			else
+				LogError("Test Class Cleanup Failure (<unknown test class>)", cleanupFailure);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestClassFinished" />.
+		/// </summary>
+		protected virtual void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestClassStarting" />.
+		/// </summary>
+		protected virtual void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>

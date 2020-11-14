@@ -16,7 +16,8 @@ public class Xunit2MessageAdapterTests
 	static readonly ITypeInfo TestCollectionDefinition;
 	static readonly string TestCollectionUniqueID;
 	static readonly ITestClass TestClass;
-	static readonly string TestClassUniqueID;
+	static readonly ITypeInfo TestClassType;
+	static readonly string? TestClassUniqueID;
 	static readonly Exception ThrownException;
 
 	static Xunit2MessageAdapterTests()
@@ -50,7 +51,8 @@ public class Xunit2MessageAdapterTests
 			TestCollectionDefinition.Name
 		);
 
-		TestClass = v2Mocks.TestClass(TestCollection);
+		TestClassType = v2Mocks.TypeInfo();
+		TestClass = v2Mocks.TestClass(TestCollection, TestClassType);
 		TestClassUniqueID = UniqueIDGenerator.ForTestClass(
 			TestCollectionUniqueID,
 			TestClass.Class.Name
@@ -147,6 +149,20 @@ public class Xunit2MessageAdapterTests
 
 	public class TestClassTests
 	{
+		[Fact]
+		public void TestClassCleanupFailure()
+		{
+			var v2Message = v2Mocks.TestClassCleanupFailure(TestClass, ThrownException);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestClassCleanupFailure>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			AssertErrorMetadata(v3Message, ThrownException);
+		}
+
 		[Fact]
 		public void TestClassFinished()
 		{

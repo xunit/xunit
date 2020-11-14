@@ -40,7 +40,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<_TestAssemblyFinished>();
 			AddMessageTypeName<ITestCaseCleanupFailure>();
 			AddMessageTypeName<ITestCaseDiscoveryMessage>();
-			AddMessageTypeName<ITestClassCleanupFailure>();
+			AddMessageTypeName<_TestClassCleanupFailure>();
 			AddMessageTypeName<ITestCleanupFailure>();
 			AddMessageTypeName<_TestCollectionCleanupFailure>();
 			AddMessageTypeName<ITestFailed>();
@@ -381,7 +381,7 @@ namespace Xunit.Runners
 					return !cancelled;
 				if (DispatchMessage<ITestCaseCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCaseCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
-				if (DispatchMessage<ITestClassCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestClassCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+				if (DispatchMessage<_TestClassCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestClassCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
 				if (DispatchMessage<ITestCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;

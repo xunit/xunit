@@ -442,6 +442,25 @@ namespace Xunit.Runner.v2
 		//public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>() =>
 		//	TestCaseOrdererAttribute(typeof(TOrderer));
 
+		public static ITestClassCleanupFailure TestClassCleanupFailure(
+			ITestClass testClass,
+			Exception ex)
+		{
+			var testAssembly = testClass.TestCollection.TestAssembly;
+			var testCollection = testClass.TestCollection;
+			var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+
+			var result = Substitute.For<ITestClassCleanupFailure, InterfaceProxy<ITestClassCleanupFailure>>();
+			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
+			result.ExceptionTypes.Returns(errorMetadata.ExceptionTypes);
+			result.Messages.Returns(errorMetadata.Messages);
+			result.StackTraces.Returns(errorMetadata.StackTraces);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			return result;
+		}
+
 		public static ITestClass TestClass(
 			ITestCollection? testCollection = null,
 			ITypeInfo? classType = null)
