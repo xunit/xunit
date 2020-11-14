@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -190,8 +188,11 @@ namespace Xunit.Sdk
 					BeforeTestMethodFinished();
 
 					if (Aggregator.HasExceptions)
-						if (!MessageBus.QueueMessage(new TestMethodCleanupFailure(TestCases.Cast<ITestCase>(), TestMethod, Aggregator.ToException()!)))
+					{
+						var methodCleanupFailure = _TestMethodCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID, TestMethodUniqueID);
+						if (!MessageBus.QueueMessage(methodCleanupFailure))
 							CancellationTokenSource.Cancel();
+					}
 				}
 				finally
 				{

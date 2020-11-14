@@ -49,6 +49,8 @@ namespace Xunit.Runner.Common
 			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
 			Execution.TestFailedEvent += HandleTestFailed;
 			Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+			Execution.TestMethodFinishedEvent += HandleTestMethodFinished;
+			Execution.TestMethodStartingEvent += HandleTestMethodStarting;
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
 
@@ -466,14 +468,41 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestMethodCleanupFailure"/> is raised.
+		/// Called when <see cref="_TestMethodCleanupFailure"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
+		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			LogError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
+			var cleanupFailure = args.Message;
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
+			else
+				LogError("Test Method Cleanup Failure (<unknown test method>)", cleanupFailure);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestMethodFinished"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestMethodStarting"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>

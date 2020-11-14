@@ -264,6 +264,21 @@ public class Xunit2MessageAdapterTests
 	public class TestMethodTests
 	{
 		[Fact]
+		public void TestMethodCleanupFailure()
+		{
+			var v2Message = v2Mocks.TestMethodCleanupFailure(TestMethod, ThrownException);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestMethodCleanupFailure>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			AssertErrorMetadata(v3Message, ThrownException);
+		}
+
+		[Fact]
 		public void TestMethodFinished()
 		{
 			var v2Message = v2Mocks.TestMethodFinished(

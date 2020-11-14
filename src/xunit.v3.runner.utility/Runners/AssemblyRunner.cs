@@ -45,7 +45,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<_TestCollectionCleanupFailure>();
 			AddMessageTypeName<ITestFailed>();
 			AddMessageTypeName<ITestFinished>();
-			AddMessageTypeName<ITestMethodCleanupFailure>();
+			AddMessageTypeName<_TestMethodCleanupFailure>();
 			AddMessageTypeName<ITestOutput>();
 			AddMessageTypeName<ITestPassed>();
 			AddMessageTypeName<ITestSkipped>();
@@ -387,7 +387,7 @@ namespace Xunit.Runners
 					return !cancelled;
 				if (DispatchMessage<_TestCollectionCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCollectionCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
-				if (DispatchMessage<ITestMethodCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestMethodCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+				if (DispatchMessage<_TestMethodCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestMethodCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
 			}
 

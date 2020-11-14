@@ -15,7 +15,7 @@ public class TeamCityReporterMessageHandlerTests
 		readonly int[] exceptionParentIndices = new[] { -1 };
 		readonly string[] exceptionTypes = new[] { "\x2018ExceptionType\x2019" };
 		readonly string[] messages = new[] { "This is my message \x2020\t\r\n" };
-		//readonly string methodID = "test-method-id";
+		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" };
 		//readonly string testCaseID = "test-case-id";
 		//readonly string testID = "test-id";
@@ -36,12 +36,6 @@ public class TeamCityReporterMessageHandlerTests
 			{
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
-
-				// ITestMethodCleanupFailure
-				var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
-				var testMethod = Mocks.TestMethod(methodName: "MyMethod");
-				methodCleanupFailure.TestMethod.Returns(testMethod);
-				yield return new object[] { methodCleanupFailure, "Test Method Cleanup Failure (MyMethod)" };
 
 				// ITestCaseCleanupFailure
 				var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
@@ -133,6 +127,36 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(collectionCleanupFailure);
 
 			AssertFailureMessage(handler.Messages, "Test Collection Cleanup Failure (FooBar)");
+		}
+
+		[Fact]
+		public void TestMethodCleanupFailure()
+		{
+			var methodStarting = new _TestMethodStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethod = "MyMethod",
+				TestMethodUniqueID = methodID,
+			};
+			var methodCleanupFailure = new _TestMethodCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(methodStarting);
+			handler.OnMessage(methodCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
 		}
 
 		[Theory]

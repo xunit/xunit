@@ -128,7 +128,7 @@ namespace Xunit.Runner.Common
 			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
 			{ typeof(ITestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
-			{ typeof(ITestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
+			{ typeof(_TestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(_TestCollectionFinished), new List<AddFields> { AddFieldsForITestCollectionMessage, AddFieldsForIFinishedMessage } },
 			{ typeof(_TestCollectionCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation, AddFieldsForITestCollectionMessage } },
@@ -229,11 +229,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestMethodCleanupFailure testMethodCleanupFailure)
+		public static string ToJson(this _TestMethodCleanupFailure testMethodCleanupFailure)
 		{
 			Guard.ArgumentNotNull(nameof(testMethodCleanupFailure), testMethodCleanupFailure);
 
-			var json = InitObject("testMethodCleanupFailure", testMethodCleanupFailure, typeof(ITestMethodCleanupFailure));
+			var json = InitObject("testMethodCleanupFailure", testMethodCleanupFailure, typeof(_TestMethodCleanupFailure));
 
 			return ToJson(json);
 		}

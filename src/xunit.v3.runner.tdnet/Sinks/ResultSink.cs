@@ -51,7 +51,11 @@ namespace Xunit.Runner.TdNet
 				args => metadataCache.Set(args.Message);
 
 			Execution.TestMethodCleanupFailureEvent +=
-				args => ReportError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
+				args => ReportError($"Test Method Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestMethod ?? "<unknown test method>"})", args.Message);
+			Execution.TestMethodFinishedEvent +=
+				args => metadataCache.TryRemove(args.Message);
+			Execution.TestMethodStartingEvent +=
+				args => metadataCache.Set(args.Message);
 
 			Execution.TestCleanupFailureEvent +=
 				args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);

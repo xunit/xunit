@@ -48,6 +48,8 @@ namespace Xunit.Runner.Common
 			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
 			Execution.TestFailedEvent += HandleTestFailed;
 			Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+			Execution.TestMethodFinishedEvent += HandleTestMethodFinished;
+			Execution.TestMethodStartingEvent += HandleTestMethodStarting;
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
 			Execution.TestStartingEvent += HandleTestStarting;
@@ -213,14 +215,38 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestMethodCleanupFailure" />.
+		/// Handles instances of <see cref="_TestMethodCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
+		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
+			else
+				LogError("Test Method Cleanup Failure (<unknown test method>)", cleanupFailure);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestMethodFinished" />.
+		/// </summary>
+		protected virtual void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestMethodStarting" />.
+		/// </summary>
+		protected virtual void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>

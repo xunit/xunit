@@ -673,6 +673,27 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static ITestMethodCleanupFailure TestMethodCleanupFailure(
+			ITestMethod testMethod,
+			Exception ex)
+		{
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+			var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+
+			var result = Substitute.For<ITestMethodCleanupFailure, InterfaceProxy<ITestMethodCleanupFailure>>();
+			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
+			result.ExceptionTypes.Returns(errorMetadata.ExceptionTypes);
+			result.Messages.Returns(errorMetadata.Messages);
+			result.StackTraces.Returns(errorMetadata.StackTraces);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			return result;
+		}
+
 		public static ITestMethodFinished TestMethodFinished(
 			ITestMethod testMethod,
 			int testsRun,

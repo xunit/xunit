@@ -383,7 +383,7 @@ public class DelegatingXmlCreationSinkTests
 	readonly int[] exceptionParentIndices = new[] { -1 };
 	readonly string[] exceptionTypes = new[] { "ExceptionType" };
 	readonly string[] messages = new[] { "This is my message \t\r\n" };
-	//readonly string methodID = "test-method-id";
+	readonly string methodID = "test-method-id";
 	readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
 	//readonly string testCaseID = "test-case-id";
 	//readonly string testID = "test-id";
@@ -403,11 +403,6 @@ public class DelegatingXmlCreationSinkTests
 		get
 		{
 			yield return new object?[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
-
-			var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
-			var testMethod = Mocks.TestMethod(methodName: "MyMethod");
-			methodCleanupFailure.TestMethod.Returns(testMethod);
-			yield return new object?[] { methodCleanupFailure, "test-method-cleanup", "MyMethod" };
 
 			var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
 			var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
@@ -506,6 +501,37 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(collectionCleanupFailure);
 
 		AssertFailureElement(assemblyElement, "test-collection-cleanup", "FooBar");
+	}
+
+	[Fact]
+	public void TestMethodCleanupFailure()
+	{
+		var methodStarting = new _TestMethodStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestClassUniqueID = classID,
+			TestCollectionUniqueID = collectionID,
+			TestMethod = "MyMethod",
+			TestMethodUniqueID = methodID,
+		};
+		var methodCleanupFailure = new _TestMethodCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = collectionID,
+			TestClassUniqueID = classID,
+			TestMethodUniqueID = methodID
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(methodCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-method-cleanup", "MyMethod");
 	}
 
 	[Theory]

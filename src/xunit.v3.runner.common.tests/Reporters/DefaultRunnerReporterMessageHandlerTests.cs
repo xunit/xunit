@@ -26,7 +26,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		readonly int[] exceptionParentIndices = new[] { -1 };
 		readonly string[] exceptionTypes = new[] { "ExceptionType" };
 		readonly string[] messages = new[] { $"This is my message \t{Environment.NewLine}Message Line 2" };
-		//readonly string methodID = "test-method-id";
+		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" };
 		//readonly string testCaseID = "test-case-id";
 		//readonly string testID = "test-id";
@@ -45,12 +45,6 @@ public class DefaultRunnerReporterMessageHandlerTests
 			{
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
-
-				// ITestMethodCleanupFailure
-				var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
-				var testMethod = Mocks.TestMethod(methodName: "MyMethod");
-				methodCleanupFailure.TestMethod.Returns(testMethod);
-				yield return new object[] { methodCleanupFailure, "Test Method Cleanup Failure (MyMethod)" };
 
 				// ITestCaseCleanupFailure
 				var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
@@ -142,6 +136,36 @@ public class DefaultRunnerReporterMessageHandlerTests
 			handler.OnMessage(collectionCleanupFailure);
 
 			AssertFailureMessages(handler.Messages, "Test Collection Cleanup Failure (FooBar)");
+		}
+
+		[Fact]
+		public void TestMethodCleanupFailure()
+		{
+			var methodStarting = new _TestMethodStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethod = "MyMethod",
+				TestMethodUniqueID = methodID,
+			};
+			var methodCleanupFailure = new _TestMethodCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(methodStarting);
+			handler.OnMessage(methodCleanupFailure);
+
+			AssertFailureMessages(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
 		}
 
 		[Theory]

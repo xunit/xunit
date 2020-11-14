@@ -125,9 +125,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestFinished>? TestFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestMethodCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestMethodCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestMethodCleanupFailure>? TestMethodCleanupFailureEvent;
+		public event MessageHandler<_TestMethodCleanupFailure>? TestMethodCleanupFailureEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestMethodFinished"/> message is received.
