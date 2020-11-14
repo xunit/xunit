@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class Xunit3TheoryAcceptanceTests
 {
@@ -1371,9 +1372,8 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync<IMessageSinkMessage>(typeof(ClassUnderTest));
 
-			var methodStarting = Assert.Single(testMessages.OfType<ITestMethodStarting>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.TestClass.Class.Name);
-			Assert.Equal("Theory", methodStarting.TestMethod.Method.Name);
+			var methodStarting = Assert.Single(testMessages.OfType<_TestMethodStarting>());
+			Assert.Equal("Theory", methodStarting.TestMethod);
 			var methodFinished = Assert.Single(testMessages.OfType<ITestMethodFinished>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.TestClass.Class.Name);
 			Assert.Equal("Theory", methodFinished.TestMethod.Method.Name);

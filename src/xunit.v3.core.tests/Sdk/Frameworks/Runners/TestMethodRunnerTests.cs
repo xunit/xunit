@@ -30,10 +30,8 @@ public class TestMethodRunnerTests
 			messageBus.Messages,
 			msg =>
 			{
-				var starting = Assert.IsAssignableFrom<ITestMethodStarting>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
-				Assert.Equal("TestMethodRunnerTests+ClassUnderTest", starting.TestClass.Class.Name);
-				Assert.Equal("Passing", starting.TestMethod.Method.Name);
+				var starting = Assert.IsAssignableFrom<_TestMethodStarting>(msg);
+				Assert.Equal("Passing", starting.TestMethod);
 			},
 			msg =>
 			{
@@ -61,7 +59,7 @@ public class TestMethodRunnerTests
 				var msg = callInfo.Arg<IMessageSinkMessage>();
 				messages.Add(msg);
 
-				if (msg is ITestMethodStarting)
+				if (msg is _TestMethodStarting)
 					throw new InvalidOperationException();
 
 				return true;
@@ -71,7 +69,7 @@ public class TestMethodRunnerTests
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 		var starting = Assert.Single(messages);
-		Assert.IsAssignableFrom<ITestMethodStarting>(starting);
+		Assert.IsAssignableFrom<_TestMethodStarting>(starting);
 		Assert.Empty(runner.TestCasesRun);
 	}
 
@@ -124,7 +122,7 @@ public class TestMethodRunnerTests
 	[Fact]
 	public static async void Cancellation_TestMethodStarting_DoesNotCallExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodStarting));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodStarting));
 		var runner = TestableTestMethodRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -196,6 +194,9 @@ public class TestMethodRunnerTests
 		public List<ITestCase> TestCasesRun = new List<ITestCase>();
 
 		TestableTestMethodRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
@@ -205,7 +206,7 @@ public class TestMethodRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			RunSummary result,
 			bool cancelInRunTestCaseAsync)
-				: base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
 		{
 			TokenSource = cancellationTokenSource;
 
@@ -230,6 +231,9 @@ public class TestMethodRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestMethodRunner(
+				"assembly-id",
+				"collection-id",
+				"class-id",
 				firstTestCase.TestMethod,
 				(IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
 				(IReflectionMethodInfo)firstTestCase.TestMethod.Method,

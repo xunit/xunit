@@ -103,11 +103,32 @@ namespace Xunit
 		}
 
 		/// <summary>
+		/// Computes a unique ID for a test method, to be placed into <see cref="_TestMethodMessage.TestMethodUniqueID"/>
+		/// </summary>
+		/// <param name="testClassUniqueID">The unique ID of the parent test class for the test method</param>
+		/// <param name="methodName">The optional test method name</param>
+		/// <returns>The computed unique ID for the test method (may return <c>null</c> if either the class
+		/// unique ID or the method name is null)</returns>
+		public static string? ForTestMethod(
+			string? testClassUniqueID,
+			string? methodName)
+		{
+			if (testClassUniqueID == null || methodName == null)
+				return null;
+
+			using var generator = new UniqueIDGenerator();
+			generator.Add(testClassUniqueID);
+			generator.Add(methodName);
+			return generator.Compute();
+		}
+
+		/// <summary>
 		/// Computes a unique ID for a test class, to be placed into <see cref="_TestClassMessage.TestClassUniqueID"/>
 		/// </summary>
-		/// <param name="testCollectionUniqueID">The parent test collection for the test class</param>
+		/// <param name="testCollectionUniqueID">The unique ID of the parent test collection for the test class</param>
 		/// <param name="className">The optional fully qualified type name of the test class</param>
-		/// <returns>The computed unique ID for the test class</returns>
+		/// <returns>The computed unique ID for the test class (may return <c>null</c> if the class
+		/// name is null)</returns>
 		public static string? ForTestClass(
 			string testCollectionUniqueID,
 			string? className)

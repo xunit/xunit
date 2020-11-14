@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -27,6 +28,9 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodRunner{TTestCase}"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethod">The test method under test.</param>
 		/// <param name="class">The CLR class that contains the test method.</param>
 		/// <param name="method">The CLR method that contains the tests to be run.</param>
@@ -35,6 +39,9 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestMethodRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
@@ -50,6 +57,11 @@ namespace Xunit.Sdk
 			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+
+			TestAssemblyUniqueID = testAssemblyUniqueID;
+			TestCollectionUniqueID = testCollectionUniqueID;
+			TestClassUniqueID = testClassUniqueID;
+			TestMethodUniqueID = UniqueIDGenerator.ForTestMethod(TestClassUniqueID, testMethod.Method?.Name);
 		}
 
 		/// <summary>
@@ -116,7 +128,27 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// This method is called just after <see cref="ITestMethodStarting"/> is sent, but before any test cases are run.
+		/// Gets the test assembly unique ID.
+		/// </summary>
+		protected string TestAssemblyUniqueID { get; }
+
+		/// <summary>
+		/// Gets the test class unique ID.
+		/// </summary>
+		protected string? TestClassUniqueID { get; }
+
+		/// <summary>
+		/// Gets the test collection unique ID.
+		/// </summary>
+		protected string TestCollectionUniqueID { get; }
+
+		/// <summary>
+		/// Gets the test method unique ID.
+		/// </summary>
+		protected string? TestMethodUniqueID { get; }
+
+		/// <summary>
+		/// This method is called just after <see cref="_TestMethodStarting"/> is sent, but before any test cases are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual void AfterTestMethodStarting()
@@ -137,7 +169,15 @@ namespace Xunit.Sdk
 		{
 			var methodSummary = new RunSummary();
 
-			if (!MessageBus.QueueMessage(new TestMethodStarting(TestCases.Cast<ITestCase>(), TestMethod)))
+			var methodStarting = new _TestMethodStarting
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestMethod = TestMethod.Method.Name,
+				TestMethodUniqueID = TestMethodUniqueID
+			};
+			if (!MessageBus.QueueMessage(methodStarting))
 				CancellationTokenSource.Cancel();
 			else
 			{

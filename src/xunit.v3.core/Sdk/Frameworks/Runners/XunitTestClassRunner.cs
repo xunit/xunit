@@ -195,6 +195,9 @@ namespace Xunit.Sdk
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
 				new XunitTestMethodRunner(
+					TestAssemblyUniqueID,
+					TestCollectionUniqueID,
+					TestClassUniqueID,
 					testMethod,
 					Class,
 					method,

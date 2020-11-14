@@ -38,7 +38,7 @@ public class SpyTestMessageSink : TestMessageSink
 		Execution.TestFinishedEvent += args => Calls.Add("ITestFinished");
 		Execution.TestMethodCleanupFailureEvent += args => Calls.Add("ITestMethodCleanupFailure");
 		Execution.TestMethodFinishedEvent += args => Calls.Add("ITestMethodFinished");
-		Execution.TestMethodStartingEvent += args => Calls.Add("ITestMethodStarting");
+		Execution.TestMethodStartingEvent += args => Calls.Add("_TestMethodStarting");
 		Execution.TestOutputEvent += args => Calls.Add("ITestOutput");
 		Execution.TestPassedEvent += args => Calls.Add("ITestPassed");
 		Execution.TestSkippedEvent += args => Calls.Add("ITestSkipped");

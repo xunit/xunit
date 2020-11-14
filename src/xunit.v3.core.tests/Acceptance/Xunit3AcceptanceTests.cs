@@ -35,28 +35,45 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void SinglePassingTest()
 		{
+			string? observedAssemblyID = default;
+			string? observedCollectionID = default;
+			string? observedClassID = default;
+			string? observedMethodID = default;
+
 			var results = await RunAsync(typeof(SinglePassingTestClass));
 
 			Assert.Collection(
 				results,
-				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
+				message =>
+				{
+					var assemblyStarting = Assert.IsAssignableFrom<_TestAssemblyStarting>(message);
+					observedAssemblyID = assemblyStarting.AssemblyUniqueID;
+				},
 				message =>
 				{
 					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
 					Assert.Null(collectionStarting.TestCollectionClass);
 					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass", collectionStarting.TestCollectionDisplayName);
 					Assert.NotEmpty(collectionStarting.TestCollectionUniqueID);
+					Assert.Equal(observedAssemblyID, collectionStarting.AssemblyUniqueID);
+					observedCollectionID = collectionStarting.TestCollectionUniqueID;
 				},
 				message =>
 				{
 					var classStarting = Assert.IsType<_TestClassStarting>(message);
 					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClass);
+					Assert.Equal(observedAssemblyID, classStarting.AssemblyUniqueID);
+					Assert.Equal(observedCollectionID, classStarting.TestCollectionUniqueID);
+					observedClassID = classStarting.TestClassUniqueID;
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", testMethodStarting.TestClass.Class.Name);
-					Assert.Equal("TestMethod", testMethodStarting.TestMethod.Method.Name);
+					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					Assert.Equal("TestMethod", testMethodStarting.TestMethod);
+					Assert.Equal(observedAssemblyID, testMethodStarting.AssemblyUniqueID);
+					Assert.Equal(observedCollectionID, testMethodStarting.TestCollectionUniqueID);
+					Assert.Equal(observedClassID, testMethodStarting.TestClassUniqueID);
+					observedMethodID = testMethodStarting.TestMethodUniqueID;
 				},
 				message =>
 				{

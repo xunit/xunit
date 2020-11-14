@@ -278,12 +278,12 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Same(testAssembly, testMethodStarting.TestAssembly);
-					Assert.Same(testCollection, testMethodStarting.TestCollection);
-					Assert.Equal("type1", testMethodStarting.TestClass.Class.Name);
-					Assert.Equal("passing", testMethodStarting.TestMethod.Method.Name);
-					Assert.Same(testCases[0], testMethodStarting.TestCases.Single());
+					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testMethodStarting.AssemblyUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testMethodStarting.TestCollectionUniqueID);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testMethodStarting.TestClassUniqueID);
+					Assert.Equal("passing", testMethodStarting.TestMethod);
+					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testMethodStarting.TestMethodUniqueID);
 				},
 				message =>
 				{
@@ -350,9 +350,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("type1", testMethodStarting.TestClass.Class.Name);
-					Assert.Equal("failing", testMethodStarting.TestMethod.Method.Name);
+					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					Assert.Equal("failing", testMethodStarting.TestMethod);
 				},
 				message =>
 				{
@@ -409,9 +408,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("type2", testMethodStarting.TestClass.Class.Name);
-					Assert.Equal("skipping", testMethodStarting.TestMethod.Method.Name);
+					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					Assert.Equal("skipping", testMethodStarting.TestMethod);
 				},
 				message =>
 				{
@@ -453,9 +451,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("type2", testMethodStarting.TestClass.Class.Name);
-					Assert.Equal("skipping_with_start", testMethodStarting.TestMethod.Method.Name);
+					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					Assert.Equal("skipping_with_start", testMethodStarting.TestMethod);
 				},
 				message =>
 				{

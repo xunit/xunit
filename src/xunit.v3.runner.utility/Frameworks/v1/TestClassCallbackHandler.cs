@@ -208,8 +208,19 @@ namespace Xunit.Runner.v1
 			{
 				if (lastTestCase == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
 				{
-					var testMethodTestCases = GetTestMethodTestCases(current.TestMethod);
-					results.Continue = messageSink.OnMessage(new TestMethodStarting(testMethodTestCases, current.TestMethod)) && results.Continue;
+					var assemblyUniqueID = GetAssemblyUniqueID(current.TestMethod.TestClass.TestCollection.TestAssembly);
+					var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, current.TestMethod.TestClass.TestCollection);
+					var classUniqueID = GetClassUniqueID(collectionUniqueID, current.TestMethod.TestClass);
+					var methodUniqueID = GetMethodUniqueID(classUniqueID, current.TestMethod);
+					var testMethodStarting = new _TestMethodStarting
+					{
+						AssemblyUniqueID = assemblyUniqueID,
+						TestClassUniqueID = classUniqueID,
+						TestCollectionUniqueID = collectionUniqueID,
+						TestMethod = current.TestMethod.Method.Name,
+						TestMethodUniqueID = methodUniqueID
+					};
+					results.Continue = messageSink.OnMessage(testMethodStarting) && results.Continue;
 				}
 
 				results.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && results.Continue;
@@ -217,6 +228,28 @@ namespace Xunit.Runner.v1
 
 			lastTestCase = current;
 		}
+
+		string GetAssemblyUniqueID(ITestAssembly testAssembly) =>
+			UniqueIDGenerator.ForAssembly(
+				testAssembly.Assembly.Name,
+				testAssembly.Assembly.AssemblyPath,
+				testAssembly.ConfigFileName
+			);
+
+		string? GetClassUniqueID(
+			string collectionUniqueID,
+			ITestClass testClass) =>
+				UniqueIDGenerator.ForTestClass(collectionUniqueID, testClass.Class?.Name);
+
+		string GetCollectionUniqueID(
+			string assemblyUniqueID,
+			ITestCollection testCollection) =>
+				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
+
+		string? GetMethodUniqueID(
+			string? classUniqueID,
+			ITestMethod testMethod) =>
+				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method?.Name);
 	}
 }
 
