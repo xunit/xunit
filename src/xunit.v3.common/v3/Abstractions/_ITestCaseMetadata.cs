@@ -35,6 +35,6 @@ namespace Xunit.v3
 		/// there are none, or the framework does not support traits,
 		/// this should return an empty dictionary (not <c>null</c>).
 		/// </summary>
-		public IReadOnlyDictionary<string, string[]> Traits { get; }
+		public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
 	}
 }

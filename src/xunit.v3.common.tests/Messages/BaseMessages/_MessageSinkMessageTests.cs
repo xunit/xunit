@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.v3;
 
@@ -46,7 +47,7 @@ public class _MessageSinkMessageTests
 	}
 
 	[Fact]
-	public void CanSerializeTraits()
+	public void CanRoundTripTraits()
 	{
 		var msg = new _TestCaseDiscovered
 		{
@@ -54,15 +55,17 @@ public class _MessageSinkMessageTests
 			TestCaseDisplayName = "test-case-display-name",
 			TestCaseUniqueID = "test-case-id",
 			TestCollectionUniqueID = "test-collection-id",
-			Traits = new Dictionary<string, string[]>
+			Traits = new Dictionary<string, List<string>>
 			{
-				{ "foo", new[] { "bar", "baz" } },
-				{ "abc", new[] { "123" } },
-				{ "empty", new string[0] },
+				{ "foo", new List<string> { "bar", "baz" } },
+				{ "abc", new List<string> { "123" } },
+				{ "empty", new List<string>() },
 			},
 		};
 
-		var result = msg.Serialize();
+		// Validate serialization
+
+		var serialized = msg.Serialize();
 
 		Assert.Equal(
 			@"{" +
@@ -78,7 +81,31 @@ public class _MessageSinkMessageTests
 					@"""empty"":[]" +
 				@"}" +
 			@"}",
-			result
+			serialized
+		);
+
+		// Validate deserialization
+
+		var deserialized = _MessageSinkMessage.Deserialize(serialized);
+
+		var deserializedDiscovered = Assert.IsType<_TestCaseDiscovered>(deserialized);
+		Assert.Collection(
+			deserializedDiscovered.Traits.OrderBy(kvp => kvp.Key),
+			trait =>
+			{
+				Assert.Equal("abc", trait.Key);
+				Assert.Equal(new[] { "123" }, trait.Value);
+			},
+			trait =>
+			{
+				Assert.Equal("empty", trait.Key);
+				Assert.Empty(trait.Value);
+			},
+			trait =>
+			{
+				Assert.Equal("foo", trait.Key);
+				Assert.Equal(new[] { "bar", "baz" }, trait.Value);
+			}
 		);
 	}
 

@@ -31,7 +31,7 @@ namespace Xunit.v3
 			assemblyQualifiedNameTemplate = assemblyQualifiedName.Replace(nameof(_MessageSinkMessage), "{0}");
 
 			// Default converters list doesn't support dictionarys, so we need to use this as an override
-			propertyWriters.Add(typeof(Dictionary<string, string[]>), SerializeTraits);
+			propertyWriters.Add(typeof(Dictionary<string, List<string>>), SerializeTraits);
 		}
 
 		/// <summary>
@@ -113,7 +113,7 @@ namespace Xunit.v3
 
 		static void SerializeTraits(Utf8JsonWriter writer, object? value, JsonSerializerOptions options)
 		{
-			var traits = (Dictionary<string, string[]>)value!;
+			var traits = (Dictionary<string, List<string>>)value!;
 
 			writer.WriteStartObject();
 

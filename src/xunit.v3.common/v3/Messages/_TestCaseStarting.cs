@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -10,7 +11,7 @@ namespace Xunit.v3
 	public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
 	{
 		string? testCaseDisplayName;
-		Dictionary<string, string[]> traits = new Dictionary<string, string[]>();
+		Dictionary<string, List<string>> traits = new Dictionary<string, List<string>>();
 
 		/// <inheritdoc/>
 		public string? SkipReason { get; set; }
@@ -29,12 +30,12 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public Dictionary<string, string[]> Traits
+		public Dictionary<string, List<string>> Traits
 		{
 			get => traits;
-			set => traits = value ?? new Dictionary<string, string[]>();
+			set => traits = value ?? new Dictionary<string, List<string>>();
 		}
 
-		IReadOnlyDictionary<string, string[]> _ITestCaseMetadata.Traits => traits;
+		IReadOnlyDictionary<string, IReadOnlyList<string>> _ITestCaseMetadata.Traits => traits.ToReadOnly();
 	}
 }

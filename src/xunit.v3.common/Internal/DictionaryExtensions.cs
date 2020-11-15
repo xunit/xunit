@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Xunit.Internal
@@ -106,5 +107,10 @@ namespace Xunit.Internal
 
 			return result;
 		}
+
+		/// <summary/>
+		public static IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> ToReadOnly<TKey, TValue>(this Dictionary<TKey, List<TValue>> dictionary)
+			where TKey : notnull
+				=> new ReadOnlyDictionary<TKey, IReadOnlyList<TValue>>(dictionary.ToDictionary(kvp => kvp.Key, kvp => (IReadOnlyList<TValue>)kvp.Value.AsReadOnly()));
 	}
 }
