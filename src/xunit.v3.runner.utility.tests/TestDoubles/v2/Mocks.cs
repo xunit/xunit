@@ -367,61 +367,45 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		//public static ITestCase TestCase(ITestCollection? collection = null)
-		//{
-		//	if (collection == null)
-		//		collection = TestCollection();
+		public static ITestCase TestCase(
+			ITestMethod testMethod,
+			string displayName = "<unset>",
+			string? skipReason = null,
+			string? sourceFileName = null,
+			int? sourceLineNumber = null,
+			Dictionary<string, List<string>>? traits = null,
+			string uniqueID = "test-case-uniqueid")
+		{
+			var sourceInformation =
+				sourceFileName != null
+					? new SourceInformation { FileName = sourceFileName, LineNumber = sourceLineNumber }
+					: null;
 
-		//	var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
-		//	result.TestMethod.TestClass.TestCollection.Returns(collection);
-		//	return result;
-		//}
+			var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
+			result.DisplayName.Returns(displayName);
+			result.SkipReason.Returns(skipReason);
+			result.SourceInformation.Returns(sourceInformation);
+			result.TestMethod.Returns(testMethod);
+			result.Traits.Returns(traits ?? new Dictionary<string, List<string>>());
+			result.UniqueID.Returns(uniqueID);
+			return result;
+		}
 
-		//public static ITestCase TestCase(ITestMethod testMethod)
-		//{
-		//	var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
-		//	result.TestMethod.Returns(testMethod);
-		//	return result;
-		//}
+		public static ITestCaseStarting TestCaseStarting(ITestCase testCase)
+		{
+			var testMethod = testCase.TestMethod;
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
 
-		//public static ITestCase TestCase<TClassUnderTest>(
-		//	string methodName,
-		//	string? displayName = null,
-		//	string? skipReason = null,
-		//	string? uniqueID = null,
-		//	string? fileName = null,
-		//	int? lineNumber = null)
-		//{
-		//	return TestCase(typeof(TClassUnderTest), methodName, displayName, skipReason, uniqueID, fileName, lineNumber);
-		//}
-
-		//public static ITestCase TestCase(
-		//	Type type,
-		//	string methodName,
-		//	string? displayName = null,
-		//	string? skipReason = null,
-		//	string? uniqueID = null,
-		//	string? fileName = null,
-		//	int? lineNumber = null)
-		//{
-		//	var testMethod = TestMethod(type, methodName);
-		//	var traits = GetTraits(testMethod.Method);
-
-		//	var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
-		//	result.DisplayName.Returns(displayName ?? $"{type}.{methodName}");
-		//	result.SkipReason.Returns(skipReason);
-		//	result.TestMethod.Returns(testMethod);
-		//	result.Traits.Returns(traits);
-		//	result.UniqueID.Returns(uniqueID ?? Guid.NewGuid().ToString());
-
-		//	if (fileName != null && lineNumber != null)
-		//	{
-		//		var sourceInfo = new SourceInformation { FileName = fileName, LineNumber = lineNumber };
-		//		result.SourceInformation.Returns(sourceInfo);
-		//	}
-
-		//	return result;
-		//}
+			var result = Substitute.For<ITestCaseStarting, InterfaceProxy<ITestCaseStarting>>();
+			result.TestAssembly.Returns(testAssembly);
+			result.TestCase.Returns(testCase);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			return result;
+		}
 
 		//public static IReflectionAttributeInfo TestCaseOrdererAttribute(string typeName, string assemblyName)
 		//{

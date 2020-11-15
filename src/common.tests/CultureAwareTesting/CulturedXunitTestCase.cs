@@ -19,13 +19,17 @@ namespace Xunit.Sdk
 		public CulturedXunitTestCase() { }
 
 		public CulturedXunitTestCase(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
 			string culture,
 			object?[]? testMethodArguments = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
 		{
 			Initialize(culture);
 		}

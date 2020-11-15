@@ -13,16 +13,24 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ExecutionErrorTestCaseRunner"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case that the lambda represents.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public ExecutionErrorTestCaseRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			ExecutionErrorTestCase testCase,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testCase, messageBus, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, messageBus, aggregator, cancellationTokenSource)
 		{ }
 
 		/// <inheritdoc/>

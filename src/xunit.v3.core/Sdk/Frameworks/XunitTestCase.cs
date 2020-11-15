@@ -23,6 +23,8 @@ namespace Xunit.Sdk
 		static readonly ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> assemblyTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
 		static readonly ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> typeTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
 
+		string? testAssemblyUniqueID;
+		string? testCollectionUniqueID;
 		int timeout;
 
 		/// <summary/>
@@ -38,12 +40,20 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method this test case belongs to.</param>
 		/// <param name="testMethodArguments">The arguments for the test method.</param>
 		public XunitTestCase(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
@@ -52,12 +62,44 @@ namespace Xunit.Sdk
 				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			TestAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
+			TestCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
+			TestClassUniqueID = testClassUniqueID;
+			TestMethodUniqueID = testMethodUniqueID;
 		}
 
 		/// <summary>
 		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
 		/// </summary>
 		protected _IMessageSink DiagnosticMessageSink { get; }
+
+		/// <summary>
+		/// Gets the test assembly unique ID.
+		/// </summary>
+		protected string TestAssemblyUniqueID
+		{
+			get => testAssemblyUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestAssemblyUniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => testAssemblyUniqueID = Guard.ArgumentNotNullOrEmpty(nameof(TestAssemblyUniqueID), value);
+		}
+
+		/// <summary>
+		/// Gets the test class unique ID.
+		/// </summary>
+		protected string? TestClassUniqueID { get; }
+
+		/// <summary>
+		/// Gets the test collection unique ID.
+		/// </summary>
+		protected string TestCollectionUniqueID
+		{
+			get => testCollectionUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCollectionUniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => testCollectionUniqueID = Guard.ArgumentNotNullOrEmpty(nameof(TestCollectionUniqueID), value);
+		}
+
+		/// <summary>
+		/// Gets the test method unique ID.
+		/// </summary>
+		protected string? TestMethodUniqueID { get; }
 
 		/// <inheritdoc/>
 		public int Timeout
@@ -184,6 +226,10 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 
 			return new XunitTestCaseRunner(
+				TestAssemblyUniqueID,
+				TestCollectionUniqueID,
+				TestClassUniqueID,
+				TestMethodUniqueID,
 				this,
 				DisplayName,
 				SkipReason,

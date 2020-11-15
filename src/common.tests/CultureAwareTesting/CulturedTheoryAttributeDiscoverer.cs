@@ -11,6 +11,10 @@ namespace Xunit.Sdk
 			: base(diagnosticMessageSink) { }
 
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
@@ -20,6 +24,10 @@ namespace Xunit.Sdk
 
 			return cultures.Select(
 				culture => new CulturedXunitTestCase(
+					testAssemblyUniqueID,
+					testCollectionUniqueID,
+					testClassUniqueID,
+					testMethodUniqueID,
 					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
 					discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -31,6 +39,10 @@ namespace Xunit.Sdk
 		}
 
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
@@ -38,6 +50,10 @@ namespace Xunit.Sdk
 			var cultures = GetCultures(theoryAttribute);
 			return cultures.Select(
 				culture => new CulturedXunitTheoryTestCase(
+					testAssemblyUniqueID,
+					testCollectionUniqueID,
+					testClassUniqueID,
+					testMethodUniqueID,
 					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
 					discoveryOptions.MethodDisplayOptionsOrDefault(),

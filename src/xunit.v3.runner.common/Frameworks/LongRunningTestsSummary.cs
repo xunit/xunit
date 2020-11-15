@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
-namespace Xunit.Runner.v2
+namespace Xunit.Runner
 {
 	/// <summary>
 	/// Represents information about long running tests from <see cref="DelegatingLongRunningTestDetectionSink"/>.
@@ -18,7 +18,7 @@ namespace Xunit.Runner.v2
 		/// <param name="testCases">Tests</param>
 		public LongRunningTestsSummary(
 			TimeSpan configuredLongRunningTime,
-			IDictionary<ITestCase, TimeSpan> testCases)
+			IDictionary<_ITestCaseMetadata, TimeSpan> testCases)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 
@@ -30,6 +30,6 @@ namespace Xunit.Runner.v2
 		public TimeSpan ConfiguredLongRunningTime { get; }
 
 		/// <inheritdoc/>
-		public IDictionary<ITestCase, TimeSpan> TestCases { get; }
+		public IDictionary<_ITestCaseMetadata, TimeSpan> TestCases { get; }
 	}
 }

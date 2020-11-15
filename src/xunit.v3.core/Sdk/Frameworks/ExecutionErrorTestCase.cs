@@ -26,18 +26,26 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ExecutionErrorTestCase"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method.</param>
 		/// <param name="errorMessage">The error message to report for the test.</param>
 		public ExecutionErrorTestCase(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
 			string errorMessage)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
 			ErrorMessage = Guard.ArgumentNotNull(nameof(errorMessage), errorMessage);
 		}
@@ -58,7 +66,7 @@ namespace Xunit.Sdk
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
-				new ExecutionErrorTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
+				new ExecutionErrorTestCaseRunner(TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID, TestMethodUniqueID, this, messageBus, aggregator, cancellationTokenSource).RunAsync();
 
 		/// <inheritdoc/>
 		public override void Serialize(IXunitSerializationInfo info)

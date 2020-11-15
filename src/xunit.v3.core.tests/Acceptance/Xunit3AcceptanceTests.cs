@@ -39,6 +39,7 @@ public class Xunit3AcceptanceTests
 			string? observedCollectionID = default;
 			string? observedClassID = default;
 			string? observedMethodID = default;
+			string? observedTestCaseID = default;
 
 			var results = await RunAsync(typeof(SinglePassingTestClass));
 
@@ -77,8 +78,13 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCase.DisplayName);
+					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					Assert.Equal(observedAssemblyID, testCaseStarting.AssemblyUniqueID);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCaseDisplayName);
+					Assert.Equal(observedCollectionID, testCaseStarting.TestCollectionUniqueID);
+					Assert.Equal(observedClassID, testCaseStarting.TestClassUniqueID);
+					Assert.Equal(observedMethodID, testCaseStarting.TestMethodUniqueID);
+					observedTestCaseID = testCaseStarting.TestCaseUniqueID;
 				},
 				message =>
 				{

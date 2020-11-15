@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
@@ -32,6 +33,8 @@ namespace Xunit.Sdk
 		{
 			testAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyInfo.Assembly.GetName().Version);
 			discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, configFileName, SourceInformationProvider, DiagnosticMessageSink));
+
+			TestAssemblyUniqueID = FactDiscoverer.ComputeUniqueID(TestAssembly);
 		}
 
 		/// <summary>
@@ -42,6 +45,8 @@ namespace Xunit.Sdk
 			get => testAssembly;
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
 		}
+
+		string TestAssemblyUniqueID { get; }
 
 		/// <inheritdoc/>
 		protected override _ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
@@ -84,15 +89,20 @@ namespace Xunit.Sdk
 						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type {parts[0]} during test case deserialization"));
 					else
 					{
-						var testCollectionUniqueId = Guid.Parse(parts[4]);
-						var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
+						var testCollectionGuid = Guid.Parse(parts[4]);
+						var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionGuid);
 						var methodInfo = testClass.Class.GetMethod(parts[1], true);
 						if (methodInfo != null)
 						{
 							var testMethod = new TestMethod(testClass, methodInfo);
 							var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
 							var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
-							return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
+
+							var testCollectionUniqueID = FactDiscoverer.ComputeUniqueID(TestAssemblyUniqueID, testClass.TestCollection);
+							var testClassUniqueID = FactDiscoverer.ComputeUniqueID(testCollectionUniqueID, testClass);
+							var testMethodUniqueID = FactDiscoverer.ComputeUniqueID(testClassUniqueID, testMethod);
+
+							return new XunitTestCase(TestAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
 						}
 					}
 				}

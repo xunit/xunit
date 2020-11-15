@@ -26,6 +26,10 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTheoryTestCaseRunner"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <param name="displayName">The display name of the test case.</param>
 		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
@@ -35,6 +39,10 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTheoryTestCaseRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			IXunitTestCase testCase,
 			string displayName,
 			string? skipReason,
@@ -43,7 +51,7 @@ namespace Xunit.Sdk
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}

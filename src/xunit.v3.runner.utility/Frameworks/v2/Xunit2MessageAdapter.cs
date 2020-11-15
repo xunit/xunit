@@ -26,15 +26,21 @@ namespace Xunit.Runner.v2
 				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
+
+				Convert<ITestCaseStarting>(message, messageTypes, AdaptTestCaseStarting) ??
+
 				Convert<ITestClassCleanupFailure>(message, messageTypes, AdaptTestClassCleanupFailure) ??
 				Convert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
 				Convert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
+
 				Convert<ITestCollectionCleanupFailure>(message, messageTypes, AdaptTestCollectionCleanupFailure) ??
 				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
+
 				Convert<ITestMethodCleanupFailure>(message, messageTypes, AdaptTestMethodCleanupFailure) ??
 				Convert<ITestMethodFinished>(message, messageTypes, AdaptTestMethodFinished) ??
 				Convert<ITestMethodStarting>(message, messageTypes, AdaptTestMethodStarting) ??
+
 				message;
 		}
 
@@ -82,6 +88,28 @@ namespace Xunit.Runner.v2
 				TargetFramework = targetFramework,
 				TestEnvironment = message.TestEnvironment,
 				TestFrameworkDisplayName = message.TestFrameworkDisplayName
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestCaseStarting(ITestCaseStarting message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+
+			return new _TestCaseStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				SkipReason = message.TestCase.SkipReason,
+				SourceFilePath = message.TestCase.SourceInformation?.FileName,
+				SourceLineNumber = message.TestCase.SourceInformation?.LineNumber,
+				TestCaseDisplayName = message.TestCase.DisplayName,
+				TestCaseUniqueID = message.TestCase.UniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				Traits = message.TestCase.Traits
 			};
 		}
 

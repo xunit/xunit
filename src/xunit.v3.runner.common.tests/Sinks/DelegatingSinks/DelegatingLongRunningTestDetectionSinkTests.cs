@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.v3;
@@ -18,9 +19,10 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase1 = Substitute.For<ITestCase>();
+		testCase1.UniqueID.Returns("test-case-id");
 
 		sink.OnMessage(new _TestAssemblyStarting());
-		sink.OnMessage(new TestCaseStarting(testCase1));
+		sink.OnMessage(new _TestCaseStarting { TestCaseUniqueID = "test-case-id" });
 		await sink.AdvanceClockAsync(100);
 		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
 		sink.OnMessage(new _TestAssemblyFinished());
@@ -35,9 +37,11 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase = Substitute.For<ITestCase>();
+		testCase.UniqueID.Returns("test-case-id");
+		var testCaseStarting = new _TestCaseStarting { TestCaseUniqueID = "test-case-id" };
 
 		sink.OnMessage(new _TestAssemblyStarting());
-		sink.OnMessage(new TestCaseStarting(testCase));
+		sink.OnMessage(testCaseStarting);
 		await sink.AdvanceClockAsync(1500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
 		sink.OnMessage(new _TestAssemblyFinished());
@@ -45,7 +49,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		var @event = Assert.Single(events);
 		Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
 		var receivedTestCasePair = Assert.Single(@event.TestCases);
-		Assert.Same(testCase, receivedTestCasePair.Key);
+		Assert.Same(testCaseStarting, receivedTestCasePair.Key);
 		Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
 	}
 
@@ -56,12 +60,16 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase1 = Substitute.For<ITestCase>();
+		testCase1.UniqueID.Returns("test-case-id-1");
+		var testCaseStarting1 = new _TestCaseStarting { TestCaseUniqueID = "test-case-id-1" };
 		var testCase2 = Substitute.For<ITestCase>();
+		testCase2.UniqueID.Returns("test-case-id-2");
+		var testCaseStarting2 = new _TestCaseStarting { TestCaseUniqueID = "test-case-id-2" };
 
 		sink.OnMessage(new _TestAssemblyStarting());
-		sink.OnMessage(new TestCaseStarting(testCase1));
+		sink.OnMessage(testCaseStarting1);
 		await sink.AdvanceClockAsync(500);
-		sink.OnMessage(new TestCaseStarting(testCase2));  // Started later, hasn't run long enough
+		sink.OnMessage(testCaseStarting2);  // Started later, hasn't run long enough
 		await sink.AdvanceClockAsync(500);
 		sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
 		sink.OnMessage(new TestCaseFinished(testCase2, 8009, 1, 0, 0));
@@ -70,7 +78,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		var @event = Assert.Single(events);
 		Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
 		var receivedTestCasePair = Assert.Single(@event.TestCases);
-		Assert.Same(testCase1, receivedTestCasePair.Key);
+		Assert.Same(testCaseStarting1, receivedTestCasePair.Key);
 		Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
 	}
 
@@ -81,9 +89,11 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, callback: summary => events.Add(summary));
 		var testCase = Substitute.For<ITestCase>();
+		testCase.UniqueID.Returns("test-case-id");
+		var testCaseStarting = new _TestCaseStarting { TestCaseUniqueID = "test-case-id" };
 
 		sink.OnMessage(new _TestAssemblyStarting());
-		sink.OnMessage(new TestCaseStarting(testCase));
+		sink.OnMessage(testCaseStarting);
 		await sink.AdvanceClockAsync(1000);
 		await sink.AdvanceClockAsync(500);
 		await sink.AdvanceClockAsync(500);
@@ -96,14 +106,14 @@ public class DelegatingLongRunningTestDetectionSinkTests
 			{
 				Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
 				var receivedTestCasePair = Assert.Single(@event.TestCases);
-				Assert.Same(testCase, receivedTestCasePair.Key);
+				Assert.Same(testCaseStarting, receivedTestCasePair.Key);
 				Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
 			},
 			@event =>
 			{
 				Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
 				var receivedTestCasePair = Assert.Single(@event.TestCases);
-				Assert.Same(testCase, receivedTestCasePair.Key);
+				Assert.Same(testCaseStarting, receivedTestCasePair.Key);
 				Assert.Equal(TimeSpan.FromSeconds(2), receivedTestCasePair.Value);
 			}
 		);
@@ -125,10 +135,11 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, diagnosticMessageSink: diagSink);
 		var testCase = Substitute.For<ITestCase>();
-		testCase.DisplayName.Returns("My test display name");
+		testCase.UniqueID.Returns("test-case-id");
+		var testCaseStarting = new _TestCaseStarting { TestCaseDisplayName = "My test display name", TestCaseUniqueID = "test-case-id" };
 
 		sink.OnMessage(new _TestAssemblyStarting());
-		sink.OnMessage(new TestCaseStarting(testCase));
+		sink.OnMessage(testCaseStarting);
 		await sink.AdvanceClockAsync(1500);
 		sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
 		sink.OnMessage(new _TestAssemblyFinished());
@@ -153,10 +164,11 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		using var sink = new TestableDelegatingLongRunningTestDetectionSink(longRunningSeconds: 1, diagnosticMessageSink: diagSink);
 		var testCase = Substitute.For<ITestCase>();
-		testCase.DisplayName.Returns("My test display name");
+		testCase.UniqueID.Returns("test-case-id");
+		var testCaseStarting = new _TestCaseStarting { TestCaseDisplayName = "My test display name", TestCaseUniqueID = "test-case-id" };
 
 		sink.OnMessage(new _TestAssemblyStarting());
-		sink.OnMessage(new TestCaseStarting(testCase));
+		sink.OnMessage(testCaseStarting);
 		await sink.AdvanceClockAsync(1000);
 		await sink.AdvanceClockAsync(500);
 		await sink.AdvanceClockAsync(500);

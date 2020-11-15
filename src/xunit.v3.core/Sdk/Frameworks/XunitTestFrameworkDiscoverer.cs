@@ -43,6 +43,7 @@ namespace Xunit.Sdk
 			var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
 			var testAssembly = new TestAssembly(assemblyInfo, configFileName);
+			TestAssemblyUniqueID = FactDiscoverer.ComputeUniqueID(testAssembly);
 
 			TestCollectionFactory =
 				collectionFactory
@@ -58,6 +59,9 @@ namespace Xunit.Sdk
 		/// discoverer type, if known; <c>null</c> if not.
 		/// </summary>
 		protected Dictionary<Type, Type?> DiscovererTypeCache { get; } = new Dictionary<Type, Type?>();
+
+		/// <inheritdoc/>
+		public override string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets the test collection factory that makes test collections.
@@ -85,12 +89,16 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Finds the tests on a test method.
 		/// </summary>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethod">The test method.</param>
 		/// <param name="includeSourceInformation">Set to <c>true</c> to indicate that source information should be included.</param>
 		/// <param name="messageBus">The message bus to report discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
 		protected internal virtual bool FindTestsForMethod(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestMethod testMethod,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
@@ -99,8 +107,9 @@ namespace Xunit.Sdk
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
 			{
+				var testMethodUniqueID = FactDiscoverer.ComputeUniqueID(testClassUniqueID, testMethod);
 				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
-				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
+				var testCase = new ExecutionErrorTestCase(TestAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
 				return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 			}
 
@@ -137,6 +146,8 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		protected override bool FindTestsForType(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
@@ -145,7 +156,7 @@ namespace Xunit.Sdk
 			foreach (var method in testClass.Class.GetMethods(true))
 			{
 				var testMethod = new TestMethod(testClass, method);
-				if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus, discoveryOptions))
+				if (!FindTestsForMethod(testCollectionUniqueID, testClassUniqueID, testMethod, includeSourceInformation, messageBus, discoveryOptions))
 					return false;
 			}
 

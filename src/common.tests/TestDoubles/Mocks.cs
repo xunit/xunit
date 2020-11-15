@@ -128,6 +128,10 @@ namespace Xunit.v3
 		{
 			var testMethod = TestMethod();
 			return new ExecutionErrorTestCase(
+				"test-assembly-id",
+				"test-collection-id",
+				"test-class-id",
+				"test-method-id",
 				diagnosticMessageSink ?? new _NullMessageSink(),
 				TestMethodDisplay.ClassAndMethod,
 				TestMethodDisplayOptions.None,
@@ -772,7 +776,17 @@ namespace Xunit.v3
 		{
 			var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-			return new XunitTestCase(diagnosticMessageSink ?? new _NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method, testMethodArguments);
+			return new XunitTestCase(
+				"test-assembly-id",
+				"test-collection-id",
+				"test-class-id",
+				"test-method-id",
+				diagnosticMessageSink ?? new _NullMessageSink(),
+				TestMethodDisplay.ClassAndMethod,
+				TestMethodDisplayOptions.None,
+				method,
+				testMethodArguments
+			);
 		}
 
 		public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(
@@ -782,7 +796,16 @@ namespace Xunit.v3
 		{
 			var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-			return new XunitTheoryTestCase(diagnosticMessageSink ?? new _NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method);
+			return new XunitTheoryTestCase(
+				"test-assembly-id",
+				"test-collection-id",
+				"test-class-id",
+				"test-method-id",
+				diagnosticMessageSink ?? new _NullMessageSink(),
+				TestMethodDisplay.ClassAndMethod,
+				TestMethodDisplayOptions.None,
+				method
+			);
 		}
 
 		// Helpers

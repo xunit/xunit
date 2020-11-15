@@ -19,17 +19,25 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CulturedXunitTheoryTestCase"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The method under test.</param>
 		public CulturedXunitTheoryTestCase(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
 			string culture)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
 			Initialize(culture);
 		}
@@ -59,8 +67,21 @@ namespace Xunit.Sdk
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
-				=> new CulturedXunitTheoryTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource).RunAsync();
+			CancellationTokenSource cancellationTokenSource) =>
+				new CulturedXunitTheoryTestCaseRunner(
+					TestAssemblyUniqueID,
+					TestCollectionUniqueID,
+					TestClassUniqueID,
+					TestMethodUniqueID,
+					this,
+					DisplayName,
+					SkipReason,
+					constructorArguments,
+					diagnosticMessageSink,
+					messageBus,
+					aggregator,
+					cancellationTokenSource
+				).RunAsync();
 
 		public override void Serialize(IXunitSerializationInfo data)
 		{

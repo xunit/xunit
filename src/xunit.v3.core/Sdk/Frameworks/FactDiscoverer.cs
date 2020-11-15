@@ -42,7 +42,16 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
 
+			var assemblyUniqueID = ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = ComputeUniqueID(assemblyUniqueID, testMethod.TestClass.TestCollection);
+			var classUniqueID = ComputeUniqueID(collectionUniqueID, testMethod.TestClass);
+			var methodUniqueID = ComputeUniqueID(classUniqueID, testMethod);
+
 			return new XunitTestCase(
+				assemblyUniqueID,
+				collectionUniqueID,
+				classUniqueID,
+				methodUniqueID,
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -83,13 +92,54 @@ namespace Xunit.Sdk
 		ExecutionErrorTestCase ErrorTestCase(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			ITestMethod testMethod,
-			string message) =>
-				new ExecutionErrorTestCase(
-					DiagnosticMessageSink,
-					discoveryOptions.MethodDisplayOrDefault(),
-					discoveryOptions.MethodDisplayOptionsOrDefault(),
-					testMethod,
-					message
-				);
+			string message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = ComputeUniqueID(assemblyUniqueID, testMethod.TestClass.TestCollection);
+			var classUniqueID = ComputeUniqueID(collectionUniqueID, testMethod.TestClass);
+			var methodUniqueID = ComputeUniqueID(classUniqueID, testMethod);
+
+			return new ExecutionErrorTestCase(
+				assemblyUniqueID,
+				collectionUniqueID,
+				classUniqueID,
+				methodUniqueID,
+				DiagnosticMessageSink,
+				discoveryOptions.MethodDisplayOrDefault(),
+				discoveryOptions.MethodDisplayOptionsOrDefault(),
+				testMethod,
+				message
+			);
+		}
+
+		/// <summary>
+		/// INTERNAL METHOD, DO NOT USE.
+		/// </summary>
+		public static string ComputeUniqueID(ITestAssembly testAssembly) =>
+			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
+
+		/// <summary>
+		/// INTERNAL METHOD, DO NOT USE.
+		/// </summary>
+		public static string? ComputeUniqueID(
+			string testCollectionUniqueID,
+			ITestClass? testClass) =>
+				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass?.Class?.Name);
+
+		/// <summary>
+		/// INTERNAL METHOD, DO NOT USE.
+		/// </summary>
+		public static string ComputeUniqueID(
+			string assemblyUniqueID,
+			ITestCollection testCollection) =>
+				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
+
+		/// <summary>
+		/// INTERNAL METHOD, DO NOT USE.
+		/// </summary>
+		public static string? ComputeUniqueID(
+			string? classUniqueID,
+			ITestMethod testMethod) =>
+				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method.Name);
 	}
 }

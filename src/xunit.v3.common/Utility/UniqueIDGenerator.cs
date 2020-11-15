@@ -103,22 +103,15 @@ namespace Xunit
 		}
 
 		/// <summary>
-		/// Computes a unique ID for a test method, to be placed into <see cref="_TestMethodMessage.TestMethodUniqueID"/>
+		/// Computes a unique ID for a test case, to be placed into <see cref="_TestCaseMessage.TestCaseUniqueID"/>
 		/// </summary>
-		/// <param name="testClassUniqueID">The unique ID of the parent test class for the test method</param>
-		/// <param name="methodName">The optional test method name</param>
-		/// <returns>The computed unique ID for the test method (may return <c>null</c> if either the class
-		/// unique ID or the method name is null)</returns>
-		public static string? ForTestMethod(
-			string? testClassUniqueID,
-			string? methodName)
+		/// <param name="parentUniqueID">The parent unique ID (should be method ID available, falling back
+		/// to class ID, and lastly falling back to collection ID if both method and class ID are <c>null</c>).</param>
+		public static string ForTestCase(
+			string parentUniqueID)
 		{
-			if (testClassUniqueID == null || methodName == null)
-				return null;
-
 			using var generator = new UniqueIDGenerator();
-			generator.Add(testClassUniqueID);
-			generator.Add(methodName);
+			generator.Add(parentUniqueID);
 			return generator.Compute();
 		}
 
@@ -163,6 +156,26 @@ namespace Xunit
 			generator.Add(assemblyUniqueID);
 			generator.Add(collectionDisplayName);
 			generator.Add(collectionDefinitionClassName ?? string.Empty);
+			return generator.Compute();
+		}
+
+		/// <summary>
+		/// Computes a unique ID for a test method, to be placed into <see cref="_TestMethodMessage.TestMethodUniqueID"/>
+		/// </summary>
+		/// <param name="testClassUniqueID">The unique ID of the parent test class for the test method</param>
+		/// <param name="methodName">The optional test method name</param>
+		/// <returns>The computed unique ID for the test method (may return <c>null</c> if either the class
+		/// unique ID or the method name is null)</returns>
+		public static string? ForTestMethod(
+			string? testClassUniqueID,
+			string? methodName)
+		{
+			if (testClassUniqueID == null || methodName == null)
+				return null;
+
+			using var generator = new UniqueIDGenerator();
+			generator.Add(testClassUniqueID);
+			generator.Add(methodName);
 			return generator.Compute();
 		}
 

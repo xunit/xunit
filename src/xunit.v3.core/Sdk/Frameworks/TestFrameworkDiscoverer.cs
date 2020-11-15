@@ -82,6 +82,11 @@ namespace Xunit.Sdk
 			set => sourceProvider = Guard.ArgumentNotNull(nameof(SourceProvider), value);
 		}
 
+		/// <summary>
+		/// Gets the unique ID for the test assembly under test.
+		/// </summary>
+		public abstract string TestAssemblyUniqueID { get; }
+
 		/// <inheritdoc/>
 		public string TargetFramework => targetFramework.Value;
 
@@ -173,12 +178,16 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Core implementation to discover unit tests in a given test class.
 		/// </summary>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testClass">The test class.</param>
 		/// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
 		/// <param name="messageBus">The message sink to send discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
 		protected abstract bool FindTestsForType(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
@@ -193,7 +202,9 @@ namespace Xunit.Sdk
 		{
 			try
 			{
-				return FindTestsForType(testClass, includeSourceInformation, messageBus, discoveryOptions);
+				var testCollectionUniqueID = FactDiscoverer.ComputeUniqueID(TestAssemblyUniqueID, testClass.TestCollection);
+				var testClassUniqueID = FactDiscoverer.ComputeUniqueID(testCollectionUniqueID, testClass);
+				return FindTestsForType(testCollectionUniqueID, testClassUniqueID, testClass, includeSourceInformation, messageBus, discoveryOptions);
 			}
 			catch (Exception ex)
 			{

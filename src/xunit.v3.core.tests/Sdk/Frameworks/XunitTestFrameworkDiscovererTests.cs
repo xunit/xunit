@@ -503,10 +503,12 @@ public class XunitTestFrameworkDiscovererTests
 			bool includeSourceInformation = false)
 		{
 			using var messageBus = new MessageBus(Sink);
-			return base.FindTestsForType(testClass, includeSourceInformation, messageBus, _TestFrameworkOptions.ForDiscovery());
+			return base.FindTestsForType("test-collection-id", "test-class-id", testClass, includeSourceInformation, messageBus, _TestFrameworkOptions.ForDiscovery());
 		}
 
 		protected sealed override bool FindTestsForType(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,

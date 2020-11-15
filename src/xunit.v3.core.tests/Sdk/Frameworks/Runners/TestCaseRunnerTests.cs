@@ -24,12 +24,7 @@ public class TestCaseRunnerTests
 		Assert.False(runner.TokenSource.IsCancellationRequested);
 		Assert.Collection(
 			messageBus.Messages,
-			msg =>
-			{
-				var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);
-				Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testCaseStarting.TestCollection);
-				Assert.Same(runner.TestCase, testCaseStarting.TestCase);
-			},
+			msg => Assert.IsAssignableFrom<_TestCaseStarting>(msg),
 			msg =>
 			{
 				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
@@ -55,7 +50,7 @@ public class TestCaseRunnerTests
 				var msg = callInfo.Arg<IMessageSinkMessage>();
 				messages.Add(msg);
 
-				if (msg is ITestCaseStarting)
+				if (msg is _TestCaseStarting)
 					throw new InvalidOperationException();
 
 				return true;
@@ -65,7 +60,7 @@ public class TestCaseRunnerTests
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 		var starting = Assert.Single(messages);
-		Assert.IsAssignableFrom<ITestCaseStarting>(starting);
+		Assert.IsAssignableFrom<_TestCaseStarting>(starting);
 		Assert.False(runner.RunTestAsync_Called);
 	}
 
@@ -118,7 +113,7 @@ public class TestCaseRunnerTests
 	[Fact]
 	public static async void Cancellation_TestCaseStarting_DoesNotCallExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCaseStarting));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCaseStarting));
 		var runner = TestableTestCaseRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -152,7 +147,7 @@ public class TestCaseRunnerTests
 	}
 
 	[Theory]
-	[InlineData(typeof(ITestCaseStarting))]
+	[InlineData(typeof(_TestCaseStarting))]
 	[InlineData(typeof(ITestCaseFinished))]
 	public static async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
@@ -183,7 +178,7 @@ public class TestCaseRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource tokenSource,
 			RunSummary result)
-				: base(testCase, messageBus, aggregator, tokenSource)
+				: base("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource)
 		{
 			this.result = result;
 

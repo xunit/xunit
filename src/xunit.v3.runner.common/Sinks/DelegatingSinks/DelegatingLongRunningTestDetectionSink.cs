@@ -16,7 +16,7 @@ namespace Xunit.Runner.Common
 	public class DelegatingLongRunningTestDetectionSink : LongLivedMarshalByRefObject, IExecutionSink
 	{
 		readonly Action<LongRunningTestsSummary> callback;
-		readonly Dictionary<ITestCase, DateTime> executingTestCases = new Dictionary<ITestCase, DateTime>();
+		readonly Dictionary<string, (_ITestCaseMetadata metadata, DateTime startTime)> executingTestCases = new Dictionary<string, (_ITestCaseMetadata, DateTime)>();
 		readonly ExecutionEventSink executionSink = new ExecutionEventSink();
 		readonly IExecutionSink innerSink;
 		DateTime lastTestActivity;
@@ -82,7 +82,7 @@ namespace Xunit.Runner.Common
 			LongRunningTestsSummary summary,
 			_IMessageSink diagnosticMessageSink)
 		{
-			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.DisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
+			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.TestCaseDisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
 			var message = string.Join(Environment.NewLine, messages.ToArray());
 
 			diagnosticMessageSink.OnMessage(new DiagnosticMessage(message));
@@ -111,15 +111,15 @@ namespace Xunit.Runner.Common
 		{
 			lock (executingTestCases)
 			{
-				executingTestCases.Remove(args.Message.TestCase);
+				executingTestCases.Remove(args.Message.TestCase.UniqueID);
 				lastTestActivity = UtcNow;
 			}
 		}
 
-		void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
+		void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
 		{
 			lock (executingTestCases)
-				executingTestCases.Add(args.Message.TestCase, UtcNow);
+				executingTestCases.Add(args.Message.TestCaseUniqueID, (args.Message, UtcNow));
 		}
 
 		/// <inheritdoc/>
@@ -134,15 +134,15 @@ namespace Xunit.Runner.Common
 
 		void SendLongRunningMessage()
 		{
-			Dictionary<ITestCase, TimeSpan> longRunningTestCases;
+			Dictionary<_ITestCaseMetadata, TimeSpan> longRunningTestCases;
 			lock (executingTestCases)
 			{
 				var now = UtcNow;
 
 				longRunningTestCases =
 					executingTestCases
-						.Where(kvp => (now - kvp.Value) >= longRunningTestTime)
-						.ToDictionary(k => k.Key, v => now - v.Value);
+						.Where(kvp => (now - kvp.Value.startTime) >= longRunningTestTime)
+						.ToDictionary(k => k.Value.metadata, v => now - v.Value.startTime);
 			}
 
 			if (longRunningTestCases.Count > 0)

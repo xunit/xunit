@@ -272,27 +272,32 @@ public class Xunit1Tests
 				{
 					var testClassStarting = Assert.IsType<_TestClassStarting>(message);
 					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testClassStarting.AssemblyUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testClassStarting.TestCollectionUniqueID);
 					Assert.Equal("type1", testClassStarting.TestClass);
 					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testClassStarting.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testClassStarting.TestCollectionUniqueID);
 				},
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
 					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testMethodStarting.AssemblyUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testMethodStarting.TestCollectionUniqueID);
 					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testMethodStarting.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testMethodStarting.TestCollectionUniqueID);
 					Assert.Equal("passing", testMethodStarting.TestMethod);
 					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testMethodStarting.TestMethodUniqueID);
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Same(testAssembly, testCaseStarting.TestAssembly);
-					Assert.Same(testCollection, testCaseStarting.TestCollection);
-					Assert.Equal("type1", testCaseStarting.TestClass.Class.Name);
-					Assert.Equal("passing", testCaseStarting.TestMethod.Method.Name);
-					Assert.Equal("type1.passing", testCaseStarting.TestCase.DisplayName);
+					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testCaseStarting.AssemblyUniqueID);
+					Assert.Null(testCaseStarting.SkipReason);
+					Assert.Null(testCaseStarting.SourceFilePath);
+					Assert.Null(testCaseStarting.SourceLineNumber);
+					Assert.Equal("type1.passing", testCaseStarting.TestCaseDisplayName);
+					Assert.Equal("type1.passing (assembly)", testCaseStarting.TestCaseUniqueID);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testCaseStarting.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCaseStarting.TestCollectionUniqueID);
+					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testCaseStarting.TestMethodUniqueID);
+					Assert.Empty(testCaseStarting.Traits);
 				},
 				message =>
 				{
@@ -351,8 +356,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Equal("type1.failing", testCaseStarting.TestCase.DisplayName);
+					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					Assert.Equal("type1.failing", testCaseStarting.TestCaseDisplayName);
 				},
 				message =>
 				{
@@ -411,8 +416,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Equal("type2.skipping", testCaseStarting.TestCase.DisplayName);
+					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					Assert.Equal("type2.skipping", testCaseStarting.TestCaseDisplayName);
 				},
 				message =>
 				{
@@ -456,8 +461,8 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Equal("type2.skipping_with_start", testCaseStarting.TestCase.DisplayName);
+					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					Assert.Equal("type2.skipping_with_start", testCaseStarting.TestCaseDisplayName);
 				},
 				message =>
 				{

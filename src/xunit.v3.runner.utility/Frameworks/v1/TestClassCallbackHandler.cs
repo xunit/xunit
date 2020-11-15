@@ -206,12 +206,14 @@ namespace Xunit.Runner.v1
 
 			if (current != lastTestCase && current != null)
 			{
+				var assemblyUniqueID = GetAssemblyUniqueID(current.TestMethod.TestClass.TestCollection.TestAssembly);
+				var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, current.TestMethod.TestClass.TestCollection);
+				var classUniqueID = GetClassUniqueID(collectionUniqueID, current.TestMethod.TestClass);
+				var methodUniqueID = GetMethodUniqueID(classUniqueID, current.TestMethod);
+
+				// Dispatch TestMethodStarting if we've moved onto a new method
 				if (lastTestCase == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
 				{
-					var assemblyUniqueID = GetAssemblyUniqueID(current.TestMethod.TestClass.TestCollection.TestAssembly);
-					var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, current.TestMethod.TestClass.TestCollection);
-					var classUniqueID = GetClassUniqueID(collectionUniqueID, current.TestMethod.TestClass);
-					var methodUniqueID = GetMethodUniqueID(classUniqueID, current.TestMethod);
 					var testMethodStarting = new _TestMethodStarting
 					{
 						AssemblyUniqueID = assemblyUniqueID,
@@ -223,7 +225,22 @@ namespace Xunit.Runner.v1
 					results.Continue = messageSink.OnMessage(testMethodStarting) && results.Continue;
 				}
 
-				results.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && results.Continue;
+				// Dispatch TestCaseStarting
+				var testCaseStarting = new _TestCaseStarting
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					SkipReason = current.SkipReason,
+					SourceFilePath = current.SourceInformation?.FileName,
+					SourceLineNumber = current.SourceInformation?.LineNumber,
+					TestCaseDisplayName = current.DisplayName,
+					TestCaseUniqueID = current.UniqueID,
+					TestClassUniqueID = classUniqueID,
+					TestCollectionUniqueID = collectionUniqueID,
+					TestMethodUniqueID = methodUniqueID,
+					Traits = current.Traits
+				};
+
+				results.Continue = messageSink.OnMessage(testCaseStarting) && results.Continue;
 			}
 
 			lastTestCase = current;
