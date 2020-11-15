@@ -134,7 +134,7 @@ namespace Xunit.Runner.Common
 			{ typeof(_TestCollectionCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation, AddFieldsForITestCollectionMessage } },
 			{ typeof(_TestClassCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(_TestAssemblyCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(ITestCaseCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } }
+			{ typeof(_TestCaseCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } }
 		};
 
 		static Dictionary<string, object?> InitObject(string messageName, object message, Type messageType, string? flowId = null)
@@ -279,11 +279,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestCaseCleanupFailure testAssemblyCleanupFailure)
+		public static string ToJson(this _TestCaseCleanupFailure testAssemblyCleanupFailure)
 		{
 			Guard.ArgumentNotNull(nameof(testAssemblyCleanupFailure), testAssemblyCleanupFailure);
 
-			var json = InitObject("testAssemblyCleanupFailure", testAssemblyCleanupFailure, typeof(ITestCaseCleanupFailure));
+			var json = InitObject("testAssemblyCleanupFailure", testAssemblyCleanupFailure, typeof(_TestCaseCleanupFailure));
 
 			return ToJson(json);
 		}

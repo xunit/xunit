@@ -27,6 +27,7 @@ namespace Xunit.Runner.v2
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
 
+				Convert<ITestCaseCleanupFailure>(message, messageTypes, AdaptTestCaseCleanupFailure) ??
 				Convert<ITestCaseFinished>(message, messageTypes, AdaptTestCaseFinished) ??
 				Convert<ITestCaseStarting>(message, messageTypes, AdaptTestCaseStarting) ??
 
@@ -89,6 +90,27 @@ namespace Xunit.Runner.v2
 				TargetFramework = targetFramework,
 				TestEnvironment = message.TestEnvironment,
 				TestFrameworkDisplayName = message.TestFrameworkDisplayName
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestCaseCleanupFailure(ITestCaseCleanupFailure message)
+		{
+			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+
+			return new _TestCaseCleanupFailure
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = message.ExceptionParentIndices,
+				ExceptionTypes = message.ExceptionTypes,
+				Messages = message.Messages,
+				StackTraces = message.StackTraces,
+				TestCaseUniqueID = message.TestCase.UniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 			};
 		}
 

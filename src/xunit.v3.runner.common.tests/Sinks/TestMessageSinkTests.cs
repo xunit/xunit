@@ -26,7 +26,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(_TestAssemblyCleanupFailure))]
 	[InlineData(typeof(_TestAssemblyFinished))]
 	[InlineData(typeof(_TestAssemblyStarting))]
-	[InlineData(typeof(ITestCaseCleanupFailure))]
+	[InlineData(typeof(_TestCaseCleanupFailure))]
 	[InlineData(typeof(_TestCaseFinished))]
 	[InlineData(typeof(_TestCaseStarting))]
 	[InlineData(typeof(_TestClassCleanupFailure))]

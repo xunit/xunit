@@ -155,8 +155,19 @@ namespace Xunit.Sdk
 					await BeforeTestCaseFinishedAsync();
 
 					if (Aggregator.HasExceptions)
-						if (!MessageBus.QueueMessage(new TestCaseCleanupFailure(TestCase, Aggregator.ToException()!)))
+					{
+						var testCaseCleanupFailure = _TestCaseCleanupFailure.FromException(
+							Aggregator.ToException()!,
+							TestAssemblyUniqueID,
+							TestCollectionUniqueID,
+							TestClassUniqueID,
+							TestMethodUniqueID,
+							TestCase.UniqueID
+						);
+
+						if (!MessageBus.QueueMessage(testCaseCleanupFailure))
 							CancellationTokenSource.Cancel();
+					}
 				}
 				finally
 				{

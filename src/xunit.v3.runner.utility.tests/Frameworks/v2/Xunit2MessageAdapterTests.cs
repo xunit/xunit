@@ -173,6 +173,22 @@ public class Xunit2MessageAdapterTests
 	public class TestCaseTests
 	{
 		[Fact]
+		public void TestCaseCleanupFailure()
+		{
+			var v2Message = v2Mocks.TestCaseCleanupFailure(TestCase, ThrownException);
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestCaseCleanupFailure>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			AssertErrorMetadata(v3Message, ThrownException);
+		}
+
+		[Fact]
 		public void TestCaseFinished()
 		{
 			var v2Message = v2Mocks.TestCaseFinished(

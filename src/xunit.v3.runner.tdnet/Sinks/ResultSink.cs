@@ -34,7 +34,11 @@ namespace Xunit.Runner.TdNet
 				args => metadataCache.Set(args.Message);
 
 			Execution.TestCaseCleanupFailureEvent +=
-				args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
+				args => ReportError($"Test Case Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestCaseDisplayName ?? "<unknown test case>"})", args.Message);
+			Execution.TestCaseFinishedEvent +=
+				args => metadataCache.TryRemove(args.Message);
+			Execution.TestCaseStartingEvent +=
+				args => metadataCache.Set(args.Message);
 
 			Execution.TestClassCleanupFailureEvent +=
 				args => ReportError($"Test Class Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestClass ?? "<unknown test class>"})", args.Message);

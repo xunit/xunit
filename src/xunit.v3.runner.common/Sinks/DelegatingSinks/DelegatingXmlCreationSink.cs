@@ -60,23 +60,32 @@ namespace Xunit.Runner.Common
 			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
+
 				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
-				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
+
+				&& message.Dispatch<_TestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
+				&& message.Dispatch<_TestCaseFinished>(messageTypes, HandleTestCaseFinished)
+				&& message.Dispatch<_TestCaseStarting>(messageTypes, HandleTestCaseStarting)
+
 				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
 				&& message.Dispatch<_TestClassFinished>(messageTypes, HandleTestClassFinished)
 				&& message.Dispatch<_TestClassStarting>(messageTypes, HandleTestClassStarting)
-				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
+
 				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
 				&& message.Dispatch<_TestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
 				&& message.Dispatch<_TestCollectionStarting>(messageTypes, HandleTestCollectionStarting)
-				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
+
 				&& message.Dispatch<_TestMethodCleanupFailure>(messageTypes, HandleTestMethodCleanupFailure)
 				&& message.Dispatch<_TestMethodFinished>(messageTypes, HandleTestMethodFinished)
 				&& message.Dispatch<_TestMethodStarting>(messageTypes, HandleTestMethodStarting)
+
+				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
+				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
 				&& message.Dispatch<ITestPassed>(messageTypes, HandleTestPassed)
 				&& message.Dispatch<ITestSkipped>(messageTypes, HandleTestSkipped)
+
 				&& result;
 		}
 
@@ -223,8 +232,20 @@ namespace Xunit.Runner.Common
 			metadataCache.Set(assemblyStarting);
 		}
 
-		void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
-			=> AddError("test-case-cleanup", args.Message.TestCase.DisplayName, args.Message);
+		void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-case-cleanup", metadata.TestCaseDisplayName, args.Message);
+			else
+				AddError("test-case-cleanup", "<unknown test case>", args.Message);
+		}
+
+		void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args) =>
+			metadataCache.TryRemove(args.Message);
+
+		void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args) =>
+			metadataCache.Set(args.Message);
 
 		void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 		{

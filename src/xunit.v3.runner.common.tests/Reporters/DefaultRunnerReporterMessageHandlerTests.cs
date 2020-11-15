@@ -28,7 +28,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		readonly string[] messages = new[] { $"This is my message \t{Environment.NewLine}Message Line 2" };
 		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" };
-		//readonly string testCaseID = "test-case-id";
+		readonly string testCaseID = "test-case-id";
 		//readonly string testID = "test-id";
 
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
@@ -46,13 +46,8 @@ public class DefaultRunnerReporterMessageHandlerTests
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
 
-				// ITestCaseCleanupFailure
-				var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
-				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-				testCaseCleanupFailure.TestCase.Returns(testCase);
-				yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
-
 				// ITestCleanupFailure
+				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
 				var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
 				var test = Mocks.Test(testCase, "MyTest");
 				testCleanupFailure.Test.Returns(test);
@@ -82,6 +77,38 @@ public class DefaultRunnerReporterMessageHandlerTests
 			handler.OnMessage(assemblyCleanupFailure);
 
 			AssertFailureMessages(handler.Messages, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)");
+		}
+
+		[Fact]
+		public void TestCaseCleanupFailure()
+		{
+			var caseStarting = new _TestCaseStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCaseUniqueID = testCaseID,
+				TestCaseDisplayName = "MyTestCase",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethodUniqueID = methodID
+			};
+			var caseCleanupFailure = new _TestCaseCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCaseUniqueID = testCaseID,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(caseStarting);
+			handler.OnMessage(caseCleanupFailure);
+
+			AssertFailureMessages(handler.Messages, "Test Case Cleanup Failure (MyTestCase)");
 		}
 
 		[Fact]

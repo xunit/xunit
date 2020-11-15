@@ -108,7 +108,7 @@ public class ResultSinkTests
 		readonly string[] messages = new[] { "This is my message \t\r\n" };
 		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
-		//readonly string testCaseID = "test-case-id";
+		readonly string testCaseID = "test-case-id";
 		//readonly string testID = "test-id";
 
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
@@ -127,11 +127,7 @@ public class ResultSinkTests
 			{
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "Fatal Error" };
 
-				var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
 				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-				testCaseCleanupFailure.TestCase.Returns(testCase);
-				yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
-
 				var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
 				var test = Mocks.Test(testCase, "MyTest");
 				testCleanupFailure.Test.Returns(test);
@@ -162,6 +158,39 @@ public class ResultSinkTests
 			sink.OnMessage(collectionCleanupFailure);
 
 			AssertFailureInformation(listener, sink.TestRunState, "Test Assembly Cleanup Failure (assembly-file-path)");
+		}
+
+		[Fact]
+		public async ValueTask TestCaseCleanupFailure()
+		{
+			var caseStarting = new _TestCaseStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCaseUniqueID = testCaseID,
+				TestCaseDisplayName = "MyTestCase",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethodUniqueID = methodID
+			};
+			var caseCleanupFailure = new _TestCaseCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCaseUniqueID = testCaseID,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(caseStarting);
+			sink.OnMessage(caseCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Case Cleanup Failure (MyTestCase)");
 		}
 
 		[Fact]

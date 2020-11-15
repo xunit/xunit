@@ -39,18 +39,25 @@ namespace Xunit.Runner.Common
 			Execution.TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
 			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
 			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
+
 			Execution.TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
 			Execution.TestClassFinishedEvent += HandleTestClassFinished;
 			Execution.TestClassStartingEvent += HandleTestClassStarting;
+
 			Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+			Execution.TestCaseFinishedEvent += HandleTestCaseFinished;
+			Execution.TestCaseStartingEvent += HandleTestCaseStarting;
+
 			Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
 			Execution.TestCollectionFinishedEvent += HandleTestCollectionFinished;
 			Execution.TestCollectionStartingEvent += HandleTestCollectionStarting;
-			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
-			Execution.TestFailedEvent += HandleTestFailed;
+
 			Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
 			Execution.TestMethodFinishedEvent += HandleTestMethodFinished;
 			Execution.TestMethodStartingEvent += HandleTestMethodStarting;
+
+			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
+			Execution.TestFailedEvent += HandleTestFailed;
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
 
@@ -338,14 +345,40 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestCaseCleanupFailure"/> is raised.
+		/// Called when <see cref="_TestCaseCleanupFailure"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
+		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			LogError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Case Cleanup Failure ({metadata.TestCaseDisplayName})", args.Message);
+			else
+				LogError("Test Case Cleanup Failure (<unknown test case>)", args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestCaseFinished"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestCaseStarting"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>
