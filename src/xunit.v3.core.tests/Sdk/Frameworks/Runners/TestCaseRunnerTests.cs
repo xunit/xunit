@@ -27,9 +27,7 @@ public class TestCaseRunnerTests
 			msg => Assert.IsAssignableFrom<_TestCaseStarting>(msg),
 			msg =>
 			{
-				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-				Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testCaseFinished.TestCollection);
-				Assert.Same(runner.TestCase, testCaseFinished.TestCase);
+				var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(msg);
 				Assert.Equal(21.12m, testCaseFinished.ExecutionTime);
 				Assert.Equal(4, testCaseFinished.TestsRun);
 				Assert.Equal(2, testCaseFinished.TestsFailed);
@@ -125,7 +123,7 @@ public class TestCaseRunnerTests
 	[Fact]
 	public static async void Cancellation_TestCaseFinished_CallsExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCaseFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCaseFinished));
 		var runner = TestableTestCaseRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -148,7 +146,7 @@ public class TestCaseRunnerTests
 
 	[Theory]
 	[InlineData(typeof(_TestCaseStarting))]
-	[InlineData(typeof(ITestCaseFinished))]
+	[InlineData(typeof(_TestCaseFinished))]
 	public static async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
 		var messageBus = new SpyMessageBus(msg => !(messageTypeToCancelOn.IsAssignableFrom(msg.GetType())));

@@ -176,16 +176,30 @@ namespace Xunit.Runner.v1
 
 			if (current != lastTestCase && lastTestCase != null)
 			{
-				results.Continue = messageSink.OnMessage(new TestCaseFinished(lastTestCase, testCaseResults.Time, testCaseResults.Total, testCaseResults.Failed, testCaseResults.Skipped)) && results.Continue;
+				var assemblyUniqueID = GetAssemblyUniqueID(lastTestCase.TestMethod.TestClass.TestCollection.TestAssembly);
+				var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, lastTestCase.TestMethod.TestClass.TestCollection);
+				var classUniqueID = GetClassUniqueID(collectionUniqueID, lastTestCase.TestMethod.TestClass);
+				var methodUniqueID = GetMethodUniqueID(classUniqueID, lastTestCase.TestMethod);
+
+				var testCaseFinished = new _TestCaseFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = testCaseResults.Time,
+					TestCaseUniqueID = lastTestCase.UniqueID,
+					TestClassUniqueID = classUniqueID,
+					TestCollectionUniqueID = collectionUniqueID,
+					TestMethodUniqueID = methodUniqueID,
+					TestsFailed = testCaseResults.Failed,
+					TestsRun = testCaseResults.Total,
+					TestsSkipped = testCaseResults.Skipped
+				};
+
+				results.Continue = messageSink.OnMessage(testCaseFinished) && results.Continue;
 				testMethodResults.Aggregate(testCaseResults);
 				testCaseResults.Reset();
 
 				if (current == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
 				{
-					var assemblyUniqueID = GetAssemblyUniqueID(lastTestCase.TestMethod.TestClass.TestCollection.TestAssembly);
-					var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, lastTestCase.TestMethod.TestClass.TestCollection);
-					var classUniqueID = GetClassUniqueID(collectionUniqueID, lastTestCase.TestMethod.TestClass);
-					var methodUniqueID = GetMethodUniqueID(classUniqueID, lastTestCase.TestMethod);
 					var testMethodFinished = new _TestMethodFinished
 					{
 						AssemblyUniqueID = assemblyUniqueID,

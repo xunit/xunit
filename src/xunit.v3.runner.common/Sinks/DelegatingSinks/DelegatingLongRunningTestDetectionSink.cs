@@ -107,11 +107,11 @@ namespace Xunit.Runner.Common
 			ThreadPool.QueueUserWorkItem(ThreadWorker);
 		}
 
-		void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
+		void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
 		{
 			lock (executingTestCases)
 			{
-				executingTestCases.Remove(args.Message.TestCase.UniqueID);
+				executingTestCases.Remove(args.Message.TestCaseUniqueID);
 				lastTestActivity = UtcNow;
 			}
 		}

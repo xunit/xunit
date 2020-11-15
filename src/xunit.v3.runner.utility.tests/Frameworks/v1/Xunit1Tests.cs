@@ -330,12 +330,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
-					Assert.Same(testAssembly, testCaseFinished.TestAssembly);
-					Assert.Same(testCollection, testCaseFinished.TestCollection);
-					Assert.Equal("type1", testCaseFinished.TestClass.Class.Name);
-					Assert.Equal("passing", testCaseFinished.TestMethod.Method.Name);
-					Assert.Equal("type1.passing", testCaseFinished.TestCase.DisplayName);
+					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
 					Assert.Equal(1M, testCaseFinished.ExecutionTime);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsRun);
@@ -381,8 +376,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
-					Assert.Equal("type1.failing", testCaseFinished.TestCase.DisplayName);
+					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
 					Assert.Equal(0.234M, testCaseFinished.ExecutionTime);
 					Assert.Equal(1, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsRun);
@@ -439,8 +433,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
-					Assert.Equal("type2.skipping", testCaseFinished.TestCase.DisplayName);
+					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
 					Assert.Equal(0M, testCaseFinished.ExecutionTime);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsRun);
@@ -484,8 +477,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
-					Assert.Equal("type2.skipping_with_start", testCaseFinished.TestCase.DisplayName);
+					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
 					Assert.Equal(0M, testCaseFinished.ExecutionTime);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsRun);

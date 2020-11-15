@@ -145,6 +145,31 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static ITestCaseFinished TestCaseFinished(
+			ITestCase testCase,
+			decimal executionTime,
+			int testsFailed,
+			int testsRun,
+			int testsSkipped)
+		{
+			var result = Substitute.For<ITestCaseFinished, InterfaceProxy<ITestCaseFinished>>();
+			var testMethod = testCase.TestMethod;
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+
+			result.ExecutionTime.Returns(executionTime);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestCase.Returns(testCase);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			result.TestsFailed.Returns(testsFailed);
+			result.TestsRun.Returns(testsRun);
+			result.TestsSkipped.Returns(testsSkipped);
+			return result;
+		}
+
 		public static ITestCaseStarting TestCaseStarting(ITestCase testCase)
 		{
 			var testMethod = testCase.TestMethod;

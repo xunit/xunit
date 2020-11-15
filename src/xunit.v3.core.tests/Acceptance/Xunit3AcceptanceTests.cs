@@ -134,7 +134,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
 					Assert.Equal(1, testCaseFinished.TestsRun);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);

@@ -39,7 +39,7 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 				Assert.Equal(testDisplayName, passed.Test.DisplayName);
 			},
 			message => Assert.IsAssignableFrom<ITestFinished>(message),
-			message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+			message => Assert.IsAssignableFrom<_TestCaseFinished>(message),
 			message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 			message => Assert.IsType<_TestClassFinished>(message),
 			message => Assert.IsType<_TestCollectionFinished>(message)
