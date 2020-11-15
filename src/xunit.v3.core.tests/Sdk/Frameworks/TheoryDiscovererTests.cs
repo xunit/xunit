@@ -388,6 +388,46 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public void TestMethod(int value) { }
 	}
 
+	[Fact]
+	public void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod(typeof(ClassWithExplicitConvertedData), "ParameterDeclaredExplicitConversion");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		var testCase = Assert.Single(testCases);
+		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion", theoryTestCase.DisplayName);
+	}
+
+	class ClassWithExplicitConvertedData
+	{
+		// Explicit conversion defined on the parameter's type
+		[Theory]
+		[InlineData("abc")]
+		public void ParameterDeclaredExplicitConversion(Explicit e)
+		{
+			Assert.Equal("abc", e.Value);
+		}
+
+		public class Explicit
+		{
+			public string? Value { get; set; }
+
+			public static explicit operator Explicit(string value)
+			{
+				return new Explicit() { Value = value };
+			}
+
+			public static explicit operator string?(Explicit e)
+			{
+				return e.Value;
+			}
+		}
+	}
+
 	class TestableTheoryDiscoverer : TheoryDiscoverer
 	{
 		public List<IMessageSinkMessage> DiagnosticMessages;

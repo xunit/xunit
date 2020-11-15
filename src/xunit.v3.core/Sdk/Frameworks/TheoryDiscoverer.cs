@@ -258,7 +258,14 @@ namespace Xunit.Sdk
 							// Determine whether we can serialize the test case, since we need a way to uniquely
 							// identify a test and serialization is the best way to do that. If it's not serializable,
 							// this will throw and we will fall back to a single theory test case that gets its data at runtime.
-							if (!SerializationHelper.IsSerializable(dataRow))
+							// Also, if we can, we should attempt to resolve it to its parameter type right now, because
+							// the incoming data might be serializable but the actual parameter value that it gets converted
+							// to might not be, and serialization uses the resolved argument and not the input argument.
+							var resolvedData = dataRow;
+							if (testMethod.Method is IReflectionMethodInfo reflectionMethodInfo)
+								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(dataRow);
+
+							if (!SerializationHelper.IsSerializable(resolvedData))
 							{
 								DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case."));
 								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
