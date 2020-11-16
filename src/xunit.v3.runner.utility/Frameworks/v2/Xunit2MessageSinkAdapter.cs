@@ -15,14 +15,16 @@ namespace Xunit.Runner.v2
 		/// automatically converted into their v3 form and passed along to the
 		/// v3 message sink.
 		/// </summary>
+		/// <param name="assemblyUniqueID">The unique ID of the assembly this adapter is for</param>
 		/// <param name="v3MessageSink">The v3 message sink to adapt</param>
 		/// <param name="adapter">The optional adapter (settable only for testing purposes)</param>
 		/// <returns>A v2 message sink which supports both <see cref="IMessageSink"/>
 		/// and <see cref="IMessageSinkWithTypes"/>.</returns>
 		public static Xunit2MessageSink Adapt(
+			string assemblyUniqueID,
 			_IMessageSink v3MessageSink,
 			// TODO: Return type should eventually be _MessageSinkMessage
-			Func<IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage>? adapter = null) =>
-				new Xunit2MessageSink(v3MessageSink, adapter);
+			Func<string, IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage>? adapter = null) =>
+				new Xunit2MessageSink(assemblyUniqueID, v3MessageSink, adapter);
 	}
 }

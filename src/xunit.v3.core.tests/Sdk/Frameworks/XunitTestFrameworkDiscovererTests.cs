@@ -485,6 +485,8 @@ public class XunitTestFrameworkDiscovererTests
 
 		public IAssemblyInfo Assembly { get; private set; }
 
+		public override sealed string TestAssemblyUniqueID => "asm-id";
+
 		public List<ITestCase> TestCases
 		{
 			get

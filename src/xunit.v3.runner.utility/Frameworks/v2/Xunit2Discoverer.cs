@@ -29,6 +29,7 @@ namespace Xunit
 #endif
 
 		readonly IAssemblyInfo assemblyInfo;
+		readonly string assemblyUniqueID;
 		readonly string? configFileName;
 		bool disposed;
 		ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
@@ -138,9 +139,10 @@ namespace Xunit
 
 			this.assemblyInfo = assemblyInfo!;
 			this.configFileName = configFileName;
+			this.assemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.Name, this.assemblyInfo.AssemblyPath, configFileName);
 
 			var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
-			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(DiagnosticMessageSink);
+			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(assemblyUniqueID, DiagnosticMessageSink);
 			Framework = Guard.NotNull(
 				"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
 				AppDomain.CreateObject<ITestFramework>(
@@ -198,7 +200,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(nameof(sink), sink);
 
-			var v2MessageSink = Xunit2MessageSinkAdapter.Adapt(sink);
+			var v2MessageSink = Xunit2MessageSinkAdapter.Adapt(assemblyUniqueID, sink);
 
 			try
 			{

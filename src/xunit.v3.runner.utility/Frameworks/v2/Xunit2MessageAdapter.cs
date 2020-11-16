@@ -19,11 +19,14 @@ namespace Xunit.Runner.v2
 		// TODO: This has the wrong return type so that we can do fall-through, until
 		// we're finished moving from v2 to v3 messages in Runner Utility.
 		public static IMessageSinkMessage Adapt(
+			string assemblyUniqueID,
 			IMessageSinkMessage message,
 			HashSet<string>? messageTypes = null)
 		{
 			return
 				Convert<IDiagnosticMessage>(message, messageTypes, AdaptDiagnosticMessage) ??
+
+				Convert<IDiscoveryCompleteMessage>(assemblyUniqueID, message, messageTypes, AdaptDiscoveryCompleteMessage) ??
 
 				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
@@ -50,6 +53,9 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptDiagnosticMessage(IDiagnosticMessage message) =>
 			new _DiagnosticMessage { Message = message.Message };
+
+		static _MessageSinkMessage AdaptDiscoveryCompleteMessage(string assemblyUniqueID, IDiscoveryCompleteMessage message) =>
+			new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
 
 		static _MessageSinkMessage AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message)
 		{
@@ -346,6 +352,22 @@ namespace Xunit.Runner.v2
 			var castMessage = message.Cast<TMessage>(messageTypes);
 			if (castMessage != null)
 				return converter(castMessage);
+
+			return null;
+		}
+
+		static _MessageSinkMessage? Convert<TMessage>(
+			string assemblyUniqueID,
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes,
+			Func<string, TMessage, _MessageSinkMessage> converter)
+				where TMessage : class, IMessageSinkMessage
+		{
+			Guard.ArgumentNotNull(nameof(message), message);
+
+			var castMessage = message.Cast<TMessage>(messageTypes);
+			if (castMessage != null)
+				return converter(assemblyUniqueID, castMessage);
 
 			return null;
 		}

@@ -16,7 +16,8 @@ public class TestMessageSinkTests
 	[InlineData(typeof(_DiagnosticMessage))]
 	[InlineData(typeof(IErrorMessage))]
 	// Discovery
-	[InlineData(typeof(IDiscoveryCompleteMessage))]
+	[InlineData(typeof(_DiscoveryComplete))]
+	[InlineData(typeof(_DiscoveryStarting))]
 	[InlineData(typeof(ITestCaseDiscoveryMessage))]
 	// Execution
 	[InlineData(typeof(IAfterTestFinished))]

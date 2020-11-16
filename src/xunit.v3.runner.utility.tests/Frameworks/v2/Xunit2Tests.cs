@@ -15,7 +15,7 @@ public class Xunit2Tests
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			var controller = new TestableXunit2(assm.FileName, null, true);
-			using var sink = SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
@@ -30,7 +30,7 @@ public class Xunit2Tests
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			var controller = new TestableXunit2(assm.FileName, null, true);
-			using var sink = SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
 			controller.Find(typeName: "foo", includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
@@ -54,7 +54,7 @@ public class Foo
 
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assm.FileName, null, true);
-			using var sink = SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
@@ -104,7 +104,7 @@ namespace Namespace2
 
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
-			using var sink = SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
@@ -144,7 +144,7 @@ public class TestClass
 
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
-			using var sink = SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 

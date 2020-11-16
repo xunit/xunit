@@ -10,17 +10,20 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// A message sink which implements both <see cref="IMessageSink"/> and <see cref="IMessageSinkWithTypes"/>
 	/// which adapts and dispatches any incoming v2 messages to the given v3 message sink. It should be
-	/// created with <see cref="Xunit2MessageSinkAdapter.Adapt(_IMessageSink, Func{IMessageSinkMessage, HashSet{string}?, IMessageSinkMessage}?)"/>.
+	/// created with <see cref="Xunit2MessageSinkAdapter.Adapt"/>.
 	/// </summary>
 	public class Xunit2MessageSink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 	{
+		readonly string assemblyUniqueID;
+		readonly Func<string, IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage> adapter;
 		readonly _IMessageSink v3MessageSink;
-		readonly Func<IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage> adapter;
 
 		internal Xunit2MessageSink(
+			string assemblyUniqueID,
 			_IMessageSink v3MessageSink,
-			Func<IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage>? adapter = null)
+			Func<string, IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage>? adapter = null)
 		{
+			this.assemblyUniqueID = Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
 			this.v3MessageSink = Guard.ArgumentNotNull(nameof(v3MessageSink), v3MessageSink);
 			this.adapter = adapter ?? Xunit2MessageAdapter.Adapt;
 		}
@@ -73,7 +76,7 @@ namespace Xunit.Runner.v2
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			var v3Message = adapter(message, messageTypes);
+			var v3Message = adapter(assemblyUniqueID, message, messageTypes);
 			return v3MessageSink.OnMessage(v3Message);
 		}
 	}

@@ -171,11 +171,12 @@ namespace Xunit
 			_IMessageSink messageSink)
 		{
 			IAssemblyInfo assembly = new Xunit1AssemblyInfo(assemblyFileName);
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
 			var discoveryStarting = new _DiscoveryStarting
 			{
 				AssemblyName = assembly.Name,
 				AssemblyPath = assembly.AssemblyPath,
-				AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName),
+				AssemblyUniqueID = assemblyUniqueID,
 				ConfigFilePath = configFileName
 			};
 			messageSink.OnMessage(discoveryStarting);
@@ -209,7 +210,8 @@ namespace Xunit
 			}
 			finally
 			{
-				messageSink.OnMessage(new DiscoveryCompleteMessage());
+				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
+				messageSink.OnMessage(discoveryComplete);
 			}
 		}
 

@@ -133,7 +133,7 @@ namespace Xunit.Sdk
 					{
 						AssemblyName = AssemblyInfo.Name,
 						AssemblyPath = AssemblyInfo.AssemblyPath,
-						AssemblyUniqueID = UniqueIDGenerator.ForAssembly(AssemblyInfo.Name, AssemblyInfo.AssemblyPath, configFileName),
+						AssemblyUniqueID = TestAssemblyUniqueID,
 						ConfigFilePath = configFileName
 					};
 					messageBus.QueueMessage(discoveryStarting);
@@ -145,7 +145,8 @@ namespace Xunit.Sdk
 							break;
 					}
 
-					messageBus.QueueMessage(new DiscoveryCompleteMessage());
+					var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
+					messageBus.QueueMessage(discoveryComplete);
 				}
 			});
 		}
@@ -180,7 +181,7 @@ namespace Xunit.Sdk
 					{
 						AssemblyName = AssemblyInfo.Name,
 						AssemblyPath = AssemblyInfo.AssemblyPath,
-						AssemblyUniqueID = UniqueIDGenerator.ForAssembly(AssemblyInfo.Name, AssemblyInfo.AssemblyPath, configFileName),
+						AssemblyUniqueID = TestAssemblyUniqueID,
 						ConfigFilePath = configFileName
 					};
 					messageBus.QueueMessage(discoveryStarting);
@@ -192,7 +193,8 @@ namespace Xunit.Sdk
 						FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus, discoveryOptions);
 					}
 
-					messageBus.QueueMessage(new DiscoveryCompleteMessage());
+					var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
+					messageBus.QueueMessage(discoveryComplete);
 				}
 			});
 		}

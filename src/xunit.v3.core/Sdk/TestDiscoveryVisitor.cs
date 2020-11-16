@@ -37,7 +37,7 @@ namespace Xunit.Sdk
 			if (message is ITestCaseDiscoveryMessage discoveryMessage)
 				TestCases.Add(discoveryMessage.TestCase);
 
-			if (message is IDiscoveryCompleteMessage)
+			if (message is _DiscoveryComplete)
 				Finished.Set();
 
 			return true;

@@ -34,7 +34,7 @@ namespace Xunit.Runners
 			MessageTypeNames = new Dictionary<Type, string>();
 
 			AddMessageTypeName<_DiagnosticMessage>();
-			AddMessageTypeName<IDiscoveryCompleteMessage>();
+			AddMessageTypeName<_DiscoveryComplete>();
 			AddMessageTypeName<IErrorMessage>();
 			AddMessageTypeName<_TestAssemblyCleanupFailure>();
 			AddMessageTypeName<_TestAssemblyFinished>();
@@ -337,7 +337,7 @@ namespace Xunit.Runners
 			}))
 				return !cancelled;
 
-			if (DispatchMessage<IDiscoveryCompleteMessage>(message, messageTypes, discoveryComplete =>
+			if (DispatchMessage<_DiscoveryComplete>(message, messageTypes, discoveryComplete =>
 			{
 				OnDiscoveryComplete?.Invoke(new DiscoveryCompleteInfo(testCasesDiscovered, testCasesToRun.Count));
 				discoveryCompleteEvent.Set();

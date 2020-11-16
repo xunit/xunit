@@ -25,7 +25,7 @@ public class AcceptanceTestV3
 				var diagnosticMessageSink = new _NullMessageSink();
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
-				using var discoverySink = Xunit.v3.SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+				using var discoverySink = Xunit.v3.SpyMessageSink<_DiscoveryComplete>.Create();
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)

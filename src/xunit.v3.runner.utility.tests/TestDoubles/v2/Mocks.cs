@@ -35,6 +35,9 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static IDiscoveryCompleteMessage DiscoveryCompleteMessage() =>
+			Substitute.For<IDiscoveryCompleteMessage, InterfaceProxy<IDiscoveryCompleteMessage>>();
+
 		static IEnumerable<IAttributeInfo> LookupAttribute(
 			string fullyQualifiedTypeName,
 			IReflectionAttributeInfo[]? attributes)

@@ -10,9 +10,9 @@ namespace Xunit.Runner.Common
 	public class DiscoveryEventSink : _IMessageSink
 	{
 		/// <summary>
-		/// Occurs when a <see cref="IDiscoveryCompleteMessage"/> message is received.
+		/// Occurs when a <see cref="_DiscoveryComplete"/> message is received.
 		/// </summary>
-		public event MessageHandler<IDiscoveryCompleteMessage>? DiscoveryCompleteMessageEvent;
+		public event MessageHandler<_DiscoveryComplete>? DiscoveryCompleteMessageEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_DiscoveryStarting"/> message is received.
