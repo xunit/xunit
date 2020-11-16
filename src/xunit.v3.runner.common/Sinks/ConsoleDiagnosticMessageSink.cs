@@ -65,7 +65,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			if (showDiagnostics && message is IDiagnosticMessage diagnosticMessage)
+			if (showDiagnostics && message is _DiagnosticMessage diagnosticMessage)
 			{
 				lock (consoleLock)
 				{

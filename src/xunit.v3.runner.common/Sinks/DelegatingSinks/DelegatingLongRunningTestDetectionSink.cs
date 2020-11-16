@@ -25,12 +25,12 @@ namespace Xunit.Runner.Common
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingLongRunningTestDetectionSink"/> class, with
-		/// long running test messages being delivered as <see cref="IDiagnosticMessage"/> instances to the
+		/// long running test messages being delivered as <see cref="_DiagnosticMessage"/> instances to the
 		/// provided diagnostic message sink.
 		/// </summary>
 		/// <param name="innerSink">The inner sink to delegate to.</param>
 		/// <param name="longRunningTestTime">The minimum amount of time a test runs to be considered long running.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public DelegatingLongRunningTestDetectionSink(
 			IExecutionSink innerSink,
 			TimeSpan longRunningTestTime,
@@ -85,7 +85,7 @@ namespace Xunit.Runner.Common
 			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.TestCaseDisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
 			var message = string.Join(Environment.NewLine, messages.ToArray());
 
-			diagnosticMessageSink.OnMessage(new DiagnosticMessage(message));
+			diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
 		}
 
 		/// <inheritdoc/>

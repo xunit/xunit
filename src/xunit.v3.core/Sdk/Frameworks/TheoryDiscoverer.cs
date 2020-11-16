@@ -17,7 +17,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TheoryDiscoverer"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public TheoryDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
@@ -340,7 +340,7 @@ namespace Xunit.Sdk
 
 							if (!SerializationHelper.IsSerializable(resolvedData))
 							{
-								DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case."));
+								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
 								return CreateTestCasesForTheory(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute);
 							}
 
@@ -372,7 +372,7 @@ namespace Xunit.Sdk
 				}
 				catch (Exception ex)    // If something goes wrong, fall through to return just the XunitTestCase
 				{
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during theory discovery on '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case.{Environment.NewLine}{ex}"));
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown during theory discovery on '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case.{Environment.NewLine}{ex}" });
 				}
 			}
 

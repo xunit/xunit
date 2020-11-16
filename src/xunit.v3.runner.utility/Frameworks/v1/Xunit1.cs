@@ -37,7 +37,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">Source code information provider.</param>
 		/// <param name="assemblyFileName">The test assembly.</param>

@@ -19,7 +19,7 @@ public class ExtensibilityPointFactoryTests
 	}
 
 	public IEnumerable<string> DiagnosticMessages =>
-		messages.OfType<IDiagnosticMessage>().Select(m => m.Message);
+		messages.OfType<_DiagnosticMessage>().Select(m => m.Message);
 
 	public class GetTestFramework : ExtensibilityPointFactoryTests
 	{
@@ -218,7 +218,7 @@ public class ExtensibilityPointFactoryTests
 		void AssertSingleDiagnosticMessage(string expectedMessage)
 		{
 			var message = Assert.Single(messages);
-			var diagnosticMessage = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+			var diagnosticMessage = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 			Assert.StartsWith(expectedMessage, diagnosticMessage.Message);
 		}
 	}

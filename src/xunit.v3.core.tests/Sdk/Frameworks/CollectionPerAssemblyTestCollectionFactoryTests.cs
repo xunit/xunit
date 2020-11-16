@@ -83,7 +83,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
 		factory.Get(testType);
 
 		Assert.Collection(
-			messages.OfType<IDiagnosticMessage>().Select(m => m.Message),
+			messages.OfType<_DiagnosticMessage>().Select(m => m.Message),
 			msg => Assert.Equal("Multiple test collections declared with name 'This is a test collection': collectionDefinition1, collectionDefinition2", msg)
 		);
 	}

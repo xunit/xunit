@@ -161,7 +161,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
 		Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", theoryTestCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
-		var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
 	}
 
@@ -207,7 +207,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
 		Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", theoryTestCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
-		var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 		Assert.Equal("Non-serializable data ('System.Object[]') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
 	}
 

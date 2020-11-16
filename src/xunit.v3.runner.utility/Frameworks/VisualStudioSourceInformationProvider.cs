@@ -23,7 +23,7 @@ namespace Xunit
 		/// Initializes a new instance of the <see cref="VisualStudioSourceInformationProvider" /> class.
 		/// </summary>
 		/// <param name="assemblyFileName">The assembly file name.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public VisualStudioSourceInformationProvider(
 			string assemblyFileName,
 			_IMessageSink diagnosticMessageSink)

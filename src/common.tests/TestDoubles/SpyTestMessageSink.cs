@@ -7,7 +7,7 @@ public class SpyTestMessageSink : TestMessageSink
 
 	public SpyTestMessageSink()
 	{
-		Diagnostics.DiagnosticMessageEvent += args => Calls.Add("IDiagnosticMessage");
+		Diagnostics.DiagnosticMessageEvent += args => Calls.Add("_DiagnosticMessage");
 		Diagnostics.ErrorMessageEvent += args => Calls.Add("IErrorMessage");
 
 		Discovery.DiscoveryCompleteMessageEvent += args => Calls.Add("IDiscoveryCompleteMessage");

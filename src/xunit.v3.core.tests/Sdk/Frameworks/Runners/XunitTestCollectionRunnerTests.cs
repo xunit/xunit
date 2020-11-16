@@ -159,7 +159,7 @@ public class XunitTestCollectionRunnerTests
 
 		await runner.RunAsync();
 
-		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 		Assert.Equal("CollectionFixtureWithMessageSinkDependency constructor message", diagnosticMessage.Message);
 	}
 
@@ -170,7 +170,7 @@ public class XunitTestCollectionRunnerTests
 		public CollectionFixtureWithMessageSinkDependency(_IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new DiagnosticMessage("CollectionFixtureWithMessageSinkDependency constructor message"));
+			MessageSink.OnMessage(new _DiagnosticMessage { Message = "CollectionFixtureWithMessageSinkDependency constructor message" });
 		}
 	}
 
@@ -200,7 +200,7 @@ public class XunitTestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for collection-level test case orderer on test collection 'TestCollectionDisplayName'", diagnosticMessage.Message);
 		}
 
@@ -217,7 +217,7 @@ public class XunitTestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Collection-level test case orderer 'XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test collection 'TestCollectionDisplayName' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 

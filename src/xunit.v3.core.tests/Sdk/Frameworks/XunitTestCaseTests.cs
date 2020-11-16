@@ -107,7 +107,7 @@ public class XunitTestCaseTests
 			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", spy, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 			Assert.Empty(testCase.Traits);
-			var diagnosticMessages = messages.OfType<IDiagnosticMessage>();
+			var diagnosticMessages = messages.OfType<_DiagnosticMessage>();
 			var diagnosticMessage = Assert.Single(diagnosticMessages);
 			Assert.Equal($"Trait attribute on '{testCase.DisplayName}' did not have [TraitDiscoverer]", diagnosticMessage.Message);
 		}

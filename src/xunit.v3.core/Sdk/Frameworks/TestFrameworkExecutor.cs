@@ -28,7 +28,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkExecutor(
 			IReflectionAssemblyInfo assemblyInfo,
 			_ISourceInformationProvider sourceInformationProvider,

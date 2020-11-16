@@ -28,7 +28,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
 			_ISourceInformationProvider sourceProvider,
@@ -208,7 +208,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception during discovery:{Environment.NewLine}{ex}"));
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception during discovery:{Environment.NewLine}{ex}" });
 				return true; // Keep going on to the next type
 			}
 		}

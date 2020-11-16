@@ -13,7 +13,7 @@ public class TestMessageSinkTests
 
 	[Theory]
 	// Diagnostics
-	[InlineData(typeof(IDiagnosticMessage))]
+	[InlineData(typeof(_DiagnosticMessage))]
 	[InlineData(typeof(IErrorMessage))]
 	// Discovery
 	[InlineData(typeof(IDiscoveryCompleteMessage))]

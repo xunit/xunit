@@ -27,7 +27,7 @@ namespace Xunit.Runner.v1
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1Executor" /> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="testAssemblyFileName">The filename of the test assembly.</param>
 		/// <param name="configFileName">The filename of the configuration file.</param>

@@ -24,7 +24,7 @@ namespace Xunit.Sdk
 		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly that this collection belongs to.</param>
 		/// <param name="testCollection">The test collection that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
@@ -150,13 +150,13 @@ namespace Xunit.Sdk
 							return testCaseOrderer;
 
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'" });
 					}
 					catch (Exception ex)
 					{
 						var innerEx = ex.Unwrap();
 						var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{type}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Collection-level test case orderer '{type}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 					}
 				}
 			}

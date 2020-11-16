@@ -15,14 +15,14 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FactDiscoverer"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public FactDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
 
 		/// <summary>
-		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
+		/// Gets the message sink used to report <see cref="_DiagnosticMessage"/> messages.
 		/// </summary>
 		protected _IMessageSink DiagnosticMessageSink { get; }
 

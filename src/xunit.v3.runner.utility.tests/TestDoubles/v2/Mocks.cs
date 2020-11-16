@@ -28,6 +28,13 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static IDiagnosticMessage DiagnosticMessage(string message)
+		{
+			var result = Substitute.For<IDiagnosticMessage, InterfaceProxy<IDiagnosticMessage>>();
+			result.Message.Returns(message);
+			return result;
+		}
+
 		static IEnumerable<IAttributeInfo> LookupAttribute(
 			string fullyQualifiedTypeName,
 			IReflectionAttributeInfo[]? attributes)

@@ -33,7 +33,7 @@ namespace Xunit.Runners
 		{
 			MessageTypeNames = new Dictionary<Type, string>();
 
-			AddMessageTypeName<IDiagnosticMessage>();
+			AddMessageTypeName<_DiagnosticMessage>();
 			AddMessageTypeName<IDiscoveryCompleteMessage>();
 			AddMessageTypeName<IErrorMessage>();
 			AddMessageTypeName<_TestAssemblyCleanupFailure>();
@@ -352,7 +352,7 @@ namespace Xunit.Runners
 				return !cancelled;
 
 			if (OnDiagnosticMessage != null)
-				if (DispatchMessage<IDiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
+				if (DispatchMessage<_DiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
 					return !cancelled;
 			if (OnTestFailed != null)
 				if (DispatchMessage<ITestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))

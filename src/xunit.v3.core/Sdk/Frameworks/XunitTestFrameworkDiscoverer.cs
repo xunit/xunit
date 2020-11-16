@@ -29,7 +29,7 @@ namespace Xunit.Sdk
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
 		public XunitTestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
@@ -178,7 +178,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}" });
 				return null;
 			}
 		}

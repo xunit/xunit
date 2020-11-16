@@ -53,7 +53,7 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		/// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public XunitFrontController(
 			AppDomainSupport appDomainSupport,
 			string assemblyFileName,

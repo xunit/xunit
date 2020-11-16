@@ -23,7 +23,7 @@ namespace Xunit.Sdk
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public XunitTestFrameworkExecutor(
 			IReflectionAssemblyInfo assemblyInfo,
 			string? configFileName,
@@ -86,7 +86,7 @@ namespace Xunit.Sdk
 				{
 					var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[0]);
 					if (typeInfo == null)
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type {parts[0]} during test case deserialization"));
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type {parts[0]} during test case deserialization" });
 					else
 					{
 						var testCollectionGuid = Guid.Parse(parts[4]);

@@ -28,7 +28,7 @@ namespace Xunit.Sdk
 		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
 		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethodUniqueID">The test method unique ID.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method this test case belongs to.</param>

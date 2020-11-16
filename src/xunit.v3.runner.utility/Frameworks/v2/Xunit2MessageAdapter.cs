@@ -23,6 +23,8 @@ namespace Xunit.Runner.v2
 			HashSet<string>? messageTypes = null)
 		{
 			return
+				Convert<IDiagnosticMessage>(message, messageTypes, AdaptDiagnosticMessage) ??
+
 				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
@@ -45,6 +47,9 @@ namespace Xunit.Runner.v2
 
 				message;
 		}
+
+		static _MessageSinkMessage AdaptDiagnosticMessage(IDiagnosticMessage message) =>
+			new _DiagnosticMessage { Message = message.Message };
 
 		static _MessageSinkMessage AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message)
 		{

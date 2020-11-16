@@ -34,7 +34,7 @@ namespace Xunit.Sdk
 		/// <param name="displayName">The display name of the test case.</param>
 		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
@@ -57,7 +57,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
+		/// Gets the message sink used to report <see cref="_DiagnosticMessage"/> messages.
 		/// </summary>
 		protected _IMessageSink DiagnosticMessageSink { get; }
 

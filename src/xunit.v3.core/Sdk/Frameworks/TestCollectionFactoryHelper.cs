@@ -17,7 +17,7 @@ namespace Xunit.Sdk
 		/// Gets the test collection definitions for the given assembly.
 		/// </summary>
 		/// <param name="assemblyInfo">The assembly.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="ITypeInfo"/></returns>
 		public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(
 			IAssemblyInfo assemblyInfo,
@@ -42,7 +42,7 @@ namespace Xunit.Sdk
 				result[grouping.Key] = types[0];
 
 				if (types.Count > 1)
-					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Multiple test collections declared with name '{grouping.Key}': {string.Join(", ", types.Select(type => type.Name))}"));
+					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Multiple test collections declared with name '{grouping.Key}': {string.Join(", ", types.Select(type => type.Name))}" });
 			}
 
 			return result;

@@ -150,7 +150,7 @@ namespace Xunit
 					thread.Start();
 
 					if (!thread.Join(TimeSpan.FromSeconds(10)))
-						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"AppDomain.Unload for '{AssemblyFileName}' timed out"));
+						diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' timed out" });
 					else
 					{
 						if (cachePath != null)
@@ -166,7 +166,7 @@ namespace Xunit
 				}
 
 				if (failure != null)
-					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}"));
+					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}" });
 			}
 		}
 

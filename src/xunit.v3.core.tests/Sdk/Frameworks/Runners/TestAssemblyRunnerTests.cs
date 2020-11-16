@@ -318,7 +318,7 @@ public class TestAssemblyRunnerTests
 				collection => Assert.Same(collection2, collection.Item1),
 				collection => Assert.Same(collection3, collection.Item1)
 			);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 

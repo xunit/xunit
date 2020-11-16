@@ -10,9 +10,9 @@ namespace Xunit.Runner.Common
 	public class DiagnosticEventSink : _IMessageSink
 	{
 		/// <summary>
-		/// Occurs when a <see cref="IDiagnosticMessage"/> message is received.
+		/// Occurs when a <see cref="_DiagnosticMessage"/> message is received.
 		/// </summary>
-		public event MessageHandler<IDiagnosticMessage>? DiagnosticMessageEvent;
+		public event MessageHandler<_DiagnosticMessage>? DiagnosticMessageEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="IErrorMessage"/> message is received.

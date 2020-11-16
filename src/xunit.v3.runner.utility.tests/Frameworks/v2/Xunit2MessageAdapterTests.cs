@@ -93,6 +93,20 @@ public class Xunit2MessageAdapterTests
 		Assert.Equal(convertedMetadata.StackTraces, metadata.StackTraces);
 	}
 
+	public class DiagnosticMessageTests
+	{
+		[Fact]
+		public void DiagnosticMessage()
+		{
+			var v2Message = v2Mocks.DiagnosticMessage("Hello, world!");
+
+			var adapted = Xunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_DiagnosticMessage>(adapted);
+			Assert.Equal("Hello, world!", v3Message.Message);
+		}
+	}
+
 	public class TestAssemblyTests
 	{
 		[Fact]
