@@ -11,7 +11,7 @@ public class Xunit2Tests
 	public class EnumerateTests
 	{
 		[Fact]
-		public async void NoTestMethods()
+		public async void NoTestMethods_ByAssembly()
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			var controller = new TestableXunit2(assm.FileName, null, true);
@@ -21,6 +21,22 @@ public class Xunit2Tests
 
 			sink.Finished.WaitOne();
 
+			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
+			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
+		}
+
+		[Fact]
+		public async void NoTestMethods_ByType()
+		{
+			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
+			var controller = new TestableXunit2(assm.FileName, null, true);
+			using var sink = SpyMessageSink<IDiscoveryCompleteMessage>.Create();
+
+			controller.Find(typeName: "foo", includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+
+			sink.Finished.WaitOne();
+
+			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
 			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
 		}
 

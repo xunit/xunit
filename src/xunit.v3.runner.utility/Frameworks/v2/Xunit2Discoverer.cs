@@ -28,6 +28,8 @@ namespace Xunit
 		static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
 
+		readonly IAssemblyInfo assemblyInfo;
+		readonly string? configFileName;
 		bool disposed;
 		ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
 
@@ -38,6 +40,7 @@ namespace Xunit
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">The source code information provider.</param>
 		/// <param name="assemblyInfo">The assembly to use for discovery</param>
+		/// <param name="configFileName">The optional configuration filename</param>
 		/// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.*.dll; if <c>null</c>, then
 		/// the location of xunit.execution.*.dll is implied based on the location of the test assembly</param>
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
@@ -48,6 +51,7 @@ namespace Xunit
 			AppDomainSupport appDomainSupport,
 			_ISourceInformationProvider sourceInformationProvider,
 			IAssemblyInfo assemblyInfo,
+			string? configFileName,
 			string? xunitExecutionAssemblyPath = null,
 			string? shadowCopyFolder = null,
 			bool verifyAssembliesOnDisk = true)
@@ -58,7 +62,7 @@ namespace Xunit
 					assemblyInfo,
 					null,
 					xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
-					null,
+					configFileName,
 					true,
 					shadowCopyFolder,
 					verifyAssembliesOnDisk
@@ -131,6 +135,9 @@ namespace Xunit
 			// If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
 			if (assemblyInfo == null)
 				assemblyInfo = AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
+
+			this.assemblyInfo = assemblyInfo!;
+			this.configFileName = configFileName;
 
 			var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
 			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(DiagnosticMessageSink);
@@ -230,6 +237,7 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
+			SendDiscoveryStartingMessage(messageSink);
 			RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
 		}
 
@@ -249,6 +257,7 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
+			SendDiscoveryStartingMessage(messageSink);
 			RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
 		}
 
@@ -345,6 +354,19 @@ namespace Xunit
 		static bool IsDotNet(string executionAssemblyFileName) =>
 			executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
 #endif
+
+		void SendDiscoveryStartingMessage(_IMessageSink messageSink)
+		{
+			// There is no v2 equivalent to this, so we manufacture it ourselves
+			var discoveryStarting = new _DiscoveryStarting
+			{
+				AssemblyName = assemblyInfo.Name,
+				AssemblyPath = assemblyInfo.AssemblyPath,
+				AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.Name, assemblyInfo.AssemblyPath, configFileName),
+				ConfigFilePath = configFileName
+			};
+			messageSink.OnMessage(discoveryStarting);
+		}
 
 		/// <inheritdoc/>
 		public string Serialize(ITestCase testCase) =>

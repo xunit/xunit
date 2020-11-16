@@ -83,7 +83,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.EnumerateTests(null))
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
-			var sink = new TestDiscoverySink();
+			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(false, sink);
 			sink.Finished.WaitOne();
@@ -152,7 +152,7 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.EnumerateTests(null))
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
-			var sink = new TestDiscoverySink();
+			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find("Type2", false, sink);
 			sink.Finished.WaitOne();
@@ -183,7 +183,7 @@ public class Xunit1Tests
 			xunit1.SourceInformationProvider
 				.GetSourceInformation(null, null)
 				.ReturnsForAnyArgs(callInfo => new _SourceInformation { FileName = $"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}" });
-			var sink = new TestDiscoverySink();
+			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(true, sink);
 			sink.Finished.WaitOne();
@@ -192,6 +192,24 @@ public class Xunit1Tests
 				testCase => Assert.Equal("File for Type2.Method1", testCase.SourceInformation.FileName),
 				testCase => Assert.Equal("File for Type2.Method2", testCase.SourceInformation.FileName)
 			);
+		}
+
+		[Fact]
+		public void DiscoveryIncludesStartMessage()
+		{
+			var xml = @"<assembly />";
+
+			var xunit1 = new TestableXunit1();
+			xunit1
+				.Executor
+				.WhenForAnyArgs(x => x.EnumerateTests(null))
+				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
+			var sink = new TestableTestDiscoverySink();
+
+			xunit1.Find(true, sink);
+			sink.Finished.WaitOne();
+
+			Assert.True(sink.StartSeen);
 		}
 	}
 
@@ -883,6 +901,17 @@ public class AmbiguouslyNamedTestMethods
 		}
 
 		protected override IXunit1Executor CreateExecutor() => Executor;
+	}
+
+	class TestableTestDiscoverySink : TestDiscoverySink
+	{
+		public bool StartSeen = false;
+
+		public TestableTestDiscoverySink(Func<bool>? cancelThunk = null)
+			: base(cancelThunk)
+		{
+			DiscoverySink.DiscoveryStartingMessageEvent += args => StartSeen = true;
+		}
 	}
 }
 

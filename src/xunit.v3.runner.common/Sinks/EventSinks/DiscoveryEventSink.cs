@@ -15,6 +15,11 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<IDiscoveryCompleteMessage>? DiscoveryCompleteMessageEvent;
 
 		/// <summary>
+		/// Occurs when a <see cref="_DiscoveryStarting"/> message is received.
+		/// </summary>
+		public event MessageHandler<_DiscoveryStarting>? DiscoveryStartingMessageEvent;
+
+		/// <summary>
 		/// Occurs when a <see cref="ITestCaseDiscoveryMessage"/> message is received.
 		/// </summary>
 		public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
@@ -26,7 +31,8 @@ namespace Xunit.Runner.Common
 
 			return
 				message.Dispatch(null, TestCaseDiscoveryMessageEvent) &&
-				message.Dispatch(null, DiscoveryCompleteMessageEvent);
+				message.Dispatch(null, DiscoveryCompleteMessageEvent) &&
+				message.Dispatch(null, DiscoveryStartingMessageEvent);
 		}
 	}
 }

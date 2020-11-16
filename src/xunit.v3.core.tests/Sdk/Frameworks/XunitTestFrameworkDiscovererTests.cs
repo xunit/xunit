@@ -98,6 +98,19 @@ public class XunitTestFrameworkDiscovererTests
 
 			sourceProvider.Received(0).GetSourceInformation(Arg.Any<string?>(), Arg.Any<string?>());
 		}
+
+		[Fact]
+		public static void SendsDiscoveryStartingMessage()
+		{
+			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
+			var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
+			var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly);
+
+			framework.Find();
+			framework.Sink.Finished.WaitOne();
+
+			Assert.True(framework.Sink.StartSeen);
+		}
 	}
 
 	public class FindByTypeName
@@ -165,6 +178,19 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 
 			sourceProvider.Received(0).GetSourceInformation(Arg.Any<string?>(), Arg.Any<string?>());
+		}
+
+		[Fact]
+		public static void SendsDiscoveryStartingMessage()
+		{
+			var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
+			var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
+			var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly);
+
+			framework.Find("abc");
+			framework.Sink.Finished.WaitOne();
+
+			Assert.True(framework.Sink.StartSeen);
 		}
 	}
 
@@ -454,7 +480,7 @@ public class XunitTestFrameworkDiscovererTests
 				: base(assembly, configFileName: null, sourceProvider ?? Substitute.For<_ISourceInformationProvider>(), diagnosticMessageSink ?? new _NullMessageSink(), collectionFactory)
 		{
 			Assembly = assembly;
-			Sink = new TestDiscoverySink();
+			Sink = new TestableTestDiscoverySink();
 		}
 
 		public IAssemblyInfo Assembly { get; private set; }
@@ -468,7 +494,7 @@ public class XunitTestFrameworkDiscovererTests
 			}
 		}
 
-		internal TestDiscoverySink Sink { get; private set; }
+		internal TestableTestDiscoverySink Sink { get; private set; }
 
 		public static TestableXunitTestFrameworkDiscoverer Create(
 			IAssemblyInfo? assembly = null,
@@ -527,5 +553,16 @@ public class XunitTestFrameworkDiscovererTests
 			bool includeSourceInformation,
 			IMessageBus messageBus) =>
 				ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
+	}
+
+	internal class TestableTestDiscoverySink : TestDiscoverySink
+	{
+		public bool StartSeen = false;
+
+		public TestableTestDiscoverySink(Func<bool>? cancelThunk = null)
+			: base(cancelThunk)
+		{
+			DiscoverySink.DiscoveryStartingMessageEvent += args => StartSeen = true;
+		}
 	}
 }

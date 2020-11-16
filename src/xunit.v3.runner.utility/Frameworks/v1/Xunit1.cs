@@ -170,6 +170,16 @@ namespace Xunit
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
+			IAssemblyInfo assembly = new Xunit1AssemblyInfo(assemblyFileName);
+			var discoveryStarting = new _DiscoveryStarting
+			{
+				AssemblyName = assembly.Name,
+				AssemblyPath = assembly.AssemblyPath,
+				AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName),
+				ConfigFilePath = configFileName
+			};
+			messageSink.OnMessage(discoveryStarting);
+
 			try
 			{
 				XmlNode? assemblyXml = null;

@@ -37,7 +37,7 @@ namespace Xunit.Sdk
 			_ISourceInformationProvider sourceProvider,
 			_IMessageSink diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory = null)
-				: base(assemblyInfo, sourceProvider, diagnosticMessageSink)
+				: base(assemblyInfo, configFileName, sourceProvider, diagnosticMessageSink)
 		{
 			var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
 			var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");

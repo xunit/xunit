@@ -18,6 +18,7 @@ namespace Xunit.Sdk
 	public abstract class TestFrameworkDiscoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
 	{
 		IAssemblyInfo assemblyInfo;
+		string? configFileName;
 		_IMessageSink diagnosticMessageSink;
 		bool disposed;
 		_ISourceInformationProvider sourceProvider;
@@ -27,14 +28,17 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="TestFrameworkDiscoverer"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
+		/// <param name="configFileName">The configuration filename.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
+			string? configFileName,
 			_ISourceInformationProvider sourceProvider,
 			_IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+			this.configFileName = configFileName;
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			this.sourceProvider = Guard.ArgumentNotNull(nameof(sourceProvider), sourceProvider);
 
@@ -125,6 +129,15 @@ namespace Xunit.Sdk
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
 				{
+					var discoveryStarting = new _DiscoveryStarting
+					{
+						AssemblyName = AssemblyInfo.Name,
+						AssemblyPath = AssemblyInfo.AssemblyPath,
+						AssemblyUniqueID = UniqueIDGenerator.ForAssembly(AssemblyInfo.Name, AssemblyInfo.AssemblyPath, configFileName),
+						ConfigFilePath = configFileName
+					};
+					messageBus.QueueMessage(discoveryStarting);
+
 					foreach (var type in AssemblyInfo.GetTypes(false).Where(IsValidTestClass))
 					{
 						var testClass = CreateTestClass(type);
@@ -163,6 +176,15 @@ namespace Xunit.Sdk
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
 				{
+					var discoveryStarting = new _DiscoveryStarting
+					{
+						AssemblyName = AssemblyInfo.Name,
+						AssemblyPath = AssemblyInfo.AssemblyPath,
+						AssemblyUniqueID = UniqueIDGenerator.ForAssembly(AssemblyInfo.Name, AssemblyInfo.AssemblyPath, configFileName),
+						ConfigFilePath = configFileName
+					};
+					messageBus.QueueMessage(discoveryStarting);
+
 					var typeInfo = AssemblyInfo.GetType(typeName);
 					if (typeInfo != null && IsValidTestClass(typeInfo))
 					{

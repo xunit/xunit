@@ -14,7 +14,6 @@ namespace Xunit.Runner.Common
 	public class TestDiscoverySink : _IMessageSink, IDisposable
 	{
 		readonly Func<bool> cancelThunk;
-		readonly DiscoveryEventSink discoverySink = new DiscoveryEventSink();
 		bool disposed;
 
 		/// <summary>
@@ -25,25 +24,30 @@ namespace Xunit.Runner.Common
 		{
 			this.cancelThunk = cancelThunk ?? (() => false);
 
-			discoverySink.TestCaseDiscoveryMessageEvent += args =>
+			DiscoverySink.TestCaseDiscoveryMessageEvent += args =>
 			{
 				Guard.ArgumentNotNull(nameof(args), args);
 
 				TestCases.Add(args.Message.TestCase);
 			};
 
-			discoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
+			DiscoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
 		}
 
 		/// <summary>
-		/// The list of discovered test cases.
+		/// Gets the event sink used to record discovery messages.
 		/// </summary>
-		public List<ITestCase> TestCases { get; } = new List<ITestCase>();
+		protected DiscoveryEventSink DiscoverySink { get; } = new DiscoveryEventSink();
 
 		/// <summary>
 		/// Gets an event which is signaled once discovery is finished.
 		/// </summary>
 		public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
+
+		/// <summary>
+		/// The list of discovered test cases.
+		/// </summary>
+		public List<ITestCase> TestCases { get; } = new List<ITestCase>();
 
 		/// <inheritdoc/>
 		public void Dispose()
@@ -61,7 +65,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			return discoverySink.OnMessage(message) && !cancelThunk();
+			return DiscoverySink.OnMessage(message) && !cancelThunk();
 		}
 	}
 }
