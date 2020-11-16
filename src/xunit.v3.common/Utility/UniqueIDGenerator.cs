@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Xunit.Internal;
@@ -93,10 +94,13 @@ namespace Xunit
 			string? assemblyPath,
 			string? configFilePath)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
+			Guard.ArgumentNotNullOrEmpty(nameof(assemblyName), assemblyName);
+
+			var parsedAssemblyName = new AssemblyName(assemblyName);
+			Guard.ArgumentValidNotNull(nameof(assemblyName), "assemblyName must include a name component", parsedAssemblyName.Name);
 
 			using var generator = new UniqueIDGenerator();
-			generator.Add(assemblyName);
+			generator.Add(parsedAssemblyName.Name);
 			generator.Add(assemblyPath ?? string.Empty);
 			generator.Add(configFilePath ?? string.Empty);
 			return generator.Compute();

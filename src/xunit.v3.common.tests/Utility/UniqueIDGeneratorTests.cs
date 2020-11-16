@@ -112,5 +112,18 @@ public class UniqueIDGeneratorTests
 
 			Assert.Equal<object>(expected, actual);
 		}
+
+		[Fact]
+		public void UniqueIDUsesOnlyShortAssemblyNameForDiscoveryVsExecutionConsistency()
+		{
+			var longName = "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+			var shortName = "mscorlib";
+
+			var longID = UniqueIDGenerator.ForAssembly(longName, null, null);
+			var shortID = UniqueIDGenerator.ForAssembly(shortName, null, null);
+
+			Assert.NotEmpty(longID);
+			Assert.Equal(shortID, longID);
+		}
 	}
 }

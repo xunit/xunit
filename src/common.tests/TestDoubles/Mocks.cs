@@ -24,7 +24,7 @@ namespace Xunit.v3
 			attributes = attributes ?? new IReflectionAttributeInfo[0];
 
 			var result = Substitute.For<IAssemblyInfo, InterfaceProxy<IAssemblyInfo>>();
-			result.Name.Returns(assemblyFileName == null ? "assembly:" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
+			result.Name.Returns(assemblyFileName == null ? "assembly-" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
 			result.AssemblyPath.Returns(assemblyFileName);
 			result.GetType("").ReturnsForAnyArgs(types?.FirstOrDefault());
 			result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
