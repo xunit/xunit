@@ -27,35 +27,35 @@ namespace Xunit.Runner.TdNet
 				args => ReportError("Fatal Error", args.Message);
 
 			Execution.TestAssemblyCleanupFailureEvent +=
-				args => ReportError($"Test Assembly Cleanup Failure ({metadataCache.TryGet(args.Message)?.AssemblyPath ?? "<unknown test assembly>"})", args.Message);
+				args => ReportError($"Test Assembly Cleanup Failure ({metadataCache.TryGetAssemblyMetadata(args.Message)?.AssemblyPath ?? "<unknown test assembly>"})", args.Message);
 			Execution.TestAssemblyFinishedEvent +=
 				args => metadataCache.TryRemove(args.Message);
 			Execution.TestAssemblyStartingEvent +=
 				args => metadataCache.Set(args.Message);
 
 			Execution.TestCaseCleanupFailureEvent +=
-				args => ReportError($"Test Case Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestCaseDisplayName ?? "<unknown test case>"})", args.Message);
+				args => ReportError($"Test Case Cleanup Failure ({metadataCache.TryGetTestCaseMetadata(args.Message)?.TestCaseDisplayName ?? "<unknown test case>"})", args.Message);
 			Execution.TestCaseFinishedEvent +=
 				args => metadataCache.TryRemove(args.Message);
 			Execution.TestCaseStartingEvent +=
 				args => metadataCache.Set(args.Message);
 
 			Execution.TestClassCleanupFailureEvent +=
-				args => ReportError($"Test Class Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestClass ?? "<unknown test class>"})", args.Message);
+				args => ReportError($"Test Class Cleanup Failure ({metadataCache.TryGetClassMetadata(args.Message)?.TestClass ?? "<unknown test class>"})", args.Message);
 			Execution.TestClassFinishedEvent +=
 				args => metadataCache.TryRemove(args.Message);
 			Execution.TestClassStartingEvent +=
 				args => metadataCache.Set(args.Message);
 
 			Execution.TestCollectionCleanupFailureEvent +=
-				args => ReportError($"Test Collection Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestCollectionDisplayName ?? "<unknown test collection>"})", args.Message);
+				args => ReportError($"Test Collection Cleanup Failure ({metadataCache.TryGetCollectionMetadata(args.Message)?.TestCollectionDisplayName ?? "<unknown test collection>"})", args.Message);
 			Execution.TestCollectionFinishedEvent +=
 				args => metadataCache.TryRemove(args.Message);
 			Execution.TestCollectionStartingEvent +=
 				args => metadataCache.Set(args.Message);
 
 			Execution.TestMethodCleanupFailureEvent +=
-				args => ReportError($"Test Method Cleanup Failure ({metadataCache.TryGet(args.Message)?.TestMethod ?? "<unknown test method>"})", args.Message);
+				args => ReportError($"Test Method Cleanup Failure ({metadataCache.TryGetMethodMetadata(args.Message)?.TestMethod ?? "<unknown test method>"})", args.Message);
 			Execution.TestMethodFinishedEvent +=
 				args => metadataCache.TryRemove(args.Message);
 			Execution.TestMethodStartingEvent +=

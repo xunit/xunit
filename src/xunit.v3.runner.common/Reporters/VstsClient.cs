@@ -108,9 +108,9 @@ namespace Xunit.Runner.Common
 
 		public void AddTest(
 			IDictionary<string, object?> request,
-			ITest uniqueId)
+			string testUniqueId)
 		{
-			request.Add(UNIQUEIDKEY, uniqueId);
+			request.Add(UNIQUEIDKEY, testUniqueId);
 			addQueue.Enqueue(request);
 			workEvent.Set();
 		}

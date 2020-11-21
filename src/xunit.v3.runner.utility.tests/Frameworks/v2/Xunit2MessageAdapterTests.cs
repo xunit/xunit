@@ -12,6 +12,7 @@ using v2Mocks = Xunit.Runner.v2.Mocks;
 public class Xunit2MessageAdapterTests
 {
 	static readonly string OsSpecificAssemblyPath;
+	static readonly ITest Test;
 	static readonly ITestAssembly TestAssembly;
 	static readonly string TestAssemblyUniqueID;
 	static readonly ITestCase TestCase;
@@ -24,6 +25,7 @@ public class Xunit2MessageAdapterTests
 	static readonly string TestCollectionUniqueID;
 	static readonly ITestMethod TestMethod;
 	static readonly string? TestMethodUniqueID;
+	static readonly string TestUniqueID;
 	static readonly Exception ThrownException;
 	static readonly Dictionary<string, List<string>> Traits;
 
@@ -80,6 +82,9 @@ public class Xunit2MessageAdapterTests
 
 		TestCase = v2Mocks.TestCase(TestMethod, "test-case-display-name", "skip-reason", "source-file", 2112, Traits, "test-case-id");
 		TestCaseUniqueID = TestCase.UniqueID;
+
+		Test = v2Mocks.Test(TestCase, "test-display-name");
+		TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, 0);
 	}
 
 	static void AssertErrorMetadata(
@@ -439,6 +444,26 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(TestMethod.Method.Name, v3Message.TestMethod);
 			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+		}
+	}
+
+	public class TestTests
+	{
+		[Fact]
+		public void TestStarting()
+		{
+			var v2Message = v2Mocks.TestStarting(Test);
+
+			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestStarting>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal("test-display-name", v3Message.TestDisplayName);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			Assert.Equal(TestUniqueID, v3Message.TestUniqueID);
 		}
 	}
 

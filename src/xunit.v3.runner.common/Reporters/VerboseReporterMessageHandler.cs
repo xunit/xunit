@@ -19,7 +19,7 @@ namespace Xunit.Runner.Common
 			{
 				Guard.ArgumentNotNull(nameof(args), args);
 
-				Logger.LogMessage($"    {Escape(args.Message.Test.DisplayName)} [STARTING]");
+				Logger.LogMessage($"    {Escape(args.Message.TestDisplayName)} [STARTING]");
 			};
 
 			Execution.TestFinishedEvent += args =>

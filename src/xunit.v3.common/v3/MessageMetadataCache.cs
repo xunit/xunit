@@ -90,7 +90,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _IAssemblyMetadata? TryGet(_TestAssemblyMessage message)
+		public _IAssemblyMetadata? TryGetAssemblyMetadata(_TestAssemblyMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -102,7 +102,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestCaseMetadata? TryGet(_TestCaseMessage message)
+		public _ITestCaseMetadata? TryGetTestCaseMetadata(_TestCaseMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -114,7 +114,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestClassMetadata? TryGet(_TestClassMessage message)
+		public _ITestClassMetadata? TryGetClassMetadata(_TestClassMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -126,7 +126,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestCollectionMetadata? TryGet(_TestCollectionMessage message)
+		public _ITestCollectionMetadata? TryGetCollectionMetadata(_TestCollectionMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -134,27 +134,27 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Attempts to retrieve <see cref="_ITestMetadata"/> from the cache.
-		/// </summary>
-		/// <param name="message">The message that indicates which metadata to retrieve.</param>
-		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestMetadata? TryGet(_TestMessage message)
-		{
-			Guard.ArgumentNotNull(nameof(message), message);
-
-			return (_ITestMetadata?)InternalGetAndRemove(message.TestUniqueID, false);
-		}
-
-		/// <summary>
 		/// Attempts to retrieve <see cref="_ITestMethodMetadata"/> from the cache.
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestMethodMetadata? TryGet(_TestMethodMessage message)
+		public _ITestMethodMetadata? TryGetMethodMetadata(_TestMethodMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return (_ITestMethodMetadata?)InternalGetAndRemove(message.TestMethodUniqueID, false);
+		}
+
+		/// <summary>
+		/// Attempts to retrieve <see cref="_ITestMetadata"/> from the cache.
+		/// </summary>
+		/// <param name="message">The message that indicates which metadata to retrieve.</param>
+		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
+		public _ITestMetadata? TryGetTestMetadata(_TestMessage message)
+		{
+			Guard.ArgumentNotNull(nameof(message), message);
+
+			return (_ITestMetadata?)InternalGetAndRemove(message.TestUniqueID, false);
 		}
 
 		/// <summary>
@@ -163,7 +163,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _IAssemblyMetadata? TryRemove(_TestAssemblyMessage message)
+		public _IAssemblyMetadata? TryRemove(_TestAssemblyFinished message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -176,7 +176,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestCaseMetadata? TryRemove(_TestCaseMessage message)
+		public _ITestCaseMetadata? TryRemove(_TestCaseFinished message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -189,7 +189,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestClassMetadata? TryRemove(_TestClassMessage message)
+		public _ITestClassMetadata? TryRemove(_TestClassFinished message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -202,7 +202,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestCollectionMetadata? TryRemove(_TestCollectionMessage message)
+		public _ITestCollectionMetadata? TryRemove(_TestCollectionFinished message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -215,7 +215,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestMetadata? TryRemove(_TestMessage message)
+		public _ITestMetadata? TryRemove(_TestFinished message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -228,7 +228,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _ITestMethodMetadata? TryRemove(_TestMethodMessage message)
+		public _ITestMethodMetadata? TryRemove(_TestMethodFinished message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
@@ -261,7 +261,7 @@ namespace Xunit.v3
 			object metadata)
 		{
 			lock (cache)
-				cache.Add(uniqueID, metadata);
+				cache[uniqueID] = metadata;
 		}
 	}
 }

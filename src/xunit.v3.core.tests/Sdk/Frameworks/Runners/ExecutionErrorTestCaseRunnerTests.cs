@@ -30,12 +30,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 		Assert.Collection(
 			messageBus.Messages,
 			msg => Assert.IsAssignableFrom<_TestCaseStarting>(msg),
-			msg =>
-			{
-				var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
-				Assert.Same(testCase, testStarting.TestCase);
-			},
+			msg => Assert.IsAssignableFrom<_TestStarting>(msg),
 			msg =>
 			{
 				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
@@ -66,7 +61,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	}
 
 	[Theory]
-	[InlineData(typeof(ITestStarting))]
+	[InlineData(typeof(_TestStarting))]
 	[InlineData(typeof(ITestFailed))]
 	[InlineData(typeof(ITestFinished))]
 	public async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)

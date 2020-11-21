@@ -49,7 +49,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<ITestOutput>();
 			AddMessageTypeName<ITestPassed>();
 			AddMessageTypeName<ITestSkipped>();
-			AddMessageTypeName<ITestStarting>();
+			AddMessageTypeName<_TestStarting>();
 		}
 
 		AssemblyRunner(
@@ -354,6 +354,7 @@ namespace Xunit.Runners
 			if (OnDiagnosticMessage != null)
 				if (DispatchMessage<_DiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
 					return !cancelled;
+#if false  // TODO: No simple conversions here yet
 			if (OnTestFailed != null)
 				if (DispatchMessage<ITestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
@@ -370,8 +371,9 @@ namespace Xunit.Runners
 				if (DispatchMessage<ITestSkipped>(message, messageTypes, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
 					return !cancelled;
 			if (OnTestStarting != null)
-				if (DispatchMessage<ITestStarting>(message, messageTypes, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))
+				if (DispatchMessage<_TestStarting>(message, messageTypes, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))
 					return !cancelled;
+#endif
 
 			if (OnErrorMessage != null)
 			{

@@ -13,6 +13,8 @@ namespace Xunit.Runner.v2
 	/// </summary>
 	public static class Xunit2MessageAdapter
 	{
+		static readonly Dictionary<ITestCase, Dictionary<ITest, string>> testUniqueIDsByTestCase = new Dictionary<ITestCase, Dictionary<ITest, string>>();
+
 		/// <summary>
 		/// Adapts <see cref="IMessageSinkMessage"/> to <see cref="_MessageSinkMessage"/>.
 		/// </summary>
@@ -48,6 +50,8 @@ namespace Xunit.Runner.v2
 				Convert<ITestMethodFinished>(message, messageTypes, AdaptTestMethodFinished) ??
 				Convert<ITestMethodStarting>(message, messageTypes, AdaptTestMethodStarting) ??
 
+				Convert<ITestStarting>(message, messageTypes, AdaptTestStarting) ??
+
 				message;
 		}
 
@@ -59,7 +63,7 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 
 			return new _TestAssemblyCleanupFailure
 			{
@@ -73,7 +77,7 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestAssemblyFinished(ITestAssemblyFinished message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 
 			return new _TestAssemblyFinished
 			{
@@ -89,7 +93,7 @@ namespace Xunit.Runner.v2
 		{
 			var targetFrameworkAttribute = message.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
 			var targetFramework = targetFrameworkAttribute?.GetConstructorArguments().Cast<string>().Single();
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 
 			return new _TestAssemblyStarting
 			{
@@ -106,10 +110,10 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestCaseCleanupFailure(ITestCaseCleanupFailure message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
-			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
 			return new _TestCaseCleanupFailure
 			{
@@ -127,10 +131,14 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestCaseFinished(ITestCaseFinished message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
-			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+			// Clean up the cache
+			lock (testUniqueIDsByTestCase)
+				testUniqueIDsByTestCase.Remove(message.TestCase);
+
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 			var testCaseUniqueID = message.TestCase.UniqueID;
 
 			return new _TestCaseFinished
@@ -149,10 +157,10 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestCaseStarting(ITestCaseStarting message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
-			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
 			return new _TestCaseStarting
 			{
@@ -171,9 +179,9 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestClassCleanupFailure(ITestClassCleanupFailure message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
 			return new _TestClassCleanupFailure
 			{
@@ -189,9 +197,9 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestClassFinished(ITestClassFinished message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
 			return new _TestClassFinished
 			{
@@ -207,9 +215,9 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestClassStarting(ITestClassStarting message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
 			return new _TestClassStarting
 			{
@@ -222,8 +230,8 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestCollectionCleanupFailure(ITestCollectionCleanupFailure message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionCleanupFailure
 			{
@@ -238,8 +246,8 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestCollectionFinished(ITestCollectionFinished message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionFinished
 			{
@@ -254,8 +262,8 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestCollectionStarting(ITestCollectionStarting message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionStarting
 			{
@@ -268,10 +276,10 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestMethodCleanupFailure(ITestMethodCleanupFailure message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
-			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
 			return new _TestMethodCleanupFailure
 			{
@@ -288,10 +296,10 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestMethodFinished(ITestMethodFinished message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
-			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
 			return new _TestMethodFinished
 			{
@@ -308,10 +316,10 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptTestMethodStarting(ITestMethodStarting message)
 		{
-			var assemblyUniqueID = ComputeUniqueID(message.TestAssembly);
-			var testCollectionUniqueID = ComputeUniqueID(assemblyUniqueID, message.TestCollection);
-			var testClassUniqueID = ComputeUniqueID(testCollectionUniqueID, message.TestClass);
-			var testMethodUniqueID = ComputeUniqueID(testClassUniqueID, message.TestMethod);
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
 			return new _TestMethodStarting
 			{
@@ -323,20 +331,59 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static string ComputeUniqueID(ITestAssembly testAssembly) =>
+		static _MessageSinkMessage AdaptTestStarting(ITestStarting message)
+		{
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
+			var testCaseUniqueID = message.TestCase.UniqueID;
+			var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
+
+			return new _TestStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestDisplayName = message.Test.DisplayName,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
+
+		static string UniqueIDForAssembly(ITestAssembly testAssembly) =>
 			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
 
-		static string? ComputeUniqueID(
+		static string UniqueIDForTest(
+			string testCaseUniqueID,
+			ITest test)
+		{
+			lock (testUniqueIDsByTestCase)
+			{
+				var uniqueIDLookup = testUniqueIDsByTestCase.GetOrAdd(test.TestCase, () => new Dictionary<ITest, string>());
+				if (!uniqueIDLookup.TryGetValue(test, out var result))
+				{
+					var testIndex = uniqueIDLookup.Count;
+					result = UniqueIDGenerator.ForTest(testCaseUniqueID, testIndex);
+					uniqueIDLookup[test] = result;
+				}
+
+				return result;
+			}
+		}
+
+		static string? UniqueIDForTestClass(
 			string testCollectionUniqueID,
 			ITestClass? testClass) =>
 				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass?.Class?.Name);
 
-		static string ComputeUniqueID(
+		static string UniqueIDForTestCollection(
 			string assemblyUniqueID,
 			ITestCollection testCollection) =>
 				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
 
-		static string? ComputeUniqueID(
+		static string? UniqueIDForTestMethod(
 			string? classUniqueID,
 			ITestMethod testMethod) =>
 				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method.Name);

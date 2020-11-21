@@ -88,8 +88,9 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var starting = Assert.IsAssignableFrom<ITestStarting>(message);
-					Assert.Equal(starting.TestCase.DisplayName, starting.Test.DisplayName);
+					var starting = Assert.IsAssignableFrom<_TestStarting>(message);
+					// Test display name == test case display name for Facts
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", starting.TestDisplayName);
 				},
 				message =>
 				{

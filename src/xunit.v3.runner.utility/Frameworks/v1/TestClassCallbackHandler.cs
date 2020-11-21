@@ -92,7 +92,7 @@ namespace Xunit.Runner.v1
 			var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
 			currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value);
 			SendTestCaseMessagesWhenAppropriate(testCase);
-			return messageSink.OnMessage(new TestStarting(currentTest)) && TestClassResults.Continue;
+			return SendTestStarting(currentTest, messageSink) && TestClassResults.Continue;
 		}
 
 		bool OnTest(XmlNode xml)
@@ -140,7 +140,7 @@ namespace Xunit.Runner.v1
 					if (testCase != lastTestCase)
 					{
 						SendTestCaseMessagesWhenAppropriate(testCase);
-						@continue = messageSink.OnMessage(new TestStarting(currentTest)) && @continue;
+						@continue = SendTestStarting(currentTest, messageSink) && @continue;
 					}
 					resultMessage = new TestSkipped(currentTest, xml.SelectSingleNode("reason/message").InnerText);
 					break;
@@ -168,6 +168,34 @@ namespace Xunit.Runner.v1
 					TestClassResults.Continue = handler(node) && TestClassResults.Continue;
 
 			return TestClassResults.Continue;
+		}
+
+		bool SendTestStarting(
+			ITest test,
+			_IMessageSink messageSink)
+		{
+			// TODO: This doesn't afford us much chance for caching, so this could be expensive, recomputing
+			// unique IDs for every single test.
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+
+			var testStarting = new _TestStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestDisplayName = test.DisplayName,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+
+			return messageSink.OnMessage(testStarting);
 		}
 
 		void SendTestCaseMessagesWhenAppropriate(ITestCase? current)

@@ -188,7 +188,7 @@ namespace Xunit.Runner.Common
 
 		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 		{
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetAssemblyMetadata(args.Message);
 
 			if (metadata != null)
 				AddError("assembly-cleanup", metadata.AssemblyPath, args.Message);
@@ -234,7 +234,7 @@ namespace Xunit.Runner.Common
 
 		void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 		{
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetTestCaseMetadata(args.Message);
 			if (metadata != null)
 				AddError("test-case-cleanup", metadata.TestCaseDisplayName, args.Message);
 			else
@@ -249,7 +249,7 @@ namespace Xunit.Runner.Common
 
 		void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 		{
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetClassMetadata(args.Message);
 			if (metadata != null)
 				AddError("test-class-cleanup", metadata.TestClass, args.Message);
 			else
@@ -267,7 +267,7 @@ namespace Xunit.Runner.Common
 
 		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetCollectionMetadata(args.Message);
 			if (metadata != null)
 				AddError("test-collection-cleanup", metadata.TestCollectionDisplayName, args.Message);
 			else
@@ -308,7 +308,7 @@ namespace Xunit.Runner.Common
 
 		void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetMethodMetadata(args.Message);
 			if (metadata != null)
 				AddError("test-method-cleanup", metadata.TestMethod, args.Message);
 			else

@@ -59,6 +59,16 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
+		public static T ArgumentValidNotNullOrEmpty<T>(string argName, string message, [NotNull] T? testValue)
+			where T : class, IEnumerable
+		{
+			if (testValue == null || !testValue.GetEnumerator().MoveNext())
+				throw new ArgumentException(message, argName);
+
+			return testValue;
+		}
+
+		/// <summary/>
 		public static void FileExists(string argName, [NotNull] string? fileName)
 		{
 			ArgumentNotNullOrEmpty(argName, fileName);

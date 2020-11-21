@@ -17,7 +17,7 @@ namespace Xunit.Runner.Common
 		const int MaxLength = 4096;
 
 		int assembliesInFlight;
-		readonly ConcurrentDictionary<string, (string assemblyFileName, Dictionary<string, int> testMethods)> assemblyNames = new ConcurrentDictionary<string, (string, Dictionary<string, int>)>();
+		readonly ConcurrentDictionary<string, (string assemblyFileName, Dictionary<string, int> testMethods)> assemblyInfoByUniqueID = new ConcurrentDictionary<string, (string, Dictionary<string, int>)>();
 		readonly string baseUri;
 		AppVeyorClient? client;
 		readonly object clientLock = new object();
@@ -35,8 +35,6 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(baseUri), baseUri);
 
 			this.baseUri = baseUri.TrimEnd('/');
-
-			Execution.TestStartingEvent += HandleTestStarting;
 		}
 
 		AppVeyorClient Client
@@ -85,14 +83,17 @@ namespace Xunit.Runner.Common
 				if (!string.IsNullOrWhiteSpace(tfm))
 					assemblyFileName = $"{assemblyFileName} ({tfm})";
 
-				assemblyNames[args.Message.AssemblyName] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+				assemblyInfoByUniqueID[args.Message.AssemblyUniqueID] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 			}
 		}
 
-		void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
+		/// <inheritdoc/>
+		protected override void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 		{
-			var testName = args.Message.Test.DisplayName;
-			var testMethods = assemblyNames[args.Message.TestAssembly.Assembly.Name].testMethods;
+			base.HandleTestStarting(args);
+
+			var testName = args.Message.TestDisplayName;
+			var testMethods = assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].testMethods;
 
 			lock (testMethods)
 				if (testMethods.ContainsKey(testName))
@@ -101,7 +102,7 @@ namespace Xunit.Runner.Common
 			Client.AddTest(GetRequestMessage(
 				testName,
 				"xUnit",
-				assemblyNames[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
+				assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].assemblyFileName,
 				"Running"
 			));
 		}
@@ -110,12 +111,12 @@ namespace Xunit.Runner.Common
 		protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 		{
 			var testPassed = args.Message;
-			var testMethods = assemblyNames[args.Message.TestAssembly.Assembly.Name].testMethods;
+			var testMethods = assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].testMethods;  // TODO: Incorrect index
 
 			Client.UpdateTest(GetRequestMessage(
 				GetFinishedTestName(testPassed.Test.DisplayName, testMethods),
 				"xUnit",
-				assemblyNames[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
+				assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
 				"Passed",
 				Convert.ToInt64(testPassed.ExecutionTime * 1000),
 				stdOut: testPassed.Output
@@ -128,12 +129,12 @@ namespace Xunit.Runner.Common
 		protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
 		{
 			var testSkipped = args.Message;
-			var testMethods = assemblyNames[args.Message.TestAssembly.Assembly.Name].testMethods;
+			var testMethods = assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].testMethods;  // TODO: Incorrect index
 
 			Client.UpdateTest(GetRequestMessage(
 				GetFinishedTestName(testSkipped.Test.DisplayName, testMethods),
 				"xUnit",
-				assemblyNames[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
+				assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
 				"Skipped",
 				Convert.ToInt64(testSkipped.ExecutionTime * 1000)
 			));
@@ -145,12 +146,12 @@ namespace Xunit.Runner.Common
 		protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
 		{
 			var testFailed = args.Message;
-			var testMethods = assemblyNames[args.Message.TestAssembly.Assembly.Name].testMethods;
+			var testMethods = assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].testMethods;  // TODO: Incorrect index
 
 			Client.UpdateTest(GetRequestMessage(
 				GetFinishedTestName(testFailed.Test.DisplayName, testMethods),
 				"xUnit",
-				assemblyNames[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
+				assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
 				"Failed",
 				Convert.ToInt64(testFailed.ExecutionTime * 1000),
 				ExceptionUtility.CombineMessages(testFailed),

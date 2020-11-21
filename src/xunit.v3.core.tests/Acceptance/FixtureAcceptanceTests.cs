@@ -25,7 +25,7 @@ public class FixtureAcceptanceTests
 				// TestMethod1
 				message => Assert.IsAssignableFrom<_TestMethodStarting>(message),
 				message => Assert.IsAssignableFrom<_TestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsAssignableFrom<_TestStarting>(message),
 				message =>
 				{
 					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
@@ -39,7 +39,7 @@ public class FixtureAcceptanceTests
 				// TestMethod2
 				message => Assert.IsAssignableFrom<_TestMethodStarting>(message),
 				message => Assert.IsAssignableFrom<_TestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsAssignableFrom<_TestStarting>(message),
 				message =>
 				{
 					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);

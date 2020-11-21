@@ -18,7 +18,6 @@ namespace Xunit.Runner.Common
 		readonly string? defaultDirectory = null;
 		readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
 		readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, _ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
-		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
@@ -57,9 +56,11 @@ namespace Xunit.Runner.Common
 			Execution.TestMethodStartingEvent += HandleTestMethodStarting;
 
 			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
+			Execution.TestFinishedEvent += HandleTestFinished;
 			Execution.TestFailedEvent += HandleTestFailed;
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
+			Execution.TestStartingEvent += HandleTestStarting;
 
 			Runner.TestAssemblyDiscoveryFinishedEvent += HandleTestAssemblyDiscoveryFinished;
 			Runner.TestAssemblyDiscoveryStartingEvent += HandleTestAssemblyDiscoveryStarting;
@@ -72,6 +73,11 @@ namespace Xunit.Runner.Common
 		/// Get the logger used to report messages.
 		/// </summary>
 		protected IRunnerLogger Logger { get; }
+
+		/// <summary>
+		/// Gets the metadata cache.
+		/// </summary>
+		protected MessageMetadataCache MetadataCache { get; } = new MessageMetadataCache();
 
 		void AddExecutionOptions(
 			string? assemblyFilename,
@@ -315,7 +321,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = MetadataCache.TryGetAssemblyMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", args.Message);
 			else
@@ -330,7 +336,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.TryRemove(args.Message);
+			MetadataCache.TryRemove(args.Message);
 		}
 
 		/// <summary>
@@ -341,7 +347,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.Set(args.Message);
+			MetadataCache.Set(args.Message);
 		}
 
 		/// <summary>
@@ -352,7 +358,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = MetadataCache.TryGetTestCaseMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Case Cleanup Failure ({metadata.TestCaseDisplayName})", args.Message);
 			else
@@ -367,7 +373,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.TryRemove(args.Message);
+			MetadataCache.TryRemove(args.Message);
 		}
 
 		/// <summary>
@@ -378,7 +384,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.Set(args.Message);
+			MetadataCache.Set(args.Message);
 		}
 
 		/// <summary>
@@ -389,7 +395,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = MetadataCache.TryGetClassMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Class Cleanup Failure ({metadata.TestClass})", args.Message);
 			else
@@ -404,7 +410,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.TryRemove(args.Message);
+			MetadataCache.TryRemove(args.Message);
 		}
 
 		/// <summary>
@@ -415,7 +421,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.Set(args.Message);
+			MetadataCache.Set(args.Message);
 		}
 
 		/// <summary>
@@ -437,7 +443,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = MetadataCache.TryGetCollectionMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", args.Message);
 			else
@@ -452,7 +458,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.TryRemove(args.Message);
+			MetadataCache.TryRemove(args.Message);
 		}
 
 		/// <summary>
@@ -463,7 +469,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.Set(args.Message);
+			MetadataCache.Set(args.Message);
 		}
 
 		/// <summary>
@@ -501,6 +507,17 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
+		/// Called when <see cref="ITestFinished"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			//MetadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
 		/// Called when <see cref="_TestMethodCleanupFailure"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
@@ -509,7 +526,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = MetadataCache.TryGetMethodMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
 			else
@@ -524,7 +541,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.TryRemove(args.Message);
+			MetadataCache.TryRemove(args.Message);
 		}
 
 		/// <summary>
@@ -535,7 +552,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			metadataCache.Set(args.Message);
+			MetadataCache.Set(args.Message);
 		}
 
 		/// <summary>
@@ -572,6 +589,17 @@ namespace Xunit.Runner.Common
 				Logger.LogWarning($"    {Escape(testSkipped.Test.DisplayName)} [SKIP]");
 				Logger.LogImportantMessage($"      {Escape(testSkipped.Reason)}");
 			}
+		}
+
+		/// <summary>
+		/// Called when <see cref="_TestStarting"/> is raised.
+		/// </summary>
+		/// <param name="args">An object that contains the event data.</param>
+		protected virtual void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			MetadataCache.Set(args.Message);
 		}
 
 		/// <summary>

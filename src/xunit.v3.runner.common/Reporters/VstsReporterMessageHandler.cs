@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -17,7 +16,6 @@ namespace Xunit.Runner.Common
 
 		readonly string accessToken;
 		int assembliesInFlight;
-		readonly ConcurrentDictionary<string, string> assemblyNames = new ConcurrentDictionary<string, string>();
 		readonly string baseUri;
 		readonly int buildId;
 		VstsClient? client;
@@ -40,8 +38,6 @@ namespace Xunit.Runner.Common
 			this.baseUri = baseUri;
 			this.accessToken = accessToken;
 			this.buildId = buildId;
-
-			Execution.TestStartingEvent += HandleTestStarting;
 		}
 
 		VstsClient Client
@@ -90,17 +86,24 @@ namespace Xunit.Runner.Common
 				var assemblyFileName = Path.GetFileName(args.Message.AssemblyPath) ?? "<unknown filename>";
 				if (!string.IsNullOrWhiteSpace(tfm))
 					assemblyFileName = $"{assemblyFileName} ({tfm})";
-
-				assemblyNames[args.Message.AssemblyName] = assemblyFileName;
 			}
 		}
 
-		void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
+		/// <inheritdoc/>
+		protected override void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 		{
-			var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
-			var testName = $"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}";
+			base.HandleTestStarting(args);
 
-			VstsAddTest(testName, args.Message.Test.DisplayName, assemblyName, args.Message.Test);
+			var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(args.Message);
+			var classMetadata = MetadataCache.TryGetClassMetadata(args.Message);
+			var methodMetadata = MetadataCache.TryGetMethodMetadata(args.Message);
+
+			if (assemblyMetadata != null && classMetadata != null && methodMetadata != null)
+			{
+				var testName = $"{classMetadata.TestClass}.{methodMetadata.TestMethod}";
+
+				VstsAddTest(testName, args.Message.TestDisplayName, assemblyMetadata.SimpleAssemblyName(), args.Message.TestUniqueID);
+			}
 		}
 
 		/// <inheritdoc/>
@@ -144,7 +147,7 @@ namespace Xunit.Runner.Common
 			string testName,
 			string displayName,
 			string fileName,
-			ITest uniqueId)
+			string testUniqueId)
 		{
 			var body = new Dictionary<string, object?>
 			{
@@ -152,13 +155,13 @@ namespace Xunit.Runner.Common
 				{ "automatedTestName", testName },
 				{ "automatedTestType", "UnitTest" },
 				{ "automatedTestTypeId", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" }, // This is used in the sample response and also appears in web searches
-				{ "automatedTestId", uniqueId },
+				{ "automatedTestId", testUniqueId },
 				{ "automatedTestStorage", fileName },
 				{ "state", "InProgress" },
 				{ "startedDate", DateTime.UtcNow }
 			};
 
-			Client.AddTest(body, uniqueId);
+			Client.AddTest(body, testUniqueId);
 		}
 
 		void VstsUpdateTest(

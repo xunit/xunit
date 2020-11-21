@@ -138,6 +138,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		protected virtual XunitTestRunner CreateTestRunner(
 			ITest test,
+			int testIndex,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,
@@ -148,7 +149,13 @@ namespace Xunit.Sdk
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitTestRunner(
+					TestAssemblyUniqueID,
+					TestCollectionUniqueID,
+					TestClassUniqueID,
+					TestMethodUniqueID,
+					TestCase.UniqueID,
 					test,
+					testIndex,
 					messageBus,
 					testClass,
 					constructorArguments,
@@ -184,6 +191,7 @@ namespace Xunit.Sdk
 		protected override Task<RunSummary> RunTestAsync() =>
 			CreateTestRunner(
 				CreateTest(TestCase, DisplayName),
+				testIndex: 0,
 				MessageBus,
 				TestClass,
 				ConstructorArguments,

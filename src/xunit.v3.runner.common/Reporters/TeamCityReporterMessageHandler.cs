@@ -11,7 +11,6 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class TeamCityReporterMessageHandler : FlowMappedTestMessageSink
 	{
-		readonly TeamCityDisplayNameFormatter displayNameFormatter;
 		readonly IRunnerLogger logger;
 		MessageMetadataCache metadataCache = new MessageMetadataCache();
 
@@ -21,17 +20,14 @@ namespace Xunit.Runner.Common
 		/// <param name="logger">The logger used to report messages</param>
 		/// <param name="flowIdMapper">Optional code which maps a test collection name to a flow ID
 		/// (the default behavior generates a new GUID for each test collection)</param>
-		/// <param name="displayNameFormatter">Optional display name formatter</param>
 		public TeamCityReporterMessageHandler(
 			IRunnerLogger logger,
-			Func<string, string>? flowIdMapper = null,
-			TeamCityDisplayNameFormatter? displayNameFormatter = null)
+			Func<string, string>? flowIdMapper = null)
 				: base(flowIdMapper)
 		{
 			Guard.ArgumentNotNull(nameof(logger), logger);
 
 			this.logger = logger;
-			this.displayNameFormatter = displayNameFormatter ?? new TeamCityDisplayNameFormatter();
 
 			Diagnostics.ErrorMessageEvent += HandleErrorMessage;
 
@@ -81,7 +77,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			var metadata = metadataCache.TryGet(cleanupFailure);
+			var metadata = metadataCache.TryGetAssemblyMetadata(cleanupFailure);
 			if (metadata != null)
 				LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", cleanupFailure);
 			else
@@ -116,7 +112,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetTestCaseMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Case Cleanup Failure ({metadata.TestCaseDisplayName})", cleanupFailure);
 			else
@@ -151,7 +147,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			var metadata = metadataCache.TryGet(cleanupFailure);
+			var metadata = metadataCache.TryGetClassMetadata(cleanupFailure);
 			if (metadata != null)
 				LogError($"Test Class Cleanup Failure ({metadata.TestClass})", cleanupFailure);
 			else
@@ -186,7 +182,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			var metadata = metadataCache.TryGet(cleanupFailure);
+			var metadata = metadataCache.TryGetCollectionMetadata(cleanupFailure);
 			if (metadata != null)
 				LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", cleanupFailure);
 			else
@@ -241,7 +237,10 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testFailed = args.Message;
-			logger.LogImportantMessage($"##teamcity[testFailed name='{Escape(displayNameFormatter.DisplayName(testFailed.Test))}' details='{Escape(ExceptionUtility.CombineMessages(testFailed))}|r|n{Escape(ExceptionUtility.CombineStackTraces(testFailed))}' flowId='{ToFlowId(testFailed.TestCollection.DisplayName)}']");
+			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
+			var details = $"{Escape(ExceptionUtility.CombineMessages(testFailed))}|r|n{Escape(ExceptionUtility.CombineStackTraces(testFailed))}";
+
+			logger.LogImportantMessage($"##teamcity[testFailed name='{formattedName}' details='{details}' flowId='{ToFlowId(testFailed.TestCollection.DisplayName)}']");
 			LogFinish(testFailed);
 		}
 
@@ -253,7 +252,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			var metadata = metadataCache.TryGet(args.Message);
+			var metadata = metadataCache.TryGetMethodMetadata(args.Message);
 			if (metadata != null)
 				LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
 			else
@@ -299,19 +298,25 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testSkipped = args.Message;
-			logger.LogImportantMessage($"##teamcity[testIgnored name='{Escape(displayNameFormatter.DisplayName(testSkipped.Test))}' message='{Escape(testSkipped.Reason)}' flowId='{ToFlowId(testSkipped.TestCollection.DisplayName)}']");
+			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
+
+			logger.LogImportantMessage($"##teamcity[testIgnored name='{formattedName}' message='{Escape(testSkipped.Reason)}' flowId='{ToFlowId(testSkipped.TestCollection.DisplayName)}']");
 			LogFinish(testSkipped);
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestStarting" />.
+		/// Handles instances of <see cref="_TestStarting" />.
 		/// </summary>
-		protected virtual void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
+		protected virtual void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testStarting = args.Message;
-			logger.LogImportantMessage($"##teamcity[testStarted name='{Escape(displayNameFormatter.DisplayName(testStarting.Test))}' flowId='{ToFlowId(testStarting.TestCollection.DisplayName)}']");
+			var formattedName = Escape(args.Message.TestDisplayName);
+
+			logger.LogImportantMessage($"##teamcity[testStarted name='{formattedName}' flowId='{args.Message.TestCollectionUniqueID}']");
+
+			metadataCache.Set(testStarting);
 		}
 
 		// Helpers
@@ -326,7 +331,7 @@ namespace Xunit.Runner.Common
 
 		void LogFinish(ITestResultMessage testResult)
 		{
-			var formattedName = Escape(displayNameFormatter.DisplayName(testResult.Test));
+			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
 			var flowId = ToFlowId(testResult.TestCollection.DisplayName);
 
 			if (!string.IsNullOrWhiteSpace(testResult.Output))

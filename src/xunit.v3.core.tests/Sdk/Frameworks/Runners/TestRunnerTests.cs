@@ -26,10 +26,8 @@ public class TestRunnerTests
 			messageBus.Messages,
 			msg =>
 			{
-				var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
-				Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
-				Assert.Same(runner.TestCase, testStarting.TestCase);
-				Assert.Equal("Display Name", testStarting.Test.DisplayName);
+				var testStarting = Assert.IsAssignableFrom<_TestStarting>(msg);
+				Assert.Equal("Display Name", testStarting.TestDisplayName);
 			},
 			msg => { },  // Pass/fail/skip, will be tested elsewhere
 			msg =>
@@ -136,7 +134,7 @@ public class TestRunnerTests
 				var msg = callInfo.Arg<IMessageSinkMessage>();
 				messages.Add(msg);
 
-				if (msg is ITestStarting)
+				if (msg is _TestStarting)
 					throw new InvalidOperationException();
 
 				return true;
@@ -146,7 +144,7 @@ public class TestRunnerTests
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 		var starting = Assert.Single(messages);
-		Assert.IsAssignableFrom<ITestStarting>(starting);
+		Assert.IsAssignableFrom<_TestStarting>(starting);
 		Assert.False(runner.InvokeTestAsync_Called);
 	}
 
@@ -201,7 +199,7 @@ public class TestRunnerTests
 	[Fact]
 	public static async void Cancellation_TestStarting_DoesNotCallExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestStarting));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestStarting));
 		var runner = TestableTestRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -269,8 +267,24 @@ public class TestRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			decimal runTime,
 			string output,
-			Action? lambda)
-				: base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
+			Action? lambda) :
+				base(
+					"test-assembly-id",
+					"test-collection-id",
+					"test-class-id",
+					"test-method-id",
+					"test-case-id",
+					test,
+					testIndex: 0,
+					messageBus,
+					testClass,
+					constructorArguments,
+					testMethod,
+					testMethodArguments,
+					skipReason,
+					aggregator,
+					cancellationTokenSource
+				)
 		{
 			TestCase = test.TestCase;
 			TokenSource = cancellationTokenSource;

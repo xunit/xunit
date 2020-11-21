@@ -107,6 +107,24 @@ namespace Xunit
 		}
 
 		/// <summary>
+		/// Computes a unique ID for a test, to be placed into <see cref="_TestMessage.TestUniqueID"/>
+		/// </summary>
+		/// <param name="testCaseUniqueID">The unique ID of the test case that this test belongs to.</param>
+		/// <param name="testIndex">The index of this test in the test case, typically starting with 0
+		/// (though a negative number may be used to prevent collisions with legitimate test indices).</param>
+		public static string ForTest(
+			string testCaseUniqueID,
+			int testIndex)
+		{
+			Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
+
+			using var generator = new UniqueIDGenerator();
+			generator.Add(testCaseUniqueID);
+			generator.Add(testIndex.ToString());
+			return generator.Compute();
+		}
+
+		/// <summary>
 		/// Computes a unique ID for a test class, to be placed into <see cref="_TestClassMessage.TestClassUniqueID"/>
 		/// </summary>
 		/// <param name="testCollectionUniqueID">The unique ID of the parent test collection for the test class</param>

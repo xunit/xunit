@@ -39,6 +39,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="serialization">The serialized value</param>
 		/// <returns>The deserialized object</returns>
+		// TODO: Should we rename Deserialize() to ParseJson()?
 		public static _MessageSinkMessage Deserialize(string serialization)
 		{
 			var byteSpan = Encoding.UTF8.GetBytes(serialization).AsSpan();
@@ -73,6 +74,7 @@ namespace Xunit.v3
 		/// Serializes this object. Can be re-hydrated using <see cref="Deserialize"/>.
 		/// </summary>
 		/// <returns>The serialization of this message</returns>
+		// TODO: Should we rename Serialize() to ToJson()?
 		public string Serialize()
 		{
 			using var stream = new MemoryStream();

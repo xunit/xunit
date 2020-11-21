@@ -123,7 +123,7 @@ namespace Xunit.Runner.Common
 		static readonly Dictionary<Type, List<AddFields>> TypeToFieldAdders = new Dictionary<Type, List<AddFields>>()
 		{
 			{ typeof(_TestCollectionStarting), new List<AddFields> { AddFieldsForITestCollectionMessage } },
-			{ typeof(ITestStarting), new List<AddFields> { AddFieldsForITestMessage } },
+			{ typeof(_TestStarting), new List<AddFields> { AddFieldsForITestMessage } },
 			{ typeof(ITestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
 			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
@@ -197,12 +197,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestStarting testStarting, string flowId)
+		public static string ToJson(this _TestStarting testStarting, string flowId)
 		{
 			Guard.ArgumentNotNull(nameof(testStarting), testStarting);
 			Guard.ArgumentNotNull(nameof(flowId), flowId);
 
-			var json = InitObject("testStarting", testStarting, typeof(ITestStarting), flowId);
+			var json = InitObject("testStarting", testStarting, typeof(_TestStarting), flowId);
 
 			return ToJson(json);
 		}

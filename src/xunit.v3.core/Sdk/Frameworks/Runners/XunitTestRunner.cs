@@ -16,7 +16,13 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestRunner"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
+		/// <param name="testCaseUniqueID">The test case unique ID.</param>
 		/// <param name="test">The test that this invocation belongs to.</param>
+		/// <param name="testIndex">The test index for this test in the test case.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testClass">The test class that the test method belongs to.</param>
 		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
@@ -27,7 +33,13 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
+			string testCaseUniqueID,
 			ITest test,
+			int testIndex,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,
@@ -36,8 +48,24 @@ namespace Xunit.Sdk
 			string? skipReason,
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
-				: base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource) :
+				base(
+					testAssemblyUniqueID,
+					testCollectionUniqueID,
+					testClassUniqueID,
+					testMethodUniqueID,
+					testCaseUniqueID,
+					test,
+					testIndex,
+					messageBus,
+					testClass,
+					constructorArguments,
+					testMethod,
+					testMethodArguments,
+					skipReason,
+					aggregator,
+					cancellationTokenSource
+				)
 		{
 			BeforeAfterAttributes = Guard.ArgumentNotNull(nameof(beforeAfterAttributes), beforeAfterAttributes);
 		}

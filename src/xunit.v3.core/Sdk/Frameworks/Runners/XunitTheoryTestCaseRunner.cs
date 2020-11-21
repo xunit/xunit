@@ -114,6 +114,8 @@ namespace Xunit.Sdk
 						continue;
 					}
 
+					var testIndex = 0;
+
 					foreach (var dataRow in data)
 					{
 						foreach (var dataRowItem in dataRow)
@@ -135,7 +137,7 @@ namespace Xunit.Sdk
 						var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
 						var test = CreateTest(TestCase, theoryDisplayName);
 						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
-						testRunners.Add(CreateTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
+						testRunners.Add(CreateTestRunner(test, testIndex++, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
 					}
 				}
 			}
@@ -181,7 +183,21 @@ namespace Xunit.Sdk
 		{
 			var test = new XunitTest(TestCase, DisplayName);
 
-			if (!MessageBus.QueueMessage(new TestStarting(test)))
+			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
+			var testUniqueID = UniqueIDGenerator.ForTest(TestCase.UniqueID, -1);
+
+			var testStarting = new _TestStarting
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestCaseUniqueID = TestCase.UniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestDisplayName = test.DisplayName,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+
+			if (!MessageBus.QueueMessage(testStarting))
 				CancellationTokenSource.Cancel();
 			else if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, dataDiscoveryException!.Unwrap())))
 				CancellationTokenSource.Cancel();

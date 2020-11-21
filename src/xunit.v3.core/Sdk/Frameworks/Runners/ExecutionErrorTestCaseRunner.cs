@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -39,7 +40,21 @@ namespace Xunit.Sdk
 			var test = new XunitTest(TestCase, TestCase.DisplayName);
 			var summary = new RunSummary { Total = 1 };
 
-			if (!MessageBus.QueueMessage(new TestStarting(test)))
+			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
+			var testUniqueID = UniqueIDGenerator.ForTest(TestCase.UniqueID, -1);
+
+			var testStarting = new _TestStarting
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestCaseUniqueID = TestCase.UniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestDisplayName = test.DisplayName,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+
+			if (!MessageBus.QueueMessage(testStarting))
 				CancellationTokenSource.Cancel();
 			else
 			{

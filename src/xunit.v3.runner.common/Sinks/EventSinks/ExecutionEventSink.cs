@@ -155,9 +155,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestSkipped>? TestSkippedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestStarting"/> message is received.
+		/// Occurs when a <see cref="_TestStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestStarting>? TestStartingEvent;
+		public event MessageHandler<_TestStarting>? TestStartingEvent;
 
 		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
