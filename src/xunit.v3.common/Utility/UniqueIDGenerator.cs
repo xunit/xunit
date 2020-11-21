@@ -107,19 +107,6 @@ namespace Xunit
 		}
 
 		/// <summary>
-		/// Computes a unique ID for a test case, to be placed into <see cref="_TestCaseMessage.TestCaseUniqueID"/>
-		/// </summary>
-		/// <param name="parentUniqueID">The parent unique ID (should be method ID available, falling back
-		/// to class ID, and lastly falling back to collection ID if both method and class ID are <c>null</c>).</param>
-		public static string ForTestCase(
-			string parentUniqueID)
-		{
-			using var generator = new UniqueIDGenerator();
-			generator.Add(parentUniqueID);
-			return generator.Compute();
-		}
-
-		/// <summary>
 		/// Computes a unique ID for a test class, to be placed into <see cref="_TestClassMessage.TestClassUniqueID"/>
 		/// </summary>
 		/// <param name="testCollectionUniqueID">The unique ID of the parent test collection for the test class</param>
