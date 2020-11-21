@@ -40,6 +40,7 @@ public class Xunit3AcceptanceTests
 			string? observedClassID = default;
 			string? observedMethodID = default;
 			string? observedTestCaseID = default;
+			string? observedTestID = default;
 
 			var results = await RunAsync(typeof(SinglePassingTestClass));
 
@@ -88,9 +89,15 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var starting = Assert.IsAssignableFrom<_TestStarting>(message);
+					var testStarting = Assert.IsAssignableFrom<_TestStarting>(message);
+					Assert.Equal(observedAssemblyID, testStarting.AssemblyUniqueID);
 					// Test display name == test case display name for Facts
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", starting.TestDisplayName);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testStarting.TestDisplayName);
+					Assert.Equal(observedTestCaseID, testStarting.TestCaseUniqueID);
+					Assert.Equal(observedCollectionID, testStarting.TestCollectionUniqueID);
+					Assert.Equal(observedClassID, testStarting.TestClassUniqueID);
+					Assert.Equal(observedMethodID, testStarting.TestMethodUniqueID);
+					observedTestID = testStarting.TestUniqueID;
 				},
 				message =>
 				{
@@ -130,16 +137,26 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-					Assert.Equal(testFinished.TestCase.DisplayName, testFinished.Test.DisplayName);
+					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
+					Assert.Equal(observedAssemblyID, testFinished.AssemblyUniqueID);
+					Assert.Equal(observedTestCaseID, testFinished.TestCaseUniqueID);
+					Assert.Equal(observedClassID, testFinished.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, testFinished.TestCollectionUniqueID);
+					Assert.Equal(observedMethodID, testFinished.TestMethodUniqueID);
+					Assert.Equal(observedTestID, testFinished.TestUniqueID);
 				},
 				message =>
 				{
 					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
+					Assert.Equal(observedAssemblyID, testCaseFinished.AssemblyUniqueID);
+					Assert.NotEqual(0M, testCaseFinished.ExecutionTime);
+					Assert.Equal(observedTestCaseID, testCaseFinished.TestCaseUniqueID);
+					Assert.Equal(observedClassID, testCaseFinished.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, testCaseFinished.TestCollectionUniqueID);
+					Assert.Equal(observedMethodID, testCaseFinished.TestMethodUniqueID);
 					Assert.Equal(1, testCaseFinished.TestsRun);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
-					Assert.NotEqual(0M, testCaseFinished.ExecutionTime);
 				},
 				message =>
 				{

@@ -450,6 +450,24 @@ public class Xunit2MessageAdapterTests
 	public class TestTests
 	{
 		[Fact]
+		public void TestFinished()
+		{
+			var v2Message = v2Mocks.TestFinished(Test, 123.4567m, "abc123");
+
+			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestFinished>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(123.4567m, v3Message.ExecutionTime);
+			Assert.Equal("abc123", v3Message.Output);
+			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			Assert.Equal(TestUniqueID, v3Message.TestUniqueID);
+		}
+
+		[Fact]
 		public void TestStarting()
 		{
 			var v2Message = v2Mocks.TestStarting(Test);

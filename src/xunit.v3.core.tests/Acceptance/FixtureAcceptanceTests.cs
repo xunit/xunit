@@ -32,7 +32,7 @@ public class FixtureAcceptanceTests
 					Assert.Equal(typeof(TestClassException).FullName, failedMessage.ExceptionTypes.Single());
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsAssignableFrom<_TestFinished>(message),
 				message => Assert.IsAssignableFrom<_TestCaseFinished>(message),
 				message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 
@@ -46,7 +46,7 @@ public class FixtureAcceptanceTests
 					Assert.Equal(typeof(TestClassException).FullName, failedMessage.ExceptionTypes.Single());
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsAssignableFrom<_TestFinished>(message),
 				message => Assert.IsAssignableFrom<_TestCaseFinished>(message),
 				message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 

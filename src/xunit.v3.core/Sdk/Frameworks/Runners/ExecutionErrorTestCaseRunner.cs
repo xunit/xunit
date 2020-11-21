@@ -73,7 +73,19 @@ namespace Xunit.Sdk
 				if (!MessageBus.QueueMessage(testFailed))
 					CancellationTokenSource.Cancel();
 
-				if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
+				var testFinished = new _TestFinished
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					ExecutionTime = 0m,
+					Output = "",
+					TestCaseUniqueID = TestCase.UniqueID,
+					TestClassUniqueID = TestClassUniqueID,
+					TestCollectionUniqueID = TestCollectionUniqueID,
+					TestMethodUniqueID = TestMethodUniqueID,
+					TestUniqueID = testUniqueID
+				};
+
+				if (!MessageBus.QueueMessage(testFinished))
 					CancellationTokenSource.Cancel();
 			}
 

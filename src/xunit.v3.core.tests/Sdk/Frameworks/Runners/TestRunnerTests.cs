@@ -32,10 +32,7 @@ public class TestRunnerTests
 			msg => { },  // Pass/fail/skip, will be tested elsewhere
 			msg =>
 			{
-				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
-				Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
-				Assert.Same(runner.TestCase, testFinished.TestCase);
-				Assert.Equal("Display Name", testFinished.Test.DisplayName);
+				var testFinished = Assert.IsAssignableFrom<_TestFinished>(msg);
 				Assert.Equal(21.12m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
 			}
@@ -213,7 +210,7 @@ public class TestRunnerTests
 	[InlineData(typeof(ITestPassed), true, null)]
 	[InlineData(typeof(ITestFailed), false, null)]
 	[InlineData(typeof(ITestSkipped), false, "Please skip me")]
-	[InlineData(typeof(ITestFinished), true, null)]
+	[InlineData(typeof(_TestFinished), true, null)]
 	public static async void Cancellation_AllOthers_CallsExtensibilityMethods(
 		Type messageTypeToCancelOn,
 		bool shouldTestPass,

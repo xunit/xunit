@@ -507,10 +507,10 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestFinished"/> is raised.
+		/// Called when <see cref="_TestFinished"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
+		protected virtual void HandleTestFinished(MessageHandlerArgs<_TestFinished> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 

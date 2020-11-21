@@ -354,13 +354,15 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-					Assert.Same(testAssembly, testFinished.TestAssembly);
-					Assert.Same(testCollection, testFinished.TestCollection);
-					Assert.Equal("type1", testFinished.TestClass.Class.Name);
-					Assert.Equal("passing", testFinished.TestMethod.Method.Name);
-					Assert.Equal("type1.passing", testFinished.TestCase.DisplayName);
+					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testFinished.ExecutionTime);
+					Assert.Empty(testFinished.Output);
+					Assert.Equal("type1.passing (assembly)", testFinished.TestCaseUniqueID);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testFinished.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testFinished.TestCollectionUniqueID);
+					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testFinished.TestMethodUniqueID);
+					Assert.Equal("fac6e4ecf3efd5375f42b21767acc145d7ef19f189119d9facb629edcab7bf66", testFinished.TestUniqueID);
 				},
 				message =>
 				{
@@ -404,8 +406,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-					Assert.Equal("type1.failing", testFinished.TestCase.DisplayName);
+					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
 					Assert.Equal(0.234M, testFinished.ExecutionTime);
 				},
 				message =>
@@ -461,8 +462,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-					Assert.Equal("type2.skipping", testFinished.TestCase.DisplayName);
+					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
 					Assert.Equal(0M, testFinished.ExecutionTime);
 				},
 				message =>
@@ -505,8 +505,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-					Assert.Equal("type2.skipping_with_start", testFinished.TestCase.DisplayName);
+					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
 					Assert.Equal(0M, testFinished.ExecutionTime);
 				},
 				message =>

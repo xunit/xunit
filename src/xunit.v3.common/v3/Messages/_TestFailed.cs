@@ -81,7 +81,7 @@ namespace Xunit.v3
 				TestCaseUniqueID = testCaseUniqueID,
 				TestUniqueID = testUniqueID,
 				ExecutionTime = executionTime,
-				Output = output,
+				Output = output ?? string.Empty,
 				ExceptionTypes = failureInfo.ExceptionTypes,
 				Messages = failureInfo.Messages,
 				StackTraces = failureInfo.StackTraces,

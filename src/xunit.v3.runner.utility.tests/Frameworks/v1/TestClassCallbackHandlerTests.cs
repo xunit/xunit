@@ -42,7 +42,7 @@ public class TestClassCallbackHandlerTests
 		handler.OnXmlNode(xml.FirstChild);
 
 		var args = sink.Captured(1, x => x.OnMessage(null!));
-		var message = args.Arg<ITestFinished>();
+		var message = args.Arg<_TestFinished>();
 		Assert.Equal(1.234M, message.ExecutionTime);
 	}
 

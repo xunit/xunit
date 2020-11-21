@@ -26,7 +26,11 @@ namespace Xunit.Runner.Common
 			{
 				Guard.ArgumentNotNull(nameof(args), args);
 
-				Logger.LogMessage($"    {Escape(args.Message.Test.DisplayName)} [FINISHED] Time: {args.Message.ExecutionTime}s");
+				var metadata = MetadataCache.TryGetTestMetadata(args.Message);
+				if (metadata != null)
+					Logger.LogMessage($"    {Escape(metadata.TestDisplayName)} [FINISHED] Time: {args.Message.ExecutionTime}s");
+				else
+					Logger.LogMessage($"    <unknown test> [FINISHED] Time: {args.Message.ExecutionTime}s");
 			};
 		}
 	}

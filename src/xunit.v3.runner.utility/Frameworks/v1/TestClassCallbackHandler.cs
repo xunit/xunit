@@ -154,7 +154,7 @@ namespace Xunit.Runner.v1
 			if (resultMessage != null)
 				@continue = messageSink.OnMessage(resultMessage) && @continue;
 
-			@continue = messageSink.OnMessage(new TestFinished(currentTest, time, output)) && @continue;
+			@continue = SendTestFinished(currentTest, time, output, messageSink) && @continue;
 			currentTest = null;
 
 			return @continue && TestClassResults.Continue;
@@ -168,6 +168,37 @@ namespace Xunit.Runner.v1
 					TestClassResults.Continue = handler(node) && TestClassResults.Continue;
 
 			return TestClassResults.Continue;
+		}
+
+		bool SendTestFinished(
+			ITest test,
+			decimal executionTime,
+			string output,
+			_IMessageSink messageSink)
+		{
+			// TODO: This doesn't afford us much chance for caching, so this could be expensive, recomputing
+			// unique IDs for every single test.
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+
+			var testFinished = new _TestFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = executionTime,
+				Output = output,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+
+			return messageSink.OnMessage(testFinished);
 		}
 
 		bool SendTestStarting(

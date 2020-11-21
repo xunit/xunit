@@ -44,7 +44,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<ITestCleanupFailure>();
 			AddMessageTypeName<_TestCollectionCleanupFailure>();
 			AddMessageTypeName<ITestFailed>();
-			AddMessageTypeName<ITestFinished>();
+			AddMessageTypeName<_TestFinished>();
 			AddMessageTypeName<_TestMethodCleanupFailure>();
 			AddMessageTypeName<ITestOutput>();
 			AddMessageTypeName<ITestPassed>();
