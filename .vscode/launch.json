@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "xunit.v3.assert.tests",
+      "name": "xunit.v3.assert.tests (netcoreapp2.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
@@ -13,7 +13,38 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.core.tests",
+      "name": "xunit.v3.assert.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.assert.tests/bin/Debug/net472/xunit.v3.assert.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.assert.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.common.tests (netcoreapp2.1)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "bin/Debug/netcoreapp2.1/xunit.v3.common.tests.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.common.tests",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.common.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.common.tests/bin/Debug/net472/xunit.v3.common.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.common.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.core.tests (netcoreapp2.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
@@ -24,7 +55,17 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.common.tests",
+      "name": "xunit.v3.core.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.core.tests/bin/Debug/net472/xunit.v3.core.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.core.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.common.tests (netcoreapp2.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
@@ -35,18 +76,27 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.console.tests",
-      "type": "coreclr",
+      "name": "xunit.v3.runner.common.tests (net472)",
+      "type": "mono",
       "request": "launch",
       "preLaunchTask": "Build",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.console.tests.dll",
+      "program": "${workspaceFolder}/src/xunit.v3.runner.common.tests/bin/Debug/net472/xunit.v3.runner.common.tests.exe",
       "args": [],
-      "cwd": "${workspaceFolder}/src/xunit.v3.runner.console.tests",
-      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.common.tests",
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.inproc.console.tests",
+      "name": "xunit.v3.runner.console.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.runner.console.tests/bin/Debug/net472/xunit.v3.runner.console.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.console.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.inproc.console.tests (netcoreapp2.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
@@ -57,7 +107,37 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.utility.tests",
+      "name": "xunit.v3.runner.inproc.console.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.runner.inproc.console.tests/bin/Debug/net472/xunit.v3.runner.inproc.console.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.inproc.console.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.msbuild.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.runner.msbuild.tests/bin/Debug/net472/xunit.v3.runner.msbuild.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.msbuild.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.tdnet.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.runner.tdnet.tests/bin/Debug/net472/xunit.v3.runner.tdnet.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.tdnet.tests",
+      "console": "internalConsole"
+    },
+    {
+      "name": "xunit.v3.runner.utility.tests (netcoreapp2.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build",
@@ -67,5 +147,15 @@
       "stopAtEntry": false,
       "console": "internalConsole"
     },
+    {
+      "name": "xunit.v3.runner.utility.tests (net472)",
+      "type": "mono",
+      "request": "launch",
+      "preLaunchTask": "Build",
+      "program": "${workspaceFolder}/src/xunit.v3.runner.utility.tests/bin/Debug/net472/xunit.v3.runner.utility.tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/xunit.v3.runner.utility.tests",
+      "console": "internalConsole"
+    }
   ]
 }
