@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 public class CollectionAssertsTests

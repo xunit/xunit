@@ -4,9 +4,9 @@ using System;
 using System.Threading;
 using System.Web.UI;
 using System.Xml;
-using Xunit.Sdk;
+using Xunit.Runner.v2;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// An implementation of <see cref="ICallbackEventHandler"/> used to translate v1 Executor XML

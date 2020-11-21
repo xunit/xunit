@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit.Internal;
 
 namespace Xunit.Sdk
 {
@@ -130,7 +131,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="code">The code to be run.</param>
 		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
-		public async Task<T> RunAsync<T>(Func<Task<T>> code, T defaultValue = default)
+		public async Task<T?> RunAsync<T>(Func<Task<T>> code, T defaultValue = default)
 		{
 			Guard.ArgumentNotNull(nameof(code), code);
 

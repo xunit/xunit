@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 #if NETSTANDARD
 using System.IO;
@@ -23,7 +25,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">The source code information provider.</param>
 		/// <param name="assemblyFileName">The test assembly.</param>
@@ -34,9 +36,9 @@ namespace Xunit
 		/// will be automatically (randomly) generated</param>
 		/// <param name="verifyTestAssemblyExists">Determines whether or not the existence of the test assembly is verified.</param>
 		public Xunit2(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			string assemblyFileName,
 			string? configFileName = null,
 			bool shadowCopy = true,
@@ -53,13 +55,14 @@ namespace Xunit
 			var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #endif
 			remoteExecutor = Framework.GetExecutor(assemblyName);
+			DisposalTracker.Add(remoteExecutor);
 		}
 
 		/// <inheritdoc/>
-		public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations)
+		public List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations)
 		{
 			var callbackContainer = new DeserializeCallback();
-			Action<List<KeyValuePair<string, ITestCase>>> callback = callbackContainer.Callback;
+			Action<List<KeyValuePair<string?, ITestCase?>>> callback = callbackContainer.Callback;
 
 			if (defaultTestCaseBulkDeserializer == null)
 			{
@@ -74,25 +77,15 @@ namespace Xunit
 					catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseBulkDeserialize" doesn't exist
 				}
 
-				defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(remoteExecutor);
+				defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(this);
 			}
 
 			return defaultTestCaseBulkDeserializer.BulkDeserialize(serializations);
 		}
 
 		/// <inheritdoc/>
-		public ITestCase Deserialize(string value)
-		{
-			return remoteExecutor.Deserialize(value);
-		}
-
-		/// <inheritdoc/>
-		public override sealed void Dispose()
-		{
-			remoteExecutor?.Dispose();
-
-			base.Dispose();
-		}
+		public ITestCase Deserialize(string value) =>
+			remoteExecutor.Deserialize(value);
 
 		/// <summary>
 		/// Starts the process of running all the xUnit.net v2 tests in the assembly.
@@ -101,12 +94,14 @@ namespace Xunit
 		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		public void RunAll(
-			IMessageSink messageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestFrameworkExecutionOptions executionOptions)
-		{
-			remoteExecutor.RunAll(CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions, executionOptions);
-		}
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkExecutionOptions executionOptions) =>
+				remoteExecutor.RunAll(
+					CreateOptimizedRemoteMessageSink(messageSink),
+					Xunit2OptionsAdapter.Adapt(discoveryOptions),
+					Xunit2OptionsAdapter.Adapt(executionOptions)
+				);
 
 		/// <summary>
 		/// Starts the process of running the selected xUnit.net v2 tests.
@@ -116,17 +111,15 @@ namespace Xunit
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		public void RunTests(
 			IEnumerable<ITestCase> testCases,
-			IMessageSink messageSink,
-			ITestFrameworkExecutionOptions executionOptions)
-		{
-			remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), executionOptions);
-		}
+			_IMessageSink messageSink,
+			_ITestFrameworkExecutionOptions executionOptions) =>
+				remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(executionOptions));
 
 		class DeserializeCallback : LongLivedMarshalByRefObject
 		{
-			public List<KeyValuePair<string, ITestCase>>? Results;
+			public List<KeyValuePair<string?, ITestCase?>>? Results;
 
-			public void Callback(List<KeyValuePair<string, ITestCase>> results) => Results = results;
+			public void Callback(List<KeyValuePair<string?, ITestCase?>> results) => Results = results;
 		}
 	}
 }

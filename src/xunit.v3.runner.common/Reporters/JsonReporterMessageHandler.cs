@@ -1,11 +1,10 @@
 using System;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that
-	/// supports <see cref="JsonReporter" />.
+	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="JsonReporter" />.
 	/// </summary>
 	public class JsonReporterMessageHandler : FlowMappedTestMessageSink
 	{
@@ -18,6 +17,9 @@ namespace Xunit.Runner.Common
 		public JsonReporterMessageHandler(IRunnerLogger logger, Func<string, string>? flowIdMapper = null)
 			: base(flowIdMapper)
 		{
+			// TODO: This format was sparse and may not be easy to adapt for v3, so we'll start replacing the handlers
+			// with the built-in JSON serialization.
+
 			Diagnostics.ErrorMessageEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 			Execution.TestAssemblyCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 			Execution.TestClassCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
@@ -26,8 +28,8 @@ namespace Xunit.Runner.Common
 			Execution.TestCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 			Execution.TestMethodCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 
-			Execution.TestCollectionFinishedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
-			Execution.TestCollectionStartingEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+			Execution.TestCollectionFinishedEvent += args => logger.LogImportantMessage(args.Message.Serialize());
+			Execution.TestCollectionStartingEvent += args => logger.LogImportantMessage(args.Message.Serialize());
 			Execution.TestFailedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
 			Execution.TestPassedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
 			Execution.TestSkippedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));

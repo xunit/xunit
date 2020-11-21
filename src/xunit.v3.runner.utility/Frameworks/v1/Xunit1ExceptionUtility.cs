@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Xunit.Abstractions;
+using Xunit.Internal;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	static class Xunit1ExceptionUtility
 	{

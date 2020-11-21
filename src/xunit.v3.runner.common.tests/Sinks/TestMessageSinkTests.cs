@@ -4,7 +4,8 @@ using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.Common;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 public class TestMessageSinkTests
 {
@@ -12,39 +13,40 @@ public class TestMessageSinkTests
 
 	[Theory]
 	// Diagnostics
-	[InlineData(typeof(IDiagnosticMessage))]
+	[InlineData(typeof(_DiagnosticMessage))]
 	[InlineData(typeof(IErrorMessage))]
 	// Discovery
-	[InlineData(typeof(IDiscoveryCompleteMessage))]
+	[InlineData(typeof(_DiscoveryComplete))]
+	[InlineData(typeof(_DiscoveryStarting))]
 	[InlineData(typeof(ITestCaseDiscoveryMessage))]
 	// Execution
-	[InlineData(typeof(ITestCollectionCleanupFailure))]
-	[InlineData(typeof(ITestOutput))]
-	[InlineData(typeof(ITestMethodCleanupFailure))]
-	[InlineData(typeof(ITestCleanupFailure))]
-	[InlineData(typeof(ITestClassCleanupFailure))]
-	[InlineData(typeof(ITestCaseCleanupFailure))]
-	[InlineData(typeof(ITestAssemblyCleanupFailure))]
 	[InlineData(typeof(IAfterTestFinished))]
 	[InlineData(typeof(IAfterTestStarting))]
 	[InlineData(typeof(IBeforeTestFinished))]
 	[InlineData(typeof(IBeforeTestStarting))]
-	[InlineData(typeof(ITestAssemblyFinished))]
-	[InlineData(typeof(ITestAssemblyStarting))]
-	[InlineData(typeof(ITestCaseFinished))]
-	[InlineData(typeof(ITestCaseStarting))]
+	[InlineData(typeof(_TestAssemblyCleanupFailure))]
+	[InlineData(typeof(_TestAssemblyFinished))]
+	[InlineData(typeof(_TestAssemblyStarting))]
+	[InlineData(typeof(_TestCaseCleanupFailure))]
+	[InlineData(typeof(_TestCaseFinished))]
+	[InlineData(typeof(_TestCaseStarting))]
+	[InlineData(typeof(_TestClassCleanupFailure))]
 	[InlineData(typeof(ITestClassConstructionFinished))]
 	[InlineData(typeof(ITestClassConstructionStarting))]
 	[InlineData(typeof(ITestClassDisposeFinished))]
 	[InlineData(typeof(ITestClassDisposeStarting))]
-	[InlineData(typeof(ITestClassFinished))]
-	[InlineData(typeof(ITestClassStarting))]
-	[InlineData(typeof(ITestCollectionFinished))]
-	[InlineData(typeof(ITestCollectionStarting))]
+	[InlineData(typeof(_TestClassFinished))]
+	[InlineData(typeof(_TestClassStarting))]
+	[InlineData(typeof(_TestCollectionCleanupFailure))]
+	[InlineData(typeof(_TestCollectionFinished))]
+	[InlineData(typeof(_TestCollectionStarting))]
+	[InlineData(typeof(ITestCleanupFailure))]
 	[InlineData(typeof(ITestFailed))]
 	[InlineData(typeof(ITestFinished))]
-	[InlineData(typeof(ITestMethodFinished))]
-	[InlineData(typeof(ITestMethodStarting))]
+	[InlineData(typeof(_TestMethodCleanupFailure))]
+	[InlineData(typeof(_TestMethodFinished))]
+	[InlineData(typeof(_TestMethodStarting))]
+	[InlineData(typeof(ITestOutput))]
 	[InlineData(typeof(ITestPassed))]
 	[InlineData(typeof(ITestSkipped))]
 	[InlineData(typeof(ITestStarting))]
@@ -60,7 +62,7 @@ public class TestMessageSinkTests
 		var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] })!;
 		var sink = new SpyTestMessageSink();
 
-		sink.OnMessageWithTypes(substitute, null);
+		sink.OnMessage(substitute);
 
 		Assert.Collection(
 			sink.Calls,

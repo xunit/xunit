@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Xml;
 using Microsoft.CSharp;
 using Xunit;
+using Xunit.Internal;
 
 namespace TestUtility
 {

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -14,7 +16,7 @@ namespace Xunit.Runner.Common
 	public class DelegatingLongRunningTestDetectionSink : LongLivedMarshalByRefObject, IExecutionSink
 	{
 		readonly Action<LongRunningTestsSummary> callback;
-		readonly Dictionary<ITestCase, DateTime> executingTestCases = new Dictionary<ITestCase, DateTime>();
+		readonly Dictionary<string, (_ITestCaseMetadata metadata, DateTime startTime)> executingTestCases = new Dictionary<string, (_ITestCaseMetadata, DateTime)>();
 		readonly ExecutionEventSink executionSink = new ExecutionEventSink();
 		readonly IExecutionSink innerSink;
 		DateTime lastTestActivity;
@@ -23,16 +25,16 @@ namespace Xunit.Runner.Common
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingLongRunningTestDetectionSink"/> class, with
-		/// long running test messages being delivered as <see cref="IDiagnosticMessage"/> instances to the
+		/// long running test messages being delivered as <see cref="_DiagnosticMessage"/> instances to the
 		/// provided diagnostic message sink.
 		/// </summary>
 		/// <param name="innerSink">The inner sink to delegate to.</param>
 		/// <param name="longRunningTestTime">The minimum amount of time a test runs to be considered long running.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public DelegatingLongRunningTestDetectionSink(
 			IExecutionSink innerSink,
 			TimeSpan longRunningTestTime,
-			IMessageSinkWithTypes diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 				: this(innerSink, longRunningTestTime, summary => DispatchLongRunningTestsSummaryAsDiagnosticMessage(summary, diagnosticMessageSink))
 		{
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
@@ -78,12 +80,12 @@ namespace Xunit.Runner.Common
 
 		static void DispatchLongRunningTestsSummaryAsDiagnosticMessage(
 			LongRunningTestsSummary summary,
-			IMessageSinkWithTypes diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
-			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.DisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
+			var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.TestCaseDisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
 			var message = string.Join(Environment.NewLine, messages.ToArray());
 
-			diagnosticMessageSink.OnMessage(new DiagnosticMessage(message));
+			diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
 		}
 
 		/// <inheritdoc/>
@@ -93,53 +95,54 @@ namespace Xunit.Runner.Common
 			innerSink.Dispose();
 		}
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			stopEvent?.Set();
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
 			stopEvent = new ManualResetEvent(initialState: false);
 			lastTestActivity = UtcNow;
 			ThreadPool.QueueUserWorkItem(ThreadWorker);
 		}
 
-		void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
+		void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
 		{
 			lock (executingTestCases)
 			{
-				executingTestCases.Remove(args.Message.TestCase);
+				executingTestCases.Remove(args.Message.TestCaseUniqueID);
 				lastTestActivity = UtcNow;
 			}
 		}
 
-		void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
+		void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
 		{
 			lock (executingTestCases)
-				executingTestCases.Add(args.Message.TestCase, UtcNow);
+				executingTestCases.Add(args.Message.TestCaseUniqueID, (args.Message, UtcNow));
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			var result = executionSink.OnMessageWithTypes(message, messageTypes);
-			result = innerSink.OnMessageWithTypes(message, messageTypes) && result;
+			var result = executionSink.OnMessage(message);
+			result = innerSink.OnMessage(message) && result;
 			return result;
 		}
 
 		void SendLongRunningMessage()
 		{
-			Dictionary<ITestCase, TimeSpan> longRunningTestCases;
+			Dictionary<_ITestCaseMetadata, TimeSpan> longRunningTestCases;
 			lock (executingTestCases)
 			{
 				var now = UtcNow;
-				longRunningTestCases = executingTestCases.Where(kvp => (now - kvp.Value) >= longRunningTestTime)
-														 .ToDictionary(k => k.Key, v => now - v.Value);
+
+				longRunningTestCases =
+					executingTestCases
+						.Where(kvp => (now - kvp.Value.startTime) >= longRunningTestTime)
+						.ToDictionary(k => k.Value.metadata, v => now - v.Value.startTime);
 			}
 
 			if (longRunningTestCases.Count > 0)

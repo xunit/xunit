@@ -7,6 +7,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TestCaseRunnerTests
 {
@@ -23,17 +24,10 @@ public class TestCaseRunnerTests
 		Assert.False(runner.TokenSource.IsCancellationRequested);
 		Assert.Collection(
 			messageBus.Messages,
+			msg => Assert.IsAssignableFrom<_TestCaseStarting>(msg),
 			msg =>
 			{
-				var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);
-				Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testCaseStarting.TestCollection);
-				Assert.Same(runner.TestCase, testCaseStarting.TestCase);
-			},
-			msg =>
-			{
-				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-				Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testCaseFinished.TestCollection);
-				Assert.Same(runner.TestCase, testCaseFinished.TestCase);
+				var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(msg);
 				Assert.Equal(21.12m, testCaseFinished.ExecutionTime);
 				Assert.Equal(4, testCaseFinished.TestsRun);
 				Assert.Equal(2, testCaseFinished.TestsFailed);
@@ -54,7 +48,7 @@ public class TestCaseRunnerTests
 				var msg = callInfo.Arg<IMessageSinkMessage>();
 				messages.Add(msg);
 
-				if (msg is ITestCaseStarting)
+				if (msg is _TestCaseStarting)
 					throw new InvalidOperationException();
 
 				return true;
@@ -64,7 +58,7 @@ public class TestCaseRunnerTests
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 		var starting = Assert.Single(messages);
-		Assert.IsAssignableFrom<ITestCaseStarting>(starting);
+		Assert.IsAssignableFrom<_TestCaseStarting>(starting);
 		Assert.False(runner.RunTestAsync_Called);
 	}
 
@@ -78,7 +72,7 @@ public class TestCaseRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestCaseCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestCaseCleanupFailure>());
 	}
 
 	[Fact]
@@ -92,7 +86,7 @@ public class TestCaseRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestCaseCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestCaseCleanupFailure>());
 	}
 
 	[Fact]
@@ -108,16 +102,14 @@ public class TestCaseRunnerTests
 
 		await runner.RunAsync();
 
-		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestCaseCleanupFailure>());
-		Assert.Same(testCase, cleanupFailure.TestCase);
-		Assert.Equal(new[] { testCase }, cleanupFailure.TestCases);
+		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<_TestCaseCleanupFailure>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 	}
 
 	[Fact]
 	public static async void Cancellation_TestCaseStarting_DoesNotCallExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCaseStarting));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCaseStarting));
 		var runner = TestableTestCaseRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -129,7 +121,7 @@ public class TestCaseRunnerTests
 	[Fact]
 	public static async void Cancellation_TestCaseFinished_CallsExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCaseFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCaseFinished));
 		var runner = TestableTestCaseRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -141,7 +133,7 @@ public class TestCaseRunnerTests
 	[Fact]
 	public static async void Cancellation_TestClassCleanupFailure_SetsCancellationToken()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCaseCleanupFailure));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCaseCleanupFailure));
 		var runner = TestableTestCaseRunner.Create(messageBus);
 		runner.BeforeTestCaseFinished_Callback = aggregator => aggregator.Add(new Exception());
 
@@ -151,8 +143,8 @@ public class TestCaseRunnerTests
 	}
 
 	[Theory]
-	[InlineData(typeof(ITestCaseStarting))]
-	[InlineData(typeof(ITestCaseFinished))]
+	[InlineData(typeof(_TestCaseStarting))]
+	[InlineData(typeof(_TestCaseFinished))]
 	public static async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
 		var messageBus = new SpyMessageBus(msg => !(messageTypeToCancelOn.IsAssignableFrom(msg.GetType())));
@@ -182,7 +174,7 @@ public class TestCaseRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource tokenSource,
 			RunSummary result)
-				: base(testCase, messageBus, aggregator, tokenSource)
+				: base("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource)
 		{
 			this.result = result;
 

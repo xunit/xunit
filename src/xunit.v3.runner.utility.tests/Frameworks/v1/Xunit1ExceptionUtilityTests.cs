@@ -2,6 +2,7 @@
 
 using System;
 using Xunit;
+using Xunit.Runner.v1;
 using Xunit.Sdk;
 
 public class Xunit1ExceptionUtilityTests

@@ -3,6 +3,7 @@ using System.Threading;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
+using Xunit.v3;
 
 [assembly: XunitTestCaseRunnerTests.BeforeAfterOnAssembly]
 
@@ -17,7 +18,7 @@ public class XunitTestCaseRunnerTests
 		var aggregator = new ExceptionAggregator();
 		var tokenSource = new CancellationTokenSource();
 
-		var runner = new XunitTestCaseRunner(testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
+		var runner = new XunitTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
 
 		Assert.Collection(
 			runner.BeforeAfterAttributes.OrderBy(a => a.GetType().Name),

@@ -7,38 +7,39 @@ public class SpyTestMessageSink : TestMessageSink
 
 	public SpyTestMessageSink()
 	{
-		Diagnostics.DiagnosticMessageEvent += args => Calls.Add("IDiagnosticMessage");
+		Diagnostics.DiagnosticMessageEvent += args => Calls.Add("_DiagnosticMessage");
 		Diagnostics.ErrorMessageEvent += args => Calls.Add("IErrorMessage");
 
-		Discovery.DiscoveryCompleteMessageEvent += args => Calls.Add("IDiscoveryCompleteMessage");
+		Discovery.DiscoveryCompleteMessageEvent += args => Calls.Add("_DiscoveryComplete");
+		Discovery.DiscoveryStartingMessageEvent += args => Calls.Add("_DiscoveryStarting");
 		Discovery.TestCaseDiscoveryMessageEvent += args => Calls.Add("ITestCaseDiscoveryMessage");
 
 		Execution.AfterTestFinishedEvent += args => Calls.Add("IAfterTestFinished");
 		Execution.AfterTestStartingEvent += args => Calls.Add("IAfterTestStarting");
 		Execution.BeforeTestFinishedEvent += args => Calls.Add("IBeforeTestFinished");
 		Execution.BeforeTestStartingEvent += args => Calls.Add("IBeforeTestStarting");
-		Execution.TestAssemblyCleanupFailureEvent += args => Calls.Add("ITestAssemblyCleanupFailure");
-		Execution.TestAssemblyFinishedEvent += args => Calls.Add("ITestAssemblyFinished");
-		Execution.TestAssemblyStartingEvent += args => Calls.Add("ITestAssemblyStarting");
-		Execution.TestCaseCleanupFailureEvent += args => Calls.Add("ITestCaseCleanupFailure");
-		Execution.TestCaseFinishedEvent += args => Calls.Add("ITestCaseFinished");
-		Execution.TestCaseStartingEvent += args => Calls.Add("ITestCaseStarting");
-		Execution.TestClassCleanupFailureEvent += args => Calls.Add("ITestClassCleanupFailure");
+		Execution.TestAssemblyCleanupFailureEvent += args => Calls.Add("_TestAssemblyCleanupFailure");
+		Execution.TestAssemblyFinishedEvent += args => Calls.Add("_TestAssemblyFinished");
+		Execution.TestAssemblyStartingEvent += args => Calls.Add("_TestAssemblyStarting");
+		Execution.TestCaseCleanupFailureEvent += args => Calls.Add("_TestCaseCleanupFailure");
+		Execution.TestCaseFinishedEvent += args => Calls.Add("_TestCaseFinished");
+		Execution.TestCaseStartingEvent += args => Calls.Add("_TestCaseStarting");
+		Execution.TestClassCleanupFailureEvent += args => Calls.Add("_TestClassCleanupFailure");
 		Execution.TestClassConstructionFinishedEvent += args => Calls.Add("ITestClassConstructionFinished");
 		Execution.TestClassConstructionStartingEvent += args => Calls.Add("ITestClassConstructionStarting");
 		Execution.TestClassDisposeFinishedEvent += args => Calls.Add("ITestClassDisposeFinished");
 		Execution.TestClassDisposeStartingEvent += args => Calls.Add("ITestClassDisposeStarting");
-		Execution.TestClassFinishedEvent += args => Calls.Add("ITestClassFinished");
-		Execution.TestClassStartingEvent += args => Calls.Add("ITestClassStarting");
+		Execution.TestClassFinishedEvent += args => Calls.Add("_TestClassFinished");
+		Execution.TestClassStartingEvent += args => Calls.Add("_TestClassStarting");
 		Execution.TestCleanupFailureEvent += args => Calls.Add("ITestCleanupFailure");
-		Execution.TestCollectionCleanupFailureEvent += args => Calls.Add("ITestCollectionCleanupFailure");
-		Execution.TestCollectionFinishedEvent += args => Calls.Add("ITestCollectionFinished");
-		Execution.TestCollectionStartingEvent += args => Calls.Add("ITestCollectionStarting");
+		Execution.TestCollectionCleanupFailureEvent += args => Calls.Add("_TestCollectionCleanupFailure");
+		Execution.TestCollectionFinishedEvent += args => Calls.Add("_TestCollectionFinished");
+		Execution.TestCollectionStartingEvent += args => Calls.Add("_TestCollectionStarting");
 		Execution.TestFailedEvent += args => Calls.Add("ITestFailed");
 		Execution.TestFinishedEvent += args => Calls.Add("ITestFinished");
-		Execution.TestMethodCleanupFailureEvent += args => Calls.Add("ITestMethodCleanupFailure");
-		Execution.TestMethodFinishedEvent += args => Calls.Add("ITestMethodFinished");
-		Execution.TestMethodStartingEvent += args => Calls.Add("ITestMethodStarting");
+		Execution.TestMethodCleanupFailureEvent += args => Calls.Add("_TestMethodCleanupFailure");
+		Execution.TestMethodFinishedEvent += args => Calls.Add("_TestMethodFinished");
+		Execution.TestMethodStartingEvent += args => Calls.Add("_TestMethodStarting");
 		Execution.TestOutputEvent += args => Calls.Add("ITestOutput");
 		Execution.TestPassedEvent += args => Calls.Add("ITestPassed");
 		Execution.TestSkippedEvent += args => Calls.Add("ITestSkipped");

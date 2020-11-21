@@ -6,6 +6,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 public class XunitFrontControllerTests
 {
@@ -35,10 +36,10 @@ namespace Namespace1
 			var serializations = default(List<string?>);
 			var testCollectionId = default(Guid);
 
-			using (var serializationController = new TestableXunitFrontController(assembly.FileName))
+			await using (var serializationController = new TestableXunitFrontController(assembly.FileName))
 			{
-				var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
-				serializationController.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+				using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
+				serializationController.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 				sink.Finished.WaitOne();
 
 				var testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().OrderBy(tcdm => tcdm.TestCase.TestMethod.Method.Name).Select(tcdm => tcdm.TestCase).ToList();
@@ -53,13 +54,13 @@ namespace Namespace1
 				s => Assert.StartsWith("Xunit.Sdk.XunitTestCase, xunit.execution.{Platform}:", s)
 			);
 
-			using var deserializationController = new TestableXunitFrontController(assembly.FileName);
+			await using var deserializationController = new TestableXunitFrontController(assembly.FileName);
 			var deserializations = deserializationController.BulkDeserialize(serializations.OfType<string>().ToList());
 
 			Assert.Collection(
 				deserializations.Select(kvp => kvp.Value),
-				testCase => Assert.Equal("Namespace1.Class1.FactMethod", testCase.DisplayName),
-				testCase => Assert.Equal("Namespace1.Class1.TheoryMethod(x: 42)", testCase.DisplayName)
+				testCase => Assert.Equal("Namespace1.Class1.FactMethod", testCase!.DisplayName),
+				testCase => Assert.Equal("Namespace1.Class1.TheoryMethod(x: 42)", testCase!.DisplayName)
 			);
 		}
 	}

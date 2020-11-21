@@ -9,7 +9,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole
 {
@@ -33,7 +36,7 @@ namespace Xunit.Runner.SystemConsole
 			commandLine = CommandLine.Parse(args);
 		}
 
-		public int EntryPoint()
+		public async ValueTask<int> EntryPoint()
 		{
 			try
 			{
@@ -78,12 +81,12 @@ namespace Xunit.Runner.SystemConsole
 					Debugger.Launch();
 
 				logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-				var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
+				var reporterMessageHandler = reporter.CreateMessageHandler(logger);
 
 				if (!commandLine.NoLogo)
 					PrintHeader();
 
-				var failCount = RunProject(
+				var failCount = await RunProject(
 					commandLine.Project,
 					commandLine.Serialize,
 					commandLine.ParallelizeAssemblies,
@@ -161,7 +164,7 @@ namespace Xunit.Runner.SystemConsole
 
 				foreach (var type in types ?? new Type[0])
 				{
-					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 						continue;
 					var ctor = type.GetConstructor(new Type[0]);
 					if (ctor == null)
@@ -297,7 +300,7 @@ namespace Xunit.Runner.SystemConsole
 				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
 		}
 
-		int RunProject(
+		async ValueTask<int> RunProject(
 			XunitProject project,
 			bool serialize,
 			bool? parallelizeAssemblies,
@@ -309,7 +312,7 @@ namespace Xunit.Runner.SystemConsole
 			bool failSkips,
 			bool stopOnFail,
 			bool internalDiagnosticMessages,
-			IMessageSinkWithTypes reporterMessageHandler)
+			_IMessageSink reporterMessageHandler)
 		{
 			XElement? assembliesElement = null;
 			var clockTime = Stopwatch.StartNew();
@@ -343,9 +346,10 @@ namespace Xunit.Runner.SystemConsole
 							project.Filters,
 							internalDiagnosticMessages,
 							reporterMessageHandler
-						)
+						).AsTask()
 					)
 				);
+
 				var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
 				foreach (var assemblyElement in results.Where(result => result != null))
 					assembliesElement?.Add(assemblyElement);
@@ -354,7 +358,7 @@ namespace Xunit.Runner.SystemConsole
 			{
 				foreach (var assembly in project.Assemblies)
 				{
-					var assemblyElement = ExecuteAssembly(
+					var assemblyElement = await ExecuteAssembly(
 						consoleLock,
 						assembly,
 						serialize,
@@ -392,7 +396,7 @@ namespace Xunit.Runner.SystemConsole
 			return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
 		}
 
-		XElement? ExecuteAssembly(
+		async ValueTask<XElement?> ExecuteAssembly(
 			object consoleLock,
 			XunitProjectAssembly assembly,
 			bool serialize,
@@ -406,7 +410,7 @@ namespace Xunit.Runner.SystemConsole
 			bool stopOnFail,
 			XunitFilters filters,
 			bool internalDiagnosticMessages,
-			IMessageSinkWithTypes reporterMessageHandler)
+			_IMessageSink reporterMessageHandler)
 		{
 			if (cancel)
 				return null;
@@ -427,8 +431,8 @@ namespace Xunit.Runner.SystemConsole
 					assembly.Configuration.AppDomain = appDomains;
 
 				// Setup discovery and execution options with command-line overrides
-				var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-				var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 				executionOptions.SetStopOnTestFail(stopOnFail);
 				if (maxThreadCount.HasValue)
 					executionOptions.SetMaxParallelThreads(maxThreadCount);
@@ -443,7 +447,7 @@ namespace Xunit.Runner.SystemConsole
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 				using (AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink))
-				using (var controller = new XunitFrontController(appDomainSupport, assemblyFileName, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+				await using (var controller = new XunitFrontController(appDomainSupport, assemblyFileName, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
 				using (var discoverySink = new TestDiscoverySink(() => cancel))
 				{
 					// Discover & filter the tests
@@ -461,19 +465,22 @@ namespace Xunit.Runner.SystemConsole
 
 					// Run the filtered tests
 					if (testCasesToRun == 0)
-						completionMessages.TryAdd(Path.GetFileName(assemblyFileName), new ExecutionSummary());
+						completionMessages.TryAdd(assembly.AssemblyDisplayName, new ExecutionSummary());
 					else
 					{
 						if (serialize)
-							filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
+							filteredTestCases = (
+								from testCase in filteredTestCases
+								select controller.Deserialize(controller.Serialize(testCase))
+							).ToList();
 
 						reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-						IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+						IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (summary, _) => completionMessages.TryAdd(assembly.AssemblyDisplayName, summary));
 						if (assemblyElement != null)
 							resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 						if (longRunningSeconds > 0)
-							resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
+							resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 						if (failSkips)
 							resultsSink = new DelegatingFailSkipSink(resultsSink);
 

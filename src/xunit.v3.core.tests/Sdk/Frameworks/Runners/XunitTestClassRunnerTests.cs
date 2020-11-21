@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class XunitTestClassRunnerTests
 {
@@ -256,18 +257,18 @@ public class XunitTestClassRunnerTests
 
 		await runner.RunAsync();
 
-		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 		Assert.Equal("ClassFixtureWithMessageSinkDependency constructor message", diagnosticMessage.Message);
 	}
 
 	class ClassFixtureWithMessageSinkDependency
 	{
-		public IMessageSink MessageSink;
+		public _IMessageSink MessageSink;
 
-		public ClassFixtureWithMessageSinkDependency(IMessageSink messageSink)
+		public ClassFixtureWithMessageSinkDependency(_IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new Xunit.Sdk.DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
+			MessageSink.OnMessage(new _DiagnosticMessage { Message = "ClassFixtureWithMessageSinkDependency constructor message" });
 		}
 	}
 
@@ -299,7 +300,7 @@ public class XunitTestClassRunnerTests
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for class-level test case orderer on test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithUnknownTestCaseOrderer'", diagnosticMessage.Message);
 		}
 
@@ -319,7 +320,7 @@ public class XunitTestClassRunnerTests
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Class-level test case orderer 'XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithCtorThrowingTestCaseOrder' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -393,6 +394,8 @@ public class XunitTestClassRunnerTests
 		public Exception? RunTestMethodAsync_AggregatorResult;
 
 		TestableXunitTestClassRunner(
+			string assemblyUniqueID,
+			string collectionUniqueID,
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
@@ -402,7 +405,19 @@ public class XunitTestClassRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
+				: base(
+					assemblyUniqueID,
+					collectionUniqueID,
+					testClass,
+					@class,
+					testCases,
+					SpyMessageSink.Create(messages: diagnosticMessages),
+					messageBus,
+					testCaseOrderer,
+					aggregator,
+					cancellationTokenSource,
+					collectionFixtureMappings
+				)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
@@ -411,10 +426,12 @@ public class XunitTestClassRunnerTests
 
 		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 
-		public new IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
+		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
 		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
 			new TestableXunitTestClassRunner(
+				"assembly-id",
+				"collection-id",
 				testCase.TestMethod.TestClass,
 				(IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
 				new[] { testCase },

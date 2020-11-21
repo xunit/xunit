@@ -4,6 +4,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class CollectionPerAssemblyTestCollectionFactoryTests
 {
@@ -82,7 +83,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
 		factory.Get(testType);
 
 		Assert.Collection(
-			messages.OfType<IDiagnosticMessage>().Select(m => m.Message),
+			messages.OfType<_DiagnosticMessage>().Select(m => m.Message),
 			msg => Assert.Equal("Multiple test collections declared with name 'This is a test collection': collectionDefinition1, collectionDefinition2", msg)
 		);
 	}

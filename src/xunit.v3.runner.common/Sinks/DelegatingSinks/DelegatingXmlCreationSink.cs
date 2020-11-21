@@ -5,13 +5,15 @@ using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// A delegating implementation of <see cref="IExecutionSink"/> which is responsible for
-	/// creating the xUnit.net v2 XML output from the execution test results.
+	/// creating the xUnit.net v2/v3 XML output from the execution test results.
 	/// </summary>
 	public class DelegatingXmlCreationSink : LongLivedMarshalByRefObject, IExecutionSink
 	{
@@ -19,7 +21,8 @@ namespace Xunit.Runner.Common
 		bool disposed;
 		readonly XElement errorsElement;
 		readonly IExecutionSink innerSink;
-		readonly Dictionary<Guid, XElement> testCollectionElements = new Dictionary<Guid, XElement>();
+		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
+		readonly Dictionary<string, XElement> testCollectionElements = new Dictionary<string, XElement>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingXmlCreationSink"/> class.
@@ -47,29 +50,42 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished => innerSink.Finished;
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			// Call the inner sink first, because we want to be able to depend on ExecutionSummary
 			// being correctly filled out.
-			var result = innerSink.OnMessageWithTypes(message, messageTypes);
+			var result = innerSink.OnMessage(message);
+			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
-				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
-				&& message.Dispatch<ITestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
-				&& message.Dispatch<ITestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
-				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
-				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
+
+				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
+				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
+				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
+
+				&& message.Dispatch<_TestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
+				&& message.Dispatch<_TestCaseFinished>(messageTypes, HandleTestCaseFinished)
+				&& message.Dispatch<_TestCaseStarting>(messageTypes, HandleTestCaseStarting)
+
+				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
+				&& message.Dispatch<_TestClassFinished>(messageTypes, HandleTestClassFinished)
+				&& message.Dispatch<_TestClassStarting>(messageTypes, HandleTestClassStarting)
+
+				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
+				&& message.Dispatch<_TestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
+				&& message.Dispatch<_TestCollectionStarting>(messageTypes, HandleTestCollectionStarting)
+
+				&& message.Dispatch<_TestMethodCleanupFailure>(messageTypes, HandleTestMethodCleanupFailure)
+				&& message.Dispatch<_TestMethodFinished>(messageTypes, HandleTestMethodFinished)
+				&& message.Dispatch<_TestMethodStarting>(messageTypes, HandleTestMethodStarting)
+
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
-				&& message.Dispatch<ITestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
-				&& message.Dispatch<ITestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
 				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
-				&& message.Dispatch<ITestMethodCleanupFailure>(messageTypes, HandleTestMethodCleanupFailure)
 				&& message.Dispatch<ITestPassed>(messageTypes, HandleTestPassed)
 				&& message.Dispatch<ITestSkipped>(messageTypes, HandleTestSkipped)
+
 				&& result;
 		}
 
@@ -101,7 +117,8 @@ namespace Xunit.Runner.Common
 			var testMethod = testCase.TestMethod;
 			var testClass = testMethod.TestClass;
 
-			var collectionElement = GetTestCollectionElement(testClass.TestCollection);
+			// TODO: This is broken because that's the wrong unique ID
+			var collectionElement = GetTestCollectionElement(testClass.TestCollection.UniqueID.ToString());
 			var testResultElement =
 				new XElement("test",
 					new XAttribute("name", XmlEscape(test.DisplayName)),
@@ -160,19 +177,26 @@ namespace Xunit.Runner.Common
 			innerSink.Dispose();
 		}
 
-		XElement GetTestCollectionElement(ITestCollection testCollection)
+		XElement GetTestCollectionElement(string testCollectionUniqueID)
 		{
 			lock (testCollectionElements)
-				return testCollectionElements.GetOrAdd(testCollection.UniqueID, () => new XElement("collection"));
+				return testCollectionElements.GetOrAdd(testCollectionUniqueID, () => new XElement("collection"));
 		}
 
 		void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
 			=> AddError("fatal", null, args.Message);
 
-		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
-			=> AddError("assembly-cleanup", args.Message.TestAssembly.Assembly.AssemblyPath, args.Message);
+		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+			if (metadata != null)
+				AddError("assembly-cleanup", metadata.AssemblyPath, args.Message);
+			else
+				AddError("assembly-cleanup", "<unknown test assembly>", args.Message);
+		}
+
+		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			assemblyElement.Add(
 				new XAttribute("total", ExecutionSummary.Total),
@@ -185,47 +209,94 @@ namespace Xunit.Runner.Common
 
 			foreach (var element in testCollectionElements.Values)
 				assemblyElement.Add(element);
+
+			metadataCache.TryRemove(args.Message);
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
 			var assemblyStarting = args.Message;
 			assemblyElement.Add(
-				new XAttribute("name", assemblyStarting.TestAssembly.Assembly.AssemblyPath),
+				new XAttribute("name", assemblyStarting.AssemblyPath),
 				new XAttribute("environment", assemblyStarting.TestEnvironment),
 				new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
 				new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
 				new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture))
 			);
 
-			if (assemblyStarting.TestAssembly.ConfigFileName != null)
-				assemblyElement.Add(new XAttribute("config-file", assemblyStarting.TestAssembly.ConfigFileName));
+			if (assemblyStarting.ConfigFilePath != null)
+				assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
+			if (assemblyStarting.TargetFramework != null)
+				assemblyElement.Add(new XAttribute("target-framework", assemblyStarting.TargetFramework));
+
+			metadataCache.Set(assemblyStarting);
 		}
 
-		void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
-			=> AddError("test-case-cleanup", args.Message.TestCase.DisplayName, args.Message);
+		void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-case-cleanup", metadata.TestCaseDisplayName, args.Message);
+			else
+				AddError("test-case-cleanup", "<unknown test case>", args.Message);
+		}
 
-		void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
-			=> AddError("test-class-cleanup", args.Message.TestClass.Class.Name, args.Message);
+		void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args) =>
+			metadataCache.TryRemove(args.Message);
+
+		void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args) =>
+			metadataCache.Set(args.Message);
+
+		void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-class-cleanup", metadata.TestClass, args.Message);
+			else
+				AddError("test-class-cleanup", "<unknown test class>", args.Message);
+		}
+
+		void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args) =>
+			metadataCache.TryRemove(args.Message);
+
+		void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args) =>
+			metadataCache.Set(args.Message);
 
 		void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
 			=> AddError("test-cleanup", args.Message.Test.DisplayName, args.Message);
 
-		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
-			=> AddError("test-collection-cleanup", args.Message.TestCollection.DisplayName, args.Message);
+		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-collection-cleanup", metadata.TestCollectionDisplayName, args.Message);
+			else
+				AddError("test-collection-cleanup", "<unknown test collection>", args.Message);
+		}
 
-		void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
+		void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
 			var testCollectionFinished = args.Message;
-			var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollection);
+			var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollectionUniqueID);
 			collectionElement.Add(
 				new XAttribute("total", testCollectionFinished.TestsRun),
 				new XAttribute("passed", testCollectionFinished.TestsRun - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped),
 				new XAttribute("failed", testCollectionFinished.TestsFailed),
 				new XAttribute("skipped", testCollectionFinished.TestsSkipped),
-				new XAttribute("name", XmlEscape(testCollectionFinished.TestCollection.DisplayName)),
 				new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
 			);
+
+			metadataCache.TryRemove(testCollectionFinished);
+		}
+
+		void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
+		{
+			var testCollectionStarting = args.Message;
+			var collectionElement = GetTestCollectionElement(testCollectionStarting.TestCollectionUniqueID);
+
+			collectionElement.Add(new XAttribute("name", XmlEscape(testCollectionStarting.TestCollectionDisplayName)));
+
+			metadataCache.Set(testCollectionStarting);
 		}
 
 		void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
@@ -235,8 +306,20 @@ namespace Xunit.Runner.Common
 			testElement.Add(CreateFailureElement(testFailed));
 		}
 
-		void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
-			=> AddError("test-method-cleanup", args.Message.TestMethod.Method.Name, args.Message);
+		void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				AddError("test-method-cleanup", metadata.TestMethod, args.Message);
+			else
+				AddError("test-method-cleanup", "<unknown test method>", args.Message);
+		}
+
+		void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args) =>
+			metadataCache.TryRemove(args.Message);
+
+		void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args) =>
+			metadataCache.Set(args.Message);
 
 		void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 			=> CreateTestResultElement(args.Message, "Pass");

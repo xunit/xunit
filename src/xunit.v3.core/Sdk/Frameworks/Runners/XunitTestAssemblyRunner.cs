@@ -5,6 +5,8 @@ using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -25,21 +27,23 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="testAssembly">The assembly that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		public XunitTestAssemblyRunner(
 			ITestAssembly testAssembly,
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
-			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_IMessageSink diagnosticMessageSink,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
 				: base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 		{ }
 
 		/// <inheritdoc/>
-		public override void Dispose()
+		public override async ValueTask DisposeAsync()
 		{
+			if (syncContext is IAsyncDisposable asyncDisposable)
+				await asyncDisposable.DisposeAsync();
 			if (syncContext is IDisposable disposable)
 				disposable.Dispose();
 		}
@@ -109,14 +113,14 @@ namespace Xunit.Sdk
 					else
 					{
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for assembly-level test case orderer"));
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test case orderer" });
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test case orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test case orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 				}
 			}
 
@@ -131,14 +135,14 @@ namespace Xunit.Sdk
 					else
 					{
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for assembly-level test collection orderer"));
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test collection orderer" });
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test collection orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test collection orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 				}
 			}
 
@@ -236,6 +240,7 @@ namespace Xunit.Sdk
 			IEnumerable<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitTestCollectionRunner(
+					TestAssemblyUniqueID,
 					testCollection,
 					testCases,
 					DiagnosticMessageSink,

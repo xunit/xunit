@@ -2,17 +2,17 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that
-	/// supports <see cref="AppVeyorReporter" />.
+	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="AppVeyorReporter" />.
 	/// </summary>
-	public class AppVeyorReporterMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
+	public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	{
 		const int MaxLength = 4096;
 
@@ -36,9 +36,7 @@ namespace Xunit.Runner.Common
 
 			this.baseUri = baseUri.TrimEnd('/');
 
-			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
 			Execution.TestStartingEvent += HandleTestStarting;
-			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
 		}
 
 		AppVeyorClient Client
@@ -55,8 +53,11 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+		/// <inheritdoc/>
+		protected override void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
+			base.HandleTestAssemblyFinished(args);
+
 			lock (clientLock)
 			{
 				assembliesInFlight--;
@@ -69,19 +70,22 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-		void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+		/// <inheritdoc/>
+		protected override void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
+			base.HandleTestAssemblyStarting(args);
+
 			lock (clientLock)
 			{
 				assembliesInFlight++;
 
-				// Look for the TFM attrib to disambiguate
-				var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
-				var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
-				if (attrib?.GetConstructorArguments().FirstOrDefault() is string arg)
-					assemblyFileName = $"{assemblyFileName} ({arg})";
+				// Use the TFM attrib to disambiguate
+				var tfm = args.Message.TargetFramework;
+				var assemblyFileName = Path.GetFileName(args.Message.AssemblyPath) ?? "<unknown filename>";
+				if (!string.IsNullOrWhiteSpace(tfm))
+					assemblyFileName = $"{assemblyFileName} ({tfm})";
 
-				assemblyNames[args.Message.TestAssembly.Assembly.Name] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+				assemblyNames[args.Message.AssemblyName] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 			}
 		}
 
@@ -102,7 +106,7 @@ namespace Xunit.Runner.Common
 			));
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 		{
 			var testPassed = args.Message;
@@ -120,7 +124,7 @@ namespace Xunit.Runner.Common
 			base.HandleTestPassed(args);
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
 		{
 			var testSkipped = args.Message;
@@ -137,7 +141,7 @@ namespace Xunit.Runner.Common
 			base.HandleTestSkipped(args);
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
 		{
 			var testFailed = args.Message;

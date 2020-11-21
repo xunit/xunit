@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit

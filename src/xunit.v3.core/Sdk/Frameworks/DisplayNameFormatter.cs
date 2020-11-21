@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using static Xunit.Sdk.TestMethodDisplay;
-using static Xunit.Sdk.TestMethodDisplayOptions;
+using Xunit.Runner.v2;
 
 namespace Xunit.Sdk
 {
@@ -33,18 +32,18 @@ namespace Xunit.Sdk
 		{
 			rule = new CharacterRule();
 
-			if ((displayOptions & UseEscapeSequences) == UseEscapeSequences)
+			if ((displayOptions & TestMethodDisplayOptions.UseEscapeSequences) == TestMethodDisplayOptions.UseEscapeSequences)
 				rule = new ReplaceEscapeSequenceRule() { Next = rule };
 
-			if ((displayOptions & ReplaceUnderscoreWithSpace) == ReplaceUnderscoreWithSpace)
+			if ((displayOptions & TestMethodDisplayOptions.ReplaceUnderscoreWithSpace) == TestMethodDisplayOptions.ReplaceUnderscoreWithSpace)
 				rule = new ReplaceUnderscoreRule() { Next = rule };
 
-			if ((displayOptions & UseOperatorMonikers) == UseOperatorMonikers)
+			if ((displayOptions & TestMethodDisplayOptions.UseOperatorMonikers) == TestMethodDisplayOptions.UseOperatorMonikers)
 				rule = new ReplaceOperatorMonikerRule() { Next = rule };
 
-			if (display == ClassAndMethod)
+			if (display == TestMethodDisplay.ClassAndMethod)
 			{
-				if ((displayOptions & ReplacePeriodWithComma) == ReplacePeriodWithComma)
+				if ((displayOptions & TestMethodDisplayOptions.ReplacePeriodWithComma) == TestMethodDisplayOptions.ReplacePeriodWithComma)
 					rule = new ReplacePeriodRule() { Next = rule };
 				else
 					rule = new KeepPeriodRule() { Next = rule };

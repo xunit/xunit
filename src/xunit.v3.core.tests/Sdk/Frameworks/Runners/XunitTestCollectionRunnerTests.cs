@@ -5,7 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class XunitTestCollectionRunnerTests
 {
@@ -157,18 +159,18 @@ public class XunitTestCollectionRunnerTests
 
 		await runner.RunAsync();
 
-		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 		Assert.Equal("CollectionFixtureWithMessageSinkDependency constructor message", diagnosticMessage.Message);
 	}
 
 	class CollectionFixtureWithMessageSinkDependency
 	{
-		public IMessageSink MessageSink;
+		public _IMessageSink MessageSink;
 
-		public CollectionFixtureWithMessageSinkDependency(IMessageSink messageSink)
+		public CollectionFixtureWithMessageSinkDependency(_IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new Xunit.Sdk.DiagnosticMessage("CollectionFixtureWithMessageSinkDependency constructor message"));
+			MessageSink.OnMessage(new _DiagnosticMessage { Message = "CollectionFixtureWithMessageSinkDependency constructor message" });
 		}
 	}
 
@@ -198,7 +200,7 @@ public class XunitTestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for collection-level test case orderer on test collection 'TestCollectionDisplayName'", diagnosticMessage.Message);
 		}
 
@@ -215,7 +217,7 @@ public class XunitTestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Collection-level test case orderer 'XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test collection 'TestCollectionDisplayName' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -264,6 +266,7 @@ public class XunitTestCollectionRunnerTests
 		public Exception? RunTestClassAsync_AggregatorResult;
 
 		TestableXunitTestCollectionRunner(
+			string testAssemblyUniqueID,
 			ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			List<IMessageSinkMessage> diagnosticMessages,
@@ -271,13 +274,14 @@ public class XunitTestCollectionRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
 
 		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
 			new TestableXunitTestCollectionRunner(
+				"assembly-id",
 				testCase.TestMethod.TestClass.TestCollection,
 				new[] { testCase },
 				new List<IMessageSinkMessage>(),
@@ -291,7 +295,7 @@ public class XunitTestCollectionRunnerTests
 
 		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 
-		public new IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
+		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
 		protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
 		{

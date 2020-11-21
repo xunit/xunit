@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -8,16 +11,16 @@ namespace Xunit.Sdk
 	/// disposed when the framework is disposed. The discoverer and executor are automatically
 	/// tracked for disposal, since those interfaces mandate an implementation of <see cref="IDisposable"/>.
 	/// </summary>
-	public abstract class TestFramework : _ITestFramework
+	public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	{
 		bool disposed;
-		ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
+		_ISourceInformationProvider sourceInformationProvider = _NullSourceInformationProvider.Instance;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFramework"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		protected TestFramework(IMessageSink diagnosticMessageSink)
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		protected TestFramework(_IMessageSink diagnosticMessageSink)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
@@ -25,7 +28,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to send diagnostic messages.
 		/// </summary>
-		public IMessageSink DiagnosticMessageSink { get; }
+		public _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <summary>
 		/// Gets the disposal tracker for the test framework.
@@ -33,40 +36,40 @@ namespace Xunit.Sdk
 		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <inheritdoc/>
-		public ISourceInformationProvider SourceInformationProvider
+		public _ISourceInformationProvider SourceInformationProvider
 		{
 			get => sourceInformationProvider;
 			set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		public virtual async ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			ExtensibilityPointFactory.Dispose();
-			DisposalTracker.Dispose();
+			await ExtensibilityPointFactory.DisposeAsync();
+			await DisposalTracker.DisposeAsync();
 		}
 
 		/// <summary>
-		/// Override this method to provide the implementation of <see cref="ITestFrameworkDiscoverer"/>.
+		/// Override this method to provide the implementation of <see cref="_ITestFrameworkDiscoverer"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly that is being discovered.</param>
 		/// <returns>Returns the test framework discoverer.</returns>
-		protected abstract ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly);
+		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly);
 
 		/// <summary>
-		/// Override this method to provide the implementation of <see cref="ITestFrameworkExecutor"/>.
+		/// Override this method to provide the implementation of <see cref="_ITestFrameworkExecutor"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly that is being executed.</param>
 		/// <returns>Returns the test framework executor.</returns>
-		protected abstract ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly);
+		protected abstract _ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly);
 
 		/// <inheritdoc/>
-		public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
+		public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
@@ -76,24 +79,13 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly)
+		public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
 			var executor = CreateExecutor(assembly);
 			DisposalTracker.Add(executor);
 			return executor;
-		}
-
-		class NullSourceInformationProvider : ISourceInformationProvider
-		{
-			public static readonly NullSourceInformationProvider Instance = new NullSourceInformationProvider();
-
-			public ISourceInformation GetSourceInformation(ITestCase testCase) =>
-				new SourceInformation();
-
-			public void Dispose()
-			{ }
 		}
 	}
 }

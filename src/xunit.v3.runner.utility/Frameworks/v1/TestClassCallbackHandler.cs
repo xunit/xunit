@@ -6,8 +6,11 @@ using System.Globalization;
 using System.Linq;
 using System.Xml;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// A handler that dispatches v1 Executor messages from running a test class.
@@ -15,7 +18,7 @@ namespace Xunit
 	public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	{
 		readonly Dictionary<string, Predicate<XmlNode>> handlers;
-		readonly IMessageSink messageSink;
+		readonly _IMessageSink messageSink;
 		readonly IList<ITestCase> testCases;
 		readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
 		readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
@@ -30,7 +33,7 @@ namespace Xunit
 		/// <param name="messageSink">The message sink to call with the translated results.</param>
 		public TestClassCallbackHandler(
 			IList<ITestCase> testCases,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 				: base(lastNodeName: "class")
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
@@ -167,35 +170,49 @@ namespace Xunit
 			return TestClassResults.Continue;
 		}
 
-		List<ITestCase> GetTestMethodTestCases(ITestMethod testMethod) =>
-			testCases
-				.Where(tc => tc.TestMethod.Method.Name == testMethod.Method.Name && tc.TestMethod.TestClass.Class.Name == testMethod.TestClass.Class.Name)
-				.ToList();
-
 		void SendTestCaseMessagesWhenAppropriate(ITestCase? current)
 		{
 			var results = TestClassResults;
 
 			if (current != lastTestCase && lastTestCase != null)
 			{
-				results.Continue = messageSink.OnMessage(new TestCaseFinished(lastTestCase, testCaseResults.Time, testCaseResults.Total, testCaseResults.Failed, testCaseResults.Skipped)) && results.Continue;
+				var assemblyUniqueID = GetAssemblyUniqueID(lastTestCase.TestMethod.TestClass.TestCollection.TestAssembly);
+				var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, lastTestCase.TestMethod.TestClass.TestCollection);
+				var classUniqueID = GetClassUniqueID(collectionUniqueID, lastTestCase.TestMethod.TestClass);
+				var methodUniqueID = GetMethodUniqueID(classUniqueID, lastTestCase.TestMethod);
+
+				var testCaseFinished = new _TestCaseFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = testCaseResults.Time,
+					TestCaseUniqueID = lastTestCase.UniqueID,
+					TestClassUniqueID = classUniqueID,
+					TestCollectionUniqueID = collectionUniqueID,
+					TestMethodUniqueID = methodUniqueID,
+					TestsFailed = testCaseResults.Failed,
+					TestsRun = testCaseResults.Total,
+					TestsSkipped = testCaseResults.Skipped
+				};
+
+				results.Continue = messageSink.OnMessage(testCaseFinished) && results.Continue;
 				testMethodResults.Aggregate(testCaseResults);
 				testCaseResults.Reset();
 
 				if (current == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
 				{
-					var testMethodTestCases = GetTestMethodTestCases(lastTestCase.TestMethod);
+					var testMethodFinished = new _TestMethodFinished
+					{
+						AssemblyUniqueID = assemblyUniqueID,
+						ExecutionTime = testMethodResults.Time,
+						TestClassUniqueID = classUniqueID,
+						TestCollectionUniqueID = collectionUniqueID,
+						TestMethodUniqueID = methodUniqueID,
+						TestsFailed = testMethodResults.Failed,
+						TestsRun = testMethodResults.Total,
+						TestsSkipped = testMethodResults.Skipped
+					};
 
-					results.Continue = messageSink.OnMessage(
-						new TestMethodFinished(
-							testMethodTestCases,
-							lastTestCase.TestMethod,
-							testMethodResults.Time,
-							testMethodResults.Total,
-							testMethodResults.Failed,
-							testMethodResults.Skipped
-						)
-					) && results.Continue;
+					results.Continue = messageSink.OnMessage(testMethodFinished) && results.Continue;
 
 					testMethodResults.Reset();
 				}
@@ -203,17 +220,67 @@ namespace Xunit
 
 			if (current != lastTestCase && current != null)
 			{
+				var assemblyUniqueID = GetAssemblyUniqueID(current.TestMethod.TestClass.TestCollection.TestAssembly);
+				var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, current.TestMethod.TestClass.TestCollection);
+				var classUniqueID = GetClassUniqueID(collectionUniqueID, current.TestMethod.TestClass);
+				var methodUniqueID = GetMethodUniqueID(classUniqueID, current.TestMethod);
+
+				// Dispatch TestMethodStarting if we've moved onto a new method
 				if (lastTestCase == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
 				{
-					var testMethodTestCases = GetTestMethodTestCases(current.TestMethod);
-					results.Continue = messageSink.OnMessage(new TestMethodStarting(testMethodTestCases, current.TestMethod)) && results.Continue;
+					var testMethodStarting = new _TestMethodStarting
+					{
+						AssemblyUniqueID = assemblyUniqueID,
+						TestClassUniqueID = classUniqueID,
+						TestCollectionUniqueID = collectionUniqueID,
+						TestMethod = current.TestMethod.Method.Name,
+						TestMethodUniqueID = methodUniqueID
+					};
+					results.Continue = messageSink.OnMessage(testMethodStarting) && results.Continue;
 				}
 
-				results.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && results.Continue;
+				// Dispatch TestCaseStarting
+				var testCaseStarting = new _TestCaseStarting
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					SkipReason = current.SkipReason,
+					SourceFilePath = current.SourceInformation?.FileName,
+					SourceLineNumber = current.SourceInformation?.LineNumber,
+					TestCaseDisplayName = current.DisplayName,
+					TestCaseUniqueID = current.UniqueID,
+					TestClassUniqueID = classUniqueID,
+					TestCollectionUniqueID = collectionUniqueID,
+					TestMethodUniqueID = methodUniqueID,
+					Traits = current.Traits
+				};
+
+				results.Continue = messageSink.OnMessage(testCaseStarting) && results.Continue;
 			}
 
 			lastTestCase = current;
 		}
+
+		string GetAssemblyUniqueID(ITestAssembly testAssembly) =>
+			UniqueIDGenerator.ForAssembly(
+				testAssembly.Assembly.Name,
+				testAssembly.Assembly.AssemblyPath,
+				testAssembly.ConfigFileName
+			);
+
+		string? GetClassUniqueID(
+			string collectionUniqueID,
+			ITestClass testClass) =>
+				UniqueIDGenerator.ForTestClass(collectionUniqueID, testClass.Class?.Name);
+
+		string GetCollectionUniqueID(
+			string assemblyUniqueID,
+			ITestCollection testCollection) =>
+				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
+
+		string? GetMethodUniqueID(
+			string? classUniqueID,
+			ITestMethod testMethod) =>
+				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method?.Name);
 	}
 }
 

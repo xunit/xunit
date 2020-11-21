@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -10,6 +9,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TestClassRunnerTests
 {
@@ -32,18 +32,21 @@ public class TestClassRunnerTests
 			messageBus.Messages,
 			msg =>
 			{
-				var starting = Assert.IsAssignableFrom<ITestClassStarting>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
-				Assert.Equal("TestClassRunnerTests+ClassUnderTest", starting.TestClass.Class.Name);
+				var starting = Assert.IsType<_TestClassStarting>(msg);
+				Assert.Equal("assembly-id", starting.AssemblyUniqueID);
+				Assert.Equal("TestClassRunnerTests+ClassUnderTest", starting.TestClass);
+				Assert.Equal("6f31e62de7ecf1a1acf6350a67bb6e21b7e54d513925a8498532c7e9545ffd31", starting.TestClassUniqueID);
+				Assert.Equal("collection-id", starting.TestCollectionUniqueID);
 			},
 			msg =>
 			{
-				var finished = Assert.IsAssignableFrom<ITestClassFinished>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
-				Assert.Equal("TestClassRunnerTests+ClassUnderTest", finished.TestClass.Class.Name);
+				var finished = Assert.IsType<_TestClassFinished>(msg);
+				Assert.Equal("assembly-id", finished.AssemblyUniqueID);
 				Assert.Equal(21.12m, finished.ExecutionTime);
-				Assert.Equal(4, finished.TestsRun);
+				Assert.Equal("6f31e62de7ecf1a1acf6350a67bb6e21b7e54d513925a8498532c7e9545ffd31", finished.TestClassUniqueID);
+				Assert.Equal("collection-id", finished.TestCollectionUniqueID);
 				Assert.Equal(2, finished.TestsFailed);
+				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(1, finished.TestsSkipped);
 			}
 		);
@@ -61,7 +64,7 @@ public class TestClassRunnerTests
 				var msg = callInfo.Arg<IMessageSinkMessage>();
 				messages.Add(msg);
 
-				if (msg is ITestClassStarting)
+				if (msg is _TestClassStarting)
 					throw new InvalidOperationException();
 
 				return true;
@@ -71,7 +74,7 @@ public class TestClassRunnerTests
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 		var starting = Assert.Single(messages);
-		Assert.IsAssignableFrom<ITestClassStarting>(starting);
+		Assert.IsType<_TestClassStarting>(starting);
 		Assert.Empty(runner.MethodsRun);
 	}
 
@@ -85,7 +88,7 @@ public class TestClassRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestMethodAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestClassCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestClassCleanupFailure>());
 	}
 
 	[Fact]
@@ -99,7 +102,7 @@ public class TestClassRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestMethodAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestClassCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestClassCleanupFailure>());
 	}
 
 	[Fact]
@@ -115,16 +118,14 @@ public class TestClassRunnerTests
 
 		await runner.RunAsync();
 
-		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestClassCleanupFailure>());
-		Assert.Same(testCases[0].TestMethod.TestClass.TestCollection, cleanupFailure.TestCollection);
-		Assert.Equal(testCases, cleanupFailure.TestCases);
+		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<_TestClassCleanupFailure>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 	}
 
 	[Fact]
 	public static async void Cancellation_TestClassStarting_DoesNotCallExtensibilityCallbacks()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestClassStarting));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassStarting));
 		var runner = TestableTestClassRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -137,7 +138,7 @@ public class TestClassRunnerTests
 	[Fact]
 	public static async void Cancellation_TestClassFinished_CallsExtensibilityCallbacks()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestClassFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassFinished));
 		var runner = TestableTestClassRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -150,7 +151,7 @@ public class TestClassRunnerTests
 	[Fact]
 	public static async void Cancellation_TestClassCleanupFailure_SetsCancellationToken()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestClassCleanupFailure));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassCleanupFailure));
 		var runner = TestableTestClassRunner.Create(messageBus);
 		runner.BeforeTestClassFinished_Callback = aggregator => aggregator.Add(new Exception());
 
@@ -268,7 +269,7 @@ public class TestClassRunnerTests
 					);
 				}
 			);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -361,6 +362,8 @@ public class TestClassRunnerTests
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestClassRunner(
+			string assemblyUniqueID,
+			string collectionUniqueID,
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<ITestCase> testCases,
@@ -373,7 +376,7 @@ public class TestClassRunnerTests
 			object[] availableArguments,
 			RunSummary result,
 			bool cancelInRunTestMethodAsync)
-				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(assemblyUniqueID, collectionUniqueID, testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessages = diagnosticMessages;
 			TokenSource = cancellationTokenSource;
@@ -406,6 +409,8 @@ public class TestClassRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
+				"assembly-id",
+				"collection-id",
 				firstTest.TestMethod.TestClass,
 				(IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
 				testCases,

@@ -3,11 +3,23 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 public class TeamCityReporterMessageHandlerTests
 {
 	public class FailureMessages
 	{
+		readonly string assemblyID = "assembly-id";
+		readonly string classID = "test-class-id";
+		readonly string collectionID = "test-collection-id";
+		readonly int[] exceptionParentIndices = new[] { -1 };
+		readonly string[] exceptionTypes = new[] { "\x2018ExceptionType\x2019" };
+		readonly string[] messages = new[] { "This is my message \x2020\t\r\n" };
+		readonly string methodID = "test-method-id";
+		readonly string[] stackTraces = new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" };
+		readonly string testCaseID = "test-case-id";
+		//readonly string testID = "test-id";
+
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
 		{
@@ -25,42 +37,153 @@ public class TeamCityReporterMessageHandlerTests
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
 
-				// ITestAssemblyCleanupFailure
-				var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
-				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
-				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
-				// ITestCollectionCleanupFailure
-				var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-				var testCollection = Mocks.TestCollection(displayName: "FooBar");
-				collectionCleanupFailure.TestCollection.Returns(testCollection);
-				yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar)" };
-
-				// ITestClassCleanupFailure
-				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
-				var testClass = Mocks.TestClass("MyType");
-				classCleanupFailure.TestClass.Returns(testClass);
-				yield return new object[] { classCleanupFailure, "Test Class Cleanup Failure (MyType)" };
-
-				// ITestMethodCleanupFailure
-				var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
-				var testMethod = Mocks.TestMethod(methodName: "MyMethod");
-				methodCleanupFailure.TestMethod.Returns(testMethod);
-				yield return new object[] { methodCleanupFailure, "Test Method Cleanup Failure (MyMethod)" };
-
-				// ITestCaseCleanupFailure
-				var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
-				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-				testCaseCleanupFailure.TestCase.Returns(testCase);
-				yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
-
 				// ITestCleanupFailure
+				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
 				var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
 				var test = Mocks.Test(testCase, "MyTest");
 				testCleanupFailure.Test.Returns(test);
 				yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
 			}
+		}
+
+		[Fact]
+		public void TestAssemblyCleanupFailure()
+		{
+			var collectionStarting = new _TestAssemblyStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				AssemblyPath = "assembly-file-path"
+			};
+			var collectionCleanupFailure = new _TestAssemblyCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(collectionStarting);
+			handler.OnMessage(collectionCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Assembly Cleanup Failure (assembly-file-path)");
+		}
+
+		[Fact]
+		public void TestCaseCleanupFailure()
+		{
+			var caseStarting = new _TestCaseStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCaseUniqueID = testCaseID,
+				TestCaseDisplayName = "MyTestCase",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethodUniqueID = methodID
+			};
+			var caseCleanupFailure = new _TestCaseCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCaseUniqueID = testCaseID,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(caseStarting);
+			handler.OnMessage(caseCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Case Cleanup Failure (MyTestCase)");
+		}
+
+		[Fact]
+		public void TestClassCleanupFailure()
+		{
+			var classStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClass = "MyType",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID
+			};
+			var classCleanupFailure = new _TestClassCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(classStarting);
+			handler.OnMessage(classCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Class Cleanup Failure (MyType)");
+		}
+
+		[Fact]
+		public void TestCollectionCleanupFailure()
+		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCollectionDisplayName = "FooBar",
+				TestCollectionUniqueID = collectionID
+			};
+			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(collectionStarting);
+			handler.OnMessage(collectionCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Collection Cleanup Failure (FooBar)");
+		}
+
+		[Fact]
+		public void TestMethodCleanupFailure()
+		{
+			var methodStarting = new _TestMethodStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethod = "MyMethod",
+				TestMethodUniqueID = methodID,
+			};
+			var methodCleanupFailure = new _TestMethodCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(methodStarting);
+			handler.OnMessage(methodCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
 		}
 
 		[Theory]
@@ -71,40 +194,37 @@ public class TeamCityReporterMessageHandlerTests
 		{
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
-			var msg = Assert.Single(handler.Messages);
-			Assert.Equal($"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']", msg);
+			AssertFailureMessage(handler.Messages, messageType);
+		}
+
+		static void AssertFailureMessage(IEnumerable<string> messages, string messageType)
+		{
+			Assert.Contains(
+				$"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']",
+				messages
+			);
 		}
 	}
 
-	public class OnMessage_ITestCollectionFinished
+	public class OnMessage_TestCollectionStarting_TestCollectionFinished
 	{
 		[Fact]
 		public static void LogsMessage()
 		{
-			var message = Mocks.TestCollectionFinished();
+			var startingMessage = Mocks.TestCollectionStarting(testCollectionUniqueID: "test-collection-id", testCollectionDisplayName: "my-test-collection");
+			var finishedMessage = Mocks.TestCollectionFinished(testCollectionUniqueID: "test-collection-id");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(finishedMessage);
 
-			var msg = Assert.Single(handler.Messages);
-			Assert.Equal("[Imp] => ##teamcity[testSuiteFinished name='FORMATTED:Display Name' flowId='myFlowId']", msg);
-		}
-	}
-
-	public class OnMessage_ITestCollectionStarting
-	{
-		[Fact]
-		public static void LogsMessage()
-		{
-			var message = Mocks.TestCollectionStarting();
-			var handler = TestableTeamCityReporterMessageHandler.Create();
-
-			handler.OnMessageWithTypes(message, null);
-
-			var msg = Assert.Single(handler.Messages);
-			Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='FORMATTED:Display Name' flowId='myFlowId']", msg);
+			Assert.Collection(
+				handler.Messages,
+				msg => Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testSuiteFinished name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg)
+			);
 		}
 	}
 
@@ -116,7 +236,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, "ExceptionType", "This is my message \t\r\n", "Line 1\r\nLine 2\r\nLine 3", "This is\t\r\noutput");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			Assert.Collection(
 				handler.Messages,
@@ -135,7 +255,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestPassed("This is my display name \t\r\n", "This is\t\r\noutput");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			Assert.Collection(
 				handler.Messages,
@@ -153,7 +273,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestSkipped("This is my display name \t\r\n", "This is my skip reason \t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			Assert.Collection(
 				handler.Messages,
@@ -171,7 +291,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = Mocks.TestStarting("This is my display name \t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessageWithTypes(message, null);
+			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
 			Assert.Equal(msg, "[Imp] => ##teamcity[testStarted name='FORMATTED:This is my display name \t|r|n' flowId='myFlowId']");

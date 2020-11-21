@@ -6,9 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit.Runner.InProc.SystemConsole
 {
@@ -61,7 +65,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// The entry point to begin running tests.
 		/// </summary>
 		/// <returns>The return value intended to be returned by the Main method.</returns>
-		public int EntryPoint()
+		public async ValueTask<int> EntryPoint()
 		{
 			if (executed)
 				throw new InvalidOperationException("The EntryPoint method can only be called once.");
@@ -106,12 +110,12 @@ namespace Xunit.Runner.InProc.SystemConsole
 					Debugger.Launch();
 
 				logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-				var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
+				var reporterMessageHandler = reporter.CreateMessageHandler(logger);
 
 				if (!commandLine.NoLogo)
 					PrintHeader();
 
-				var failCount = RunProject(
+				var failCount = await RunProject(
 					commandLine.Project,
 					commandLine.ParallelizeTestCollections,
 					commandLine.MaxParallelThreads,
@@ -191,7 +195,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 					foreach (var type in types ?? new Type[0])
 					{
-						if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+						if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 							continue;
 						var ctor = type.GetConstructor(new Type[0]);
 						if (ctor == null)
@@ -315,14 +319,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
 		/// <param name="consoleLock">The (optional) lock used around all console output to ensure there are no write collisions.</param>
 		/// <returns>The return value intended to be returned by the Main method.</returns>
-		public static int Run(
+		public static ValueTask<int> Run(
 			string[] args,
 			Assembly? testAssembly = null,
 			IEnumerable<IRunnerReporter>? runnerReporters = null,
 			object? consoleLock = null) =>
 				new ConsoleRunner(args, testAssembly, runnerReporters, consoleLock).EntryPoint();
 
-		int RunProject(
+		async ValueTask<int> RunProject(
 			XunitProject project,
 			bool? parallelizeTestCollections,
 			int? maxThreadCount,
@@ -331,7 +335,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			bool failSkips,
 			bool stopOnFail,
 			bool internalDiagnosticMessages,
-			IMessageSinkWithTypes reporterMessageHandler)
+			_IMessageSink reporterMessageHandler)
 		{
 			XElement? assembliesElement = null;
 			var clockTime = Stopwatch.StartNew();
@@ -344,7 +348,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			var originalWorkingFolder = Directory.GetCurrentDirectory();
 
 			var assembly = project.Assemblies.Single();
-			var assemblyElement = ExecuteAssembly(
+			var assemblyElement = await ExecuteAssembly(
 				consoleLock,
 				assembly,
 				needsXml,
@@ -380,7 +384,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			return failed ? 1 : executionSummary.Failed;
 		}
 
-		XElement? ExecuteAssembly(
+		async ValueTask<XElement?> ExecuteAssembly(
 			object consoleLock,
 			XunitProjectAssembly assembly,
 			bool needsXml,
@@ -392,7 +396,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			bool stopOnFail,
 			XunitFilters filters,
 			bool internalDiagnosticMessages,
-			IMessageSinkWithTypes reporterMessageHandler)
+			_IMessageSink reporterMessageHandler)
 		{
 			if (cancel)
 				return null;
@@ -409,8 +413,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 				assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 
 				// Setup discovery and execution options with command-line overrides
-				var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-				var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 				executionOptions.SetStopOnTestFail(stopOnFail);
 				if (maxThreadCount.HasValue)
 					executionOptions.SetMaxParallelThreads(maxThreadCount);
@@ -423,7 +427,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 				var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
-				using var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
+
+				await using var disposalTracker = new DisposalTracker();
+				var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
+				disposalTracker.Add(testFramework);
+
 				var discoverySink = new TestDiscoverySink(() => cancel);
 
 				// Discover & filter the tests
@@ -448,7 +456,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					if (assemblyElement != null)
 						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 					if (longRunningSeconds > 0)
-						resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
+						resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 					if (failSkips)
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 

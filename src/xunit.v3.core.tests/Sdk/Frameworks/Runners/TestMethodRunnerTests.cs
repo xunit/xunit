@@ -7,6 +7,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TestMethodRunnerTests
 {
@@ -29,20 +30,15 @@ public class TestMethodRunnerTests
 			messageBus.Messages,
 			msg =>
 			{
-				var starting = Assert.IsAssignableFrom<ITestMethodStarting>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
-				Assert.Equal("TestMethodRunnerTests+ClassUnderTest", starting.TestClass.Class.Name);
-				Assert.Equal("Passing", starting.TestMethod.Method.Name);
+				var starting = Assert.IsAssignableFrom<_TestMethodStarting>(msg);
+				Assert.Equal("Passing", starting.TestMethod);
 			},
 			msg =>
 			{
-				var finished = Assert.IsAssignableFrom<ITestMethodFinished>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
-				Assert.Equal("TestMethodRunnerTests+ClassUnderTest", finished.TestClass.Class.Name);
-				Assert.Equal("Passing", finished.TestMethod.Method.Name);
+				var finished = Assert.IsAssignableFrom<_TestMethodFinished>(msg);
 				Assert.Equal(21.12m, finished.ExecutionTime);
-				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(2, finished.TestsFailed);
+				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(1, finished.TestsSkipped);
 			}
 		);
@@ -60,7 +56,7 @@ public class TestMethodRunnerTests
 				var msg = callInfo.Arg<IMessageSinkMessage>();
 				messages.Add(msg);
 
-				if (msg is ITestMethodStarting)
+				if (msg is _TestMethodStarting)
 					throw new InvalidOperationException();
 
 				return true;
@@ -70,7 +66,7 @@ public class TestMethodRunnerTests
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
 		var starting = Assert.Single(messages);
-		Assert.IsAssignableFrom<ITestMethodStarting>(starting);
+		Assert.IsAssignableFrom<_TestMethodStarting>(starting);
 		Assert.Empty(runner.TestCasesRun);
 	}
 
@@ -84,7 +80,7 @@ public class TestMethodRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestCaseAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestMethodCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestMethodCleanupFailure>());
 	}
 
 	[Fact]
@@ -98,7 +94,7 @@ public class TestMethodRunnerTests
 		await runner.RunAsync();
 
 		Assert.Same(ex, runner.RunTestCaseAsync_AggregatorResult);
-		Assert.Empty(messageBus.Messages.OfType<ITestMethodCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestMethodCleanupFailure>());
 	}
 
 	[Fact]
@@ -114,16 +110,14 @@ public class TestMethodRunnerTests
 
 		await runner.RunAsync();
 
-		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestMethodCleanupFailure>());
-		Assert.Same(testCases[0].TestMethod.TestClass.TestCollection, cleanupFailure.TestCollection);
-		Assert.Equal(testCases, cleanupFailure.TestCases);
+		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<_TestMethodCleanupFailure>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 	}
 
 	[Fact]
 	public static async void Cancellation_TestMethodStarting_DoesNotCallExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodStarting));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodStarting));
 		var runner = TestableTestMethodRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -136,7 +130,7 @@ public class TestMethodRunnerTests
 	[Fact]
 	public static async void Cancellation_TestMethodFinished_CallsExtensibilityMethods()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodFinished));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodFinished));
 		var runner = TestableTestMethodRunner.Create(messageBus);
 
 		await runner.RunAsync();
@@ -149,7 +143,7 @@ public class TestMethodRunnerTests
 	[Fact]
 	public static async void Cancellation_TestMethodCleanupFailure_SetsCancellationToken()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodCleanupFailure));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodCleanupFailure));
 		var runner = TestableTestMethodRunner.Create(messageBus);
 		runner.BeforeTestMethodFinished_Callback = aggregator => aggregator.Add(new Exception());
 
@@ -195,6 +189,9 @@ public class TestMethodRunnerTests
 		public List<ITestCase> TestCasesRun = new List<ITestCase>();
 
 		TestableTestMethodRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
@@ -204,7 +201,7 @@ public class TestMethodRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			RunSummary result,
 			bool cancelInRunTestCaseAsync)
-				: base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
 		{
 			TokenSource = cancellationTokenSource;
 
@@ -229,6 +226,9 @@ public class TestMethodRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestMethodRunner(
+				"assembly-id",
+				"collection-id",
+				"class-id",
 				firstTestCase.TestMethod,
 				(IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
 				(IReflectionMethodInfo)firstTestCase.TestMethod.Method,

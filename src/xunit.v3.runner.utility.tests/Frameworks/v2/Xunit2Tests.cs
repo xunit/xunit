@@ -4,22 +4,39 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 public class Xunit2Tests
 {
 	public class EnumerateTests
 	{
 		[Fact]
-		public async void NoTestMethods()
+		public async void NoTestMethods_ByAssembly()
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
-			using var controller = new TestableXunit2(assm.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			var controller = new TestableXunit2(assm.FileName, null, true);
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 
+			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
+			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
+		}
+
+		[Fact]
+		public async void NoTestMethods_ByType()
+		{
+			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
+			var controller = new TestableXunit2(assm.FileName, null, true);
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
+
+			controller.Find(typeName: "foo", includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+
+			sink.Finished.WaitOne();
+
+			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
 			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
 		}
 
@@ -36,10 +53,10 @@ public class Foo
 }";
 
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code);
-			using var controller = new TestableXunit2(assm.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			var controller = new TestableXunit2(assm.FileName, null, true);
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 
@@ -86,10 +103,10 @@ namespace Namespace2
 }";
 
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-			using var controller = new TestableXunit2(assembly.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			var controller = new TestableXunit2(assembly.FileName, null, true);
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 			var testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase).ToArray();
@@ -126,10 +143,10 @@ public class TestClass
 }";
 
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-			using var controller = new TestableXunit2(assembly.FileName, null, true);
-			var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+			var controller = new TestableXunit2(assembly.FileName, null, true);
+			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 			var testCaseNames = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();
@@ -167,10 +184,10 @@ let CustomName() =
 ";
 
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
-			using var controller = new TestableXunit2(assembly.FileName, null, true);
+			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -212,10 +229,10 @@ let TestMethod (x:int) =
 ";
 
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
-			using var controller = new TestableXunit2(assembly.FileName, null, true);
+			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -243,10 +260,10 @@ let AsyncFailing() =
 ";
 
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
-			using var controller = new TestableXunit2(assembly.FileName, null, true);
-			var sink = new SpyMessageSink<ITestAssemblyFinished>();
+			var controller = new TestableXunit2(assembly.FileName, null, true);
+			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
-			controller.RunAll(sink, discoveryOptions: TestFrameworkOptions.ForDiscovery(), executionOptions: TestFrameworkOptions.ForExecution());
+			controller.RunAll(sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery(), executionOptions: _TestFrameworkOptions.ForExecution());
 			sink.Finished.WaitOne();
 
 			var failures = sink.Messages.OfType<ITestFailed>();
@@ -262,7 +279,7 @@ let AsyncFailing() =
 			string? configFileName = null,
 			bool shadowCopy = true,
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
-				: base(new NullMessageSink(), appDomainSupport, new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
+				: base(new _NullMessageSink(), appDomainSupport, _NullSourceInformationProvider.Instance, assemblyFileName, configFileName, shadowCopy)
 		{ }
 	}
 }

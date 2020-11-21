@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
+using Xunit.Internal;
 
 namespace Xunit.Sdk
 {

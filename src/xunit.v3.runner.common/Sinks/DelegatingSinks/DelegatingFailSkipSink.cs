@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -45,11 +47,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
+
+			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			var testSkipped = message.Cast<ITestSkipped>(messageTypes);
 			if (testSkipped != null)
@@ -67,37 +69,37 @@ namespace Xunit.Runner.Common
 				return innerSink.OnMessage(testFailed);
 			}
 
-			var testCollectionFinished = message.Cast<ITestCollectionFinished>(messageTypes);
+			var testCollectionFinished = message.Cast<_TestCollectionFinished>(messageTypes);
 			if (testCollectionFinished != null)
 			{
-				testCollectionFinished = new TestCollectionFinished(
-					testCollectionFinished.TestCases,
-					testCollectionFinished.TestCollection,
-					testCollectionFinished.ExecutionTime,
-					testCollectionFinished.TestsRun,
-					testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
-					0
-				);
+				testCollectionFinished = new _TestCollectionFinished
+				{
+					ExecutionTime = testCollectionFinished.ExecutionTime,
+					TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
+					TestsFailed = testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
+					TestsRun = testCollectionFinished.TestsRun,
+					TestsSkipped = 0
+				};
 
 				return innerSink.OnMessage(testCollectionFinished);
 			}
 
-			var assemblyFinished = message.Cast<ITestAssemblyFinished>(messageTypes);
+			var assemblyFinished = message.Cast<_TestAssemblyFinished>(messageTypes);
 			if (assemblyFinished != null)
 			{
-				assemblyFinished = new TestAssemblyFinished(
-					assemblyFinished.TestCases,
-					assemblyFinished.TestAssembly,
-					assemblyFinished.ExecutionTime,
-					assemblyFinished.TestsRun,
-					assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
-					0
-				);
+				assemblyFinished = new _TestAssemblyFinished
+				{
+					AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
+					ExecutionTime = assemblyFinished.ExecutionTime,
+					TestsFailed = assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
+					TestsRun = assemblyFinished.TestsRun,
+					TestsSkipped = 0
+				};
 
 				return innerSink.OnMessage(assemblyFinished);
 			}
 
-			return innerSink.OnMessageWithTypes(message, messageTypes);
+			return innerSink.OnMessage(message);
 		}
 	}
 }

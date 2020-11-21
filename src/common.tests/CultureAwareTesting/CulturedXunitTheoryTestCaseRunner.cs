@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -13,15 +13,19 @@ namespace Xunit.Sdk
 		CultureInfo? originalUICulture;
 
 		public CulturedXunitTheoryTestCaseRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			CulturedXunitTheoryTestCase culturedXunitTheoryTestCase,
 			string displayName,
 			string? skipReason,
 			object?[] constructorArguments,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
 		{
 			culture = culturedXunitTheoryTestCase.Culture;
 		}

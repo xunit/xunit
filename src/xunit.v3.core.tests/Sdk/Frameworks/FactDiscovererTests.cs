@@ -5,6 +5,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class FactDiscovererTests
 {
@@ -12,7 +13,7 @@ public class FactDiscovererTests
 	readonly CancellationTokenSource cancellationTokenSource;
 	readonly IReflectionAttributeInfo factAttribute;
 	readonly SpyMessageBus messageBus;
-	readonly ITestFrameworkDiscoveryOptions options;
+	readonly _ITestFrameworkDiscoveryOptions options;
 
 	public FactDiscovererTests()
 	{
@@ -20,7 +21,7 @@ public class FactDiscovererTests
 		cancellationTokenSource = new CancellationTokenSource();
 		factAttribute = Mocks.FactAttribute();
 		messageBus = new SpyMessageBus();
-		options = TestFrameworkOptions.ForDiscovery();
+		options = _TestFrameworkOptions.ForDiscovery();
 	}
 
 	[Fact]
@@ -80,11 +81,11 @@ public class FactDiscovererTests
 
 	class TestableFactDiscoverer : FactDiscoverer
 	{
-		public TestableFactDiscoverer(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink) { }
+		public TestableFactDiscoverer(_IMessageSink diagnosticMessageSink)
+			: base(diagnosticMessageSink)
+		{ }
 
-		public static TestableFactDiscoverer Create()
-		{
-			return new TestableFactDiscoverer(SpyMessageSink.Create());
-		}
+		public static TestableFactDiscoverer Create() =>
+			new TestableFactDiscoverer(SpyMessageSink.Create());
 	}
 }

@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -21,7 +24,7 @@ namespace Xunit.Sdk
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
 		IReflectionTypeInfo @class;
-		IMessageSink diagnosticMessageSink;
+		_IMessageSink diagnosticMessageSink;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
@@ -30,19 +33,23 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly</param>
+		/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 		/// <param name="testClass">The test class to be run.</param>
 		/// <param name="class">The test class that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestClassRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -56,6 +63,10 @@ namespace Xunit.Sdk
 			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+
+			TestAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
+			TestCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
+			TestClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass.Class.Name);
 		}
 
 		/// <summary>
@@ -88,7 +99,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to send diagnostic messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -102,6 +113,11 @@ namespace Xunit.Sdk
 			get => messageBus;
 			set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID of the test assembly.
+		/// </summary>
+		protected string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the test.
@@ -129,6 +145,16 @@ namespace Xunit.Sdk
 			get => testClass;
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID of the test class.
+		/// </summary>
+		protected string? TestClassUniqueID { get; }
+
+		/// <summary>
+		/// Gets the unique ID of the test collection.
+		/// </summary>
+		protected string TestCollectionUniqueID { get; }
 
 		/// <summary>
 		/// Creates the arguments for the test class constructor. Attempts to resolve each parameter
@@ -183,13 +209,13 @@ namespace Xunit.Sdk
 				$"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
 		/// <summary>
-		/// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
+		/// This method is called just after <see cref="_TestClassStarting"/> is sent, but before any test methods are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task AfterTestClassStartingAsync() => Task.CompletedTask;
 
 		/// <summary>
-		/// This method is called just before <see cref="ITestClassFinished"/> is sent.
+		/// This method is called just before <see cref="_TestClassFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task BeforeTestClassFinishedAsync() => Task.CompletedTask;
@@ -202,7 +228,15 @@ namespace Xunit.Sdk
 		{
 			var classSummary = new RunSummary();
 
-			if (!MessageBus.QueueMessage(new TestClassStarting(TestCases.Cast<ITestCase>(), TestClass)))
+			var classStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestClass = TestClass.Class.Name,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID
+			};
+
+			if (!MessageBus.QueueMessage(classStarting))
 				CancellationTokenSource.Cancel();
 			else
 			{
@@ -215,12 +249,26 @@ namespace Xunit.Sdk
 					await BeforeTestClassFinishedAsync();
 
 					if (Aggregator.HasExceptions)
-						if (!MessageBus.QueueMessage(new TestClassCleanupFailure(TestCases.Cast<ITestCase>(), TestClass, Aggregator.ToException()!)))
+					{
+						var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID);
+						if (!MessageBus.QueueMessage(classCleanupFailure))
 							CancellationTokenSource.Cancel();
+					}
 				}
 				finally
 				{
-					if (!MessageBus.QueueMessage(new TestClassFinished(TestCases.Cast<ITestCase>(), TestClass, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
+					var classFinished = new _TestClassFinished
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = classSummary.Time,
+						TestClassUniqueID = TestClassUniqueID,
+						TestCollectionUniqueID = TestCollectionUniqueID,
+						TestsFailed = classSummary.Failed,
+						TestsRun = classSummary.Total,
+						TestsSkipped = classSummary.Skipped
+					};
+
+					if (!MessageBus.QueueMessage(classFinished))
 						CancellationTokenSource.Cancel();
 				}
 			}
@@ -244,7 +292,7 @@ namespace Xunit.Sdk
 			catch (Exception ex)
 			{
 				var innerEx = ex.Unwrap();
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test case orderer '{TestCaseOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test case orderer '{TestCaseOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 				orderedTestCases = TestCases.ToList();
 			}
 

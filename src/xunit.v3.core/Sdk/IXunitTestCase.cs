@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -30,14 +31,14 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Executes the test case, returning 0 or more result messages through the message sink.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report results to.</param>
 		/// <param name="constructorArguments">The arguments to pass to the constructor.</param>
 		/// <param name="aggregator">The error aggregator to use for catching exception.</param>
 		/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
 		/// <returns>Returns the summary of the test case run.</returns>
 		Task<RunSummary> RunAsync(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

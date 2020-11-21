@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class Xunit3AcceptanceTests
 {
@@ -20,10 +21,10 @@ public class Xunit3AcceptanceTests
 
 			Assert.Collection(
 				results,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+				message => Assert.IsAssignableFrom<_TestAssemblyStarting>(message),
 				message =>
 				{
-					var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+					var finished = Assert.IsAssignableFrom<_TestAssemblyFinished>(message);
 					Assert.Equal(0, finished.TestsRun);
 					Assert.Equal(0, finished.TestsFailed);
 					Assert.Equal(0, finished.TestsSkipped);
@@ -34,32 +35,56 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void SinglePassingTest()
 		{
+			string? observedAssemblyID = default;
+			string? observedCollectionID = default;
+			string? observedClassID = default;
+			string? observedMethodID = default;
+			string? observedTestCaseID = default;
+
 			var results = await RunAsync(typeof(SinglePassingTestClass));
 
 			Assert.Collection(
 				results,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
 				message =>
 				{
-					var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
-					Assert.NotNull(collectionStarting.TestCollection);
-					// TODO: There will need to be more tests here eventually...
+					var assemblyStarting = Assert.IsAssignableFrom<_TestAssemblyStarting>(message);
+					observedAssemblyID = assemblyStarting.AssemblyUniqueID;
 				},
 				message =>
 				{
-					var classStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClass.Class.Name);
+					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
+					Assert.Null(collectionStarting.TestCollectionClass);
+					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass", collectionStarting.TestCollectionDisplayName);
+					Assert.NotEmpty(collectionStarting.TestCollectionUniqueID);
+					Assert.Equal(observedAssemblyID, collectionStarting.AssemblyUniqueID);
+					observedCollectionID = collectionStarting.TestCollectionUniqueID;
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", testMethodStarting.TestClass.Class.Name);
-					Assert.Equal("TestMethod", testMethodStarting.TestMethod.Method.Name);
+					var classStarting = Assert.IsType<_TestClassStarting>(message);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClass);
+					Assert.Equal(observedAssemblyID, classStarting.AssemblyUniqueID);
+					Assert.Equal(observedCollectionID, classStarting.TestCollectionUniqueID);
+					observedClassID = classStarting.TestClassUniqueID;
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCase.DisplayName);
+					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					Assert.Equal("TestMethod", testMethodStarting.TestMethod);
+					Assert.Equal(observedAssemblyID, testMethodStarting.AssemblyUniqueID);
+					Assert.Equal(observedCollectionID, testMethodStarting.TestCollectionUniqueID);
+					Assert.Equal(observedClassID, testMethodStarting.TestClassUniqueID);
+					observedMethodID = testMethodStarting.TestMethodUniqueID;
+				},
+				message =>
+				{
+					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					Assert.Equal(observedAssemblyID, testCaseStarting.AssemblyUniqueID);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCaseDisplayName);
+					Assert.Equal(observedCollectionID, testCaseStarting.TestCollectionUniqueID);
+					Assert.Equal(observedClassID, testCaseStarting.TestClassUniqueID);
+					Assert.Equal(observedMethodID, testCaseStarting.TestMethodUniqueID);
+					observedTestCaseID = testCaseStarting.TestCaseUniqueID;
 				},
 				message =>
 				{
@@ -109,7 +134,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
 					Assert.Equal(1, testCaseFinished.TestsRun);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -117,35 +142,45 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", testMethodFinished.TestClass.Class.Name);
-					Assert.Equal("TestMethod", testMethodFinished.TestMethod.Method.Name);
+					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					Assert.Equal(observedAssemblyID, testMethodFinished.AssemblyUniqueID);
+					Assert.NotEqual(0M, testMethodFinished.ExecutionTime);
+					Assert.Equal(observedClassID, testMethodFinished.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, testMethodFinished.TestCollectionUniqueID);
+					Assert.Equal(observedMethodID, testMethodFinished.TestMethodUniqueID);
+					Assert.Equal(0, testMethodFinished.TestsFailed);
+					Assert.Equal(1, testMethodFinished.TestsRun);
+					Assert.Equal(0, testMethodFinished.TestsSkipped);
 				},
 				message =>
 				{
-					var classFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
-					Assert.Equal(1, classFinished.TestsRun);
-					Assert.Equal(0, classFinished.TestsFailed);
-					Assert.Equal(0, classFinished.TestsSkipped);
+					var classFinished = Assert.IsType<_TestClassFinished>(message);
+					Assert.Equal(observedAssemblyID, classFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, classFinished.ExecutionTime);
+					Assert.Equal(observedClassID, classFinished.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, classFinished.TestCollectionUniqueID);
+					Assert.Equal(0, classFinished.TestsFailed);
+					Assert.Equal(1, classFinished.TestsRun);
+					Assert.Equal(0, classFinished.TestsSkipped);
 				},
 				message =>
 				{
-					var collectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
-					Assert.NotNull(collectionFinished.TestCollection);
-					Assert.Equal(1, collectionFinished.TestsRun);
-					Assert.Equal(0, collectionFinished.TestsFailed);
-					Assert.Equal(0, collectionFinished.TestsSkipped);
+					var collectionFinished = Assert.IsType<_TestCollectionFinished>(message);
+					Assert.Equal(observedAssemblyID, collectionFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, collectionFinished.ExecutionTime);
-					// TODO: There will need to be more tests here eventually...
+					Assert.Equal(observedCollectionID, collectionFinished.TestCollectionUniqueID);
+					Assert.Equal(0, collectionFinished.TestsFailed);
+					Assert.Equal(1, collectionFinished.TestsRun);
+					Assert.Equal(0, collectionFinished.TestsSkipped);
 				},
 				message =>
 				{
-					var assemblyFinished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
-					Assert.Equal(1, assemblyFinished.TestsRun);
-					Assert.Equal(0, assemblyFinished.TestsFailed);
-					Assert.Equal(0, assemblyFinished.TestsSkipped);
+					var assemblyFinished = Assert.IsType<_TestAssemblyFinished>(message);
+					Assert.Equal(observedAssemblyID, assemblyFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, assemblyFinished.ExecutionTime);
+					Assert.Equal(0, assemblyFinished.TestsFailed);
+					Assert.Equal(1, assemblyFinished.TestsRun);
+					Assert.Equal(0, assemblyFinished.TestsSkipped);
 				}
 			);
 		}
@@ -162,10 +197,10 @@ public class Xunit3AcceptanceTests
 			Assert.Equal("Xunit3AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
 			Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
-			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsSkipped);
 
-			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
 		}
 	}
@@ -238,10 +273,10 @@ public class Xunit3AcceptanceTests
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
 			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
-			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
-			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
 
@@ -253,10 +288,10 @@ public class Xunit3AcceptanceTests
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
 			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
-			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
 			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
-			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
 	}
@@ -293,7 +328,7 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
 			var msg = Assert.Single(messages);
-			var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
+			var combinedMessage = ExceptionUtility.CombineMessages(msg);
 			Assert.StartsWith("System.AggregateException : One or more errors occurred.", combinedMessage);
 			Assert.EndsWith(
 				"---- Assert.Equal() Failure" + Environment.NewLine +

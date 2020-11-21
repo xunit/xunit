@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
+	/// <summary>
+	/// The callback passed to <see cref="DelegatingExecutionSummarySink"/> when execution is complete.
+	/// </summary>
+	/// <param name="summary">The summary of the execution</param>
+	/// <param name="assemblyMetadata">The assembly for which this summary applies</param>
+	public delegate void DelegatingExecutionSummarySinkCallback(ExecutionSummary summary, _IAssemblyMetadata? assemblyMetadata);
+
 	/// <summary>
 	/// A delegating implementation of <see cref="IExecutionSink"/> which provides the execution
 	/// summary and finished events when appropriate and cancellation support.
@@ -14,21 +22,22 @@ namespace Xunit.Runner.Common
 	public class DelegatingExecutionSummarySink : LongLivedMarshalByRefObject, IExecutionSink
 	{
 		readonly Func<bool> cancelThunk;
-		readonly Action<string, ExecutionSummary>? completionCallback;
+		readonly DelegatingExecutionSummarySinkCallback? completionCallback;
 		bool disposed;
 		volatile int errors;
-		readonly IMessageSinkWithTypes innerSink;
+		readonly _IMessageSink innerSink;
+		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingExecutionSummarySink"/> class.
 		/// </summary>
 		/// <param name="innerSink">The inner sink to pass messages to.</param>
-		/// <param name="cancelThunk"></param>
-		/// <param name="completionCallback"></param>
+		/// <param name="cancelThunk">The optional callback used to determine if execution should be canceled</param>
+		/// <param name="completionCallback">The optional callback called when assembly execution is complete</param>
 		public DelegatingExecutionSummarySink(
-			IMessageSinkWithTypes innerSink,
+			_IMessageSink innerSink,
 			Func<bool>? cancelThunk = null,
-			Action<string, ExecutionSummary>? completionCallback = null)
+			DelegatingExecutionSummarySinkCallback? completionCallback = null)
 		{
 			Guard.ArgumentNotNull(nameof(innerSink), innerSink);
 
@@ -54,7 +63,10 @@ namespace Xunit.Runner.Common
 			Finished.Dispose();
 		}
 
-		void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+		void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args) =>
+			metadataCache.Set(args.Message);
+
+		void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
 			ExecutionSummary.Total = args.Message.TestsRun;
 			ExecutionSummary.Failed = args.Message.TestsFailed;
@@ -62,29 +74,33 @@ namespace Xunit.Runner.Common
 			ExecutionSummary.Time = args.Message.ExecutionTime;
 			ExecutionSummary.Errors = errors;
 
-			completionCallback?.Invoke(Path.GetFileNameWithoutExtension(args.Message.TestAssembly.Assembly.AssemblyPath), ExecutionSummary);
+			var metadata = metadataCache.TryRemove(args.Message);
+			if (metadata != null)
+				completionCallback?.Invoke(ExecutionSummary, metadata);
+			else
+				completionCallback?.Invoke(ExecutionSummary, null);
 
 			Finished.Set();
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			var result = innerSink.OnMessageWithTypes(message, messageTypes);
+			var result = innerSink.OnMessage(message);
+			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return
 				message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
-				&& message.Dispatch<ITestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
+				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
+				&& message.Dispatch<_TestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestCollectionCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestMethodCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestMethodCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& result
 				&& !cancelThunk();
 		}

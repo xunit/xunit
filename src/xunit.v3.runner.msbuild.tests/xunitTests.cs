@@ -8,6 +8,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.MSBuild;
+using Xunit.v3;
 
 public class xunitTests
 {
@@ -110,7 +111,7 @@ public class xunitTests
 
 			var reporter = xunit.GetReporter();
 
-			Assert.IsType<DefaultRunnerReporterWithTypes>(reporter);
+			Assert.IsType<DefaultRunnerReporter>(reporter);
 		}
 
 		[Fact]
@@ -122,7 +123,7 @@ public class xunitTests
 
 			var reporter = xunit.GetReporter();
 
-			Assert.IsType<DefaultRunnerReporterWithTypes>(reporter);
+			Assert.IsType<DefaultRunnerReporter>(reporter);
 		}
 
 		[Fact]
@@ -159,7 +160,7 @@ public class xunitTests
 
 			var reporter = xunit.GetReporter();
 
-			Assert.IsType<DefaultRunnerReporterWithTypes>(reporter);
+			Assert.IsType<DefaultRunnerReporter>(reporter);
 		}
 
 		[Fact]

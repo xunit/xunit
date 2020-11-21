@@ -6,6 +6,7 @@ using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Sdk;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
@@ -411,7 +412,7 @@ public static class Mocks
 		if (assembly == null)
 			assembly = typeof(Mocks).Assembly;
 		if (displayName == null)
-			displayName = "Mock test collection for " + assembly.CodeBase;
+			displayName = "Mock test collection";
 
 		return new TestCollection(TestAssembly(assembly), definition, displayName);
 	}

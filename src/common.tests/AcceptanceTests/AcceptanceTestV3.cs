@@ -6,8 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
-using NullMessageSink = Xunit.Sdk.NullMessageSink;
+using Xunit.v3;
 
 public class AcceptanceTestV3
 {
@@ -17,28 +18,28 @@ public class AcceptanceTestV3
 	{
 		var tcs = new TaskCompletionSource<List<IMessageSinkMessage>>();
 
-		ThreadPool.QueueUserWorkItem(_ =>
+		ThreadPool.QueueUserWorkItem(async _ =>
 		{
 			try
 			{
-				var diagnosticMessageSink = new NullMessageSink();
-				using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
+				var diagnosticMessageSink = new _NullMessageSink();
+				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
-				var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+				using var discoverySink = Xunit.v3.SpyMessageSink<_DiscoveryComplete>.Create();
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
 				{
-					discoverer.Find(type.FullName, includeSourceInformation: false, discoverySink, TestFrameworkOptions.ForDiscovery());
+					discoverer.Find(type.FullName!, includeSourceInformation: false, discoverySink, _TestFrameworkOptions.ForDiscovery());
 					discoverySink.Finished.WaitOne();
 					discoverySink.Finished.Reset();
 				}
 
 				var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
-				var runSink = new SpyMessageSink<ITestAssemblyFinished>();
+				using var runSink = Xunit.v3.SpyMessageSink<_TestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(assemblyInfo);
-				executor.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
+				executor.RunTests(testCases, runSink, _TestFrameworkOptions.ForExecution());
 				runSink.Finished.WaitOne();
 
 				tcs.TrySetResult(runSink.Messages.ToList());

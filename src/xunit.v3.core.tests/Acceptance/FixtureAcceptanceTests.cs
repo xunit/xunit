@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class FixtureAcceptanceTests
 {
@@ -17,13 +18,13 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+				message => Assert.IsType<_TestAssemblyStarting>(message),
+				message => Assert.IsType<_TestCollectionStarting>(message),
+				message => Assert.IsType<_TestClassStarting>(message),
 
 				// TestMethod1
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsAssignableFrom<_TestMethodStarting>(message),
+				message => Assert.IsAssignableFrom<_TestCaseStarting>(message),
 				message => Assert.IsAssignableFrom<ITestStarting>(message),
 				message =>
 				{
@@ -32,12 +33,12 @@ public class FixtureAcceptanceTests
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
 				message => Assert.IsAssignableFrom<ITestFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<_TestCaseFinished>(message),
+				message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 
 				// TestMethod2
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsAssignableFrom<_TestMethodStarting>(message),
+				message => Assert.IsAssignableFrom<_TestCaseStarting>(message),
 				message => Assert.IsAssignableFrom<ITestStarting>(message),
 				message =>
 				{
@@ -46,12 +47,12 @@ public class FixtureAcceptanceTests
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
 				message => Assert.IsAssignableFrom<ITestFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<_TestCaseFinished>(message),
+				message => Assert.IsAssignableFrom<_TestMethodFinished>(message),
 
-				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-				message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
+				message => Assert.IsType<_TestClassFinished>(message),
+				message => Assert.IsType<_TestCollectionFinished>(message),
+				message => Assert.IsType<_TestAssemblyFinished>(message)
 			);
 		}
 
@@ -122,7 +123,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -296,7 +297,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
+			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -326,7 +327,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest_Disposable()
 		{
-			var messages = await RunAsync<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
+			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -432,7 +433,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -589,7 +590,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
 		{
-			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -621,7 +622,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest_Disposable()
 		{
-			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose_Disposable));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose_Disposable));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());

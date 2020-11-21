@@ -2,11 +2,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
+using Xunit.Runner.v1;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -16,23 +21,23 @@ namespace Xunit
 	/// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
 	/// instead of using this class directly.
 	/// </summary>
-	public class Xunit1 : IFrontController
+	public class Xunit1 : IFrontController, IAsyncDisposable
 	{
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
 		readonly string? configFileName;
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		bool disposed;
 		IXunit1Executor? executor;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
-		readonly ISourceInformationProvider sourceInformationProvider;
-		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
+		readonly _ISourceInformationProvider sourceInformationProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="sourceInformationProvider">Source code information provider.</param>
 		/// <param name="assemblyFileName">The test assembly.</param>
@@ -42,9 +47,9 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		public Xunit1(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
-			ISourceInformationProvider sourceInformationProvider,
+			_ISourceInformationProvider sourceInformationProvider,
 			string assemblyFileName,
 			string? configFileName = null,
 			bool shadowCopy = true,
@@ -100,16 +105,14 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			foreach (var disposable in toDispose)
-				disposable.Dispose();
-
+			await disposalTracker.DisposeAsync();
 			executor?.Dispose();
 		}
 
@@ -120,7 +123,7 @@ namespace Xunit
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Find(
 			bool includeSourceInformation,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
@@ -128,10 +131,10 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		void ITestFrameworkDiscoverer.Find(
+		void _ITestFrameworkDiscoverer.Find(
 			bool includeSourceInformation,
-			IMessageSink? messageSink,
-			ITestFrameworkDiscoveryOptions? discoveryOptions)
+			_IMessageSink? messageSink,
+			_ITestFrameworkDiscoveryOptions? discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
@@ -147,17 +150,17 @@ namespace Xunit
 		public void Find(
 			string typeName,
 			bool includeSourceInformation,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 		{
 			Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
 		}
 
 		/// <inheritdoc/>
-		void ITestFrameworkDiscoverer.Find(
+		void _ITestFrameworkDiscoverer.Find(
 			string typeName,
 			bool includeSourceInformation,
-			IMessageSink messageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
 		}
@@ -165,8 +168,19 @@ namespace Xunit
 		void Find(
 			Predicate<ITestCaseDiscoveryMessage> filter,
 			bool includeSourceInformation,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 		{
+			IAssemblyInfo assembly = new Xunit1AssemblyInfo(assemblyFileName);
+			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
+			var discoveryStarting = new _DiscoveryStarting
+			{
+				AssemblyName = assembly.Name,
+				AssemblyPath = assembly.AssemblyPath,
+				AssemblyUniqueID = assemblyUniqueID,
+				ConfigFilePath = configFileName
+			};
+			messageSink.OnMessage(discoveryStarting);
+
 			try
 			{
 				XmlNode? assemblyXml = null;
@@ -182,7 +196,10 @@ namespace Xunit
 						if (testCase != null)
 						{
 							if (includeSourceInformation)
-								testCase.SourceInformation = sourceInformationProvider.GetSourceInformation(testCase);
+							{
+								var result = sourceInformationProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+								testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+							}
 
 							var message = new TestCaseDiscoveryMessage(testCase);
 							if (filter(message))
@@ -193,7 +210,8 @@ namespace Xunit
 			}
 			finally
 			{
-				messageSink.OnMessage(new DiscoveryCompleteMessage());
+				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
+				messageSink.OnMessage(discoveryComplete);
 			}
 		}
 
@@ -201,10 +219,10 @@ namespace Xunit
 		/// Starts the process of running all the xUnit.net v1 tests in the assembly.
 		/// </summary>
 		/// <param name="messageSink">The message sink to report results back to.</param>
-		public void Run(IMessageSink messageSink)
+		public void Run(_IMessageSink messageSink)
 		{
 			var discoverySink = new TestDiscoverySink();
-			toDispose.Push(discoverySink);
+			disposalTracker.Add(discoverySink);
 
 			Find(false, discoverySink);
 			discoverySink.Finished.WaitOne();
@@ -212,10 +230,10 @@ namespace Xunit
 			Run(discoverySink.TestCases, messageSink);
 		}
 
-		void ITestFrameworkExecutor.RunAll(
-			IMessageSink messageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestFrameworkExecutionOptions executionOptions)
+		void _ITestFrameworkExecutor.RunAll(
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Run(messageSink);
 		}
@@ -227,7 +245,7 @@ namespace Xunit
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Run(
 			IEnumerable<ITestCase> testCases,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 		{
 			var results = new Xunit1RunSummary();
 			var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
@@ -236,10 +254,27 @@ namespace Xunit
 
 			if (testCollection != null)
 			{
+				var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
+					testCollection.TestAssembly.Assembly.Name,
+					testCollection.TestAssembly.Assembly.AssemblyPath,
+					testCollection.TestAssembly.ConfigFileName
+				);
+
 				try
 				{
-					if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
-						results = RunTestCollection(testCollection, testCases, messageSink);
+					var testAssemblyStartingMessage = new _TestAssemblyStarting
+					{
+						AssemblyName = testCollection.TestAssembly.Assembly.Name,
+						AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
+						AssemblyUniqueID = assemblyUniqueID,
+						ConfigFilePath = testCollection.TestAssembly.ConfigFileName,
+						StartTime = DateTimeOffset.Now,
+						TestEnvironment = environment,
+						TestFrameworkDisplayName = TestFrameworkDisplayName,
+					};
+
+					if (messageSink.OnMessage(testAssemblyStartingMessage))
+						results = RunTestCollection(assemblyUniqueID, testCollection, testCases, messageSink);
 				}
 				catch (Exception ex)
 				{
@@ -251,27 +286,48 @@ namespace Xunit
 				}
 				finally
 				{
-					messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
+					var assemblyFinished = new _TestAssemblyFinished
+					{
+						AssemblyUniqueID = assemblyUniqueID,
+						ExecutionTime = results.Time,
+						TestsFailed = results.Failed,
+						TestsRun = results.Total,
+						TestsSkipped = results.Skipped
+					};
+
+					messageSink.OnMessage(assemblyFinished);
 				}
 			}
 		}
 
-		void ITestFrameworkExecutor.RunTests(
+		void _ITestFrameworkExecutor.RunTests(
 			IEnumerable<ITestCase> testCases,
-			IMessageSink messageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_IMessageSink messageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Run(testCases, messageSink);
 		}
 
 		Xunit1RunSummary RunTestCollection(
+			string assemblyUniqueID,
 			ITestCollection testCollection,
 			IEnumerable<ITestCase> testCases,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				TestCollectionClass = testCollection.CollectionDefinition?.Name,
+				TestCollectionDisplayName = testCollection.DisplayName
+			};
+			collectionStarting.TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
+				assemblyUniqueID,
+				collectionStarting.TestCollectionDisplayName,
+				collectionStarting.TestCollectionClass
+			);
+
 			var results = new Xunit1RunSummary
 			{
-				Continue = messageSink.OnMessage(new TestCollectionStarting(testCases, testCollection))
+				Continue = messageSink.OnMessage(collectionStarting)
 			};
 
 			try
@@ -279,7 +335,7 @@ namespace Xunit
 				if (results.Continue)
 					foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestMethod.TestClass, Comparer.Instance))
 					{
-						var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
+						var classResults = RunTestClass(assemblyUniqueID, collectionStarting.TestCollectionUniqueID, testClassGroup.Key, testClassGroup.ToList(), messageSink);
 						results.Aggregate(classResults);
 						if (!classResults.Continue)
 							break;
@@ -287,20 +343,39 @@ namespace Xunit
 			}
 			finally
 			{
-				results.Continue = messageSink.OnMessage(new TestCollectionFinished(testCases, testCollection, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
+				var collectionFinished = new _TestCollectionFinished
+				{
+					ExecutionTime = results.Time,
+					TestCollectionUniqueID = collectionStarting.TestCollectionUniqueID,
+					TestsFailed = results.Failed,
+					TestsRun = results.Total,
+					TestsSkipped = results.Skipped
+				};
+
+				results.Continue = messageSink.OnMessage(collectionFinished) && results.Continue;
 			}
 
 			return results;
 		}
 
 		Xunit1RunSummary RunTestClass(
+			string assemblyUniqueID,
+			string collectionUniqueID,
 			ITestClass testClass,
 			IList<ITestCase> testCases,
-			IMessageSink messageSink)
+			_IMessageSink messageSink)
 		{
 			var handler = new TestClassCallbackHandler(testCases, messageSink);
 			var results = handler.TestClassResults;
-			results.Continue = messageSink.OnMessage(new TestClassStarting(testCases, testClass));
+			var testClassStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestClass = testClass.Class.Name,
+				TestCollectionUniqueID = collectionUniqueID
+			};
+			testClassStarting.TestClassUniqueID = UniqueIDGenerator.ForTestClass(collectionUniqueID, testClassStarting.TestClass);
+
+			results.Continue = messageSink.OnMessage(testClassStarting);
 
 			try
 			{
@@ -313,7 +388,18 @@ namespace Xunit
 			}
 			finally
 			{
-				results.Continue = messageSink.OnMessage(new TestClassFinished(testCases, testClass, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
+				var testClassFinished = new _TestClassFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = results.Time,
+					TestClassUniqueID = testClassStarting.TestClassUniqueID,
+					TestCollectionUniqueID = collectionUniqueID,
+					TestsFailed = results.Failed,
+					TestsRun = results.Total,
+					TestsSkipped = results.Skipped
+				};
+
+				results.Continue = messageSink.OnMessage(testClassFinished) && results.Continue;
 			}
 
 			return results;

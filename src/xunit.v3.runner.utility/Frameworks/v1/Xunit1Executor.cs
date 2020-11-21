@@ -7,8 +7,10 @@ using System.IO;
 using System.Reflection;
 using System.Web.UI;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// Default implementation of <see cref="IXunit1Executor"/>. Creates a remote app domain for the test
@@ -25,7 +27,7 @@ namespace Xunit
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1Executor" /> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
 		/// <param name="testAssemblyFileName">The filename of the test assembly.</param>
 		/// <param name="configFileName">The filename of the configuration file.</param>
@@ -33,7 +35,7 @@ namespace Xunit
 		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 		/// will be automatically (randomly) generated</param>
 		public Xunit1Executor(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			bool useAppDomain,
 			string testAssemblyFileName,
 			string? configFileName = null,

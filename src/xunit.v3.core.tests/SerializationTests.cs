@@ -6,7 +6,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class SerializationTests
 {
@@ -30,12 +32,11 @@ public class SerializationTests
 	[Fact]
 	public static void SerializedTestsInSameCollectionRemainInSameCollection()
 	{
-		var sourceProvider = new NullSourceInformationProvider();
 		var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
-		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, sourceProvider, SpyMessageSink.Create());
+		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 		var sink = new TestDiscoverySink();
 
-		discoverer.Find(typeof(ClassWithFacts).FullName!, false, sink, TestFrameworkOptions.ForDiscovery());
+		discoverer.Find(typeof(ClassWithFacts).FullName!, false, sink, _TestFrameworkOptions.ForDiscovery());
 		sink.Finished.WaitOne();
 
 		var first = sink.TestCases[0];
@@ -65,12 +66,11 @@ public class SerializationTests
 	[Fact]
 	public static void TheoriesWithSerializableData_ReturnAsIndividualTestCases()
 	{
-		var sourceProvider = new NullSourceInformationProvider();
 		var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
-		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, sourceProvider, SpyMessageSink.Create());
+		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 		var sink = new TestDiscoverySink();
 
-		discoverer.Find(typeof(ClassWithTheory).FullName!, false, sink, TestFrameworkOptions.ForDiscovery());
+		discoverer.Find(typeof(ClassWithTheory).FullName!, false, sink, _TestFrameworkOptions.ForDiscovery());
 		sink.Finished.WaitOne();
 
 		var first = sink.TestCases[0];
@@ -99,12 +99,11 @@ public class SerializationTests
 	[Fact]
 	public static void TheoryWithNonSerializableData_ReturnsAsASingleTestCase()
 	{
-		var sourceProvider = new NullSourceInformationProvider();
 		var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
-		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, sourceProvider, SpyMessageSink.Create());
+		var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 		var sink = new TestDiscoverySink();
 
-		discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName!, false, sink, TestFrameworkOptions.ForDiscovery());
+		discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName!, false, sink, _TestFrameworkOptions.ForDiscovery());
 		sink.Finished.WaitOne();
 
 		var testCase = Assert.Single(sink.TestCases);

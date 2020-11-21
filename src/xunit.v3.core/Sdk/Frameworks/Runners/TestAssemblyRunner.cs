@@ -4,9 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -16,13 +20,13 @@ namespace Xunit.Sdk
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 	/// derive from <see cref="ITestCase"/>.</typeparam>
-	public abstract class TestAssemblyRunner<TTestCase> : IDisposable
+	public abstract class TestAssemblyRunner<TTestCase> : IAsyncDisposable
 		where TTestCase : ITestCase
 	{
 		ExceptionAggregator aggregator = new ExceptionAggregator();
-		IMessageSink diagnosticMessageSink;
-		IMessageSink executionMessageSink;
-		ITestFrameworkExecutionOptions executionOptions;
+		_IMessageSink diagnosticMessageSink;
+		_IMessageSink executionMessageSink;
+		_ITestFrameworkExecutionOptions executionOptions;
 		ITestAssembly testAssembly;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
@@ -33,15 +37,15 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="testAssembly">The assembly that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected TestAssemblyRunner(
 			ITestAssembly testAssembly,
 			IEnumerable<TTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
-			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_IMessageSink diagnosticMessageSink,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
 			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
@@ -50,6 +54,12 @@ namespace Xunit.Sdk
 			this.executionOptions = Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
 			testCaseOrderer = new DefaultTestCaseOrderer(DiagnosticMessageSink);
+
+			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(
+				testAssembly.Assembly.Name,
+				testAssembly.Assembly.AssemblyPath,
+				testAssembly.ConfigFileName
+			);
 		}
 
 		/// <summary>
@@ -64,7 +74,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the user's requested execution options.
 		/// </summary>
-		protected ITestFrameworkExecutionOptions ExecutionOptions
+		protected _ITestFrameworkExecutionOptions ExecutionOptions
 		{
 			get => executionOptions;
 			set => executionOptions = Guard.ArgumentNotNull(nameof(ExecutionOptions), value);
@@ -73,7 +83,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the message sink to report diagnostic messages to.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -82,7 +92,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the message sink to report run status to.
 		/// </summary>
-		protected IMessageSink ExecutionMessageSink
+		protected _IMessageSink ExecutionMessageSink
 		{
 			get => executionMessageSink;
 			set => executionMessageSink = Guard.ArgumentNotNull(nameof(ExecutionMessageSink), value);
@@ -96,6 +106,11 @@ namespace Xunit.Sdk
 			get => testAssembly;
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID of the test assembly.
+		/// </summary>
+		protected string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the tests.
@@ -125,29 +140,39 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public virtual void Dispose()
-		{ }
+		public virtual ValueTask DisposeAsync() => default;
+
+		/// <summary>
+		/// Override this to provide the target framework against which the assembly was compiled
+		/// (f.e., ".NETFramework,Version=v4.7.2"). This value is placed into
+		/// <see cref="_TestAssemblyStarting.TargetFramework"/>.
+		/// </summary>
+		protected virtual string? GetTargetFramework()
+		{
+			var attrib = TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
+			return attrib?.GetConstructorArguments().FirstOrDefault() as string;
+		}
 
 		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").
-		/// This value is placed into <see cref="ITestAssemblyStarting.TestFrameworkDisplayName"/>.
+		/// This value is placed into <see cref="_TestAssemblyStarting.TestFrameworkDisplayName"/>.
 		/// </summary>
 		protected abstract string GetTestFrameworkDisplayName();
 
 		/// <summary>
 		/// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
-		/// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
+		/// placed into <see cref="_TestAssemblyStarting.TestEnvironment"/>.
 		/// </summary>
 		protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}";
 
 		/// <summary>
-		/// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
+		/// This method is called just after <see cref="_TestAssemblyStarting"/> is sent, but before any test collections are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task AfterTestAssemblyStartingAsync() => Task.CompletedTask;
 
 		/// <summary>
-		/// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
+		/// This method is called just before <see cref="_TestAssemblyFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task BeforeTestAssemblyFinishedAsync() => Task.CompletedTask;
@@ -174,8 +199,9 @@ namespace Xunit.Sdk
 		protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCollections()
 		{
 			var testCasesByCollection =
-				TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
-						 .ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
+				TestCases
+					.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+					.ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
 			IEnumerable<ITestCollection> orderedTestCollections;
 
@@ -186,12 +212,14 @@ namespace Xunit.Sdk
 			catch (Exception ex)
 			{
 				var innerEx = ex.Unwrap();
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection orderer '{TestCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test collection orderer '{TestCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 				orderedTestCollections = testCasesByCollection.Keys.ToList();
 			}
 
-			return orderedTestCollections.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
-										 .ToList();
+			return
+				orderedTestCollections
+					.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
+					.ToList();
 		}
 
 		/// <summary>
@@ -203,6 +231,7 @@ namespace Xunit.Sdk
 			var cancellationTokenSource = new CancellationTokenSource();
 			var totalSummary = new RunSummary();
 			var currentDirectory = Directory.GetCurrentDirectory();
+			var targetFramework = GetTargetFramework();
 			var testFrameworkEnvironment = GetTestFrameworkEnvironment();
 			var testFrameworkDisplayName = GetTestFrameworkDisplayName();
 
@@ -214,7 +243,19 @@ namespace Xunit.Sdk
 				}
 				catch { }
 
-				if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
+				var testAssemblyStartingMessage = new _TestAssemblyStarting
+				{
+					AssemblyName = TestAssembly.Assembly.Name,
+					AssemblyPath = TestAssembly.Assembly.AssemblyPath,
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					ConfigFilePath = TestAssembly.ConfigFileName,
+					StartTime = DateTimeOffset.Now,
+					TargetFramework = targetFramework,
+					TestEnvironment = testFrameworkEnvironment,
+					TestFrameworkDisplayName = testFrameworkDisplayName,
+				};
+
+				if (messageBus.QueueMessage(testAssemblyStartingMessage))
 				{
 					try
 					{
@@ -229,11 +270,23 @@ namespace Xunit.Sdk
 						await BeforeTestAssemblyFinishedAsync();
 
 						if (Aggregator.HasExceptions)
-							messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()!));
+						{
+							var cleanupFailure = _TestAssemblyCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID);
+							messageBus.QueueMessage(cleanupFailure);
+						}
 					}
 					finally
 					{
-						messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+						var assemblyFinished = new _TestAssemblyFinished
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							ExecutionTime = totalSummary.Time,
+							TestsFailed = totalSummary.Failed,
+							TestsRun = totalSummary.Total,
+							TestsSkipped = totalSummary.Skipped
+						};
+
+						messageBus.QueueMessage(assemblyFinished);
 
 						try
 						{

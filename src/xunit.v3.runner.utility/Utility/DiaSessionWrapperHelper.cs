@@ -8,7 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 
 namespace Xunit
 {
@@ -72,8 +73,10 @@ namespace Xunit
 				catch { }  // Ignore anything other than ReflectionTypeLoadException
 
 				if (types != null)
-					typeNameMap = types.Where(t => t != null && !string.IsNullOrEmpty(t.FullName))
-									   .ToDictionaryIgnoringDuplicateKeys(k => k.FullName);
+					typeNameMap =
+						types
+							.Where(t => t != null && !string.IsNullOrEmpty(t.FullName))
+							.ToDictionaryIgnoringDuplicateKeys(k => k.FullName);
 				else
 					typeNameMap = new Dictionary<string, Type>();
 			}

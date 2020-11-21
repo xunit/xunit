@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -22,26 +25,30 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly</param>
+		/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 		/// <param name="testClass">The test class to be run.</param>
 		/// <param name="class">The test class that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 		public XunitTestClassRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			this.collectionFixtureMappings = Guard.ArgumentNotNull(nameof(collectionFixtureMappings), collectionFixtureMappings);
 		}
@@ -89,7 +96,7 @@ namespace Xunit.Sdk
 			var ctorArgs = ctor.GetParameters().Select(p =>
 			{
 				object? arg;
-				if (p.ParameterType == typeof(IMessageSink))
+				if (p.ParameterType == typeof(_IMessageSink))
 					arg = DiagnosticMessageSink;
 				else
 				if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))
@@ -141,14 +148,14 @@ namespace Xunit.Sdk
 					else
 					{
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{type}' in {assembly} for class-level test case orderer on test class '{TestClass.Class.Name}'"));
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for class-level test case orderer on test class '{TestClass.Class.Name}'" });
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Class-level test case orderer '{type}' for test class '{TestClass.Class.Name}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Class-level test case orderer '{type}' for test class '{TestClass.Class.Name}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 				}
 			}
 
@@ -188,6 +195,9 @@ namespace Xunit.Sdk
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
 				new XunitTestMethodRunner(
+					TestAssemblyUniqueID,
+					TestCollectionUniqueID,
+					TestClassUniqueID,
 					testMethod,
 					Class,
 					method,

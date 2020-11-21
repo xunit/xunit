@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
   </ItemGroup>
 

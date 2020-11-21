@@ -9,7 +9,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
+using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
+using Xunit.v3;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild
@@ -23,7 +26,7 @@ namespace Xunit.Runner.MSBuild
 		int? maxThreadCount;
 		bool? parallelizeAssemblies;
 		bool? parallelizeTestCollections;
-		IMessageSinkWithTypes? reporterMessageHandler;
+		_IMessageSink? reporterMessageHandler;
 		bool? shadowCopy;
 		bool? stopOnFail;
 
@@ -173,7 +176,7 @@ namespace Xunit.Runner.MSBuild
 					return false;
 
 				logger = new MSBuildLogger(Log);
-				reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
+				reporterMessageHandler = reporter.CreateMessageHandler(logger);
 
 				if (!NoLogo)
 					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
@@ -203,7 +206,7 @@ namespace Xunit.Runner.MSBuild
 
 				if (parallelizeAssemblies.GetValueOrDefault())
 				{
-					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains)));
+					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
 					var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
 					foreach (var assemblyElement in results.Where(result => result != null))
 						assembliesElement!.Add(assemblyElement);
@@ -251,7 +254,7 @@ namespace Xunit.Runner.MSBuild
 			return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
 		}
 
-		protected virtual XElement? ExecuteAssembly(
+		protected virtual async ValueTask<XElement?> ExecuteAssembly(
 			XunitProjectAssembly assembly,
 			AppDomainSupport? appDomains)
 		{
@@ -270,8 +273,8 @@ namespace Xunit.Runner.MSBuild
 					assembly.Configuration.AppDomain = appDomains;
 
 				// Setup discovery and execution options with command-line overrides
-				var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-				var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 				if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
 					executionOptions.SetMaxParallelThreads(maxThreadCount);
 				if (parallelizeTestCollections.HasValue)
@@ -285,7 +288,7 @@ namespace Xunit.Runner.MSBuild
 				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-				using var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename!, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink);
+				await using var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename!, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink);
 				using var discoverySink = new TestDiscoverySink(() => cancel);
 
 				// Discover & filter the tests
@@ -303,13 +306,16 @@ namespace Xunit.Runner.MSBuild
 
 				// Run the filtered tests
 				if (testCasesToRun == 0)
-					completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename)!, new ExecutionSummary());
+					completionMessages.TryAdd(assembly.AssemblyDisplayName, new ExecutionSummary());
 				else
 				{
 					if (SerializeTestCases)
-						filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
+						filteredTestCases = (
+							from testCase in filteredTestCases
+							select controller.Deserialize(controller.Serialize(testCase))
+						).ToList();
 
-					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(assembly.AssemblyDisplayName, summary));
 					if (assemblyElement != null)
 						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 					if (longRunningSeconds > 0)
@@ -381,7 +387,7 @@ namespace Xunit.Runner.MSBuild
 
 				foreach (var type in types)
 				{
-					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 						continue;
 
 					var ctor = type.GetConstructor(new Type[0]);
@@ -426,7 +432,7 @@ namespace Xunit.Runner.MSBuild
 				}
 			}
 
-			return reporter ?? new DefaultRunnerReporterWithTypes();
+			return reporter ?? new DefaultRunnerReporter();
 		}
 	}
 }

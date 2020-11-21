@@ -6,11 +6,12 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ExtensibilityPointFactoryTests
 {
 	readonly List<IMessageSinkMessage> messages = new List<IMessageSinkMessage>();
-	protected IMessageSink spy;
+	protected _IMessageSink spy;
 
 	public ExtensibilityPointFactoryTests()
 	{
@@ -18,7 +19,7 @@ public class ExtensibilityPointFactoryTests
 	}
 
 	public IEnumerable<string> DiagnosticMessages =>
-		messages.OfType<IDiagnosticMessage>().Select(m => m.Message);
+		messages.OfType<_DiagnosticMessage>().Select(m => m.Message);
 
 	public class GetTestFramework : ExtensibilityPointFactoryTests
 	{
@@ -127,16 +128,13 @@ public class ExtensibilityPointFactoryTests
 			public ThrowingTestFrameworkCtor() =>
 				throw new DivideByZeroException();
 
-			public ISourceInformationProvider SourceInformationProvider { get; set; }
+			public _ISourceInformationProvider SourceInformationProvider { get; set; }
 
-			public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
+			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
-
-			public void Dispose()
-			{ }
 		}
 
 		[Fact]
@@ -144,7 +142,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithDiscoverer));
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly, sourceProvider);
 
@@ -165,15 +163,12 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyTestFramework : _ITestFramework
 		{
-			public ISourceInformationProvider? SourceInformationProvider { get; set; }
+			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
-			public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
+			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
-				throw new NotImplementedException();
-
-			public void Dispose() =>
+			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
@@ -182,7 +177,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithDiscovererWithMessageSink));
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-			var sourceProvider = Substitute.For<ISourceInformationProvider>();
+			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly, sourceProvider);
 
@@ -204,29 +199,26 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyTestFrameworkWithMessageSink : _ITestFramework
 		{
-			public readonly IMessageSink MessageSink;
+			public readonly _IMessageSink MessageSink;
 
-			public MyTestFrameworkWithMessageSink(IMessageSink messageSink)
+			public MyTestFrameworkWithMessageSink(_IMessageSink messageSink)
 			{
 				MessageSink = messageSink;
 			}
 
-			public ISourceInformationProvider? SourceInformationProvider { get; set; }
+			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
-			public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
+			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
-				throw new NotImplementedException();
-
-			public void Dispose() =>
+			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
 		void AssertSingleDiagnosticMessage(string expectedMessage)
 		{
 			var message = Assert.Single(messages);
-			var diagnosticMessage = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+			var diagnosticMessage = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 			Assert.StartsWith(expectedMessage, diagnosticMessage.Message);
 		}
 	}

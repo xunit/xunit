@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 /// <summary>

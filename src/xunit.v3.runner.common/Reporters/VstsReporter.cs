@@ -1,5 +1,6 @@
 using System;
-using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -10,21 +11,21 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class VstsReporter : IRunnerReporter
 	{
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string Description => "Azure DevOps/VSTS CI support";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled =>
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("VSTS_ACCESS_TOKEN")) &&
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI")) &&
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT")) &&
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BUILD_BUILDID"));
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string? RunnerSwitch => null;
 
-		/// <inheritdoc />
-		public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+		/// <inheritdoc/>
+		public _IMessageSink CreateMessageHandler(IRunnerLogger logger)
 		{
 			var collectionUri = Guard.NotNull("Environment variable SYSTEM_TEAMFOUNDATIONCOLLECTIONURI is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"));
 			var teamProject = Guard.NotNull("Environment variable SYSTEM_TEAMPROJECT is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT"));

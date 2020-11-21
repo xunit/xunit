@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NSubstitute;
 using TestDriven.Framework;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
+using Xunit.v3;
 
 public class ResultSinkTests
 {
 	[Fact]
-	public static void SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
+	public static async void SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
 	{
 		var listener = Substitute.For<ITestListener>();
-		using var sink = new ResultSink(listener, 42);
-		var message = Substitute.For<ITestAssemblyFinished>();
+		await using var sink = new ResultSink(listener, 42);
+		var message = Mocks.TestAssemblyFinished();
 
-		sink.OnMessageWithTypes(message, null);
+		sink.OnMessage(message);
 
 		Assert.True(sink.Finished.WaitOne(0));
 	}
@@ -23,10 +25,10 @@ public class ResultSinkTests
 	public class RunState
 	{
 		[Fact]
-		public static void DefaultRunStateIsNoTests()
+		public static async void DefaultRunStateIsNoTests()
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, 42);
 
 			Assert.Equal(TestRunState.NoTests, sink.TestRunState);
 		}
@@ -35,23 +37,23 @@ public class ResultSinkTests
 		[InlineData(TestRunState.NoTests)]
 		[InlineData(TestRunState.Error)]
 		[InlineData(TestRunState.Success)]
-		public static void FailureSetsStateToFailed(TestRunState initialState)
+		public static async void FailureSetsStateToFailed(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
 
-			sink.OnMessageWithTypes(Mocks.TestFailed(typeof(object), "GetHashCode"), null);
+			sink.OnMessage(Mocks.TestFailed(typeof(object), "GetHashCode"));
 
 			Assert.Equal(TestRunState.Failure, sink.TestRunState);
 		}
 
 		[Fact]
-		public static void Success_MovesToSuccess()
+		public static async void Success_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
 
-			sink.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
+			sink.OnMessage(Substitute.For<ITestPassed>());
 
 			Assert.Equal(TestRunState.Success, sink.TestRunState);
 		}
@@ -60,23 +62,23 @@ public class ResultSinkTests
 		[InlineData(TestRunState.Error)]
 		[InlineData(TestRunState.Failure)]
 		[InlineData(TestRunState.Success)]
-		public static void Success_StaysInCurrentState(TestRunState initialState)
+		public static async void Success_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
 
-			sink.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
+			sink.OnMessage(Substitute.For<ITestPassed>());
 
 			Assert.Equal(initialState, sink.TestRunState);
 		}
 
 		[Fact]
-		public static void Skip_MovesToSuccess()
+		public static async void Skip_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
 
-			sink.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
+			sink.OnMessage(Substitute.For<ITestSkipped>());
 
 			Assert.Equal(TestRunState.Success, sink.TestRunState);
 		}
@@ -85,12 +87,12 @@ public class ResultSinkTests
 		[InlineData(TestRunState.Error)]
 		[InlineData(TestRunState.Failure)]
 		[InlineData(TestRunState.Success)]
-		public static void Skip_StaysInCurrentState(TestRunState initialState)
+		public static async void Skip_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
 
-			sink.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
+			sink.OnMessage(Substitute.For<ITestSkipped>());
 
 			Assert.Equal(initialState, sink.TestRunState);
 		}
@@ -98,6 +100,17 @@ public class ResultSinkTests
 
 	public class FailureInformation
 	{
+		readonly string assemblyID = "assembly-id";
+		readonly string classID = "test-class-id";
+		readonly string collectionID = "test-collection-id";
+		readonly int[] exceptionParentIndices = new[] { -1 };
+		readonly string[] exceptionTypes = new[] { "ExceptionType" };
+		readonly string[] messages = new[] { "This is my message \t\r\n" };
+		readonly string methodID = "test-method-id";
+		readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
+		readonly string testCaseID = "test-case-id";
+		//readonly string testID = "test-id";
+
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
 		{
@@ -114,31 +127,7 @@ public class ResultSinkTests
 			{
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "Fatal Error" };
 
-				var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
-				var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
-				assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-				yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
-
-				var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-				var testCollection = Mocks.TestCollection(displayName: "FooBar");
-				collectionCleanupFailure.TestCollection.Returns(testCollection);
-				yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar)" };
-
-				var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
-				var testClass = Mocks.TestClass("MyType");
-				classCleanupFailure.TestClass.Returns(testClass);
-				yield return new object[] { classCleanupFailure, "Test Class Cleanup Failure (MyType)" };
-
-				var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
-				var testMethod = Mocks.TestMethod(methodName: "MyMethod");
-				methodCleanupFailure.TestMethod.Returns(testMethod);
-				yield return new object[] { methodCleanupFailure, "Test Method Cleanup Failure (MyMethod)" };
-
-				var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
 				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-				testCaseCleanupFailure.TestCase.Returns(testCase);
-				yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
-
 				var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
 				var test = Mocks.Test(testCase, "MyTest");
 				testCleanupFailure.Test.Returns(test);
@@ -146,16 +135,166 @@ public class ResultSinkTests
 			}
 		}
 
+		[Fact]
+		public async ValueTask TestAssemblyCleanupFailure()
+		{
+			var collectionStarting = new _TestAssemblyStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				AssemblyPath = "assembly-file-path"
+			};
+			var collectionCleanupFailure = new _TestAssemblyCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(collectionStarting);
+			sink.OnMessage(collectionCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Assembly Cleanup Failure (assembly-file-path)");
+		}
+
+		[Fact]
+		public async ValueTask TestCaseCleanupFailure()
+		{
+			var caseStarting = new _TestCaseStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCaseUniqueID = testCaseID,
+				TestCaseDisplayName = "MyTestCase",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethodUniqueID = methodID
+			};
+			var caseCleanupFailure = new _TestCaseCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCaseUniqueID = testCaseID,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(caseStarting);
+			sink.OnMessage(caseCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Case Cleanup Failure (MyTestCase)");
+		}
+
+		[Fact]
+		public async ValueTask TestClassCleanupFailure()
+		{
+			var classStarting = new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClass = "MyType",
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID
+			};
+			var classCleanupFailure = new _TestClassCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(classStarting);
+			sink.OnMessage(classCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Class Cleanup Failure (MyType)");
+		}
+
+		[Fact]
+		public async ValueTask TestCollectionCleanupFailure()
+		{
+			var collectionStarting = new _TestCollectionStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCollectionDisplayName = "FooBar",
+				TestCollectionUniqueID = collectionID
+			};
+			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(collectionStarting);
+			sink.OnMessage(collectionCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Collection Cleanup Failure (FooBar)");
+		}
+
+		[Fact]
+		public async ValueTask TestMethodCleanupFailure()
+		{
+			var methodStarting = new _TestMethodStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestClassUniqueID = classID,
+				TestCollectionUniqueID = collectionID,
+				TestMethod = "MyMethod",
+				TestMethodUniqueID = methodID,
+			};
+			var methodCleanupFailure = new _TestMethodCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(methodStarting);
+			sink.OnMessage(methodCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Method Cleanup Failure (MyMethod)");
+		}
+
 		[Theory]
 		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
-		public static void LogsTestFailure(IMessageSinkMessage message, string messageType)
+		public static async void LogsTestFailure(IMessageSinkMessage message, string messageType)
 		{
 			var listener = Substitute.For<ITestListener>();
-			using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
 
-			sink.OnMessageWithTypes(message, null);
+			sink.OnMessage(message);
 
-			Assert.Equal(TestRunState.Failure, sink.TestRunState);
+			AssertFailureInformation(listener, sink.TestRunState, messageType);
+		}
+
+		static void AssertFailureInformation(ITestListener listener, TestRunState testRunState, string messageType)
+		{
+			Assert.Equal(TestRunState.Failure, testRunState);
 			var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
 			Assert.Equal($"*** {messageType} ***", testResult.Name);
 			Assert.Equal(TestState.Failed, testResult.State);
@@ -168,17 +307,17 @@ public class ResultSinkTests
 	public class MessageConversion
 	{
 		[Fact]
-		public static void ConvertsITestPassed()
+		public static async void ConvertsITestPassed()
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
 			listener
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
-			using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, 42);
 			var message = Mocks.TestPassed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M);
 
-			sink.OnMessageWithTypes(message, null);
+			sink.OnMessage(message);
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);
@@ -190,7 +329,7 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static void ConvertsITestFailed()
+		public static async void ConvertsITestFailed()
 		{
 			Exception ex;
 
@@ -208,10 +347,10 @@ public class ResultSinkTests
 			listener
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
-			using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, 42);
 			var message = Mocks.TestFailed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, ex: ex);
 
-			sink.OnMessageWithTypes(message, null);
+			sink.OnMessage(message);
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);
@@ -225,17 +364,17 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static void ConvertsITestSkipped()
+		public static async void ConvertsITestSkipped()
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
 			listener
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
-			using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, 42);
 			var message = Mocks.TestSkipped(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, skipReason: "I forgot how to run");
 
-			sink.OnMessageWithTypes(message, null);
+			sink.OnMessage(message);
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);

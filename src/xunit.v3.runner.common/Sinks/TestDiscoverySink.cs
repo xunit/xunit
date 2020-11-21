@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSinkWithTypes"/> designed for test discovery for a
+	/// An implementation of <see cref="_IMessageSink"/> designed for test discovery for a
 	/// single test assembly. The <see cref="Finished"/> event is triggered when discovery is complete.
 	/// </summary>
-	public class TestDiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+	public class TestDiscoverySink : _IMessageSink, IDisposable
 	{
 		readonly Func<bool> cancelThunk;
-		readonly DiscoveryEventSink discoverySink = new DiscoveryEventSink();
 		bool disposed;
 
 		/// <summary>
@@ -24,25 +24,30 @@ namespace Xunit.Runner.Common
 		{
 			this.cancelThunk = cancelThunk ?? (() => false);
 
-			discoverySink.TestCaseDiscoveryMessageEvent += args =>
+			DiscoverySink.TestCaseDiscoveryMessageEvent += args =>
 			{
 				Guard.ArgumentNotNull(nameof(args), args);
 
 				TestCases.Add(args.Message.TestCase);
 			};
 
-			discoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
+			DiscoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
 		}
 
 		/// <summary>
-		/// The list of discovered test cases.
+		/// Gets the event sink used to record discovery messages.
 		/// </summary>
-		public List<ITestCase> TestCases { get; } = new List<ITestCase>();
+		protected DiscoveryEventSink DiscoverySink { get; } = new DiscoveryEventSink();
 
 		/// <summary>
 		/// Gets an event which is signaled once discovery is finished.
 		/// </summary>
 		public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
+
+		/// <summary>
+		/// The list of discovered test cases.
+		/// </summary>
+		public List<ITestCase> TestCases { get; } = new List<ITestCase>();
 
 		/// <inheritdoc/>
 		public void Dispose()
@@ -55,22 +60,12 @@ namespace Xunit.Runner.Common
 			Finished.Dispose();
 		}
 
-		bool IMessageSink.OnMessage(IMessageSinkMessage message)
-		{
-			Guard.ArgumentNotNull(nameof(message), message);
-
-			return OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
-		}
-
 		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			return discoverySink.OnMessageWithTypes(message, messageTypes)
-				&& !cancelThunk();
+			return DiscoverySink.OnMessage(message) && !cancelThunk();
 		}
 	}
 }

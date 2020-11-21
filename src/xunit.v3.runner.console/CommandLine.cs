@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit.Runner.SystemConsole
@@ -74,7 +75,7 @@ namespace Xunit.Runner.SystemConsole
 			if (!NoAutoReporters)
 				result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
 
-			return result ?? new DefaultRunnerReporterWithTypes();
+			return result ?? new DefaultRunnerReporter();
 		}
 
 		protected virtual string GetFullPath(string fileName) => Path.GetFullPath(fileName);

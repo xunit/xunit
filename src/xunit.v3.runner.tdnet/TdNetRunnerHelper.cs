@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.TdNet
 {
-	public class TdNetRunnerHelper : IDisposable
+	public class TdNetRunnerHelper : IAsyncDisposable
 	{
 		readonly TestAssemblyConfiguration? configuration;
 		bool disposed;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly ITestListener? testListener;
-		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 		readonly Xunit2? xunit;
 
 		/// <summary>
@@ -32,15 +36,15 @@ namespace Xunit.Runner.TdNet
 			var assemblyFileName = assembly.GetLocalCodeBase();
 			configuration = ConfigReader.Load(assemblyFileName);
 			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false);
-			toDispose.Push(xunit);
+			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, _NullSourceInformationProvider.Instance, assemblyFileName, shadowCopy: false);
+			disposalTracker.Add(xunit);
 		}
 
 		public virtual IReadOnlyList<ITestCase> Discover()
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-			return Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
+			return Discover(sink => xunit.Find(false, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
 		IReadOnlyList<ITestCase> Discover(Type? type)
@@ -50,15 +54,15 @@ namespace Xunit.Runner.TdNet
 			if (type == null)
 				return new ITestCase[0];
 
-			return Discover(sink => xunit.Find(type.FullName!, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
+			return Discover(sink => xunit.Find(type.FullName!, false, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
-		IReadOnlyList<ITestCase> Discover(Action<IMessageSinkWithTypes> discoveryAction)
+		IReadOnlyList<ITestCase> Discover(Action<_IMessageSink> discoveryAction)
 		{
 			try
 			{
 				var sink = new TestDiscoverySink();
-				toDispose.Push(sink);
+				disposalTracker.Add(sink);
 				discoveryAction(sink);
 				sink.Finished.WaitOne();
 				return sink.TestCases.ToList();
@@ -70,15 +74,14 @@ namespace Xunit.Runner.TdNet
 			}
 		}
 
-		public void Dispose()
+		public ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			foreach (var disposable in toDispose)
-				disposable.Dispose();
+			return disposalTracker.DisposeAsync();
 		}
 
 		public virtual TestRunState Run(
@@ -94,9 +97,9 @@ namespace Xunit.Runner.TdNet
 					testCases = Discover();
 
 				var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
-				toDispose.Push(resultSink);
+				disposalTracker.Add(resultSink);
 
-				var executionOptions = TestFrameworkOptions.ForExecution(configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
 				xunit.RunTests(testCases, resultSink, executionOptions);
 
 				resultSink.Finished.WaitOne();

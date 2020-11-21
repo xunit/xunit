@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
+using Xunit.Internal;
 
 namespace Xunit.Sdk
 {

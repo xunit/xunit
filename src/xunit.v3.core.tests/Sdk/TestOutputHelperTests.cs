@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TestOutputHelperTests
 {

@@ -2,6 +2,7 @@
 using TestDriven.Framework;
 using Xunit;
 using Xunit.Runner.TdNet;
+using Xunit.v3;
 
 public class XunitExtensionsTests
 {

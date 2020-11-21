@@ -4,6 +4,9 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -16,13 +19,17 @@ namespace Xunit.Sdk
 		public CulturedXunitTestCase() { }
 
 		public CulturedXunitTestCase(
-			IMessageSink diagnosticMessageSink,
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
+			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			ITestMethod testMethod,
 			string culture,
 			object?[]? testMethodArguments = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
 		{
 			Initialize(culture);
 		}
@@ -53,7 +60,7 @@ namespace Xunit.Sdk
 		}
 
 		public override async Task<RunSummary> RunAsync(
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

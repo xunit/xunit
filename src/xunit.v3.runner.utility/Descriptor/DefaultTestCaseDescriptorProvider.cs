@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -9,10 +11,10 @@ namespace Xunit
 	/// </summary>
 	public class DefaultTestCaseDescriptorProvider : ITestCaseDescriptorProvider
 	{
-		readonly ITestFrameworkDiscoverer discoverer;
+		readonly _ITestFrameworkDiscoverer discoverer;
 
 		/// <summary/>
-		public DefaultTestCaseDescriptorProvider(ITestFrameworkDiscoverer discoverer)
+		public DefaultTestCaseDescriptorProvider(_ITestFrameworkDiscoverer discoverer)
 		{
 			Guard.ArgumentNotNull(nameof(discoverer), discoverer);
 

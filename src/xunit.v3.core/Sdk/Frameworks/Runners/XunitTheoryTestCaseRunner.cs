@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -17,38 +20,46 @@ namespace Xunit.Sdk
 
 		readonly ExceptionAggregator cleanupAggregator = new ExceptionAggregator();
 		Exception? dataDiscoveryException;
+		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
-		readonly List<IDisposable> toDispose = new List<IDisposable>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTheoryTestCaseRunner"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <param name="displayName">The display name of the test case.</param>
 		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTheoryTestCaseRunner(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			IXunitTestCase testCase,
 			string displayName,
 			string? skipReason,
 			object?[] constructorArguments,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
+				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
 
 		/// <summary>
-		/// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
+		/// Gets the message sink used to report <see cref="_DiagnosticMessage"/> messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink { get; }
+		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
 		protected override async Task AfterTestCaseStartingAsync()
@@ -105,7 +116,8 @@ namespace Xunit.Sdk
 
 					foreach (var dataRow in data)
 					{
-						toDispose.AddRange(dataRow.OfType<IDisposable>());
+						foreach (var dataRowItem in dataRow)
+							disposalTracker.Add(dataRowItem);
 
 						ITypeInfo[]? resolvedTypes = null;
 						var methodToRun = TestMethod;
@@ -156,7 +168,9 @@ namespace Xunit.Sdk
 			// but save any exceptions so we can surface them during the cleanup phase,
 			// so they get properly reported as test case cleanup failures.
 			var timer = new ExecutionTimer();
-			foreach (var disposable in toDispose)
+			foreach (var asyncDisposable in disposalTracker.AsyncDisposables)
+				await timer.AggregateAsync(() => cleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
+			foreach (var disposable in disposalTracker.Disposables)
 				timer.Aggregate(() => cleanupAggregator.Run(disposable.Dispose));
 
 			runSummary.Time += timer.Total;

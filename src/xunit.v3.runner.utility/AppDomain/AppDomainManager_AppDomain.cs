@@ -8,19 +8,22 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit
 {
 	class AppDomainManager_AppDomain : IAppDomainManager
 	{
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
 
 		public AppDomainManager_AppDomain(
 			string assemblyFileName,
 			string? configFileName,
 			bool shadowCopy,
 			string? shadowCopyFolder,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 
@@ -147,7 +150,7 @@ namespace Xunit
 					thread.Start();
 
 					if (!thread.Join(TimeSpan.FromSeconds(10)))
-						diagnosticMessageSink.OnMessage(new DiagnosticMessage($"AppDomain.Unload for '{AssemblyFileName}' timed out"));
+						diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' timed out" });
 					else
 					{
 						if (cachePath != null)
@@ -163,7 +166,7 @@ namespace Xunit
 				}
 
 				if (failure != null)
-					diagnosticMessageSink.OnMessage(new DiagnosticMessage($"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}"));
+					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}" });
 			}
 		}
 

@@ -8,8 +8,9 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
-using SourceInformation = Xunit.SourceInformation;
+using Xunit.v3;
 
 public class DelegatingXmlCreationSinkTests
 {
@@ -25,12 +26,16 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void AddsAssemblyStartingInformationToXml()
 	{
-		var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-		assemblyStarting.TestAssembly.Assembly.AssemblyPath.Returns("assembly");
-		assemblyStarting.TestAssembly.ConfigFileName.Returns("config");
-		assemblyStarting.StartTime.Returns(new DateTime(2013, 7, 6, 16, 24, 32));
-		assemblyStarting.TestEnvironment.Returns("256-bit MentalFloss");
-		assemblyStarting.TestFrameworkDisplayName.Returns("xUnit.net v14.42");
+		var assemblyStarting = new _TestAssemblyStarting
+		{
+			AssemblyPath = "assembly",
+			AssemblyUniqueID = "assembly-id",
+			ConfigFilePath = "config",
+			StartTime = new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
+			TargetFramework = "MentalFloss,Version=v21.12",
+			TestEnvironment = "256-bit MentalFloss",
+			TestFrameworkDisplayName = "xUnit.net v14.42"
+		};
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
@@ -38,6 +43,7 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyStarting);
 
 		Assert.Equal("assembly", assemblyElement.Attribute("name").Value);
+		Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework").Value);
 		Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment").Value);
 		Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework").Value);
 		Assert.Equal("config", assemblyElement.Attribute("config-file").Value);
@@ -46,10 +52,16 @@ public class DelegatingXmlCreationSinkTests
 	}
 
 	[Fact]
-	public void AssemblyStartingDoesNotIncludeNullConfigFile()
+	public void AssemblyStartingDoesNotIncludeNullValues()
 	{
-		var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-		assemblyStarting.TestAssembly.ConfigFileName.Returns((string?)null);
+		var assemblyStarting = new _TestAssemblyStarting
+		{
+			AssemblyPath = "assembly",
+			AssemblyUniqueID = "assembly-id",
+			StartTime = new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
+			TestEnvironment = "256-bit MentalFloss",
+			TestFrameworkDisplayName = "xUnit.net v14.42"
+		};
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
@@ -57,6 +69,7 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyStarting);
 
 		Assert.Null(assemblyElement.Attribute("config-file"));
+		Assert.Null(assemblyElement.Attribute("target-framework"));
 	}
 
 	[CulturedFact]
@@ -68,7 +81,7 @@ public class DelegatingXmlCreationSinkTests
 		executionSummary.Time = 123.4567M;
 		executionSummary.Errors = 1;
 
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 		var errorMessage = Substitute.For<IErrorMessage>();
@@ -90,19 +103,14 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsTestCollectionElementsToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
-		var testCollection = Substitute.For<ITestCollection>();
-		testCollection.DisplayName.Returns("Collection Name");
-		var testCollectionFinished = Substitute.For<ITestCollectionFinished>();
-		testCollectionFinished.TestCollection.Returns(testCollection);
-		testCollectionFinished.TestsRun.Returns(2112);
-		testCollectionFinished.TestsFailed.Returns(42);
-		testCollectionFinished.TestsSkipped.Returns(6);
-		testCollectionFinished.ExecutionTime.Returns(123.4567M);
+		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var testCollectionStarted = Mocks.TestCollectionStarting(testCollectionDisplayName: "Collection Name", testCollectionUniqueID: "abc123");
+		var testCollectionFinished = Mocks.TestCollectionFinished(2112, 42, 6, 123.4567m, testCollectionUniqueID: "abc123");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(testCollectionStarted);
 		sink.OnMessage(testCollectionFinished);
 		sink.OnMessage(assemblyFinished);
 
@@ -118,7 +126,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsPassingTestElementToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		testCase.SourceInformation.Returns(new SourceInformation());
 		var test = Mocks.Test(testCase, "Test Display Name");
@@ -151,7 +159,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void EmptyOutputStringDoesNotShowUpInResultingXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		testCase.SourceInformation.Returns(new SourceInformation());
 		var test = Mocks.Test(testCase, "Test Display Name");
@@ -184,7 +192,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsFailingTestElementToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, "Test Display Name");
 		var testFailed = Substitute.For<ITestFailed>();
@@ -219,7 +227,7 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void NullStackTraceInFailedTestResultsInEmptyStackTraceXmlElement()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var testFailed = Substitute.For<ITestFailed>();
 		testFailed.TestCase.Returns(testCase);
@@ -242,7 +250,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsSkippedTestElementToXml()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, "Test Display Name");
 		var testSkipped = Substitute.For<ITestSkipped>();
@@ -271,7 +279,7 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void TestElementSourceInfoIsPlacedInXmlWhenPresent()
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		testCase.SourceInformation.Returns(new SourceInformation { FileName = "source file", LineNumber = 42 });
 		var testPassed = Substitute.For<ITestPassed>();
@@ -296,7 +304,7 @@ public class DelegatingXmlCreationSinkTests
 			{ "name1", new List<string> { "value1" }},
 			{ "name2", new List<string> { "value2" }}
 		};
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var passingTestCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		passingTestCase.Traits.Returns(traits);
 		var testPassed = Substitute.For<ITestPassed>();
@@ -342,7 +350,7 @@ public class DelegatingXmlCreationSinkTests
 		string inputName,
 		string outputName)
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, inputName);
 		var testSkipped = Substitute.For<ITestSkipped>();
@@ -369,10 +377,21 @@ public class DelegatingXmlCreationSinkTests
 		public void TestMethod() { }
 	}
 
+	readonly string assemblyID = "assembly-id";
+	readonly string classID = "test-class-id";
+	readonly string collectionID = "test-collection-id";
+	readonly int[] exceptionParentIndices = new[] { -1 };
+	readonly string[] exceptionTypes = new[] { "ExceptionType" };
+	readonly string[] messages = new[] { "This is my message \t\r\n" };
+	readonly string methodID = "test-method-id";
+	readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
+	readonly string testCaseID = "test-case-id";
+	//readonly string testID = "test-id";
+
 	static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 		where TMessageType : class, IFailureInformation
 	{
-		var result = Substitute.For<TMessageType>();
+		var result = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
 		result.ExceptionTypes.Returns(new[] { "ExceptionType" });
 		result.Messages.Returns(new[] { "This is my message \t\r\n" });
 		result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
@@ -385,36 +404,163 @@ public class DelegatingXmlCreationSinkTests
 		{
 			yield return new object?[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
 
-			var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
-			var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
-			assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
-			yield return new object?[] { assemblyCleanupFailure, @"assembly-cleanup", @"C:\Foo\bar.dll" };
-
-			var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
-			var testCollection = Mocks.TestCollection(displayName: "FooBar");
-			collectionCleanupFailure.TestCollection.Returns(testCollection);
-			yield return new object?[] { collectionCleanupFailure, "test-collection-cleanup", "FooBar" };
-
-			var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
-			var testClass = Mocks.TestClass("MyType");
-			classCleanupFailure.TestClass.Returns(testClass);
-			yield return new object?[] { classCleanupFailure, "test-class-cleanup", "MyType" };
-
-			var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
-			var testMethod = Mocks.TestMethod(methodName: "MyMethod");
-			methodCleanupFailure.TestMethod.Returns(testMethod);
-			yield return new object?[] { methodCleanupFailure, "test-method-cleanup", "MyMethod" };
-
-			var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
 			var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-			testCaseCleanupFailure.TestCase.Returns(testCase);
-			yield return new object?[] { testCaseCleanupFailure, "test-case-cleanup", "MyTestCase" };
-
 			var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
 			var test = Mocks.Test(testCase, "MyTest");
 			testCleanupFailure.Test.Returns(test);
 			yield return new object?[] { testCleanupFailure, "test-cleanup", "MyTest" };
 		}
+	}
+
+	[Fact]
+	public void TestAssemblyCleanupFailure()
+	{
+		var collectionStarting = new _TestAssemblyStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			AssemblyName = "assembly-name",
+			AssemblyPath = "assembly-file-path",
+			ConfigFilePath = "config-file-path",
+			StartTime = DateTimeOffset.UtcNow,
+			TargetFramework = "target-framework",
+			TestEnvironment = "test-environment",
+			TestFrameworkDisplayName = "test-framework"
+		};
+		var collectionCleanupFailure = new _TestAssemblyCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(collectionCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "assembly-cleanup", "assembly-file-path");
+	}
+
+	[Fact]
+	public void TestCaseCleanupFailure()
+	{
+		var caseStarting = new _TestCaseStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestCaseUniqueID = testCaseID,
+			TestCaseDisplayName = "MyTestCase",
+			TestClassUniqueID = classID,
+			TestCollectionUniqueID = collectionID,
+			TestMethodUniqueID = methodID
+		};
+		var caseCleanupFailure = new _TestCaseCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCaseUniqueID = testCaseID,
+			TestCollectionUniqueID = collectionID,
+			TestClassUniqueID = classID,
+			TestMethodUniqueID = methodID
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(caseCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-case-cleanup", "MyTestCase");
+	}
+
+	[Fact]
+	public void TestClassCleanupFailure()
+	{
+		var classStarting = new _TestClassStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestClass = "MyType",
+			TestClassUniqueID = classID,
+			TestCollectionUniqueID = collectionID
+		};
+		var classCleanupFailure = new _TestClassCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = collectionID,
+			TestClassUniqueID = classID
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(classStarting);
+		sink.OnMessage(classCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-class-cleanup", "MyType");
+	}
+
+	[Fact]
+	public void TestCollectionCleanupFailure()
+	{
+		var collectionStarting = new _TestCollectionStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestCollectionDisplayName = "FooBar",
+			TestCollectionUniqueID = collectionID
+		};
+		var collectionCleanupFailure = new _TestCollectionCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = collectionID
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(collectionCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-collection-cleanup", "FooBar");
+	}
+
+	[Fact]
+	public void TestMethodCleanupFailure()
+	{
+		var methodStarting = new _TestMethodStarting
+		{
+			AssemblyUniqueID = assemblyID,
+			TestClassUniqueID = classID,
+			TestCollectionUniqueID = collectionID,
+			TestMethod = "MyMethod",
+			TestMethodUniqueID = methodID,
+		};
+		var methodCleanupFailure = new _TestMethodCleanupFailure
+		{
+			AssemblyUniqueID = assemblyID,
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = collectionID,
+			TestClassUniqueID = classID,
+			TestMethodUniqueID = methodID
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(methodCleanupFailure);
+
+		AssertFailureElement(assemblyElement, "test-method-cleanup", "MyMethod");
 	}
 
 	[Theory]
@@ -424,13 +570,18 @@ public class DelegatingXmlCreationSinkTests
 		string messageType,
 		string name)
 	{
-		var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+		var assemblyFinished = Mocks.TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
 		sink.OnMessage(errorMessage);
 		sink.OnMessage(assemblyFinished);
 
+		AssertFailureElement(assemblyElement, messageType, name);
+	}
+
+	static void AssertFailureElement(XElement assemblyElement, string messageType, string name)
+	{
 		var errorElement = Assert.Single(assemblyElement.Element("errors").Elements());
 		Assert.Equal(messageType, errorElement.Attribute("type").Value);
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 public class TestAssemblyRunnerTests

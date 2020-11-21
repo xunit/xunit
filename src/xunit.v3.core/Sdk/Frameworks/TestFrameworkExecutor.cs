@@ -1,34 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// A reusable implementation of <see cref="ITestFrameworkExecutor"/> which contains the basic behavior
+	/// A reusable implementation of <see cref="_ITestFrameworkExecutor"/> which contains the basic behavior
 	/// for running tests.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 	/// derive from <see cref="ITestCase"/>.</typeparam>
-	public abstract class TestFrameworkExecutor<TTestCase> : ITestFrameworkExecutor
+	public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor, IAsyncDisposable
 		where TTestCase : ITestCase
 	{
 		IReflectionAssemblyInfo assemblyInfo;
-		IMessageSink diagnosticMessageSink;
+		_IMessageSink diagnosticMessageSink;
 		bool disposed;
-		ISourceInformationProvider sourceInformationProvider;
+		_ISourceInformationProvider sourceInformationProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkExecutor(
 			IReflectionAssemblyInfo assemblyInfo,
-			ISourceInformationProvider sourceInformationProvider,
-			IMessageSink diagnosticMessageSink)
+			_ISourceInformationProvider sourceInformationProvider,
+			_IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
 			this.sourceInformationProvider = Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
@@ -47,7 +51,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink to send diagnostic messages to.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -61,7 +65,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the source information provider.
 		/// </summary>
-		protected ISourceInformationProvider SourceInformationProvider
+		protected _ISourceInformationProvider SourceInformationProvider
 		{
 			get => sourceInformationProvider;
 			set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
@@ -72,7 +76,7 @@ namespace Xunit.Sdk
 		/// tests when the user asks to run all test.
 		/// </summary>
 		/// <returns>The test framework discoverer</returns>
-		protected abstract ITestFrameworkDiscoverer CreateDiscoverer();
+		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer();
 
 		/// <inheritdoc/>
 		public virtual ITestCase Deserialize(string value)
@@ -83,21 +87,21 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public void Dispose()
+		public virtual ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			DisposalTracker.Dispose();
+			return DisposalTracker.DisposeAsync();
 		}
 
 		/// <inheritdoc/>
-		public virtual void RunAll(
-			IMessageSink executionMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestFrameworkExecutionOptions executionOptions)
+		public virtual async void RunAll(
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
@@ -105,11 +109,12 @@ namespace Xunit.Sdk
 
 			var discoverySink = new TestDiscoveryVisitor();
 
-			using (var discoverer = CreateDiscoverer())
-			{
-				discoverer.Find(false, discoverySink, discoveryOptions);
-				discoverySink.Finished.WaitOne();
-			}
+			await using var tracker = new DisposalTracker();
+			var discoverer = CreateDiscoverer();
+			tracker.Add(discoverer);
+
+			discoverer.Find(false, discoverySink, discoveryOptions);
+			discoverySink.Finished.WaitOne();
 
 			RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
 		}
@@ -117,8 +122,8 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public virtual void RunTests(
 			IEnumerable<ITestCase> testCases,
-			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions)
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull("testCases", testCases);
 			Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
@@ -135,8 +140,8 @@ namespace Xunit.Sdk
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected abstract void RunTestCases(
 			IEnumerable<TTestCase> testCases,
-			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions
 		);
 	}
 }

@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+﻿using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Class that maps test framework execution messages to events.
 	/// </summary>
-	public class ExecutionEventSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+	public class ExecutionEventSink : _IMessageSink
 	{
 		/// <summary>
 		/// Occurs when a <see cref="IAfterTestFinished"/> message is received.
@@ -30,39 +30,39 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<IBeforeTestStarting>? BeforeTestStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestAssemblyCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestAssemblyCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
+		public event MessageHandler<_TestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestAssemblyFinished"/> message is received.
+		/// Occurs when a <see cref="_TestAssemblyFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyFinished>? TestAssemblyFinishedEvent;
+		public event MessageHandler<_TestAssemblyFinished>? TestAssemblyFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestAssemblyStarting"/> message is received.
+		/// Occurs when a <see cref="_TestAssemblyStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyStarting>? TestAssemblyStartingEvent;
+		public event MessageHandler<_TestAssemblyStarting>? TestAssemblyStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCaseCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestCaseCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCaseCleanupFailure>? TestCaseCleanupFailureEvent;
+		public event MessageHandler<_TestCaseCleanupFailure>? TestCaseCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCaseFinished"/> message is received.
+		/// Occurs when a <see cref="_TestCaseFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCaseFinished>? TestCaseFinishedEvent;
+		public event MessageHandler<_TestCaseFinished>? TestCaseFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCaseStarting"/> message is received.
+		/// Occurs when a <see cref="_TestCaseStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCaseStarting>? TestCaseStartingEvent;
+		public event MessageHandler<_TestCaseStarting>? TestCaseStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestClassCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestClassCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestClassCleanupFailure>? TestClassCleanupFailureEvent;
+		public event MessageHandler<_TestClassCleanupFailure>? TestClassCleanupFailureEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="ITestClassConstructionFinished"/> message is received.
@@ -85,14 +85,14 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestClassDisposeStarting>? TestClassDisposeStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestClassFinished"/> message is received.
+		/// Occurs when a <see cref="_TestClassFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestClassFinished>? TestClassFinishedEvent;
+		public event MessageHandler<_TestClassFinished>? TestClassFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestClassStarting"/> message is received.
+		/// Occurs when a <see cref="_TestClassStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestClassStarting>? TestClassStartingEvent;
+		public event MessageHandler<_TestClassStarting>? TestClassStartingEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="ITestCleanupFailure"/> message is received.
@@ -100,19 +100,19 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestCleanupFailure>? TestCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCollectionCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestCollectionCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCollectionCleanupFailure>? TestCollectionCleanupFailureEvent;
+		public event MessageHandler<_TestCollectionCleanupFailure>? TestCollectionCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCollectionFinished"/> message is received.
+		/// Occurs when a <see cref="_TestCollectionFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCollectionFinished>? TestCollectionFinishedEvent;
+		public event MessageHandler<_TestCollectionFinished>? TestCollectionFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCollectionStarting"/> message is received.
+		/// Occurs when a <see cref="_TestCollectionStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCollectionStarting>? TestCollectionStartingEvent;
+		public event MessageHandler<_TestCollectionStarting>? TestCollectionStartingEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="ITestFailed"/> message is received.
@@ -125,19 +125,19 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestFinished>? TestFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestMethodCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestMethodCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestMethodCleanupFailure>? TestMethodCleanupFailureEvent;
+		public event MessageHandler<_TestMethodCleanupFailure>? TestMethodCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestMethodFinished"/> message is received.
+		/// Occurs when a <see cref="_TestMethodFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestMethodFinished>? TestMethodFinishedEvent;
+		public event MessageHandler<_TestMethodFinished>? TestMethodFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestMethodStarting"/> message is received.
+		/// Occurs when a <see cref="_TestMethodStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestMethodStarting>? TestMethodStartingEvent;
+		public event MessageHandler<_TestMethodStarting>? TestMethodStartingEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="ITestOutput"/> message is received.
@@ -160,47 +160,41 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestStarting>? TestStartingEvent;
 
 		/// <inheritdoc/>
-		public void Dispose()
-		{ }
-
-		/// <inheritdoc/>
-		public bool OnMessageWithTypes(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(messageTypes, AfterTestFinishedEvent)
-				&& message.Dispatch(messageTypes, AfterTestStartingEvent)
-				&& message.Dispatch(messageTypes, BeforeTestFinishedEvent)
-				&& message.Dispatch(messageTypes, BeforeTestStartingEvent)
-				&& message.Dispatch(messageTypes, TestAssemblyCleanupFailureEvent)
-				&& message.Dispatch(messageTypes, TestAssemblyFinishedEvent)
-				&& message.Dispatch(messageTypes, TestAssemblyStartingEvent)
-				&& message.Dispatch(messageTypes, TestCaseCleanupFailureEvent)
-				&& message.Dispatch(messageTypes, TestCaseFinishedEvent)
-				&& message.Dispatch(messageTypes, TestCaseStartingEvent)
-				&& message.Dispatch(messageTypes, TestClassCleanupFailureEvent)
-				&& message.Dispatch(messageTypes, TestClassConstructionFinishedEvent)
-				&& message.Dispatch(messageTypes, TestClassConstructionStartingEvent)
-				&& message.Dispatch(messageTypes, TestClassDisposeFinishedEvent)
-				&& message.Dispatch(messageTypes, TestClassDisposeStartingEvent)
-				&& message.Dispatch(messageTypes, TestClassFinishedEvent)
-				&& message.Dispatch(messageTypes, TestClassStartingEvent)
-				&& message.Dispatch(messageTypes, TestCleanupFailureEvent)
-				&& message.Dispatch(messageTypes, TestCollectionCleanupFailureEvent)
-				&& message.Dispatch(messageTypes, TestCollectionFinishedEvent)
-				&& message.Dispatch(messageTypes, TestCollectionStartingEvent)
-				&& message.Dispatch(messageTypes, TestFailedEvent)
-				&& message.Dispatch(messageTypes, TestFinishedEvent)
-				&& message.Dispatch(messageTypes, TestMethodCleanupFailureEvent)
-				&& message.Dispatch(messageTypes, TestMethodFinishedEvent)
-				&& message.Dispatch(messageTypes, TestMethodStartingEvent)
-				&& message.Dispatch(messageTypes, TestOutputEvent)
-				&& message.Dispatch(messageTypes, TestPassedEvent)
-				&& message.Dispatch(messageTypes, TestSkippedEvent)
-				&& message.Dispatch(messageTypes, TestStartingEvent);
+				message.Dispatch(null, AfterTestFinishedEvent) &&
+				message.Dispatch(null, AfterTestStartingEvent) &&
+				message.Dispatch(null, BeforeTestFinishedEvent) &&
+				message.Dispatch(null, BeforeTestStartingEvent) &&
+				message.Dispatch(null, TestAssemblyCleanupFailureEvent) &&
+				message.Dispatch(null, TestAssemblyFinishedEvent) &&
+				message.Dispatch(null, TestAssemblyStartingEvent) &&
+				message.Dispatch(null, TestCaseCleanupFailureEvent) &&
+				message.Dispatch(null, TestCaseFinishedEvent) &&
+				message.Dispatch(null, TestCaseStartingEvent) &&
+				message.Dispatch(null, TestClassCleanupFailureEvent) &&
+				message.Dispatch(null, TestClassConstructionFinishedEvent) &&
+				message.Dispatch(null, TestClassConstructionStartingEvent) &&
+				message.Dispatch(null, TestClassDisposeFinishedEvent) &&
+				message.Dispatch(null, TestClassDisposeStartingEvent) &&
+				message.Dispatch(null, TestClassFinishedEvent) &&
+				message.Dispatch(null, TestClassStartingEvent) &&
+				message.Dispatch(null, TestCleanupFailureEvent) &&
+				message.Dispatch(null, TestCollectionCleanupFailureEvent) &&
+				message.Dispatch(null, TestCollectionFinishedEvent) &&
+				message.Dispatch(null, TestCollectionStartingEvent) &&
+				message.Dispatch(null, TestFailedEvent) &&
+				message.Dispatch(null, TestFinishedEvent) &&
+				message.Dispatch(null, TestMethodCleanupFailureEvent) &&
+				message.Dispatch(null, TestMethodFinishedEvent) &&
+				message.Dispatch(null, TestMethodStartingEvent) &&
+				message.Dispatch(null, TestOutputEvent) &&
+				message.Dispatch(null, TestPassedEvent) &&
+				message.Dispatch(null, TestSkippedEvent) &&
+				message.Dispatch(null, TestStartingEvent);
 		}
 	}
 }

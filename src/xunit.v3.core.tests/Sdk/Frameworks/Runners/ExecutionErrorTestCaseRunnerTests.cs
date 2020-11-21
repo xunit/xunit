@@ -3,6 +3,7 @@ using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ExecutionErrorTestCaseRunnerTests : IDisposable
 {
@@ -20,7 +21,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	public async void Messages()
 	{
 		var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
-		var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
+		var runner = new ExecutionErrorTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource);
 
 		var result = await runner.RunAsync();
 
@@ -28,12 +29,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg =>
-			{
-				var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, testCaseStarting.TestCollection);
-				Assert.Same(testCase, testCaseStarting.TestCase);
-			},
+			msg => Assert.IsAssignableFrom<_TestCaseStarting>(msg),
 			msg =>
 			{
 				var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
@@ -60,9 +56,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 			},
 			msg =>
 			{
-				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, testCaseFinished.TestCollection);
-				Assert.Same(testCase, testCaseFinished.TestCase);
+				var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(msg);
 				Assert.Equal(0m, testCaseFinished.ExecutionTime);
 				Assert.Equal(1, testCaseFinished.TestsRun);
 				Assert.Equal(1, testCaseFinished.TestsFailed);
@@ -79,7 +73,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	{
 		var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !(messageTypeToCancelOn.IsAssignableFrom(msg.GetType())));
-		var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
+		var runner = new ExecutionErrorTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource);
 
 		await runner.RunAsync();
 

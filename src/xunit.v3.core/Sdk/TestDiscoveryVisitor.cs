@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
-	class TestDiscoveryVisitor : IMessageSink, IDisposable
+	class TestDiscoveryVisitor : _IMessageSink, IDisposable
 	{
 		bool disposed;
 
@@ -36,7 +37,7 @@ namespace Xunit.Sdk
 			if (message is ITestCaseDiscoveryMessage discoveryMessage)
 				TestCases.Add(discoveryMessage.TestCase);
 
-			if (message is IDiscoveryCompleteMessage)
+			if (message is _DiscoveryComplete)
 				Finished.Set();
 
 			return true;

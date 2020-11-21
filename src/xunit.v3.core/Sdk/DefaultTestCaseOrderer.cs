@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -12,13 +14,13 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class DefaultTestCaseOrderer : ITestCaseOrderer
 	{
-		readonly IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink diagnosticMessageSink;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultTestCaseOrderer"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public DefaultTestCaseOrderer(IMessageSink diagnosticMessageSink)
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		public DefaultTestCaseOrderer(_IMessageSink diagnosticMessageSink)
 		{
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
@@ -35,7 +37,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{Environment.NewLine}{ex}"));
+				diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{Environment.NewLine}{ex}" });
 				result = Randomize(result);
 			}
 

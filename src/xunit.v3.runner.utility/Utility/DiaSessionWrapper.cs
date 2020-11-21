@@ -3,7 +3,8 @@
 #if NETFRAMEWORK
 
 using System;
-using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -18,7 +19,7 @@ namespace Xunit
 
 		public DiaSessionWrapper(
 			string assemblyFilename,
-			IMessageSink diagnosticMessageSink)
+			_IMessageSink diagnosticMessageSink)
 		{
 			session = new DiaSession(assemblyFilename);
 

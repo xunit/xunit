@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -19,7 +21,7 @@ namespace Xunit.Sdk
 		{
 			Guard.ArgumentNotNull(nameof(member), member);
 
-			var messageSink = new NullMessageSink();
+			var messageSink = new _NullMessageSink();
 			var result = new List<KeyValuePair<string, string>>();
 
 			foreach (var traitAttributeData in member.CustomAttributes)

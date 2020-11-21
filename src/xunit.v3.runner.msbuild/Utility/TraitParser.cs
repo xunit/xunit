@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xunit.Internal;
 
 namespace Xunit.Runner.MSBuild
 {

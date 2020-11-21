@@ -3,34 +3,42 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// A base implementation of <see cref="ITestFrameworkDiscoverer"/> that supports test filtering
+	/// A base implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports test filtering
 	/// and runs the discovery process on a thread pool thread.
 	/// </summary>
-	public abstract class TestFrameworkDiscoverer : ITestFrameworkDiscoverer
+	public abstract class TestFrameworkDiscoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
 	{
 		IAssemblyInfo assemblyInfo;
-		IMessageSink diagnosticMessageSink;
+		string? configFileName;
+		_IMessageSink diagnosticMessageSink;
 		bool disposed;
-		ISourceInformationProvider sourceProvider;
+		_ISourceInformationProvider sourceProvider;
 		readonly Lazy<string> targetFramework;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkDiscoverer"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
+		/// <param name="configFileName">The configuration filename.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
-			ISourceInformationProvider sourceProvider,
-			IMessageSink diagnosticMessageSink)
+			string? configFileName,
+			_ISourceInformationProvider sourceProvider,
+			_IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+			this.configFileName = configFileName;
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			this.sourceProvider = Guard.ArgumentNotNull(nameof(sourceProvider), sourceProvider);
 
@@ -58,7 +66,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the message sink used to report diagnostic messages.
 		/// </summary>
-		protected IMessageSink DiagnosticMessageSink
+		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
 			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
@@ -72,11 +80,16 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Get the source code information provider used during discovery.
 		/// </summary>
-		protected ISourceInformationProvider SourceProvider
+		protected _ISourceInformationProvider SourceProvider
 		{
 			get => sourceProvider;
 			set => sourceProvider = Guard.ArgumentNotNull(nameof(SourceProvider), value);
 		}
+
+		/// <summary>
+		/// Gets the unique ID for the test assembly under test.
+		/// </summary>
+		public abstract string TestAssemblyUniqueID { get; }
 
 		/// <inheritdoc/>
 		public string TargetFramework => targetFramework.Value;
@@ -92,21 +105,21 @@ namespace Xunit.Sdk
 		protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
 
 		/// <inheritdoc/>
-		public void Dispose()
+		public virtual ValueTask DisposeAsync()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
 
 			disposed = true;
 
-			DisposalTracker.Dispose();
+			return DisposalTracker.DisposeAsync();
 		}
 
 		/// <inheritdoc/>
 		public void Find(
 			bool includeSourceInformation,
-			IMessageSink discoveryMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_IMessageSink discoveryMessageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
@@ -116,6 +129,15 @@ namespace Xunit.Sdk
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
 				{
+					var discoveryStarting = new _DiscoveryStarting
+					{
+						AssemblyName = AssemblyInfo.Name,
+						AssemblyPath = AssemblyInfo.AssemblyPath,
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ConfigFilePath = configFileName
+					};
+					messageBus.QueueMessage(discoveryStarting);
+
 					foreach (var type in AssemblyInfo.GetTypes(false).Where(IsValidTestClass))
 					{
 						var testClass = CreateTestClass(type);
@@ -123,14 +145,15 @@ namespace Xunit.Sdk
 							break;
 					}
 
-					messageBus.QueueMessage(new DiscoveryCompleteMessage());
+					var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
+					messageBus.QueueMessage(discoveryComplete);
 				}
 			});
 		}
 
 		static IMessageBus CreateMessageBus(
-			IMessageSink messageSink,
-			ITestFrameworkDiscoveryOptions options)
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions options)
 		{
 			if (options.SynchronousMessageReportingOrDefault())
 				return new SynchronousMessageBus(messageSink);
@@ -142,8 +165,8 @@ namespace Xunit.Sdk
 		public void Find(
 			string typeName,
 			bool includeSourceInformation,
-			IMessageSink discoveryMessageSink,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_IMessageSink discoveryMessageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNullOrEmpty("typeName", typeName);
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
@@ -154,6 +177,15 @@ namespace Xunit.Sdk
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
 				{
+					var discoveryStarting = new _DiscoveryStarting
+					{
+						AssemblyName = AssemblyInfo.Name,
+						AssemblyPath = AssemblyInfo.AssemblyPath,
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ConfigFilePath = configFileName
+					};
+					messageBus.QueueMessage(discoveryStarting);
+
 					var typeInfo = AssemblyInfo.GetType(typeName);
 					if (typeInfo != null && IsValidTestClass(typeInfo))
 					{
@@ -161,7 +193,8 @@ namespace Xunit.Sdk
 						FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus, discoveryOptions);
 					}
 
-					messageBus.QueueMessage(new DiscoveryCompleteMessage());
+					var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
+					messageBus.QueueMessage(discoveryComplete);
 				}
 			});
 		}
@@ -169,31 +202,37 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Core implementation to discover unit tests in a given test class.
 		/// </summary>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testClass">The test class.</param>
 		/// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
 		/// <param name="messageBus">The message sink to send discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
 		protected abstract bool FindTestsForType(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions
+			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
 		bool FindTestsForTypeAndWrapExceptions(
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			try
 			{
-				return FindTestsForType(testClass, includeSourceInformation, messageBus, discoveryOptions);
+				var testCollectionUniqueID = FactDiscoverer.ComputeUniqueID(TestAssemblyUniqueID, testClass.TestCollection);
+				var testClassUniqueID = FactDiscoverer.ComputeUniqueID(testCollectionUniqueID, testClass);
+				return FindTestsForType(testCollectionUniqueID, testClassUniqueID, testClass, includeSourceInformation, messageBus, discoveryOptions);
 			}
 			catch (Exception ex)
 			{
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception during discovery:{Environment.NewLine}{ex}"));
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception during discovery:{Environment.NewLine}{ex}" });
 				return true; // Keep going on to the next type
 			}
 		}
@@ -231,7 +270,10 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 
 			if (includeSourceInformation && SourceProvider != null && IsEmpty(testCase.SourceInformation))
-				testCase.SourceInformation = SourceProvider.GetSourceInformation(testCase);
+			{
+				var result = SourceProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+				testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+			}
 
 			return messageBus.QueueMessage(new TestCaseDiscoveryMessage(testCase));
 		}

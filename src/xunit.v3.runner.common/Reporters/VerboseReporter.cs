@@ -1,4 +1,4 @@
-﻿using Xunit.Abstractions;
+﻿using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -8,17 +8,17 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class VerboseReporter : IRunnerReporter
 	{
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string Description => "show verbose progress messages";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled => false;
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string RunnerSwitch => "verbose";
 
-		/// <inheritdoc />
-		public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
+		/// <inheritdoc/>
+		public _IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
 			new VerboseReporterMessageHandler(logger);
 	}
 }

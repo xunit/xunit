@@ -7,6 +7,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class XunitTheoryTestCaseRunnerTests
 {
@@ -203,9 +204,9 @@ public class XunitTheoryTestCaseRunnerTests
 		TestableXunitTheoryTestCaseRunner(
 			IXunitTestCase testCase,
 			string displayName,
-			IMessageSink diagnosticMessageSink,
+			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus)
-				: base(testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
+				: base("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
 		{ }
 
 		public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(

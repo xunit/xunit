@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
-    <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Internal\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Internal\Guard.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Internal\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Internal\NewReflectionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\v2\SerializationHelper.cs" LinkBase="Common\v2" />
+    <Compile Include="..\xunit.v3.common\v2\XunitSerializationInfo.cs" LinkBase="Common\v2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
     <PackageReference Include="xunit.assert" Version="2.4.1" />
     <PackageReference Include="xunit.core" Version="2.4.1" />
     <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

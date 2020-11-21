@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
 
 namespace Xunit.Sdk
 {

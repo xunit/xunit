@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -22,8 +24,10 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="CollectionPerAssemblyTestCollectionFactory" /> class.
 		/// </summary>
 		/// <param name="testAssembly">The assembly.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
-		public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly, IMessageSink diagnosticMessageSink)
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		public CollectionPerAssemblyTestCollectionFactory(
+			ITestAssembly testAssembly,
+			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 

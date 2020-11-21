@@ -2,6 +2,7 @@
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.Serialization;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;

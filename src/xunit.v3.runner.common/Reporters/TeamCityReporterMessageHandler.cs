@@ -1,17 +1,19 @@
 using System;
 using System.Text;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that
-	/// supports <see cref="TeamCityReporter" />.
+	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="TeamCityReporter" />.
 	/// </summary>
 	public class TeamCityReporterMessageHandler : FlowMappedTestMessageSink
 	{
 		readonly TeamCityDisplayNameFormatter displayNameFormatter;
 		readonly IRunnerLogger logger;
+		MessageMetadataCache metadataCache = new MessageMetadataCache();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TeamCityReporterMessageHandler" /> class.
@@ -34,14 +36,27 @@ namespace Xunit.Runner.Common
 			Diagnostics.ErrorMessageEvent += HandleErrorMessage;
 
 			Execution.TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+			Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
+			Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
+
 			Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
-			Execution.TestClassCleanupFailureEvent += HandleTestCaseCleanupFailure;
+			Execution.TestCaseFinishedEvent += HandleTestCaseFinished;
+			Execution.TestCaseStartingEvent += HandleTestCaseStarting;
+
+			Execution.TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+			Execution.TestClassFinishedEvent += HandleTestClassFinished;
+			Execution.TestClassStartingEvent += HandleTestClassStarting;
+
 			Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
 			Execution.TestCollectionFinishedEvent += HandleTestCollectionFinished;
 			Execution.TestCollectionStartingEvent += HandleTestCollectionStarting;
+
+			Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+			Execution.TestMethodFinishedEvent += HandleTestMethodFinished;
+			Execution.TestMethodStartingEvent += HandleTestMethodStarting;
+
 			Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
 			Execution.TestFailedEvent += HandleTestFailed;
-			Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
 			Execution.TestStartingEvent += HandleTestStarting;
@@ -59,69 +74,152 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestAssemblyCleanupFailure" />.
+		/// Handles instances of <see cref="_TestAssemblyCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
+		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
+			var metadata = metadataCache.TryGet(cleanupFailure);
+			if (metadata != null)
+				LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", cleanupFailure);
+			else
+				LogError("Test Assembly Cleanup Failure (<unknown test assembly>)", cleanupFailure);
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCaseCleanupFailure" />.
+		/// Handles instances of <see cref="_TestAssemblyFinished" />.
 		/// </summary>
-		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
+		protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestAssemblyStarting" />.
+		/// </summary>
+		protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestCaseCleanupFailure" />.
+		/// </summary>
+		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Case Cleanup Failure ({metadata.TestCaseDisplayName})", cleanupFailure);
+			else
+				LogError("Test Case Cleanup Failure (<unknown test case>)", cleanupFailure);
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestClassCleanupFailure" />.
+		/// Handles instances of <see cref="_TestCaseFinished" />.
 		/// </summary>
-		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
+		protected virtual void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestCaseStarting" />.
+		/// </summary>
+		protected virtual void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestClassCleanupFailure" />.
+		/// </summary>
+		protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
+			var metadata = metadataCache.TryGet(cleanupFailure);
+			if (metadata != null)
+				LogError($"Test Class Cleanup Failure ({metadata.TestClass})", cleanupFailure);
+			else
+				LogError("Test Class Cleanup Failure (<unknown test class>)", cleanupFailure);
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCollectionCleanupFailure" />.
+		/// Handles instances of <see cref="_TestClassFinished" />.
 		/// </summary>
-		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
+		protected virtual void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestClassStarting" />.
+		/// </summary>
+		protected virtual void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestCollectionCleanupFailure" />.
+		/// </summary>
+		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
+			var metadata = metadataCache.TryGet(cleanupFailure);
+			if (metadata != null)
+				LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", cleanupFailure);
+			else
+				LogError($"Test Collection Cleanup Failure (<unknown test collection>)", cleanupFailure);
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCollectionFinished" />.
+		/// Handles instances of <see cref="_TestCollectionFinished" />.
 		/// </summary>
-		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
+		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionFinished = args.Message;
-			logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{Escape(displayNameFormatter.DisplayName(testCollectionFinished.TestCollection))}' flowId='{ToFlowId(testCollectionFinished.TestCollection.DisplayName)}']");
+			var metadata = metadataCache.TryRemove(testCollectionFinished);
+			if (metadata != null)
+				logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{metadata.TestCollectionDisplayName} ({testCollectionFinished.TestCollectionUniqueID})' flowId='{testCollectionFinished.TestCollectionUniqueID}']");
+			else
+				// TODO: Can we still report testSuiteFinished with an incorrect name, if the flow ID is correct?
+				logger.LogImportantMessage($"##teamcity[message status='ERROR' text='Tried to report a completed test collection that was never reported as starting']");
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCollectionStarting" />.
+		/// Handles instances of <see cref="_TestCollectionStarting" />.
 		/// </summary>
-		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
+		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testCollectionStarting = args.Message;
-			logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{Escape(displayNameFormatter.DisplayName(testCollectionStarting.TestCollection))}' flowId='{ToFlowId(testCollectionStarting.TestCollection.DisplayName)}']");
+			metadataCache.Set(testCollectionStarting);
+
+			logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{testCollectionStarting.TestCollectionDisplayName} ({testCollectionStarting.TestCollectionUniqueID})' flowId='{testCollectionStarting.TestCollectionUniqueID}']");
 		}
 
 		/// <summary>
@@ -148,14 +246,38 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestMethodCleanupFailure" />.
+		/// Handles instances of <see cref="_TestMethodCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
+		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
-			LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
+			var metadata = metadataCache.TryGet(args.Message);
+			if (metadata != null)
+				LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
+			else
+				LogError("Test Method Cleanup Failure (<unknown test method>)", cleanupFailure);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestMethodFinished" />.
+		/// </summary>
+		protected virtual void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.TryRemove(args.Message);
+		}
+
+		/// <summary>
+		/// Handles instances of <see cref="_TestMethodStarting" />.
+		/// </summary>
+		protected virtual void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
+		{
+			Guard.ArgumentNotNull(nameof(args), args);
+
+			metadataCache.Set(args.Message);
 		}
 
 		/// <summary>

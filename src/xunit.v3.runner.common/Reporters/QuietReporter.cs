@@ -1,4 +1,4 @@
-﻿using Xunit.Abstractions;
+﻿using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -7,17 +7,17 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class QuietReporter : IRunnerReporter
 	{
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string Description => "do not show progress messages";
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled => false;
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public string RunnerSwitch => "quiet";
 
-		/// <inheritdoc />
-		public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
+		/// <inheritdoc/>
+		public _IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
 			new QuietReporterMessageHandler(logger);
 	}
 }

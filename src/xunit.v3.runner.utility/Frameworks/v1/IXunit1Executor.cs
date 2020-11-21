@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.UI;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// Represents a wrapper around the Executor class from xUnit.net v1.

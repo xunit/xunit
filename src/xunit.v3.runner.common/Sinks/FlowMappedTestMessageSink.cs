@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common
 {

@@ -1,12 +1,14 @@
 ﻿using System;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Logs diagnostic messages to the system console.
 	/// </summary>
-	public class ConsoleDiagnosticMessageSink : MarshalByRefObject, IMessageSink
+	public class ConsoleDiagnosticMessageSink : _IMessageSink
 	{
 		readonly string assemblyDisplayName;
 		readonly object consoleLock;
@@ -58,12 +60,12 @@ namespace Xunit.Runner.Common
 			bool noColor) =>
 				new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
-		/// <inheritdoc />
+		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			if (showDiagnostics && message is IDiagnosticMessage diagnosticMessage)
+			if (showDiagnostics && message is _DiagnosticMessage diagnosticMessage)
 			{
 				lock (consoleLock)
 				{
@@ -79,16 +81,5 @@ namespace Xunit.Runner.Common
 
 			return true;
 		}
-
-#if NETFRAMEWORK
-#nullable disable  // The original signature is not compatibility with nullable reference type support
-		/// <inheritdoc />
-		[System.Security.SecurityCritical]
-		public override sealed object InitializeLifetimeService()
-		{
-			return null;
-		}
-#nullable enable
-#endif
 	}
 }

@@ -9,6 +9,6 @@ namespace Xunit
 	public interface ITestCaseBulkDeserializer
 	{
 		/// <summary/>
-		List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations);
+		List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations);
 	}
 }

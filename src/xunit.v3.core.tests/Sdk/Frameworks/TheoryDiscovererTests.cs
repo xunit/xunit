@@ -8,10 +8,11 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TheoryDiscovererTests : AcceptanceTestV3
 {
-	readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestFrameworkOptions.ForDiscovery();
+	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
 
 	[Fact]
 	public async void NoDataAttributes()
@@ -160,7 +161,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
 		Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", theoryTestCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
-		var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
 	}
 
@@ -206,7 +207,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
 		Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", theoryTestCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
-		var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 		Assert.Equal("Non-serializable data ('System.Object[]') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
 	}
 
@@ -385,6 +386,46 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[InlineData(42)]
 		[InlineData(2112)]
 		public void TestMethod(int value) { }
+	}
+
+	[Fact]
+	public void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod(typeof(ClassWithExplicitConvertedData), "ParameterDeclaredExplicitConversion");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		var testCase = Assert.Single(testCases);
+		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion", theoryTestCase.DisplayName);
+	}
+
+	class ClassWithExplicitConvertedData
+	{
+		// Explicit conversion defined on the parameter's type
+		[Theory]
+		[InlineData("abc")]
+		public void ParameterDeclaredExplicitConversion(Explicit e)
+		{
+			Assert.Equal("abc", e.Value);
+		}
+
+		public class Explicit
+		{
+			public string? Value { get; set; }
+
+			public static explicit operator Explicit(string value)
+			{
+				return new Explicit() { Value = value };
+			}
+
+			public static explicit operator string?(Explicit e)
+			{
+				return e.Value;
+			}
+		}
 	}
 
 	class TestableTheoryDiscoverer : TheoryDiscoverer

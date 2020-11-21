@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -26,20 +29,21 @@ namespace Xunit.Sdk
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/> messages.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
 		public XunitTestFrameworkDiscoverer(
 			IAssemblyInfo assemblyInfo,
 			string? configFileName,
-			ISourceInformationProvider sourceProvider,
-			IMessageSink diagnosticMessageSink,
+			_ISourceInformationProvider sourceProvider,
+			_IMessageSink diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory = null)
-				: base(assemblyInfo, sourceProvider, diagnosticMessageSink)
+				: base(assemblyInfo, configFileName, sourceProvider, diagnosticMessageSink)
 		{
 			var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
 			var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
 			var testAssembly = new TestAssembly(assemblyInfo, configFileName);
+			TestAssemblyUniqueID = FactDiscoverer.ComputeUniqueID(testAssembly);
 
 			TestCollectionFactory =
 				collectionFactory
@@ -55,6 +59,9 @@ namespace Xunit.Sdk
 		/// discoverer type, if known; <c>null</c> if not.
 		/// </summary>
 		protected Dictionary<Type, Type?> DiscovererTypeCache { get; } = new Dictionary<Type, Type?>();
+
+		/// <inheritdoc/>
+		public override string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets the test collection factory that makes test collections.
@@ -82,22 +89,27 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Finds the tests on a test method.
 		/// </summary>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethod">The test method.</param>
 		/// <param name="includeSourceInformation">Set to <c>true</c> to indicate that source information should be included.</param>
 		/// <param name="messageBus">The message bus to report discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
 		protected internal virtual bool FindTestsForMethod(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestMethod testMethod,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
 			{
+				var testMethodUniqueID = FactDiscoverer.ComputeUniqueID(testClassUniqueID, testMethod);
 				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
-				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
+				var testCase = new ExecutionErrorTestCase(TestAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
 				return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 			}
 
@@ -134,15 +146,17 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		protected override bool FindTestsForType(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
 			ITestClass testClass,
 			bool includeSourceInformation,
 			IMessageBus messageBus,
-			ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			foreach (var method in testClass.Class.GetMethods(true))
 			{
 				var testMethod = new TestMethod(testClass, method);
-				if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus, discoveryOptions))
+				if (!FindTestsForMethod(testCollectionUniqueID, testClassUniqueID, testMethod, includeSourceInformation, messageBus, discoveryOptions))
 					return false;
 			}
 
@@ -164,7 +178,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}" });
 				return null;
 			}
 		}

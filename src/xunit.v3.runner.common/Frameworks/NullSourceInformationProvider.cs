@@ -1,5 +1,5 @@
 ﻿using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Runner.v2;
 
 namespace Xunit.Runner.Common
 {
