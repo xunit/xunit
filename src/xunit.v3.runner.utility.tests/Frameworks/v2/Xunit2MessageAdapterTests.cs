@@ -16,12 +16,12 @@ public class Xunit2MessageAdapterTests
 	static readonly string TestAssemblyUniqueID;
 	static readonly ITestCase TestCase;
 	static readonly string TestCaseUniqueID;
-	static readonly ITestCollection TestCollection;
-	static readonly ITypeInfo TestCollectionDefinition;
-	static readonly string TestCollectionUniqueID;
 	static readonly ITestClass TestClass;
 	static readonly ITypeInfo TestClassType;
 	static readonly string? TestClassUniqueID;
+	static readonly ITestCollection TestCollection;
+	static readonly ITypeInfo TestCollectionDefinition;
+	static readonly string TestCollectionUniqueID;
 	static readonly ITestMethod TestMethod;
 	static readonly string? TestMethodUniqueID;
 	static readonly Exception ThrownException;
