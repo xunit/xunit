@@ -34,6 +34,8 @@ jobs:
     steps:
       - name: Clone source
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
