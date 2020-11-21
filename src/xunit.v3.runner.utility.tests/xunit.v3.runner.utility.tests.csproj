@@ -20,13 +20,13 @@
   <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <ItemGroup>
       <!-- xUnit.net v1 -->
-      <XunitBinaries Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.dll" />
-      <XunitBinaries Include="$(NuGetPackageRoot)xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit\1.9.2\lib\net20\xunit.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" />
       <!-- xUnit.net v2 -->
-      <XunitBinaries Include="$(NuGetPackageRoot)xunit.abstractions\2.0.3\lib\net35\xunit.abstractions.dll" />
-      <XunitBinaries Include="$(NuGetPackageRoot)xunit.assert\2.4.1\lib\netstandard1.1\xunit.assert.dll" />
-      <XunitBinaries Include="$(NuGetPackageRoot)xunit.extensibility.core\2.4.1\lib\net452\xunit.core.dll" />
-      <XunitBinaries Include="$(NuGetPackageRoot)xunit.extensibility.execution\2.4.1\lib\net452\xunit.execution.desktop.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.abstractions\2.0.3\lib\net35\xunit.abstractions.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.assert\2.4.1\lib\netstandard1.1\xunit.assert.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.core\2.4.1\lib\net452\xunit.core.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.execution\2.4.1\lib\net452\xunit.execution.desktop.dll" />
       <!-- Mono doesn't seem to properly find this facade, so copy it from our reference -->
       <XunitBinaries Include="$(TargetFrameworkRootPath).NETFramework\$(TargetFrameworkVersion)\Facades\System.Runtime.dll" />
     </ItemGroup>
