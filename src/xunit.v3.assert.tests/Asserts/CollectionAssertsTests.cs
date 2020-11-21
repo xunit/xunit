@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
@@ -81,6 +82,100 @@ public class CollectionAssertsTests
 		}
 	}
 
+#if XUNIT_VALUETASK
+	public class AllAsync
+	{
+		[Fact]
+		public static async ValueTask NullCollectionThrows()
+		{
+			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
+		}
+
+		[Fact]
+		public static async ValueTask NullActionThrows()
+		{
+			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(new object[0], (Func<object, ValueTask>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(new object[0], (Func<object, int, ValueTask>)null!));
+		}
+
+		[Fact]
+		public static async ValueTask ActionWhereSomeFail()
+		{
+			var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+			var ex = await Assert.ThrowsAsync<AllException>(() => Assert.AllAsync(items, async x =>
+			{
+				await Task.Yield();
+				Assert.Equal(1, x);
+			}));
+
+			Assert.Equal(2, ex.Failures.Count);
+			Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+		}
+
+		[Fact]
+		public static async ValueTask ActionWhereNoneFail()
+		{
+			var items = new[] { 1, 1, 1, 1, 1, 1 };
+
+			var ex = await Record.ExceptionAsync(() => Assert.AllAsync(items, async x =>
+			{
+				await Task.Yield();
+				Assert.Equal(1, x);
+			}));
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static async ValueTask ActionWhereAllFail()
+		{
+			var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+			var ex = await Assert.ThrowsAsync<AllException>(() => Assert.AllAsync(items, async x =>
+			{
+				await Task.Yield();
+				Assert.Equal(0, x);
+			}));
+
+			Assert.Equal(6, ex.Failures.Count);
+			Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+		}
+
+		[Fact]
+		public static async ValueTask ActionCanReceiveIndex()
+		{
+			var items = new[] { 1, 1, 2, 2, 1, 1 };
+			var indices = new List<int>();
+
+			await Assert.AllAsync(items, async (x, idx) =>
+			{
+				await Task.Yield();
+				indices.Add(idx);
+			});
+
+			Assert.Equal(new[] { 0, 1, 2, 3, 4, 5 }, indices);
+		}
+
+		[Fact]
+		public static async ValueTask CollectionWithNullThrowsAllException()
+		{
+			var collection = new object?[]
+			{
+				new object(),
+				null
+			};
+
+			var ex = await Assert.ThrowsAsync<AllException>(() => Assert.AllAsync(collection, async x =>
+			{
+				await Task.Yield();
+				Assert.NotNull(x);
+			}));
+			Assert.Contains("[1]: Item: ", ex.Message);
+		}
+	}
+#endif
+
 	public class Collection
 	{
 		[Fact]
@@ -151,6 +246,95 @@ public class CollectionAssertsTests
 			);
 		}
 	}
+
+#if XUNIT_VALUETASK
+	public class CollectionAsync
+	{
+		[Fact]
+		public static async ValueTask EmptyCollection()
+		{
+			var list = new List<int>();
+
+			await Assert.CollectionAsync(list);
+		}
+
+		[Fact]
+		public static async ValueTask MismatchedElementCountAsync()
+		{
+			var list = new List<int>();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.CollectionAsync(list,
+					async item => await Task.Yield()
+				)
+			);
+
+			var collEx = Assert.IsType<CollectionException>(ex);
+			Assert.Equal(1, collEx.ExpectedCount);
+			Assert.Equal(0, collEx.ActualCount);
+			Assert.Equal(
+				"Assert.Collection() Failure" + Environment.NewLine +
+				"Collection: []" + Environment.NewLine +
+				"Expected item count: 1" + Environment.NewLine +
+				"Actual item count:   0",
+				collEx.Message
+			);
+			Assert.Null(collEx.InnerException);
+		}
+
+		[Fact]
+		public static async ValueTask NonEmptyCollectionAsync()
+		{
+			var list = new List<int> { 42, 2112 };
+
+			await Assert.CollectionAsync(list,
+				async item =>
+				{
+					await Task.Yield();
+					Assert.Equal(42, item);
+				},
+				async item =>
+				{
+					await Task.Yield();
+					Assert.Equal(2112, item);
+				}
+			);
+		}
+
+		[Fact]
+		public static async ValueTask MismatchedElementAsync()
+		{
+			var list = new List<int> { 42, 2112 };
+
+			var ex = await Record.ExceptionAsync(() =>
+				 Assert.CollectionAsync(list,
+				 async item =>
+				 {
+					 await Task.Yield();
+					 Assert.Equal(42, item);
+				 },
+				 async item =>
+				 {
+					 await Task.Yield();
+					 Assert.Equal(2113, item);
+				 }
+				 )
+			);
+
+			var collEx = Assert.IsType<CollectionException>(ex);
+			Assert.Equal(1, collEx.IndexFailurePoint);
+			Assert.Equal(
+				"Assert.Collection() Failure" + Environment.NewLine +
+				"Collection: [42, 2112]" + Environment.NewLine +
+				"Error during comparison of item at index 1" + Environment.NewLine +
+				"Inner exception: Assert.Equal() Failure" + Environment.NewLine +
+				"        Expected: 2113" + Environment.NewLine +
+				"        Actual:   2112",
+				ex.Message
+			);
+		}
+	}
+#endif
 
 	public class Contains
 	{
