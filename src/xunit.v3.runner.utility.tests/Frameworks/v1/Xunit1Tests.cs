@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Web.UI;
 using NSubstitute;
@@ -15,17 +17,29 @@ using Xunit.v3;
 
 public class Xunit1Tests
 {
+	static readonly string OsSpecificAssemblyPath;
+
+	static Xunit1Tests()
+	{
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			OsSpecificAssemblyPath = @"C:\Users\bradwilson\assembly.dll";
+		else
+			OsSpecificAssemblyPath = "/home/bradwilson/assembly.dll";
+	}
+
 	public class Constructor
 	{
 		[Fact]
 		public void UsesConstructorArgumentsToCreateExecutor()
 		{
-			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config", shadowCopy: true, shadowCopyFolder: @"C:\Path");
+			var folder = Path.GetDirectoryName(OsSpecificAssemblyPath);
+
+			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config", shadowCopy: true, shadowCopyFolder: folder);
 
 			Assert.Equal("AssemblyName.dll", xunit1.Executor_TestAssemblyFileName);
 			Assert.Equal("ConfigFile.config", xunit1.Executor_ConfigFileName);
 			Assert.True(xunit1.Executor_ShadowCopy);
-			Assert.Equal(@"C:\Path", xunit1.Executor_ShadowCopyFolder);
+			Assert.Equal(folder, xunit1.Executor_ShadowCopyFolder);
 		}
 	}
 
@@ -880,7 +894,7 @@ public class AmbiguouslyNamedTestMethods
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null,
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
-				: this(appDomainSupport, assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<_ISourceInformationProvider>())
+				: this(appDomainSupport, assemblyFileName ?? OsSpecificAssemblyPath, configFileName, shadowCopy, shadowCopyFolder, Substitute.For<_ISourceInformationProvider>())
 		{ }
 
 		TestableXunit1(
