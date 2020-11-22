@@ -345,6 +345,7 @@ namespace Xunit
 			{
 				var collectionFinished = new _TestCollectionFinished
 				{
+					AssemblyUniqueID = assemblyUniqueID,
 					ExecutionTime = results.Time,
 					TestCollectionUniqueID = collectionStarting.TestCollectionUniqueID,
 					TestsFailed = results.Failed,

@@ -340,7 +340,7 @@ public class Xunit1Tests
 					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testStarting.TestCollectionUniqueID);
 					Assert.Equal("type1.passing", testStarting.TestDisplayName);
 					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testStarting.TestMethodUniqueID);
-					Assert.Equal("fac6e4ecf3efd5375f42b21767acc145d7ef19f189119d9facb629edcab7bf66", testStarting.TestUniqueID);
+					Assert.Equal("cdde74103fa02540cecac511aae36d1204c3e1de30e7c58b4471e0d5d08407a1", testStarting.TestUniqueID);
 				},
 				message =>
 				{
@@ -352,7 +352,7 @@ public class Xunit1Tests
 					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testPassed.TestClassUniqueID);
 					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testPassed.TestCollectionUniqueID);
 					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testPassed.TestMethodUniqueID);
-					Assert.Equal("fac6e4ecf3efd5375f42b21767acc145d7ef19f189119d9facb629edcab7bf66", testPassed.TestUniqueID);
+					Assert.Equal("cdde74103fa02540cecac511aae36d1204c3e1de30e7c58b4471e0d5d08407a1", testPassed.TestUniqueID);
 				},
 				message =>
 				{
@@ -364,12 +364,17 @@ public class Xunit1Tests
 					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testFinished.TestClassUniqueID);
 					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testFinished.TestCollectionUniqueID);
 					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testFinished.TestMethodUniqueID);
-					Assert.Equal("fac6e4ecf3efd5375f42b21767acc145d7ef19f189119d9facb629edcab7bf66", testFinished.TestUniqueID);
+					Assert.Equal("cdde74103fa02540cecac511aae36d1204c3e1de30e7c58b4471e0d5d08407a1", testFinished.TestUniqueID);
 				},
 				message =>
 				{
 					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testCaseFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testCaseFinished.ExecutionTime);
+					Assert.Equal("type1.passing (assembly)", testCaseFinished.TestCaseUniqueID);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testCaseFinished.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCaseFinished.TestCollectionUniqueID);
+					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testCaseFinished.TestMethodUniqueID);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -377,7 +382,11 @@ public class Xunit1Tests
 				message =>
 				{
 					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testMethodFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testMethodFinished.ExecutionTime);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testMethodFinished.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testMethodFinished.TestCollectionUniqueID);
+					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testMethodFinished.TestMethodUniqueID);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
@@ -430,7 +439,10 @@ public class Xunit1Tests
 				message =>
 				{
 					var testClassFinished = Assert.IsType<_TestClassFinished>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testClassFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, testClassFinished.ExecutionTime);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testClassFinished.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testClassFinished.TestCollectionUniqueID);
 					Assert.Equal(1, testClassFinished.TestsFailed);
 					Assert.Equal(2, testClassFinished.TestsRun);
 					Assert.Equal(0, testClassFinished.TestsSkipped);
@@ -537,15 +549,17 @@ public class Xunit1Tests
 				message =>
 				{
 					var testCollectionFinished = Assert.IsType<_TestCollectionFinished>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testCollectionFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, testCollectionFinished.ExecutionTime);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCollectionFinished.TestCollectionUniqueID);
 					Assert.Equal(1, testCollectionFinished.TestsFailed);
 					Assert.Equal(3, testCollectionFinished.TestsRun);
 					Assert.Equal(1, testCollectionFinished.TestsSkipped);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCollectionFinished.TestCollectionUniqueID);
 				},
 				message =>
 				{
 					var assemblyFinished = Assert.IsType<_TestAssemblyFinished>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", assemblyFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, assemblyFinished.ExecutionTime);
 					Assert.Equal(1, assemblyFinished.TestsFailed);
 					Assert.Equal(3, assemblyFinished.TestsRun);

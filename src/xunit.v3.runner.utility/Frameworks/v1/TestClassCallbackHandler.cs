@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -17,10 +18,12 @@ namespace Xunit.Runner.v1
 	/// </summary>
 	public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	{
+		volatile int currentTestIndex = 0;
 		readonly Dictionary<string, Predicate<XmlNode>> handlers;
 		readonly _IMessageSink messageSink;
 		readonly IList<ITestCase> testCases;
 		readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
+		readonly Dictionary<ITest, int> testIndicesByTest = new Dictionary<ITest, int>();
 		readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
 
 		ITest? currentTest;
@@ -269,13 +272,20 @@ namespace Xunit.Runner.v1
 			decimal executionTime,
 			string output)
 		{
+			int testIndex;
+			lock (testIndicesByTest)
+			{
+				testIndex = testIndicesByTest[test];
+				testIndicesByTest.Remove(test);
+			}
+
 			var testCase = test.TestCase;
 			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
 			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
 			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
 			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 			var caseUniqueID = testCase.UniqueID;
-			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
 
 			return new _TestFinished
 			{
@@ -295,13 +305,17 @@ namespace Xunit.Runner.v1
 			decimal executionTime,
 			string output)
 		{
+			int testIndex;
+			lock (testIndicesByTest)
+				testIndex = testIndicesByTest[test];
+
 			var testCase = test.TestCase;
 			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
 			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
 			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
 			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 			var caseUniqueID = testCase.UniqueID;
-			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
 
 			return new _TestPassed
 			{
@@ -318,13 +332,17 @@ namespace Xunit.Runner.v1
 
 		_TestStarting ToTestStarting(ITest test)
 		{
+			var testIndex = Interlocked.Increment(ref currentTestIndex);
+			lock (testIndicesByTest)
+				testIndicesByTest[test] = testIndex;
+
 			var testCase = test.TestCase;
 			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
 			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
 			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
 			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 			var caseUniqueID = testCase.UniqueID;
-			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
 
 			return new _TestStarting
 			{

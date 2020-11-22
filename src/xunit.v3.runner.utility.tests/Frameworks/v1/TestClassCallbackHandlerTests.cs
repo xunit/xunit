@@ -1,7 +1,9 @@
 ﻿#if NETFRAMEWORK
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml;
@@ -33,32 +35,38 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithTestNode_ParsesNumberWithInvariantCulture()
 	{
-		var sink = Substitute.For<_IMessageSink>();
+		var messages = new List<IMessageSinkMessage>();
+		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
-		var xml = new XmlDocument();
-		xml.LoadXml("<test type='foo' method='bar' name='foo.bar' time='1.234' result='Pass' />");
+		var startXml = new XmlDocument();
+		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
+		var passXml = new XmlDocument();
+		passXml.LoadXml("<test type='foo' method='bar' name='foo.bar' time='1.234' result='Pass' />");
 
-		handler.OnXmlNode(xml.FirstChild);
+		handler.OnXmlNode(startXml.FirstChild);
+		handler.OnXmlNode(passXml.FirstChild);
 
-		var args = sink.Captured(1, x => x.OnMessage(null!));
-		var message = args.Arg<_TestFinished>();
+		var message = Assert.Single(messages.OfType<_TestFinished>());
 		Assert.Equal(1.234M, message.ExecutionTime);
 	}
 
 	[Fact]
 	public static void WithTestNode_OutputResultsInOutputMessage()
 	{
-		var sink = Substitute.For<_IMessageSink>();
+		var messages = new List<IMessageSinkMessage>();
+		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
-		var xml = new XmlDocument();
-		xml.LoadXml("<test type='foo' method='bar' name='foo.bar' time='1.234' result='Pass'><output>This is output text</output></test>");
+		var startXml = new XmlDocument();
+		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
+		var passXml = new XmlDocument();
+		passXml.LoadXml("<test type='foo' method='bar' name='foo.bar' time='1.234' result='Pass'><output>This is output text</output></test>");
 
-		handler.OnXmlNode(xml.FirstChild);
+		handler.OnXmlNode(startXml.FirstChild);
+		handler.OnXmlNode(passXml.FirstChild);
 
-		var args = sink.Captured(0, x => x.OnMessage(null!));
-		var message = args.Arg<ITestOutput>();
+		var message = Assert.Single(messages.OfType<ITestOutput>());
 		Assert.Same(testCase, message.TestCase);
 		Assert.Equal("This is output text", message.Output);
 	}
