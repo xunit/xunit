@@ -6,14 +6,13 @@ namespace Xunit.v3
 	public interface _IExecutionMetadata
 	{
 		/// <summary>
-		///The time spent executing the test, in seconds. May be <c>null</c>
-		/// if the test was not executed.
+		/// The time spent executing the test, in seconds. Will be 0 if the test was not executed.
 		/// </summary>
-		decimal? ExecutionTime { get; }
+		decimal ExecutionTime { get; }
 
 		/// <summary>
-		/// The captured output of the test.
+		/// The captured output of the test. Will be <see cref="string.Empty"/> if there was no output.
 		/// </summary>
-		string? Output { get; }
+		string Output { get; }
 	}
 }

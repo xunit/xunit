@@ -107,11 +107,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+		protected override void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
 			var testPassed = args.Message;
 
-			VstsUpdateTest(args.Message.Test, "Passed", Convert.ToInt64(testPassed.ExecutionTime * 1000), stdOut: testPassed.Output);
+			VstsUpdateTest(args.Message.TestUniqueID, "Passed", Convert.ToInt64(testPassed.ExecutionTime * 1000), stdOut: testPassed.Output);
 
 			base.HandleTestPassed(args);
 		}
@@ -164,8 +164,9 @@ namespace Xunit.Runner.Common
 			Client.AddTest(body, testUniqueId);
 		}
 
+		// TODO: testUniqueID should be a string
 		void VstsUpdateTest(
-			ITest uniqueId,
+			object testUniqueID,
 			string outcome,
 			long? durationMilliseconds = null,
 			string? errorMessage = null,
@@ -183,7 +184,7 @@ namespace Xunit.Runner.Common
 			if (!string.IsNullOrWhiteSpace(msg))
 				body.Add("errorMessage", msg);
 
-			Client.UpdateTest(body, uniqueId);
+			Client.UpdateTest(body, testUniqueID);
 		}
 
 		static string? TrimStdOut(string? str) =>

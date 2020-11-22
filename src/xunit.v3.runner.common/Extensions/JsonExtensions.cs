@@ -126,7 +126,7 @@ namespace Xunit.Runner.Common
 			{ typeof(_TestStarting), new List<AddFields> { AddFieldsForITestMessage } },
 			{ typeof(ITestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
 			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(ITestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
+			{ typeof(_TestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
 			{ typeof(ITestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
 			{ typeof(_TestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
@@ -218,12 +218,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestPassed testPassed, string flowId)
+		public static string ToJson(this _TestPassed testPassed, string flowId)
 		{
 			Guard.ArgumentNotNull(nameof(testPassed), testPassed);
 			Guard.ArgumentNotNull(nameof(flowId), flowId);
 
-			var json = InitObject("testPassed", testPassed, typeof(ITestPassed), flowId);
+			var json = InitObject("testPassed", testPassed, typeof(_TestPassed), flowId);
 
 			return ToJson(json);
 		}

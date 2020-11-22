@@ -70,6 +70,8 @@ namespace Xunit.Sdk
 			{
 				var dataAttributes = TestCase.TestMethod.Method.GetCustomAttributes(typeof(DataAttribute));
 
+				var testIndex = 0;
+
 				foreach (var dataAttribute in dataAttributes)
 				{
 					var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).FirstOrDefault();
@@ -113,8 +115,6 @@ namespace Xunit.Sdk
 						Aggregator.Add(new InvalidOperationException($"Test data returned null for {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
 						continue;
 					}
-
-					var testIndex = 0;
 
 					foreach (var dataRow in data)
 					{

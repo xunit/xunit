@@ -53,10 +53,7 @@ public class TestRunnerTests
 		Assert.Equal(0, result.Skipped);
 		Assert.Equal(21.12m, result.Time);
 		// Pass message
-		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, passed.TestCollection);
-		Assert.Same(runner.TestCase, passed.TestCase);
-		Assert.Equal("Display Name", passed.Test.DisplayName);
+		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		Assert.Equal(21.12m, passed.ExecutionTime);
 		Assert.Empty(passed.Output);
 	}
@@ -115,7 +112,7 @@ public class TestRunnerTests
 
 		await runner.RunAsync();
 
-		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
+		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		Assert.Equal("This is my text output", passed.Output);
 	}
 
@@ -207,7 +204,7 @@ public class TestRunnerTests
 	}
 
 	[Theory]
-	[InlineData(typeof(ITestPassed), true, null)]
+	[InlineData(typeof(_TestPassed), true, null)]
 	[InlineData(typeof(ITestFailed), false, null)]
 	[InlineData(typeof(ITestSkipped), false, "Please skip me")]
 	[InlineData(typeof(_TestFinished), true, null)]

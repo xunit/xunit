@@ -2,6 +2,7 @@
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 public class MatrixTheoryDataTests : AcceptanceTestV3
 {
@@ -25,9 +26,9 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 		var messages = await RunAsync(typeof(SampleUsage));
 
 		Assert.Collection(
-			messages.OfType<ITestPassed>().OrderBy(x => x.Test.DisplayName),
-			passing => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"Hello\", y: 5)", passing.Test.DisplayName),
-			passing => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"world!\", y: 6)", passing.Test.DisplayName)
+			messages.OfType<_TestPassed>().Select(passed => messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"Hello\", y: 5)", displayName),
+			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"world!\", y: 6)", displayName)
 		);
 		Assert.Collection(
 			messages.OfType<ITestFailed>().OrderBy(x => x.Test.DisplayName),

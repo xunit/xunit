@@ -92,7 +92,7 @@ namespace Xunit.Runner.v1
 			var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
 			currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value);
 			SendTestCaseMessagesWhenAppropriate(testCase);
-			return SendTestStarting(currentTest, messageSink) && TestClassResults.Continue;
+			return messageSink.OnMessage(ToTestStarting(currentTest)) && TestClassResults.Continue;
 		}
 
 		bool OnTest(XmlNode xml)
@@ -103,7 +103,7 @@ namespace Xunit.Runner.v1
 			var time = timeAttribute == null ? 0M : decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
 			var outputElement = xml.SelectSingleNode("output");
 			var output = outputElement == null ? string.Empty : outputElement.InnerText;
-			ITestCaseMessage? resultMessage = null;
+			IMessageSinkMessage? resultMessage = null;
 
 			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
 			if (currentTest == null)
@@ -115,7 +115,7 @@ namespace Xunit.Runner.v1
 			switch (xml.Attributes["result"].Value)
 			{
 				case "Pass":
-					resultMessage = new TestPassed(currentTest, time, output);
+					resultMessage = ToTestPassed(currentTest, time, output);
 					break;
 
 				case "Fail":
@@ -140,7 +140,7 @@ namespace Xunit.Runner.v1
 					if (testCase != lastTestCase)
 					{
 						SendTestCaseMessagesWhenAppropriate(testCase);
-						@continue = SendTestStarting(currentTest, messageSink) && @continue;
+						@continue = messageSink.OnMessage(ToTestStarting(currentTest)) && @continue;
 					}
 					resultMessage = new TestSkipped(currentTest, xml.SelectSingleNode("reason/message").InnerText);
 					break;
@@ -154,7 +154,7 @@ namespace Xunit.Runner.v1
 			if (resultMessage != null)
 				@continue = messageSink.OnMessage(resultMessage) && @continue;
 
-			@continue = SendTestFinished(currentTest, time, output, messageSink) && @continue;
+			@continue = messageSink.OnMessage(ToTestFinished(currentTest, time, output)) && @continue;
 			currentTest = null;
 
 			return @continue && TestClassResults.Continue;
@@ -168,65 +168,6 @@ namespace Xunit.Runner.v1
 					TestClassResults.Continue = handler(node) && TestClassResults.Continue;
 
 			return TestClassResults.Continue;
-		}
-
-		bool SendTestFinished(
-			ITest test,
-			decimal executionTime,
-			string output,
-			_IMessageSink messageSink)
-		{
-			// TODO: This doesn't afford us much chance for caching, so this could be expensive, recomputing
-			// unique IDs for every single test.
-			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
-			var caseUniqueID = testCase.UniqueID;
-			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
-
-			var testFinished = new _TestFinished
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = executionTime,
-				Output = output,
-				TestCaseUniqueID = caseUniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestMethodUniqueID = methodUniqueID,
-				TestUniqueID = testUniqueID
-			};
-
-			return messageSink.OnMessage(testFinished);
-		}
-
-		bool SendTestStarting(
-			ITest test,
-			_IMessageSink messageSink)
-		{
-			// TODO: This doesn't afford us much chance for caching, so this could be expensive, recomputing
-			// unique IDs for every single test.
-			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
-			var caseUniqueID = testCase.UniqueID;
-			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
-
-			var testStarting = new _TestStarting
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				TestCaseUniqueID = caseUniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestDisplayName = test.DisplayName,
-				TestMethodUniqueID = methodUniqueID,
-				TestUniqueID = testUniqueID
-			};
-
-			return messageSink.OnMessage(testStarting);
 		}
 
 		void SendTestCaseMessagesWhenAppropriate(ITestCase? current)
@@ -317,6 +258,84 @@ namespace Xunit.Runner.v1
 			}
 
 			lastTestCase = current;
+		}
+
+		// TODO: These conversions doesn't afford us much chance for caching, so this could be expensive, recomputing
+		// unique IDs for every single test. Perhaps we can do a bit of shortcut here by caching the last computations
+		// based on object identity, so that we don't have to recompute every time...?
+
+		_TestFinished ToTestFinished(
+			ITest test,
+			decimal executionTime,
+			string output)
+		{
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+
+			return new _TestFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = executionTime,
+				Output = output,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
+
+		_TestPassed ToTestPassed(
+			ITest test,
+			decimal executionTime,
+			string output)
+		{
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+
+			return new _TestPassed
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = executionTime,
+				Output = output,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
+
+		_TestStarting ToTestStarting(ITest test)
+		{
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex: 0);
+
+			return new _TestStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestDisplayName = test.DisplayName,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
 		}
 
 		string GetAssemblyUniqueID(ITestAssembly testAssembly) =>

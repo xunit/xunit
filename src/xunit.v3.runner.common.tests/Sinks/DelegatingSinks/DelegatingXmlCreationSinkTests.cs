@@ -126,19 +126,24 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsPassingTestElementToXml()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		testCase.SourceInformation.Returns(new SourceInformation());
-		var test = Mocks.Test(testCase, "Test Display Name");
-		var testPassed = Substitute.For<ITestPassed>();
-		testPassed.TestCase.Returns(testCase);
-		testPassed.Test.Returns(test);
-		testPassed.ExecutionTime.Returns(123.4567809M);
-		testPassed.Output.Returns("test output");
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test output");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testPassed);
 		sink.OnMessage(assemblyFinished);
 
@@ -159,19 +164,24 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void EmptyOutputStringDoesNotShowUpInResultingXml()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		testCase.SourceInformation.Returns(new SourceInformation());
-		var test = Mocks.Test(testCase, "Test Display Name");
-		var testPassed = Substitute.For<ITestPassed>();
-		testPassed.TestCase.Returns(testCase);
-		testPassed.Test.Returns(test);
-		testPassed.ExecutionTime.Returns(123.4567809M);
-		testPassed.Output.Returns(string.Empty);
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testPassed);
 		sink.OnMessage(assemblyFinished);
 
@@ -279,15 +289,24 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void TestElementSourceInfoIsPlacedInXmlWhenPresent()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		testCase.SourceInformation.Returns(new SourceInformation { FileName = "source file", LineNumber = 42 });
-		var testPassed = Substitute.For<ITestPassed>();
-		testPassed.TestCase.Returns(testCase);
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting();
+		var methodStarting = TestData.TestMethodStarting();
+		var caseStarting = TestData.TestCaseStarting(sourceFilePath: "source file", sourceLineNumber: 42);
+		var testStarting = TestData.TestStarting();
+		var testPassed = TestData.TestPassed();
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testPassed);
 		sink.OnMessage(assemblyFinished);
 
@@ -297,22 +316,31 @@ public class DelegatingXmlCreationSinkTests
 	}
 
 	[Fact]
-	public void TestElementTraisArePlacedInXmlWhenPresent()
+	public void TestElementTraitsArePlacedInXmlWhenPresent()
 	{
 		var traits = new Dictionary<string, List<string>>
 		{
 			{ "name1", new List<string> { "value1" }},
 			{ "name2", new List<string> { "value2" }}
 		};
-		var assemblyFinished = Mocks.TestAssemblyFinished();
-		var passingTestCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		passingTestCase.Traits.Returns(traits);
-		var testPassed = Substitute.For<ITestPassed>();
-		testPassed.TestCase.Returns(passingTestCase);
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting();
+		var methodStarting = TestData.TestMethodStarting();
+		var caseStarting = TestData.TestCaseStarting(traits: traits);
+		var testStarting = TestData.TestStarting();
+		var testPassed = TestData.TestPassed();
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testPassed);
 		sink.OnMessage(assemblyFinished);
 

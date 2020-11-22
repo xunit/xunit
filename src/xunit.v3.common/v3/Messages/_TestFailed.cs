@@ -61,7 +61,7 @@ namespace Xunit.v3
 			string? testMethodUniqueID,
 			string testCaseUniqueID,
 			string testUniqueID,
-			decimal? executionTime,
+			decimal executionTime,
 			string? output)
 		{
 			Guard.ArgumentNotNull(nameof(ex), ex);
@@ -69,6 +69,7 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
 			Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
 			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
+			Guard.ArgumentNotNull(nameof(executionTime), executionTime);
 
 			var failureInfo = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
 

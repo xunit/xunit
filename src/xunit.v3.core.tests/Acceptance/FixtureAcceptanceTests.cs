@@ -92,7 +92,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithMissingCtorArg));
 
 			Assert.Single(messages);
 		}
@@ -138,7 +138,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void FixtureDataIsPassedToConstructor()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -157,10 +157,11 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithDefaultParameter()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithDefaultCtorArg));
+			var messages = await RunAsync(typeof(ClassWithDefaultCtorArg));
 
-			var msg = Assert.Single(messages);
-			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithDefaultCtorArg.TheTest", msg.Test.DisplayName);
+			Assert.Single(messages.OfType<_TestPassed>());
+			var starting = Assert.Single(messages.OfType<_TestStarting>());
+			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithDefaultCtorArg.TheTest", starting.TestDisplayName);
 		}
 
 		class ClassWithDefaultCtorArg : IClassFixture<EmptyFixtureData>
@@ -178,10 +179,11 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithOptionalParameter()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithOptionalCtorArg));
+			var messages = await RunAsync(typeof(ClassWithOptionalCtorArg));
 
-			var msg = Assert.Single(messages);
-			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithOptionalCtorArg.TheTest", msg.Test.DisplayName);
+			Assert.Single(messages.OfType<_TestPassed>());
+			var starting = Assert.Single(messages.OfType<_TestStarting>());
+			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithOptionalCtorArg.TheTest", starting.TestDisplayName);
 		}
 
 		class ClassWithOptionalCtorArg : IClassFixture<EmptyFixtureData>
@@ -200,10 +202,11 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithParamsParameter()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithParamsArg));
+			var messages = await RunAsync(typeof(ClassWithParamsArg));
 
-			var msg = Assert.Single(messages);
-			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithParamsArg.TheTest", msg.Test.DisplayName);
+			Assert.Single(messages.OfType<_TestPassed>());
+			var starting = Assert.Single(messages.OfType<_TestStarting>());
+			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithParamsArg.TheTest", starting.TestDisplayName);
 		}
 
 		class ClassWithParamsArg : IClassFixture<EmptyFixtureData>
@@ -224,7 +227,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void FixtureDataShouldHaveBeenSetup()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -395,7 +398,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithMissingCtorArg));
 
 			Assert.Single(messages);
 		}
@@ -454,7 +457,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void FixtureDataIsPassedToConstructor()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -474,7 +477,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void FixtureDataIsSameInstanceAcrossClasses()
 		{
-			await RunAsync<ITestPassed>(new[] { typeof(FixtureSaver1), typeof(FixtureSaver2) });
+			await RunAsync<_TestPassed>(new[] { typeof(FixtureSaver1), typeof(FixtureSaver2) });
 
 			Assert.Same(FixtureSaver1.Fixture, FixtureSaver2.Fixture);
 		}
@@ -508,7 +511,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void ClassFixtureOnCollectionDecorationWorks()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy_ClassFixture));
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy_ClassFixture));
 
 			Assert.Single(messages);
 		}
@@ -531,7 +534,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithCountedFixture));
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithCountedFixture));
 
 			Assert.Single(messages);
 		}
@@ -649,7 +652,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void CollectionFixtureAsyncSetupShouldOnlyRunOnce()
 		{
-			var results = await RunAsync<ITestPassed>(new[] { typeof(Fixture1), typeof(Fixture2) });
+			var results = await RunAsync<_TestPassed>(new[] { typeof(Fixture1), typeof(Fixture2) });
 			Assert.Equal(2, results.Count);
 		}
 

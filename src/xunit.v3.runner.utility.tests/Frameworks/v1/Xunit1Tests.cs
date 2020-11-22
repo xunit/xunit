@@ -344,13 +344,15 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
-					Assert.Same(testAssembly, testPassed.TestAssembly);
-					Assert.Same(testCollection, testPassed.TestCollection);
-					Assert.Equal("type1", testPassed.TestClass.Class.Name);
-					Assert.Equal("passing", testPassed.TestMethod.Method.Name);
-					Assert.Equal("type1.passing", testPassed.TestCase.DisplayName);
+					var testPassed = Assert.IsAssignableFrom<_TestPassed>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testPassed.AssemblyUniqueID);
 					Assert.Equal(1M, testPassed.ExecutionTime);
+					Assert.Empty(testPassed.Output);
+					Assert.Equal("type1.passing (assembly)", testPassed.TestCaseUniqueID);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testPassed.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testPassed.TestCollectionUniqueID);
+					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testPassed.TestMethodUniqueID);
+					Assert.Equal("fac6e4ecf3efd5375f42b21767acc145d7ef19f189119d9facb629edcab7bf66", testPassed.TestUniqueID);
 				},
 				message =>
 				{

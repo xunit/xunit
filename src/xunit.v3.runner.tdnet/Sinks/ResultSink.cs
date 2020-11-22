@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.v3;
 
@@ -20,8 +21,12 @@ namespace Xunit.Runner.TdNet
 			TestRunState = TestRunState.NoTests;
 
 			Execution.TestFailedEvent += HandleTestFailed;
+			Execution.TestFinishedEvent +=
+				args => metadataCache.TryRemove(args.Message);
 			Execution.TestPassedEvent += HandleTestPassed;
 			Execution.TestSkippedEvent += HandleTestSkipped;
+			Execution.TestStartingEvent +=
+				args => metadataCache.Set(args.Message);
 
 			Diagnostics.ErrorMessageEvent +=
 				args => ReportError("Fatal Error", args.Message);
@@ -87,17 +92,17 @@ namespace Xunit.Runner.TdNet
 			WriteOutput(testFailed.Test.DisplayName, testFailed.Output);
 		}
 
-		void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+		void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
 			if (TestRunState == TestRunState.NoTests)
 				TestRunState = TestRunState.Success;
 
 			var testPassed = args.Message;
-			var testResult = testPassed.ToTdNetTestResult(TestState.Passed, totalTests);
+			var testResult = ToTdNetTestResult(testPassed, TestState.Passed, totalTests);
 
 			TestListener.TestFinished(testResult);
 
-			WriteOutput(testPassed.Test.DisplayName, testPassed.Output);
+			WriteOutput(testResult.Name, testPassed.Output);
 		}
 
 		void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
@@ -127,6 +132,28 @@ namespace Xunit.Runner.TdNet
 			};
 
 			TestListener.TestFinished(testResult);
+		}
+
+		TestResult ToTdNetTestResult(
+			_TestResultMessage testResult,
+			TestState testState,
+			int totalTests)
+		{
+			var testClassMetadata = Guard.NotNull($"Cannot get test class metadata for ID {testResult.TestClassUniqueID}", metadataCache.TryGetClassMetadata(testResult));
+			var testClass = Type.GetType(testClassMetadata.TestClass);
+			var testMethodMetadata = Guard.NotNull($"Cannot get test method metadata for ID {testResult.TestMethodUniqueID}", metadataCache.TryGetMethodMetadata(testResult));
+			var testMethod = testClass != null ? testClass.GetMethod(testMethodMetadata.TestMethod) : null;
+			var testMetadata = Guard.NotNull($"Cannot get test metadata for ID {testResult.TestUniqueID}", metadataCache.TryGetTestMetadata(testResult));
+
+			return new TestResult
+			{
+				FixtureType = testClass,
+				Method = testMethod,
+				Name = testMetadata.TestDisplayName,
+				State = testState,
+				TimeSpan = new TimeSpan((long)(10000.0M * testResult.ExecutionTime)),
+				TotalTests = totalTests,
+			};
 		}
 
 		void WriteOutput(string name, string output)

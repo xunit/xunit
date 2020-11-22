@@ -134,13 +134,12 @@ namespace Xunit.Runner.Common
 		/// returns a default set of options.
 		/// </summary>
 		/// <param name="assemblyFilename">The test assembly filename</param>
-		protected _ITestFrameworkExecutionOptions GetExecutionOptions(string assemblyFilename)
+		protected _ITestFrameworkExecutionOptions GetExecutionOptions(string? assemblyFilename)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyFilename), assemblyFilename);
-
-			using (ReaderWriterLockWrapper.ReadLock())
-				if (executionOptionsByAssembly.TryGetValue(assemblyFilename, out var result))
-					return result;
+			if (assemblyFilename != null)
+				using (ReaderWriterLockWrapper.ReadLock())
+					if (executionOptionsByAssembly.TryGetValue(assemblyFilename, out var result))
+						return result;
 
 			return defaultExecutionOptions;
 		}
@@ -556,23 +555,31 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestPassed"/> is raised.
+		/// Called when <see cref="_TestPassed"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+		protected virtual void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testPassed = args.Message;
+			var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(testPassed);
+
 			if (!string.IsNullOrEmpty(testPassed.Output) &&
-				GetExecutionOptions(testPassed.TestAssembly.Assembly.AssemblyPath).GetDiagnosticMessagesOrDefault())
+				GetExecutionOptions(assemblyMetadata?.AssemblyPath).GetDiagnosticMessagesOrDefault())
 			{
 				lock (Logger.LockObject)
 				{
-					Logger.LogImportantMessage($"    {Escape(testPassed.Test.DisplayName)} [PASS]");
+					var testMetadata = MetadataCache.TryGetTestMetadata(testPassed);
+					if (testMetadata != null)
+						Logger.LogImportantMessage($"    {Escape(testMetadata.TestDisplayName)} [PASS]");
+					else
+						Logger.LogImportantMessage("    <unknown test> [PASS]");
+
 					LogOutput(StackFrameInfo.None, testPassed.Output);
 				}
 			}
+			// TODO: What to do if assembly metadata cannot be found?
 		}
 
 		/// <summary>

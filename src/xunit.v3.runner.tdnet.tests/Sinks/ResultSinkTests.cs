@@ -52,8 +52,11 @@ public class ResultSinkTests
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			sink.OnMessage(TestData.TestClassStarting());
+			sink.OnMessage(TestData.TestMethodStarting());
+			sink.OnMessage(TestData.TestStarting());
 
-			sink.OnMessage(Substitute.For<ITestPassed>());
+			sink.OnMessage(TestData.TestPassed());
 
 			Assert.Equal(TestRunState.Success, sink.TestRunState);
 		}
@@ -66,8 +69,11 @@ public class ResultSinkTests
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			sink.OnMessage(TestData.TestClassStarting());
+			sink.OnMessage(TestData.TestMethodStarting());
+			sink.OnMessage(TestData.TestStarting());
 
-			sink.OnMessage(Substitute.For<ITestPassed>());
+			sink.OnMessage(TestData.TestPassed());
 
 			Assert.Equal(initialState, sink.TestRunState);
 		}
@@ -307,7 +313,7 @@ public class ResultSinkTests
 	public class MessageConversion
 	{
 		[Fact]
-		public static async void ConvertsITestPassed()
+		public static async void ConvertsTestPassed()
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
@@ -315,9 +321,11 @@ public class ResultSinkTests
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
 			await using var sink = new ResultSink(listener, 42);
-			var message = Mocks.TestPassed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M);
+			sink.OnMessage(TestData.TestClassStarting(testClass: typeof(object).FullName!));
+			sink.OnMessage(TestData.TestMethodStarting(testMethod: nameof(object.GetHashCode)));
+			sink.OnMessage(TestData.TestStarting(testDisplayName: "Display Name"));
 
-			sink.OnMessage(message);
+			sink.OnMessage(TestData.TestPassed(executionTime: 123.45m));
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);

@@ -131,9 +131,15 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
-					Assert.Equal(testPassed.TestCase.DisplayName, testPassed.Test.DisplayName);
+					var testPassed = Assert.IsAssignableFrom<_TestPassed>(message);
+					Assert.Equal(observedAssemblyID, testPassed.AssemblyUniqueID);
 					Assert.NotEqual(0M, testPassed.ExecutionTime);
+					Assert.Empty(testPassed.Output);
+					Assert.Equal(observedTestCaseID, testPassed.TestCaseUniqueID);
+					Assert.Equal(observedClassID, testPassed.TestClassUniqueID);
+					Assert.Equal(observedCollectionID, testPassed.TestCollectionUniqueID);
+					Assert.Equal(observedMethodID, testPassed.TestMethodUniqueID);
+					Assert.Equal(observedTestID, testPassed.TestUniqueID);
 				},
 				message =>
 				{
@@ -240,8 +246,9 @@ public class Xunit3AcceptanceTests
 			var results = await RunAsync(typeof(ClassUnderTest));
 			stopwatch.Stop();
 
-			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
-			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passedMessage.Test.DisplayName);
+			var passedMessage = Assert.Single(results.OfType<_TestPassed>());
+			var passStarting = results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passedMessage.TestUniqueID).Single();
+			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passStarting.TestDisplayName);
 
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
 			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedMessage.Test.DisplayName);
@@ -399,11 +406,11 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void TestsCanBeInStaticClasses()
 		{
-			var testMessages = await RunAsync<ITestResultMessage>(typeof(StaticClassUnderTest));
+			var testMessages = await RunAsync(typeof(StaticClassUnderTest));
 
-			var testMessage = Assert.Single(testMessages);
-			Assert.Equal("Xunit3AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.Test.DisplayName);
-			Assert.IsAssignableFrom<ITestPassed>(testMessage);
+			Assert.Single(testMessages.OfType<_TestPassed>());
+			var starting = Assert.Single(testMessages.OfType<_TestStarting>());
+			Assert.Equal("Xunit3AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", starting.TestDisplayName);
 		}
 
 		static class StaticClassUnderTest
@@ -448,13 +455,13 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void OverrideOfOrderingAtCollectionLevel()
 		{
-			var testMessages = await RunAsync<ITestPassed>(typeof(TestClassUsingCollection));
+			var testMessages = await RunAsync(typeof(TestClassUsingCollection));
 
 			Assert.Collection(
-				testMessages,
-				message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("Test3", message.TestCase.TestMethod.Method.Name)
+				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestMethod),
+				methodName => Assert.Equal("Test1", methodName),
+				methodName => Assert.Equal("Test2", methodName),
+				methodName => Assert.Equal("Test3", methodName)
 			);
 		}
 
@@ -478,13 +485,13 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void OverrideOfOrderingAtClassLevel()
 		{
-			var testMessages = await RunAsync<ITestPassed>(typeof(TestClassWithoutCollection));
+			var testMessages = await RunAsync(typeof(TestClassWithoutCollection));
 
 			Assert.Collection(
-				testMessages,
-				message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("Test3", message.TestCase.TestMethod.Method.Name)
+				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestMethod),
+				methodName => Assert.Equal("Test1", methodName),
+				methodName => Assert.Equal("Test2", methodName),
+				methodName => Assert.Equal("Test3", methodName)
 			);
 		}
 
@@ -518,17 +525,17 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void NonParallelCollectionsRunLast()
 		{
-			var testMessages = await RunAsync<ITestPassed>(new[] {
+			var testMessages = await RunAsync(new[] {
 				typeof(TestClassNonParallelCollection),
 				typeof(TestClassParallelCollection)
 			});
 
 			Assert.Collection(
-				testMessages,
-				message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("IShouldBeLast1", message.TestCase.TestMethod.Method.Name),
-				message => Assert.Equal("IShouldBeLast2", message.TestCase.TestMethod.Method.Name)
+				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestMethod),
+				methodName => Assert.Equal("Test1", methodName),
+				methodName => Assert.Equal("Test2", methodName),
+				methodName => Assert.Equal("IShouldBeLast1", methodName),
+				methodName => Assert.Equal("IShouldBeLast2", methodName)
 			);
 		}
 
@@ -566,10 +573,11 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void CanUseCustomFactAttribute()
 		{
-			var msgs = await RunAsync<ITestPassed>(typeof(ClassWithCustomFact));
+			var msgs = await RunAsync(typeof(ClassWithCustomFact));
 
-			Assert.Collection(msgs,
-				msg => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName)
+			Assert.Collection(
+				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestDisplayName),
+				displayName => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", displayName)
 			);
 		}
 
@@ -584,10 +592,11 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void CanUseCustomFactWithArrayParameters()
 		{
-			var msgs = await RunAsync<ITestPassed>(typeof(ClassWithCustomArrayFact));
+			var msgs = await RunAsync(typeof(ClassWithCustomArrayFact));
 
-			Assert.Collection(msgs,
-				msg => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName)
+			Assert.Collection(
+				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestDisplayName),
+				displayName => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", displayName)
 			);
 		}
 
@@ -633,7 +642,7 @@ public class Xunit3AcceptanceTests
 		{
 			var msgs = await RunAsync(typeof(ClassUnderTest));
 
-			var idxOfTestPassed = msgs.FindIndex(msg => msg is ITestPassed);
+			var idxOfTestPassed = msgs.FindIndex(msg => msg is _TestPassed);
 			Assert.True(idxOfTestPassed >= 0, "Test should have passed");
 
 			var idxOfFirstTestOutput = msgs.FindIndex(msg => msg is ITestOutput);
@@ -690,7 +699,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void AsyncLifetimeAcceptanceTest()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithAsyncLifetime));
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithAsyncLifetime));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
@@ -734,7 +743,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void AsyncDisposableAcceptanceTest()
 		{
-			var messages = await RunAsync<ITestPassed>(typeof(ClassWithAsyncDisposable));
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithAsyncDisposable));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync", "Dispose");
@@ -871,6 +880,15 @@ public class Xunit3AcceptanceTests
 			}
 		}
 
+		void AssertOperations(_TestResultMessage result, params string[] operations)
+		{
+			Assert.Collection(
+				result.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries),
+				operations.Select<string, Action<string>>(expected => actual => Assert.Equal(expected, actual)).ToArray()
+			);
+		}
+
+		// TODO: Delete this once we're down to zero callers
 		void AssertOperations(ITestResultMessage result, params string[] operations)
 		{
 			Assert.Collection(

@@ -2,6 +2,7 @@
 using System.Reflection;
 using TestDriven.Framework;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Runner.TdNet
 {
@@ -13,6 +14,7 @@ namespace Xunit.Runner.TdNet
 		public static MethodInfo? GetMethod(this ITestCase testCase) =>
 			testCase.TestMethod.Method is IReflectionMethodInfo methodInfo ? methodInfo.MethodInfo : null;
 
+		// TODO: Delete this when there are no more callers
 		public static TestResult ToTdNetTestResult(this ITestResultMessage testResult, TestState testState, int totalTests) =>
 			new TestResult
 			{

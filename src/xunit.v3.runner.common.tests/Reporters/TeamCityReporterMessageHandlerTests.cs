@@ -247,20 +247,23 @@ public class TeamCityReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestPassed
+	public class OnMessage_TestPassed
 	{
-		[Fact(Skip = "This test cannot be re-enabled until all this message is ported")]
+		[Fact]
 		public static void LogsTestNameAndOutput()
 		{
-			var message = Mocks.TestPassed("This is my display name \t\r\n", "This is\t\r\noutput");
+			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+			var passedMessage = TestData.TestPassed(output: "This is\t\r\noutput");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(passedMessage);
 
 			Assert.Collection(
 				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput' flowId='myFlowId']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
+				msg => Assert.Equal("[Imp] => ##teamcity[testStarted name='This is my display name \t|r|n' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='This is my display name \t|r|n' out='This is\t|r|noutput' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='This is my display name \t|r|n' duration='123456' flowId='test-collection-id']", msg)
 			);
 		}
 	}
@@ -285,16 +288,16 @@ public class TeamCityReporterMessageHandlerTests
 
 	public class OnMessage_TestStarting
 	{
-		[Fact(Skip = "Requires a significant re-write")]
+		[Fact]
 		public static void LogsTestName()
 		{
-			var message = Mocks.TestStarting("This is my display name \t\r\n");
+			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
 
 			var msg = Assert.Single(handler.Messages);
-			Assert.Equal(msg, "[Imp] => ##teamcity[testStarted name='FORMATTED:This is my display name \t|r|n' flowId='myFlowId']");
+			Assert.Equal(msg, "[Imp] => ##teamcity[testStarted name='This is my display name \t|r|n' flowId='test-collection-id']");
 		}
 	}
 

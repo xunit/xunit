@@ -356,13 +356,6 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestCase TestCase(ITestMethod testMethod)
-		{
-			var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
-			result.TestMethod.Returns(testMethod);
-			return result;
-		}
-
 		public static ITestCase TestCase<TClassUnderTest>(
 			string methodName,
 			string? displayName = null,
@@ -611,37 +604,6 @@ namespace Xunit.v3
 			return new TestMethod(@class, Reflector.Wrap(methodInfo));
 		}
 
-		public static ITestPassed TestPassed(
-			Type type,
-			string methodName,
-			string? displayName = null,
-			string? output = null,
-			decimal executionTime = 0M)
-		{
-			var testCase = TestCase(type, methodName);
-			var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
-
-			var result = Substitute.For<ITestPassed, InterfaceProxy<ITestPassed>>();
-			result.ExecutionTime.Returns(executionTime);
-			result.Output.Returns(output);
-			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			return result;
-		}
-
-		public static ITestPassed TestPassed(
-			string displayName,
-			string? output = null)
-		{
-			var testCase = TestCase();
-			var test = Test(testCase, displayName);
-			var result = Substitute.For<ITestPassed, InterfaceProxy<ITestPassed>>();
-			result.Test.Returns(test);
-			result.ExecutionTime.Returns(1.2345M);
-			result.Output.Returns(output);
-			return result;
-		}
-
 		public static ITestResultMessage TestResult<TClassUnderTest>(
 			string methodName,
 			string displayName,
@@ -741,17 +703,6 @@ namespace Xunit.v3
 			result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 			return result;
 		}
-
-		public static IAttributeInfo TraitDiscovererAttribute(Type discovererType)
-		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
-			result.Attribute.Returns(new TraitDiscovererAttribute(discovererType));
-			result.GetConstructorArguments().Returns(new object[] { discovererType });
-			return result;
-		}
-
-		public static IAttributeInfo TraitDiscovererAttribute<TDiscoverer>() =>
-			TraitDiscovererAttribute(typeof(TDiscoverer));
 
 		public static ITypeInfo TypeInfo(
 			string? typeName = null,

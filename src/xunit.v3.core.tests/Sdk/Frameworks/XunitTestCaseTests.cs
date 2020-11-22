@@ -72,27 +72,33 @@ public class XunitTestCaseTests
 		[Fact]
 		public async void CustomTrait()
 		{
-			var passingTests = await RunAsync<ITestPassed>(typeof(ClassWithCustomTraitTest));
+			var messages = await RunAsync(typeof(ClassWithCustomTraitTest));
+			var passingTests = messages.OfType<_TestPassed>();
 
 			Assert.Collection(
 				passingTests,
-				passingTest => Assert.Collection(passingTest.TestCase.Traits.OrderBy(x => x.Key),
-					namedTrait =>
-					{
-						Assert.Equal("Assembly", namedTrait.Key);
-						Assert.Collection(namedTrait.Value, value => Assert.Equal("Trait", value));
-					},
-					namedTrait =>
-					{
-						Assert.Equal("Author", namedTrait.Key);
-						Assert.Collection(namedTrait.Value, value => Assert.Equal("Some Schmoe", value));
-					},
-					namedTrait =>
-					{
-						Assert.Equal("Bug", namedTrait.Key);
-						Assert.Collection(namedTrait.Value, value => Assert.Equal("2112", value));
-					}
-				)
+				passingTest =>
+				{
+					var passingTestCaseStarting = messages.OfType<_TestCaseStarting>().Where(tcs => tcs.TestCaseUniqueID == passingTest.TestCaseUniqueID).Single();
+					Assert.Collection(
+						passingTestCaseStarting.Traits.OrderBy(x => x.Key),
+						namedTrait =>
+						{
+							Assert.Equal("Assembly", namedTrait.Key);
+							Assert.Collection(namedTrait.Value, value => Assert.Equal("Trait", value));
+						},
+						namedTrait =>
+						{
+							Assert.Equal("Author", namedTrait.Key);
+							Assert.Collection(namedTrait.Value, value => Assert.Equal("Some Schmoe", value));
+						},
+						namedTrait =>
+						{
+							Assert.Equal("Bug", namedTrait.Key);
+							Assert.Collection(namedTrait.Value, value => Assert.Equal("2112", value));
+						}
+					);
+				}
 			);
 		}
 

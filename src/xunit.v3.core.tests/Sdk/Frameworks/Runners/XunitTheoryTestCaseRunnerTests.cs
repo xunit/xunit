@@ -22,8 +22,9 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.NotEqual(0m, summary.Time);
 		Assert.Equal(2, summary.Total);
 		Assert.Equal(1, summary.Failed);
-		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passed.Test.DisplayName);
+		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
+		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passedStarting.TestDisplayName);
 		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
 	}
@@ -70,8 +71,9 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal(4, summary.Total);
 		Assert.Equal(2, summary.Skipped);
 		Assert.Equal(1, summary.Failed);
-		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passed.Test.DisplayName);
+		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
+		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passedStarting.TestDisplayName);
 		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failed.Test.DisplayName);
 
@@ -87,8 +89,9 @@ public class XunitTheoryTestCaseRunnerTests
 
 		await runner.RunAsync();
 
-		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passed.Test.DisplayName);
+		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
+		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passedStarting.TestDisplayName);
 	}
 
 	class ClassWithThrowingToString
@@ -118,8 +121,9 @@ public class XunitTheoryTestCaseRunnerTests
 		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassWithThrowingEnumerator>("Test", messageBus, "Display Name");
 
 		var summary = await runner.RunAsync();
-		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Equal("Display Name(c: [ClassWithThrowingEnumerator { }])", passed.Test.DisplayName);
+		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
+		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		Assert.Equal("Display Name(c: [ClassWithThrowingEnumerator { }])", passedStarting.TestDisplayName);
 	}
 
 	class ClassWithThrowingEnumerator
@@ -205,8 +209,21 @@ public class XunitTheoryTestCaseRunnerTests
 			IXunitTestCase testCase,
 			string displayName,
 			_IMessageSink diagnosticMessageSink,
-			IMessageBus messageBus)
-				: base("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
+			IMessageBus messageBus) :
+				base(
+					"test-assembly-id",
+					"test-collection-id",
+					"test-class-id",
+					"test-method-id",
+					testCase,
+					displayName,
+					null,
+					new object[0],
+					diagnosticMessageSink,
+					messageBus,
+					new ExceptionAggregator(),
+					new CancellationTokenSource()
+				)
 		{ }
 
 		public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(

@@ -108,19 +108,24 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+		protected override void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
 			var testPassed = args.Message;
-			var testMethods = assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].testMethods;  // TODO: Incorrect index
+			var metadata = MetadataCache.TryGetTestMetadata(testPassed);
+			if (metadata != null)
+			{
+				var testMethods = assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].testMethods;
 
-			Client.UpdateTest(GetRequestMessage(
-				GetFinishedTestName(testPassed.Test.DisplayName, testMethods),
-				"xUnit",
-				assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
-				"Passed",
-				Convert.ToInt64(testPassed.ExecutionTime * 1000),
-				stdOut: testPassed.Output
-			));
+				Client.UpdateTest(GetRequestMessage(
+					GetFinishedTestName(metadata.TestDisplayName, testMethods),
+					"xUnit",
+					assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].assemblyFileName,
+					"Passed",
+					Convert.ToInt64(testPassed.ExecutionTime * 1000),
+					stdOut: testPassed.Output
+				));
+			}
+			// TODO: What to do when metadata lookup fails?
 
 			base.HandleTestPassed(args);
 		}

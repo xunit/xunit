@@ -382,15 +382,18 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestPassed
+	public class OnMessage_TestPassed
 	{
+		_TestPassed passedMessage = TestData.TestPassed(output: "This is\t" + Environment.NewLine + "output");
+		_TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+
 		[Fact]
 		public void DoesNotLogOutputByDefault()
 		{
-			var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(passedMessage);
 
 			Assert.Empty(handler.Messages);
 		}
@@ -398,14 +401,16 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void LogsOutputWhenDiagnosticsAreEnabled()
 		{
-			var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
-			handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: message.TestAssembly.Assembly.AssemblyPath));
-			handler.Messages.Clear();  // Ignore any output from the "assembly execution starting" message
+			handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: TestData.DefaultAssemblyPath));
+			handler.OnMessage(TestData.TestAssemblyStarting());
+			handler.Messages.Clear();  // Reset any output from previous messages
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(passedMessage);
 
-			Assert.Collection(handler.Messages,
+			Assert.Collection(
+				handler.Messages,
 				msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
 				msg => Assert.Equal("[---] =>       Output:", msg),
 				msg => Assert.Equal("[Imp] =>         This is\t", msg),

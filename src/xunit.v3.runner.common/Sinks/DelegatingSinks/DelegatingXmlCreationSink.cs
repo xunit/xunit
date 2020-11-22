@@ -83,8 +83,10 @@ namespace Xunit.Runner.Common
 
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
 				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
-				&& message.Dispatch<ITestPassed>(messageTypes, HandleTestPassed)
+				&& message.Dispatch<_TestFinished>(messageTypes, HandleTestFinished)
+				&& message.Dispatch<_TestPassed>(messageTypes, HandleTestPassed)
 				&& message.Dispatch<ITestSkipped>(messageTypes, HandleTestSkipped)
+				&& message.Dispatch<_TestStarting>(messageTypes, HandleTestStarting)
 
 				&& result;
 		}
@@ -108,6 +110,60 @@ namespace Xunit.Runner.Common
 				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
 			);
 
+		XElement CreateTestResultElement(
+			_TestResultMessage testResult,
+			string resultText)
+		{
+			var testMetadata = Guard.NotNull($"Cannot find test metadata for ID {testResult.TestUniqueID}", metadataCache.TryGetTestMetadata(testResult));
+			var testCaseMetadata = Guard.NotNull($"Cannot find test case metadata for ID {testResult.TestCaseUniqueID}", metadataCache.TryGetTestCaseMetadata(testResult));
+			var testMethodMetadata = Guard.NotNull($"Cannot find test method metadata for ID {testResult.TestMethodUniqueID}", metadataCache.TryGetMethodMetadata(testResult));
+			var testClassMetadata = Guard.NotNull($"Cannot find test class metadata for ID {testResult.TestClassUniqueID}", metadataCache.TryGetClassMetadata(testResult));
+
+			var collectionElement = GetTestCollectionElement(testResult.TestCollectionUniqueID);
+			var testResultElement =
+				new XElement("test",
+					new XAttribute("name", XmlEscape(testMetadata.TestDisplayName)),
+					new XAttribute("type", testClassMetadata.TestClass),
+					new XAttribute("method", testMethodMetadata.TestMethod),
+					new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
+					new XAttribute("result", resultText)
+				);
+
+			var testOutput = testResult.Output;
+			if (!string.IsNullOrWhiteSpace(testOutput))
+				testResultElement.Add(new XElement("output", new XCData(testOutput)));
+
+			var fileName = testCaseMetadata.SourceFilePath;
+			if (fileName != null)
+				testResultElement.Add(new XAttribute("source-file", fileName));
+
+			var lineNumber = testCaseMetadata.SourceLineNumber;
+			if (lineNumber != null)
+				testResultElement.Add(new XAttribute("source-line", lineNumber.GetValueOrDefault()));
+
+			var traits = testCaseMetadata.Traits;
+			if (traits != null && traits.Count > 0)
+			{
+				var traitsElement = new XElement("traits");
+
+				foreach (var keyValuePair in traits)
+					foreach (var val in keyValuePair.Value)
+						traitsElement.Add(
+							new XElement("trait",
+								new XAttribute("name", XmlEscape(keyValuePair.Key)),
+								new XAttribute("value", XmlEscape(val))
+							)
+						);
+
+				testResultElement.Add(traitsElement);
+			}
+
+			collectionElement.Add(testResultElement);
+
+			return testResultElement;
+		}
+
+		// TODO: Delete this when there are no more callers
 		XElement CreateTestResultElement(
 			ITestResultMessage testResult,
 			string resultText)
@@ -306,6 +362,9 @@ namespace Xunit.Runner.Common
 			testElement.Add(CreateFailureElement(testFailed));
 		}
 
+		void HandleTestFinished(MessageHandlerArgs<_TestFinished> args) =>
+			metadataCache.TryRemove(args.Message);
+
 		void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
 			var metadata = metadataCache.TryGetMethodMetadata(args.Message);
@@ -321,7 +380,7 @@ namespace Xunit.Runner.Common
 		void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args) =>
 			metadataCache.Set(args.Message);
 
-		void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+		void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 			=> CreateTestResultElement(args.Message, "Pass");
 
 		void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
@@ -330,6 +389,9 @@ namespace Xunit.Runner.Common
 			var testElement = CreateTestResultElement(testSkipped, "Skip");
 			testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason))));
 		}
+
+		void HandleTestStarting(MessageHandlerArgs<_TestStarting> args) =>
+			metadataCache.Set(args.Message);
 
 		/// <summary>
 		/// Escapes a string for placing into the XML.

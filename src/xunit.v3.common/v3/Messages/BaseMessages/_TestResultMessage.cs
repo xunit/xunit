@@ -9,10 +9,15 @@ namespace Xunit.v3
 	/// </summary>
 	public class _TestResultMessage : _TestMessage, _IExecutionMetadata
 	{
+		decimal? executionTime;
 		string? output;
 
 		/// <inheritdoc/>
-		public decimal? ExecutionTime { get; set; }
+		public decimal ExecutionTime
+		{
+			get => executionTime ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionTime)} on an uninitialized '{GetType().FullName}' object");
+			set => executionTime = value;
+		}
 
 		/// <inheritdoc/>
 		public string Output

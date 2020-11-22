@@ -2,6 +2,7 @@
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 public class SkipAssertsTests
 {
@@ -49,8 +50,9 @@ public class SkipAssertsTests
 			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
 			Assert.Equal("Skipped", skipResult.TestMethod.Method.Name);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-			var passResult = Assert.Single(results.OfType<ITestPassed>());
-			Assert.Equal("Passed", passResult.TestMethod.Method.Name);
+			var passResult = Assert.Single(results.OfType<_TestPassed>());
+			var passMethodStarting = results.OfType<_TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
+			Assert.Equal("Passed", passMethodStarting.TestMethod);
 		}
 
 		class ClassUnderTest
@@ -85,8 +87,9 @@ public class SkipAssertsTests
 			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
 			Assert.Equal("Skipped", skipResult.TestMethod.Method.Name);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-			var passResult = Assert.Single(results.OfType<ITestPassed>());
-			Assert.Equal("Passed", passResult.TestMethod.Method.Name);
+			var passResult = Assert.Single(results.OfType<_TestPassed>());
+			var passMethodStarting = results.OfType<_TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
+			Assert.Equal("Passed", passMethodStarting.TestMethod);
 		}
 
 		class ClassUnderTest

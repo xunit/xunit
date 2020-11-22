@@ -257,10 +257,22 @@ namespace Xunit.Sdk
 					}
 
 					var exception = aggregator.ToException();
-					TestResultMessage testResult;
+					IMessageSinkMessage testResult;  // TODO: This should be _TestResultMessage
 
 					if (exception == null)
-						testResult = new TestPassed(Test, runSummary.Time, output);
+					{
+						testResult = new _TestPassed
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							ExecutionTime = runSummary.Time,
+							Output = output,
+							TestCaseUniqueID = TestCaseUniqueID,
+							TestClassUniqueID = TestClassUniqueID,
+							TestCollectionUniqueID = TestCollectionUniqueID,
+							TestMethodUniqueID = TestMethodUniqueID,
+							TestUniqueID = TestUniqueID
+						};
+					}
 					// We don't want a strongly typed contract here; any exception can be a dynamically
 					// skipped exception so long as its message starts with the special token.
 					else if (exception.Message.StartsWith(DynamicSkipToken.Value))

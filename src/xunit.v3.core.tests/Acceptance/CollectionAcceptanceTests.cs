@@ -33,11 +33,7 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
 			message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
 			message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-			message =>
-			{
-				var passed = Assert.IsAssignableFrom<ITestPassed>(message);
-				Assert.Equal(testDisplayName, passed.Test.DisplayName);
-			},
+			message => Assert.IsAssignableFrom<_TestPassed>(message),
 			message => Assert.IsAssignableFrom<_TestFinished>(message),
 			message => Assert.IsAssignableFrom<_TestCaseFinished>(message),
 			message => Assert.IsAssignableFrom<_TestMethodFinished>(message),

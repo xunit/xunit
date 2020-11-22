@@ -34,7 +34,7 @@ public class FactDiscovererTests
 
 		var testCase = Assert.Single(testCases);
 		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
-		Assert.Single(messageBus.Messages.OfType<ITestPassed>());
+		Assert.Single(messageBus.Messages.OfType<_TestPassed>());
 	}
 
 	[Fact]

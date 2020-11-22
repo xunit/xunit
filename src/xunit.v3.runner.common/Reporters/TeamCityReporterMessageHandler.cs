@@ -280,9 +280,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestPassed" />.
+		/// Handles instances of <see cref="_TestPassed" />.
 		/// </summary>
-		protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+		protected virtual void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
@@ -329,6 +329,19 @@ namespace Xunit.Runner.Common
 			logger.LogImportantMessage($"##teamcity[message text='{Escape(message)}' errorDetails='{Escape(stack)}' status='ERROR']");
 		}
 
+		void LogFinish(_TestResultMessage testResult)
+		{
+			var testMetadata = metadataCache.TryGetTestMetadata(testResult);
+			var formattedName = Escape(testMetadata != null ? testMetadata.TestDisplayName : "<unknown test>");
+			var flowId = testResult.TestCollectionUniqueID;
+
+			if (!string.IsNullOrWhiteSpace(testResult.Output))
+				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{flowId}']");
+
+			logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{flowId}']");
+		}
+
+		// TODO: Delete this when there are no more callers
 		void LogFinish(ITestResultMessage testResult)
 		{
 			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
