@@ -89,7 +89,7 @@ namespace Xunit.Sdk
 			}
 
 			if (testOutputHelper != null)
-				testOutputHelper.Initialize(MessageBus, Test);
+				testOutputHelper.Initialize(MessageBus, TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID, TestMethodUniqueID, TestCaseUniqueID, TestUniqueID);
 
 			var executionTime = await InvokeTestMethodAsync(aggregator);
 

@@ -46,7 +46,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(_TestMethodCleanupFailure))]
 	[InlineData(typeof(_TestMethodFinished))]
 	[InlineData(typeof(_TestMethodStarting))]
-	[InlineData(typeof(ITestOutput))]
+	[InlineData(typeof(_TestOutput))]
 	[InlineData(typeof(_TestPassed))]
 	[InlineData(typeof(_TestSkipped))]
 	[InlineData(typeof(_TestStarting))]

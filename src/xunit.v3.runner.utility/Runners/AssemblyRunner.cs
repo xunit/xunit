@@ -46,7 +46,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<_TestFailed>();
 			AddMessageTypeName<_TestFinished>();
 			AddMessageTypeName<_TestMethodCleanupFailure>();
-			AddMessageTypeName<ITestOutput>();
+			AddMessageTypeName<_TestOutput>();
 			AddMessageTypeName<_TestPassed>();
 			AddMessageTypeName<_TestSkipped>();
 			AddMessageTypeName<_TestStarting>();
@@ -362,7 +362,7 @@ namespace Xunit.Runners
 				if (DispatchMessage<_TestFinished>(message, messageTypes, m => OnTestFinished(new TestFinishedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
 					return !cancelled;
 			if (OnTestOutput != null)
-				if (DispatchMessage<ITestOutput>(message, messageTypes, m => OnTestOutput(new TestOutputInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output))))
+				if (DispatchMessage<_TestOutput>(message, messageTypes, m => OnTestOutput(new TestOutputInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output))))
 					return !cancelled;
 			if (OnTestPassed != null)
 				if (DispatchMessage<_TestPassed>(message, messageTypes, m => OnTestPassed(new TestPassedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))

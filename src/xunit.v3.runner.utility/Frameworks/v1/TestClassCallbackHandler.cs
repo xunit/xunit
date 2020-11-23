@@ -141,7 +141,7 @@ namespace Xunit.Runner.v1
 			// Since we don't get live output from xUnit.net v1, we just send a single output message just before
 			// the result message (if there was any output).
 			if (!string.IsNullOrEmpty(output))
-				@continue = messageSink.OnMessage(new TestOutput(currentTest, output)) && @continue;
+				@continue = messageSink.OnMessage(ToTestOutput(currentTest, output)) && @continue;
 
 			if (resultMessage != null)
 				@continue = messageSink.OnMessage(resultMessage) && @continue;
@@ -316,6 +316,34 @@ namespace Xunit.Runner.v1
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				Output = output,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
+
+		_TestOutput ToTestOutput(
+			ITest test,
+			string output)
+		{
+			int testIndex;
+			lock (testIndicesByTest)
+				testIndex = testIndicesByTest[test];
+
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
+
+			return new _TestOutput
+			{
+				AssemblyUniqueID = assemblyUniqueID,
 				Output = output,
 				TestCaseUniqueID = caseUniqueID,
 				TestClassUniqueID = classUniqueID,

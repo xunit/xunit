@@ -140,9 +140,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_TestMethodStarting>? TestMethodStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestOutput"/> message is received.
+		/// Occurs when a <see cref="_TestOutput"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestOutput>? TestOutputEvent;
+		public event MessageHandler<_TestOutput>? TestOutputEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestPassed"/> message is received.

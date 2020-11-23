@@ -52,6 +52,7 @@ namespace Xunit.Runner.v2
 
 				Convert<ITestFailed>(message, messageTypes, AdaptTestFailed) ??
 				Convert<ITestFinished>(message, messageTypes, AdaptTestFinished) ??
+				Convert<ITestOutput>(message, messageTypes, AdaptTestOutput) ??
 				Convert<ITestPassed>(message, messageTypes, AdaptTestPassed) ??
 				Convert<ITestSkipped>(message, messageTypes, AdaptTestSkipped) ??
 				Convert<ITestStarting>(message, messageTypes, AdaptTestStarting) ??
@@ -380,6 +381,27 @@ namespace Xunit.Runner.v2
 				TestClassUniqueID = testClassUniqueID,
 				TestMethod = message.TestMethod.Method.Name,
 				TestMethodUniqueID = testMethodUniqueID,
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestOutput(ITestOutput message)
+		{
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
+			var testCaseUniqueID = message.TestCase.UniqueID;
+			var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
+
+			return new _TestOutput
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Output = message.Output,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
 			};
 		}
 

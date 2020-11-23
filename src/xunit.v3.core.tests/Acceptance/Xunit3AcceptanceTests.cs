@@ -644,25 +644,25 @@ public class Xunit3AcceptanceTests
 			var idxOfTestPassed = msgs.FindIndex(msg => msg is _TestPassed);
 			Assert.True(idxOfTestPassed >= 0, "Test should have passed");
 
-			var idxOfFirstTestOutput = msgs.FindIndex(msg => msg is ITestOutput);
+			var idxOfFirstTestOutput = msgs.FindIndex(msg => msg is _TestOutput);
 			Assert.True(idxOfFirstTestOutput >= 0, "Test should have output");
 			Assert.True(idxOfFirstTestOutput < idxOfTestPassed, "Test output messages should precede test result");
 
 			Assert.Collection(
-				msgs.OfType<ITestOutput>(),
+				msgs.OfType<_TestOutput>(),
 				msg =>
 				{
-					var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+					var outputMessage = Assert.IsType<_TestOutput>(msg);
 					Assert.Equal("This is output in the constructor" + Environment.NewLine, outputMessage.Output);
 				},
 				msg =>
 				{
-					var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+					var outputMessage = Assert.IsType<_TestOutput>(msg);
 					Assert.Equal("This is test output" + Environment.NewLine, outputMessage.Output);
 				},
 				msg =>
 				{
-					var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+					var outputMessage = Assert.IsType<_TestOutput>(msg);
 					Assert.Equal("This is output in Dispose" + Environment.NewLine, outputMessage.Output);
 				}
 			);

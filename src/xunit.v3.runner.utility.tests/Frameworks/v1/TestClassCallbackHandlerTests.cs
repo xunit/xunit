@@ -66,8 +66,7 @@ public class TestClassCallbackHandlerTests
 		handler.OnXmlNode(startXml.FirstChild);
 		handler.OnXmlNode(passXml.FirstChild);
 
-		var message = Assert.Single(messages.OfType<ITestOutput>());
-		Assert.Same(testCase, message.TestCase);
+		var message = Assert.Single(messages.OfType<_TestOutput>());
 		Assert.Equal("This is output text", message.Output);
 	}
 

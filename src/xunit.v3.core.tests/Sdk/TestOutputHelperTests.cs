@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -29,15 +28,19 @@ public class TestOutputHelperTests
 	{
 		var output = new TestOutputHelper();
 		var messageBus = new SpyMessageBus();
-		var testCase = Mocks.TestCase();
-		var test = Mocks.Test(testCase, "Test Display Name");
-		output.Initialize(messageBus, test);
+		output.Initialize(messageBus, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id");
 
 		output.WriteLine(outputText);
 
 		var message = Assert.Single(messageBus.Messages);
-		var outputMessage = Assert.IsAssignableFrom<ITestOutput>(message);
+		var outputMessage = Assert.IsType<_TestOutput>(message);
+		Assert.Equal("asm-id", outputMessage.AssemblyUniqueID);
 		Assert.Equal(expected + Environment.NewLine, outputMessage.Output);
+		Assert.Equal("case-id", outputMessage.TestCaseUniqueID);
+		Assert.Equal("class-id", outputMessage.TestClassUniqueID);
+		Assert.Equal("coll-id", outputMessage.TestCollectionUniqueID);
+		Assert.Equal("method-id", outputMessage.TestMethodUniqueID);
+		Assert.Equal("test-id", outputMessage.TestUniqueID);
 		Assert.Equal(expected + Environment.NewLine, output.Output);
 	}
 }
