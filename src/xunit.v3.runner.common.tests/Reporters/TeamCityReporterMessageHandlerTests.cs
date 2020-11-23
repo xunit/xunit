@@ -228,21 +228,31 @@ public class TeamCityReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestFailed
+	public class OnMessage_TestFailed
 	{
-		[Fact(Skip = "This test cannot be re-enabled until all this message is ported")]
+		[Fact]
 		public static void LogsTestNameWithExceptionAndStackTraceAndOutput()
 		{
-			var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, "ExceptionType", "This is my message \t\r\n", "Line 1\r\nLine 2\r\nLine 3", "This is\t\r\noutput");
+			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+			var failedMessage = TestData.TestFailed(
+				exceptionParentIndices: new[] { -1 },
+				exceptionTypes: new[] { "ExceptionType" },
+				executionTime: 1.2345m,
+				messages: new[] { "This is my message \t\r\n" },
+				output: "This is\t\r\noutput",
+				stackTraces: new[] { "Line 1\r\nLine 2\r\nLine 3" }
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(failedMessage);
 
 			Assert.Collection(
 				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testFailed name='FORMATTED:This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='FORMATTED:This is my display name \t|r|n' out='This is\t|r|noutput' flowId='myFlowId']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
+				msg => Assert.Equal("[Imp] => ##teamcity[testStarted name='This is my display name 	|r|n' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testFailed name='This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='This is my display name \t|r|n' out='This is\t|r|noutput' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='test-collection-id']", msg)
 			);
 		}
 	}

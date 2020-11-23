@@ -155,6 +155,7 @@ namespace Xunit.v3
 				};
 
 		public static _TestCollectionFinished TestCollectionFinished(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			decimal executionTime = DefaultExecutionTime,
 			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 			int testsFailed = DefaultCountFailed,
@@ -162,6 +163,7 @@ namespace Xunit.v3
 			int testsSkipped = DefaultCountSkipped) =>
 				new _TestCollectionFinished
 				{
+					AssemblyUniqueID = assemblyUniqueID,
 					ExecutionTime = executionTime,
 					TestCollectionUniqueID = testCollectionUniqueID,
 					TestsFailed = testsFailed,
@@ -180,6 +182,35 @@ namespace Xunit.v3
 					TestCollectionClass = testCollectionClass,
 					TestCollectionDisplayName = testCollectionDisplayName,
 					TestCollectionUniqueID = testCollectionUniqueID
+				};
+
+		public static _TestFailed TestFailed(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			int[]? exceptionParentIndices = null,
+			string?[]? exceptionTypes = null,
+			decimal executionTime = 123.4567m,
+			string[]? messages = null,
+			string output = "",
+			string?[]? stackTraces = null,
+			string testCaseUniqueID = DefaultTestCaseUniqueID,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			string? testMethodUniqueID = DefaultTestMethodUniqueID,
+			string testUniqueID = DefaultTestUniqueID) =>
+				new _TestFailed
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+					ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+					ExecutionTime = executionTime,
+					Messages = messages ?? DefaultExceptionMessages,
+					Output = output,
+					StackTraces = stackTraces ?? DefaultStackTraces,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
 				};
 
 		public static _TestFinished TestFinished(

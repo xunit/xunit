@@ -270,7 +270,7 @@ namespace Xunit.Sdk
 					}
 
 					var exception = aggregator.ToException();
-					IMessageSinkMessage testResult;  // TODO: This should be _TestResultMessage
+					_TestResultMessage testResult;
 
 					if (exception == null)
 					{
@@ -306,7 +306,22 @@ namespace Xunit.Sdk
 					}
 					else
 					{
-						testResult = new TestFailed(Test, runSummary.Time, output, exception);
+						var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(exception);
+						testResult = new _TestFailed
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+							ExceptionTypes = errorMetadata.ExceptionTypes,
+							ExecutionTime = runSummary.Time,
+							Messages = errorMetadata.Messages,
+							Output = output,
+							StackTraces = errorMetadata.StackTraces,
+							TestCaseUniqueID = TestCaseUniqueID,
+							TestClassUniqueID = TestClassUniqueID,
+							TestCollectionUniqueID = TestCollectionUniqueID,
+							TestMethodUniqueID = TestMethodUniqueID,
+							TestUniqueID = TestUniqueID
+						};
 						runSummary.Failed++;
 					}
 

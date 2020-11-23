@@ -60,15 +60,21 @@ namespace Xunit.Sdk
 			{
 				summary.Failed = 1;
 
-				var testFailed = new TestFailed(
-					test,
-					0,
-					null,
-					new[] { typeof(InvalidOperationException).FullName },
-					new[] { TestCase.ErrorMessage },
-					new[] { "" },
-					new[] { -1 }
-				);
+				var testFailed = new _TestFailed
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					ExceptionParentIndices = new[] { -1 },
+					ExceptionTypes = new[] { typeof(InvalidOperationException).FullName },
+					ExecutionTime = 0m,
+					Messages = new[] { TestCase.ErrorMessage },
+					StackTraces = new[] { "" },
+					Output = "",
+					TestCaseUniqueID = TestCase.UniqueID,
+					TestClassUniqueID = TestClassUniqueID,
+					TestCollectionUniqueID = TestCollectionUniqueID,
+					TestMethodUniqueID = TestMethodUniqueID,
+					TestUniqueID = testUniqueID
+				};
 
 				if (!MessageBus.QueueMessage(testFailed))
 					CancellationTokenSource.Cancel();

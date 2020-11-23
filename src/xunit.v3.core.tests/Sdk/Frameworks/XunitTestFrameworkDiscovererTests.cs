@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -23,10 +22,11 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal(2, summary.Total);
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
-		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
 		Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passedStarting.TestDisplayName);
-		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
+		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
+		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
+		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failedStarting.TestDisplayName);
 	}
 
 	[CulturedFact("en-US")]
@@ -40,8 +40,9 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal(0m, summary.Time);
 		Assert.Equal(1, summary.Total);
 		Assert.Equal(1, summary.Failed);
-		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-		Assert.Equal("Display Name", failed.Test.DisplayName);
+		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
+		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
+		Assert.Equal("Display Name", failedStarting.TestDisplayName);
 		Assert.Equal("System.DivideByZeroException", failed.ExceptionTypes.Single());
 		Assert.Equal("Attempted to divide by zero.", failed.Messages.Single());
 		Assert.Contains("ClassUnderTest.get_ThrowingData", failed.StackTraces.Single());
@@ -72,10 +73,11 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal(2, summary.Skipped);
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
-		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
 		Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passedStarting.TestDisplayName);
-		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failed.Test.DisplayName);
+		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
+		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
+		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failedStarting.TestDisplayName);
 
 		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
 		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");

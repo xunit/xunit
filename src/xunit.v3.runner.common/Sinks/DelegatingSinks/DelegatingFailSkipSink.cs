@@ -16,7 +16,6 @@ namespace Xunit.Runner.Common
 	{
 		bool disposed;
 		readonly IExecutionSink innerSink;
-		int skipCount;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingFailSkipSink"/> class.
@@ -56,25 +55,33 @@ namespace Xunit.Runner.Common
 			var testSkipped = message.Cast<_TestSkipped>(messageTypes);
 			if (testSkipped != null)
 			{
-				skipCount++;
-
-				// TODO: This is broken because of the null ITest, to be fixed soon
-				var testFailed = new TestFailed(
-					null!, 0M, "",
-					new[] { "FAIL_SKIP" },
-					new[] { testSkipped.Reason },
-					new[] { "" },
-					new[] { -1 }
-				);
+				var testFailed = new _TestFailed
+				{
+					AssemblyUniqueID = testSkipped.AssemblyUniqueID,
+					ExceptionParentIndices = new[] { -1 },
+					ExceptionTypes = new[] { "FAIL_SKIP" },
+					ExecutionTime = 0m,
+					Messages = new[] { testSkipped.Reason },
+					Output = "",
+					StackTraces = new[] { "" },
+					TestCaseUniqueID = testSkipped.TestCaseUniqueID,
+					TestClassUniqueID = testSkipped.TestClassUniqueID,
+					TestCollectionUniqueID = testSkipped.TestCollectionUniqueID,
+					TestMethodUniqueID = testSkipped.TestMethodUniqueID,
+					TestUniqueID = testSkipped.TestUniqueID
+				};
 
 				return innerSink.OnMessage(testFailed);
 			}
+
+			// TODO: Shouldn't there be conversions of all the finished messages up the stack, to rectify the counts?
 
 			var testCollectionFinished = message.Cast<_TestCollectionFinished>(messageTypes);
 			if (testCollectionFinished != null)
 			{
 				testCollectionFinished = new _TestCollectionFinished
 				{
+					AssemblyUniqueID = testCollectionFinished.AssemblyUniqueID,
 					ExecutionTime = testCollectionFinished.ExecutionTime,
 					TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
 					TestsFailed = testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,

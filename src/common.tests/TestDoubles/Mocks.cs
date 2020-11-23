@@ -454,52 +454,6 @@ namespace Xunit.v3
 		public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>() =>
 			TestCollectionOrdererAttribute(typeof(TOrderer));
 
-		public static ITestFailed TestFailed(
-			Type type,
-			string methodName,
-			string? displayName = null,
-			string? output = null,
-			decimal executionTime = 0M,
-			Exception? ex = null)
-		{
-			var testCase = TestCase(type, methodName);
-			var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
-			var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
-
-			var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
-			result.ExceptionParentIndices.Returns(failureInfo.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(failureInfo.ExceptionTypes);
-			result.ExecutionTime.Returns(executionTime);
-			result.Messages.Returns(failureInfo.Messages);
-			result.Output.Returns(output);
-			result.StackTraces.Returns(failureInfo.StackTraces);
-			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			return result;
-		}
-
-		public static ITestFailed TestFailed(
-			string displayName,
-			decimal executionTime,
-			string? exceptionType = null,
-			string? exceptionMessage = null,
-			string? stackTrace = null,
-			string? output = null)
-		{
-			var testCase = TestCase();
-			var test = Test(testCase, displayName);
-			var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
-			result.ExceptionParentIndices.Returns(new[] { -1 });
-			result.ExceptionTypes.Returns(new[] { exceptionType });
-			result.ExecutionTime.Returns(executionTime);
-			result.Messages.Returns(new[] { exceptionMessage });
-			result.Output.Returns(output);
-			result.StackTraces.Returns(new[] { stackTrace });
-			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			return result;
-		}
-
 		public static IReflectionAttributeInfo TestFrameworkAttribute(Type type)
 		{
 			var attribute = Activator.CreateInstance(type);

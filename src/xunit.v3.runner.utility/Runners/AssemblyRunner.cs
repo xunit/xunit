@@ -43,7 +43,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<_TestClassCleanupFailure>();
 			AddMessageTypeName<ITestCleanupFailure>();
 			AddMessageTypeName<_TestCollectionCleanupFailure>();
-			AddMessageTypeName<ITestFailed>();
+			AddMessageTypeName<_TestFailed>();
 			AddMessageTypeName<_TestFinished>();
 			AddMessageTypeName<_TestMethodCleanupFailure>();
 			AddMessageTypeName<ITestOutput>();
@@ -356,7 +356,7 @@ namespace Xunit.Runners
 					return !cancelled;
 #if false  // TODO: No simple conversions here yet
 			if (OnTestFailed != null)
-				if (DispatchMessage<ITestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+				if (DispatchMessage<_TestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
 			if (OnTestFinished != null)
 				if (DispatchMessage<_TestFinished>(message, messageTypes, m => OnTestFinished(new TestFinishedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))

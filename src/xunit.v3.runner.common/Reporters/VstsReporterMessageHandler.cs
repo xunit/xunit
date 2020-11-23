@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -94,15 +93,16 @@ namespace Xunit.Runner.Common
 		{
 			base.HandleTestStarting(args);
 
-			var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(args.Message);
-			var classMetadata = MetadataCache.TryGetClassMetadata(args.Message);
-			var methodMetadata = MetadataCache.TryGetMethodMetadata(args.Message);
+			var testStarting = args.Message;
+			var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(testStarting);
+			var classMetadata = MetadataCache.TryGetClassMetadata(testStarting);
+			var methodMetadata = MetadataCache.TryGetMethodMetadata(testStarting);
 
 			if (assemblyMetadata != null && classMetadata != null && methodMetadata != null)
 			{
 				var testName = $"{classMetadata.TestClass}.{methodMetadata.TestMethod}";
 
-				VstsAddTest(testName, args.Message.TestDisplayName, assemblyMetadata.SimpleAssemblyName(), args.Message.TestUniqueID);
+				VstsAddTest(testName, testStarting.TestDisplayName, assemblyMetadata.SimpleAssemblyName(), testStarting.TestUniqueID);
 			}
 		}
 
@@ -111,7 +111,7 @@ namespace Xunit.Runner.Common
 		{
 			var testPassed = args.Message;
 
-			VstsUpdateTest(args.Message.TestUniqueID, "Passed", Convert.ToInt64(testPassed.ExecutionTime * 1000), stdOut: testPassed.Output);
+			VstsUpdateTest(testPassed.TestUniqueID, "Passed", Convert.ToInt64(testPassed.ExecutionTime * 1000), stdOut: testPassed.Output);
 
 			base.HandleTestPassed(args);
 		}
@@ -121,18 +121,18 @@ namespace Xunit.Runner.Common
 		{
 			var testSkipped = args.Message;
 
-			VstsUpdateTest(args.Message.TestUniqueID, "NotExecuted", Convert.ToInt64(testSkipped.ExecutionTime * 1000));
+			VstsUpdateTest(testSkipped.TestUniqueID, "NotExecuted", Convert.ToInt64(testSkipped.ExecutionTime * 1000));
 
 			base.HandleTestSkipped(args);
 		}
 
 		/// <inheritdoc/>
-		protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+		protected override void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
 			var testFailed = args.Message;
 
 			VstsUpdateTest(
-				args.Message.Test,
+				testFailed.TestUniqueID,
 				"Failed",
 				Convert.ToInt64(testFailed.ExecutionTime * 1000),
 				ExceptionUtility.CombineMessages(testFailed),
@@ -147,7 +147,7 @@ namespace Xunit.Runner.Common
 			string testName,
 			string displayName,
 			string fileName,
-			string testUniqueId)
+			string testUniqueID)
 		{
 			var body = new Dictionary<string, object?>
 			{
@@ -155,18 +155,17 @@ namespace Xunit.Runner.Common
 				{ "automatedTestName", testName },
 				{ "automatedTestType", "UnitTest" },
 				{ "automatedTestTypeId", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" }, // This is used in the sample response and also appears in web searches
-				{ "automatedTestId", testUniqueId },
+				{ "automatedTestId", testUniqueID },
 				{ "automatedTestStorage", fileName },
 				{ "state", "InProgress" },
 				{ "startedDate", DateTime.UtcNow }
 			};
 
-			Client.AddTest(body, testUniqueId);
+			Client.AddTest(body, testUniqueID);
 		}
 
-		// TODO: testUniqueID should be a string
 		void VstsUpdateTest(
-			object testUniqueID,
+			string testUniqueID,
 			string outcome,
 			long? durationMilliseconds = null,
 			string? errorMessage = null,

@@ -6,6 +6,7 @@ using Xunit.Runner.Common;
 /// <summary>
 /// Extension methods for <see cref="IMessageSinkMessage"/>.
 /// </summary>
+// TODO: Convert this (or split this) for _MessageSinkMessage, removing the HashSet.
 public static class MessageSinkMessageExtensions
 {
 	/// <summary>
@@ -16,6 +17,7 @@ public static class MessageSinkMessageExtensions
 	/// <param name="message">The message to test and cast.</param>
 	/// <param name="typeNames">The implemented interfaces, if known.</param>
 	/// <returns>The message as <typeparamref name="TMessage"/>, or <c>null</c>.</returns>
+	// TODO: Rename to TryCast
 	public static TMessage? Cast<TMessage>(
 		this IMessageSinkMessage message,
 		HashSet<string>? typeNames)

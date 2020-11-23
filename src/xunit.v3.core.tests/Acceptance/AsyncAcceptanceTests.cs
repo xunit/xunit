@@ -1,28 +1,32 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 public class AsyncAcceptanceTests : AcceptanceTestV3
 {
-	[Fact]
-	public async void AsyncTaskTestsRunCorrectly()
+	[Theory]
+	[InlineData(typeof(ClassWithAsyncValueTask))]
+	[InlineData(typeof(ClassWithAsyncTask))]
+	[InlineData(typeof(ClassWithAsyncVoid))]
+	public async ValueTask AsyncValueTaskTestsRunCorrectly(Type classUnderTest)
 	{
-		var results = await RunAsync<ITestResultMessage>(typeof(ClassWithAsyncTask));
+		var results = await RunAsync<_TestFailed>(classUnderTest);
 
-		var result = Assert.Single(results);
-		var failed = Assert.IsAssignableFrom<ITestFailed>(result);
+		var failed = Assert.Single(results);
 		Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
 	}
 
-	[Fact]
-	public async void AsyncVoidTestsRunCorrectly()
+	class ClassWithAsyncValueTask
 	{
-		var results = await RunAsync<ITestResultMessage>(typeof(ClassWithAsyncVoid));
+		[Fact]
+		public async ValueTask AsyncTest()
+		{
+			var result = await Task.FromResult(21);
 
-		var result = Assert.Single(results);
-		var failed = Assert.IsAssignableFrom<ITestFailed>(result);
-		Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
+			Assert.Equal(42, result);
+		}
 	}
 
 	class ClassWithAsyncTask

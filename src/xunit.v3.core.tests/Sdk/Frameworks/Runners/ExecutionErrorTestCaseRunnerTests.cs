@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -33,9 +32,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 			msg => Assert.IsAssignableFrom<_TestStarting>(msg),
 			msg =>
 			{
-				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
-				Assert.Same(testCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
-				Assert.Same(testCase, failed.TestCase);
+				var failed = Assert.IsAssignableFrom<_TestFailed>(msg);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
 				Assert.Collection(failed.ExceptionTypes, type => Assert.Equal("System.InvalidOperationException", type));
@@ -60,12 +57,12 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 
 	[Theory]
 	[InlineData(typeof(_TestStarting))]
-	[InlineData(typeof(ITestFailed))]
+	[InlineData(typeof(_TestFailed))]
 	[InlineData(typeof(_TestFinished))]
 	public async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
 		var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
-		var messageBus = new SpyMessageBus(msg => !(messageTypeToCancelOn.IsAssignableFrom(msg.GetType())));
+		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
 		var runner = new ExecutionErrorTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource);
 
 		await runner.RunAsync();

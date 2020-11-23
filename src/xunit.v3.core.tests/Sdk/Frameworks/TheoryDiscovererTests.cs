@@ -17,7 +17,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void NoDataAttributes()
 	{
-		var failures = await RunAsync<ITestFailed>(typeof(NoDataAttributesClass));
+		var failures = await RunAsync<_TestFailed>(typeof(NoDataAttributesClass));
 
 		var failure = Assert.Single(failures);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -33,7 +33,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void NullMemberData_ThrowsInvalidOperationException()
 	{
-		var results = await RunAsync<ITestFailed>(typeof(NullDataClass));
+		var results = await RunAsync<_TestFailed>(typeof(NullDataClass));
 
 		var failure = Assert.Single(results);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -60,7 +60,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void EmptyTheoryData()
 	{
-		var failures = await RunAsync<ITestFailed>(typeof(EmptyTheoryDataClass));
+		var failures = await RunAsync<_TestFailed>(typeof(EmptyTheoryDataClass));
 
 		var failure = Assert.Single(failures);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -255,7 +255,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
 	{
-		var results = await RunAsync<ITestFailed>(typeof(NoSuchDataDiscovererClass));
+		var results = await RunAsync<_TestFailed>(typeof(NoSuchDataDiscovererClass));
 
 		var failure = Assert.Single(results);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -281,7 +281,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void NotADataDiscoverer_ThrowsInvalidOperationException()
 	{
-		var results = await RunAsync<ITestFailed>(typeof(NotADataDiscovererClass));
+		var results = await RunAsync<_TestFailed>(typeof(NotADataDiscovererClass));
 
 		var failure = Assert.Single(results);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());

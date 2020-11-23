@@ -115,10 +115,9 @@ namespace Xunit.Runner.Common
 			workEvent.Set();
 		}
 
-		// TODO: testUniqueID should be a string
 		public void UpdateTest(
 			IDictionary<string, object?> request,
-			object testUniqueID)
+			string testUniqueID)
 		{
 			request.Add(UNIQUEIDKEY, testUniqueID);
 			updateQueue.Enqueue(request);

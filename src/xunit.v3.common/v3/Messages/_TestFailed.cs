@@ -6,7 +6,7 @@ namespace Xunit.v3
 	/// <summary>
 	/// This message indicates that a test has failed.
 	/// </summary>
-	public class _TestFailed : _TestResultMessage
+	public class _TestFailed : _TestResultMessage, _IErrorMetadata
 	{
 		int[]? exceptionParentIndices;
 		string?[]? exceptionTypes;

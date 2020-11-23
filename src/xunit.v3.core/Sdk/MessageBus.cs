@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.Sdk;
 using Xunit.v3;
 
-namespace Xunit.Sdk
+namespace Xunit.Internal
 {
 	/// <summary>
 	/// This is an internal class, and is not intended to be called from end-user code.
@@ -77,7 +77,7 @@ namespace Xunit.Sdk
 			if (shutdownRequested)
 				throw new ObjectDisposedException("MessageBus");
 
-			if (stopOnFail && message is ITestFailed)
+			if (stopOnFail && message is _TestFailed)
 				continueRunning = false;
 
 			reporterQueue.Enqueue(message);

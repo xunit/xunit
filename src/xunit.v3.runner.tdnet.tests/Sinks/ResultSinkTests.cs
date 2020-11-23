@@ -41,8 +41,11 @@ public class ResultSinkTests
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			sink.OnMessage(TestData.TestClassStarting());
+			sink.OnMessage(TestData.TestMethodStarting());
+			sink.OnMessage(TestData.TestStarting());
 
-			sink.OnMessage(Mocks.TestFailed(typeof(object), "GetHashCode"));
+			sink.OnMessage(TestData.TestFailed());
 
 			Assert.Equal(TestRunState.Failure, sink.TestRunState);
 		}
@@ -343,9 +346,9 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static async void ConvertsITestFailed()
+		public static async void ConvertsTestFailed()
 		{
-			Exception ex;
+			_IErrorMetadata errorMetadata;
 
 			try
 			{
@@ -353,7 +356,7 @@ public class ResultSinkTests
 			}
 			catch (Exception e)
 			{
-				ex = e;
+				errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(e);
 			}
 
 			TestResult? testResult = null;
@@ -362,7 +365,16 @@ public class ResultSinkTests
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
 			await using var sink = new ResultSink(listener, 42);
-			var message = Mocks.TestFailed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, ex: ex);
+			sink.OnMessage(TestData.TestClassStarting(testClass: typeof(object).FullName!));
+			sink.OnMessage(TestData.TestMethodStarting(testMethod: nameof(object.GetHashCode)));
+			sink.OnMessage(TestData.TestStarting(testDisplayName: "Display Name"));
+			var message = TestData.TestFailed(
+				exceptionParentIndices: errorMetadata.ExceptionParentIndices,
+				exceptionTypes: errorMetadata.ExceptionTypes,
+				executionTime: 123.45m,
+				messages: errorMetadata.Messages,
+				stackTraces: errorMetadata.StackTraces
+			);
 
 			sink.OnMessage(message);
 
@@ -373,8 +385,8 @@ public class ResultSinkTests
 			Assert.Equal(TestState.Failed, testResult.State);
 			Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
 			Assert.Equal(42, testResult.TotalTests);
-			Assert.Equal("System.Exception : " + ex.Message, testResult.Message);
-			Assert.Equal(ex.StackTrace, testResult.StackTrace);
+			Assert.Equal($"{errorMetadata.ExceptionTypes[0]} : {errorMetadata.Messages[0]}", testResult.Message);
+			Assert.Equal(errorMetadata.StackTraces[0], testResult.StackTrace);
 		}
 
 		[Fact]

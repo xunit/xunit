@@ -72,10 +72,9 @@ public class TestRunnerTests
 		Assert.Equal(0, result.Skipped);
 		Assert.Equal(21.12m, result.Time);
 		// Fail message
-		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-		Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
-		Assert.Same(runner.TestCase, failed.TestCase);
-		Assert.Equal("Display Name", failed.Test.DisplayName);
+		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
+		var failedStarting = Assert.Single(messageBus.Messages.OfType<_TestStarting>().Where(s => s.TestUniqueID == failed.TestUniqueID));
+		Assert.Equal("Display Name", failedStarting.TestDisplayName);
 		Assert.Equal(21.12m, failed.ExecutionTime);
 		Assert.Empty(failed.Output);
 		Assert.Equal("Xunit.Sdk.TrueException", failed.ExceptionTypes.Single());
@@ -150,7 +149,7 @@ public class TestRunnerTests
 
 		await runner.RunAsync();
 
-		var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
 		Assert.Empty(messageBus.Messages.OfType<ITestCleanupFailure>());
 	}
@@ -165,7 +164,7 @@ public class TestRunnerTests
 
 		await runner.RunAsync();
 
-		var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
 		Assert.Empty(messageBus.Messages.OfType<ITestCleanupFailure>());
 	}
@@ -204,7 +203,7 @@ public class TestRunnerTests
 
 	[Theory]
 	[InlineData(typeof(_TestPassed), true, null)]
-	[InlineData(typeof(ITestFailed), false, null)]
+	[InlineData(typeof(_TestFailed), false, null)]
 	[InlineData(typeof(_TestSkipped), false, "Please skip me")]
 	[InlineData(typeof(_TestFinished), true, null)]
 	public static async void Cancellation_AllOthers_CallsExtensibilityMethods(

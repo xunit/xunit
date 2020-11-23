@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -154,21 +153,26 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+		protected override void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
 			var testFailed = args.Message;
-			var testMethods = assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].testMethods;  // TODO: Incorrect index
+			var metadata = MetadataCache.TryGetTestMetadata(testFailed);
+			if (metadata != null)
+			{
+				var testMethods = assemblyInfoByUniqueID[testFailed.AssemblyUniqueID].testMethods;
 
-			Client.UpdateTest(GetRequestMessage(
-				GetFinishedTestName(testFailed.Test.DisplayName, testMethods),
-				"xUnit",
-				assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
-				"Failed",
-				Convert.ToInt64(testFailed.ExecutionTime * 1000),
-				ExceptionUtility.CombineMessages(testFailed),
-				ExceptionUtility.CombineStackTraces(testFailed),
-				testFailed.Output
-			));
+				Client.UpdateTest(GetRequestMessage(
+					GetFinishedTestName(metadata.TestDisplayName, testMethods),
+					"xUnit",
+					assemblyInfoByUniqueID[testFailed.AssemblyUniqueID].assemblyFileName,
+					"Failed",
+					Convert.ToInt64(testFailed.ExecutionTime * 1000),
+					ExceptionUtility.CombineMessages(testFailed),
+					ExceptionUtility.CombineStackTraces(testFailed),
+					testFailed.Output
+				));
+			}
+			// TODO: What to do when metadata lookup fails?
 
 			base.HandleTestFailed(args);
 		}

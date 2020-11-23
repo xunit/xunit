@@ -5,7 +5,7 @@ using Xunit.v3;
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// Represents an <see cref="_IMessageSink"/> that collection execution information and
+	/// Represents an <see cref="_IMessageSink"/> that collects execution information and
 	/// provides an <see cref="ExecutionSummary" /> once execution is complete.
 	/// </summary>
 	public interface IExecutionSink : _IMessageSink, IDisposable

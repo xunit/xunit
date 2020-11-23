@@ -266,9 +266,10 @@ let AsyncFailing() =
 			controller.RunAll(sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery(), executionOptions: _TestFrameworkOptions.ForExecution());
 			sink.Finished.WaitOne();
 
-			var failures = sink.Messages.OfType<ITestFailed>();
+			var failures = sink.Messages.OfType<_TestFailed>();
 			var failure = Assert.Single(failures);
-			Assert.Equal("FSharpTests.AsyncFailing", failure.TestCase.DisplayName);
+			var failureStarting = sink.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failure.TestUniqueID);
+			Assert.Equal("FSharpTests.AsyncFailing", failureStarting.TestDisplayName);
 		}
 	}
 

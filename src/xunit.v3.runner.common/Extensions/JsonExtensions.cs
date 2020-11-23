@@ -127,7 +127,7 @@ namespace Xunit.Runner.Common
 			{ typeof(_TestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
 			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(_TestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
-			{ typeof(ITestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
+			{ typeof(_TestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
 			{ typeof(_TestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(ITestCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(_TestCollectionFinished), new List<AddFields> { AddFieldsForITestCollectionMessage, AddFieldsForIFinishedMessage } },
@@ -175,12 +175,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestFailed testFailed, string flowId)
+		public static string ToJson(this _TestFailed testFailed, string flowId)
 		{
 			Guard.ArgumentNotNull(nameof(testFailed), testFailed);
 			Guard.ArgumentNotNull(nameof(flowId), flowId);
 
-			var json = InitObject("testFailed", testFailed, typeof(ITestFailed), flowId);
+			var json = InitObject("testFailed", testFailed, typeof(_TestFailed), flowId);
 
 			return ToJson(json);
 		}

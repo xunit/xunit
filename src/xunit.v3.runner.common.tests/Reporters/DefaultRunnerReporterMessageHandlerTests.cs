@@ -20,15 +20,15 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class FailureMessages
 	{
-		readonly string assemblyID = "assembly-id";
-		readonly string classID = "test-class-id";
-		readonly string collectionID = "test-collection-id";
-		readonly int[] exceptionParentIndices = new[] { -1 };
-		readonly string[] exceptionTypes = new[] { "ExceptionType" };
-		readonly string[] messages = new[] { $"This is my message \t{Environment.NewLine}Message Line 2" };
-		readonly string methodID = "test-method-id";
-		readonly string[] stackTraces = new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" };
-		readonly string testCaseID = "test-case-id";
+		internal static readonly string assemblyID = "assembly-id";
+		internal static readonly string classID = "test-class-id";
+		internal static readonly string collectionID = "test-collection-id";
+		internal static readonly int[] exceptionParentIndices = new[] { -1 };
+		internal static readonly string[] exceptionTypes = new[] { "ExceptionType" };
+		internal static readonly string[] messages = new[] { $"This is my message \t{Environment.NewLine}Message Line 2" };
+		internal static readonly string methodID = "test-method-id";
+		internal static readonly string[] stackTraces = new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" };
+		internal static readonly string testCaseID = "test-case-id";
 		//readonly string testID = "test-id";
 
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
@@ -356,18 +356,27 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestFailed : DefaultRunnerReporterMessageHandlerTests
+	public class OnMessage_TestFailed : DefaultRunnerReporterMessageHandlerTests
 	{
+		_TestFailed failedMessage = TestData.TestFailed(
+			exceptionParentIndices: FailureMessages.exceptionParentIndices,
+			exceptionTypes: FailureMessages.exceptionTypes,
+			output: $"This is\t{Environment.NewLine}output",
+			messages: FailureMessages.messages,
+			stackTraces: FailureMessages.stackTraces
+		);
+		_TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+
 		[Fact]
 		public void LogsTestNameWithExceptionAndStackTraceAndOutput()
 		{
-			var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: $"This is\t{Environment.NewLine}output");
-			SetupFailureInformation(message);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(failedMessage);
 
-			Assert.Collection(handler.Messages,
+			Assert.Collection(
+				handler.Messages,
 				msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     This is my display name \\t\\r\\n [FAIL]", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       ExceptionType : This is my message \t", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       Message Line 2", msg),
@@ -384,7 +393,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_TestPassed
 	{
-		_TestPassed passedMessage = TestData.TestPassed(output: "This is\t" + Environment.NewLine + "output");
+		_TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");
 		_TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
 		[Fact]

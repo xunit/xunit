@@ -82,7 +82,7 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<_TestMethodStarting>(messageTypes, HandleTestMethodStarting)
 
 				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
-				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
+				&& message.Dispatch<_TestFailed>(messageTypes, HandleTestFailed)
 				&& message.Dispatch<_TestFinished>(messageTypes, HandleTestFinished)
 				&& message.Dispatch<_TestPassed>(messageTypes, HandleTestPassed)
 				&& message.Dispatch<_TestSkipped>(messageTypes, HandleTestSkipped)
@@ -355,7 +355,7 @@ namespace Xunit.Runner.Common
 			metadataCache.Set(testCollectionStarting);
 		}
 
-		void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+		void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
 			var testFailed = args.Message;
 			var testElement = CreateTestResultElement(testFailed, "Fail");

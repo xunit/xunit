@@ -226,21 +226,24 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
+
 			LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestFailed" />.
+		/// Handles instances of <see cref="_TestFailed" />.
 		/// </summary>
-		protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+		protected virtual void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testFailed = args.Message;
-			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
+			var testMetadata = metadataCache.TryGetTestMetadata(testFailed);
+			var formattedName = Escape(testMetadata != null ? testMetadata.TestDisplayName : "<unknown test>");
 			var details = $"{Escape(ExceptionUtility.CombineMessages(testFailed))}|r|n{Escape(ExceptionUtility.CombineStackTraces(testFailed))}";
 
-			logger.LogImportantMessage($"##teamcity[testFailed name='{formattedName}' details='{details}' flowId='{ToFlowId(testFailed.TestCollection.DisplayName)}']");
+			logger.LogImportantMessage($"##teamcity[testFailed name='{formattedName}' details='{details}' flowId='{testFailed.TestCollectionUniqueID}']");
+
 			LogFinish(testFailed);
 		}
 
@@ -287,6 +290,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testPassed = args.Message;
+
 			LogFinish(testPassed);
 		}
 

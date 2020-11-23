@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -199,8 +198,27 @@ namespace Xunit.Sdk
 
 			if (!MessageBus.QueueMessage(testStarting))
 				CancellationTokenSource.Cancel();
-			else if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, dataDiscoveryException!.Unwrap())))
-				CancellationTokenSource.Cancel();
+			else
+			{
+				var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(dataDiscoveryException!.Unwrap());
+				var testFailed = new _TestFailed
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+					ExceptionTypes = errorMetadata.ExceptionTypes,
+					ExecutionTime = 0m,
+					Messages = errorMetadata.Messages,
+					Output = "",
+					StackTraces = errorMetadata.StackTraces,
+					TestCaseUniqueID = TestCase.UniqueID,
+					TestClassUniqueID = TestClassUniqueID,
+					TestCollectionUniqueID = TestCollectionUniqueID,
+					TestMethodUniqueID = TestMethodUniqueID,
+					TestUniqueID = testUniqueID
+				};
+				if (!MessageBus.QueueMessage(testFailed))
+					CancellationTokenSource.Cancel();
+			}
 
 			var testFinished = new _TestFinished
 			{

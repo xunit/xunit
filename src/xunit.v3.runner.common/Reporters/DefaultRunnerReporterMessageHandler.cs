@@ -483,19 +483,23 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestFailed"/> is raised.
+		/// Called when <see cref="_TestFailed"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+		protected virtual void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testFailed = args.Message;
 			var frameInfo = StackFrameInfo.FromFailure(testFailed);
+			var metadata = MetadataCache.TryGetTestMetadata(testFailed);
 
 			lock (Logger.LockObject)
 			{
-				Logger.LogError(frameInfo, $"    {Escape(testFailed.Test.DisplayName)} [FAIL]");
+				if (metadata != null)
+					Logger.LogError(frameInfo, $"    {Escape(metadata.TestDisplayName)} [FAIL]");
+				else
+					Logger.LogError(frameInfo, "    <unknown test> [FAIL]");
 
 				foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 					Logger.LogImportantMessage(frameInfo, $"      {messageLine}");

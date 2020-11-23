@@ -78,18 +78,18 @@ namespace Xunit.Runner.TdNet
 
 		public TestRunState TestRunState { get; set; }
 
-		void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+		void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
 			TestRunState = TestRunState.Failure;
 
 			var testFailed = args.Message;
-			var testResult = testFailed.ToTdNetTestResult(TestState.Failed, totalTests);
+			var testResult = ToTdNetTestResult(testFailed, TestState.Failed, totalTests);
 			testResult.Message = ExceptionUtility.CombineMessages(testFailed);
 			testResult.StackTrace = ExceptionUtility.CombineStackTraces(testFailed);
 
 			TestListener.TestFinished(testResult);
 
-			WriteOutput(testFailed.Test.DisplayName, testFailed.Output);
+			WriteOutput(testResult.Name, testFailed.Output);
 		}
 
 		void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)

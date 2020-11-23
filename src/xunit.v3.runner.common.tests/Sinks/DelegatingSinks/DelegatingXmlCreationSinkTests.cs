@@ -202,20 +202,30 @@ public class DelegatingXmlCreationSinkTests
 	public void AddsFailingTestElementToXml()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		var test = Mocks.Test(testCase, "Test Display Name");
-		var testFailed = Substitute.For<ITestFailed>();
-		testFailed.TestCase.Returns(testCase);
-		testFailed.Test.Returns(test);
-		testFailed.ExecutionTime.Returns(123.4567809M);
-		testFailed.Output.Returns("test output");
-		testFailed.ExceptionTypes.Returns(new[] { "Exception Type" });
-		testFailed.Messages.Returns(new[] { "Exception Message" });
-		testFailed.StackTraces.Returns(new[] { "Exception Stack Trace" });
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testFailed = TestData.TestFailed(
+			exceptionParentIndices: new[] { -1 },
+			exceptionTypes: new[] { "Exception Type" },
+			executionTime: 123.4567809m,
+			messages: new[] { "Exception Message" },
+			output: "test output",
+			stackTraces: new[] { "Exception Stack Trace" }
+		);
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testFailed);
 		sink.OnMessage(assemblyFinished);
 
@@ -237,17 +247,30 @@ public class DelegatingXmlCreationSinkTests
 	public void NullStackTraceInFailedTestResultsInEmptyStackTraceXmlElement()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		var testFailed = Substitute.For<ITestFailed>();
-		testFailed.TestCase.Returns(testCase);
-		testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
-		testFailed.Messages.Returns(new[] { "Exception Message" });
-		testFailed.StackTraces.Returns(new[] { (string?)null });
-		testFailed.ExceptionParentIndices.Returns(new[] { -1 });
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testFailed = TestData.TestFailed(
+			exceptionParentIndices: new[] { -1 },
+			exceptionTypes: new[] { "Exception Type" },
+			executionTime: 123.4567809m,
+			messages: new[] { "Exception Message" },
+			output: "test output",
+			stackTraces: new[] { default(string) }
+		);
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testFailed);
 		sink.OnMessage(assemblyFinished);
 

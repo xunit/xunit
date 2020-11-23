@@ -4,7 +4,7 @@ using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.Internal;
 using Xunit.v3;
 
 public class MessageBusTests
@@ -93,7 +93,7 @@ public class MessageBusTests
 		var messages = new List<IMessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var msg1 = Substitute.For<IMessageSinkMessage>();
-		var msg2 = Substitute.For<ITestFailed>();
+		var msg2 = TestData.TestFailed();
 		var msg3 = Substitute.For<IMessageSinkMessage>();
 
 		using (var bus = new MessageBus(sink))
@@ -117,7 +117,7 @@ public class MessageBusTests
 		var messages = new List<IMessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var msg1 = Substitute.For<IMessageSinkMessage>();
-		var msg2 = Substitute.For<ITestFailed>();
+		var msg2 = TestData.TestFailed();
 		var msg3 = Substitute.For<IMessageSinkMessage>();
 
 		using (var bus = new MessageBus(sink, true))

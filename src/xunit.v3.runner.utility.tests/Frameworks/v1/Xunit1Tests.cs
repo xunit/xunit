@@ -408,12 +408,19 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFailed = Assert.IsAssignableFrom<ITestFailed>(message);
-					Assert.Equal("type1.failing", testFailed.TestCase.DisplayName);
-					Assert.Equal(0.234M, testFailed.ExecutionTime);
+					var testFailed = Assert.IsAssignableFrom<_TestFailed>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testFailed.AssemblyUniqueID);
+					Assert.Equal(-1, testFailed.ExceptionParentIndices.Single());
 					Assert.Equal("Xunit.MockFailureException", testFailed.ExceptionTypes.Single());
+					Assert.Equal(0.234M, testFailed.ExecutionTime);
 					Assert.Equal("Failure message", testFailed.Messages.Single());
+					Assert.Empty(testFailed.Output);
 					Assert.Equal("Stack trace", testFailed.StackTraces.Single());
+					Assert.Equal("type1.failing (assembly)", testFailed.TestCaseUniqueID);
+					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testFailed.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testFailed.TestCollectionUniqueID);
+					Assert.Equal("10fb4304a4dca2f7e9249a4a7dc936006a4b00f12197163d155019ba0e876824", testFailed.TestMethodUniqueID);
+					Assert.Equal("5f00b4b73ea9af55424e1ca6f8d1c17ad9b4235998f8445ef2551158473c6583", testFailed.TestUniqueID);
 				},
 				message =>
 				{
@@ -659,7 +666,7 @@ public class Xunit1Tests
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
 
-			var testFailed = Assert.Single(sink.Messages.OfType<ITestFailed>());
+			var testFailed = Assert.Single(sink.Messages.OfType<_TestFailed>());
 			Assert.Equal(exception.GetType().FullName, testFailed.ExceptionTypes[0]);
 			Assert.NotNull(exception.InnerException);
 			Assert.Equal(exception.InnerException.GetType().FullName, testFailed.ExceptionTypes[1]);

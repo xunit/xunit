@@ -122,24 +122,13 @@ namespace Xunit.Runner.v1
 					break;
 
 				case "Fail":
-					{
-						testCaseResults.Failed++;
-						var failure = xml.SelectSingleNode("failure");
-						var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failure);
-						resultMessage = new TestFailed(
-							currentTest,
-							time,
-							output,
-							failureInformation.ExceptionTypes,
-							failureInformation.Messages,
-							failureInformation.StackTraces,
-							failureInformation.ExceptionParentIndices
-						);
-						break;
-					}
+					testCaseResults.Failed++;
+					resultMessage = ToTestFailed(currentTest, time, output, xml.SelectSingleNode("failure"));
+					break;
 
 				case "Skip":
 					testCaseResults.Skipped++;
+					// TODO: What's special about Skip here that we dispatch test case changes?
 					if (testCase != lastTestCase)
 					{
 						SendTestCaseMessagesWhenAppropriate(testCase);
@@ -266,6 +255,42 @@ namespace Xunit.Runner.v1
 		// TODO: These conversions doesn't afford us much chance for caching, so this could be expensive, recomputing
 		// unique IDs for every single test. Perhaps we can do a bit of shortcut here by caching the last computations
 		// based on object identity, so that we don't have to recompute every time...?
+
+		_TestFailed ToTestFailed(
+			ITest test,
+			decimal executionTime,
+			string output,
+			XmlNode failure)
+		{
+			int testIndex;
+			lock (testIndicesByTest)
+				testIndex = testIndicesByTest[test];
+
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
+			var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failure);
+
+			return new _TestFailed
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = failureInformation.ExceptionParentIndices,
+				ExceptionTypes = failureInformation.ExceptionTypes,
+				ExecutionTime = executionTime,
+				Messages = failureInformation.Messages,
+				Output = output,
+				StackTraces = failureInformation.StackTraces,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
 
 		_TestFinished ToTestFinished(
 			ITest test,

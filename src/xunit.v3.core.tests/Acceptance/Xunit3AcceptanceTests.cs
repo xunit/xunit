@@ -248,11 +248,12 @@ public class Xunit3AcceptanceTests
 			stopwatch.Stop();
 
 			var passedMessage = Assert.Single(results.OfType<_TestPassed>());
-			var passStarting = results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passedMessage.TestUniqueID).Single();
-			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passStarting.TestDisplayName);
+			var passedStarting = results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passedMessage.TestUniqueID).Single();
+			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passedStarting.TestDisplayName);
 
-			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
-			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedMessage.Test.DisplayName);
+			var failedMessage = Assert.Single(results.OfType<_TestFailed>());
+			var failedStarting = results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == failedMessage.TestUniqueID).Single();
+			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedStarting.TestDisplayName);
 			Assert.Equal("Test execution timed out after 10 milliseconds", failedMessage.Messages.Single());
 
 			Assert.True(stopwatch.ElapsedMilliseconds < 10000, "Elapsed time should be less than 10 seconds");
@@ -277,8 +278,9 @@ public class Xunit3AcceptanceTests
 			var results = await RunAsync(typeof(ClassUnderTest));
 			stopwatch.Stop();
 
-			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
-			Assert.Equal("Xunit3AcceptanceTests+NonStartedTasks+ClassUnderTest.NonStartedTask", failedMessage.Test.DisplayName);
+			var failedMessage = Assert.Single(results.OfType<_TestFailed>());
+			var failedStarting = results.OfType<_TestStarting>().Single(s => s.TestUniqueID == failedMessage.TestUniqueID);
+			Assert.Equal("Xunit3AcceptanceTests+NonStartedTasks+ClassUnderTest.NonStartedTask", failedStarting.TestDisplayName);
 			Assert.Equal("Test method returned a non-started Task (tasks must be started before being returned)", failedMessage.Messages.Single());
 		}
 
@@ -296,7 +298,7 @@ public class Xunit3AcceptanceTests
 		{
 			var results = await RunAsync(typeof(SingleFailingTestClass));
 
-			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+			var failedMessage = Assert.Single(results.OfType<_TestFailed>());
 			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
 			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
@@ -311,7 +313,7 @@ public class Xunit3AcceptanceTests
 		{
 			var results = await RunAsync(typeof(SingleFailingValueTaskTestClass));
 
-			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+			var failedMessage = Assert.Single(results.OfType<_TestFailed>());
 			Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
 			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());
@@ -327,7 +329,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void TestFailureResultsFromThrowingCtorInTestClass()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_CtorFailure));
 
 			Assert.Collection(
 				messages,
@@ -338,7 +340,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void TestFailureResultsFromThrowingDisposeInTestClass()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
 			Assert.Collection(
 				messages,
@@ -351,7 +353,7 @@ public class Xunit3AcceptanceTests
 		{
 			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 
-			var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
 			var msg = Assert.Single(messages);
 			var combinedMessage = ExceptionUtility.CombineMessages(msg);
@@ -426,12 +428,14 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void EachTestMethodHasIndividualExceptionMessage()
 		{
-			var testMessages = await RunAsync<ITestFailed>(typeof(ClassUnderTest));
+			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
-			var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit3AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
+			var equalStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == "Xunit3AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
+			var equalFailure = Assert.Single(testMessages.OfType<_TestFailed>(), msg => msg.TestUniqueID == equalStarting.TestUniqueID);
 			Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-			var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit3AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
+			var notNullStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == "Xunit3AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
+			var notNullFailure = Assert.Single(testMessages.OfType<_TestFailed>(), msg => msg.TestUniqueID == notNullStarting.TestUniqueID);
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
 
@@ -615,17 +619,11 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void CannotMixMultipleFactDerivedAttributes()
 		{
-			var msgs = await RunAsync<ITestFailed>(typeof(ClassWithMultipleFacts));
+			var msgs = await RunAsync<_TestFailed>(typeof(ClassWithMultipleFacts));
 
-			Assert.Collection(
-				msgs,
-				msg =>
-				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing", msg.Test.DisplayName);
-					Assert.Equal("System.InvalidOperationException", msg.ExceptionTypes.Single());
-					Assert.Equal("Test method 'Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
-				}
-			);
+			var msg = Assert.Single(msgs);
+			Assert.Equal("System.InvalidOperationException", msg.ExceptionTypes.Single());
+			Assert.Equal("Test method 'Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
 		}
 
 		class ClassWithMultipleFacts
@@ -782,7 +780,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void ThrowingConstructor()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingCtor));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingCtor));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor");
@@ -800,7 +798,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void ThrowingInitializeAsync()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor", "InitializeAsync", "Dispose");
@@ -821,7 +819,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void ThrowingDisposeAsync()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
@@ -842,7 +840,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void ThrowingDisposeAsync_Disposable()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncDisposable_ThrowingDisposeAsync));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncDisposable_ThrowingDisposeAsync));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync", "Dispose");
@@ -863,7 +861,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void FailingTest()
 		{
-			var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
 
 			var message = Assert.Single(messages);
 			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");

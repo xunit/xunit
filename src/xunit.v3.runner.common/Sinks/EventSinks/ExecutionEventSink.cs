@@ -115,9 +115,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_TestCollectionStarting>? TestCollectionStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestFailed"/> message is received.
+		/// Occurs when a <see cref="_TestFailed"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestFailed>? TestFailedEvent;
+		public event MessageHandler<_TestFailed>? TestFailedEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestFinished"/> message is received.
