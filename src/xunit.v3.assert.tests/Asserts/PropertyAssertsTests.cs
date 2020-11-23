@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;

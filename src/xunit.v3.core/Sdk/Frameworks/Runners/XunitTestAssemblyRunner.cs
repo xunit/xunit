@@ -5,7 +5,6 @@ using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk

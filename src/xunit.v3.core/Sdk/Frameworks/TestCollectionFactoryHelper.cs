@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
