@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -246,10 +247,7 @@ namespace Xunit.v3
 
 			lock (cache)
 			{
-				if (!cache.TryGetValue(uniqueID, out var metadata))
-					return null;
-
-				if (remove)
+				if (cache.TryGetValue(uniqueID, out var metadata) && remove)
 					cache.Remove(uniqueID);
 
 				return metadata;
@@ -261,7 +259,12 @@ namespace Xunit.v3
 			object metadata)
 		{
 			lock (cache)
-				cache[uniqueID] = metadata;
+			{
+				if (cache.ContainsKey(uniqueID))
+					throw new InvalidOperationException($"Key '{uniqueID}' already exists in the message metadata cache.{Environment.NewLine}Old item: {cache[uniqueID]}{Environment.NewLine}New item: {metadata}");
+
+				cache.Add(uniqueID, metadata);
+			}
 		}
 	}
 }

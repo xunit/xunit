@@ -20,5 +20,9 @@ namespace Xunit.v3
 			get => testCollectionUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCollectionUniqueID)} on an uninitialized '{GetType().FullName}' object");
 			set => testCollectionUniqueID = Guard.ArgumentNotNullOrEmpty(nameof(TestCollectionUniqueID), value);
 		}
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{GetType().Name}({testCollectionUniqueID.Quoted()})";
 	}
 }

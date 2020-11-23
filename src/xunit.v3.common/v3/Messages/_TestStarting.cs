@@ -16,5 +16,9 @@ namespace Xunit.v3
 			get => testDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestDisplayName)} on an uninitialized '{GetType().FullName}' object");
 			set => testDisplayName = Guard.ArgumentNotNullOrEmpty(nameof(TestDisplayName), value);
 		}
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{base.ToString()} name={testDisplayName.Quoted()}";
 	}
 }

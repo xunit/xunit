@@ -19,5 +19,9 @@ namespace Xunit.v3
 			get => attributeName ?? throw new InvalidOperationException($"Attempted to get {nameof(AttributeName)} on an uninitialized '{GetType().FullName}' object");
 			set => attributeName = Guard.ArgumentNotNull(nameof(AttributeName), value);
 		}
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{base.ToString()} attr={attributeName.Quoted()}";
 	}
 }

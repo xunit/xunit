@@ -21,6 +21,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public override string ToString() => Message;
+		public override string ToString() =>
+			$"{GetType().Name} message={message.Quoted()}";
 	}
 }

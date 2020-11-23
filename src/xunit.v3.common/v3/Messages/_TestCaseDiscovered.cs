@@ -36,5 +36,9 @@ namespace Xunit.v3
 		}
 
 		IReadOnlyDictionary<string, IReadOnlyList<string>> _ITestCaseMetadata.Traits => traits.ToReadOnly();
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{base.ToString()} name={testCaseDisplayName.Quoted()}";
 	}
 }

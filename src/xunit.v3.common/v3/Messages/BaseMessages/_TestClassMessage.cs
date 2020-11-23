@@ -1,4 +1,6 @@
-﻿namespace Xunit.v3
+﻿using Xunit.Internal;
+
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Base message interface for all messages related to test classes.
@@ -12,5 +14,9 @@
 		/// Might be <c>null</c> if the test does not belong to a test class.
 		/// </summary>
 		public string? TestClassUniqueID { get; set; }
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{GetType().Name}({TestClassUniqueID.Quoted()})";
 	}
 }

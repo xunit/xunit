@@ -59,5 +59,9 @@ namespace Xunit.v3
 			get => testFrameworkDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestFrameworkDisplayName)} on an uninitialized '{GetType().FullName}' object");
 			set => testFrameworkDisplayName = Guard.ArgumentNotNullOrEmpty(nameof(TestFrameworkDisplayName), value);
 		}
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}";
 	}
 }

@@ -21,5 +21,9 @@ namespace Xunit.v3
 			get => assemblyUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyUniqueID)} on an uninitialized '{GetType().FullName}' object");
 			set => assemblyUniqueID = Guard.ArgumentNotNullOrEmpty(nameof(AssemblyUniqueID), value);
 		}
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{GetType().Name}({assemblyUniqueID.Quoted()})";
 	}
 }

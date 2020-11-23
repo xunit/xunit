@@ -23,5 +23,9 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public string? ConfigFilePath { get; set; }
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}";
 	}
 }

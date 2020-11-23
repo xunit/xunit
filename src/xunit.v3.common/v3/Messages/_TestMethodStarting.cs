@@ -16,5 +16,9 @@ namespace Xunit.v3
 			get => testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
 			set => testMethod = Guard.ArgumentNotNullOrEmpty(nameof(TestMethod), value);
 		}
+
+		/// <inheritdoc/>
+		public override string ToString() =>
+			$"{base.ToString()} method={testMethod.Quoted()}";
 	}
 }
