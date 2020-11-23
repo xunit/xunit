@@ -219,15 +219,17 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestCleanupFailure" />.
+		/// Handles instances of <see cref="_TestCleanupFailure" />.
 		/// </summary>
-		protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
+		protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var cleanupFailure = args.Message;
+			var testMetadata = metadataCache.TryGetTestMetadata(cleanupFailure);
+			var formattedName = Escape(testMetadata != null ? testMetadata.TestDisplayName : "<unknown test>");
 
-			LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
+			LogError($"Test Cleanup Failure ({formattedName})", cleanupFailure);
 		}
 
 		/// <summary>

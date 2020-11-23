@@ -95,9 +95,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_TestClassStarting>? TestClassStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCleanupFailure"/> message is received.
+		/// Occurs when a <see cref="_TestCleanupFailure"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCleanupFailure>? TestCleanupFailureEvent;
+		public event MessageHandler<_TestCleanupFailure>? TestCleanupFailureEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestCollectionCleanupFailure"/> message is received.

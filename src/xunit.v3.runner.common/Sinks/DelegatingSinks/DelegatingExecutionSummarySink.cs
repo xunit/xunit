@@ -98,7 +98,7 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
 				&& message.Dispatch<_TestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<ITestCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				&& message.Dispatch<_TestCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestMethodCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& result

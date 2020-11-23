@@ -124,7 +124,7 @@ public class ResultSinkTests
 		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = new[] { "Line 1\r\nLine 2\r\nLine 3" };
 		readonly string testCaseID = "test-case-id";
-		//readonly string testID = "test-id";
+		readonly string testID = "test-id";
 
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
@@ -141,12 +141,6 @@ public class ResultSinkTests
 			get
 			{
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "Fatal Error" };
-
-				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-				var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
-				var test = Mocks.Test(testCase, "MyTest");
-				testCleanupFailure.Test.Returns(test);
-				yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
 			}
 		}
 
@@ -235,6 +229,41 @@ public class ResultSinkTests
 			sink.OnMessage(classCleanupFailure);
 
 			AssertFailureInformation(listener, sink.TestRunState, "Test Class Cleanup Failure (MyType)");
+		}
+
+		[Fact]
+		public async ValueTask TestCleanupFailure()
+		{
+			var testStarting = new _TestStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCaseUniqueID = testCaseID,
+				TestClassUniqueID = classID,
+				TestDisplayName = "MyTest",
+				TestCollectionUniqueID = collectionID,
+				TestMethodUniqueID = methodID,
+				TestUniqueID = testID
+			};
+			var testCleanupFailure = new _TestCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCaseUniqueID = testCaseID,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID,
+				TestUniqueID = testID
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(testStarting);
+			sink.OnMessage(testCleanupFailure);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Test Cleanup Failure (MyTest)");
 		}
 
 		[Fact]

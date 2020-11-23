@@ -151,7 +151,7 @@ public class TestRunnerTests
 
 		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
-		Assert.Empty(messageBus.Messages.OfType<ITestCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestCleanupFailure>());
 	}
 
 	[Fact]
@@ -166,7 +166,7 @@ public class TestRunnerTests
 
 		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
-		Assert.Empty(messageBus.Messages.OfType<ITestCleanupFailure>());
+		Assert.Empty(messageBus.Messages.OfType<_TestCleanupFailure>());
 	}
 
 	[Fact]
@@ -182,9 +182,7 @@ public class TestRunnerTests
 
 		await runner.RunAsync();
 
-		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestCleanupFailure>());
-		Assert.Same(testCase, cleanupFailure.TestCase);
-		Assert.Equal(new[] { testCase }, cleanupFailure.TestCases);
+		var cleanupFailure = Assert.Single(messageBus.Messages.OfType<_TestCleanupFailure>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 	}
 
@@ -224,7 +222,7 @@ public class TestRunnerTests
 	[Fact]
 	public static async void Cancellation_TestCleanupFailure_SetsCancellationToken()
 	{
-		var messageBus = new SpyMessageBus(msg => !(msg is ITestCleanupFailure));
+		var messageBus = new SpyMessageBus(msg => !(msg is _TestCleanupFailure));
 		var runner = TestableTestRunner.Create(messageBus);
 		runner.BeforeTestFinished_Callback = aggregator => aggregator.Add(new Exception());
 

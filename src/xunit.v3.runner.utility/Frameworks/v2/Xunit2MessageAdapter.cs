@@ -50,6 +50,7 @@ namespace Xunit.Runner.v2
 				Convert<ITestMethodFinished>(message, messageTypes, AdaptTestMethodFinished) ??
 				Convert<ITestMethodStarting>(message, messageTypes, AdaptTestMethodStarting) ??
 
+				Convert<ITestCleanupFailure>(message, messageTypes, AdaptTestCleanupFailure) ??
 				Convert<ITestFailed>(message, messageTypes, AdaptTestFailed) ??
 				Convert<ITestFinished>(message, messageTypes, AdaptTestFinished) ??
 				Convert<ITestOutput>(message, messageTypes, AdaptTestOutput) ??
@@ -230,6 +231,30 @@ namespace Xunit.Runner.v2
 				TestClass = message.TestClass.Class.Name,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID
+			};
+		}
+
+		static _MessageSinkMessage AdaptTestCleanupFailure(ITestCleanupFailure message)
+		{
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
+			var testCaseUniqueID = message.TestCase.UniqueID;
+			var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
+
+			return new _TestCleanupFailure
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = message.ExceptionParentIndices,
+				ExceptionTypes = message.ExceptionTypes,
+				Messages = message.Messages,
+				StackTraces = message.StackTraces,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
 			};
 		}
 

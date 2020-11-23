@@ -81,7 +81,7 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<_TestMethodFinished>(messageTypes, HandleTestMethodFinished)
 				&& message.Dispatch<_TestMethodStarting>(messageTypes, HandleTestMethodStarting)
 
-				&& message.Dispatch<ITestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
+				&& message.Dispatch<_TestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
 				&& message.Dispatch<_TestFailed>(messageTypes, HandleTestFailed)
 				&& message.Dispatch<_TestFinished>(messageTypes, HandleTestFinished)
 				&& message.Dispatch<_TestPassed>(messageTypes, HandleTestPassed)
@@ -318,8 +318,14 @@ namespace Xunit.Runner.Common
 		void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args) =>
 			metadataCache.Set(args.Message);
 
-		void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
-			=> AddError("test-cleanup", args.Message.Test.DisplayName, args.Message);
+		void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
+		{
+			var metadata = metadataCache.TryGetTestMetadata(args.Message);
+			if (metadata != null)
+				AddError("test-cleanup", metadata.TestDisplayName, args.Message);
+			else
+				AddError("test-cleanup", "<unknown test>", args.Message);
+		}
 
 		void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{

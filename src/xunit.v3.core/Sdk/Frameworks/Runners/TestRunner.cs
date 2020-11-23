@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -334,8 +333,20 @@ namespace Xunit.Sdk
 				BeforeTestFinished();
 
 				if (Aggregator.HasExceptions)
-					if (!MessageBus.QueueMessage(new TestCleanupFailure(Test, Aggregator.ToException()!)))
+				{
+					var testCleanupFailure = _TestCleanupFailure.FromException(
+						Aggregator.ToException()!,
+						TestAssemblyUniqueID,
+						TestCollectionUniqueID,
+						TestClassUniqueID,
+						TestMethodUniqueID,
+						TestCaseUniqueID,
+						TestUniqueID
+					);
+
+					if (!MessageBus.QueueMessage(testCleanupFailure))
 						CancellationTokenSource.Cancel();
+				}
 
 				var testFinished = new _TestFinished
 				{

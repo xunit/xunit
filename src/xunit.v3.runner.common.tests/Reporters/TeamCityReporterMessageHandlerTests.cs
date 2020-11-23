@@ -18,7 +18,7 @@ public class TeamCityReporterMessageHandlerTests
 		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" };
 		readonly string testCaseID = "test-case-id";
-		//readonly string testID = "test-id";
+		readonly string testID = "test-id";
 
 		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
 			where TMessageType : class, IFailureInformation
@@ -36,13 +36,6 @@ public class TeamCityReporterMessageHandlerTests
 			{
 				// IErrorMessage
 				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
-
-				// ITestCleanupFailure
-				var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
-				var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
-				var test = Mocks.Test(testCase, "MyTest");
-				testCleanupFailure.Test.Returns(test);
-				yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
 			}
 		}
 
@@ -128,6 +121,40 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(classCleanupFailure);
 
 			AssertFailureMessage(handler.Messages, "Test Class Cleanup Failure (MyType)");
+		}
+
+		[Fact]
+		public void TestCleanupFailure()
+		{
+			var testStarting = new _TestStarting
+			{
+				AssemblyUniqueID = assemblyID,
+				TestCaseUniqueID = testCaseID,
+				TestClassUniqueID = classID,
+				TestDisplayName = "MyTest",
+				TestCollectionUniqueID = collectionID,
+				TestMethodUniqueID = methodID,
+				TestUniqueID = testID
+			};
+			var testCleanupFailure = new _TestCleanupFailure
+			{
+				AssemblyUniqueID = assemblyID,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces,
+				TestCaseUniqueID = testCaseID,
+				TestCollectionUniqueID = collectionID,
+				TestClassUniqueID = classID,
+				TestMethodUniqueID = methodID,
+				TestUniqueID = testID
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(testStarting);
+			handler.OnMessage(testCleanupFailure);
+
+			AssertFailureMessage(handler.Messages, "Test Cleanup Failure (MyTest)");
 		}
 
 		[Fact]

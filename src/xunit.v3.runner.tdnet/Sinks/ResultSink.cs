@@ -20,6 +20,8 @@ namespace Xunit.Runner.TdNet
 			TestListener = listener;
 			TestRunState = TestRunState.NoTests;
 
+			Execution.TestCleanupFailureEvent +=
+				args => ReportError($"Test Cleanup Failure ({metadataCache.TryGetTestMetadata(args.Message)?.TestDisplayName ?? "<unknown test>"})", args.Message);
 			Execution.TestFailedEvent += HandleTestFailed;
 			Execution.TestFinishedEvent +=
 				args => metadataCache.TryRemove(args.Message);
@@ -65,9 +67,6 @@ namespace Xunit.Runner.TdNet
 				args => metadataCache.TryRemove(args.Message);
 			Execution.TestMethodStartingEvent +=
 				args => metadataCache.Set(args.Message);
-
-			Execution.TestCleanupFailureEvent +=
-				args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
 
 			Execution.TestAssemblyFinishedEvent += args => Finished.Set();
 		}

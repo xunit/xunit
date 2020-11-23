@@ -424,14 +424,18 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestCleanupFailure"/> is raised.
+		/// Called when <see cref="_TestCleanupFailure"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
+		protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			LogError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
+			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
+			if (metadata != null)
+				LogError($"Test Cleanup Failure ({metadata.TestDisplayName})", args.Message);
+			else
+				LogError("Test Cleanup Failure (<unknown test>)", args.Message);
 		}
 
 		/// <summary>
