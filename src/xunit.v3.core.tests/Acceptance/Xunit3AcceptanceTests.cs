@@ -48,7 +48,7 @@ public class Xunit3AcceptanceTests
 				results,
 				message =>
 				{
-					var assemblyStarting = Assert.IsAssignableFrom<_TestAssemblyStarting>(message);
+					var assemblyStarting = Assert.IsType<_TestAssemblyStarting>(message);
 					observedAssemblyID = assemblyStarting.AssemblyUniqueID;
 				},
 				message =>
@@ -70,7 +70,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
+					var testMethodStarting = Assert.IsType<_TestMethodStarting>(message);
 					Assert.Equal("TestMethod", testMethodStarting.TestMethod);
 					Assert.Equal(observedAssemblyID, testMethodStarting.AssemblyUniqueID);
 					Assert.Equal(observedCollectionID, testMethodStarting.TestCollectionUniqueID);
@@ -79,7 +79,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
+					var testCaseStarting = Assert.IsType<_TestCaseStarting>(message);
 					Assert.Equal(observedAssemblyID, testCaseStarting.AssemblyUniqueID);
 					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCaseDisplayName);
 					Assert.Equal(observedCollectionID, testCaseStarting.TestCollectionUniqueID);
@@ -89,7 +89,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testStarting = Assert.IsAssignableFrom<_TestStarting>(message);
+					var testStarting = Assert.IsType<_TestStarting>(message);
 					Assert.Equal(observedAssemblyID, testStarting.AssemblyUniqueID);
 					// Test display name == test case display name for Facts
 					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testStarting.TestDisplayName);
@@ -121,17 +121,17 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var afterTestStarting = Assert.IsAssignableFrom<IAfterTestStarting>(message);
+					var afterTestStarting = Assert.IsType<_AfterTestStarting>(message);
 					Assert.Equal("BeforeAfterOnAssembly", afterTestStarting.AttributeName);
 				},
 				message =>
 				{
-					var afterTestFinished = Assert.IsAssignableFrom<_AfterTestFinished>(message);
+					var afterTestFinished = Assert.IsType<_AfterTestFinished>(message);
 					Assert.Equal("BeforeAfterOnAssembly", afterTestFinished.AttributeName);
 				},
 				message =>
 				{
-					var testPassed = Assert.IsAssignableFrom<_TestPassed>(message);
+					var testPassed = Assert.IsType<_TestPassed>(message);
 					Assert.Equal(observedAssemblyID, testPassed.AssemblyUniqueID);
 					Assert.NotEqual(0M, testPassed.ExecutionTime);
 					Assert.Empty(testPassed.Output);
@@ -143,7 +143,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
+					var testFinished = Assert.IsType<_TestFinished>(message);
 					Assert.Equal(observedAssemblyID, testFinished.AssemblyUniqueID);
 					Assert.Equal(observedTestCaseID, testFinished.TestCaseUniqueID);
 					Assert.Equal(observedClassID, testFinished.TestClassUniqueID);
@@ -153,7 +153,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<_TestCaseFinished>(message);
 					Assert.Equal(observedAssemblyID, testCaseFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, testCaseFinished.ExecutionTime);
 					Assert.Equal(observedTestCaseID, testCaseFinished.TestCaseUniqueID);
@@ -166,7 +166,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<_TestMethodFinished>(message);
 					Assert.Equal(observedAssemblyID, testMethodFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, testMethodFinished.ExecutionTime);
 					Assert.Equal(observedClassID, testMethodFinished.TestClassUniqueID);

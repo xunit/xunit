@@ -116,7 +116,17 @@ namespace Xunit.Sdk
 			foreach (var beforeAfterAttribute in beforeAfterAttributesRun)
 			{
 				var attributeName = beforeAfterAttribute.GetType().Name;
-				if (!MessageBus.QueueMessage(new AfterTestStarting(Test, attributeName)))
+				var afterTestStarting = new _AfterTestStarting
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					AttributeName = attributeName,
+					TestCaseUniqueID = TestCaseUniqueID,
+					TestClassUniqueID = TestClassUniqueID,
+					TestCollectionUniqueID = TestCollectionUniqueID,
+					TestMethodUniqueID = TestMethodUniqueID,
+					TestUniqueID = TestUniqueID
+				};
+				if (!MessageBus.QueueMessage(afterTestStarting))
 					CancellationTokenSource.Cancel();
 
 				Aggregator.Run(() => Timer.Aggregate(() => beforeAfterAttribute.After(TestMethod, Test)));
