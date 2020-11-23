@@ -74,6 +74,29 @@ namespace Xunit.v3
 					StackTraces = stackTraces ?? DefaultStackTraces,
 				};
 
+		public static _TestCaseFinished TestCaseFinished(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			decimal executionTime = 123.4567m,
+			string testCaseUniqueID = DefaultTestCaseUniqueID,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			string? testMethodUniqueID = DefaultTestMethodUniqueID,
+			int testsFailed = DefaultCountFailed,
+			int testsRun = DefaultCountRun,
+			int testsSkipped = DefaultCountSkipped) =>
+				new _TestCaseFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = executionTime,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestsFailed = testsFailed,
+					TestsRun = testsRun,
+					TestsSkipped = testsSkipped
+				};
+
 		public static _TestCaseStarting TestCaseStarting(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			string? skipReason = null,
@@ -97,6 +120,25 @@ namespace Xunit.v3
 					TestCollectionUniqueID = testCollectionUniqueID,
 					TestMethodUniqueID = testMethodUniqueID,
 					Traits = traits ?? new Dictionary<string, List<string>>()
+				};
+
+		public static _TestClassFinished TestClassFinished(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			decimal executionTime = 123.4567m,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			int testsFailed = DefaultCountFailed,
+			int testsRun = DefaultCountRun,
+			int testsSkipped = DefaultCountSkipped) =>
+				new _TestClassFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = executionTime,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestsFailed = testsFailed,
+					TestsRun = testsRun,
+					TestsSkipped = testsSkipped
 				};
 
 		public static _TestClassStarting TestClassStarting(
@@ -140,6 +182,48 @@ namespace Xunit.v3
 					TestCollectionUniqueID = testCollectionUniqueID
 				};
 
+		public static _TestFinished TestFinished(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			decimal executionTime = 123.4567m,
+			string output = "",
+			string testCaseUniqueID = DefaultTestCaseUniqueID,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			string? testMethodUniqueID = DefaultTestMethodUniqueID,
+			string testUniqueID = DefaultTestUniqueID) =>
+				new _TestFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = executionTime,
+					Output = output,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
+				};
+
+		public static _TestMethodFinished TestMethodFinished(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			decimal executionTime = 123.4567m,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			string? testMethodUniqueID = DefaultTestMethodUniqueID,
+			int testsFailed = DefaultCountFailed,
+			int testsRun = DefaultCountRun,
+			int testsSkipped = DefaultCountSkipped) =>
+				new _TestMethodFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = executionTime,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestsFailed = testsFailed,
+					TestsRun = testsRun,
+					TestsSkipped = testsSkipped
+				};
+
 		public static _TestMethodStarting TestMethodStarting(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			string testClassUniqueID = DefaultTestClassUniqueID,
@@ -169,6 +253,29 @@ namespace Xunit.v3
 					AssemblyUniqueID = assemblyUniqueID,
 					ExecutionTime = executionTime,
 					Output = output,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
+				};
+
+		public static _TestSkipped TestSkipped(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			decimal executionTime = 0m,
+			string output = "",
+			string reason = "skip-reason",
+			string testCaseUniqueID = DefaultTestCaseUniqueID,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			string? testMethodUniqueID = DefaultTestMethodUniqueID,
+			string testUniqueID = DefaultTestUniqueID) =>
+				new _TestSkipped
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = executionTime,
+					Output = output,
+					Reason = reason,
 					TestCaseUniqueID = testCaseUniqueID,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,

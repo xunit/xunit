@@ -48,7 +48,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(_TestMethodStarting))]
 	[InlineData(typeof(ITestOutput))]
 	[InlineData(typeof(_TestPassed))]
-	[InlineData(typeof(ITestSkipped))]
+	[InlineData(typeof(_TestSkipped))]
 	[InlineData(typeof(_TestStarting))]
 	// Runner
 	[InlineData(typeof(ITestAssemblyExecutionStarting))]

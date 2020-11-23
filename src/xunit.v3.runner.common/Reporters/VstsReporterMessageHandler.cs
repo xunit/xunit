@@ -117,11 +117,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
+		protected override void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
 			var testSkipped = args.Message;
 
-			VstsUpdateTest(args.Message.Test, "NotExecuted", Convert.ToInt64(testSkipped.ExecutionTime * 1000));
+			VstsUpdateTest(args.Message.TestUniqueID, "NotExecuted", Convert.ToInt64(testSkipped.ExecutionTime * 1000));
 
 			base.HandleTestSkipped(args);
 		}

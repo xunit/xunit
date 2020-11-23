@@ -291,16 +291,18 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="ITestSkipped" />.
+		/// Handles instances of <see cref="_TestSkipped" />.
 		/// </summary>
-		protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
+		protected virtual void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testSkipped = args.Message;
-			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
+			var testMetadata = metadataCache.TryGetTestMetadata(testSkipped);
+			var formattedName = Escape(testMetadata != null ? testMetadata.TestDisplayName : "<unknown test>");
 
-			logger.LogImportantMessage($"##teamcity[testIgnored name='{formattedName}' message='{Escape(testSkipped.Reason)}' flowId='{ToFlowId(testSkipped.TestCollection.DisplayName)}']");
+			logger.LogImportantMessage($"##teamcity[testIgnored name='{formattedName}' message='{Escape(testSkipped.Reason)}' flowId='{testSkipped.TestCollectionUniqueID}']");
+
 			LogFinish(testSkipped);
 		}
 
@@ -312,9 +314,9 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testStarting = args.Message;
-			var formattedName = Escape(args.Message.TestDisplayName);
+			var formattedName = Escape(testStarting.TestDisplayName);
 
-			logger.LogImportantMessage($"##teamcity[testStarted name='{formattedName}' flowId='{args.Message.TestCollectionUniqueID}']");
+			logger.LogImportantMessage($"##teamcity[testStarted name='{formattedName}' flowId='{testStarting.TestCollectionUniqueID}']");
 
 			metadataCache.Set(testStarting);
 		}

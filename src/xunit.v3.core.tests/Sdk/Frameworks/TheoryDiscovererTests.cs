@@ -357,10 +357,11 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void SkippedTheoryWithNoData()
 	{
-		var skips = await RunAsync<ITestSkipped>(typeof(SkippedWithNoData));
+		var msgs = await RunAsync(typeof(SkippedWithNoData));
 
-		var skip = Assert.Single(skips);
-		Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skip.Test.DisplayName);
+		var skip = Assert.Single(msgs.OfType<_TestSkipped>());
+		var skipStarting = Assert.Single(msgs.OfType<_TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
+		Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skipStarting.TestDisplayName);
 		Assert.Equal("I have no data", skip.Reason);
 	}
 
@@ -373,10 +374,11 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void SkippedTheoryWithData()
 	{
-		var skips = await RunAsync<ITestSkipped>(typeof(SkippedWithData));
+		var msgs = await RunAsync(typeof(SkippedWithData));
 
-		var skip = Assert.Single(skips);
-		Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skip.Test.DisplayName);
+		var skip = Assert.Single(msgs.OfType<_TestSkipped>());
+		var skipStarting = Assert.Single(msgs.OfType<_TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
+		Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skipStarting.TestDisplayName);
 		Assert.Equal("I have data", skip.Reason);
 	}
 

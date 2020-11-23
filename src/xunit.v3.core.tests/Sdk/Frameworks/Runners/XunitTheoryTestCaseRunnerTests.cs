@@ -77,8 +77,8 @@ public class XunitTheoryTestCaseRunnerTests
 		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failed.Test.DisplayName);
 
-		Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
-		Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
+		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
+		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
 	}
 
 	[Fact]

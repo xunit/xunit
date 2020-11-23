@@ -239,7 +239,20 @@ namespace Xunit.Sdk
 				{
 					runSummary.Skipped++;
 
-					if (!MessageBus.QueueMessage(new TestSkipped(Test, SkipReason)))
+					var testSkipped = new _TestSkipped
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = 0m,
+						Output = "",
+						Reason = SkipReason,
+						TestCaseUniqueID = TestCase.UniqueID,
+						TestClassUniqueID = TestClassUniqueID,
+						TestCollectionUniqueID = TestCollectionUniqueID,
+						TestMethodUniqueID = TestMethodUniqueID,
+						TestUniqueID = TestUniqueID
+					};
+
+					if (!MessageBus.QueueMessage(testSkipped))
 						CancellationTokenSource.Cancel();
 				}
 				else
@@ -277,7 +290,18 @@ namespace Xunit.Sdk
 					// skipped exception so long as its message starts with the special token.
 					else if (exception.Message.StartsWith(DynamicSkipToken.Value))
 					{
-						testResult = new TestSkipped(Test, exception.Message.Substring(DynamicSkipToken.Value.Length));
+						testResult = new _TestSkipped
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							ExecutionTime = runSummary.Time,
+							Output = output,
+							Reason = exception.Message.Substring(DynamicSkipToken.Value.Length),
+							TestCaseUniqueID = TestCaseUniqueID,
+							TestClassUniqueID = TestClassUniqueID,
+							TestCollectionUniqueID = TestCollectionUniqueID,
+							TestMethodUniqueID = TestMethodUniqueID,
+							TestUniqueID = TestUniqueID
+						};
 						runSummary.Skipped++;
 					}
 					else

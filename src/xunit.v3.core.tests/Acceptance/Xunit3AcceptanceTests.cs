@@ -217,8 +217,9 @@ public class Xunit3AcceptanceTests
 		{
 			var results = await RunAsync(typeof(SingleSkippedTestClass));
 
-			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
-			Assert.Equal("Xunit3AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
+			var skippedMessage = Assert.Single(results.OfType<_TestSkipped>());
+			var skippedStarting = Assert.Single(results.OfType<_TestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
+			Assert.Equal("Xunit3AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedStarting.TestDisplayName);
 			Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
 			var classFinishedMessage = Assert.Single(results.OfType<_TestClassFinished>());

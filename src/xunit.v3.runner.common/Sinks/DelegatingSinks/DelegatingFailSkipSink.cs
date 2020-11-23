@@ -53,13 +53,14 @@ namespace Xunit.Runner.Common
 
 			var messageTypes = default(HashSet<string>);  // TODO temporary
 
-			var testSkipped = message.Cast<ITestSkipped>(messageTypes);
+			var testSkipped = message.Cast<_TestSkipped>(messageTypes);
 			if (testSkipped != null)
 			{
 				skipCount++;
 
+				// TODO: This is broken because of the null ITest, to be fixed soon
 				var testFailed = new TestFailed(
-					testSkipped.Test, 0M, "",
+					null!, 0M, "",
 					new[] { "FAIL_SKIP" },
 					new[] { testSkipped.Reason },
 					new[] { "" },

@@ -145,7 +145,7 @@ namespace Xunit.Runner.v1
 						SendTestCaseMessagesWhenAppropriate(testCase);
 						@continue = messageSink.OnMessage(ToTestStarting(currentTest)) && @continue;
 					}
-					resultMessage = new TestSkipped(currentTest, xml.SelectSingleNode("reason/message").InnerText);
+					resultMessage = ToTestSkipped(currentTest, xml.SelectSingleNode("reason/message").InnerText);
 					break;
 			}
 
@@ -322,6 +322,36 @@ namespace Xunit.Runner.v1
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
 				Output = output,
+				TestCaseUniqueID = caseUniqueID,
+				TestClassUniqueID = classUniqueID,
+				TestCollectionUniqueID = collectionUniqueID,
+				TestMethodUniqueID = methodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
+
+		_TestSkipped ToTestSkipped(
+			ITest test,
+			string reason)
+		{
+			int testIndex;
+			lock (testIndicesByTest)
+				testIndex = testIndicesByTest[test];
+
+			var testCase = test.TestCase;
+			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
+			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
+			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
+			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
+			var caseUniqueID = testCase.UniqueID;
+			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
+
+			return new _TestSkipped
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = 0m,
+				Output = "",
+				Reason = reason,
 				TestCaseUniqueID = caseUniqueID,
 				TestClassUniqueID = classUniqueID,
 				TestCollectionUniqueID = collectionUniqueID,

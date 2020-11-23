@@ -150,9 +150,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_TestPassed>? TestPassedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestSkipped"/> message is received.
+		/// Occurs when a <see cref="_TestSkipped"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestSkipped>? TestSkippedEvent;
+		public event MessageHandler<_TestSkipped>? TestSkippedEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestStarting"/> message is received.

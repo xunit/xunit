@@ -469,6 +469,29 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static ITestSkipped TestSkipped(
+			ITest test,
+			string reason)
+		{
+			var testCase = test.TestCase;
+			var testMethod = testCase.TestMethod;
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+
+			var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
+			result.ExecutionTime.Returns(0);
+			result.Output.Returns("");
+			result.Reason.Returns(reason);
+			result.Test.Returns(test);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestCase.Returns(testCase);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			return result;
+		}
+
 		public static ITestStarting TestStarting(ITest test)
 		{
 			var testCase = test.TestCase;

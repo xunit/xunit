@@ -95,13 +95,12 @@ public class TestRunnerTests
 		Assert.Equal(1, result.Skipped);
 		Assert.Equal(0m, result.Time);
 		// Skip message
-		var failed = messageBus.Messages.OfType<ITestSkipped>().Single();
-		Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
-		Assert.Same(runner.TestCase, failed.TestCase);
-		Assert.Equal("Display Name", failed.Test.DisplayName);
-		Assert.Equal(0m, failed.ExecutionTime);
-		Assert.Empty(failed.Output);
-		Assert.Equal("Please don't run me", failed.Reason);
+		var skipped = Assert.Single(messageBus.Messages.OfType<_TestSkipped>());
+		var skippedStarting = Assert.Single(messageBus.Messages.OfType<_TestStarting>().Where(s => s.TestUniqueID == skipped.TestUniqueID));
+		Assert.Equal("Display Name", skippedStarting.TestDisplayName);
+		Assert.Equal(0m, skipped.ExecutionTime);
+		Assert.Empty(skipped.Output);
+		Assert.Equal("Please don't run me", skipped.Reason);
 	}
 
 	[Fact]
@@ -206,7 +205,7 @@ public class TestRunnerTests
 	[Theory]
 	[InlineData(typeof(_TestPassed), true, null)]
 	[InlineData(typeof(ITestFailed), false, null)]
-	[InlineData(typeof(ITestSkipped), false, "Please skip me")]
+	[InlineData(typeof(_TestSkipped), false, "Please skip me")]
 	[InlineData(typeof(_TestFinished), true, null)]
 	public static async void Cancellation_AllOthers_CallsExtensibilityMethods(
 		Type messageTypeToCancelOn,

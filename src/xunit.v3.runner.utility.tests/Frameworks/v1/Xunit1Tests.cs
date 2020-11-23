@@ -469,10 +469,17 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testSkipped = Assert.IsAssignableFrom<ITestSkipped>(message);
-					Assert.Equal("type2.skipping", testSkipped.TestCase.DisplayName);
+					var testSkipped = Assert.IsType<_TestSkipped>(message);
+					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testSkipped.AssemblyUniqueID);
 					Assert.Equal(0M, testSkipped.ExecutionTime);
+					Assert.Empty(testSkipped.Output);
 					Assert.Equal("Skip message", testSkipped.Reason);
+					Assert.Equal("type2.skipping (assembly)", testSkipped.TestCaseUniqueID);
+					Assert.Equal("f7aaa884103774ee304c9a051ade2c70b8086844b41ccb1f26fa12a2bbb14ec9", testSkipped.TestClassUniqueID);
+					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testSkipped.TestCollectionUniqueID);
+					Assert.Equal("8683bf14e876b9aa2943ed5b8dd63d8be667061bcd8123124c3f682b399bcc5e", testSkipped.TestMethodUniqueID);
+					Assert.Equal("365e224b611976c8348fbbd3f4036789cd45230695c77de6c35cc5e749c4ea98", testSkipped.TestUniqueID);
+
 				},
 				message =>
 				{
@@ -512,8 +519,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testSkipped = Assert.IsAssignableFrom<ITestSkipped>(message);
-					Assert.Equal("type2.skipping_with_start", testSkipped.TestCase.DisplayName);
+					var testSkipped = Assert.IsType<_TestSkipped>(message);
 					Assert.Equal(0M, testSkipped.ExecutionTime);
 					Assert.Equal("Skip message", testSkipped.Reason);
 				},

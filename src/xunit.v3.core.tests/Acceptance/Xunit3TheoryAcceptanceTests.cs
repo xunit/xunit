@@ -402,10 +402,11 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void Skipped()
 		{
-			var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTest));
+			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
-			var skipped = Assert.Single(testMessages.Cast<ITestSkipped>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestViaInlineData", skipped.Test.DisplayName);
+			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
+			var skippedStarting = Assert.Single(testMessages.OfType<_TestStarting>().Where(s => s.TestUniqueID == skipped.TestUniqueID));
+			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestViaInlineData", skippedStarting.TestDisplayName);
 			Assert.Equal("Don't run this!", skipped.Reason);
 		}
 
@@ -487,7 +488,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassUnderTest
@@ -596,7 +597,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 42, y: {21.12}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassUnderTest
@@ -823,7 +824,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: {21.12}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithSelfFieldData
@@ -848,7 +849,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Single(testMessages.OfType<_TestPassed>());
 			Assert.Single(testMessages.OfType<ITestFailed>());
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithImportedFieldData
@@ -916,7 +917,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: {21.12}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithSelfMethodData
@@ -944,7 +945,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Single(testMessages.OfType<_TestPassed>());
 			Assert.Single(testMessages.OfType<ITestFailed>());
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithImportedMethodData
@@ -1004,7 +1005,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Equal(2, testMessages.OfType<_TestPassed>().Count());
 			Assert.Empty(testMessages.OfType<ITestFailed>());
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithDowncastedMethodData
@@ -1107,7 +1108,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {21.12}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithParameterizedMethodData
@@ -1141,7 +1142,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: {21.12}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithSelfPropertyData
@@ -1170,7 +1171,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Single(testMessages.OfType<_TestPassed>());
 			Assert.Single(testMessages.OfType<ITestFailed>());
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class ClassWithImportedPropertyData
@@ -1241,7 +1242,7 @@ public class Xunit3TheoryAcceptanceTests
 				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 42)", displayName)
 			);
 			Assert.Empty(testMessages.OfType<ITestFailed>());
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		internal class MyCustomData : DataAttribute
@@ -1268,7 +1269,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Single(testMessages.OfType<_TestPassed>());
 			Assert.Empty(testMessages.OfType<ITestFailed>());
-			Assert.Empty(testMessages.OfType<ITestSkipped>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
 		class DataConstructorOverloadExample

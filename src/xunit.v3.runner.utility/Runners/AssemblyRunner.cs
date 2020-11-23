@@ -48,7 +48,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<_TestMethodCleanupFailure>();
 			AddMessageTypeName<ITestOutput>();
 			AddMessageTypeName<_TestPassed>();
-			AddMessageTypeName<ITestSkipped>();
+			AddMessageTypeName<_TestSkipped>();
 			AddMessageTypeName<_TestStarting>();
 		}
 
@@ -368,7 +368,7 @@ namespace Xunit.Runners
 				if (DispatchMessage<_TestPassed>(message, messageTypes, m => OnTestPassed(new TestPassedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
 					return !cancelled;
 			if (OnTestSkipped != null)
-				if (DispatchMessage<ITestSkipped>(message, messageTypes, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
+				if (DispatchMessage<_TestSkipped>(message, messageTypes, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
 					return !cancelled;
 			if (OnTestStarting != null)
 				if (DispatchMessage<_TestStarting>(message, messageTypes, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))

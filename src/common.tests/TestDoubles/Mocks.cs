@@ -577,40 +577,6 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestSkipped TestSkipped(
-			Type type,
-			string methodName,
-			string? displayName = null,
-			string? output = null,
-			decimal executionTime = 0M,
-			string? skipReason = null)
-		{
-			var testCase = TestCase(type, methodName);
-			var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
-
-			var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
-			result.ExecutionTime.Returns(executionTime);
-			result.Output.Returns(output);
-			result.Reason.Returns(skipReason);
-			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			return result;
-		}
-
-		public static ITestSkipped TestSkipped(
-			string displayName,
-			string? skipReason = null)
-		{
-			var testCase = TestCase();
-			var test = Test(testCase, displayName);
-
-			var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
-			result.Reason.Returns(skipReason);
-			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			return result;
-		}
-
 		public static IReflectionAttributeInfo TheoryAttribute(
 			string? displayName = null,
 			string? skip = null,

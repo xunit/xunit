@@ -85,7 +85,7 @@ namespace Xunit.Runner.Common
 				&& message.Dispatch<ITestFailed>(messageTypes, HandleTestFailed)
 				&& message.Dispatch<_TestFinished>(messageTypes, HandleTestFinished)
 				&& message.Dispatch<_TestPassed>(messageTypes, HandleTestPassed)
-				&& message.Dispatch<ITestSkipped>(messageTypes, HandleTestSkipped)
+				&& message.Dispatch<_TestSkipped>(messageTypes, HandleTestSkipped)
 				&& message.Dispatch<_TestStarting>(messageTypes, HandleTestStarting)
 
 				&& result;
@@ -383,7 +383,7 @@ namespace Xunit.Runner.Common
 		void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 			=> CreateTestResultElement(args.Message, "Pass");
 
-		void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
+		void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
 			var testSkipped = args.Message;
 			var testElement = CreateTestResultElement(testSkipped, "Skip");

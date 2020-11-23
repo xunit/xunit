@@ -419,15 +419,17 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestSkipped
+	public class OnMessage_TestSkipped
 	{
 		[Fact]
 		public static void LogsTestNameAsWarning()
 		{
-			var message = Mocks.TestSkipped("This is my display name \t\r\n", "This is my skip reason \t\r\n");
+			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+			var skipMessage = TestData.TestSkipped(reason: "This is my skip reason \t\r\n");
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(skipMessage);
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Wrn] =>     This is my display name \\t\\r\\n [SKIP]", msg),

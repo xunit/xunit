@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 public class SkipAssertsTests
@@ -17,10 +16,9 @@ public class SkipAssertsTests
 		[Fact]
 		public async void AcceptanceTest()
 		{
-			var results = await RunAsync<ITestResultMessage>(typeof(ClassUnderTest));
+			var results = await RunAsync(typeof(ClassUnderTest));
 
-			var result = Assert.Single(results);
-			var skipResult = Assert.IsAssignableFrom<ITestSkipped>(result);
+			var skipResult = Assert.Single(results.OfType<_TestSkipped>());
 			Assert.Equal("This test was skipped", skipResult.Reason);
 		}
 
@@ -47,8 +45,9 @@ public class SkipAssertsTests
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
-			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
-			Assert.Equal("Skipped", skipResult.TestMethod.Method.Name);
+			var skipResult = Assert.Single(results.OfType<_TestSkipped>());
+			var skipMethodStarting = Assert.Single(results.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
+			Assert.Equal("Skipped", skipMethodStarting.TestMethod);
 			Assert.Equal("This test was skipped", skipResult.Reason);
 			var passResult = Assert.Single(results.OfType<_TestPassed>());
 			var passMethodStarting = results.OfType<_TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
@@ -84,8 +83,9 @@ public class SkipAssertsTests
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
-			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
-			Assert.Equal("Skipped", skipResult.TestMethod.Method.Name);
+			var skipResult = Assert.Single(results.OfType<_TestSkipped>());
+			var skipMethodStarting = Assert.Single(results.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
+			Assert.Equal("Skipped", skipMethodStarting.TestMethod);
 			Assert.Equal("This test was skipped", skipResult.Reason);
 			var passResult = Assert.Single(results.OfType<_TestPassed>());
 			var passMethodStarting = results.OfType<_TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();

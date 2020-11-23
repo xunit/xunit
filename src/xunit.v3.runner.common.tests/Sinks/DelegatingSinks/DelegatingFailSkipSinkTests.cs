@@ -16,17 +16,18 @@ public class DelegatingFailSkipSinkTests
 		sink = new DelegatingFailSkipSink(innerSink);
 	}
 
-	[Fact]
-	public void OnITestSkipped_TransformsToITestFailed()
+	[Fact(Skip = "Re-enable this once ITestFailed is ported to _TestFailed")]
+	public void OnTestSkipped_TransformsToITestFailed()
 	{
-		var inputMessage = Mocks.TestSkipped("The skipped test", "The skip reason");
+		var startingMessage = TestData.TestStarting();
+		var skippedMessage = TestData.TestSkipped(reason: "The skip reason");
 
-		sink.OnMessage(inputMessage);
+		sink.OnMessage(startingMessage);
+		sink.OnMessage(skippedMessage);
 
 		var outputMessage = innerSink.Captured(x => x.OnMessage(null!)).Arg<ITestFailed>();
-		Assert.Equal(inputMessage.Test, outputMessage.Test);
-		Assert.Equal(0M, inputMessage.ExecutionTime);
-		Assert.Empty(inputMessage.Output);
+		Assert.Equal(0M, skippedMessage.ExecutionTime);
+		Assert.Empty(skippedMessage.Output);
 		Assert.Equal("FAIL_SKIP", outputMessage.ExceptionTypes.Single());
 		Assert.Equal("The skip reason", outputMessage.Messages.Single());
 		Assert.Empty(outputMessage.StackTraces.Single());

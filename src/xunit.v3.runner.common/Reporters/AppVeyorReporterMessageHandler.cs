@@ -114,12 +114,12 @@ namespace Xunit.Runner.Common
 			var metadata = MetadataCache.TryGetTestMetadata(testPassed);
 			if (metadata != null)
 			{
-				var testMethods = assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].testMethods;
+				var testMethods = assemblyInfoByUniqueID[testPassed.AssemblyUniqueID].testMethods;
 
 				Client.UpdateTest(GetRequestMessage(
 					GetFinishedTestName(metadata.TestDisplayName, testMethods),
 					"xUnit",
-					assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].assemblyFileName,
+					assemblyInfoByUniqueID[testPassed.AssemblyUniqueID].assemblyFileName,
 					"Passed",
 					Convert.ToInt64(testPassed.ExecutionTime * 1000),
 					stdOut: testPassed.Output
@@ -131,18 +131,24 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
+		protected override void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
 			var testSkipped = args.Message;
-			var testMethods = assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].testMethods;  // TODO: Incorrect index
+			var metadata = MetadataCache.TryGetTestMetadata(testSkipped);
+			if (metadata != null)
+			{
+				var testMethods = assemblyInfoByUniqueID[testSkipped.AssemblyUniqueID].testMethods;
 
-			Client.UpdateTest(GetRequestMessage(
-				GetFinishedTestName(testSkipped.Test.DisplayName, testMethods),
-				"xUnit",
-				assemblyInfoByUniqueID[args.Message.TestAssembly.Assembly.Name].assemblyFileName,
-				"Skipped",
-				Convert.ToInt64(testSkipped.ExecutionTime * 1000)
-			));
+				Client.UpdateTest(GetRequestMessage(
+					GetFinishedTestName(metadata.TestDisplayName, testMethods),
+					"xUnit",
+					assemblyInfoByUniqueID[testSkipped.AssemblyUniqueID].assemblyFileName,
+					"Skipped",
+					Convert.ToInt64(testSkipped.ExecutionTime * 1000),
+					stdOut: testSkipped.Output
+				));
+			}
+			// TODO: What to do when metadata lookup fails?
 
 			base.HandleTestSkipped(args);
 		}

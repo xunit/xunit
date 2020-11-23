@@ -268,15 +268,17 @@ public class TeamCityReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestSkipped
+	public class OnMessage_TestSkipped
 	{
 		[Fact(Skip = "This test cannot be re-enabled until all this message is ported")]
 		public static void LogsTestNameAsWarning()
 		{
-			var message = Mocks.TestSkipped("This is my display name \t\r\n", "This is my skip reason \t\r\n");
+			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+			var skippedMessage = TestData.TestSkipped(reason: "This is my skip reason \t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(skippedMessage);
 
 			Assert.Collection(
 				handler.Messages,

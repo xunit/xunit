@@ -105,13 +105,13 @@ namespace Xunit.Runner.TdNet
 			WriteOutput(testResult.Name, testPassed.Output);
 		}
 
-		void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
+		void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
 			if (TestRunState == TestRunState.NoTests)
 				TestRunState = TestRunState.Success;
 
 			var testSkipped = args.Message;
-			var testResult = testSkipped.ToTdNetTestResult(TestState.Ignored, totalTests);
+			var testResult = ToTdNetTestResult(testSkipped, TestState.Ignored, totalTests);
 			testResult.Message = testSkipped.Reason;
 
 			TestListener.TestFinished(testResult);

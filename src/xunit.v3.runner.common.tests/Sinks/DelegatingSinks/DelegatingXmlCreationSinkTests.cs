@@ -260,17 +260,23 @@ public class DelegatingXmlCreationSinkTests
 	public void AddsSkippedTestElementToXml()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		var test = Mocks.Test(testCase, "Test Display Name");
-		var testSkipped = Substitute.For<ITestSkipped>();
-		testSkipped.TestCase.Returns(testCase);
-		testSkipped.Test.Returns(test);
-		testSkipped.ExecutionTime.Returns(0.0M);
-		testSkipped.Reason.Returns("Skip Reason");
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testSkipped = TestData.TestSkipped(reason: "Skip Reason");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testSkipped);
 		sink.OnMessage(assemblyFinished);
 
@@ -279,7 +285,7 @@ public class DelegatingXmlCreationSinkTests
 		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type").Value);
 		Assert.Equal("TestMethod", testElement.Attribute("method").Value);
 		Assert.Equal("Skip", testElement.Attribute("result").Value);
-		Assert.Equal(0.0M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
+		Assert.Equal(0m.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
 		var reasonElement = Assert.Single(testElement.Elements("reason"));
 		Assert.Equal("Skip Reason", reasonElement.Value);
 		Assert.Empty(testElement.Elements("failure"));
@@ -373,29 +379,48 @@ public class DelegatingXmlCreationSinkTests
 
 	[Theory]
 	[MemberData(nameof(IllegalXmlTestData))]
-	public void IllegalXmlDoesNotPreventXmlFromBeingSaved(
+	public void IllegalXmlAcceptanceTest(
 		string inputName,
 		string outputName)
 	{
-		var assemblyFinished = TestData.TestAssemblyFinished();
-		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-		var test = Mocks.Test(testCase, inputName);
-		var testSkipped = Substitute.For<ITestSkipped>();
-		testSkipped.TestCase.Returns(testCase);
-		testSkipped.Test.Returns(test);
-		testSkipped.Reason.Returns("Bad\0\r\nString");
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var testStarting = TestData.TestStarting(testDisplayName: inputName);
+		var testSkipped = TestData.TestSkipped(reason: "Bad\0\r\nString");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 
+		sink.OnMessage(TestData.TestAssemblyStarting());
+		sink.OnMessage(TestData.TestCollectionStarting());
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(TestData.TestCaseStarting());
+		sink.OnMessage(testStarting);
 		sink.OnMessage(testSkipped);
-		sink.OnMessage(assemblyFinished);
+		sink.OnMessage(TestData.TestFinished());
+		sink.OnMessage(TestData.TestCaseFinished());
+		sink.OnMessage(TestData.TestMethodFinished());
+		sink.OnMessage(TestData.TestClassFinished());
+		sink.OnMessage(TestData.TestCollectionFinished());
+		sink.OnMessage(TestData.TestAssemblyFinished());
 
 		using var writer = new StringWriter();
 		assemblyElement.Save(writer, SaveOptions.DisableFormatting);
 
 		var outputXml = writer.ToString();
-		Assert.Equal($@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""{outputName}"" type=""DelegatingXmlCreationSinkTests+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
+		Assert.Equal(
+			@"<?xml version=""1.0"" encoding=""utf-16""?>" +
+			@"<assembly name=""./test-assembly.dll"" environment=""test-environment"" test-framework=""test-framework"" run-date=""2021-01-20"" run-time=""17:00:00"" config-file=""./test-assembly.json"" target-framework="".NETMagic,Version=v98.76.54"" total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0"">" +
+				@"<errors />" +
+				@"<collection name=""test-collection-display-name"" total=""2112"" passed=""2064"" failed=""42"" skipped=""6"" time=""123.457"">" +
+					$@"<test name=""{outputName}"" type=""DelegatingXmlCreationSinkTests+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"">" +
+						@"<reason><![CDATA[Bad\0\r\nString]]></reason>" +
+					@"</test>" +
+				@"</collection>" +
+			@"</assembly>",
+			outputXml
+		);
 	}
 
 	class ClassUnderTest

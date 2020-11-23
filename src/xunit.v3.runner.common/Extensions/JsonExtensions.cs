@@ -124,7 +124,7 @@ namespace Xunit.Runner.Common
 		{
 			{ typeof(_TestCollectionStarting), new List<AddFields> { AddFieldsForITestCollectionMessage } },
 			{ typeof(_TestStarting), new List<AddFields> { AddFieldsForITestMessage } },
-			{ typeof(ITestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
+			{ typeof(_TestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
 			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(_TestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
 			{ typeof(ITestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
@@ -186,12 +186,12 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this ITestSkipped testSkipped, string flowId)
+		public static string ToJson(this _TestSkipped testSkipped, string flowId)
 		{
 			Guard.ArgumentNotNull(nameof(testSkipped), testSkipped);
 			Guard.ArgumentNotNull(nameof(flowId), flowId);
 
-			var json = InitObject("testSkipped", testSkipped, typeof(ITestSkipped), flowId);
+			var json = InitObject("testSkipped", testSkipped, typeof(_TestSkipped), flowId);
 			json["reason"] = testSkipped.Reason;
 			return ToJson(json);
 		}

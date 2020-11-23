@@ -583,17 +583,22 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestSkipped"/> is raised.
+		/// Called when <see cref="_TestSkipped"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
+		protected virtual void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			lock (Logger.LockObject)
 			{
 				var testSkipped = args.Message;
-				Logger.LogWarning($"    {Escape(testSkipped.Test.DisplayName)} [SKIP]");
+				var testMetadata = MetadataCache.TryGetTestMetadata(testSkipped);
+				if (testMetadata != null)
+					Logger.LogWarning($"    {Escape(testMetadata.TestDisplayName)} [SKIP]");
+				else
+					Logger.LogWarning("    <unknown test> [SKIP]");
+
 				Logger.LogImportantMessage($"      {Escape(testSkipped.Reason)}");
 			}
 		}
