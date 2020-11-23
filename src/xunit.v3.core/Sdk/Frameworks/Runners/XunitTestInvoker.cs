@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -19,6 +20,12 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestInvoker"/> class.
 		/// </summary>
+		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
+		/// <param name="testCaseUniqueID">The test case unique ID.</param>
+		/// <param name="testUniqueID">The test unique ID.</param>
 		/// <param name="test">The test that this invocation belongs to.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testClass">The test class that the test method belongs to.</param>
@@ -29,6 +36,12 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestInvoker(
+			string testAssemblyUniqueID,
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
+			string testCaseUniqueID,
+			string testUniqueID,
 			ITest test,
 			IMessageBus messageBus,
 			Type testClass,
@@ -37,8 +50,23 @@ namespace Xunit.Sdk
 			object?[]? testMethodArguments,
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
-				: base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, aggregator, cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource) :
+				base(
+					testAssemblyUniqueID,
+					testCollectionUniqueID,
+					testClassUniqueID,
+					testMethodUniqueID,
+					testCaseUniqueID,
+					testUniqueID,
+					test,
+					messageBus,
+					testClass,
+					constructorArguments,
+					testMethod,
+					testMethodArguments,
+					aggregator,
+					cancellationTokenSource
+				)
 		{
 			BeforeAfterAttributes = Guard.ArgumentNotNull(nameof(beforeAfterAttributes), beforeAfterAttributes);
 		}
@@ -93,7 +121,17 @@ namespace Xunit.Sdk
 
 				Aggregator.Run(() => Timer.Aggregate(() => beforeAfterAttribute.After(TestMethod, Test)));
 
-				if (!MessageBus.QueueMessage(new AfterTestFinished(Test, attributeName)))
+				var afterTestFinished = new _AfterTestFinished
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					AttributeName = attributeName,
+					TestCaseUniqueID = TestCaseUniqueID,
+					TestClassUniqueID = TestClassUniqueID,
+					TestCollectionUniqueID = TestCollectionUniqueID,
+					TestMethodUniqueID = TestMethodUniqueID,
+					TestUniqueID = TestUniqueID
+				};
+				if (!MessageBus.QueueMessage(afterTestFinished))
 					CancellationTokenSource.Cancel();
 			}
 

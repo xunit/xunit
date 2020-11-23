@@ -126,7 +126,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var afterTestFinished = Assert.IsAssignableFrom<IAfterTestFinished>(message);
+					var afterTestFinished = Assert.IsAssignableFrom<_AfterTestFinished>(message);
 					Assert.Equal("BeforeAfterOnAssembly", afterTestFinished.AttributeName);
 				},
 				message =>

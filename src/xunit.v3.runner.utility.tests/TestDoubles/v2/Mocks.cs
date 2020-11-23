@@ -12,6 +12,27 @@ namespace Xunit.Runner.v2
 	{
 		static readonly Guid OneGuid = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
 
+		public static IAfterTestFinished AfterTestFinished(
+			ITest test,
+			string attributeName)
+		{
+			var testCase = test.TestCase;
+			var testMethod = testCase.TestMethod;
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+
+			var result = Substitute.For<IAfterTestFinished, InterfaceProxy<IAfterTestFinished>>();
+			result.AttributeName.Returns(attributeName);
+			result.Test.Returns(test);
+			result.TestAssembly.Returns(testAssembly);
+			result.TestCase.Returns(testCase);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			return result;
+		}
+
 		public static IAssemblyInfo AssemblyInfo(
 			ITypeInfo[]? types = null,
 			IReflectionAttributeInfo[]? attributes = null,

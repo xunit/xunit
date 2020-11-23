@@ -53,11 +53,14 @@ public class XunitTestInvokerTests
 				},
 				msg =>
 				{
-					var afterFinished = Assert.IsAssignableFrom<IAfterTestFinished>(msg);
-					Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, afterFinished.TestCollection);
-					Assert.Same(invoker.TestCase, afterFinished.TestCase);
-					Assert.Equal("Display Name", afterFinished.Test.DisplayName);
+					var afterFinished = Assert.IsAssignableFrom<_AfterTestFinished>(msg);
+					Assert.Equal("test-assembly-id", afterFinished.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", afterFinished.AttributeName);
+					Assert.Equal("test-case-id", afterFinished.TestCaseUniqueID);
+					Assert.Equal("test-class-id", afterFinished.TestClassUniqueID);
+					Assert.Equal("test-collection-id", afterFinished.TestCollectionUniqueID);
+					Assert.Equal("test-method-id", afterFinished.TestMethodUniqueID);
+					Assert.Equal("test-id", afterFinished.TestUniqueID);
 				}
 			);
 		}
@@ -103,7 +106,7 @@ public class XunitTestInvokerTests
 				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
 				msg => Assert.IsAssignableFrom<IBeforeTestFinished>(msg),
 				msg => Assert.IsAssignableFrom<IAfterTestStarting>(msg),
-				msg => Assert.IsAssignableFrom<IAfterTestFinished>(msg)
+				msg => Assert.IsType<_AfterTestFinished>(msg)
 			);
 		}
 	}
@@ -285,8 +288,24 @@ public class XunitTestInvokerTests
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			Action? lambda)
-				: base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
+			Action? lambda) :
+				base(
+					"test-assembly-id",
+					"test-collection-id",
+					"test-class-id",
+					"test-method-id",
+					"test-case-id",
+					"test-id",
+					test,
+					messageBus,
+					testClass,
+					constructorArguments,
+					testMethod,
+					testMethodArguments,
+					beforeAfterAttributes,
+					aggregator,
+					cancellationTokenSource
+				)
 		{
 			this.lambda = lambda;
 

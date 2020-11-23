@@ -109,6 +109,12 @@ namespace Xunit.Sdk
 		/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
 		protected virtual Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator) =>
 			new XunitTestInvoker(
+				TestAssemblyUniqueID,
+				TestCollectionUniqueID,
+				TestClassUniqueID,
+				TestMethodUniqueID,
+				TestCaseUniqueID,
+				TestUniqueID,
 				Test,
 				MessageBus,
 				TestClass,

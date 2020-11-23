@@ -11,6 +11,7 @@ using v2Mocks = Xunit.Runner.v2.Mocks;
 
 public class Xunit2MessageAdapterTests
 {
+	static readonly string BeforeAfterAttributeName = "MyNamespace.MyBeforeAfterAttribute";
 	static readonly string OsSpecificAssemblyPath;
 	static readonly ITest Test;
 	static readonly ITestAssembly TestAssembly;
@@ -96,6 +97,26 @@ public class Xunit2MessageAdapterTests
 		Assert.Equal(convertedMetadata.ExceptionTypes, metadata.ExceptionTypes);
 		Assert.Equal(convertedMetadata.Messages, metadata.Messages);
 		Assert.Equal(convertedMetadata.StackTraces, metadata.StackTraces);
+	}
+
+	public class BeforeAfterTestAttributeTests
+	{
+		[Fact]
+		public void AfterTestFinished()
+		{
+			var v2Message = v2Mocks.AfterTestFinished(Test, BeforeAfterAttributeName);
+
+			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_AfterTestFinished>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(BeforeAfterAttributeName, v3Message.AttributeName);
+			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			Assert.Equal(TestUniqueID, v3Message.TestUniqueID);
+		}
 	}
 
 	public class DiagnosticMessageTests

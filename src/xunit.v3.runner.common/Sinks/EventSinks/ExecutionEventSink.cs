@@ -10,9 +10,9 @@ namespace Xunit.Runner.Common
 	public class ExecutionEventSink : _IMessageSink
 	{
 		/// <summary>
-		/// Occurs when a <see cref="IAfterTestFinished"/> message is received.
+		/// Occurs when a <see cref="_AfterTestFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<IAfterTestFinished>? AfterTestFinishedEvent;
+		public event MessageHandler<_AfterTestFinished>? AfterTestFinishedEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="IAfterTestStarting"/> message is received.
