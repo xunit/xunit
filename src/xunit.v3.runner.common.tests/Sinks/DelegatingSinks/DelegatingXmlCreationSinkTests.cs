@@ -6,7 +6,6 @@ using System.Linq;
 using System.Xml.Linq;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -83,10 +82,12 @@ public class DelegatingXmlCreationSinkTests
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
-		var errorMessage = Substitute.For<IErrorMessage>();
-		errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
-		errorMessage.Messages.Returns(new[] { "Message" });
-		errorMessage.StackTraces.Returns(new[] { "Stack" });
+		var errorMessage = TestData.ErrorMessage(
+			exceptionParentIndices: new[] { -1 },
+			exceptionTypes: new[] { "ExceptionType" },
+			messages: new[] { "Message" },
+			stackTraces: new[] { "Stack" }
+		);
 
 		sink.OnMessage(errorMessage);
 		sink.OnMessage(assemblyFinished);
@@ -463,22 +464,22 @@ public class DelegatingXmlCreationSinkTests
 	readonly string testCaseID = "test-case-id";
 	readonly string testID = "test-id";
 
-	static TMessageType MakeFailureInformationSubstitute<TMessageType>()
-		where TMessageType : class, IFailureInformation
+	[Fact]
+	public void ErrorMessage()
 	{
-		var result = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
-		result.ExceptionTypes.Returns(new[] { "ExceptionType" });
-		result.Messages.Returns(new[] { "This is my message \t\r\n" });
-		result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
-		return result;
-	}
-
-	public static IEnumerable<object?[]> Messages
-	{
-		get
+		var errorMessage = new _ErrorMessage
 		{
-			yield return new object?[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
-		}
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			Messages = messages,
+			StackTraces = stackTraces
+		};
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(errorMessage);
+
+		AssertFailureElement(assemblyElement, "fatal", null);
 	}
 
 	[Fact]
@@ -667,24 +668,10 @@ public class DelegatingXmlCreationSinkTests
 		AssertFailureElement(assemblyElement, "test-method-cleanup", "MyMethod");
 	}
 
-	[Theory]
-	[MemberData("Messages", DisableDiscoveryEnumeration = true)]
-	public void AddsErrorMessagesToXml(
-		IMessageSinkMessage errorMessage,
+	static void AssertFailureElement(
+		XElement assemblyElement,
 		string messageType,
-		string name)
-	{
-		var assemblyFinished = TestData.TestAssemblyFinished();
-		var assemblyElement = new XElement("assembly");
-		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
-
-		sink.OnMessage(errorMessage);
-		sink.OnMessage(assemblyFinished);
-
-		AssertFailureElement(assemblyElement, messageType, name);
-	}
-
-	static void AssertFailureElement(XElement assemblyElement, string messageType, string name)
+		string? name)
 	{
 		var errorElement = Assert.Single(assemblyElement.Element("errors").Elements());
 		Assert.Equal(messageType, errorElement.Attribute("type").Value);

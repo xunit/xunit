@@ -215,10 +215,10 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="IErrorMessage"/> is raised.
+		/// Called when <see cref="_ErrorMessage"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
+		protected virtual void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 

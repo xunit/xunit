@@ -30,6 +30,8 @@ namespace Xunit.Runner.v2
 
 				Convert<IDiscoveryCompleteMessage>(assemblyUniqueID, message, messageTypes, AdaptDiscoveryCompleteMessage) ??
 
+				Convert<IErrorMessage>(message, messageTypes, AdaptErrorMessage) ??
+
 				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
@@ -66,6 +68,15 @@ namespace Xunit.Runner.v2
 
 		static _MessageSinkMessage AdaptDiscoveryCompleteMessage(string assemblyUniqueID, IDiscoveryCompleteMessage message) =>
 			new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
+
+		static _MessageSinkMessage AdaptErrorMessage(IErrorMessage message) =>
+			new _ErrorMessage
+			{
+				ExceptionParentIndices = message.ExceptionParentIndices,
+				ExceptionTypes = message.ExceptionTypes,
+				Messages = message.Messages,
+				StackTraces = message.StackTraces
+			};
 
 		static _MessageSinkMessage AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message)
 		{

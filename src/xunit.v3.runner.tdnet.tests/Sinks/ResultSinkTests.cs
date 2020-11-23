@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute;
 using TestDriven.Framework;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
 using Xunit.v3;
 
@@ -126,22 +124,22 @@ public class ResultSinkTests
 		readonly string testCaseID = "test-case-id";
 		readonly string testID = "test-id";
 
-		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
-			where TMessageType : class, IFailureInformation
+		[Fact]
+		public async ValueTask ErrorMessage()
 		{
-			var result = Substitute.For<TMessageType>();
-			result.ExceptionTypes.Returns(new[] { "ExceptionType" });
-			result.Messages.Returns(new[] { "This is my message \t\r\n" });
-			result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
-			return result;
-		}
-
-		public static IEnumerable<object[]> Messages
-		{
-			get
+			var errorMessage = new _ErrorMessage
 			{
-				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "Fatal Error" };
-			}
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var listener = Substitute.For<ITestListener>();
+			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+
+			sink.OnMessage(errorMessage);
+
+			AssertFailureInformation(listener, sink.TestRunState, "Fatal Error");
 		}
 
 		[Fact]
@@ -322,18 +320,6 @@ public class ResultSinkTests
 			sink.OnMessage(methodCleanupFailure);
 
 			AssertFailureInformation(listener, sink.TestRunState, "Test Method Cleanup Failure (MyMethod)");
-		}
-
-		[Theory]
-		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
-		public static async void LogsTestFailure(IMessageSinkMessage message, string messageType)
-		{
-			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
-
-			sink.OnMessage(message);
-
-			AssertFailureInformation(listener, sink.TestRunState, messageType);
 		}
 
 		static void AssertFailureInformation(ITestListener listener, TestRunState testRunState, string messageType)

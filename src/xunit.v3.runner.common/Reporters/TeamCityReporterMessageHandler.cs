@@ -59,9 +59,9 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Handles instances of <see cref="IErrorMessage" />.
+		/// Handles instances of <see cref="_ErrorMessage" />.
 		/// </summary>
-		protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
+		protected virtual void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 

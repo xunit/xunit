@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -11,13 +9,6 @@ using Xunit.v3;
 
 public class DefaultRunnerReporterMessageHandlerTests
 {
-	static void SetupFailureInformation(IFailureInformation failureInfo)
-	{
-		failureInfo.ExceptionTypes.Returns(new[] { "ExceptionType" });
-		failureInfo.Messages.Returns(new[] { $"This is my message \t{Environment.NewLine}Message Line 2" });
-		failureInfo.StackTraces.Returns(new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" });
-	}
-
 	public class FailureMessages
 	{
 		internal static readonly string assemblyID = "assembly-id";
@@ -31,21 +22,21 @@ public class DefaultRunnerReporterMessageHandlerTests
 		internal static readonly string testCaseID = "test-case-id";
 		readonly string testID = "test-id";
 
-		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
-			where TMessageType : class, IFailureInformation
+		[Fact]
+		public void ErrorMessage()
 		{
-			var message = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
-			SetupFailureInformation(message);
-			return message;
-		}
-
-		public static IEnumerable<object[]> Messages
-		{
-			get
+			var errorMessage = new _ErrorMessage
 			{
-				// IErrorMessage
-				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
-			}
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(errorMessage);
+
+			AssertFailureMessages(handler.Messages, "FATAL ERROR");
 		}
 
 		[Fact]
@@ -220,19 +211,6 @@ public class DefaultRunnerReporterMessageHandlerTests
 			handler.OnMessage(methodCleanupFailure);
 
 			AssertFailureMessages(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
-		}
-
-		[Theory]
-		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
-		public void LogsMessage(
-			IMessageSinkMessage message,
-			string messageType)
-		{
-			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
-
-			handler.OnMessage(message);
-
-			AssertFailureMessages(handler.Messages, messageType);
 		}
 
 		static void AssertFailureMessages(IEnumerable<string> messages, string messageType)

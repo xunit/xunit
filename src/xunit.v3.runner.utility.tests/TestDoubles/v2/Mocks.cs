@@ -52,6 +52,18 @@ namespace Xunit.Runner.v2
 			return attributes.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType())).ToList();
 		}
 
+		public static IErrorMessage ErrorMessage(Exception ex)
+		{
+			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+
+			var result = Substitute.For<IErrorMessage, InterfaceProxy<IErrorMessage>>();
+			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
+			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
+			result.Messages.Returns(metadata.Messages);
+			result.StackTraces.Returns(metadata.StackTraces);
+			return result;
+		}
+
 		public static IReflectionAttributeInfo TargetFrameworkAttribute(string frameworkName)
 		{
 			var attribute = new TargetFrameworkAttribute(frameworkName);

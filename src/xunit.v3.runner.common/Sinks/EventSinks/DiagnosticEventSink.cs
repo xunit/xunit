@@ -15,9 +15,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_DiagnosticMessage>? DiagnosticMessageEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="IErrorMessage"/> message is received.
+		/// Occurs when a <see cref="_ErrorMessage"/> message is received.
 		/// </summary>
-		public event MessageHandler<IErrorMessage>? ErrorMessageEvent;
+		public event MessageHandler<_ErrorMessage>? ErrorMessageEvent;
 
 		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)

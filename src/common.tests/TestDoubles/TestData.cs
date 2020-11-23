@@ -23,6 +23,19 @@ namespace Xunit.v3
 		public const string DefaultTestMethodUniqueID = "test-method-id";
 		public const string DefaultTestUniqueID = "test-id";
 
+		public static _ErrorMessage ErrorMessage(
+			int[] exceptionParentIndices,
+			string?[] exceptionTypes,
+			string[] messages,
+			string?[] stackTraces) =>
+				new _ErrorMessage
+				{
+					ExceptionParentIndices = exceptionParentIndices,
+					ExceptionTypes = exceptionTypes,
+					Messages = messages,
+					StackTraces = stackTraces
+				};
+
 		public static _TestAssemblyFinished TestAssemblyFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			decimal executionTime = DefaultExecutionTime,

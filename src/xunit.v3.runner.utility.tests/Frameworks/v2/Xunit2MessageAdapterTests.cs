@@ -126,6 +126,20 @@ public class Xunit2MessageAdapterTests
 		}
 	}
 
+	public class FatalErrorTests
+	{
+		[Fact]
+		public void ErrorMessage()
+		{
+			var v2Message = v2Mocks.ErrorMessage(ThrownException);
+
+			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_ErrorMessage>(adapted);
+			AssertErrorMetadata(v3Message, ThrownException);
+		}
+	}
+
 	public class TestAssemblyTests
 	{
 		[Fact]

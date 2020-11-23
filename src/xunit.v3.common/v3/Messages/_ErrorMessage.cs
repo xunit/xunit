@@ -12,7 +12,6 @@ namespace Xunit.v3
 		string?[]? exceptionTypes;
 		string[]? messages;
 		string?[]? stackTraces;
-		string[]? testCaseUniqueIDs;
 
 		/// <inheritdoc/>
 		public int[] ExceptionParentIndices
@@ -40,15 +39,6 @@ namespace Xunit.v3
 		{
 			get => stackTraces ?? throw new InvalidOperationException($"Attempted to get {nameof(StackTraces)} on an uninitialized '{GetType().FullName}' object");
 			set => stackTraces = Guard.ArgumentNotNullOrEmpty(nameof(StackTraces), value);
-		}
-
-		/// <summary>
-		/// Gets the list of test case IDs that this error applies to.
-		/// </summary>
-		public string[] TestCaseUniqueIDs
-		{
-			get => testCaseUniqueIDs ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseUniqueIDs)} on an uninitialized '{GetType().FullName}' object");
-			set => testCaseUniqueIDs = Guard.ArgumentNotNullOrEmpty(nameof(TestCaseUniqueIDs), value);
 		}
 
 		/// <summary>

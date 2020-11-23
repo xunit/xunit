@@ -79,7 +79,7 @@ public class MessageBusTests
 			message => Assert.Same(message, msg1),
 			message =>
 			{
-				var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
+				var errorMessage = Assert.IsAssignableFrom<_ErrorMessage>(message);
 				Assert.Equal("System.DivideByZeroException", errorMessage.ExceptionTypes.Single());
 				Assert.Equal("whee!", errorMessage.Messages.Single());
 			},

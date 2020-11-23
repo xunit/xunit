@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -46,7 +44,7 @@ namespace Xunit.Internal
 				{
 					try
 					{
-						var errorMessage = new ErrorMessage(Enumerable.Empty<ITestCase>(), ex);
+						var errorMessage = _ErrorMessage.FromException(ex);
 						if (!messageSink.OnMessage(errorMessage))
 							continueRunning = false;
 					}

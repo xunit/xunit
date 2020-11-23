@@ -125,7 +125,7 @@ namespace Xunit.Runner.Common
 			{ typeof(_TestCollectionStarting), new List<AddFields> { AddFieldsForITestCollectionMessage } },
 			{ typeof(_TestStarting), new List<AddFields> { AddFieldsForITestMessage } },
 			{ typeof(_TestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
-			{ typeof(IErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
+			{ typeof(_ErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
 			{ typeof(_TestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
 			{ typeof(_TestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
 			{ typeof(_TestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
@@ -208,11 +208,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary />
-		public static string ToJson(this IErrorMessage errorMessage)
+		public static string ToJson(this _ErrorMessage errorMessage)
 		{
 			Guard.ArgumentNotNull(nameof(errorMessage), errorMessage);
 
-			var json = InitObject("fatalError", errorMessage, typeof(IErrorMessage));
+			var json = InitObject("fatalError", errorMessage, typeof(_ErrorMessage));
 
 			return ToJson(json);
 		}

@@ -602,7 +602,7 @@ public class Xunit1Tests
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
 
-			var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+			var errorMessage = Assert.Single(sink.Messages.OfType<_ErrorMessage>());
 			Assert.Equal("System.DivideByZeroException", errorMessage.ExceptionTypes.Single());
 			Assert.Equal("Attempted to divide by zero.", errorMessage.Messages.Single());
 			Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
@@ -629,7 +629,7 @@ public class Xunit1Tests
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
 
-			var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+			var errorMessage = Assert.Single(sink.Messages.OfType<_ErrorMessage>());
 			Assert.Equal(exception.GetType().FullName, errorMessage.ExceptionTypes[0]);
 			Assert.NotNull(exception.InnerException);
 			Assert.Equal(exception.InnerException.GetType().FullName, errorMessage.ExceptionTypes[1]);
@@ -707,7 +707,7 @@ public class Xunit1Tests
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
 
-			var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+			var errorMessage = Assert.Single(sink.Messages.OfType<_ErrorMessage>());
 			Assert.Equal("System.InvalidOperationException", errorMessage.ExceptionTypes.Single());
 			Assert.Equal("Cannot use a test class as its own fixture data", errorMessage.Messages.Single());
 			Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
@@ -746,7 +746,7 @@ public class Xunit1Tests
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
 
-			var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+			var errorMessage = Assert.Single(sink.Messages.OfType<_ErrorMessage>());
 			Assert.Equal("Xunit.Some.Exception", errorMessage.ExceptionTypes.Single());
 			Assert.Equal("Cannot use a test class as its own fixture data", errorMessage.Messages.Single());
 			Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
@@ -779,7 +779,7 @@ public class Xunit1Tests
 			xunit1.Run(testCases, sink);
 			sink.Finished.WaitOne();
 
-			var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+			var errorMessage = Assert.Single(sink.Messages.OfType<_ErrorMessage>());
 			Assert.Equal(exception.GetType().FullName, errorMessage.ExceptionTypes[0]);
 			Assert.NotNull(exception.InnerException);
 			Assert.Equal(exception.InnerException.GetType().FullName, errorMessage.ExceptionTypes[1]);
@@ -903,7 +903,7 @@ public class AmbiguouslyNamedTestMethods
 				msg => Assert.IsType<_TestClassStarting>(msg),
 				msg => Assert.IsType<_TestClassFinished>(msg),
 				msg => Assert.IsType<_TestCollectionFinished>(msg),
-				msg => Assert.IsAssignableFrom<IErrorMessage>(msg),
+				msg => Assert.IsType<_ErrorMessage>(msg),
 				msg => Assert.IsType<_TestAssemblyFinished>(msg)
 			);
 		}

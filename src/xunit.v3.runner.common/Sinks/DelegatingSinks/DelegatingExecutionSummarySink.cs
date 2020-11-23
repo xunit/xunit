@@ -92,7 +92,7 @@ namespace Xunit.Runner.Common
 			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return
-				message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
+				message.Dispatch<_ErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
 				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)

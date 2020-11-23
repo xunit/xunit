@@ -59,7 +59,7 @@ namespace Xunit.Runner.Common
 			var result = innerSink.OnMessage(message);
 			var messageTypes = default(HashSet<string>);  // TODO temporary
 
-			return message.Dispatch<IErrorMessage>(messageTypes, HandleErrorMessage)
+			return message.Dispatch<_ErrorMessage>(messageTypes, HandleErrorMessage)
 
 				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
 				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
@@ -239,7 +239,7 @@ namespace Xunit.Runner.Common
 				return testCollectionElements.GetOrAdd(testCollectionUniqueID, () => new XElement("collection"));
 		}
 
-		void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
+		void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
 			=> AddError("fatal", null, args.Message);
 
 		void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)

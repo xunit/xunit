@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.v3;
 
@@ -20,23 +18,21 @@ public class TeamCityReporterMessageHandlerTests
 		readonly string testCaseID = "test-case-id";
 		readonly string testID = "test-id";
 
-		static TMessageType MakeFailureInformationSubstitute<TMessageType>()
-			where TMessageType : class, IFailureInformation
+		[Fact]
+		public void ErrorMessage()
 		{
-			var result = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
-			result.ExceptionTypes.Returns(new[] { "\x2018ExceptionType\x2019" });
-			result.Messages.Returns(new[] { "This is my message \x2020\t\r\n" });
-			result.StackTraces.Returns(new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" });
-			return result;
-		}
-
-		public static IEnumerable<object[]> Messages
-		{
-			get
+			var errorMessage = new _ErrorMessage
 			{
-				// IErrorMessage
-				yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL ERROR" };
-			}
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
+				Messages = messages,
+				StackTraces = stackTraces
+			};
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(errorMessage);
+
+			AssertFailureMessage(handler.Messages, "FATAL ERROR");
 		}
 
 		[Fact]
@@ -211,19 +207,6 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(methodCleanupFailure);
 
 			AssertFailureMessage(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
-		}
-
-		[Theory]
-		[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
-		public static void LogsMessage(
-			IMessageSinkMessage message,
-			string messageType)
-		{
-			var handler = TestableTeamCityReporterMessageHandler.Create();
-
-			handler.OnMessage(message);
-
-			AssertFailureMessage(handler.Messages, messageType);
 		}
 
 		static void AssertFailureMessage(IEnumerable<string> messages, string messageType)

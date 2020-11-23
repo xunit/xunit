@@ -35,7 +35,7 @@ namespace Xunit.Runners
 
 			AddMessageTypeName<_DiagnosticMessage>();
 			AddMessageTypeName<_DiscoveryComplete>();
-			AddMessageTypeName<IErrorMessage>();
+			AddMessageTypeName<_ErrorMessage>();
 			AddMessageTypeName<_TestAssemblyCleanupFailure>();
 			AddMessageTypeName<_TestAssemblyFinished>();
 			AddMessageTypeName<_TestCaseCleanupFailure>();
@@ -377,7 +377,7 @@ namespace Xunit.Runners
 
 			if (OnErrorMessage != null)
 			{
-				if (DispatchMessage<IErrorMessage>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+				if (DispatchMessage<_ErrorMessage>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;
 				if (DispatchMessage<_TestAssemblyCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestAssemblyCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 					return !cancelled;

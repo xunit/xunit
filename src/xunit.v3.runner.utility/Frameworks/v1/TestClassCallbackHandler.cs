@@ -72,13 +72,13 @@ namespace Xunit.Runner.v1
 			if ((failureNode = xml.SelectSingleNode("failure")) != null)
 			{
 				var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failureNode);
-				var errorMessage = new ErrorMessage(
-					testCases,
-					failureInformation.ExceptionTypes,
-					failureInformation.Messages,
-					failureInformation.StackTraces,
-					failureInformation.ExceptionParentIndices
-				);
+				var errorMessage = new _ErrorMessage
+				{
+					ExceptionParentIndices = failureInformation.ExceptionParentIndices,
+					ExceptionTypes = failureInformation.ExceptionTypes,
+					Messages = failureInformation.Messages,
+					StackTraces = failureInformation.StackTraces
+				};
 
 				@continue = messageSink.OnMessage(errorMessage);
 			}
