@@ -8,7 +8,6 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -81,7 +80,7 @@ public class DelegatingXmlCreationSinkTests
 		executionSummary.Time = 123.4567M;
 		executionSummary.Errors = 1;
 
-		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 		var errorMessage = Substitute.For<IErrorMessage>();
@@ -103,9 +102,9 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsTestCollectionElementsToXml()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
-		var testCollectionStarted = Mocks.TestCollectionStarting(testCollectionDisplayName: "Collection Name", testCollectionUniqueID: "abc123");
-		var testCollectionFinished = Mocks.TestCollectionFinished(2112, 42, 6, 123.4567m, testCollectionUniqueID: "abc123");
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var testCollectionStarted = TestData.TestCollectionStarting(testCollectionDisplayName: "Collection Name", testCollectionUniqueID: "abc123");
+		var testCollectionFinished = TestData.TestCollectionFinished(testsRun: 2112, testsFailed: 42, testsSkipped: 6, executionTime: 123.4567m, testCollectionUniqueID: "abc123");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
@@ -202,7 +201,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsFailingTestElementToXml()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, "Test Display Name");
 		var testFailed = Substitute.For<ITestFailed>();
@@ -237,7 +236,7 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void NullStackTraceInFailedTestResultsInEmptyStackTraceXmlElement()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var testFailed = Substitute.For<ITestFailed>();
 		testFailed.TestCase.Returns(testCase);
@@ -260,7 +259,7 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsSkippedTestElementToXml()
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, "Test Display Name");
 		var testSkipped = Substitute.For<ITestSkipped>();
@@ -378,7 +377,7 @@ public class DelegatingXmlCreationSinkTests
 		string inputName,
 		string outputName)
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
 		var test = Mocks.Test(testCase, inputName);
 		var testSkipped = Substitute.For<ITestSkipped>();
@@ -598,7 +597,7 @@ public class DelegatingXmlCreationSinkTests
 		string messageType,
 		string name)
 	{
-		var assemblyFinished = Mocks.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished();
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 

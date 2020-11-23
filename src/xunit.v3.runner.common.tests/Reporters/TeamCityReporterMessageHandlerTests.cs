@@ -213,8 +213,8 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public static void LogsMessage()
 		{
-			var startingMessage = Mocks.TestCollectionStarting(testCollectionUniqueID: "test-collection-id", testCollectionDisplayName: "my-test-collection");
-			var finishedMessage = Mocks.TestCollectionFinished(testCollectionUniqueID: "test-collection-id");
+			var startingMessage = TestData.TestCollectionStarting(testCollectionUniqueID: "test-collection-id", testCollectionDisplayName: "my-test-collection");
+			var finishedMessage = TestData.TestCollectionFinished(testCollectionUniqueID: "test-collection-id");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(startingMessage);

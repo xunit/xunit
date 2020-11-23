@@ -35,7 +35,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnITestCollectionFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = Mocks.TestCollectionFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
+		var inputMessage = TestData.TestCollectionFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
 
 		sink.OnMessage(inputMessage);
 
@@ -48,7 +48,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnITestAssemblyFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = Mocks.TestAssemblyFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
+		var inputMessage = TestData.TestAssemblyFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
 
 		sink.OnMessage(inputMessage);
 

@@ -331,21 +331,6 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static _TestAssemblyFinished TestAssemblyFinished(
-			string assemblyUniqueID = "asm-unique-id",
-			int testsRun = 2112,
-			int testsFailed = 42,
-			int testsSkipped = 6,
-			decimal executionTime = 123.4567M) =>
-				new _TestAssemblyFinished
-				{
-					AssemblyUniqueID = assemblyUniqueID,
-					ExecutionTime = executionTime,
-					TestsFailed = testsFailed,
-					TestsRun = testsRun,
-					TestsSkipped = testsSkipped
-				};
-
 		public static ITestCase TestCase(ITestCollection? collection = null)
 		{
 			if (collection == null)
@@ -449,32 +434,6 @@ namespace Xunit.v3
 
 			return new TestCollection(TestAssembly(assembly), definition, displayName);
 		}
-
-		public static _TestCollectionFinished TestCollectionFinished(
-			int testsRun = 0,
-			int testsFailed = 0,
-			int testsSkipped = 0,
-			decimal executionTime = 0m,
-			string testCollectionUniqueID = "<unset>") =>
-				new _TestCollectionFinished
-				{
-					ExecutionTime = executionTime,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestsFailed = testsFailed,
-					TestsRun = testsRun,
-					TestsSkipped = testsSkipped
-				};
-
-		public static _TestCollectionStarting TestCollectionStarting(
-			string? testCollectionClass = null,
-			string testCollectionDisplayName = "<unset>",
-			string testCollectionUniqueID = "<unset>") =>
-				new _TestCollectionStarting
-				{
-					TestCollectionClass = testCollectionClass,
-					TestCollectionDisplayName = testCollectionDisplayName,
-					TestCollectionUniqueID = testCollectionUniqueID
-				};
 
 		public static IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
 		{
@@ -648,15 +607,6 @@ namespace Xunit.v3
 			var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
 			result.Reason.Returns(skipReason);
 			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			return result;
-		}
-
-		public static ITestStarting TestStarting(string displayName)
-		{
-			var testCase = TestCase();
-			var test = Test(testCase, displayName);
-			var result = Substitute.For<ITestStarting, InterfaceProxy<ITestStarting>>();
 			result.Test.Returns(test);
 			return result;
 		}
