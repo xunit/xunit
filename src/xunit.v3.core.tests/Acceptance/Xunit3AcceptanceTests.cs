@@ -101,7 +101,7 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var classConstructionStarting = Assert.IsAssignableFrom<_TestClassConstructionStarting>(message);
+					var classConstructionStarting = Assert.IsType<_TestClassConstructionStarting>(message);
 					Assert.Equal(observedAssemblyID, classConstructionStarting.AssemblyUniqueID);
 					Assert.Equal(observedTestCaseID, classConstructionStarting.TestCaseUniqueID);
 					Assert.Equal(observedCollectionID, classConstructionStarting.TestCollectionUniqueID);
@@ -111,8 +111,13 @@ public class Xunit3AcceptanceTests
 				},
 				message =>
 				{
-					var classConstructionFinished = Assert.IsAssignableFrom<ITestClassConstructionFinished>(message);
-					Assert.Equal(classConstructionFinished.TestCase.DisplayName, classConstructionFinished.Test.DisplayName);
+					var classConstructionFinished = Assert.IsType<_TestClassConstructionFinished>(message);
+					Assert.Equal(observedAssemblyID, classConstructionFinished.AssemblyUniqueID);
+					Assert.Equal(observedTestCaseID, classConstructionFinished.TestCaseUniqueID);
+					Assert.Equal(observedCollectionID, classConstructionFinished.TestCollectionUniqueID);
+					Assert.Equal(observedClassID, classConstructionFinished.TestClassUniqueID);
+					Assert.Equal(observedMethodID, classConstructionFinished.TestMethodUniqueID);
+					Assert.Equal(observedTestID, classConstructionFinished.TestUniqueID);
 				},
 				message =>
 				{

@@ -25,7 +25,7 @@ public class XunitTestInvokerTests
 			Assert.Collection(
 				messageBus.Messages,
 				msg => Assert.IsType<_TestClassConstructionStarting>(msg),  // From TestInvoker
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),  // From TestInvoker
+				msg => Assert.IsType<_TestClassConstructionFinished>(msg),  // From TestInvoker
 				msg =>
 				{
 					var beforeStarting = Assert.IsType<_BeforeTestStarting>(msg);
@@ -87,7 +87,7 @@ public class XunitTestInvokerTests
 			Assert.Collection(
 				messageBus.Messages,
 				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 				msg => Assert.IsType<_BeforeTestStarting>(msg),
 				msg => Assert.IsType<_BeforeTestFinished>(msg)
 			);
@@ -111,7 +111,7 @@ public class XunitTestInvokerTests
 			Assert.Collection(
 				messageBus.Messages,
 				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 				msg => Assert.IsType<_BeforeTestStarting>(msg),
 				msg => Assert.IsType<_BeforeTestFinished>(msg),
 				msg => Assert.IsType<_AfterTestStarting>(msg),

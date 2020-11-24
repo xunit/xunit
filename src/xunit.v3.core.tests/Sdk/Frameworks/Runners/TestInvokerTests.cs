@@ -33,7 +33,7 @@ public class TestInvokerTests
 		Assert.Collection(
 			messageBus.Messages,
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg)
+			msg => Assert.IsType<_TestClassConstructionFinished>(msg)
 		);
 	}
 
@@ -48,7 +48,7 @@ public class TestInvokerTests
 		Assert.Collection(
 			messageBus.Messages,
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
 		);
@@ -124,7 +124,7 @@ public class TestInvokerTests
 
 		bool cancelThunk(IMessageSinkMessage msg)
 		{
-			if (msg is ITestClassConstructionFinished)
+			if (msg is _TestClassConstructionFinished)
 				classConstructed = true;
 			return !classConstructed;
 		}
@@ -137,7 +137,7 @@ public class TestInvokerTests
 		Assert.Collection(
 			messageBus.Messages,
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
 		);

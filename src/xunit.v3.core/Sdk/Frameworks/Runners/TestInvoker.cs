@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -205,7 +204,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Creates the test class, unless the test method is static or there have already been errors. Note that
 		/// this method times the creation of the test class (using <see cref="Timer"/>). It is also responsible for
-		/// sending the <see cref="_TestClassConstructionStarting"/>and <see cref="ITestClassConstructionFinished"/>
+		/// sending the <see cref="_TestClassConstructionStarting"/>and <see cref="_TestClassConstructionFinished"/>
 		/// messages, so if you override this method without calling the base, you are responsible for all of this behavior.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
@@ -237,7 +236,16 @@ namespace Xunit.Sdk
 					}
 					finally
 					{
-						if (!messageBus.QueueMessage(new TestClassConstructionFinished(Test)))
+						var testClassConstructionFinished = new _TestClassConstructionFinished
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							TestCaseUniqueID = TestCaseUniqueID,
+							TestClassUniqueID = TestClassUniqueID,
+							TestCollectionUniqueID = TestCollectionUniqueID,
+							TestMethodUniqueID = TestMethodUniqueID,
+							TestUniqueID = TestUniqueID
+						};
+						if (!messageBus.QueueMessage(testClassConstructionFinished))
 							cancellationTokenSource.Cancel();
 					}
 				}

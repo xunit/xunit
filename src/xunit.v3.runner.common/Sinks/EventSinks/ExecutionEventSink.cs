@@ -65,9 +65,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_TestClassCleanupFailure>? TestClassCleanupFailureEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestClassConstructionFinished"/> message is received.
+		/// Occurs when a <see cref="_TestClassConstructionFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestClassConstructionFinished>? TestClassConstructionFinishedEvent;
+		public event MessageHandler<_TestClassConstructionFinished>? TestClassConstructionFinishedEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestClassConstructionStarting"/> message is received.
