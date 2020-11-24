@@ -24,7 +24,7 @@ public class XunitTestInvokerTests
 			Assert.Null(invoker.Aggregator.ToException());
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),  // From TestInvoker
+				msg => Assert.IsType<_TestClassConstructionStarting>(msg),  // From TestInvoker
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),  // From TestInvoker
 				msg =>
 				{
@@ -86,7 +86,7 @@ public class XunitTestInvokerTests
 			Assert.IsType<SpyBeforeAfterTest.BeforeException>(invoker.Aggregator.ToException());
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				msg => Assert.IsType<_BeforeTestStarting>(msg),
 				msg => Assert.IsType<_BeforeTestFinished>(msg)
@@ -110,7 +110,7 @@ public class XunitTestInvokerTests
 			);
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				msg => Assert.IsType<_BeforeTestStarting>(msg),
 				msg => Assert.IsType<_BeforeTestFinished>(msg),

@@ -7,6 +7,7 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 /// <summary>
 /// This class represents utility methods needed to supplement the
@@ -14,53 +15,6 @@ using Xunit.Sdk;
 /// </summary>
 public static class ReflectionAbstractionExtensions
 {
-	/// <summary>
-	/// Creates an instance of the test class for the given test case. Sends the <see cref="ITestClassConstructionStarting"/>
-	/// and <see cref="ITestClassConstructionFinished"/> messages as appropriate.
-	/// </summary>
-	/// <param name="test">The test</param>
-	/// <param name="testClassType">The type of the test class</param>
-	/// <param name="constructorArguments">The constructor arguments for the test class</param>
-	/// <param name="messageBus">The message bus used to send the test messages</param>
-	/// <param name="timer">The timer used to measure the time taken for construction</param>
-	/// <param name="cancellationTokenSource">The cancellation token source</param>
-	/// <returns></returns>
-	public static object? CreateTestClass(
-		this ITest test,
-		Type testClassType,
-		object?[] constructorArguments,
-		IMessageBus messageBus,
-		ExecutionTimer timer,
-		CancellationTokenSource cancellationTokenSource)
-	{
-		Guard.ArgumentNotNull(nameof(test), test);
-		Guard.ArgumentNotNull(nameof(testClassType), testClassType);
-		Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
-		Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-		Guard.ArgumentNotNull(nameof(timer), timer);
-		Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
-
-		object? testClass = null;
-
-		if (!messageBus.QueueMessage(new TestClassConstructionStarting(test)))
-			cancellationTokenSource.Cancel();
-		else
-		{
-			try
-			{
-				if (!cancellationTokenSource.IsCancellationRequested)
-					timer.Aggregate(() => testClass = Activator.CreateInstance(testClassType, constructorArguments));
-			}
-			finally
-			{
-				if (!messageBus.QueueMessage(new TestClassConstructionFinished(test)))
-					cancellationTokenSource.Cancel();
-			}
-		}
-
-		return testClass;
-	}
-
 	/// <summary>
 	/// Disposes the test class instance. Sends the <see cref="ITestClassDisposeStarting"/> and <see cref="ITestClassDisposeFinished"/>
 	/// messages as appropriate.

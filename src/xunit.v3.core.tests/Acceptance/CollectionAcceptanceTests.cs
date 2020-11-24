@@ -27,7 +27,7 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsType<_TestMethodStarting>(message),
 			message => Assert.IsType<_TestCaseStarting>(message),
 			message => Assert.IsType<_TestStarting>(message),
-			message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+			message => Assert.IsType<_TestClassConstructionStarting>(message),
 			message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
 			message => Assert.IsType<_BeforeTestStarting>(message),
 			message => Assert.IsType<_BeforeTestFinished>(message),
