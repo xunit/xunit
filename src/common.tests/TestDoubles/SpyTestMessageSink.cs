@@ -16,7 +16,7 @@ public class SpyTestMessageSink : TestMessageSink
 
 		Execution.AfterTestFinishedEvent += args => Calls.Add("_AfterTestFinished");
 		Execution.AfterTestStartingEvent += args => Calls.Add("_AfterTestStarting");
-		Execution.BeforeTestFinishedEvent += args => Calls.Add("IBeforeTestFinished");
+		Execution.BeforeTestFinishedEvent += args => Calls.Add("_BeforeTestFinished");
 		Execution.BeforeTestStartingEvent += args => Calls.Add("IBeforeTestStarting");
 		Execution.TestAssemblyCleanupFailureEvent += args => Calls.Add("_TestAssemblyCleanupFailure");
 		Execution.TestAssemblyFinishedEvent += args => Calls.Add("_TestAssemblyFinished");

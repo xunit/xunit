@@ -36,11 +36,14 @@ public class XunitTestInvokerTests
 				},
 				msg =>
 				{
-					var beforeFinished = Assert.IsAssignableFrom<IBeforeTestFinished>(msg);
-					Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, beforeFinished.TestCollection);
-					Assert.Same(invoker.TestCase, beforeFinished.TestCase);
-					Assert.Equal("Display Name", beforeFinished.Test.DisplayName);
+					var beforeFinished = Assert.IsAssignableFrom<_BeforeTestFinished>(msg);
+					Assert.Equal("test-assembly-id", beforeFinished.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", beforeFinished.AttributeName);
+					Assert.Equal("test-case-id", beforeFinished.TestCaseUniqueID);
+					Assert.Equal("test-class-id", beforeFinished.TestClassUniqueID);
+					Assert.Equal("test-collection-id", beforeFinished.TestCollectionUniqueID);
+					Assert.Equal("test-method-id", beforeFinished.TestMethodUniqueID);
+					Assert.Equal("test-id", beforeFinished.TestUniqueID);
 				},
 				// Test method is invoked here; no directly observable message (tested below)
 				msg =>
@@ -83,7 +86,7 @@ public class XunitTestInvokerTests
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
-				msg => Assert.IsAssignableFrom<IBeforeTestFinished>(msg)
+				msg => Assert.IsType<_BeforeTestFinished>(msg)
 			);
 		}
 
@@ -107,7 +110,7 @@ public class XunitTestInvokerTests
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
-				msg => Assert.IsAssignableFrom<IBeforeTestFinished>(msg),
+				msg => Assert.IsType<_BeforeTestFinished>(msg),
 				msg => Assert.IsType<_AfterTestStarting>(msg),
 				msg => Assert.IsType<_AfterTestFinished>(msg)
 			);

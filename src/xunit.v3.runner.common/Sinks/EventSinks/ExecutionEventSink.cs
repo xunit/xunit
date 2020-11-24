@@ -20,9 +20,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_AfterTestStarting>? AfterTestStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="IBeforeTestFinished"/> message is received.
+		/// Occurs when a <see cref="_BeforeTestFinished"/> message is received.
 		/// </summary>
-		public event MessageHandler<IBeforeTestFinished>? BeforeTestFinishedEvent;
+		public event MessageHandler<_BeforeTestFinished>? BeforeTestFinishedEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="IBeforeTestStarting"/> message is received.

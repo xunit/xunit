@@ -98,7 +98,17 @@ namespace Xunit.Sdk
 					}
 					finally
 					{
-						if (!MessageBus.QueueMessage(new BeforeTestFinished(Test, attributeName)))
+						var beforeTestFinished = new _BeforeTestFinished
+						{
+							AssemblyUniqueID = TestAssemblyUniqueID,
+							AttributeName = attributeName,
+							TestCaseUniqueID = TestCaseUniqueID,
+							TestClassUniqueID = TestClassUniqueID,
+							TestCollectionUniqueID = TestCollectionUniqueID,
+							TestMethodUniqueID = TestMethodUniqueID,
+							TestUniqueID = TestUniqueID
+						};
+						if (!MessageBus.QueueMessage(beforeTestFinished))
 							CancellationTokenSource.Cancel();
 					}
 				}
