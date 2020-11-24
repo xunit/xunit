@@ -325,6 +325,19 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static ITestClass TestClass(
+			ITestCollection? testCollection = null,
+			ITypeInfo? classType = null)
+		{
+			testCollection ??= TestCollection();
+			classType ??= TypeInfo();
+
+			var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
+			result.Class.Returns(classType);
+			result.TestCollection.Returns(testCollection);
+			return result;
+		}
+
 		public static ITestClassCleanupFailure TestClassCleanupFailure(
 			ITestClass testClass,
 			Exception ex)
@@ -377,19 +390,6 @@ namespace Xunit.Runner.v2
 			result.TestClass.Returns(testClass);
 			result.TestCollection.Returns(testCollection);
 			result.TestMethod.Returns(testMethod);
-			return result;
-		}
-
-		public static ITestClass TestClass(
-			ITestCollection? testCollection = null,
-			ITypeInfo? classType = null)
-		{
-			testCollection ??= TestCollection();
-			classType ??= TypeInfo();
-
-			var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
-			result.Class.Returns(classType);
-			result.TestCollection.Returns(testCollection);
 			return result;
 		}
 
