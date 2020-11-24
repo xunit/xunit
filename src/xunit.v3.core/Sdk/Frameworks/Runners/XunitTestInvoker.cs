@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -82,7 +81,17 @@ namespace Xunit.Sdk
 			foreach (var beforeAfterAttribute in BeforeAfterAttributes)
 			{
 				var attributeName = beforeAfterAttribute.GetType().Name;
-				if (!MessageBus.QueueMessage(new BeforeTestStarting(Test, attributeName)))
+				var beforeTestStarting = new _BeforeTestStarting
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					AttributeName = attributeName,
+					TestCaseUniqueID = TestCaseUniqueID,
+					TestClassUniqueID = TestClassUniqueID,
+					TestCollectionUniqueID = TestCollectionUniqueID,
+					TestMethodUniqueID = TestMethodUniqueID,
+					TestUniqueID = TestUniqueID
+				};
+				if (!MessageBus.QueueMessage(beforeTestStarting))
 					CancellationTokenSource.Cancel();
 				else
 				{

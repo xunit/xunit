@@ -28,15 +28,18 @@ public class XunitTestInvokerTests
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),  // From TestInvoker
 				msg =>
 				{
-					var beforeStarting = Assert.IsAssignableFrom<IBeforeTestStarting>(msg);
-					Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, beforeStarting.TestCollection);
-					Assert.Same(invoker.TestCase, beforeStarting.TestCase);
-					Assert.Equal("Display Name", beforeStarting.Test.DisplayName);
+					var beforeStarting = Assert.IsType<_BeforeTestStarting>(msg);
+					Assert.Equal("test-assembly-id", beforeStarting.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", beforeStarting.AttributeName);
+					Assert.Equal("test-case-id", beforeStarting.TestCaseUniqueID);
+					Assert.Equal("test-class-id", beforeStarting.TestClassUniqueID);
+					Assert.Equal("test-collection-id", beforeStarting.TestCollectionUniqueID);
+					Assert.Equal("test-method-id", beforeStarting.TestMethodUniqueID);
+					Assert.Equal("test-id", beforeStarting.TestUniqueID);
 				},
 				msg =>
 				{
-					var beforeFinished = Assert.IsAssignableFrom<_BeforeTestFinished>(msg);
+					var beforeFinished = Assert.IsType<_BeforeTestFinished>(msg);
 					Assert.Equal("test-assembly-id", beforeFinished.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", beforeFinished.AttributeName);
 					Assert.Equal("test-case-id", beforeFinished.TestCaseUniqueID);
@@ -85,7 +88,7 @@ public class XunitTestInvokerTests
 				messageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
-				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
+				msg => Assert.IsType<_BeforeTestStarting>(msg),
 				msg => Assert.IsType<_BeforeTestFinished>(msg)
 			);
 		}
@@ -109,7 +112,7 @@ public class XunitTestInvokerTests
 				messageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
-				msg => Assert.IsAssignableFrom<IBeforeTestStarting>(msg),
+				msg => Assert.IsType<_BeforeTestStarting>(msg),
 				msg => Assert.IsType<_BeforeTestFinished>(msg),
 				msg => Assert.IsType<_AfterTestStarting>(msg),
 				msg => Assert.IsType<_AfterTestFinished>(msg)
