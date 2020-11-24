@@ -50,7 +50,7 @@ public class TestInvokerTests
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
+			msg => Assert.IsType<_TestClassDisposeFinished>(msg)
 		);
 	}
 
@@ -67,7 +67,7 @@ public class TestInvokerTests
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
+			msg => Assert.IsType<_TestClassDisposeFinished>(msg)
 		);
 	}
 
@@ -84,7 +84,7 @@ public class TestInvokerTests
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
+			msg => Assert.IsType<_TestClassDisposeFinished>(msg)
 		);
 	}
 
@@ -173,7 +173,7 @@ public class TestInvokerTests
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
 			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
+			msg => Assert.IsType<_TestClassDisposeFinished>(msg)
 		);
 	}
 

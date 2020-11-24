@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -395,8 +394,20 @@ namespace Xunit.Sdk
 							Aggregator.Run(() => timer.Aggregate(disposable.Dispose));
 
 						if (asyncDisposable != null || disposable != null)
-							if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
+						{
+							var testClassDisposeFinished = new _TestClassDisposeFinished
+							{
+								AssemblyUniqueID = TestAssemblyUniqueID,
+								TestCaseUniqueID = TestCaseUniqueID,
+								TestClassUniqueID = TestClassUniqueID,
+								TestCollectionUniqueID = TestCollectionUniqueID,
+								TestMethodUniqueID = TestMethodUniqueID,
+								TestUniqueID = TestUniqueID
+							};
+
+							if (!messageBus.QueueMessage(testClassDisposeFinished))
 								cancellationTokenSource.Cancel();
+						}
 					}
 				}
 
