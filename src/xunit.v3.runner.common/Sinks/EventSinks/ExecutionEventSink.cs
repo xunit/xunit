@@ -80,9 +80,9 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<ITestClassDisposeFinished>? TestClassDisposeFinishedEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestClassDisposeStarting"/> message is received.
+		/// Occurs when a <see cref="_TestClassDisposeStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestClassDisposeStarting>? TestClassDisposeStartingEvent;
+		public event MessageHandler<_TestClassDisposeStarting>? TestClassDisposeStartingEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_TestClassFinished"/> message is received.

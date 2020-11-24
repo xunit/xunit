@@ -58,6 +58,7 @@ namespace Xunit.Runner.v2
 				Convert<IBeforeTestStarting>(message, messageTypes, AdaptBeforeTestStarting) ??
 				Convert<ITestClassConstructionFinished>(message, messageTypes, AdaptTestClassConstructionFinished) ??
 				Convert<ITestClassConstructionStarting>(message, messageTypes, AdaptTestClassConstructionStarting) ??
+				Convert<ITestClassDisposeStarting>(message, messageTypes, AdaptTestClassDisposeStarting) ??
 				Convert<ITestCleanupFailure>(message, messageTypes, AdaptTestCleanupFailure) ??
 				Convert<ITestFailed>(message, messageTypes, AdaptTestFailed) ??
 				Convert<ITestFinished>(message, messageTypes, AdaptTestFinished) ??
@@ -332,6 +333,26 @@ namespace Xunit.Runner.v2
 			var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
 			return new _TestClassConstructionStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
+			};
+		}
+
+		static _TestClassDisposeStarting AdaptTestClassDisposeStarting(ITestClassDisposeStarting message)
+		{
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
+			var testCaseUniqueID = message.TestCase.UniqueID;
+			var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
+
+			return new _TestClassDisposeStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,

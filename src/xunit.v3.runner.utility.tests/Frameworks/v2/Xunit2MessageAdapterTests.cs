@@ -568,6 +568,22 @@ public class Xunit2MessageAdapterTests
 		}
 
 		[Fact]
+		public void TestClassDisposeStarting()
+		{
+			var v2Message = v2Mocks.TestClassDisposeStarting(Test);
+
+			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestClassDisposeStarting>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			Assert.Equal(TestUniqueID, v3Message.TestUniqueID);
+		}
+
+		[Fact]
 		public void TestCleanupFailure()
 		{
 			var v2Message = v2Mocks.TestCleanupFailure(Test, ThrownException);

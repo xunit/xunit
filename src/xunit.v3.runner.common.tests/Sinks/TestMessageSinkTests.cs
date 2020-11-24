@@ -34,7 +34,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(_TestClassConstructionFinished))]
 	[InlineData(typeof(_TestClassConstructionStarting))]
 	[InlineData(typeof(ITestClassDisposeFinished))]
-	[InlineData(typeof(ITestClassDisposeStarting))]
+	[InlineData(typeof(_TestClassDisposeStarting))]
 	[InlineData(typeof(_TestClassFinished))]
 	[InlineData(typeof(_TestClassStarting))]
 	[InlineData(typeof(_TestCollectionCleanupFailure))]

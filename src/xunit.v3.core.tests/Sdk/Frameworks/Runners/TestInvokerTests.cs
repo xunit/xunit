@@ -49,7 +49,41 @@ public class TestInvokerTests
 			messageBus.Messages,
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
+		);
+	}
+
+	[Fact]
+	public static async void Messages_NonStaticTestMethod_WithDisposeAsync()
+	{
+		var messageBus = new SpyMessageBus();
+		var invoker = TestableTestInvoker.Create<AsyncDisposableClass>("Passing", messageBus, "Display Name");
+
+		await invoker.RunAsync();
+
+		Assert.Collection(
+			messageBus.Messages,
+			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
+			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
+			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
+		);
+	}
+
+	[Fact]
+	public static async void Messages_NonStaticTestMethod_WithDisposeAndDisposeAsync()
+	{
+		var messageBus = new SpyMessageBus();
+		var invoker = TestableTestInvoker.Create<BothDisposableClass>("Passing", messageBus, "Display Name");
+
+		await invoker.RunAsync();
+
+		Assert.Collection(
+			messageBus.Messages,
+			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
+			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
+			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
 		);
 	}
@@ -138,7 +172,7 @@ public class TestInvokerTests
 			messageBus.Messages,
 			msg => Assert.IsType<_TestClassConstructionStarting>(msg),
 			msg => Assert.IsType<_TestClassConstructionFinished>(msg),
-			msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+			msg => Assert.IsType<_TestClassDisposeStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg)
 		);
 	}
@@ -165,6 +199,24 @@ public class TestInvokerTests
 	class DisposableClass : IDisposable
 	{
 		public void Dispose() { }
+
+		[Fact]
+		public void Passing() { }
+	}
+
+	class AsyncDisposableClass : IAsyncDisposable
+	{
+		public ValueTask DisposeAsync() => default;
+
+		[Fact]
+		public void Passing() { }
+	}
+
+	class BothDisposableClass : IAsyncDisposable, IDisposable
+	{
+		public void Dispose() { }
+
+		public ValueTask DisposeAsync() => default;
 
 		[Fact]
 		public void Passing() { }

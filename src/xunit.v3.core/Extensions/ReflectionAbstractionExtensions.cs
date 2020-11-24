@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
-using Xunit.v3;
 
 /// <summary>
 /// This class represents utility methods needed to supplement the
@@ -15,44 +12,6 @@ using Xunit.v3;
 /// </summary>
 public static class ReflectionAbstractionExtensions
 {
-	/// <summary>
-	/// Disposes the test class instance. Sends the <see cref="ITestClassDisposeStarting"/> and <see cref="ITestClassDisposeFinished"/>
-	/// messages as appropriate.
-	/// </summary>
-	/// <param name="test">The test</param>
-	/// <param name="testClass">The test class instance to be disposed</param>
-	/// <param name="messageBus">The message bus used to send the test messages</param>
-	/// <param name="timer">The timer used to measure the time taken for construction</param>
-	/// <param name="cancellationTokenSource">The cancellation token source</param>
-	public static void DisposeTestClass(
-		this ITest test,
-		object? testClass,
-		IMessageBus messageBus,
-		ExecutionTimer timer,
-		CancellationTokenSource cancellationTokenSource)
-	{
-		Guard.ArgumentNotNull(nameof(test), test);
-		Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-		Guard.ArgumentNotNull(nameof(timer), timer);
-		Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
-
-		if (!(testClass is IDisposable disposable))
-			return;
-
-		if (!messageBus.QueueMessage(new TestClassDisposeStarting(test)))
-			cancellationTokenSource.Cancel();
-
-		try
-		{
-			timer.Aggregate(disposable.Dispose);
-		}
-		finally
-		{
-			if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
-				cancellationTokenSource.Cancel();
-		}
-	}
-
 	static MethodInfo? GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
 	{
 		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();

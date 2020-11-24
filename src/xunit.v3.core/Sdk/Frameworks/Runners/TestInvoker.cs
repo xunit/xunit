@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -343,31 +344,59 @@ namespace Xunit.Sdk
 			{
 				if (!CancellationTokenSource.IsCancellationRequested)
 				{
-					var testClassInstance = CreateTestClass();
+					object? testClassInstance = null;
+					timer.Aggregate(() => testClassInstance = CreateTestClass());
+
+					var asyncDisposable = testClassInstance as IAsyncDisposable;
+					var disposable = testClassInstance as IDisposable;
 
 					try
 					{
-						var asyncLifetime = testClassInstance as IAsyncLifetime;
-						if (asyncLifetime != null)
-							await asyncLifetime.InitializeAsync();
+						if (testClassInstance is IAsyncLifetime asyncLifetime)
+							await timer.AggregateAsync(asyncLifetime.InitializeAsync);
 
-						if (!CancellationTokenSource.IsCancellationRequested)
+						try
 						{
-							await BeforeTestMethodInvokedAsync();
+							if (!CancellationTokenSource.IsCancellationRequested)
+							{
+								await BeforeTestMethodInvokedAsync();
 
-							if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
-								await InvokeTestMethodAsync(testClassInstance);
+								if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
+									await InvokeTestMethodAsync(testClassInstance);
 
-							await AfterTestMethodInvokedAsync();
+								await AfterTestMethodInvokedAsync();
+							}
 						}
+						finally
+						{
+							if (asyncDisposable != null || disposable != null)
+							{
+								var testClassDisposeStarting = new _TestClassDisposeStarting
+								{
+									AssemblyUniqueID = TestAssemblyUniqueID,
+									TestCaseUniqueID = TestCaseUniqueID,
+									TestClassUniqueID = TestClassUniqueID,
+									TestCollectionUniqueID = TestCollectionUniqueID,
+									TestMethodUniqueID = TestMethodUniqueID,
+									TestUniqueID = TestUniqueID
+								};
 
-						var asyncDisposable = testClassInstance as IAsyncDisposable;
-						if (asyncDisposable != null)
-							await Aggregator.RunAsync(asyncDisposable.DisposeAsync);
+								if (!messageBus.QueueMessage(testClassDisposeStarting))
+									cancellationTokenSource.Cancel();
+							}
+
+							if (asyncDisposable != null)
+								await Aggregator.RunAsync(() => timer.AggregateAsync(asyncDisposable.DisposeAsync));
+						}
 					}
 					finally
 					{
-						Aggregator.Run(() => Test.DisposeTestClass(testClassInstance, MessageBus, Timer, CancellationTokenSource));
+						if (disposable != null)
+							Aggregator.Run(() => timer.Aggregate(disposable.Dispose));
+
+						if (asyncDisposable != null || disposable != null)
+							if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
+								cancellationTokenSource.Cancel();
 					}
 				}
 
