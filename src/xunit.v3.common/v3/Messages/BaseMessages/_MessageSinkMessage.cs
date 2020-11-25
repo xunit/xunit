@@ -47,19 +47,19 @@ namespace Xunit.v3
 
 			reader.Read();
 			if (reader.TokenType != JsonTokenType.StartObject)
-				throw new JsonException($"Expected object serialization, got {reader.TokenType} instead");
+				throw new ArgumentException($"Expected object serialization, got {reader.TokenType} instead", nameof(serialization));
 
 			reader.Read();
 			if (reader.TokenType != JsonTokenType.PropertyName)
-				throw new JsonException($"Expected first element to be a property, got {reader.TokenType} instead");
+				throw new ArgumentException($"Expected first element to be a property, got {reader.TokenType} instead", nameof(serialization));
 
 			var propertyName = reader.GetString();
 			if (propertyName != "$type")
-				throw new JsonException($"Expected first property to be named $type, got '{propertyName}' instead");
+				throw new ArgumentException($"Expected first property to be named $type, got '{propertyName}' instead", nameof(serialization));
 
 			reader.Read();
 			if (reader.TokenType != JsonTokenType.String)
-				throw new JsonException($"Expected $type to be a string, got {reader.TokenType} instead");
+				throw new ArgumentException($"Expected $type to be a string, got {reader.TokenType} instead", nameof(serialization));
 
 			var shortTypeName = reader.GetString();
 			var typeName = string.Format(assemblyQualifiedNameTemplate, shortTypeName);
@@ -67,7 +67,15 @@ namespace Xunit.v3
 			if (type == null)
 				throw new ArgumentException($"Could not load type '{typeName}' for deserialization", nameof(serialization));
 
-			return (_MessageSinkMessage)JsonSerializer.Deserialize(byteSpan, type);
+			var result = JsonSerializer.Deserialize(byteSpan, type);
+			if (result == null)
+				throw new ArgumentException($"Deserialization of type '{typeName}' unexpectedly returned null", nameof(serialization));
+
+			var typedResult = result as _MessageSinkMessage;
+			if (typedResult == null)
+				throw new ArgumentException($"Deserialization of type '{typeName}' returned a value of type '{result.GetType().FullName}' instead of something derived from '{typeof(_MessageSinkMessage).FullName}'", nameof(serialization));
+
+			return typedResult;
 		}
 
 		/// <summary>

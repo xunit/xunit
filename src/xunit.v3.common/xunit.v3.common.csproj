@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0" />
     <!-- -V- Temporarily here until support for v2 can be removed -V- -->
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>

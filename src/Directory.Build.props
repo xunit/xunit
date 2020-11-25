@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
-    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.154" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.40" PrivateAssets="all" />
+    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -101,7 +101,7 @@
         <PackageReference Include="FSharp.Compiler.Service" Version="36.0.2" />
         <PackageReference Include="FSharp.Core" Version="4.7.2" />
         <PackageReference Include="NSubstitute" Version="4.2.2" />
-        <PackageReference Include="System.CodeDom" Version="4.7.0" />
+        <PackageReference Include="System.CodeDom" Version="5.0.0" />
         <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
       </ItemGroup>
 
