@@ -393,7 +393,7 @@ namespace Xunit.Runner.SystemConsole
 			if (assembliesElement != null)
 				xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
-			return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
+			return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed + summary.Errors);
 		}
 
 		async ValueTask<XElement?> ExecuteAssembly(

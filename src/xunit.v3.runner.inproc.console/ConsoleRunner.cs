@@ -381,7 +381,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			if (assembliesElement != null)
 				xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
-			return failed ? 1 : executionSummary.Failed;
+			return failed ? 1 : executionSummary.Failed + executionSummary.Errors;
 		}
 
 		async ValueTask<XElement?> ExecuteAssembly(

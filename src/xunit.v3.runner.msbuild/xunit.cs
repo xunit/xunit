@@ -330,7 +330,7 @@ namespace Xunit.Runner.MSBuild
 
 					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
 
-					if (resultsSink.ExecutionSummary.Failed != 0)
+					if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
 					{
 						ExitCode = 1;
 						if (stopOnFail == true)
