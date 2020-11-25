@@ -1,9 +1,7 @@
 ﻿#if !NETSTANDARD
 
 using System;
-using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit
@@ -12,7 +10,7 @@ namespace Xunit
 	/// An implementation of <see cref="_ISourceInformationProvider"/> that will provide source information
 	/// when running inside of Visual Studio (via the DiaSession class).
 	/// </summary>
-	public class VisualStudioSourceInformationProvider : LongLivedMarshalByRefObject, _ISourceInformationProvider
+	public class VisualStudioSourceInformationProvider : _ISourceInformationProvider
 	{
 		static readonly _SourceInformation EmptySourceInformation = new _SourceInformation();
 

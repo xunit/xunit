@@ -6,7 +6,6 @@ using System.Threading;
 using System.Xml.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -15,7 +14,7 @@ namespace Xunit.Runner.Common
 	/// A delegating implementation of <see cref="IExecutionSink"/> which is responsible for
 	/// creating the xUnit.net v2/v3 XML output from the execution test results.
 	/// </summary>
-	public class DelegatingXmlCreationSink : LongLivedMarshalByRefObject, IExecutionSink
+	public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		readonly XElement assemblyElement;
 		bool disposed;

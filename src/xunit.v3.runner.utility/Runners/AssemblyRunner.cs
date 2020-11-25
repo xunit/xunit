@@ -14,7 +14,7 @@ namespace Xunit.Runners
 	/// <summary>
 	/// A class which makes it simpler for casual runner authors to find and run tests and get results.
 	/// </summary>
-	public class AssemblyRunner : LongLivedMarshalByRefObject, IAsyncDisposable, _IMessageSink
+	public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 	{
 		static readonly Dictionary<Type, string> MessageTypeNames;
 

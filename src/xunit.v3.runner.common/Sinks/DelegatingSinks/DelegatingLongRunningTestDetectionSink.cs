@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -13,7 +12,7 @@ namespace Xunit.Runner.Common
 	/// A delegating implementation of <see cref="IExecutionSink"/> which detects and reports when
 	/// tests have become long-running (during otherwise idle time).
 	/// </summary>
-	public class DelegatingLongRunningTestDetectionSink : LongLivedMarshalByRefObject, IExecutionSink
+	public class DelegatingLongRunningTestDetectionSink : IExecutionSink
 	{
 		readonly Action<LongRunningTestsSummary> callback;
 		readonly Dictionary<string, (_ITestCaseMetadata metadata, DateTime startTime)> executingTestCases = new Dictionary<string, (_ITestCaseMetadata, DateTime)>();

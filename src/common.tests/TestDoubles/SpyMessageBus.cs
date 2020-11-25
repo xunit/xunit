@@ -3,13 +3,7 @@ using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if XUNIT_FRAMEWORK
 public class SpyMessageBus : IMessageBus
-#else
-using Xunit.Runner.v2;
-
-public class SpyMessageBus : LongLivedMarshalByRefObject, IMessageBus
-#endif
 {
 	readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 

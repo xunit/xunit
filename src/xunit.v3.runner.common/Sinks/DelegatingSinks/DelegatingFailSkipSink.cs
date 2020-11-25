@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -12,7 +11,7 @@ namespace Xunit.Runner.Common
 	/// A delegating implementation of <see cref="IExecutionSink"/> which converts all
 	/// skipped tests into failures before passing them on to the inner sink.
 	/// </summary>
-	public class DelegatingFailSkipSink : LongLivedMarshalByRefObject, IExecutionSink
+	public class DelegatingFailSkipSink : IExecutionSink
 	{
 		bool disposed;
 		readonly IExecutionSink innerSink;

@@ -1,12 +1,11 @@
 ﻿using Xunit.Abstractions;
-using Xunit.Runner.v2;
 
 namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// An implementation of <see cref="ITest"/> for xUnit v1.
 	/// </summary>
-	public class Xunit1Test : LongLivedMarshalByRefObject, ITest
+	public class Xunit1Test : ITest
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1Test"/> class.

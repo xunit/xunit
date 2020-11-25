@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -19,7 +18,7 @@ namespace Xunit.Runner.Common
 	/// A delegating implementation of <see cref="IExecutionSink"/> which provides the execution
 	/// summary and finished events when appropriate and cancellation support.
 	/// </summary>
-	public class DelegatingExecutionSummarySink : LongLivedMarshalByRefObject, IExecutionSink
+	public class DelegatingExecutionSummarySink : IExecutionSink
 	{
 		readonly Func<bool> cancelThunk;
 		readonly DelegatingExecutionSummarySinkCallback? completionCallback;

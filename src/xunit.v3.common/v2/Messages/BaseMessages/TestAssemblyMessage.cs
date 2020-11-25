@@ -8,7 +8,7 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// Default implementation of <see cref="ITestAssemblyMessage"/> and <see cref="IExecutionMessage"/>.
 	/// </summary>
-	public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage, IExecutionMessage
+	public class TestAssemblyMessage : ITestAssemblyMessage, IExecutionMessage
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssemblyMessage"/> class.

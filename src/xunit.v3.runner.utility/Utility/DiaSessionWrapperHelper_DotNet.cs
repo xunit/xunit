@@ -13,7 +13,7 @@ using Xunit.Runner.v2;
 
 namespace Xunit
 {
-	class DiaSessionWrapperHelper : LongLivedMarshalByRefObject
+	class DiaSessionWrapperHelper
 	{
 		readonly Assembly assembly;
 		readonly Dictionary<string, Type> typeNameMap;
