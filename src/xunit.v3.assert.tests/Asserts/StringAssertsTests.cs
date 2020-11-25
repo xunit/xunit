@@ -120,7 +120,6 @@ public class StringAssertsTests
 		[InlineData("    ", "\u200B", false, false, true)]
 		[InlineData(" ", " \u200B\uFEFF", false, false, true)]
 		[InlineData(" \u180E", "\u200B\u202F\u1680\u180E ", false, false, true)]
-		[InlineData("    ", "\u200B", false, false, true)]
 		[InlineData("\u2001\u2002\u2003\u2006\u2009    ", "\u200B", false, false, true)]
 		[InlineData("\u00A0\u200A\u2009\u2006\u2009    ", "\u200B", false, false, true)]
 		// The ogham space mark (\u1680) kind of looks like a faint dash, but Microsoft has put it

@@ -52,7 +52,6 @@ public class ArgumentFormatterTests
 			yield return new object[] { "\uDC00", @"""\xdc00""" };
 			yield return new object[] { "\uDC00\uD800", @"""\xdc00\xd800""" };
 			yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
-			yield return new object[] { "\uFFFE", @"""\xfffe""" };
 		}
 
 		[Theory]
