@@ -166,7 +166,7 @@ namespace Xunit
 		}
 
 		void Find(
-			Predicate<ITestCaseDiscoveryMessage> filter,
+			Predicate<_TestCaseDiscovered> filter,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
@@ -201,7 +201,24 @@ namespace Xunit
 								testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
-							var message = new TestCaseDiscoveryMessage(testCase);
+							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(assemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
+							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((ITestClass)testCase).Class?.Name);
+							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((ITestMethod)testCase).Method?.Name);
+							var message = new _TestCaseDiscovered
+							{
+								AssemblyUniqueID = assemblyUniqueID,
+								SkipReason = testCase.SkipReason,
+								SourceFilePath = testCase.SourceInformation?.FileName,
+								SourceLineNumber = testCase.SourceInformation?.LineNumber,
+								TestCase = testCase,
+								TestCaseDisplayName = testCase.DisplayName,
+								TestCaseUniqueID = testCase.UniqueID,
+								TestClassUniqueID = testClassUniqueID,
+								TestCollectionUniqueID = testCollectionUniqueID,
+								TestMethodUniqueID = testMethodUniqueID,
+								Traits = testCase.Traits
+							};
+
 							if (filter(message))
 								messageSink.OnMessage(message);
 						}

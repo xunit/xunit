@@ -12,17 +12,17 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Occurs when a <see cref="_DiscoveryComplete"/> message is received.
 		/// </summary>
-		public event MessageHandler<_DiscoveryComplete>? DiscoveryCompleteMessageEvent;
+		public event MessageHandler<_DiscoveryComplete>? DiscoveryCompleteEvent;
 
 		/// <summary>
 		/// Occurs when a <see cref="_DiscoveryStarting"/> message is received.
 		/// </summary>
-		public event MessageHandler<_DiscoveryStarting>? DiscoveryStartingMessageEvent;
+		public event MessageHandler<_DiscoveryStarting>? DiscoveryStartingEvent;
 
 		/// <summary>
-		/// Occurs when a <see cref="ITestCaseDiscoveryMessage"/> message is received.
+		/// Occurs when a <see cref="_TestCaseDiscovered"/> message is received.
 		/// </summary>
-		public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
+		public event MessageHandler<_TestCaseDiscovered>? TestCaseDiscoveredEvent;
 
 		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
@@ -30,9 +30,9 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(null, TestCaseDiscoveryMessageEvent) &&
-				message.Dispatch(null, DiscoveryCompleteMessageEvent) &&
-				message.Dispatch(null, DiscoveryStartingMessageEvent);
+				message.Dispatch(null, TestCaseDiscoveredEvent) &&
+				message.Dispatch(null, DiscoveryCompleteEvent) &&
+				message.Dispatch(null, DiscoveryStartingEvent);
 		}
 	}
 }

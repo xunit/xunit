@@ -22,7 +22,10 @@ namespace Xunit.Runner.v1
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
 		public Xunit1TestCase()
-		{ }
+		{
+			DisplayName = "<unset>";
+			Traits = new Dictionary<string, List<string>>();
+		}
 
 		/// <summary>
 		/// Initializes a new instance  of the <see cref="Xunit1TestCase"/> class.
@@ -50,7 +53,7 @@ namespace Xunit.Runner.v1
 			reflectionWrapper = new Xunit1ReflectionWrapper(assemblyFileName, typeName, methodName);
 
 			ConfigFileName = configFileName;
-			DisplayName = displayName;
+			DisplayName = displayName ?? $"{typeName}.{methodName}";
 			Traits = traits ?? EmptyTraits;
 			SkipReason = skipReason;
 		}
@@ -59,7 +62,7 @@ namespace Xunit.Runner.v1
 		public string? ConfigFileName { get; set; }
 
 		/// <inheritdoc/>
-		public string? DisplayName { get; set; }
+		public string DisplayName { get; set; }
 
 		Xunit1ReflectionWrapper ReflectionWrapper => Guard.NotNull($"Attempted to get ReflectionWrapper on an uninitialized '{GetType().FullName}' object", reflectionWrapper);
 
@@ -76,7 +79,7 @@ namespace Xunit.Runner.v1
 		public object[]? TestMethodArguments { get; set; }
 
 		/// <inheritdoc/>
-		public Dictionary<string, List<string>>? Traits { get; set; }
+		public Dictionary<string, List<string>> Traits { get; set; }
 
 		/// <inheritdoc/>
 		public string UniqueID => ReflectionWrapper.UniqueID;

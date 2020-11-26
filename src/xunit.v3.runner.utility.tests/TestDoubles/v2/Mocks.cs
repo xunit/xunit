@@ -284,6 +284,22 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
+		public static ITestCaseDiscoveryMessage TestCaseDiscoveryMessage(ITestCase testCase)
+		{
+			var testMethod = testCase.TestMethod;
+			var testClass = testMethod.TestClass;
+			var testCollection = testClass.TestCollection;
+			var testAssembly = testCollection.TestAssembly;
+
+			var result = Substitute.For<ITestCaseDiscoveryMessage, InterfaceProxy<ITestCaseDiscoveryMessage>>();
+			result.TestAssembly.Returns(testAssembly);
+			result.TestCase.Returns(testCase);
+			result.TestClass.Returns(testClass);
+			result.TestCollection.Returns(testCollection);
+			result.TestMethod.Returns(testMethod);
+			return result;
+		}
+
 		public static ITestCaseFinished TestCaseFinished(
 			ITestCase testCase,
 			decimal executionTime,

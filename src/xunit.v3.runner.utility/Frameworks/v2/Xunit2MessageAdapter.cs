@@ -29,6 +29,7 @@ namespace Xunit.Runner.v2
 				Convert<IDiagnosticMessage>(message, messageTypes, AdaptDiagnosticMessage) ??
 
 				Convert<IDiscoveryCompleteMessage>(assemblyUniqueID, message, messageTypes, AdaptDiscoveryCompleteMessage) ??
+				Convert<ITestCaseDiscoveryMessage>(message, messageTypes, AdaptTestCaseDiscoveryMessage) ??
 
 				Convert<IErrorMessage>(message, messageTypes, AdaptErrorMessage) ??
 
@@ -235,6 +236,36 @@ namespace Xunit.Runner.v2
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
+			};
+		}
+
+		static _TestCaseDiscovered AdaptTestCaseDiscoveryMessage(ITestCaseDiscoveryMessage message)
+		{
+			var testCase = message.TestCase;
+
+			// Clean up the cache
+			lock (testUniqueIDsByTestCase)
+				testUniqueIDsByTestCase.Remove(testCase);
+
+			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
+			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
+			var testCaseUniqueID = testCase.UniqueID;
+
+			return new _TestCaseDiscovered
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				SkipReason = testCase.SkipReason,
+				SourceFilePath = testCase.SourceInformation?.FileName,
+				SourceLineNumber = testCase.SourceInformation?.LineNumber,
+				TestCase = testCase,
+				TestCaseDisplayName = testCase.DisplayName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				Traits = testCase.Traits
 			};
 		}
 

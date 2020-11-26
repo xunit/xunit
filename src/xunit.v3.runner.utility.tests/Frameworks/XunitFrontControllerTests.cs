@@ -42,7 +42,7 @@ namespace Namespace1
 				serializationController.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 				sink.Finished.WaitOne();
 
-				var testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().OrderBy(tcdm => tcdm.TestCase.TestMethod.Method.Name).Select(tcdm => tcdm.TestCase).ToList();
+				var testCases = sink.Messages.OfType<_TestCaseDiscovered>().OrderBy(tcdm => tcdm.TestCase.TestMethod.Method.Name).Select(tcdm => tcdm.TestCase).ToList();
 				testCollectionId = testCases[0].TestMethod.TestClass.TestCollection.UniqueID;
 				var descriptors = serializationController.GetTestCaseDescriptors(testCases, true);
 				serializations = descriptors.Select(d => d.Serialization).ToList();

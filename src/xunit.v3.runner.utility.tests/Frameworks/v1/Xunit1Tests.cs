@@ -954,7 +954,7 @@ public class AmbiguouslyNamedTestMethods
 		public TestableTestDiscoverySink(Func<bool>? cancelThunk = null)
 			: base(cancelThunk)
 		{
-			DiscoverySink.DiscoveryStartingMessageEvent += args => StartSeen = true;
+			DiscoverySink.DiscoveryStartingEvent += args => StartSeen = true;
 		}
 	}
 }

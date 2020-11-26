@@ -39,7 +39,7 @@ namespace Xunit.Runners
 			AddMessageTypeName<_TestAssemblyCleanupFailure>();
 			AddMessageTypeName<_TestAssemblyFinished>();
 			AddMessageTypeName<_TestCaseCleanupFailure>();
-			AddMessageTypeName<ITestCaseDiscoveryMessage>();
+			AddMessageTypeName<_TestCaseDiscovered>();
 			AddMessageTypeName<_TestClassCleanupFailure>();
 			AddMessageTypeName<_TestCleanupFailure>();
 			AddMessageTypeName<_TestCollectionCleanupFailure>();
@@ -329,7 +329,7 @@ namespace Xunit.Runners
 			// Temporary
 			var messageTypes = default(HashSet<string>);
 
-			if (DispatchMessage<ITestCaseDiscoveryMessage>(message, messageTypes, testDiscovered =>
+			if (DispatchMessage<_TestCaseDiscovered>(message, messageTypes, testDiscovered =>
 			{
 				++testCasesDiscovered;
 				if (TestCaseFilter == null || TestCaseFilter(testDiscovered.TestCase))

@@ -24,14 +24,14 @@ namespace Xunit.Runner.Common
 		{
 			this.cancelThunk = cancelThunk ?? (() => false);
 
-			DiscoverySink.TestCaseDiscoveryMessageEvent += args =>
+			DiscoverySink.TestCaseDiscoveredEvent += args =>
 			{
 				Guard.ArgumentNotNull(nameof(args), args);
 
 				TestCases.Add(args.Message.TestCase);
 			};
 
-			DiscoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
+			DiscoverySink.DiscoveryCompleteEvent += args => Finished.Set();
 		}
 
 		/// <summary>

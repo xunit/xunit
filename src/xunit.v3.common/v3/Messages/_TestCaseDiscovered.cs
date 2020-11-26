@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xunit.Abstractions;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -9,6 +10,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	{
+		ITestCase? testCase;
 		string? testCaseDisplayName;
 		Dictionary<string, List<string>> traits = new Dictionary<string, List<string>>();
 
@@ -20,6 +22,15 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public int? SourceLineNumber { get; set; }
+
+		/// <summary>
+		/// TEMPORARY USAGE
+		/// </summary>
+		public ITestCase TestCase
+		{
+			get => testCase ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCase)} on an uninitialized '{GetType().FullName}' object");
+			set => testCase = Guard.ArgumentNotNull(nameof(TestCase), value);
+		}
 
 		/// <inheritdoc/>
 		public string TestCaseDisplayName

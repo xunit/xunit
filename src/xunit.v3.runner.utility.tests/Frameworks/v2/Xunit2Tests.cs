@@ -22,7 +22,7 @@ public class Xunit2Tests
 			sink.Finished.WaitOne();
 
 			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
-			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
+			Assert.False(sink.Messages.Any(msg => msg is _TestCaseDiscovered));
 		}
 
 		[Fact]
@@ -37,7 +37,7 @@ public class Xunit2Tests
 			sink.Finished.WaitOne();
 
 			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
-			Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
+			Assert.False(sink.Messages.Any(msg => msg is _TestCaseDiscovered));
 		}
 
 		[Fact]
@@ -60,7 +60,7 @@ public class Foo
 
 			sink.Finished.WaitOne();
 
-			var testCase = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Single().TestCase;
+			var testCase = sink.Messages.OfType<_TestCaseDiscovered>().Single().TestCase;
 			Assert.Equal("Foo.Bar", testCase.DisplayName);
 		}
 	}
@@ -109,7 +109,7 @@ namespace Namespace2
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
-			var testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase).ToArray();
+			var testCases = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase).ToArray();
 
 			Assert.Equal(4, testCases.Length);
 
@@ -149,7 +149,7 @@ public class TestClass
 			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
-			var testCaseNames = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();
+			var testCaseNames = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();
 
 			Assert.Equal(3, testCaseNames.Length);
 

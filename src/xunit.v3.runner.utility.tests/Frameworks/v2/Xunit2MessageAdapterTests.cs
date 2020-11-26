@@ -196,6 +196,44 @@ public class Xunit2MessageAdapterTests
 			var v3Message = Assert.IsType<_DiscoveryComplete>(adapted);
 			Assert.Equal("asm-id", v3Message.AssemblyUniqueID);
 		}
+
+		[Fact]
+		public void TestCaseDiscoveryMessage()
+		{
+			var v2Message = v2Mocks.TestCaseDiscoveryMessage(TestCase);
+
+			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
+
+			var v3Message = Assert.IsType<_TestCaseDiscovered>(adapted);
+			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal("skip-reason", v3Message.SkipReason);
+			Assert.Equal("source-file", v3Message.SourceFilePath);
+			Assert.Equal(2112, v3Message.SourceLineNumber);
+			Assert.Same(TestCase, v3Message.TestCase);
+			Assert.Equal("test-case-display-name", v3Message.TestCaseDisplayName);
+			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
+			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
+			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
+			Assert.Collection(
+				v3Message.Traits.OrderBy(kvp => kvp.Key),
+				trait =>
+				{
+					Assert.Equal("key1", trait.Key);
+					Assert.Equal(new[] { "value1a", "value1b" }, trait.Value);
+				},
+				trait =>
+				{
+					Assert.Equal("key2", trait.Key);
+					Assert.Equal(new[] { "value2" }, trait.Value);
+				},
+				trait =>
+				{
+					Assert.Equal("key3", trait.Key);
+					Assert.Empty(trait.Value);
+				}
+			);
+		}
 	}
 
 	public class FatalErrorTests

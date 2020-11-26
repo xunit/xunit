@@ -18,7 +18,7 @@ public class TestMessageSinkTests
 	// Discovery
 	[InlineData(typeof(_DiscoveryComplete))]
 	[InlineData(typeof(_DiscoveryStarting))]
-	[InlineData(typeof(ITestCaseDiscoveryMessage))]
+	[InlineData(typeof(_TestCaseDiscovered))]
 	// Execution
 	[InlineData(typeof(_AfterTestFinished))]
 	[InlineData(typeof(_AfterTestStarting))]

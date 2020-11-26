@@ -98,6 +98,7 @@ namespace Xunit.v3
 					valueType
 						.GetProperties()
 						.Where(p => p.CanRead && p.CanWrite)
+						.Where(p => p.PropertyType != typeof(ITestCase))  // TODO: Temporary filter for _TestCaseDiscovered
 						.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase);
 
 				foreach (var property in properties)

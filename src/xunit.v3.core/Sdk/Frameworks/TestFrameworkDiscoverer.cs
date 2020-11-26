@@ -257,11 +257,17 @@ namespace Xunit.Sdk
 		/// Reports a discovered test case to the message bus, after updating the source code information
 		/// (if desired and not already provided).
 		/// </summary>
+		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
+		/// <param name="testClassUniqueID">The test class unique ID.</param>
+		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to report</param>
 		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
 		/// <param name="messageBus">The message bus to report to the test case to</param>
 		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(IMessageSinkMessage)"/>.</returns>
 		protected bool ReportDiscoveredTestCase(
+			string testCollectionUniqueID,
+			string? testClassUniqueID,
+			string? testMethodUniqueID,
 			ITestCase testCase,
 			bool includeSourceInformation,
 			IMessageBus messageBus)
@@ -275,7 +281,22 @@ namespace Xunit.Sdk
 				testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 			}
 
-			return messageBus.QueueMessage(new TestCaseDiscoveryMessage(testCase));
+			var testCaseDiscovered = new _TestCaseDiscovered
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				SkipReason = testCase.SkipReason,
+				SourceFilePath = testCase.SourceInformation?.FileName,
+				SourceLineNumber = testCase.SourceInformation?.LineNumber,
+				TestCase = testCase,
+				TestCaseDisplayName = testCase.DisplayName,
+				TestCaseUniqueID = testCase.UniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				Traits = testCase.Traits
+			};
+
+			return messageBus.QueueMessage(testCaseDiscovered);
 		}
 
 		/// <inheritdoc/>
