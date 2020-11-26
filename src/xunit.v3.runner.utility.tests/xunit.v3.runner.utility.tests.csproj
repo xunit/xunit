@@ -17,6 +17,14 @@
     <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Required for F# acceptance tests -->
+    <PackageReference Include="FSharp.Compiler.Service" Version="38.0.0" />
+    <PackageReference Include="FSharp.Core" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.7.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
+  </ItemGroup>
+
   <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <ItemGroup>
       <!-- xUnit.net v1 -->

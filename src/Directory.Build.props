@@ -88,18 +88,10 @@
       </ItemGroup>
 
       <ItemGroup>
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Visible="false" />
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Visible="false" />
-
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " Visible="false" />
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " Visible="false" />
-
         <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="FSharp.Compiler.Service" Version="36.0.2" />
-        <PackageReference Include="FSharp.Core" Version="4.7.2" />
         <PackageReference Include="NSubstitute" Version="4.2.2" />
         <PackageReference Include="System.CodeDom" Version="5.0.0" />
         <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
