@@ -1,24 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 public class CollectionAcceptanceTests : AcceptanceTestV3
 {
-	[Fact(Skip = "This depends on a type of message filtering we can't do any more, come re-write this soon")]
+	[Fact]
 	public async void TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
 	{
 		var results = await RunAsync(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });
 
-		var defaultResults = results.OfType<ITestCollectionMessage>().Where(message => message.TestCollection.DisplayName.StartsWith("Test collection for "));
+		var defaultCollectionStarting = Assert.Single(results.OfType<_TestCollectionStarting>().Where(x => x.TestCollectionDisplayName.StartsWith("Test collection for ")));
+		var defaultResults = results.OfType<_TestCollectionMessage>().Where(x => x.TestCollectionUniqueID == defaultCollectionStarting.TestCollectionUniqueID);
 		AssertMessageSequence(defaultResults, "CollectionAcceptanceTests+ClassInDefaultCollection.Passing");
 
-		var explicitResults = results.OfType<ITestCollectionMessage>().Where(message => message.TestCollection.DisplayName == "Explicit Collection");
+		var explicitCollectionStarting = Assert.Single(results.OfType<_TestCollectionStarting>().Where(x => x.TestCollectionDisplayName == "Explicit Collection"));
+		var explicitResults = results.OfType<_TestCollectionMessage>().Where(x => x.TestCollectionUniqueID == explicitCollectionStarting.TestCollectionUniqueID);
 		AssertMessageSequence(explicitResults, "CollectionAcceptanceTests+ClassInExplicitCollection.Passing");
 	}
 
-	private void AssertMessageSequence(IEnumerable<IMessageSinkMessage> results, string testDisplayName)
+	private void AssertMessageSequence(IEnumerable<_MessageSinkMessage> results, string testDisplayName)
 	{
 		Assert.Collection(
 			results,
@@ -26,7 +27,11 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsType<_TestClassStarting>(message),
 			message => Assert.IsType<_TestMethodStarting>(message),
 			message => Assert.IsType<_TestCaseStarting>(message),
-			message => Assert.IsType<_TestStarting>(message),
+			message =>
+			{
+				var testStarting = Assert.IsType<_TestStarting>(message);
+				Assert.Equal(testDisplayName, testStarting.TestDisplayName);
+			},
 			message => Assert.IsType<_TestClassConstructionStarting>(message),
 			message => Assert.IsType<_TestClassConstructionFinished>(message),
 			message => Assert.IsType<_BeforeTestStarting>(message),
