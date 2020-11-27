@@ -10,8 +10,6 @@ using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
 
-// This is just a copy of the v2 Mocks for now, until we can sever v2 ties from the v3 code.
-
 namespace Xunit.v3
 {
 	public static class Mocks

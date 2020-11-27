@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Runner.v2
 {
-	public static class Mocks
+	public static class Xunit2Mocks
 	{
 		static readonly Guid OneGuid = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
 

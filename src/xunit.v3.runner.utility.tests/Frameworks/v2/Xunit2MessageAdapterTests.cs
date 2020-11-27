@@ -7,7 +7,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
 using Xunit.v3;
-using v2Mocks = Xunit.Runner.v2.Mocks;
 
 public class Xunit2MessageAdapterTests
 {
@@ -53,38 +52,38 @@ public class Xunit2MessageAdapterTests
 			{ "key3", new List<string>() }
 		};
 
-		TestAssembly = v2Mocks.TestAssembly("testAssembly.dll", "xunit.runner.json");
+		TestAssembly = Xunit2Mocks.TestAssembly("testAssembly.dll", "xunit.runner.json");
 		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(
 			TestAssembly.Assembly.Name,
 			TestAssembly.Assembly.AssemblyPath,
 			TestAssembly.ConfigFileName
 		);
 
-		TestCollectionDefinition = v2Mocks.TypeInfo();
-		TestCollection = v2Mocks.TestCollection(TestAssembly, TestCollectionDefinition, "test-collection-display-name");
+		TestCollectionDefinition = Xunit2Mocks.TypeInfo();
+		TestCollection = Xunit2Mocks.TestCollection(TestAssembly, TestCollectionDefinition, "test-collection-display-name");
 		TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
 			TestAssemblyUniqueID,
 			TestCollection.DisplayName,
 			TestCollectionDefinition.Name
 		);
 
-		TestClassType = v2Mocks.TypeInfo();
-		TestClass = v2Mocks.TestClass(TestCollection, TestClassType);
+		TestClassType = Xunit2Mocks.TypeInfo();
+		TestClass = Xunit2Mocks.TestClass(TestCollection, TestClassType);
 		TestClassUniqueID = UniqueIDGenerator.ForTestClass(
 			TestCollectionUniqueID,
 			TestClass.Class.Name
 		);
 
-		TestMethod = v2Mocks.TestMethod(TestClass, "MyTestMethod");
+		TestMethod = Xunit2Mocks.TestMethod(TestClass, "MyTestMethod");
 		TestMethodUniqueID = UniqueIDGenerator.ForTestMethod(
 			TestClassUniqueID,
 			TestMethod.Method.Name
 		);
 
-		TestCase = v2Mocks.TestCase(TestMethod, "test-case-display-name", "skip-reason", "source-file", 2112, Traits, "test-case-id");
+		TestCase = Xunit2Mocks.TestCase(TestMethod, "test-case-display-name", "skip-reason", "source-file", 2112, Traits, "test-case-id");
 		TestCaseUniqueID = TestCase.UniqueID;
 
-		Test = v2Mocks.Test(TestCase, "test-display-name");
+		Test = Xunit2Mocks.Test(TestCase, "test-display-name");
 		TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, 0);
 	}
 
@@ -104,7 +103,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void AfterTestFinished()
 		{
-			var v2Message = v2Mocks.AfterTestFinished(Test, BeforeAfterAttributeName);
+			var v2Message = Xunit2Mocks.AfterTestFinished(Test, BeforeAfterAttributeName);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -121,7 +120,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void AfterTestStarting()
 		{
-			var v2Message = v2Mocks.AfterTestStarting(Test, BeforeAfterAttributeName);
+			var v2Message = Xunit2Mocks.AfterTestStarting(Test, BeforeAfterAttributeName);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -138,7 +137,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void BeforeTestFinished()
 		{
-			var v2Message = v2Mocks.BeforeTestFinished(Test, BeforeAfterAttributeName);
+			var v2Message = Xunit2Mocks.BeforeTestFinished(Test, BeforeAfterAttributeName);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -155,7 +154,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void BeforeTestStarting()
 		{
-			var v2Message = v2Mocks.BeforeTestStarting(Test, BeforeAfterAttributeName);
+			var v2Message = Xunit2Mocks.BeforeTestStarting(Test, BeforeAfterAttributeName);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -175,7 +174,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void DiagnosticMessage()
 		{
-			var v2Message = v2Mocks.DiagnosticMessage("Hello, world!");
+			var v2Message = Xunit2Mocks.DiagnosticMessage("Hello, world!");
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -189,7 +188,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void DiscoveryComplete()
 		{
-			var v2Message = v2Mocks.DiscoveryCompleteMessage();
+			var v2Message = Xunit2Mocks.DiscoveryCompleteMessage();
 
 			var adapted = Xunit2MessageAdapter.Adapt("asm-id", v2Message);
 
@@ -200,7 +199,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCaseDiscoveryMessage()
 		{
-			var v2Message = v2Mocks.TestCaseDiscoveryMessage(TestCase);
+			var v2Message = Xunit2Mocks.TestCaseDiscoveryMessage(TestCase);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -241,7 +240,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void ErrorMessage()
 		{
-			var v2Message = v2Mocks.ErrorMessage(ThrownException);
+			var v2Message = Xunit2Mocks.ErrorMessage(ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -255,7 +254,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestAssemblyCleanupFailure()
 		{
-			var v2Message = v2Mocks.TestAssemblyCleanupFailure(TestAssembly, ThrownException);
+			var v2Message = Xunit2Mocks.TestAssemblyCleanupFailure(TestAssembly, ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -267,7 +266,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestAssemblyFinished()
 		{
-			var v2Message = v2Mocks.TestAssemblyFinished(
+			var v2Message = Xunit2Mocks.TestAssemblyFinished(
 				TestAssembly,
 				testsRun: 2112,
 				testsFailed: 42,
@@ -305,8 +304,8 @@ public class Xunit2MessageAdapterTests
 			string? configFilePath,
 			string expectedUniqueID)
 		{
-			var testAssembly = v2Mocks.TestAssembly(assemblyPath, configFilePath, "target-framework");
-			var v2Message = v2Mocks.TestAssemblyStarting(
+			var testAssembly = Xunit2Mocks.TestAssembly(assemblyPath, configFilePath, "target-framework");
+			var v2Message = Xunit2Mocks.TestAssemblyStarting(
 				testAssembly,
 				new DateTime(2020, 11, 3, 17, 55, 0, DateTimeKind.Utc),
 				"test-environment",
@@ -332,7 +331,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCaseCleanupFailure()
 		{
-			var v2Message = v2Mocks.TestCaseCleanupFailure(TestCase, ThrownException);
+			var v2Message = Xunit2Mocks.TestCaseCleanupFailure(TestCase, ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -348,7 +347,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCaseFinished()
 		{
-			var v2Message = v2Mocks.TestCaseFinished(
+			var v2Message = Xunit2Mocks.TestCaseFinished(
 				TestCase,
 				testsRun: 2112,
 				testsFailed: 42,
@@ -373,7 +372,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCaseStarting()
 		{
-			var v2Message = v2Mocks.TestCaseStarting(TestCase);
+			var v2Message = Xunit2Mocks.TestCaseStarting(TestCase);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -413,7 +412,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassCleanupFailure()
 		{
-			var v2Message = v2Mocks.TestClassCleanupFailure(TestClass, ThrownException);
+			var v2Message = Xunit2Mocks.TestClassCleanupFailure(TestClass, ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -427,7 +426,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassFinished()
 		{
-			var v2Message = v2Mocks.TestClassFinished(
+			var v2Message = Xunit2Mocks.TestClassFinished(
 				TestClass,
 				testsRun: 2112,
 				testsFailed: 42,
@@ -450,7 +449,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassStarting()
 		{
-			var v2Message = v2Mocks.TestClassStarting(TestClass);
+			var v2Message = Xunit2Mocks.TestClassStarting(TestClass);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -467,7 +466,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCollectionCleanupFailure()
 		{
-			var v2Message = v2Mocks.TestCollectionCleanupFailure(TestCollection, ThrownException);
+			var v2Message = Xunit2Mocks.TestCollectionCleanupFailure(TestCollection, ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -480,7 +479,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCollectionFinished()
 		{
-			var v2Message = v2Mocks.TestCollectionFinished(
+			var v2Message = Xunit2Mocks.TestCollectionFinished(
 				TestCollection,
 				testsRun: 2112,
 				testsFailed: 42,
@@ -502,7 +501,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCollectionStarting()
 		{
-			var v2Message = v2Mocks.TestCollectionStarting(TestCollection);
+			var v2Message = Xunit2Mocks.TestCollectionStarting(TestCollection);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -519,7 +518,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestMethodCleanupFailure()
 		{
-			var v2Message = v2Mocks.TestMethodCleanupFailure(TestMethod, ThrownException);
+			var v2Message = Xunit2Mocks.TestMethodCleanupFailure(TestMethod, ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -534,7 +533,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestMethodFinished()
 		{
-			var v2Message = v2Mocks.TestMethodFinished(
+			var v2Message = Xunit2Mocks.TestMethodFinished(
 				TestMethod,
 				testsRun: 2112,
 				testsFailed: 42,
@@ -558,7 +557,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestMethodStarting()
 		{
-			var v2Message = v2Mocks.TestMethodStarting(TestMethod);
+			var v2Message = Xunit2Mocks.TestMethodStarting(TestMethod);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -576,7 +575,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassConstructionFinished()
 		{
-			var v2Message = v2Mocks.TestClassConstructionFinished(Test);
+			var v2Message = Xunit2Mocks.TestClassConstructionFinished(Test);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -592,7 +591,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassConstructionStarting()
 		{
-			var v2Message = v2Mocks.TestClassConstructionStarting(Test);
+			var v2Message = Xunit2Mocks.TestClassConstructionStarting(Test);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -608,7 +607,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassDisposeFinished()
 		{
-			var v2Message = v2Mocks.TestClassDisposeFinished(Test);
+			var v2Message = Xunit2Mocks.TestClassDisposeFinished(Test);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -624,7 +623,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestClassDisposeStarting()
 		{
-			var v2Message = v2Mocks.TestClassDisposeStarting(Test);
+			var v2Message = Xunit2Mocks.TestClassDisposeStarting(Test);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -640,7 +639,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestCleanupFailure()
 		{
-			var v2Message = v2Mocks.TestCleanupFailure(Test, ThrownException);
+			var v2Message = Xunit2Mocks.TestCleanupFailure(Test, ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -657,7 +656,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestFinished()
 		{
-			var v2Message = v2Mocks.TestFinished(Test, 123.4567m, "abc123");
+			var v2Message = Xunit2Mocks.TestFinished(Test, 123.4567m, "abc123");
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -675,7 +674,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestFailed()
 		{
-			var v2Message = v2Mocks.TestFailed(Test, 123.4567m, "abc123", ThrownException);
+			var v2Message = Xunit2Mocks.TestFailed(Test, 123.4567m, "abc123", ThrownException);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -694,7 +693,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestOutput()
 		{
-			var v2Message = v2Mocks.TestOutput(Test, "this is my test output");
+			var v2Message = Xunit2Mocks.TestOutput(Test, "this is my test output");
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -711,7 +710,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestPassed()
 		{
-			var v2Message = v2Mocks.TestPassed(Test, 123.4567m, "abc123");
+			var v2Message = Xunit2Mocks.TestPassed(Test, 123.4567m, "abc123");
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -729,7 +728,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestSkipped()
 		{
-			var v2Message = v2Mocks.TestSkipped(Test, "I am not running");
+			var v2Message = Xunit2Mocks.TestSkipped(Test, "I am not running");
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 
@@ -748,7 +747,7 @@ public class Xunit2MessageAdapterTests
 		[Fact]
 		public void TestStarting()
 		{
-			var v2Message = v2Mocks.TestStarting(Test);
+			var v2Message = Xunit2Mocks.TestStarting(Test);
 
 			var adapted = TestableXunit2MessageAdapter.Adapt(v2Message);
 

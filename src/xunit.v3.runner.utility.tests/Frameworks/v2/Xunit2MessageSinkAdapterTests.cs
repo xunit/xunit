@@ -3,7 +3,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
 using Xunit.v3;
-using v2Mocks = Xunit.Runner.v2.Mocks;
 
 public class Xunit2MessageSinkAdapterTests
 {
@@ -22,7 +21,7 @@ public class Xunit2MessageSinkAdapterTests
 			return resultMessage;
 		}
 
-		var v2Message = v2Mocks.TestAssemblyStarting();
+		var v2Message = Xunit2Mocks.TestAssemblyStarting();
 		var v3Messages = new List<IMessageSinkMessage>();
 		var v3Sink = SpyMessageSink.Create(messages: v3Messages);
 		var v2Sink = Xunit2MessageSinkAdapter.Adapt("asm-id", v3Sink, adapter);
