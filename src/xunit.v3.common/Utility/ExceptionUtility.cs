@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -16,7 +15,7 @@ namespace Xunit
 		/// </summary>
 		/// <param name="errorMetadata">The error metadata from which to get the messages.</param>
 		/// <returns>The combined string.</returns>
-		public static string CombineMessages(IFailureInformation errorMetadata) =>
+		public static string CombineMessages(_IErrorMetadata errorMetadata) =>
 			GetMessage(errorMetadata, 0, 0);
 
 		/// <summary>
@@ -24,10 +23,56 @@ namespace Xunit
 		/// </summary>
 		/// <param name="errorMetadata">The error metadata from which to get the stack traces.</param>
 		/// <returns>The combined string.</returns>
-		public static string? CombineStackTraces(IFailureInformation errorMetadata) =>
+		public static string? CombineStackTraces(_IErrorMetadata errorMetadata) =>
 			GetStackTrace(errorMetadata, 0);
 
-		static bool ExcludeStackFrame(string stackFrame)
+		/// <summary>
+		/// Unwraps exceptions and their inner exceptions.
+		/// </summary>
+		/// <param name="ex">The exception to be converted.</param>
+		/// <returns>The error metadata.</returns>
+		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ExtractMetadata(Exception ex)
+		{
+			Guard.ArgumentNotNull(nameof(ex), ex);
+
+			var exceptionTypes = new List<string?>();
+			var messages = new List<string>();
+			var stackTraces = new List<string?>();
+			var indices = new List<int>();
+
+			ExtractMetadata(ex, -1, exceptionTypes, messages, stackTraces, indices);
+
+			return (
+				exceptionTypes.ToArray(),
+				messages.ToArray(),
+				stackTraces.ToArray(),
+				indices.ToArray()
+			);
+		}
+
+		static void ExtractMetadata(
+			Exception ex,
+			int parentIndex,
+			List<string?> exceptionTypes,
+			List<string> messages,
+			List<string?> stackTraces,
+			List<int> indices)
+		{
+			var myIndex = exceptionTypes.Count;
+
+			exceptionTypes.Add(ex.GetType().FullName);
+			messages.Add(ex.Message);
+			stackTraces.Add(ex.StackTrace);
+			indices.Add(parentIndex);
+
+			if (ex is AggregateException aggEx)
+				foreach (var innerException in aggEx.InnerExceptions)
+					ExtractMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+			else if (ex.InnerException != null)
+				ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+		}
+
+		static bool FilterStackFrame(string stackFrame)
 		{
 			Guard.ArgumentNotNull("stackFrame", stackFrame);
 
@@ -48,7 +93,7 @@ namespace Xunit
 			foreach (var line in stack.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 			{
 				var trimmedLine = line.TrimStart();
-				if (!ExcludeStackFrame(trimmedLine))
+				if (!FilterStackFrame(trimmedLine))
 					results.Add(line);
 			}
 
@@ -76,7 +121,7 @@ namespace Xunit
 		}
 
 		static string GetMessage(
-			IFailureInformation errorMetadata,
+			_IErrorMetadata errorMetadata,
 			int index,
 			int level)
 		{
@@ -115,7 +160,7 @@ namespace Xunit
 		}
 
 		static string? GetStackTrace(
-			IFailureInformation errorMetadata,
+			_IErrorMetadata errorMetadata,
 			int index)
 		{
 			Guard.ArgumentNotNull(nameof(errorMetadata), errorMetadata);
@@ -134,79 +179,6 @@ namespace Xunit
 				result += $"{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}{GetStackTrace(errorMetadata, children[0])}";
 
 			return result;
-		}
-
-		/// <summary>
-		/// THIS METHOD IS OBSOLETE AND SHOULD BE DELETED.
-		/// </summary>
-		// TODO: Delete me
-		public static IFailureInformation ConvertExceptionToFailureInformation(Exception ex) =>
-			ConvertExceptionToErrorMetadata(ex);
-
-		/// <summary>
-		/// Unwraps exceptions and their inner exceptions.
-		/// </summary>
-		/// <param name="ex">The exception to be converted.</param>
-		/// <returns>The error metadata.</returns>
-		public static _IErrorMetadata ConvertExceptionToErrorMetadata(Exception ex)
-		{
-			Guard.ArgumentNotNull(nameof(ex), ex);
-
-			var exceptionTypes = new List<string?>();
-			var messages = new List<string>();
-			var stackTraces = new List<string?>();
-			var indices = new List<int>();
-
-			ConvertExceptionToErrorMetadata(ex, -1, exceptionTypes, messages, stackTraces, indices);
-
-			return new ErrorMetadata(
-				exceptionTypes.ToArray(),
-				messages.ToArray(),
-				stackTraces.ToArray(),
-				indices.ToArray()
-			);
-		}
-
-		static void ConvertExceptionToErrorMetadata(
-			Exception ex,
-			int parentIndex,
-			List<string?> exceptionTypes,
-			List<string> messages,
-			List<string?> stackTraces,
-			List<int> indices)
-		{
-			var myIndex = exceptionTypes.Count;
-
-			exceptionTypes.Add(ex.GetType().FullName);
-			messages.Add(ex.Message);
-			stackTraces.Add(ex.StackTrace);
-			indices.Add(parentIndex);
-
-			if (ex is AggregateException aggEx)
-				foreach (var innerException in aggEx.InnerExceptions)
-					ConvertExceptionToErrorMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
-			else if (ex.InnerException != null)
-				ConvertExceptionToErrorMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
-		}
-
-		class ErrorMetadata : _IErrorMetadata
-		{
-			public ErrorMetadata(
-				string?[] exceptionTypes,
-				string[] messages,
-				string?[] stackTraces,
-				int[] exceptionParentIndices)
-			{
-				ExceptionTypes = exceptionTypes;
-				Messages = messages;
-				StackTraces = stackTraces;
-				ExceptionParentIndices = exceptionParentIndices;
-			}
-
-			public string?[] ExceptionTypes { get; set; }
-			public string[] Messages { get; set; }
-			public string?[] StackTraces { get; set; }
-			public int[] ExceptionParentIndices { get; set; }
 		}
 	}
 }

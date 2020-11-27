@@ -92,7 +92,7 @@ public class Xunit2MessageAdapterTests
 		_IErrorMetadata metadata,
 		Exception ex)
 	{
-		var convertedMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+		var convertedMetadata = ExceptionUtility.ExtractMetadata(ex);
 		Assert.Equal(convertedMetadata.ExceptionParentIndices, metadata.ExceptionParentIndices);
 		Assert.Equal(convertedMetadata.ExceptionTypes, metadata.ExceptionTypes);
 		Assert.Equal(convertedMetadata.Messages, metadata.Messages);

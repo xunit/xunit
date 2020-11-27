@@ -66,7 +66,7 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
 			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
 
-			var failureInfo = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			return new _TestCleanupFailure
 			{
@@ -76,10 +76,10 @@ namespace Xunit.v3
 				TestMethodUniqueID = testMethodUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestUniqueID = testUniqueID,
-				ExceptionTypes = failureInfo.ExceptionTypes,
-				Messages = failureInfo.Messages,
-				StackTraces = failureInfo.StackTraces,
-				ExceptionParentIndices = failureInfo.ExceptionParentIndices,
+				ExceptionTypes = errorMetadata.ExceptionTypes,
+				Messages = errorMetadata.Messages,
+				StackTraces = errorMetadata.StackTraces,
+				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 			};
 		}
 	}

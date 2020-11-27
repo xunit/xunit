@@ -200,7 +200,7 @@ namespace Xunit.Sdk
 				CancellationTokenSource.Cancel();
 			else
 			{
-				var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(dataDiscoveryException!.Unwrap());
+				var errorMetadata = ExceptionUtility.ExtractMetadata(dataDiscoveryException!.Unwrap());
 				var testFailed = new _TestFailed
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,

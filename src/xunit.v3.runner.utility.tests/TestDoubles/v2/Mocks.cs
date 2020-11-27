@@ -138,7 +138,7 @@ namespace Xunit.Runner.v2
 
 		public static IErrorMessage ErrorMessage(Exception ex)
 		{
-			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var metadata = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<IErrorMessage, InterfaceProxy<IErrorMessage>>();
 			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
@@ -194,7 +194,7 @@ namespace Xunit.Runner.v2
 			ITestAssembly testAssembly,
 			Exception ex)
 		{
-			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var metadata = ExceptionUtility.ExtractMetadata(ex);
 			var result = Substitute.For<ITestAssemblyCleanupFailure, InterfaceProxy<ITestAssemblyCleanupFailure>>();
 			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
 			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
@@ -269,7 +269,7 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestCaseCleanupFailure, InterfaceProxy<ITestCaseCleanupFailure>>();
 			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
@@ -360,7 +360,7 @@ namespace Xunit.Runner.v2
 		{
 			var testAssembly = testClass.TestCollection.TestAssembly;
 			var testCollection = testClass.TestCollection;
-			var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestClassCleanupFailure, InterfaceProxy<ITestClassCleanupFailure>>();
 			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
@@ -486,7 +486,7 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var metadata = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestCleanupFailure, InterfaceProxy<ITestCleanupFailure>>();
 			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
@@ -523,7 +523,7 @@ namespace Xunit.Runner.v2
 			Exception ex)
 		{
 			var testAssembly = collection.TestAssembly;
-			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var metadata = ExceptionUtility.ExtractMetadata(ex);
 			var result = Substitute.For<ITestCollectionCleanupFailure, InterfaceProxy<ITestCollectionCleanupFailure>>();
 			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
 			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
@@ -572,7 +572,7 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var metadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var metadata = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
 			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
@@ -633,7 +633,7 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestMethodCleanupFailure, InterfaceProxy<ITestMethodCleanupFailure>>();
 			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);

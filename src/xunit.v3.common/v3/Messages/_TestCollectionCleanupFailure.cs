@@ -56,16 +56,16 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
 			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
 
-			var failureInfo = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			return new _TestCollectionCleanupFailure
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
-				ExceptionTypes = failureInfo.ExceptionTypes,
-				Messages = failureInfo.Messages,
-				StackTraces = failureInfo.StackTraces,
-				ExceptionParentIndices = failureInfo.ExceptionParentIndices,
+				ExceptionTypes = errorMetadata.ExceptionTypes,
+				Messages = errorMetadata.Messages,
+				StackTraces = errorMetadata.StackTraces,
+				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 			};
 		}
 	}

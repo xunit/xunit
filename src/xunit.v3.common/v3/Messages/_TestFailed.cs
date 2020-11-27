@@ -71,7 +71,7 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
 			Guard.ArgumentNotNull(nameof(executionTime), executionTime);
 
-			var failureInfo = ExceptionUtility.ConvertExceptionToErrorMetadata(ex);
+			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			return new _TestFailed
 			{
@@ -83,10 +83,10 @@ namespace Xunit.v3
 				TestUniqueID = testUniqueID,
 				ExecutionTime = executionTime,
 				Output = output ?? string.Empty,
-				ExceptionTypes = failureInfo.ExceptionTypes,
-				Messages = failureInfo.Messages,
-				StackTraces = failureInfo.StackTraces,
-				ExceptionParentIndices = failureInfo.ExceptionParentIndices,
+				ExceptionTypes = errorMetadata.ExceptionTypes,
+				Messages = errorMetadata.Messages,
+				StackTraces = errorMetadata.StackTraces,
+				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 			};
 		}
 	}

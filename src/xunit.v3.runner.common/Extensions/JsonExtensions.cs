@@ -111,13 +111,13 @@ namespace Xunit.Runner.Common
 			dict["testName"] = testMessage.Test.DisplayName;
 		};
 
-		static readonly AddFields AddFieldsForIFailureInformation = (obj, dict) =>
+		static readonly AddFields AddFieldsForErrorMetadata = (obj, dict) =>
 		{
-			if (!(obj is IFailureInformation failureInformation))
+			if (!(obj is _IErrorMetadata errorMetadata))
 				return;
 
-			dict["errorMessages"] = ExceptionUtility.CombineMessages(failureInformation);
-			dict["stackTraces"] = ExceptionUtility.CombineStackTraces(failureInformation);
+			dict["errorMessages"] = ExceptionUtility.CombineMessages(errorMetadata);
+			dict["stackTraces"] = ExceptionUtility.CombineStackTraces(errorMetadata);
 		};
 
 		static readonly Dictionary<Type, List<AddFields>> TypeToFieldAdders = new Dictionary<Type, List<AddFields>>()
@@ -125,16 +125,16 @@ namespace Xunit.Runner.Common
 			{ typeof(_TestCollectionStarting), new List<AddFields> { AddFieldsForITestCollectionMessage } },
 			{ typeof(_TestStarting), new List<AddFields> { AddFieldsForITestMessage } },
 			{ typeof(_TestSkipped), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForITestMessage } },
-			{ typeof(_ErrorMessage), new List<AddFields> { AddFieldsForIFailureInformation } },
+			{ typeof(_ErrorMessage), new List<AddFields> { AddFieldsForErrorMetadata } },
 			{ typeof(_TestPassed), new List<AddFields> { AddFieldsForITestResultMessage } },
-			{ typeof(_TestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForIFailureInformation, AddFieldsForITestMessage } },
-			{ typeof(_TestMethodCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(_TestCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
+			{ typeof(_TestFailed), new List<AddFields> { AddFieldsForITestResultMessage, AddFieldsForErrorMetadata, AddFieldsForITestMessage } },
+			{ typeof(_TestMethodCleanupFailure), new List<AddFields> { AddFieldsForErrorMetadata } },
+			{ typeof(_TestCleanupFailure), new List<AddFields> { AddFieldsForErrorMetadata } },
 			{ typeof(_TestCollectionFinished), new List<AddFields> { AddFieldsForITestCollectionMessage, AddFieldsForIFinishedMessage } },
-			{ typeof(_TestCollectionCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation, AddFieldsForITestCollectionMessage } },
-			{ typeof(_TestClassCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(_TestAssemblyCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } },
-			{ typeof(_TestCaseCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } }
+			{ typeof(_TestCollectionCleanupFailure), new List<AddFields> { AddFieldsForErrorMetadata, AddFieldsForITestCollectionMessage } },
+			{ typeof(_TestClassCleanupFailure), new List<AddFields> { AddFieldsForErrorMetadata } },
+			{ typeof(_TestAssemblyCleanupFailure), new List<AddFields> { AddFieldsForErrorMetadata } },
+			{ typeof(_TestCaseCleanupFailure), new List<AddFields> { AddFieldsForErrorMetadata } }
 		};
 
 		static Dictionary<string, object?> InitObject(string messageName, object message, Type messageType, string? flowId = null)

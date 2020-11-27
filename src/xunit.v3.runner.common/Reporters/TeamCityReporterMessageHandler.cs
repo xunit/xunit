@@ -329,10 +329,10 @@ namespace Xunit.Runner.Common
 
 		// Helpers
 
-		void LogError(string messageType, IFailureInformation failureInfo)
+		void LogError(string messageType, _IErrorMetadata errorMetadata)
 		{
-			var message = $"[{messageType}] {failureInfo.ExceptionTypes[0]}: {ExceptionUtility.CombineMessages(failureInfo)}";
-			var stack = ExceptionUtility.CombineStackTraces(failureInfo);
+			var message = $"[{messageType}] {errorMetadata.ExceptionTypes[0]}: {ExceptionUtility.CombineMessages(errorMetadata)}";
+			var stack = ExceptionUtility.CombineStackTraces(errorMetadata);
 
 			logger.LogImportantMessage($"##teamcity[message text='{Escape(message)}' errorDetails='{Escape(stack)}' status='ERROR']");
 		}

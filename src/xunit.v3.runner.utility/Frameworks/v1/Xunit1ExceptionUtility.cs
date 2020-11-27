@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Xunit.Abstractions;
 using Xunit.Internal;
 
 namespace Xunit.Runner.v1
@@ -14,8 +13,7 @@ namespace Xunit.Runner.v1
 		static readonly Regex NestedMessagesRegex = new Regex(@"-*\s*((?<type>.*?) :\s*)?(?<message>.+?)((\r?\n-)|\z)", RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
 		static readonly Regex NestedStackTracesRegex = new Regex(@"\r?\n----- Inner Stack Trace -----\r?\n", RegexOptions.Compiled);
 
-		// TODO: Convert this to _IErrorMetadata?
-		public static IFailureInformation ConvertToFailureInformation(Exception? exception)
+		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ConvertToErrorMetadata(Exception? exception)
 		{
 			var exceptionTypes = new List<string?>();
 			var messages = new List<string>();
@@ -39,7 +37,7 @@ namespace Xunit.Runner.v1
 				exception = exception.InnerException;
 			}
 
-			return new FailureInformation(
+			return (
 				exceptionTypes.ToArray(),
 				messages.ToArray(),
 				stackTraces.ToArray(),
@@ -47,7 +45,7 @@ namespace Xunit.Runner.v1
 			);
 		}
 
-		public static IFailureInformation ConvertToFailureInformation(XmlNode failureNode)
+		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ConvertToErrorMetadata(XmlNode failureNode)
 		{
 			Guard.ArgumentNotNull(nameof(failureNode), failureNode);
 
@@ -57,10 +55,10 @@ namespace Xunit.Runner.v1
 			var stackTraceNode = failureNode.SelectSingleNode("stack-trace");
 			var stackTrace = stackTraceNode == null ? string.Empty : stackTraceNode.InnerText;
 
-			return ConvertToFailureInformation(exceptionType, message, stackTrace);
+			return ConvertToErrorMetadata(exceptionType, message, stackTrace);
 		}
 
-		static IFailureInformation ConvertToFailureInformation(
+		static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ConvertToErrorMetadata(
 			string outermostExceptionType,
 			string nestedExceptionMessages,
 			string nestedStackTraces)
@@ -83,35 +81,12 @@ namespace Xunit.Runner.v1
 			for (int i = 0; i < exceptionParentIndices.Length; i++)
 				exceptionParentIndices[i] = i - 1;
 
-			return new FailureInformation(
+			return (
 				exceptionTypes.ToArray(),
 				messages.ToArray(),
 				stackTraces,
 				exceptionParentIndices
 			);
-		}
-
-		class FailureInformation : IFailureInformation
-		{
-			public FailureInformation(
-				string?[] exceptionTypes,
-				string[] messages,
-				string?[] stackTraces,
-				int[] exceptionParentIndices)
-			{
-				ExceptionTypes = exceptionTypes;
-				Messages = messages;
-				StackTraces = stackTraces;
-				ExceptionParentIndices = exceptionParentIndices;
-			}
-
-			public string?[] ExceptionTypes { get; set; }
-
-			public string[] Messages { get; set; }
-
-			public string?[] StackTraces { get; set; }
-
-			public int[] ExceptionParentIndices { get; set; }
 		}
 	}
 }

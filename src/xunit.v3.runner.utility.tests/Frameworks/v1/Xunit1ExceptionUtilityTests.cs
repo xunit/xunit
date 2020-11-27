@@ -23,21 +23,25 @@ public class Xunit1ExceptionUtilityTests
 		}
 		catch (Exception ex)
 		{
-			var failureInfo = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
+			var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(ex);
 
-			Assert.Collection(failureInfo.ExceptionTypes,
+			Assert.Collection(
+				errorMetadata.ExceptionTypes,
 				type => Assert.Equal("System.Exception", type),
 				type => Assert.Equal("System.DivideByZeroException", type)
 			);
-			Assert.Collection(failureInfo.Messages,
+			Assert.Collection(
+				errorMetadata.Messages,
 				msg => Assert.Equal("failure", msg),
 				msg => Assert.Equal("Attempted to divide by zero.", msg)
 			);
-			Assert.Collection(failureInfo.StackTraces,
+			Assert.Collection(
+				errorMetadata.StackTraces,
 				stack => Assert.Contains("Xunit1ExceptionUtilityTests.CanParseEmbeddedExceptions", stack),
 				stack => Assert.Contains("Xunit1ExceptionUtilityTests.CanParseEmbeddedExceptions", stack)
 			);
-			Assert.Collection(failureInfo.ExceptionParentIndices,
+			Assert.Collection(
+				errorMetadata.ExceptionParentIndices,
 				index => Assert.Equal(-1, index),
 				index => Assert.Equal(0, index)
 			);

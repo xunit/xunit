@@ -93,20 +93,20 @@ namespace Xunit.Runner.Common
 		void AddError(
 			string type,
 			string? name,
-			IFailureInformation failureInfo)
+			_IErrorMetadata errorMetadata)
 		{
-			var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(failureInfo));
+			var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(errorMetadata));
 			if (name != null)
 				errorElement.Add(new XAttribute("name", name));
 
 			errorsElement.Add(errorElement);
 		}
 
-		static XElement CreateFailureElement(IFailureInformation failureInfo) =>
+		static XElement CreateFailureElement(_IErrorMetadata errorMetadata) =>
 			new XElement("failure",
-				new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
-				new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
-				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
+				new XAttribute("exception-type", errorMetadata.ExceptionTypes[0]),
+				new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(errorMetadata)))),
+				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(errorMetadata) ?? string.Empty))
 			);
 
 		XElement CreateTestResultElement(

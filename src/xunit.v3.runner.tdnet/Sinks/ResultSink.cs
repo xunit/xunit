@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TestDriven.Framework;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.v3;
@@ -116,7 +115,9 @@ namespace Xunit.Runner.TdNet
 			TestListener.TestFinished(testResult);
 		}
 
-		void ReportError(string messageType, IFailureInformation failureInfo)
+		void ReportError(
+			string messageType,
+			_IErrorMetadata errorMetadata)
 		{
 			TestRunState = TestRunState.Failure;
 
@@ -126,8 +127,8 @@ namespace Xunit.Runner.TdNet
 				State = TestState.Failed,
 				TimeSpan = TimeSpan.Zero,
 				TotalTests = 1,
-				Message = ExceptionUtility.CombineMessages(failureInfo),
-				StackTrace = ExceptionUtility.CombineStackTraces(failureInfo)
+				Message = ExceptionUtility.CombineMessages(errorMetadata),
+				StackTrace = ExceptionUtility.CombineStackTraces(errorMetadata)
 			};
 
 			TestListener.TestFinished(testResult);

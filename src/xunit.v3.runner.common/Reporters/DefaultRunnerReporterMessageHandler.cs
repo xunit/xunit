@@ -148,24 +148,24 @@ namespace Xunit.Runner.Common
 		/// Logs an error message to the logger.
 		/// </summary>
 		/// <param name="failureType">The type of the failure</param>
-		/// <param name="failureInfo">The failure information</param>
+		/// <param name="errorMetadata">The failure information</param>
 		protected void LogError(
 			string failureType,
-			IFailureInformation failureInfo)
+			_IErrorMetadata errorMetadata)
 		{
 			Guard.ArgumentNotNull(nameof(failureType), failureType);
-			Guard.ArgumentNotNull(nameof(failureInfo), failureInfo);
+			Guard.ArgumentNotNull(nameof(errorMetadata), errorMetadata);
 
-			var frameInfo = StackFrameInfo.FromFailure(failureInfo);
+			var frameInfo = StackFrameInfo.FromErrorMetadata(errorMetadata);
 
 			lock (Logger.LockObject)
 			{
-				Logger.LogError(frameInfo, $"    [{failureType}] {Escape(failureInfo.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)")}");
+				Logger.LogError(frameInfo, $"    [{failureType}] {Escape(errorMetadata.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)")}");
 
-				foreach (var messageLine in ExceptionUtility.CombineMessages(failureInfo).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+				foreach (var messageLine in ExceptionUtility.CombineMessages(errorMetadata).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 					Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
 
-				LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(failureInfo));
+				LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(errorMetadata));
 			}
 		}
 
@@ -495,7 +495,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var testFailed = args.Message;
-			var frameInfo = StackFrameInfo.FromFailure(testFailed);
+			var frameInfo = StackFrameInfo.FromErrorMetadata(testFailed);
 			var metadata = MetadataCache.TryGetTestMetadata(testFailed);
 
 			lock (Logger.LockObject)

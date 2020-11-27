@@ -111,7 +111,7 @@ public class ResultSinkTests
 		}
 	}
 
-	public class FailureInformation
+	public class Failures
 	{
 		readonly string assemblyID = "assembly-id";
 		readonly string classID = "test-class-id";
@@ -139,7 +139,7 @@ public class ResultSinkTests
 
 			sink.OnMessage(errorMessage);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Fatal Error");
+			AssertFailure(listener, sink.TestRunState, "Fatal Error");
 		}
 
 		[Fact]
@@ -164,7 +164,7 @@ public class ResultSinkTests
 			sink.OnMessage(collectionStarting);
 			sink.OnMessage(collectionCleanupFailure);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Test Assembly Cleanup Failure (assembly-file-path)");
+			AssertFailure(listener, sink.TestRunState, "Test Assembly Cleanup Failure (assembly-file-path)");
 		}
 
 		[Fact]
@@ -197,7 +197,7 @@ public class ResultSinkTests
 			sink.OnMessage(caseStarting);
 			sink.OnMessage(caseCleanupFailure);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Test Case Cleanup Failure (MyTestCase)");
+			AssertFailure(listener, sink.TestRunState, "Test Case Cleanup Failure (MyTestCase)");
 		}
 
 		[Fact]
@@ -226,7 +226,7 @@ public class ResultSinkTests
 			sink.OnMessage(classStarting);
 			sink.OnMessage(classCleanupFailure);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Test Class Cleanup Failure (MyType)");
+			AssertFailure(listener, sink.TestRunState, "Test Class Cleanup Failure (MyType)");
 		}
 
 		[Fact]
@@ -261,7 +261,7 @@ public class ResultSinkTests
 			sink.OnMessage(testStarting);
 			sink.OnMessage(testCleanupFailure);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Test Cleanup Failure (MyTest)");
+			AssertFailure(listener, sink.TestRunState, "Test Cleanup Failure (MyTest)");
 		}
 
 		[Fact]
@@ -288,7 +288,7 @@ public class ResultSinkTests
 			sink.OnMessage(collectionStarting);
 			sink.OnMessage(collectionCleanupFailure);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Test Collection Cleanup Failure (FooBar)");
+			AssertFailure(listener, sink.TestRunState, "Test Collection Cleanup Failure (FooBar)");
 		}
 
 		[Fact]
@@ -319,10 +319,13 @@ public class ResultSinkTests
 			sink.OnMessage(methodStarting);
 			sink.OnMessage(methodCleanupFailure);
 
-			AssertFailureInformation(listener, sink.TestRunState, "Test Method Cleanup Failure (MyMethod)");
+			AssertFailure(listener, sink.TestRunState, "Test Method Cleanup Failure (MyMethod)");
 		}
 
-		static void AssertFailureInformation(ITestListener listener, TestRunState testRunState, string messageType)
+		static void AssertFailure(
+			ITestListener listener,
+			TestRunState testRunState,
+			string messageType)
 		{
 			Assert.Equal(TestRunState.Failure, testRunState);
 			var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
@@ -363,7 +366,7 @@ public class ResultSinkTests
 		[Fact]
 		public static async void ConvertsTestFailed()
 		{
-			_IErrorMetadata errorMetadata;
+			(string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) errorMetadata;
 
 			try
 			{
@@ -371,7 +374,7 @@ public class ResultSinkTests
 			}
 			catch (Exception e)
 			{
-				errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(e);
+				errorMetadata = ExceptionUtility.ExtractMetadata(e);
 			}
 
 			TestResult? testResult = null;

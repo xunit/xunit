@@ -2,21 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ExceptionUtilityTests
 {
-	class FailureInformation : IFailureInformation, IEnumerable
+	class ErrorMetadata : _IErrorMetadata, IEnumerable
 	{
 		readonly List<int> exceptionParentIndices = new List<int>();
 		readonly List<string?> exceptionTypes = new List<string?>();
-		readonly List<string?> messages = new List<string?>();
+		readonly List<string> messages = new List<string>();
 		readonly List<string?> stackTraces = new List<string?>();
 
 		public string?[] ExceptionTypes => exceptionTypes.ToArray();
 
-		public string?[] Messages => messages.ToArray();
+		public string[] Messages => messages.ToArray();
 
 		public string?[] StackTraces => stackTraces.ToArray();
 
@@ -31,7 +31,7 @@ public class ExceptionUtilityTests
 
 		public void Add(
 			Type exceptionType,
-			string? message = null,
+			string message = "",
 			string? stackTrace = null,
 			int index = -1)
 		{
@@ -72,9 +72,9 @@ public class ExceptionUtilityTests
 		[Fact]
 		public void XunitException()
 		{
-			var failureInfo = new FailureInformation { new XunitException("This is the message") };
+			var errorMetadata = new ErrorMetadata { new XunitException("This is the message") };
 
-			var result = ExceptionUtility.CombineMessages(failureInfo);
+			var result = ExceptionUtility.CombineMessages(errorMetadata);
 
 			Assert.Equal("This is the message", result);
 		}
@@ -82,9 +82,9 @@ public class ExceptionUtilityTests
 		[Fact]
 		public void NonXunitException()
 		{
-			var failureInfo = new FailureInformation { new Exception("This is the message") };
+			var errorMetadata = new ErrorMetadata { new Exception("This is the message") };
 
-			var result = ExceptionUtility.CombineMessages(failureInfo);
+			var result = ExceptionUtility.CombineMessages(errorMetadata);
 
 			Assert.Equal("System.Exception : This is the message", result);
 		}
@@ -92,13 +92,13 @@ public class ExceptionUtilityTests
 		[Fact]
 		public void NonXunitExceptionWithInnerExceptions()
 		{
-			var failureInfo = new FailureInformation {
+			var errorMetadata = new ErrorMetadata {
 				{ new Exception("outer exception"), -1 },
 				{ new DivideByZeroException("inner exception"), 0 },
 				{ new XunitException("inner inner exception"), 1 }
 			};
 
-			var result = ExceptionUtility.CombineMessages(failureInfo);
+			var result = ExceptionUtility.CombineMessages(errorMetadata);
 
 			Assert.Equal(
 				"System.Exception : outer exception" + Environment.NewLine +
@@ -111,14 +111,14 @@ public class ExceptionUtilityTests
 		[CulturedFact("en-US")]
 		public void AggregateException()
 		{
-			var failureInfo = new FailureInformation {
+			var errorMetadata = new ErrorMetadata {
 				{ new AggregateException(), -1 },
 				{ new DivideByZeroException("inner #1"), 0 },
 				{ new NotImplementedException("inner #2"), 0 },
 				{ new XunitException("this is crazy"), 0 },
 			};
 
-			var result = ExceptionUtility.CombineMessages(failureInfo);
+			var result = ExceptionUtility.CombineMessages(errorMetadata);
 
 			Assert.Equal(
 				"System.AggregateException : One or more errors occurred." + Environment.NewLine +
@@ -132,17 +132,17 @@ public class ExceptionUtilityTests
 		[Fact]
 		public void MissingExceptionTypes()
 		{
-			var failureInfo = new FailureInformation();
-			failureInfo.AddMessage("Message 1");
-			failureInfo.AddMessage("Message 2");
-			failureInfo.AddMessage("Message 3");
-			failureInfo.AddIndex(-1);
-			failureInfo.AddIndex(0);
-			failureInfo.AddIndex(0);
-			failureInfo.AddExceptionType("ExceptionType1");
-			failureInfo.AddExceptionType("Xunit.Sdk.ExceptionType2");
+			var errorMetadata = new ErrorMetadata();
+			errorMetadata.AddMessage("Message 1");
+			errorMetadata.AddMessage("Message 2");
+			errorMetadata.AddMessage("Message 3");
+			errorMetadata.AddIndex(-1);
+			errorMetadata.AddIndex(0);
+			errorMetadata.AddIndex(0);
+			errorMetadata.AddExceptionType("ExceptionType1");
+			errorMetadata.AddExceptionType("Xunit.Sdk.ExceptionType2");
 
-			var result = ExceptionUtility.CombineMessages(failureInfo);
+			var result = ExceptionUtility.CombineMessages(errorMetadata);
 
 			Assert.Equal(
 				"ExceptionType1 : Message 1" + Environment.NewLine +
@@ -166,9 +166,9 @@ public class ExceptionUtilityTests
 				throw new XunitException();
 			}
 			var ex = Record.Exception(testCode)!;
-			var failureInfo = new FailureInformation { ex };
+			var errorMetadata = new ErrorMetadata { ex };
 
-			var result = ExceptionUtility.CombineStackTraces(failureInfo);
+			var result = ExceptionUtility.CombineStackTraces(errorMetadata);
 
 			Assert.DoesNotContain(typeof(Record).FullName!, result);
 			Assert.DoesNotContain(typeof(XunitException).FullName!, result);
@@ -187,9 +187,9 @@ public class ExceptionUtilityTests
 				throw new Exception();
 			}
 			var ex = Record.Exception(testCode)!;
-			var failureInfo = new FailureInformation { ex };
+			var errorMetadata = new ErrorMetadata { ex };
 
-			var result = ExceptionUtility.CombineStackTraces(failureInfo);
+			var result = ExceptionUtility.CombineStackTraces(errorMetadata);
 
 			Assert.DoesNotContain(typeof(Record).FullName!, result);
 			Assert.DoesNotContain(typeof(XunitException).FullName!, result);
@@ -213,9 +213,9 @@ public class ExceptionUtilityTests
 				throw new Exception("message", inner);
 			}
 			var outer = Record.Exception(outerTestCode)!;
-			var failureInfo = new FailureInformation { { outer, -1 }, { inner, 0 } };
+			var errorMetadata = new ErrorMetadata { { outer, -1 }, { inner, 0 } };
 
-			var result = ExceptionUtility.CombineStackTraces(failureInfo);
+			var result = ExceptionUtility.CombineStackTraces(errorMetadata);
 
 			Assert.NotNull(result);
 			Assert.Collection(
@@ -253,9 +253,9 @@ public class ExceptionUtilityTests
 				throw new AggregateException(inner1, inner2, inner3);
 			}
 			var outer = Record.Exception(outerTestCode)!;
-			var failureInfo = new FailureInformation { { outer, -1 }, { inner1, 0 }, { inner2, 0 }, { inner3, 0 } };
+			var errorMetadata = new ErrorMetadata { { outer, -1 }, { inner1, 0 }, { inner2, 0 }, { inner3, 0 } };
 
-			var result = ExceptionUtility.CombineStackTraces(failureInfo);
+			var result = ExceptionUtility.CombineStackTraces(errorMetadata);
 
 			Assert.NotNull(result);
 			Assert.Collection(
@@ -274,19 +274,19 @@ public class ExceptionUtilityTests
 		[Fact]
 		public void MissingStackTracesAndExceptionTypes()
 		{
-			var failureInfo = new FailureInformation();
-			failureInfo.AddMessage("Message 1");
-			failureInfo.AddMessage("Message 2");
-			failureInfo.AddMessage("Message 3");
-			failureInfo.AddIndex(-1);
-			failureInfo.AddIndex(0);
-			failureInfo.AddIndex(0);
-			failureInfo.AddExceptionType("ExceptionType1");
-			failureInfo.AddExceptionType("Xunit.Sdk.ExceptionType2");
-			failureInfo.AddStackTrace("Stack Trace 1");
-			failureInfo.AddStackTrace("Stack Trace 2");
+			var errorMetadata = new ErrorMetadata();
+			errorMetadata.AddMessage("Message 1");
+			errorMetadata.AddMessage("Message 2");
+			errorMetadata.AddMessage("Message 3");
+			errorMetadata.AddIndex(-1);
+			errorMetadata.AddIndex(0);
+			errorMetadata.AddIndex(0);
+			errorMetadata.AddExceptionType("ExceptionType1");
+			errorMetadata.AddExceptionType("Xunit.Sdk.ExceptionType2");
+			errorMetadata.AddStackTrace("Stack Trace 1");
+			errorMetadata.AddStackTrace("Stack Trace 2");
 
-			var result = ExceptionUtility.CombineStackTraces(failureInfo);
+			var result = ExceptionUtility.CombineStackTraces(errorMetadata);
 
 			Assert.Equal(
 				"Stack Trace 1" + Environment.NewLine +

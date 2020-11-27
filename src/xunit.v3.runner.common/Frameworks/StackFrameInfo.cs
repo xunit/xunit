@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -44,6 +45,29 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		public static readonly StackFrameInfo None = new StackFrameInfo(null, 0);
 
+		/// <summary>
+		/// Creates a stack frame info from error metadata.
+		/// </summary>
+		/// <param name="errorMetadata">The error to inspect</param>
+		/// <returns>The stack frame info</returns>
+		public static StackFrameInfo FromErrorMetadata(_IErrorMetadata? errorMetadata)
+		{
+			if (errorMetadata == null)
+				return None;
+
+			var stackTraces = ExceptionUtility.CombineStackTraces(errorMetadata);
+			if (stackTraces != null)
+			{
+				foreach (var frame in stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries))
+				{
+					var match = stackFrameRegex.Match(frame);
+					if (match.Success)
+						return new StackFrameInfo(match.Groups["file"].Value, int.Parse(match.Groups["line"].Value));
+				}
+			}
+
+			return None;
+		}
 		static Regex GetStackFrameRegex()
 		{
 			// Stack trace lines look like this:

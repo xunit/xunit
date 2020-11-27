@@ -71,13 +71,13 @@ namespace Xunit.Runner.v1
 			XmlNode failureNode;
 			if ((failureNode = xml.SelectSingleNode("failure")) != null)
 			{
-				var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failureNode);
+				var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
 				var errorMessage = new _ErrorMessage
 				{
-					ExceptionParentIndices = failureInformation.ExceptionParentIndices,
-					ExceptionTypes = failureInformation.ExceptionTypes,
-					Messages = failureInformation.Messages,
-					StackTraces = failureInformation.StackTraces
+					ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+					ExceptionTypes = errorMetadata.ExceptionTypes,
+					Messages = errorMetadata.Messages,
+					StackTraces = errorMetadata.StackTraces
 				};
 
 				@continue = messageSink.OnMessage(errorMessage);
@@ -273,17 +273,17 @@ namespace Xunit.Runner.v1
 			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 			var caseUniqueID = testCase.UniqueID;
 			var testUniqueID = UniqueIDGenerator.ForTest(caseUniqueID, testIndex);
-			var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failure);
+			var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(failure);
 
 			return new _TestFailed
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				ExceptionParentIndices = failureInformation.ExceptionParentIndices,
-				ExceptionTypes = failureInformation.ExceptionTypes,
+				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+				ExceptionTypes = errorMetadata.ExceptionTypes,
 				ExecutionTime = executionTime,
-				Messages = failureInformation.Messages,
+				Messages = errorMetadata.Messages,
 				Output = output,
-				StackTraces = failureInformation.StackTraces,
+				StackTraces = errorMetadata.StackTraces,
 				TestCaseUniqueID = caseUniqueID,
 				TestClassUniqueID = classUniqueID,
 				TestCollectionUniqueID = collectionUniqueID,

@@ -305,7 +305,7 @@ namespace Xunit.Sdk
 					}
 					else
 					{
-						var errorMetadata = ExceptionUtility.ConvertExceptionToErrorMetadata(exception);
+						var errorMetadata = ExceptionUtility.ExtractMetadata(exception);
 						testResult = new _TestFailed
 						{
 							AssemblyUniqueID = TestAssemblyUniqueID,

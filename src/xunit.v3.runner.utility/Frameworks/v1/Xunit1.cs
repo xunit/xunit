@@ -295,13 +295,13 @@ namespace Xunit
 				}
 				catch (Exception ex)
 				{
-					var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
+					var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(ex);
 					var errorMessage = new _ErrorMessage
 					{
-						ExceptionParentIndices = failureInformation.ExceptionParentIndices,
-						ExceptionTypes = failureInformation.ExceptionTypes,
-						Messages = failureInformation.Messages,
-						StackTraces = failureInformation.StackTraces
+						ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+						ExceptionTypes = errorMetadata.ExceptionTypes,
+						Messages = errorMetadata.Messages,
+						StackTraces = errorMetadata.StackTraces
 					};
 					messageSink.OnMessage(errorMessage);
 				}
