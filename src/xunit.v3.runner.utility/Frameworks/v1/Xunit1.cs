@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -24,6 +23,7 @@ namespace Xunit
 	public class Xunit1 : IFrontController, IAsyncDisposable
 	{
 		readonly AppDomainSupport appDomainSupport;
+		readonly IAssemblyInfo assembly;
 		readonly string assemblyFileName;
 		readonly string? configFileName;
 		readonly _IMessageSink diagnosticMessageSink;
@@ -65,6 +65,9 @@ namespace Xunit
 			this.configFileName = configFileName;
 			this.shadowCopy = shadowCopy;
 			this.shadowCopyFolder = shadowCopyFolder;
+
+			assembly = new Xunit1AssemblyInfo(assemblyFileName);
+			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
 		}
 
 		/// <inheritdoc/>
@@ -85,6 +88,9 @@ namespace Xunit
 		// This is not supported with v1, since there is no code in the remote AppDomain
 		// that would give us this information.
 		public string TargetFramework => string.Empty;
+
+		/// <inheritdoc/>
+		public string TestAssemblyUniqueID { get; }
 
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
@@ -170,13 +176,11 @@ namespace Xunit
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
-			IAssemblyInfo assembly = new Xunit1AssemblyInfo(assemblyFileName);
-			var assemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
 			var discoveryStarting = new _DiscoveryStarting
 			{
 				AssemblyName = assembly.Name,
 				AssemblyPath = assembly.AssemblyPath,
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = TestAssemblyUniqueID,
 				ConfigFilePath = configFileName
 			};
 			messageSink.OnMessage(discoveryStarting);
@@ -201,12 +205,12 @@ namespace Xunit
 								testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
-							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(assemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
+							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
 							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((ITestClass)testCase).Class?.Name);
 							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
 							{
-								AssemblyUniqueID = assemblyUniqueID,
+								AssemblyUniqueID = TestAssemblyUniqueID,
 								SkipReason = testCase.SkipReason,
 								SourceFilePath = testCase.SourceInformation?.FileName,
 								SourceLineNumber = testCase.SourceInformation?.LineNumber,
@@ -227,7 +231,7 @@ namespace Xunit
 			}
 			finally
 			{
-				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
+				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
 				messageSink.OnMessage(discoveryComplete);
 			}
 		}

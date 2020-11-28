@@ -27,11 +27,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 		CommandLine commandLine;
 		readonly object consoleLock;
 		bool executed = false;
-		ExecutionSummary executionSummary = new ExecutionSummary();
 		bool failed;
 		IRunnerLogger? logger;
 		IReadOnlyList<IRunnerReporter> runnerReporters;
 		Assembly testAssembly;
+		TestExecutionSummaries testExecutionSummaries = new TestExecutionSummaries();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ConsoleRunner"/> class.
@@ -371,17 +371,15 @@ namespace Xunit.Runner.InProc.SystemConsole
 			if (assembliesElement != null)
 				assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
 
-			var summary = new KeyValuePair<string, ExecutionSummary>(assembly.AssemblyDisplayName, executionSummary);
-			var summaries = new List<KeyValuePair<string, ExecutionSummary>> { summary };
-
-			reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, summaries));
+			testExecutionSummaries.ElapsedClockTime = clockTime.Elapsed;
+			reporterMessageHandler.OnMessage(testExecutionSummaries);
 
 			Directory.SetCurrentDirectory(originalWorkingFolder);
 
 			if (assembliesElement != null)
 				xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
-			return failed ? 1 : executionSummary.Failed + executionSummary.Errors;
+			return failed ? 1 : testExecutionSummaries.SummariesByAssemblyUniqueID.Sum(s => s.Summary.Failed + s.Summary.Errors);
 		}
 
 		async ValueTask<XElement?> ExecuteAssembly(
@@ -464,7 +462,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					executor.RunTests(filteredTestCases, resultsSink, executionOptions);
 					resultsSink.Finished.WaitOne();
 
-					executionSummary = resultsSink.ExecutionSummary;
+					testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 
 					reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
 					if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)

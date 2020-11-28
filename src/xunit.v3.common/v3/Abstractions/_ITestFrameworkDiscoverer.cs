@@ -16,6 +16,11 @@ namespace Xunit.v3
 		string TargetFramework { get; }
 
 		/// <summary>
+		/// Gets the unique ID for the test assembly provided to the discoverer.
+		/// </summary>
+		string TestAssemblyUniqueID { get; }
+
+		/// <summary>
 		/// Returns the display name of the test framework that this discoverer is running tests for.
 		/// </summary>
 		string TestFrameworkDisplayName { get; }

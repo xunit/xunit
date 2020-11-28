@@ -18,6 +18,14 @@ namespace Xunit.Runner.v2
 		/// <summary>
 		/// Adapts <see cref="IMessageSinkMessage"/> to <see cref="_MessageSinkMessage"/>.
 		/// </summary>
+		/// <remarks>
+		/// We pass the assembly unique ID through here for two reasons: (a) there is no assembly information
+		/// contained in <see cref="IDiscoveryCompleteMessage"/>, but we need it in our v3 message;
+		/// and (b) the local information we have for assembly path/name/config file name change after
+		/// being passed into v2, so in order for everything to match, we need to use the assembly unique ID
+		/// based on what we passed into v2 (rather than what it computed), or else our unique IDs won't
+		/// line up across all messages.
+		/// </remarks>
 		// TODO: This has the wrong return type so that we can do fall-through, until
 		// we're finished moving from v2 to v3 messages in Runner Utility.
 		public static IMessageSinkMessage Adapt(
@@ -26,55 +34,56 @@ namespace Xunit.Runner.v2
 			HashSet<string>? messageTypes = null)
 		{
 			return
-				Convert<IDiagnosticMessage>(message, messageTypes, AdaptDiagnosticMessage) ??
+				TryConvert<IDiagnosticMessage>(assemblyUniqueID, message, messageTypes, AdaptDiagnosticMessage) ??
 
-				Convert<IDiscoveryCompleteMessage>(assemblyUniqueID, message, messageTypes, AdaptDiscoveryCompleteMessage) ??
-				Convert<ITestCaseDiscoveryMessage>(message, messageTypes, AdaptTestCaseDiscoveryMessage) ??
+				TryConvert<IDiscoveryCompleteMessage>(assemblyUniqueID, message, messageTypes, AdaptDiscoveryCompleteMessage) ??
+				TryConvert<ITestCaseDiscoveryMessage>(assemblyUniqueID, message, messageTypes, AdaptTestCaseDiscoveryMessage) ??
 
-				Convert<IErrorMessage>(message, messageTypes, AdaptErrorMessage) ??
+				TryConvert<IErrorMessage>(assemblyUniqueID, message, messageTypes, AdaptErrorMessage) ??
 
-				Convert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
-				Convert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
-				Convert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
+				TryConvert<ITestAssemblyCleanupFailure>(assemblyUniqueID, message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
+				TryConvert<ITestAssemblyFinished>(assemblyUniqueID, message, messageTypes, AdaptTestAssemblyFinished) ??
+				TryConvert<ITestAssemblyStarting>(assemblyUniqueID, message, messageTypes, AdaptTestAssemblyStarting) ??
 
-				Convert<ITestCaseCleanupFailure>(message, messageTypes, AdaptTestCaseCleanupFailure) ??
-				Convert<ITestCaseFinished>(message, messageTypes, AdaptTestCaseFinished) ??
-				Convert<ITestCaseStarting>(message, messageTypes, AdaptTestCaseStarting) ??
+				TryConvert<ITestCaseCleanupFailure>(assemblyUniqueID, message, messageTypes, AdaptTestCaseCleanupFailure) ??
+				TryConvert<ITestCaseFinished>(assemblyUniqueID, message, messageTypes, AdaptTestCaseFinished) ??
+				TryConvert<ITestCaseStarting>(assemblyUniqueID, message, messageTypes, AdaptTestCaseStarting) ??
 
-				Convert<ITestClassCleanupFailure>(message, messageTypes, AdaptTestClassCleanupFailure) ??
-				Convert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
-				Convert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
+				TryConvert<ITestClassCleanupFailure>(assemblyUniqueID, message, messageTypes, AdaptTestClassCleanupFailure) ??
+				TryConvert<ITestClassFinished>(assemblyUniqueID, message, messageTypes, AdaptTestClassFinished) ??
+				TryConvert<ITestClassStarting>(assemblyUniqueID, message, messageTypes, AdaptTestClassStarting) ??
 
-				Convert<ITestCollectionCleanupFailure>(message, messageTypes, AdaptTestCollectionCleanupFailure) ??
-				Convert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
-				Convert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
+				TryConvert<ITestCollectionCleanupFailure>(assemblyUniqueID, message, messageTypes, AdaptTestCollectionCleanupFailure) ??
+				TryConvert<ITestCollectionFinished>(assemblyUniqueID, message, messageTypes, AdaptTestCollectionFinished) ??
+				TryConvert<ITestCollectionStarting>(assemblyUniqueID, message, messageTypes, AdaptTestCollectionStarting) ??
 
-				Convert<ITestMethodCleanupFailure>(message, messageTypes, AdaptTestMethodCleanupFailure) ??
-				Convert<ITestMethodFinished>(message, messageTypes, AdaptTestMethodFinished) ??
-				Convert<ITestMethodStarting>(message, messageTypes, AdaptTestMethodStarting) ??
+				TryConvert<ITestMethodCleanupFailure>(assemblyUniqueID, message, messageTypes, AdaptTestMethodCleanupFailure) ??
+				TryConvert<ITestMethodFinished>(assemblyUniqueID, message, messageTypes, AdaptTestMethodFinished) ??
+				TryConvert<ITestMethodStarting>(assemblyUniqueID, message, messageTypes, AdaptTestMethodStarting) ??
 
-				Convert<IAfterTestFinished>(message, messageTypes, AdaptAfterTestFinished) ??
-				Convert<IAfterTestStarting>(message, messageTypes, AdaptAfterTestStarting) ??
-				Convert<IBeforeTestFinished>(message, messageTypes, AdaptBeforeTestFinished) ??
-				Convert<IBeforeTestStarting>(message, messageTypes, AdaptBeforeTestStarting) ??
-				Convert<ITestClassConstructionFinished>(message, messageTypes, AdaptTestClassConstructionFinished) ??
-				Convert<ITestClassConstructionStarting>(message, messageTypes, AdaptTestClassConstructionStarting) ??
-				Convert<ITestClassDisposeFinished>(message, messageTypes, AdaptTestClassDisposeFinished) ??
-				Convert<ITestClassDisposeStarting>(message, messageTypes, AdaptTestClassDisposeStarting) ??
-				Convert<ITestCleanupFailure>(message, messageTypes, AdaptTestCleanupFailure) ??
-				Convert<ITestFailed>(message, messageTypes, AdaptTestFailed) ??
-				Convert<ITestFinished>(message, messageTypes, AdaptTestFinished) ??
-				Convert<ITestOutput>(message, messageTypes, AdaptTestOutput) ??
-				Convert<ITestPassed>(message, messageTypes, AdaptTestPassed) ??
-				Convert<ITestSkipped>(message, messageTypes, AdaptTestSkipped) ??
-				Convert<ITestStarting>(message, messageTypes, AdaptTestStarting) ??
+				TryConvert<IAfterTestFinished>(assemblyUniqueID, message, messageTypes, AdaptAfterTestFinished) ??
+				TryConvert<IAfterTestStarting>(assemblyUniqueID, message, messageTypes, AdaptAfterTestStarting) ??
+				TryConvert<IBeforeTestFinished>(assemblyUniqueID, message, messageTypes, AdaptBeforeTestFinished) ??
+				TryConvert<IBeforeTestStarting>(assemblyUniqueID, message, messageTypes, AdaptBeforeTestStarting) ??
+				TryConvert<ITestClassConstructionFinished>(assemblyUniqueID, message, messageTypes, AdaptTestClassConstructionFinished) ??
+				TryConvert<ITestClassConstructionStarting>(assemblyUniqueID, message, messageTypes, AdaptTestClassConstructionStarting) ??
+				TryConvert<ITestClassDisposeFinished>(assemblyUniqueID, message, messageTypes, AdaptTestClassDisposeFinished) ??
+				TryConvert<ITestClassDisposeStarting>(assemblyUniqueID, message, messageTypes, AdaptTestClassDisposeStarting) ??
+				TryConvert<ITestCleanupFailure>(assemblyUniqueID, message, messageTypes, AdaptTestCleanupFailure) ??
+				TryConvert<ITestFailed>(assemblyUniqueID, message, messageTypes, AdaptTestFailed) ??
+				TryConvert<ITestFinished>(assemblyUniqueID, message, messageTypes, AdaptTestFinished) ??
+				TryConvert<ITestOutput>(assemblyUniqueID, message, messageTypes, AdaptTestOutput) ??
+				TryConvert<ITestPassed>(assemblyUniqueID, message, messageTypes, AdaptTestPassed) ??
+				TryConvert<ITestSkipped>(assemblyUniqueID, message, messageTypes, AdaptTestSkipped) ??
+				TryConvert<ITestStarting>(assemblyUniqueID, message, messageTypes, AdaptTestStarting) ??
 
 				message;
 		}
 
-		static _AfterTestFinished AdaptAfterTestFinished(IAfterTestFinished message)
+		static _AfterTestFinished AdaptAfterTestFinished(
+			string assemblyUniqueID,
+			IAfterTestFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -93,9 +102,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _AfterTestStarting AdaptAfterTestStarting(IAfterTestStarting message)
+		static _AfterTestStarting AdaptAfterTestStarting(
+			string assemblyUniqueID,
+			IAfterTestStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -114,9 +124,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _BeforeTestFinished AdaptBeforeTestFinished(IBeforeTestFinished message)
+		static _BeforeTestFinished AdaptBeforeTestFinished(
+			string assemblyUniqueID,
+			IBeforeTestFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -135,9 +146,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _BeforeTestStarting AdaptBeforeTestStarting(IBeforeTestStarting message)
+		static _BeforeTestStarting AdaptBeforeTestStarting(
+			string assemblyUniqueID,
+			IBeforeTestStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -156,54 +168,57 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _DiagnosticMessage AdaptDiagnosticMessage(IDiagnosticMessage message) =>
-			new _DiagnosticMessage { Message = message.Message };
+		static _DiagnosticMessage AdaptDiagnosticMessage(
+			string assemblyUniqueID,
+			IDiagnosticMessage message) =>
+				new _DiagnosticMessage { Message = message.Message };
 
-		static _DiscoveryComplete AdaptDiscoveryCompleteMessage(string assemblyUniqueID, IDiscoveryCompleteMessage message) =>
-			new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
+		static _DiscoveryComplete AdaptDiscoveryCompleteMessage(
+			string assemblyUniqueID,
+			IDiscoveryCompleteMessage message) =>
+				new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
 
-		static _ErrorMessage AdaptErrorMessage(IErrorMessage message) =>
-			new _ErrorMessage
-			{
-				ExceptionParentIndices = message.ExceptionParentIndices,
-				ExceptionTypes = message.ExceptionTypes,
-				Messages = message.Messages,
-				StackTraces = message.StackTraces
-			};
+		static _ErrorMessage AdaptErrorMessage(
+			string assemblyUniqueID,
+			IErrorMessage message) =>
+				new _ErrorMessage
+				{
+					ExceptionParentIndices = message.ExceptionParentIndices,
+					ExceptionTypes = message.ExceptionTypes,
+					Messages = message.Messages,
+					StackTraces = message.StackTraces
+				};
 
-		static _TestAssemblyCleanupFailure AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message)
-		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
+		static _TestAssemblyCleanupFailure AdaptTestAssemblyCleanupFailure(
+			string assemblyUniqueID,
+			ITestAssemblyCleanupFailure message) =>
+				new _TestAssemblyCleanupFailure
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExceptionParentIndices = message.ExceptionParentIndices,
+					ExceptionTypes = message.ExceptionTypes,
+					Messages = message.Messages,
+					StackTraces = message.StackTraces
+				};
 
-			return new _TestAssemblyCleanupFailure
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				ExceptionParentIndices = message.ExceptionParentIndices,
-				ExceptionTypes = message.ExceptionTypes,
-				Messages = message.Messages,
-				StackTraces = message.StackTraces
-			};
-		}
+		static _TestAssemblyFinished AdaptTestAssemblyFinished(
+			string assemblyUniqueID,
+			ITestAssemblyFinished message) =>
+				new _TestAssemblyFinished
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					ExecutionTime = message.ExecutionTime,
+					TestsFailed = message.TestsFailed,
+					TestsRun = message.TestsRun,
+					TestsSkipped = message.TestsSkipped
+				};
 
-		static _TestAssemblyFinished AdaptTestAssemblyFinished(ITestAssemblyFinished message)
-		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
-
-			return new _TestAssemblyFinished
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = message.ExecutionTime,
-				TestsFailed = message.TestsFailed,
-				TestsRun = message.TestsRun,
-				TestsSkipped = message.TestsSkipped
-			};
-		}
-
-		static _TestAssemblyStarting AdaptTestAssemblyStarting(ITestAssemblyStarting message)
+		static _TestAssemblyStarting AdaptTestAssemblyStarting(
+			string assemblyUniqueID,
+			ITestAssemblyStarting message)
 		{
 			var targetFrameworkAttribute = message.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
 			var targetFramework = targetFrameworkAttribute?.GetConstructorArguments().Cast<string>().Single();
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 
 			return new _TestAssemblyStarting
 			{
@@ -218,9 +233,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCaseCleanupFailure AdaptTestCaseCleanupFailure(ITestCaseCleanupFailure message)
+		static _TestCaseCleanupFailure AdaptTestCaseCleanupFailure(
+			string assemblyUniqueID,
+			ITestCaseCleanupFailure message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -239,7 +255,9 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCaseDiscovered AdaptTestCaseDiscoveryMessage(ITestCaseDiscoveryMessage message)
+		static _TestCaseDiscovered AdaptTestCaseDiscoveryMessage(
+			string assemblyUniqueID,
+			ITestCaseDiscoveryMessage message)
 		{
 			var testCase = message.TestCase;
 
@@ -247,7 +265,6 @@ namespace Xunit.Runner.v2
 			lock (testUniqueIDsByTestCase)
 				testUniqueIDsByTestCase.Remove(testCase);
 
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -269,13 +286,14 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCaseFinished AdaptTestCaseFinished(ITestCaseFinished message)
+		static _TestCaseFinished AdaptTestCaseFinished(
+			string assemblyUniqueID,
+			ITestCaseFinished message)
 		{
 			// Clean up the cache
 			lock (testUniqueIDsByTestCase)
 				testUniqueIDsByTestCase.Remove(message.TestCase);
 
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -295,9 +313,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCaseStarting AdaptTestCaseStarting(ITestCaseStarting message)
+		static _TestCaseStarting AdaptTestCaseStarting(
+			string assemblyUniqueID,
+			ITestCaseStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -317,9 +336,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassCleanupFailure AdaptTestClassCleanupFailure(ITestClassCleanupFailure message)
+		static _TestClassCleanupFailure AdaptTestClassCleanupFailure(
+			string assemblyUniqueID,
+			ITestClassCleanupFailure message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
@@ -335,9 +355,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassConstructionFinished AdaptTestClassConstructionFinished(ITestClassConstructionFinished message)
+		static _TestClassConstructionFinished AdaptTestClassConstructionFinished(
+			string assemblyUniqueID,
+			ITestClassConstructionFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -355,9 +376,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassConstructionStarting AdaptTestClassConstructionStarting(ITestClassConstructionStarting message)
+		static _TestClassConstructionStarting AdaptTestClassConstructionStarting(
+			string assemblyUniqueID,
+			ITestClassConstructionStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -375,9 +397,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassDisposeFinished AdaptTestClassDisposeFinished(ITestClassDisposeFinished message)
+		static _TestClassDisposeFinished AdaptTestClassDisposeFinished(
+			string assemblyUniqueID,
+			ITestClassDisposeFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -395,9 +418,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassDisposeStarting AdaptTestClassDisposeStarting(ITestClassDisposeStarting message)
+		static _TestClassDisposeStarting AdaptTestClassDisposeStarting(
+			string assemblyUniqueID,
+			ITestClassDisposeStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -415,9 +439,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassFinished AdaptTestClassFinished(ITestClassFinished message)
+		static _TestClassFinished AdaptTestClassFinished(
+			string assemblyUniqueID,
+			ITestClassFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
@@ -433,9 +458,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestClassStarting AdaptTestClassStarting(ITestClassStarting message)
+		static _TestClassStarting AdaptTestClassStarting(
+			string assemblyUniqueID,
+			ITestClassStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
@@ -448,9 +474,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCleanupFailure AdaptTestCleanupFailure(ITestCleanupFailure message)
+		static _TestCleanupFailure AdaptTestCleanupFailure(
+			string assemblyUniqueID,
+			ITestCleanupFailure message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -472,9 +499,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCollectionCleanupFailure AdaptTestCollectionCleanupFailure(ITestCollectionCleanupFailure message)
+		static _TestCollectionCleanupFailure AdaptTestCollectionCleanupFailure(
+			string assemblyUniqueID,
+			ITestCollectionCleanupFailure message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionCleanupFailure
@@ -488,9 +516,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCollectionFinished AdaptTestCollectionFinished(ITestCollectionFinished message)
+		static _TestCollectionFinished AdaptTestCollectionFinished(
+			string assemblyUniqueID,
+			ITestCollectionFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionFinished
@@ -504,9 +533,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestCollectionStarting AdaptTestCollectionStarting(ITestCollectionStarting message)
+		static _TestCollectionStarting AdaptTestCollectionStarting(
+			string assemblyUniqueID,
+			ITestCollectionStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
 			return new _TestCollectionStarting
@@ -518,9 +548,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestFailed AdaptTestFailed(ITestFailed message)
+		static _TestFailed AdaptTestFailed(
+			string assemblyUniqueID,
+			ITestFailed message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -544,9 +575,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestFinished AdaptTestFinished(ITestFinished message)
+		static _TestFinished AdaptTestFinished(
+			string assemblyUniqueID,
+			ITestFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -566,9 +598,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestMethodCleanupFailure AdaptTestMethodCleanupFailure(ITestMethodCleanupFailure message)
+		static _TestMethodCleanupFailure AdaptTestMethodCleanupFailure(
+			string assemblyUniqueID,
+			ITestMethodCleanupFailure message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -586,9 +619,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestMethodFinished AdaptTestMethodFinished(ITestMethodFinished message)
+		static _TestMethodFinished AdaptTestMethodFinished(
+			string assemblyUniqueID,
+			ITestMethodFinished message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -606,9 +640,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestMethodStarting AdaptTestMethodStarting(ITestMethodStarting message)
+		static _TestMethodStarting AdaptTestMethodStarting(
+			string assemblyUniqueID,
+			ITestMethodStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -623,9 +658,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestOutput AdaptTestOutput(ITestOutput message)
+		static _TestOutput AdaptTestOutput(
+			string assemblyUniqueID,
+			ITestOutput message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -644,9 +680,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestPassed AdaptTestPassed(ITestPassed message)
+		static _TestPassed AdaptTestPassed(
+			string assemblyUniqueID,
+			ITestPassed message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -666,9 +703,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestSkipped AdaptTestSkipped(ITestSkipped message)
+		static _TestSkipped AdaptTestSkipped(
+			string assemblyUniqueID,
+			ITestSkipped message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -689,9 +727,10 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static _TestStarting AdaptTestStarting(ITestStarting message)
+		static _TestStarting AdaptTestStarting(
+			string assemblyUniqueID,
+			ITestStarting message)
 		{
-			var assemblyUniqueID = UniqueIDForAssembly(message.TestAssembly);
 			var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 			var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
@@ -710,8 +749,21 @@ namespace Xunit.Runner.v2
 			};
 		}
 
-		static string UniqueIDForAssembly(ITestAssembly testAssembly) =>
-			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
+		static _MessageSinkMessage? TryConvert<TMessage>(
+			string assemblyUniqueID,
+			IMessageSinkMessage message,
+			HashSet<string>? messageTypes,
+			Func<string, TMessage, _MessageSinkMessage> converter)
+				where TMessage : class, IMessageSinkMessage
+		{
+			Guard.ArgumentNotNull(nameof(message), message);
+
+			var castMessage = messageTypes == null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
+			if (castMessage != null)
+				return converter(assemblyUniqueID, castMessage);
+
+			return null;
+		}
 
 		static string UniqueIDForTest(
 			string testCaseUniqueID,
@@ -745,36 +797,5 @@ namespace Xunit.Runner.v2
 			string? classUniqueID,
 			ITestMethod testMethod) =>
 				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method.Name);
-
-		static _MessageSinkMessage? Convert<TMessage>(
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes,
-			Func<TMessage, _MessageSinkMessage> converter)
-				where TMessage : class, IMessageSinkMessage
-		{
-			Guard.ArgumentNotNull(nameof(message), message);
-
-			var castMessage = message.Cast<TMessage>(messageTypes);
-			if (castMessage != null)
-				return converter(castMessage);
-
-			return null;
-		}
-
-		static _MessageSinkMessage? Convert<TMessage>(
-			string assemblyUniqueID,
-			IMessageSinkMessage message,
-			HashSet<string>? messageTypes,
-			Func<string, TMessage, _MessageSinkMessage> converter)
-				where TMessage : class, IMessageSinkMessage
-		{
-			Guard.ArgumentNotNull(nameof(message), message);
-
-			var castMessage = message.Cast<TMessage>(messageTypes);
-			if (castMessage != null)
-				return converter(assemblyUniqueID, castMessage);
-
-			return null;
-		}
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Xunit.Runner.Common;
 
 namespace Xunit.v3
 {
@@ -196,6 +197,23 @@ namespace Xunit.v3
 					TestCollectionDisplayName = testCollectionDisplayName,
 					TestCollectionUniqueID = testCollectionUniqueID
 				};
+
+		public static TestExecutionSummaries TestExecutionSummaries(
+			TimeSpan clockTime,
+			string assemblyUniqueID,
+			ExecutionSummary summary) =>
+				TestExecutionSummaries(clockTime, (assemblyUniqueID, summary));
+
+		public static TestExecutionSummaries TestExecutionSummaries(
+			TimeSpan clockTime,
+			params (string assemblyUniqueID, ExecutionSummary summary)[] summaries)
+		{
+			var result = new TestExecutionSummaries { ElapsedClockTime = clockTime };
+			foreach (var summary in summaries)
+				result.Add(summary.assemblyUniqueID, summary.summary);
+
+			return result;
+		}
 
 		public static _TestFailed TestFailed(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,

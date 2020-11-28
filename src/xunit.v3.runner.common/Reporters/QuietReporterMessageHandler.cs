@@ -18,7 +18,7 @@ namespace Xunit.Runner.Common
 			Runner.TestAssemblyDiscoveryFinishedEvent -= HandleTestAssemblyDiscoveryFinished;
 			Runner.TestAssemblyExecutionStartingEvent -= HandleTestAssemblyExecutionStarting;
 			Runner.TestAssemblyExecutionFinishedEvent -= HandleTestAssemblyExecutionFinished;
-			Runner.TestExecutionSummaryEvent -= HandleTestExecutionSummary;
+			Runner.TestExecutionSummariesEvent -= HandleTestExecutionSummaries;
 		}
 	}
 }

@@ -227,7 +227,12 @@ namespace Xunit.Runner.MSBuild
 					assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
 
 				if (completionMessages.Count > 0)
-					reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, completionMessages.OrderBy(kvp => kvp.Key).ToList()));
+				{
+					var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
+					foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
+						summaries.Add(completionMessage.Key, completionMessage.Value);
+					reporterMessageHandler.OnMessage(summaries);
+				}
 			}
 
 			Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
@@ -306,7 +311,7 @@ namespace Xunit.Runner.MSBuild
 
 				// Run the filtered tests
 				if (testCasesToRun == 0)
-					completionMessages.TryAdd(assembly.AssemblyDisplayName, new ExecutionSummary());
+					completionMessages.TryAdd(controller.TestAssemblyUniqueID, new ExecutionSummary());
 				else
 				{
 					if (SerializeTestCases)
@@ -315,7 +320,7 @@ namespace Xunit.Runner.MSBuild
 							select controller.Deserialize(controller.Serialize(testCase))
 						).ToList();
 
-					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(assembly.AssemblyDisplayName, summary));
+					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
 					if (assemblyElement != null)
 						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 					if (longRunningSeconds > 0)

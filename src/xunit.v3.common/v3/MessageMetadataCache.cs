@@ -89,14 +89,22 @@ namespace Xunit.v3
 		/// <summary>
 		/// Attempts to retrieve <see cref="_IAssemblyMetadata"/> from the cache.
 		/// </summary>
+		/// <param name="assemblyUniqueID">The unique ID of the assembly to find.</param>
+		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
+		public _IAssemblyMetadata? TryGetAssemblyMetadata(string assemblyUniqueID)
+		{
+			Guard.ArgumentNotNullOrEmpty(nameof(assemblyUniqueID), assemblyUniqueID);
+
+			return (_IAssemblyMetadata?)InternalGetAndRemove(assemblyUniqueID, false);
+		}
+
+		/// <summary>
+		/// Attempts to retrieve <see cref="_IAssemblyMetadata"/> from the cache.
+		/// </summary>
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-		public _IAssemblyMetadata? TryGetAssemblyMetadata(_TestAssemblyMessage message)
-		{
-			Guard.ArgumentNotNull(nameof(message), message);
-
-			return (_IAssemblyMetadata?)InternalGetAndRemove(message.AssemblyUniqueID, false);
-		}
+		public _IAssemblyMetadata? TryGetAssemblyMetadata(_TestAssemblyMessage message) =>
+			TryGetAssemblyMetadata(Guard.ArgumentNotNull(nameof(message), message).AssemblyUniqueID);
 
 		/// <summary>
 		/// Attempts to retrieve <see cref="_ITestCaseMetadata"/> from the cache.

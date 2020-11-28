@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -320,11 +319,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		public void SingleAssembly()
 		{
 			var clockTime = TimeSpan.FromSeconds(12.3456);
-			var assembly = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
-			var message = new TestExecutionSummary(clockTime, new List<KeyValuePair<string, ExecutionSummary>> { new KeyValuePair<string, ExecutionSummary>("assembly", assembly) });
+			var summary = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
+			var assemblyStartingMessage = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-id", assemblyPath: "assembly.dll");
+			var summaryMessage = TestData.TestExecutionSummaries(clockTime, "asm-id", summary);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(assemblyStartingMessage);
+			handler.OnMessage(summaryMessage);
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
@@ -341,14 +342,16 @@ public class DefaultRunnerReporterMessageHandlerTests
 			var @short = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
 			var nothing = new ExecutionSummary { Total = 0 };
 			var longerName = new ExecutionSummary { Total = 10240, Errors = 7, Failed = 96, Skipped = 4, Time = 3.4567M };
-			var message = new TestExecutionSummary(clockTime, new List<KeyValuePair<string, ExecutionSummary>> {
-				new KeyValuePair<string, ExecutionSummary>("short", @short),
-				new KeyValuePair<string, ExecutionSummary>("nothing", nothing),
-				new KeyValuePair<string, ExecutionSummary>("longerName", longerName),
-			});
+			var assemblyShortStarting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-short", assemblyPath: "short.dll");
+			var assemblyNothingStarting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-nothing", assemblyPath: "nothing.exe");
+			var assemblyLongerStarting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-longer", assemblyPath: "longerName.dll");
+			var summaryMessage = TestData.TestExecutionSummaries(clockTime, ("asm-short", @short), ("asm-nothing", nothing), ("asm-longer", longerName));
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			handler.OnMessage(message);
+			handler.OnMessage(assemblyShortStarting);
+			handler.OnMessage(assemblyNothingStarting);
+			handler.OnMessage(assemblyLongerStarting);
+			handler.OnMessage(summaryMessage);
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),

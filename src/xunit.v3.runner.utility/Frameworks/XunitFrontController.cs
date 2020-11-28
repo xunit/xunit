@@ -130,6 +130,9 @@ namespace Xunit
 		public string TargetFramework => InnerController.TargetFramework;
 
 		/// <inheritdoc/>
+		public string TestAssemblyUniqueID => InnerController.TestAssemblyUniqueID;
+
+		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => InnerController.TestFrameworkDisplayName;
 
 		/// <inheritdoc/>

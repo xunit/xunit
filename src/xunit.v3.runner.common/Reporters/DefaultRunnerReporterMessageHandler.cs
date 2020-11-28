@@ -66,7 +66,7 @@ namespace Xunit.Runner.Common
 			Runner.TestAssemblyDiscoveryStartingEvent += HandleTestAssemblyDiscoveryStarting;
 			Runner.TestAssemblyExecutionFinishedEvent += HandleTestAssemblyExecutionFinished;
 			Runner.TestAssemblyExecutionStartingEvent += HandleTestAssemblyExecutionStarting;
-			Runner.TestExecutionSummaryEvent += HandleTestExecutionSummary;
+			Runner.TestExecutionSummariesEvent += HandleTestExecutionSummaries;
 		}
 
 		/// <summary>
@@ -335,7 +335,9 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
-			MetadataCache.TryRemove(args.Message);
+			// We don't remove this metadata from the cache, because the assembly ID is how we map
+			// execution results. We need the cache to still contain that mapping so we can print
+			// results at the end of execution.
 		}
 
 		/// <summary>
@@ -476,10 +478,10 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestExecutionSummary"/> is raised.
+		/// Called when <see cref="TestExecutionSummaries"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestExecutionSummary(MessageHandlerArgs<ITestExecutionSummary> args)
+		protected virtual void HandleTestExecutionSummaries(MessageHandlerArgs<TestExecutionSummaries> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 
@@ -627,38 +629,47 @@ namespace Xunit.Runner.Common
 		/// standard summary information.
 		/// </summary>
 		/// <param name="logger">The logger used to send result messages to.</param>
-		/// <param name="executionSummary">The execution summary to display.</param>
-		public static void WriteDefaultSummary(IRunnerLogger logger, ITestExecutionSummary executionSummary)
+		/// <param name="summaries">The execution summary to display.</param>
+		public void WriteDefaultSummary(IRunnerLogger logger, TestExecutionSummaries summaries)
 		{
 			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(executionSummary), executionSummary);
+			Guard.ArgumentNotNull(nameof(summaries), summaries);
 
 			logger.LogImportantMessage("=== TEST EXECUTION SUMMARY ===");
 
-			var totalTestsRun = executionSummary.Summaries.Sum(summary => summary.Value.Total);
-			var totalTestsFailed = executionSummary.Summaries.Sum(summary => summary.Value.Failed);
-			var totalTestsSkipped = executionSummary.Summaries.Sum(summary => summary.Value.Skipped);
-			var totalTime = executionSummary.Summaries.Sum(summary => summary.Value.Time).ToString("0.000s");
-			var totalErrors = executionSummary.Summaries.Sum(summary => summary.Value.Errors);
-			var longestAssemblyName = executionSummary.Summaries.Max(summary => summary.Key.Length);
+			var assemblyDisplayNames =
+				summaries
+					.SummariesByAssemblyUniqueID
+					.ToDictionary(
+						kvp => kvp.AssemblyUniqueID,
+						kvp => Path.GetFileNameWithoutExtension(MetadataCache.TryGetAssemblyMetadata(kvp.AssemblyUniqueID)?.AssemblyPath) ?? "<unknown assembly>"
+					);
+
+			var totalTestsRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Total);
+			var totalTestsFailed = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Failed);
+			var totalTestsSkipped = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Skipped);
+			var totalTime = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Time).ToString("0.000s");
+			var totalErrors = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Errors);
+			var longestAssemblyName = assemblyDisplayNames.Max(summary => summary.Value.Length);
 			var longestTotal = totalTestsRun.ToString().Length;
 			var longestFailed = totalTestsFailed.ToString().Length;
 			var longestSkipped = totalTestsSkipped.ToString().Length;
 			var longestTime = totalTime.Length;
 			var longestErrors = totalErrors.ToString().Length;
 
-			foreach (var summary in executionSummary.Summaries)
+			foreach (var summary in summaries.SummariesByAssemblyUniqueID)
 			{
-				if (summary.Value.Total == 0)
-					logger.LogImportantMessage($"   {summary.Key.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(longestTotal)}");
+				var assemblyDisplayName = assemblyDisplayNames[summary.AssemblyUniqueID];
+				if (summary.Summary.Total == 0)
+					logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(longestTotal)}");
 				else
-					logger.LogImportantMessage($"   {summary.Key.PadRight(longestAssemblyName)}  Total: {summary.Value.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Value.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Value.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Value.Skipped.ToString().PadLeft(longestSkipped)}, Time: {summary.Value.Time.ToString("0.000s").PadLeft(longestTime)}");
+					logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {summary.Summary.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Summary.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Summary.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Summary.Skipped.ToString().PadLeft(longestSkipped)}, Time: {summary.Summary.Time.ToString("0.000s").PadLeft(longestTime)}");
 			}
 
-			if (executionSummary.Summaries.Count > 1)
+			if (summaries.SummariesByAssemblyUniqueID.Count > 1)
 			{
 				logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(longestTotal, '-')}          {"-".PadRight(longestErrors, '-')}          {"-".PadRight(longestFailed, '-')}           {"-".PadRight(longestSkipped, '-')}        {"-".PadRight(longestTime, '-')}");
-				logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}        {totalTime} ({executionSummary.ElapsedClockTime.TotalSeconds.ToString("0.000s")})");
+				logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}        {totalTime} ({summaries.ElapsedClockTime.TotalSeconds.ToString("0.000s")})");
 			}
 		}
 

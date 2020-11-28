@@ -33,7 +33,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Occurs when the runner has finished executing all test assemblies.
 		/// </summary>
-		public event MessageHandler<ITestExecutionSummary>? TestExecutionSummaryEvent;
+		public event MessageHandler<TestExecutionSummaries>? TestExecutionSummariesEvent;
 
 		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
@@ -45,7 +45,7 @@ namespace Xunit.Runner.Common
 				message.Dispatch(null, TestAssemblyDiscoveryStartingEvent) &&
 				message.Dispatch(null, TestAssemblyExecutionFinishedEvent) &&
 				message.Dispatch(null, TestAssemblyExecutionStartingEvent) &&
-				message.Dispatch(null, TestExecutionSummaryEvent);
+				message.Dispatch(null, TestExecutionSummariesEvent);
 		}
 	}
 }
