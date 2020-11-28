@@ -111,7 +111,7 @@ public class MessageBusTests
 		);
 	}
 
-	[Fact(Skip = "Flaky test, race condition?")]
+	[Fact]
 	public static void QueueReturnsFalseForFailIfStopOnFailTrue()
 	{
 		var messages = new List<IMessageSinkMessage>();

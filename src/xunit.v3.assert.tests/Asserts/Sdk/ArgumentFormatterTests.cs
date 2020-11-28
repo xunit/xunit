@@ -155,9 +155,6 @@ public class ArgumentFormatterTests
 			Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
 		}
 
-		// TODO: Why can't we serialize here? These are just Types and strings.
-		//   xunit.v3.assert.tests: Non-serializable data ('System.Object[]') found for 'ArgumentFormatterTests+SimpleValues.TypeValue'; falling back to single test case.
-		// It only seems to happen with .NET Framework. Is this GAC related?
 		[Theory]
 		[InlineData(typeof(string), "typeof(string)")]
 		[InlineData(typeof(int[]), "typeof(int[])")]
@@ -170,7 +167,6 @@ public class ArgumentFormatterTests
 		[InlineData(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)")]
 		[InlineData(typeof(bool?), "typeof(bool?)")]
 		[InlineData(typeof(bool?[]), "typeof(bool?[])")]
-		[InlineData(typeof(Uri), "typeof(System.Uri)")]
 		public static void TypeValue(Type type, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(type));

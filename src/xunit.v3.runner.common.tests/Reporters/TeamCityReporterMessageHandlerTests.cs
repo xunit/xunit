@@ -290,7 +290,7 @@ public class TeamCityReporterMessageHandlerTests
 
 	public class OnMessage_TestSkipped
 	{
-		[Fact(Skip = "This test cannot be re-enabled until all this message is ported")]
+		[Fact]
 		public static void LogsTestNameAsWarning()
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
@@ -302,8 +302,9 @@ public class TeamCityReporterMessageHandlerTests
 
 			Assert.Collection(
 				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testIgnored name='FORMATTED:This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='myFlowId']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='FORMATTED:This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
+				msg => Assert.Equal("[Imp] => ##teamcity[testStarted name='This is my display name \t|r|n' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='test-collection-id']", msg),
+				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='test-collection-id']", msg)
 			);
 		}
 	}
