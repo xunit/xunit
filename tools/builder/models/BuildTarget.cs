@@ -13,7 +13,6 @@ public enum BuildTarget
 	TestV1,
 	TestV2,
 	TestV3,
-	TestCoreV2,
 	TestCoreV3,
 	TestFxV1,
 	TestFxV2,
