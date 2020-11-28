@@ -5,13 +5,15 @@ jobs:
   build-windows:
     name: Windows
     runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: true
     steps:
       - name: Clone source
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Get .NET Core information
+      - name: Get .NET information
         run: dotnet --info
 
       - name: "Build target: PR"
@@ -27,6 +29,8 @@ jobs:
   build-unix:
     name: "*nix"
     runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: true
     strategy:
       fail-fast: false
       matrix:
@@ -51,6 +55,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.x'
+
+      - name: Get .NET information
+        run: dotnet --info
 
       - name: "Build target: PR"
         run: dotnet run --project tools/builder --no-launch-profile -- PR
