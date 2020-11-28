@@ -2,39 +2,15 @@ name: xUnit.net PR Build
 on: pull_request
 
 jobs:
-  build-windows:
-    name: Windows
-    runs-on: windows-latest
-    env:
-      DOTNET_NOLOGO: true
-    steps:
-      - name: Clone source
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Get .NET information
-        run: dotnet --info
-
-      - name: "Build target: PR"
-        run: dotnet run --project tools/builder --no-launch-profile -- PR
-
-      - name: "Upload artifact: test-windows-latest"
-        uses: actions/upload-artifact@v1
-        with:
-          name: test-windows-latest
-          path: artifacts/test
-        if: always()
-
-  build-unix:
-    name: "*nix"
+  build:
+    name: "Build for PR"
     runs-on: ${{ matrix.os }}
     env:
       DOTNET_NOLOGO: true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, macOS-latest]
+        os: [windows-latest, ubuntu-18.04, macOS-latest]
     steps:
       - name: Clone source
         uses: actions/checkout@v2
