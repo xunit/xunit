@@ -7,16 +7,16 @@ running macOS can generally follow the Linux instructions (while installing the 
 
 You will need the following software installed (regardless of OS):
 
-* [.NET Core](https://dotnet.microsoft.com/download)
-  * .NET Core SDK 3.1+
-  * .NET Core 2.1 runtime
+* [.NET SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
+* [.NET Core Runtime 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+* [.NET Core Runtime 2.1](https://dotnet.microsoft.com/download/dotnet-core/2.1)
 * [git](https://git-scm.com/downloads)
 
 ## Linux Pre-Requisites
 
 Linux users will additionally need:
 
-* [Mono](https://www.mono-project.com/download/stable/) 6.8+
+* [Mono](https://www.mono-project.com/download/stable/) 6.12+
 * [bash](https://www.gnu.org/software/bash/)
 
 ## Windows Pre-Requisites
