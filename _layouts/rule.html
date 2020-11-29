@@ -1,0 +1,24 @@
+---
+layout: default
+---
+
+{% case page.severity %}
+  {% when 'Error' %}
+    {% assign severity-label = 'label-danger' %}
+  {% when 'Warning' %}
+    {% assign severity-label = 'label-warning' %}
+  {% when 'Info' %}
+    {% assign severity-label = 'label-info' %}
+  {% when 'Hidden' %}
+    {% assign severity-label = 'label-default' %}
+  {% else %}
+    {% assign severity-label = '' %}
+{% endcase %}
+<div>
+  <div style="float:right"><a style="color:black" href="{{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}">{% octicon mark-github height:14 aria-label:"GitHub Mark" %} Edit on GitHub</a></div>
+  <h1>{{ page.title }} <small><span style="vertical-align:text-top" class="label {{ severity-label }}">{{ page.severity }}</span></small></h1>
+</div>
+
+<p>{{ page.description }}</p>
+
+{{ content }}

@@ -1,4 +1,20 @@
 permalink: :section
+title: xUnit.net
+description: Documentation site for the xUnit.net unit testing framework
+logo: https://raw.github.com/xunit/media/main/logo-128-transparent.png
+collections_dir: xunit.analyzers
+collections:
+  rules:
+    output: true
+    permalink: /xunit.analyzers/:collection/:path
+defaults:
+  - scope:
+      path: ""
+      type: "rules"
+    values:
+      layout: rule
 plugins:
   - jekyll-redirect-from
-exclude: ["CNAME", "CONTRIBUTING.md", "LICENSE.txt", "README.md"]
+  - jekyll-seo-tag
+  - jekyll-octicons
+exclude: ["CNAME", "CONTRIBUTING.md", "LICENSE.txt", "README.md", "RULE_TEMPLATE.md"]

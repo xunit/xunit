@@ -1,6 +1,6 @@
 ## About This Project
 
-This project contains the public site for [https://xunit.net/](https://xunit.net/).
+This project contains the public site for [https://xunit.net/](https://xunit.net/). When adding new source analysis rules, use the [rule template](RULE_TEMPLATE.md) provided.
 
 To open an issue for this project, please visit the [core xUnit.net project issue tracker](https://github.com/xunit/xunit/issues).
 

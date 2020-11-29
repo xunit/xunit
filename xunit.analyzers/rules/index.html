@@ -1,0 +1,31 @@
+---
+layout: default
+---
+
+<h2>Rules</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Severity</th>
+      <th>Category</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for rule in site.rules %}
+    <tr>
+      <th>
+        {% capture rule_url %}xunit.analyzers/rules/{{ rule.title }}{% endcapture %}
+        <a href="{{ rule_url | relative_url }}">
+          <code>{{ rule.title }}</code>
+        </a>
+      </th>
+      <td>{{ rule.description }}</td>
+      <td>{{ rule.severity }}</td>
+      <td>{{ rule.category }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
