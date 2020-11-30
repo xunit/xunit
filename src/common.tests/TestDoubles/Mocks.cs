@@ -269,24 +269,6 @@ namespace Xunit.v3
 			return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 		}
 
-		public static ITestAssemblyExecutionFinished TestAssemblyExecutionFinished(
-			bool diagnosticMessages = false,
-			int total = 2112,
-			int failed = 42,
-			int skipped = 8,
-			int errors = 6,
-			decimal time = 123.456M)
-		{
-			var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-			var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, ShadowCopy = true };
-			var summary = new ExecutionSummary { Total = total, Failed = failed, Skipped = skipped, Errors = errors, Time = time };
-			var result = Substitute.For<ITestAssemblyExecutionFinished, InterfaceProxy<ITestAssemblyExecutionFinished>>();
-			result.Assembly.Returns(assembly);
-			result.ExecutionOptions.Returns(_TestFrameworkOptions.ForExecution(config));
-			result.ExecutionSummary.Returns(summary);
-			return result;
-		}
-
 		public static ITestCase TestCase(ITestCollection? collection = null)
 		{
 			if (collection == null)

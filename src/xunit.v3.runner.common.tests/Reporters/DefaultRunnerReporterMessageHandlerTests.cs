@@ -279,18 +279,18 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestAssemblyExecutionFinished
+	public class OnMessage_TestAssemblyExecutionFinished
 	{
 		[Fact]
 		public static void LogsMessage()
 		{
-			var message = Mocks.TestAssemblyExecutionFinished();
+			var message = TestData.TestAssemblyExecutionFinished();
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(message);
 
 			var msg = Assert.Single(handler.Messages);
-			Assert.Equal("[Imp] =>   Finished:    testAssembly", msg);
+			Assert.Equal("[Imp] =>   Finished:    test-assembly", msg);
 		}
 	}
 

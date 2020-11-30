@@ -352,7 +352,13 @@ namespace Xunit.Runner.MSBuild
 					controller.RunTests(filteredTestCases, resultsSink, executionOptions);
 					resultsSink.Finished.WaitOne();
 
-					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+					var executionFinished = new TestAssemblyExecutionFinished
+					{
+						Assembly = assembly,
+						ExecutionOptions = executionOptions,
+						ExecutionSummary = resultsSink.ExecutionSummary
+					};
+					reporterMessageHandler!.OnMessage(executionFinished);
 
 					if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
 					{

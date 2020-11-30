@@ -276,10 +276,10 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestAssemblyExecutionFinished"/> is raised.
+		/// Called when <see cref="TestAssemblyExecutionFinished"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestAssemblyExecutionFinished(MessageHandlerArgs<ITestAssemblyExecutionFinished> args)
+		protected virtual void HandleTestAssemblyExecutionFinished(MessageHandlerArgs<TestAssemblyExecutionFinished> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 

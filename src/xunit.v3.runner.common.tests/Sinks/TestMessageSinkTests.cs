@@ -53,7 +53,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(_TestStarting))]
 	// Runner
 	[InlineData(typeof(TestAssemblyExecutionStarting))]
-	[InlineData(typeof(ITestAssemblyExecutionFinished))]
+	[InlineData(typeof(TestAssemblyExecutionFinished))]
 	[InlineData(typeof(TestAssemblyDiscoveryStarting))]
 	[InlineData(typeof(TestAssemblyDiscoveryFinished))]
 	[InlineData(typeof(TestExecutionSummaries))]

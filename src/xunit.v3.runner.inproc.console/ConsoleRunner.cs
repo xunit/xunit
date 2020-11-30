@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -483,7 +482,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 					testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 
-					reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+					var executionFinished = new TestAssemblyExecutionFinished
+					{
+						Assembly = assembly,
+						ExecutionOptions = executionOptions,
+						ExecutionSummary = resultsSink.ExecutionSummary
+					};
+					reporterMessageHandler.OnMessage(executionFinished);
+
 					if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
 					{
 						Console.WriteLine("Canceling due to test failure...");

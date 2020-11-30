@@ -23,7 +23,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Occurs when the runner has finished executing the given test assembly.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyExecutionFinished>? TestAssemblyExecutionFinishedEvent;
+		public event MessageHandler<TestAssemblyExecutionFinished>? TestAssemblyExecutionFinishedEvent;
 
 		/// <summary>
 		/// Occurs when the runner is starting to execution the given test assembly.
