@@ -287,18 +287,6 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(
-			bool diagnosticMessages = false,
-			string? assemblyFilename = null)
-		{
-			var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-			var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
-			var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
-			result.Assembly.Returns(assembly);
-			result.ExecutionOptions.Returns(_TestFrameworkOptions.ForExecution(config));
-			return result;
-		}
-
 		public static ITestCase TestCase(ITestCollection? collection = null)
 		{
 			if (collection == null)

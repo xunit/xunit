@@ -290,10 +290,10 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestAssemblyExecutionStarting"/> is raised.
+		/// Called when <see cref="TestAssemblyExecutionStarting"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestAssemblyExecutionStarting(MessageHandlerArgs<ITestAssemblyExecutionStarting> args)
+		protected virtual void HandleTestAssemblyExecutionStarting(MessageHandlerArgs<TestAssemblyExecutionStarting> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 

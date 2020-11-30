@@ -294,16 +294,16 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestAssemblyExecutionStarting
+	public class OnMessage_TestAssemblyExecutionStarting
 	{
 		[Theory]
-		[InlineData(false, "[Imp] =>   Starting:    testAssembly")]
-		[InlineData(true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on, max threads = 42)")]
+		[InlineData(false, "[Imp] =>   Starting:    test-assembly")]
+		[InlineData(true, "[Imp] =>   Starting:    test-assembly (parallel test collections = on, max threads = 42)")]
 		public static void LogsMessage(
 			bool diagnosticMessages,
 			string expectedResult)
 		{
-			var message = Mocks.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages);
+			var message = TestData.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages, parallelizeTestCollections: true, maxParallelThreads: 42);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(message);
@@ -419,7 +419,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		public void LogsOutputWhenDiagnosticsAreEnabled()
 		{
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
-			handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: TestData.DefaultAssemblyPath));
+			handler.OnMessage(TestData.TestAssemblyExecutionStarting(diagnosticMessages: true));
 			handler.OnMessage(TestData.TestAssemblyStarting());
 			handler.Messages.Clear();  // Reset any output from previous messages
 

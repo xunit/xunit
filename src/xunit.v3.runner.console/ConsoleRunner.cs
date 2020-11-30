@@ -493,7 +493,12 @@ namespace Xunit.Runner.SystemConsole
 								select controller.Deserialize(controller.Serialize(testCase))
 							).ToList();
 
-						reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+						var executionStarting = new TestAssemblyExecutionStarting
+						{
+							Assembly = assembly,
+							ExecutionOptions = executionOptions
+						};
+						reporterMessageHandler.OnMessage(executionStarting);
 
 						IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
 						if (assemblyElement != null)

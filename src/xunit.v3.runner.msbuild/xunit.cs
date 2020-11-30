@@ -342,7 +342,12 @@ namespace Xunit.Runner.MSBuild
 					if (FailSkips)
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-					reporterMessageHandler!.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+					var executionStarting = new TestAssemblyExecutionStarting
+					{
+						Assembly = assembly,
+						ExecutionOptions = executionOptions
+					};
+					reporterMessageHandler!.OnMessage(executionStarting);
 
 					controller.RunTests(filteredTestCases, resultsSink, executionOptions);
 					resultsSink.Finished.WaitOne();

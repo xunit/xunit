@@ -462,7 +462,12 @@ namespace Xunit.Runner.InProc.SystemConsole
 				// Run the filtered tests
 				if (testCasesToRun != 0)
 				{
-					reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+					var executionStarting = new TestAssemblyExecutionStarting
+					{
+						Assembly = assembly,
+						ExecutionOptions = executionOptions
+					};
+					reporterMessageHandler.OnMessage(executionStarting);
 
 					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel);
 					if (assemblyElement != null)

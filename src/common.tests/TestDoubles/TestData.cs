@@ -159,6 +159,35 @@ namespace Xunit.v3
 			};
 		}
 
+		public static TestAssemblyExecutionStarting TestAssemblyExecutionStarting(
+			string assemblyPath = DefaultAssemblyPath,
+			string configFilePath = DefaultConfigFilePath,
+			bool diagnosticMessages = false,
+			bool internalDiagnosticMessages = false,
+			int maxParallelThreads = 2600,
+			bool parallelizeTestCollections = false)
+		{
+			var assembly = new XunitProjectAssembly
+			{
+				AssemblyFilename = assemblyPath,
+				ConfigFilename = configFilePath
+			};
+			// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
+			var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
+			{
+				DiagnosticMessages = diagnosticMessages,
+				InternalDiagnosticMessages = internalDiagnosticMessages,
+				MaxParallelThreads = maxParallelThreads,
+				ParallelizeTestCollections = parallelizeTestCollections
+			});
+
+			return new TestAssemblyExecutionStarting
+			{
+				Assembly = assembly,
+				ExecutionOptions = executionOptions
+			};
+		}
+
 		public static _TestCaseFinished TestCaseFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			decimal executionTime = 123.4567m,
