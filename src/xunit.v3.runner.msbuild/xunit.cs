@@ -314,7 +314,14 @@ namespace Xunit.Runner.MSBuild
 				var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
 				var testCasesToRun = filteredTestCases.Count;
 
-				reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
+				var discoveryFinished = new TestAssemblyDiscoveryFinished
+				{
+					Assembly = assembly,
+					DiscoveryOptions = discoveryOptions,
+					TestCasesDiscovered = testCasesDiscovered,
+					TestCasesToRun = testCasesToRun
+				};
+				reporterMessageHandler!.OnMessage(discoveryFinished);
 
 				// Run the filtered tests
 				if (testCasesToRun == 0)

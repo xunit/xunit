@@ -227,21 +227,21 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestAssemblyDiscoveryFinished
+	public class OnMessage_TestAssemblyDiscoveryFinished
 	{
 		[Theory]
-		[InlineData(false, 0, 0, "[Imp] =>   Discovered:  testAssembly")]
-		[InlineData(true, 42, 2112, "[Imp] =>   Discovered:  testAssembly (found 42 of 2112 test cases)")]
-		[InlineData(true, 42, 42, "[Imp] =>   Discovered:  testAssembly (found 42 test cases)")]
-		[InlineData(true, 1, 1, "[Imp] =>   Discovered:  testAssembly (found 1 test case)")]
-		[InlineData(true, 0, 1, "[Imp] =>   Discovered:  testAssembly (found 0 of 1 test cases)")]
+		[InlineData(false, 0, 0, "[Imp] =>   Discovered:  test-assembly")]
+		[InlineData(true, 42, 2112, "[Imp] =>   Discovered:  test-assembly (found 42 of 2112 test cases)")]
+		[InlineData(true, 42, 42, "[Imp] =>   Discovered:  test-assembly (found 42 test cases)")]
+		[InlineData(true, 1, 1, "[Imp] =>   Discovered:  test-assembly (found 1 test case)")]
+		[InlineData(true, 0, 1, "[Imp] =>   Discovered:  test-assembly (found 0 of 1 test cases)")]
 		public static void LogsMessage(
 			bool diagnosticMessages,
 			int toRun,
 			int discovered,
 			string expectedResult)
 		{
-			var message = Mocks.TestAssemblyDiscoveryFinished(diagnosticMessages, toRun, discovered);
+			var message = TestData.TestAssemblyDiscoveryFinished(diagnosticMessages: diagnosticMessages, testCasesToRun: toRun, testCasesDiscovered: discovered);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(message);

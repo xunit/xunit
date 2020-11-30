@@ -89,6 +89,41 @@ namespace Xunit.v3
 					StackTraces = stackTraces ?? DefaultStackTraces,
 				};
 
+		public static TestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
+			string assemblyPath = DefaultAssemblyPath,
+			string configFilePath = DefaultConfigFilePath,
+			bool diagnosticMessages = false,
+			bool internalDiagnosticMessages = false,
+			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			bool preEnumerateTheories = false,
+			int testCasesDiscovered = 2112,
+			int testCasesToRun = 42)
+		{
+			var assembly = new XunitProjectAssembly
+			{
+				AssemblyFilename = assemblyPath,
+				ConfigFilename = configFilePath
+			};
+			// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
+			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
+			{
+				DiagnosticMessages = diagnosticMessages,
+				InternalDiagnosticMessages = internalDiagnosticMessages,
+				MethodDisplay = methodDisplay,
+				MethodDisplayOptions = methodDisplayOptions,
+				PreEnumerateTheories = preEnumerateTheories
+			});
+
+			return new TestAssemblyDiscoveryFinished
+			{
+				Assembly = assembly,
+				DiscoveryOptions = discoveryOptions,
+				TestCasesDiscovered = testCasesDiscovered,
+				TestCasesToRun = testCasesToRun
+			};
+		}
+
 		public static TestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(
 			AppDomainOption appDomain = AppDomainOption.Disabled,
 			string assemblyPath = DefaultAssemblyPath,

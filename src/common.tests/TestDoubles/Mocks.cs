@@ -269,21 +269,6 @@ namespace Xunit.v3
 			return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 		}
 
-		public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
-			bool diagnosticMessages = false,
-			int toRun = 42,
-			int discovered = 2112)
-		{
-			var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-			var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, ShadowCopy = true };
-			var result = Substitute.For<ITestAssemblyDiscoveryFinished, InterfaceProxy<ITestAssemblyDiscoveryFinished>>();
-			result.Assembly.Returns(assembly);
-			result.DiscoveryOptions.Returns(_TestFrameworkOptions.ForDiscovery(config));
-			result.TestCasesDiscovered.Returns(discovered);
-			result.TestCasesToRun.Returns(toRun);
-			return result;
-		}
-
 		public static ITestAssemblyExecutionFinished TestAssemblyExecutionFinished(
 			bool diagnosticMessages = false,
 			int total = 2112,

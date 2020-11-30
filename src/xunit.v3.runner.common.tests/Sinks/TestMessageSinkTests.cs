@@ -55,7 +55,7 @@ public class TestMessageSinkTests
 	[InlineData(typeof(ITestAssemblyExecutionStarting))]
 	[InlineData(typeof(ITestAssemblyExecutionFinished))]
 	[InlineData(typeof(TestAssemblyDiscoveryStarting))]
-	[InlineData(typeof(ITestAssemblyDiscoveryFinished))]
+	[InlineData(typeof(TestAssemblyDiscoveryFinished))]
 	[InlineData(typeof(TestExecutionSummaries))]
 	public void ProcessesVisitorTypes(Type type)
 	{
