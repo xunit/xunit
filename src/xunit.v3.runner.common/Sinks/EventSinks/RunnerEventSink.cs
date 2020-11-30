@@ -18,7 +18,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Occurs when the runner has finished discovery for a given test assembly.
 		/// </summary>
-		public event MessageHandler<ITestAssemblyDiscoveryStarting>? TestAssemblyDiscoveryStartingEvent;
+		public event MessageHandler<TestAssemblyDiscoveryStarting>? TestAssemblyDiscoveryStartingEvent;
 
 		/// <summary>
 		/// Occurs when the runner has finished executing the given test assembly.

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 
 namespace Xunit.v3
 {
@@ -87,6 +88,41 @@ namespace Xunit.v3
 					Messages = messages ?? DefaultExceptionMessages,
 					StackTraces = stackTraces ?? DefaultStackTraces,
 				};
+
+		public static TestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(
+			AppDomainOption appDomain = AppDomainOption.Disabled,
+			string assemblyPath = DefaultAssemblyPath,
+			string configFilePath = DefaultConfigFilePath,
+			bool diagnosticMessages = false,
+			bool internalDiagnosticMessages = false,
+			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			bool preEnumerateTheories = false,
+			bool shadowCopy = false)
+		{
+			var assembly = new XunitProjectAssembly
+			{
+				AssemblyFilename = assemblyPath,
+				ConfigFilename = configFilePath
+			};
+			// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
+			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
+			{
+				DiagnosticMessages = diagnosticMessages,
+				InternalDiagnosticMessages = internalDiagnosticMessages,
+				MethodDisplay = methodDisplay,
+				MethodDisplayOptions = methodDisplayOptions,
+				PreEnumerateTheories = preEnumerateTheories
+			});
+
+			return new TestAssemblyDiscoveryStarting
+			{
+				AppDomain = appDomain,
+				Assembly = assembly,
+				DiscoveryOptions = discoveryOptions,
+				ShadowCopy = shadowCopy
+			};
+		}
 
 		public static _TestCaseFinished TestCaseFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,

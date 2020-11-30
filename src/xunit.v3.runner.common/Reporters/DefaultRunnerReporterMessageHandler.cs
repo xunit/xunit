@@ -250,10 +250,10 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Called when <see cref="ITestAssemblyDiscoveryStarting"/> is raised.
+		/// Called when <see cref="TestAssemblyDiscoveryStarting"/> is raised.
 		/// </summary>
 		/// <param name="args">An object that contains the event data.</param>
-		protected virtual void HandleTestAssemblyDiscoveryStarting(MessageHandlerArgs<ITestAssemblyDiscoveryStarting> args)
+		protected virtual void HandleTestAssemblyDiscoveryStarting(MessageHandlerArgs<TestAssemblyDiscoveryStarting> args)
 		{
 			Guard.ArgumentNotNull(nameof(args), args);
 

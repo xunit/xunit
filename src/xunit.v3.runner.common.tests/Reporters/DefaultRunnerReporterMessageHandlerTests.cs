@@ -251,25 +251,25 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
-	public class OnMessage_ITestAssemblyDiscoveryStarting
+	public class OnMessage_TestAssemblyDiscoveryStarting
 	{
 		[Theory]
 		// If diagnostics messages are off, then it doesn't matter what app domain options we pass
-		[InlineData(false, AppDomainOption.NotAvailable, false, "[Imp] =>   Discovering: testAssembly")]
-		[InlineData(false, AppDomainOption.Disabled, false, "[Imp] =>   Discovering: testAssembly")]
-		[InlineData(false, AppDomainOption.Enabled, false, "[Imp] =>   Discovering: testAssembly")]
+		[InlineData(false, AppDomainOption.NotAvailable, false, "[Imp] =>   Discovering: test-assembly")]
+		[InlineData(false, AppDomainOption.Disabled, false, "[Imp] =>   Discovering: test-assembly")]
+		[InlineData(false, AppDomainOption.Enabled, false, "[Imp] =>   Discovering: test-assembly")]
 		// If diagnostic messages are on, the message depends on what the app domain options say
-		[InlineData(true, AppDomainOption.NotAvailable, false, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod, method display options = None)")]
-		[InlineData(true, AppDomainOption.Disabled, false, "[Imp] =>   Discovering: testAssembly (app domain = off, method display = ClassAndMethod, method display options = None)")]
-		[InlineData(true, AppDomainOption.Enabled, false, "[Imp] =>   Discovering: testAssembly (app domain = on [no shadow copy], method display = ClassAndMethod, method display options = None)")]
-		[InlineData(true, AppDomainOption.Enabled, true, "[Imp] =>   Discovering: testAssembly (app domain = on [shadow copy], method display = ClassAndMethod, method display options = None)")]
+		[InlineData(true, AppDomainOption.NotAvailable, false, "[Imp] =>   Discovering: test-assembly (method display = ClassAndMethod, method display options = None)")]
+		[InlineData(true, AppDomainOption.Disabled, false, "[Imp] =>   Discovering: test-assembly (app domain = off, method display = ClassAndMethod, method display options = None)")]
+		[InlineData(true, AppDomainOption.Enabled, false, "[Imp] =>   Discovering: test-assembly (app domain = on [no shadow copy], method display = ClassAndMethod, method display options = None)")]
+		[InlineData(true, AppDomainOption.Enabled, true, "[Imp] =>   Discovering: test-assembly (app domain = on [shadow copy], method display = ClassAndMethod, method display options = None)")]
 		public static void LogsMessage(
 			bool diagnosticMessages,
 			AppDomainOption appDomain,
 			bool shadowCopy,
 			string expectedResult)
 		{
-			var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages, appDomain, shadowCopy);
+			var message = TestData.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages, appDomain: appDomain, shadowCopy: shadowCopy);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(message);

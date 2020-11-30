@@ -298,7 +298,14 @@ namespace Xunit.Runner.MSBuild
 
 				// Discover & filter the tests
 				var appDomainOption = controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied ? AppDomainOption.Enabled : AppDomainOption.Disabled;
-				reporterMessageHandler!.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomainOption, shadowCopy, discoveryOptions));
+				var discoveryStarting = new TestAssemblyDiscoveryStarting
+				{
+					AppDomain = appDomainOption,
+					Assembly = assembly,
+					DiscoveryOptions = discoveryOptions,
+					ShadowCopy = shadowCopy
+				};
+				reporterMessageHandler!.OnMessage(discoveryStarting);
 
 				controller.Find(false, discoverySink, discoveryOptions);
 				discoverySink.Finished.WaitOne();

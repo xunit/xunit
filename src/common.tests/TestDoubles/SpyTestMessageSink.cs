@@ -46,7 +46,7 @@ public class SpyTestMessageSink : TestMessageSink
 		Execution.TestStartingEvent += args => Calls.Add("_TestStarting");
 
 		Runner.TestAssemblyDiscoveryFinishedEvent += args => Calls.Add("ITestAssemblyDiscoveryFinished");
-		Runner.TestAssemblyDiscoveryStartingEvent += args => Calls.Add("ITestAssemblyDiscoveryStarting");
+		Runner.TestAssemblyDiscoveryStartingEvent += args => Calls.Add("TestAssemblyDiscoveryStarting");
 		Runner.TestAssemblyExecutionFinishedEvent += args => Calls.Add("ITestAssemblyExecutionFinished");
 		Runner.TestAssemblyExecutionStartingEvent += args => Calls.Add("ITestAssemblyExecutionStarting");
 		Runner.TestExecutionSummariesEvent += args => Calls.Add("TestExecutionSummaries");
