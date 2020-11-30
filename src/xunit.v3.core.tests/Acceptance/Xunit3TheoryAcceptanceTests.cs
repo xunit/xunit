@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -1406,7 +1405,7 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void TestMethodMessagesOnlySentOnce()
 		{
-			var testMessages = await RunAsync<IMessageSinkMessage>(typeof(ClassUnderTest));
+			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
 			var methodStarting = Assert.Single(testMessages.OfType<_TestMethodStarting>());
 			Assert.Equal("Theory", methodStarting.TestMethod);

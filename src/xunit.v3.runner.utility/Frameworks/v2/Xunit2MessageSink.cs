@@ -15,13 +15,13 @@ namespace Xunit.Runner.v2
 	public class Xunit2MessageSink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 	{
 		readonly string assemblyUniqueID;
-		readonly Func<string, IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage> adapter;
+		readonly Func<string, IMessageSinkMessage, HashSet<string>?, _MessageSinkMessage> adapter;
 		readonly _IMessageSink v3MessageSink;
 
 		internal Xunit2MessageSink(
 			string assemblyUniqueID,
 			_IMessageSink v3MessageSink,
-			Func<string, IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage>? adapter = null)
+			Func<string, IMessageSinkMessage, HashSet<string>?, _MessageSinkMessage>? adapter = null)
 		{
 			this.assemblyUniqueID = Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
 			this.v3MessageSink = Guard.ArgumentNotNull(nameof(v3MessageSink), v3MessageSink);

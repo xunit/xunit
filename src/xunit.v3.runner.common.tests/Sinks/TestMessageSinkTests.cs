@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
-using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 public class TestMessageSinkTests
 {
-	static readonly MethodInfo forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == nameof(Substitute.For) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
-
 	[Theory]
 	// Diagnostics
 	[InlineData(typeof(_DiagnosticMessage))]
@@ -59,11 +52,12 @@ public class TestMessageSinkTests
 	[InlineData(typeof(TestExecutionSummaries))]
 	public void ProcessesVisitorTypes(Type type)
 	{
-		var forMethod = forMethodGeneric.MakeGenericMethod(type);
-		var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] })!;
+		var message = Activator.CreateInstance(type);
+		Assert.NotNull(message);
+		var typedMessage = Assert.IsAssignableFrom<_MessageSinkMessage>(message);
 		var sink = new SpyTestMessageSink();
 
-		sink.OnMessage(substitute);
+		sink.OnMessage(typedMessage);
 
 		Assert.Collection(
 			sink.Calls,

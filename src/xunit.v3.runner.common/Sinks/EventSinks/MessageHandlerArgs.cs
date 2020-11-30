@@ -1,5 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
+﻿using Xunit.Internal;
 
 namespace Xunit.Runner.Common
 {
@@ -20,11 +19,10 @@ namespace Xunit.Runner.Common
 	}
 
 	/// <summary>
-	/// Wraps a specific <see cref="IMessageSinkMessage"/> with the ability to cancel execution.
+	/// Wraps a message with the ability to cancel execution.
 	/// </summary>
 	/// <typeparam name="TMessage">The type of the message to be handled.</typeparam>
 	public class MessageHandlerArgs<TMessage> : MessageHandlerArgs
-		where TMessage : class, IMessageSinkMessage
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MessageHandlerArgs{TMessage}"/> class.

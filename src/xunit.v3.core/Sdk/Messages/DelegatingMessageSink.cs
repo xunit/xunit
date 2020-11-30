@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -12,7 +11,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class DelegatingMessageSink : _IMessageSink
 	{
-		readonly Action<IMessageSinkMessage>? callback;
+		readonly Action<_MessageSinkMessage>? callback;
 		readonly _IMessageSink innerSink;
 
 		/// <summary>
@@ -22,7 +21,7 @@ namespace Xunit.Sdk
 		/// <param name="callback">The callback.</param>
 		public DelegatingMessageSink(
 			_IMessageSink innerSink,
-			Action<IMessageSinkMessage>? callback = null)
+			Action<_MessageSinkMessage>? callback = null)
 		{
 			this.innerSink = Guard.ArgumentNotNull(nameof(innerSink), innerSink);
 			this.callback = callback;
@@ -33,7 +32,7 @@ namespace Xunit.Sdk
 		{ }
 
 		/// <inheritdoc/>
-		public virtual bool OnMessage(IMessageSinkMessage message)
+		public virtual bool OnMessage(_MessageSinkMessage message)
 		{
 			callback?.Invoke(message);
 
@@ -49,7 +48,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	/// <typeparam name="TFinalMessage">The type of the T final message.</typeparam>
 	public class DelegatingMessageSink<TFinalMessage> : DelegatingMessageSink
-		where TFinalMessage : class, IMessageSinkMessage
+		where TFinalMessage : _MessageSinkMessage
 	{
 		TFinalMessage? finalMessage;
 
@@ -60,7 +59,7 @@ namespace Xunit.Sdk
 		/// <param name="callback">The callback.</param>
 		public DelegatingMessageSink(
 			_IMessageSink innerSink,
-			Action<IMessageSinkMessage>? callback = null)
+			Action<_MessageSinkMessage>? callback = null)
 				: base(innerSink, callback)
 		{
 			Finished = new ManualResetEvent(false);
@@ -78,7 +77,7 @@ namespace Xunit.Sdk
 		public ManualResetEvent Finished { get; }
 
 		/// <inheritdoc/>
-		public override bool OnMessage(IMessageSinkMessage message)
+		public override bool OnMessage(_MessageSinkMessage message)
 		{
 			var result = base.OnMessage(message);
 

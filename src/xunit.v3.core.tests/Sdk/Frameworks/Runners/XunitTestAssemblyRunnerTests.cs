@@ -336,14 +336,14 @@ public class XunitTestAssemblyRunnerTests
 
 	class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner
 	{
-		public List<IMessageSinkMessage> DiagnosticMessages;
+		public List<_MessageSinkMessage> DiagnosticMessages;
 
 		public ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>> TestCasesRun = new ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>>();
 
 		TestableXunitTestAssemblyRunner(
 			ITestAssembly testAssembly,
 			IEnumerable<IXunitTestCase> testCases,
-			List<IMessageSinkMessage> diagnosticMessages,
+			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
@@ -362,7 +362,7 @@ public class XunitTestAssemblyRunnerTests
 			return new TestableXunitTestAssemblyRunner(
 				assembly ?? testCases.First().TestMethod.TestClass.TestCollection.TestAssembly,
 				testCases ?? new IXunitTestCase[0],
-				new List<IMessageSinkMessage>(),
+				new List<_MessageSinkMessage>(),
 				SpyMessageSink.Create(),
 				executionOptions ?? _TestFrameworkOptions.ForExecution()
 			);

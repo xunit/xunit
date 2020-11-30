@@ -45,7 +45,7 @@ public class TestAssemblyRunnerTests
 		public static async ValueTask Messages()
 		{
 			var summary = new RunSummary { Total = 4, Failed = 2, Skipped = 1, Time = 21.12m };
-			var messages = new List<IMessageSinkMessage>();
+			var messages = new List<_MessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink, summary);
 			var thisAssembly = Assembly.GetExecutingAssembly();
@@ -94,13 +94,13 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask FailureInQueueOfTestAssemblyStarting_DoesNotQueueTestAssemblyFinished_DoesNotRunTestCollections()
 		{
-			var messages = new List<IMessageSinkMessage>();
+			var messages = new List<_MessageSinkMessage>();
 			var messageSink = Substitute.For<_IMessageSink>();
 			messageSink
 				.OnMessage(null!)
 				.ReturnsForAnyArgs(callInfo =>
 				{
-					var msg = callInfo.Arg<IMessageSinkMessage>();
+					var msg = callInfo.Arg<_MessageSinkMessage>();
 					messages.Add(msg);
 
 					if (msg is _TestAssemblyStarting)
@@ -120,7 +120,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask FailureInAfterTestAssemblyStarting_GivesErroredAggregatorToTestCollectionRunner_NoCleanupFailureMessage()
 		{
-			var messages = new List<IMessageSinkMessage>();
+			var messages = new List<_MessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink);
 			var ex = new DivideByZeroException();
@@ -137,7 +137,7 @@ public class TestAssemblyRunnerTests
 		{
 			var thisAssembly = Assembly.GetExecutingAssembly();
 			var thisAppDomain = AppDomain.CurrentDomain;
-			var messages = new List<IMessageSinkMessage>();
+			var messages = new List<_MessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
 			var testCases = new[] { Mocks.TestCase() };
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink, testCases: testCases);
@@ -341,13 +341,13 @@ public class TestAssemblyRunnerTests
 		public bool AfterTestAssemblyStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
 		public bool BeforeTestAssemblyFinished_Called;
-		public List<IMessageSinkMessage> DiagnosticMessages;
+		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestCollectionAsync_AggregatorResult;
 
 		TestableTestAssemblyRunner(
 			ITestAssembly testAssembly,
 			IEnumerable<ITestCase> testCases,
-			List<IMessageSinkMessage> diagnosticMessages,
+			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions,
 			RunSummary result,
@@ -372,7 +372,7 @@ public class TestAssemblyRunnerTests
 			return new TestableTestAssemblyRunner(
 				Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
 				testCases ?? new[] { Substitute.For<ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
-				new List<IMessageSinkMessage>(),
+				new List<_MessageSinkMessage>(),
 				executionMessageSink ?? SpyMessageSink.Create(),
 				executionOptions ?? _TestFrameworkOptions.ForExecution(),
 				result ?? new RunSummary(),

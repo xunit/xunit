@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Xml;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -432,9 +431,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class TestableTheoryDiscoverer : TheoryDiscoverer
 	{
-		public List<IMessageSinkMessage> DiagnosticMessages;
+		public List<_MessageSinkMessage> DiagnosticMessages;
 
-		public TestableTheoryDiscoverer(List<IMessageSinkMessage> diagnosticMessages)
+		public TestableTheoryDiscoverer(List<_MessageSinkMessage> diagnosticMessages)
 			: base(SpyMessageSink.Create(messages: diagnosticMessages))
 		{
 			DiagnosticMessages = diagnosticMessages;
@@ -442,7 +441,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		public static TestableTheoryDiscoverer Create()
 		{
-			return new TestableTheoryDiscoverer(new List<IMessageSinkMessage>());
+			return new TestableTheoryDiscoverer(new List<_MessageSinkMessage>());
 		}
 	}
 }

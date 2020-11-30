@@ -1,12 +1,10 @@
-﻿using Xunit.Abstractions;
-
-namespace Xunit.Runner.Common
+﻿namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// Represents a handler for a specific <see cref="IMessageSinkMessage"/>.
+	/// Represents a handler for a message, which includes the ability to signal that
+	/// tests should stop running.
 	/// </summary>
 	/// <typeparam name="TMessage">The type of the message to be handled.</typeparam>
 	/// <param name="args">The message.</param>
-	public delegate void MessageHandler<TMessage>(MessageHandlerArgs<TMessage> args)
-		where TMessage : class, IMessageSinkMessage;
+	public delegate void MessageHandler<TMessage>(MessageHandlerArgs<TMessage> args);
 }

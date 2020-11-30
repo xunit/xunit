@@ -156,7 +156,7 @@ public class TestInvokerTests
 	{
 		var classConstructed = false;
 
-		bool cancelThunk(IMessageSinkMessage msg)
+		bool cancelThunk(_MessageSinkMessage msg)
 		{
 			if (msg is _TestClassConstructionFinished)
 				classConstructed = true;

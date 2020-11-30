@@ -61,11 +61,13 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			return DiscoverySink.OnMessage(message) && !cancelThunk();
+			return
+				DiscoverySink.OnMessage(message) &&
+				!cancelThunk();
 		}
 	}
 }

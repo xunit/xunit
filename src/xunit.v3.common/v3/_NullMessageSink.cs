@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -8,6 +6,6 @@ namespace Xunit.v3
 	public class _NullMessageSink : _IMessageSink
 	{
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message) => true;
+		public bool OnMessage(_MessageSinkMessage message) => true;
 	}
 }

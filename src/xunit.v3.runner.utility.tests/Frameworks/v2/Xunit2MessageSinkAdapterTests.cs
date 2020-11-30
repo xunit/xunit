@@ -13,7 +13,7 @@ public class Xunit2MessageSinkAdapterTests
 		var incomingAssemblyUniqueID = default(string);
 		var incomingMessage = default(IMessageSinkMessage);
 		var incomingTypes = default(HashSet<string>);
-		IMessageSinkMessage adapter(string assemblyUniqueID, IMessageSinkMessage message, HashSet<string>? types)
+		_MessageSinkMessage adapter(string assemblyUniqueID, IMessageSinkMessage message, HashSet<string>? types)
 		{
 			incomingAssemblyUniqueID = assemblyUniqueID;
 			incomingMessage = message;
@@ -22,7 +22,7 @@ public class Xunit2MessageSinkAdapterTests
 		}
 
 		var v2Message = Xunit2Mocks.TestAssemblyStarting();
-		var v3Messages = new List<IMessageSinkMessage>();
+		var v3Messages = new List<_MessageSinkMessage>();
 		var v3Sink = SpyMessageSink.Create(messages: v3Messages);
 		var v2Sink = Xunit2MessageSinkAdapter.Adapt("asm-id", v3Sink, adapter);
 

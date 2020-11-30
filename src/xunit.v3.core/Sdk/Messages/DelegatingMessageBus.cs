@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -11,7 +11,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class DelegatingMessageBus : IMessageBus
 	{
-		readonly Action<IMessageSinkMessage>? callback;
+		readonly Action<_MessageSinkMessage>? callback;
 		readonly IMessageBus innerMessageBus;
 
 		/// <summary>
@@ -21,14 +21,14 @@ namespace Xunit.Sdk
 		/// <param name="callback">The callback to send messages to.</param>
 		public DelegatingMessageBus(
 			IMessageBus innerMessageBus,
-			Action<IMessageSinkMessage>? callback = null)
+			Action<_MessageSinkMessage>? callback = null)
 		{
 			this.innerMessageBus = Guard.ArgumentNotNull(nameof(innerMessageBus), innerMessageBus);
 			this.callback = callback;
 		}
 
 		/// <inheritdoc/>
-		public virtual bool QueueMessage(IMessageSinkMessage message)
+		public virtual bool QueueMessage(_MessageSinkMessage message)
 		{
 			callback?.Invoke(message);
 
@@ -48,7 +48,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	/// <typeparam name="TFinalMessage">The type of the T final message.</typeparam>
 	public class DelegatingMessageBus<TFinalMessage> : DelegatingMessageBus
-		where TFinalMessage : class, IMessageSinkMessage
+		where TFinalMessage : _MessageSinkMessage
 	{
 		TFinalMessage? finalMessage;
 
@@ -59,7 +59,7 @@ namespace Xunit.Sdk
 		/// <param name="callback">The callback to send messages to.</param>
 		public DelegatingMessageBus(
 			IMessageBus innerMessageBus,
-			Action<IMessageSinkMessage>? callback = null)
+			Action<_MessageSinkMessage>? callback = null)
 				: base(innerMessageBus, callback)
 		{
 			Finished = new ManualResetEvent(false);
@@ -77,7 +77,7 @@ namespace Xunit.Sdk
 		public ManualResetEvent Finished { get; }
 
 		/// <inheritdoc/>
-		public override bool QueueMessage(IMessageSinkMessage message)
+		public override bool QueueMessage(_MessageSinkMessage message)
 		{
 			var result = base.QueueMessage(message);
 

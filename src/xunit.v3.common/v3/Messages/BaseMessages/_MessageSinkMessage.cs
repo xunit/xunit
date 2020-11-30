@@ -13,8 +13,7 @@ namespace Xunit.v3
 	/// The base type for all messages. It provides serialization support. Because of the way type
 	/// serialization works, messages can only be defined by xUnit.net itself.
 	/// </summary>
-	// TODO: Remove IMessageSinkMessage once we're separated from v2 messsages and can update _IMessageSink.
-	public class _MessageSinkMessage : IMessageSinkMessage
+	public class _MessageSinkMessage
 	{
 		delegate void PropertyWriter(Utf8JsonWriter writer, object? value, JsonSerializerOptions options);
 

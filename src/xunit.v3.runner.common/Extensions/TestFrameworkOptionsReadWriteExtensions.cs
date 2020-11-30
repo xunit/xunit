@@ -6,7 +6,7 @@ using Xunit.v3;
 /// <summary>
 /// Extension methods for reading and writing <see cref="_ITestFrameworkDiscoveryOptions"/> and <see cref="_ITestFrameworkExecutionOptions"/>.
 /// </summary>
-public static class _TestFrameworkOptionsReadWriteExtensions
+public static class TestFrameworkOptionsReadWriteExtensions
 {
 	// Read/write methods for discovery options
 

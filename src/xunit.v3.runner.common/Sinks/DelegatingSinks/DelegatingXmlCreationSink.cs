@@ -49,43 +49,42 @@ namespace Xunit.Runner.Common
 		public ManualResetEvent Finished => innerSink.Finished;
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			// Call the inner sink first, because we want to be able to depend on ExecutionSummary
 			// being correctly filled out.
 			var result = innerSink.OnMessage(message);
-			var messageTypes = default(HashSet<string>);  // TODO temporary
 
-			return message.Dispatch<_ErrorMessage>(messageTypes, HandleErrorMessage)
+			return message.DispatchWhen<_ErrorMessage>(HandleErrorMessage)
 
-				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, HandleTestAssemblyCleanupFailure)
-				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
-				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
+				&& message.DispatchWhen<_TestAssemblyCleanupFailure>(HandleTestAssemblyCleanupFailure)
+				&& message.DispatchWhen<_TestAssemblyFinished>(HandleTestAssemblyFinished)
+				&& message.DispatchWhen<_TestAssemblyStarting>(HandleTestAssemblyStarting)
 
-				&& message.Dispatch<_TestCaseCleanupFailure>(messageTypes, HandleTestCaseCleanupFailure)
-				&& message.Dispatch<_TestCaseFinished>(messageTypes, HandleTestCaseFinished)
-				&& message.Dispatch<_TestCaseStarting>(messageTypes, HandleTestCaseStarting)
+				&& message.DispatchWhen<_TestCaseCleanupFailure>(HandleTestCaseCleanupFailure)
+				&& message.DispatchWhen<_TestCaseFinished>(HandleTestCaseFinished)
+				&& message.DispatchWhen<_TestCaseStarting>(HandleTestCaseStarting)
 
-				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, HandleTestClassCleanupFailure)
-				&& message.Dispatch<_TestClassFinished>(messageTypes, HandleTestClassFinished)
-				&& message.Dispatch<_TestClassStarting>(messageTypes, HandleTestClassStarting)
+				&& message.DispatchWhen<_TestClassCleanupFailure>(HandleTestClassCleanupFailure)
+				&& message.DispatchWhen<_TestClassFinished>(HandleTestClassFinished)
+				&& message.DispatchWhen<_TestClassStarting>(HandleTestClassStarting)
 
-				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, HandleTestCollectionCleanupFailure)
-				&& message.Dispatch<_TestCollectionFinished>(messageTypes, HandleTestCollectionFinished)
-				&& message.Dispatch<_TestCollectionStarting>(messageTypes, HandleTestCollectionStarting)
+				&& message.DispatchWhen<_TestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
+				&& message.DispatchWhen<_TestCollectionFinished>(HandleTestCollectionFinished)
+				&& message.DispatchWhen<_TestCollectionStarting>(HandleTestCollectionStarting)
 
-				&& message.Dispatch<_TestMethodCleanupFailure>(messageTypes, HandleTestMethodCleanupFailure)
-				&& message.Dispatch<_TestMethodFinished>(messageTypes, HandleTestMethodFinished)
-				&& message.Dispatch<_TestMethodStarting>(messageTypes, HandleTestMethodStarting)
+				&& message.DispatchWhen<_TestMethodCleanupFailure>(HandleTestMethodCleanupFailure)
+				&& message.DispatchWhen<_TestMethodFinished>(HandleTestMethodFinished)
+				&& message.DispatchWhen<_TestMethodStarting>(HandleTestMethodStarting)
 
-				&& message.Dispatch<_TestCleanupFailure>(messageTypes, HandleTestCleanupFailure)
-				&& message.Dispatch<_TestFailed>(messageTypes, HandleTestFailed)
-				&& message.Dispatch<_TestFinished>(messageTypes, HandleTestFinished)
-				&& message.Dispatch<_TestPassed>(messageTypes, HandleTestPassed)
-				&& message.Dispatch<_TestSkipped>(messageTypes, HandleTestSkipped)
-				&& message.Dispatch<_TestStarting>(messageTypes, HandleTestStarting)
+				&& message.DispatchWhen<_TestCleanupFailure>(HandleTestCleanupFailure)
+				&& message.DispatchWhen<_TestFailed>(HandleTestFailed)
+				&& message.DispatchWhen<_TestFinished>(HandleTestFinished)
+				&& message.DispatchWhen<_TestPassed>(HandleTestPassed)
+				&& message.DispatchWhen<_TestSkipped>(HandleTestSkipped)
+				&& message.DispatchWhen<_TestStarting>(HandleTestStarting)
 
 				&& result;
 		}

@@ -55,13 +55,13 @@ public class TestClassRunnerTests
 	[Fact]
 	public static async void FailureInQueueOfTestClassStarting_DoesNotQueueTestClassFinished_DoesNotRunTestMethods()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
 		messageBus
 			.QueueMessage(null!)
 			.ReturnsForAnyArgs(callInfo =>
 			{
-				var msg = callInfo.Arg<IMessageSinkMessage>();
+				var msg = callInfo.Arg<_MessageSinkMessage>();
 				messages.Add(msg);
 
 				if (msg is _TestClassStarting)
@@ -357,7 +357,7 @@ public class TestClassRunnerTests
 		public bool AfterTestClassStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
 		public bool BeforeTestClassFinished_Called;
-		public List<IMessageSinkMessage> DiagnosticMessages;
+		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
 		public readonly CancellationTokenSource TokenSource;
 
@@ -367,7 +367,7 @@ public class TestClassRunnerTests
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<ITestCase> testCases,
-			List<IMessageSinkMessage> diagnosticMessages,
+			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -414,7 +414,7 @@ public class TestClassRunnerTests
 				firstTest.TestMethod.TestClass,
 				(IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
 				testCases,
-				new List<IMessageSinkMessage>(),
+				new List<_MessageSinkMessage>(),
 				messageBus ?? new SpyMessageBus(),
 				orderer ?? new MockTestCaseOrderer(),
 				aggregator,

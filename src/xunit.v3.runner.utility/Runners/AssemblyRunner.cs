@@ -314,8 +314,8 @@ namespace Xunit.Runners
 			return new AssemblyRunner(AppDomainSupport.Denied, assemblyFileName);
 		}
 
-		bool DispatchMessage<TMessage>(IMessageSinkMessage message, HashSet<string>? messageTypes, Action<TMessage> handler)
-			where TMessage : class
+		bool DispatchMessage<TMessage>(_MessageSinkMessage message, HashSet<string>? messageTypes, Action<TMessage> handler)
+			where TMessage : _MessageSinkMessage
 		{
 			if (messageTypes == null || !MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) || !messageTypes.Contains(typeName))
 				return false;
@@ -324,7 +324,7 @@ namespace Xunit.Runners
 			return true;
 		}
 
-		bool _IMessageSink.OnMessage(IMessageSinkMessage message)
+		bool _IMessageSink.OnMessage(_MessageSinkMessage message)
 		{
 			// Temporary
 			var messageTypes = default(HashSet<string>);

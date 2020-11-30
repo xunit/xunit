@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 
 namespace Xunit.v3
@@ -12,12 +11,12 @@ namespace Xunit.v3
 
 		public ManualResetEvent Finished => throw new NotImplementedException();
 
-		public List<IMessageSinkMessage> Messages { get; } = new List<IMessageSinkMessage>();
+		public List<_MessageSinkMessage> Messages { get; } = new List<_MessageSinkMessage>();
 
 		public void Dispose()
 		{ }
 
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Messages.Add(message);
 			return true;

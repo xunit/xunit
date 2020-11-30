@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -88,7 +87,7 @@ public class CollectionPerClassTestCollectionFactoryTests
 	[Fact]
 	public static void MultiplyDeclaredCollectionsRaisesEnvironmentalWarning()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var spy = SpyMessageSink.Create(messages: messages);
 		var testType = Mocks.TypeInfo("type", attributes: new[] { Mocks.CollectionAttribute("This is a test collection") });
 		var collectionDefinition1 = Mocks.TypeInfo("collectionDefinition1", attributes: new[] { Mocks.CollectionDefinitionAttribute("This is a test collection") });

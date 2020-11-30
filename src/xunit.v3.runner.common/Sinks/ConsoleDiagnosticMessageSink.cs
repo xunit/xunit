@@ -1,5 +1,4 @@
 ﻿using System;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -61,7 +60,7 @@ namespace Xunit.Runner.Common
 				new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 

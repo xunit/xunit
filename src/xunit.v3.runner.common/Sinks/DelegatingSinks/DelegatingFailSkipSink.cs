@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -45,14 +43,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
-			var messageTypes = default(HashSet<string>);  // TODO temporary
-
-			var testSkipped = message.Cast<_TestSkipped>(messageTypes);
-			if (testSkipped != null)
+			if (message is _TestSkipped testSkipped)
 			{
 				var testFailed = new _TestFailed
 				{
@@ -75,8 +70,7 @@ namespace Xunit.Runner.Common
 
 			// TODO: Shouldn't there be conversions of all the finished messages up the stack, to rectify the counts?
 
-			var testCollectionFinished = message.Cast<_TestCollectionFinished>(messageTypes);
-			if (testCollectionFinished != null)
+			if (message is _TestCollectionFinished testCollectionFinished)
 			{
 				testCollectionFinished = new _TestCollectionFinished
 				{
@@ -91,8 +85,7 @@ namespace Xunit.Runner.Common
 				return innerSink.OnMessage(testCollectionFinished);
 			}
 
-			var assemblyFinished = message.Cast<_TestAssemblyFinished>(messageTypes);
-			if (assemblyFinished != null)
+			if (message is _TestAssemblyFinished assemblyFinished)
 			{
 				assemblyFinished = new _TestAssemblyFinished
 				{

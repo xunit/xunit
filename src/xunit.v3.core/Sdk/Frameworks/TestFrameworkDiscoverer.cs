@@ -263,7 +263,7 @@ namespace Xunit.Sdk
 		/// <param name="testCase">The test case to report</param>
 		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
 		/// <param name="messageBus">The message bus to report to the test case to</param>
-		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(IMessageSinkMessage)"/>.</returns>
+		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(_MessageSinkMessage)"/>.</returns>
 		protected bool ReportDiscoveredTestCase(
 			string testCollectionUniqueID,
 			string? testClassUniqueID,

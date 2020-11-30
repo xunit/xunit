@@ -35,7 +35,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithTestNode_ParsesNumberWithInvariantCulture()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
@@ -54,7 +54,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithTestNode_OutputResultsInOutputMessage()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);

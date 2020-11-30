@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner;
 using Xunit.Runner.Common;
 using Xunit.v3;
@@ -117,7 +116,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 			.WhenForAnyArgs(x => x.OnMessage(null!))
 			.Do(callInfo =>
 			{
-				var message = callInfo.Arg<IMessageSinkMessage>();
+				var message = callInfo.Arg<_MessageSinkMessage>();
 				if (message is _DiagnosticMessage diagnosticMessage)
 					events.Add(diagnosticMessage);
 			});
@@ -144,7 +143,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 			.WhenForAnyArgs(x => x.OnMessage(null!))
 			.Do(callInfo =>
 			{
-				var message = callInfo.Arg<IMessageSinkMessage>();
+				var message = callInfo.Arg<_MessageSinkMessage>();
 				if (message is _DiagnosticMessage diagnosticMessage)
 					events.Add(diagnosticMessage);
 			});

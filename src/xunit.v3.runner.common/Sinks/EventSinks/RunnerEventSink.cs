@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
-using Xunit.Runner.v2;
+﻿using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -36,16 +34,16 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<TestExecutionSummaries>? TestExecutionSummariesEvent;
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(null, TestAssemblyDiscoveryFinishedEvent) &&
-				message.Dispatch(null, TestAssemblyDiscoveryStartingEvent) &&
-				message.Dispatch(null, TestAssemblyExecutionFinishedEvent) &&
-				message.Dispatch(null, TestAssemblyExecutionStartingEvent) &&
-				message.Dispatch(null, TestExecutionSummariesEvent);
+				message.DispatchWhen(TestAssemblyDiscoveryFinishedEvent) &&
+				message.DispatchWhen(TestAssemblyDiscoveryStartingEvent) &&
+				message.DispatchWhen(TestAssemblyExecutionFinishedEvent) &&
+				message.DispatchWhen(TestAssemblyExecutionStartingEvent) &&
+				message.DispatchWhen(TestExecutionSummariesEvent);
 		}
 	}
 }

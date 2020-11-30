@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -13,6 +11,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="message">The message from the message bus</param>
 		/// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
-		bool OnMessage(IMessageSinkMessage message);
+		bool OnMessage(_MessageSinkMessage message);
 	}
 }

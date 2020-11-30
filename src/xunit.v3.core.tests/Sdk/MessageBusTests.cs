@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -12,11 +11,11 @@ public class MessageBusTests
 	[Fact]
 	public static void QueuedMessageShowUpInMessageSink()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var msg1 = Substitute.For<IMessageSinkMessage>();
-		var msg2 = Substitute.For<IMessageSinkMessage>();
-		var msg3 = Substitute.For<IMessageSinkMessage>();
+		var msg1 = new _MessageSinkMessage();
+		var msg2 = new _MessageSinkMessage();
+		var msg3 = new _MessageSinkMessage();
 
 		using (var bus = new MessageBus(sink))
 		{
@@ -40,7 +39,7 @@ public class MessageBusTests
 		bus.Dispose();
 
 		var exception = Record.Exception(
-			() => bus.QueueMessage(Substitute.For<IMessageSinkMessage>())
+			() => bus.QueueMessage(new _MessageSinkMessage())
 		);
 
 		Assert.IsType<ObjectDisposedException>(exception);
@@ -50,15 +49,15 @@ public class MessageBusTests
 	public static void WhenSinkThrowsMessagesContinueToBeDelivered()
 	{
 		var sink = Substitute.For<_IMessageSink>();
-		var msg1 = Substitute.For<IMessageSinkMessage>();
-		var msg2 = Substitute.For<IMessageSinkMessage>();
-		var msg3 = Substitute.For<IMessageSinkMessage>();
-		var messages = new List<IMessageSinkMessage>();
+		var msg1 = new _MessageSinkMessage();
+		var msg2 = new _MessageSinkMessage();
+		var msg3 = new _MessageSinkMessage();
+		var messages = new List<_MessageSinkMessage>();
 		sink
-			.OnMessage(Arg.Any<IMessageSinkMessage>())
+			.OnMessage(Arg.Any<_MessageSinkMessage>())
 			.Returns(callInfo =>
 			{
-				var msg = (IMessageSinkMessage)callInfo[0];
+				var msg = (_MessageSinkMessage)callInfo[0];
 				if (msg == msg2)
 					throw new DivideByZeroException("whee!");
 				else
@@ -90,11 +89,11 @@ public class MessageBusTests
 	[Fact]
 	public static void QueueReturnsTrueForFailIfStopOnFailFalse()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var msg1 = Substitute.For<IMessageSinkMessage>();
+		var msg1 = new _MessageSinkMessage();
 		var msg2 = TestData.TestFailed();
-		var msg3 = Substitute.For<IMessageSinkMessage>();
+		var msg3 = new _MessageSinkMessage();
 
 		using (var bus = new MessageBus(sink))
 		{
@@ -114,11 +113,11 @@ public class MessageBusTests
 	[Fact]
 	public static void QueueReturnsFalseForFailIfStopOnFailTrue()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var msg1 = Substitute.For<IMessageSinkMessage>();
+		var msg1 = new _MessageSinkMessage();
 		var msg2 = TestData.TestFailed();
-		var msg3 = Substitute.For<IMessageSinkMessage>();
+		var msg3 = new _MessageSinkMessage();
 
 		using (var bus = new MessageBus(sink, true))
 		{

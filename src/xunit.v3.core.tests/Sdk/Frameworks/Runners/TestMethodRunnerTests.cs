@@ -47,13 +47,13 @@ public class TestMethodRunnerTests
 	[Fact]
 	public static async void FailureInQueueOfTestMethodStarting_DoesNotQueueTestMethodFinished_DoesNotRunTestCases()
 	{
-		var messages = new List<IMessageSinkMessage>();
+		var messages = new List<_MessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
 		messageBus
 			.QueueMessage(null!)
 			.ReturnsForAnyArgs(callInfo =>
 			{
-				var msg = callInfo.Arg<IMessageSinkMessage>();
+				var msg = callInfo.Arg<_MessageSinkMessage>();
 				messages.Add(msg);
 
 				if (msg is _TestMethodStarting)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -60,7 +59,7 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public virtual bool OnMessage(IMessageSinkMessage message)
+		public virtual bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 

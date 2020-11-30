@@ -10,7 +10,7 @@ using Xunit.v3;
 
 public class ExtensibilityPointFactoryTests
 {
-	readonly List<IMessageSinkMessage> messages = new List<IMessageSinkMessage>();
+	readonly List<_MessageSinkMessage> messages = new List<_MessageSinkMessage>();
 	protected _IMessageSink spy;
 
 	public ExtensibilityPointFactoryTests()

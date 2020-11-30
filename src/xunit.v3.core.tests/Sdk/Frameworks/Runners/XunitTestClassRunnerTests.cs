@@ -389,7 +389,7 @@ public class XunitTestClassRunnerTests
 	class TestableXunitTestClassRunner : XunitTestClassRunner
 	{
 		public List<object?[]> ConstructorArguments = new List<object?[]>();
-		public List<IMessageSinkMessage> DiagnosticMessages;
+		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
 
 		TestableXunitTestClassRunner(
@@ -398,7 +398,7 @@ public class XunitTestClassRunnerTests
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
-			List<IMessageSinkMessage> diagnosticMessages,
+			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -434,7 +434,7 @@ public class XunitTestClassRunnerTests
 				testCase.TestMethod.TestClass,
 				(IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
 				new[] { testCase },
-				new List<IMessageSinkMessage>(),
+				new List<_MessageSinkMessage>(),
 				new SpyMessageBus(),
 				new MockTestCaseOrderer(),
 				new ExceptionAggregator(),

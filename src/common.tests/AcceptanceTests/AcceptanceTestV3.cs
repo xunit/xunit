@@ -4,18 +4,17 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
 public class AcceptanceTestV3
 {
-	public Task<List<IMessageSinkMessage>> RunAsync(Type type) => RunAsync(new[] { type });
+	public Task<List<_MessageSinkMessage>> RunAsync(Type type) => RunAsync(new[] { type });
 
-	public Task<List<IMessageSinkMessage>> RunAsync(Type[] types)
+	public Task<List<_MessageSinkMessage>> RunAsync(Type[] types)
 	{
-		var tcs = new TaskCompletionSource<List<IMessageSinkMessage>>();
+		var tcs = new TaskCompletionSource<List<_MessageSinkMessage>>();
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
@@ -53,14 +52,14 @@ public class AcceptanceTestV3
 	}
 
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(Type type)
-		where TMessageType : IMessageSinkMessage
+		where TMessageType : _MessageSinkMessage
 	{
 		var results = await RunAsync(type);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(Type[] types)
-		where TMessageType : IMessageSinkMessage
+		where TMessageType : _MessageSinkMessage
 	{
 		var results = await RunAsync(types);
 		return results.OfType<TMessageType>().ToList();

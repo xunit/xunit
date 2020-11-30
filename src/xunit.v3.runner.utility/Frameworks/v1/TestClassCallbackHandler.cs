@@ -8,7 +8,6 @@ using System.Threading;
 using System.Xml;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Runner.v1
@@ -106,7 +105,7 @@ namespace Xunit.Runner.v1
 			var time = timeAttribute == null ? 0M : decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
 			var outputElement = xml.SelectSingleNode("output");
 			var output = outputElement == null ? string.Empty : outputElement.InnerText;
-			IMessageSinkMessage? resultMessage = null;
+			_MessageSinkMessage? resultMessage = null;
 
 			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
 			if (currentTest == null)

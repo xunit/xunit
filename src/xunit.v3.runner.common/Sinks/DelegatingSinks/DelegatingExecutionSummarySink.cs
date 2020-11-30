@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -83,23 +81,22 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			var result = innerSink.OnMessage(message);
-			var messageTypes = default(HashSet<string>);  // TODO temporary
 
 			return
-				message.Dispatch<_ErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<_TestAssemblyCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<_TestAssemblyFinished>(messageTypes, HandleTestAssemblyFinished)
-				&& message.Dispatch<_TestAssemblyStarting>(messageTypes, HandleTestAssemblyStarting)
-				&& message.Dispatch<_TestCaseCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<_TestClassCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<_TestCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<_TestCollectionCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
-				&& message.Dispatch<_TestMethodCleanupFailure>(messageTypes, args => Interlocked.Increment(ref errors))
+				message.DispatchWhen<_ErrorMessage>(args => Interlocked.Increment(ref errors))
+				&& message.DispatchWhen<_TestAssemblyCleanupFailure>(args => Interlocked.Increment(ref errors))
+				&& message.DispatchWhen<_TestAssemblyFinished>(HandleTestAssemblyFinished)
+				&& message.DispatchWhen<_TestAssemblyStarting>(HandleTestAssemblyStarting)
+				&& message.DispatchWhen<_TestCaseCleanupFailure>(args => Interlocked.Increment(ref errors))
+				&& message.DispatchWhen<_TestClassCleanupFailure>(args => Interlocked.Increment(ref errors))
+				&& message.DispatchWhen<_TestCleanupFailure>(args => Interlocked.Increment(ref errors))
+				&& message.DispatchWhen<_TestCollectionCleanupFailure>(args => Interlocked.Increment(ref errors))
+				&& message.DispatchWhen<_TestMethodCleanupFailure>(args => Interlocked.Increment(ref errors))
 				&& result
 				&& !cancelThunk();
 		}

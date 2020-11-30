@@ -1,5 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
+﻿using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -20,13 +19,13 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_ErrorMessage>? ErrorMessageEvent;
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(null, DiagnosticMessageEvent) &&
-				message.Dispatch(null, ErrorMessageEvent);
+				message.DispatchWhen(DiagnosticMessageEvent) &&
+				message.DispatchWhen(ErrorMessageEvent);
 		}
 	}
 }

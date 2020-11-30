@@ -6,7 +6,8 @@ using Xunit.v3;
 namespace Xunit.Runner.v2
 {
 	/// <summary>
-	/// Adapts <see cref="IMessageSinkWithTypes"/> to <see cref="_IMessageSink"/>
+	/// Adapts <see cref="_IMessageSink"/> to a class which implements both <see cref="IMessageSink"/>
+	/// and <see cref="IMessageSinkWithTypes"/>.
 	/// </summary>
 	public static class Xunit2MessageSinkAdapter
 	{
@@ -23,8 +24,7 @@ namespace Xunit.Runner.v2
 		public static Xunit2MessageSink Adapt(
 			string assemblyUniqueID,
 			_IMessageSink v3MessageSink,
-			// TODO: Return type should eventually be _MessageSinkMessage
-			Func<string, IMessageSinkMessage, HashSet<string>?, IMessageSinkMessage>? adapter = null) =>
+			Func<string, IMessageSinkMessage, HashSet<string>?, _MessageSinkMessage>? adapter = null) =>
 				new Xunit2MessageSink(assemblyUniqueID, v3MessageSink, adapter);
 	}
 }

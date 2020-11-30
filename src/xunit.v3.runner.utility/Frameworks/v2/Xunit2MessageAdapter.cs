@@ -26,9 +26,7 @@ namespace Xunit.Runner.v2
 		/// based on what we passed into v2 (rather than what it computed), or else our unique IDs won't
 		/// line up across all messages.
 		/// </remarks>
-		// TODO: This has the wrong return type so that we can do fall-through, until
-		// we're finished moving from v2 to v3 messages in Runner Utility.
-		public static IMessageSinkMessage Adapt(
+		public static _MessageSinkMessage Adapt(
 			string assemblyUniqueID,
 			IMessageSinkMessage message,
 			HashSet<string>? messageTypes = null)
@@ -77,7 +75,7 @@ namespace Xunit.Runner.v2
 				TryConvert<ITestSkipped>(assemblyUniqueID, message, messageTypes, AdaptTestSkipped) ??
 				TryConvert<ITestStarting>(assemblyUniqueID, message, messageTypes, AdaptTestStarting) ??
 
-				message;
+				throw new ArgumentException($"Unknown message type '{message.GetType().FullName}'", nameof(message));
 		}
 
 		static _AfterTestFinished AdaptAfterTestFinished(

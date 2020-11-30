@@ -1,5 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
+﻿using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -160,41 +159,41 @@ namespace Xunit.Runner.Common
 		public event MessageHandler<_TestStarting>? TestStartingEvent;
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 
 			return
-				message.Dispatch(null, AfterTestFinishedEvent) &&
-				message.Dispatch(null, AfterTestStartingEvent) &&
-				message.Dispatch(null, BeforeTestFinishedEvent) &&
-				message.Dispatch(null, BeforeTestStartingEvent) &&
-				message.Dispatch(null, TestAssemblyCleanupFailureEvent) &&
-				message.Dispatch(null, TestAssemblyFinishedEvent) &&
-				message.Dispatch(null, TestAssemblyStartingEvent) &&
-				message.Dispatch(null, TestCaseCleanupFailureEvent) &&
-				message.Dispatch(null, TestCaseFinishedEvent) &&
-				message.Dispatch(null, TestCaseStartingEvent) &&
-				message.Dispatch(null, TestClassCleanupFailureEvent) &&
-				message.Dispatch(null, TestClassConstructionFinishedEvent) &&
-				message.Dispatch(null, TestClassConstructionStartingEvent) &&
-				message.Dispatch(null, TestClassDisposeFinishedEvent) &&
-				message.Dispatch(null, TestClassDisposeStartingEvent) &&
-				message.Dispatch(null, TestClassFinishedEvent) &&
-				message.Dispatch(null, TestClassStartingEvent) &&
-				message.Dispatch(null, TestCleanupFailureEvent) &&
-				message.Dispatch(null, TestCollectionCleanupFailureEvent) &&
-				message.Dispatch(null, TestCollectionFinishedEvent) &&
-				message.Dispatch(null, TestCollectionStartingEvent) &&
-				message.Dispatch(null, TestFailedEvent) &&
-				message.Dispatch(null, TestFinishedEvent) &&
-				message.Dispatch(null, TestMethodCleanupFailureEvent) &&
-				message.Dispatch(null, TestMethodFinishedEvent) &&
-				message.Dispatch(null, TestMethodStartingEvent) &&
-				message.Dispatch(null, TestOutputEvent) &&
-				message.Dispatch(null, TestPassedEvent) &&
-				message.Dispatch(null, TestSkippedEvent) &&
-				message.Dispatch(null, TestStartingEvent);
+				message.DispatchWhen(AfterTestFinishedEvent) &&
+				message.DispatchWhen(AfterTestStartingEvent) &&
+				message.DispatchWhen(BeforeTestFinishedEvent) &&
+				message.DispatchWhen(BeforeTestStartingEvent) &&
+				message.DispatchWhen(TestAssemblyCleanupFailureEvent) &&
+				message.DispatchWhen(TestAssemblyFinishedEvent) &&
+				message.DispatchWhen(TestAssemblyStartingEvent) &&
+				message.DispatchWhen(TestCaseCleanupFailureEvent) &&
+				message.DispatchWhen(TestCaseFinishedEvent) &&
+				message.DispatchWhen(TestCaseStartingEvent) &&
+				message.DispatchWhen(TestClassCleanupFailureEvent) &&
+				message.DispatchWhen(TestClassConstructionFinishedEvent) &&
+				message.DispatchWhen(TestClassConstructionStartingEvent) &&
+				message.DispatchWhen(TestClassDisposeFinishedEvent) &&
+				message.DispatchWhen(TestClassDisposeStartingEvent) &&
+				message.DispatchWhen(TestClassFinishedEvent) &&
+				message.DispatchWhen(TestClassStartingEvent) &&
+				message.DispatchWhen(TestCleanupFailureEvent) &&
+				message.DispatchWhen(TestCollectionCleanupFailureEvent) &&
+				message.DispatchWhen(TestCollectionFinishedEvent) &&
+				message.DispatchWhen(TestCollectionStartingEvent) &&
+				message.DispatchWhen(TestFailedEvent) &&
+				message.DispatchWhen(TestFinishedEvent) &&
+				message.DispatchWhen(TestMethodCleanupFailureEvent) &&
+				message.DispatchWhen(TestMethodFinishedEvent) &&
+				message.DispatchWhen(TestMethodStartingEvent) &&
+				message.DispatchWhen(TestOutputEvent) &&
+				message.DispatchWhen(TestPassedEvent) &&
+				message.DispatchWhen(TestSkippedEvent) &&
+				message.DispatchWhen(TestStartingEvent);
 		}
 	}
 }

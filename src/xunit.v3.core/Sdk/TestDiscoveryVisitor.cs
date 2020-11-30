@@ -32,7 +32,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public bool OnMessage(IMessageSinkMessage message)
+		public bool OnMessage(_MessageSinkMessage message)
 		{
 			if (message is _TestCaseDiscovered discoveryMessage)
 				TestCases.Add(discoveryMessage.TestCase);

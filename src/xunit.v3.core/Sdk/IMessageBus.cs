@@ -1,5 +1,5 @@
 ﻿using System;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -18,6 +18,6 @@ namespace Xunit.Sdk
 		/// for discovery or execution, and this is intended to communicate to those sub-systems that
 		/// that they should short circuit and stop their work as quickly as is reasonable.
 		/// </returns>
-		bool QueueMessage(IMessageSinkMessage message);
+		bool QueueMessage(_MessageSinkMessage message);
 	}
 }

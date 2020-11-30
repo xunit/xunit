@@ -107,7 +107,7 @@ public class XunitTestCaseTests
 		{
 			var trait = Mocks.TraitAttribute<BadTraitAttribute>();
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait });
-			var messages = new List<IMessageSinkMessage>();
+			var messages = new List<_MessageSinkMessage>();
 			var spy = SpyMessageSink.Create(messages: messages);
 
 			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", spy, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);

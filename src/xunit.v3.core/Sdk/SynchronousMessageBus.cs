@@ -1,5 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
+﻿using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -22,7 +21,7 @@ namespace Xunit.Sdk
 		{ }
 
 		/// <summary/>
-		public bool QueueMessage(IMessageSinkMessage message)
+		public bool QueueMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(nameof(message), message);
 

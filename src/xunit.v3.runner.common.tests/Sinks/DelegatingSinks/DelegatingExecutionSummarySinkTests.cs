@@ -1,20 +1,19 @@
 ﻿using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.v3;
 
 public class DelegatingExecutionSummarySinkTests
 {
 	readonly _IMessageSink innerSink;
-	readonly IMessageSinkMessage testMessage;
+	readonly _MessageSinkMessage testMessage;
 
 	public DelegatingExecutionSummarySinkTests()
 	{
 		innerSink = Substitute.For<_IMessageSink>();
 		innerSink.OnMessage(null!).ReturnsForAnyArgs(true);
 
-		testMessage = Substitute.For<IMessageSinkMessage>();
+		testMessage = new _MessageSinkMessage();
 	}
 
 	public class Cancellation : DelegatingExecutionSummarySinkTests

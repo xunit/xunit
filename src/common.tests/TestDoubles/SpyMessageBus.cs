@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class SpyMessageBus : IMessageBus
 {
-	readonly Func<IMessageSinkMessage, bool> cancellationThunk;
+	readonly Func<_MessageSinkMessage, bool> cancellationThunk;
 
-	public SpyMessageBus(Func<IMessageSinkMessage, bool>? cancellationThunk = null)
+	public SpyMessageBus(Func<_MessageSinkMessage, bool>? cancellationThunk = null)
 	{
 		this.cancellationThunk = cancellationThunk ?? (msg => true);
 	}
 
-	public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
+	public List<_MessageSinkMessage> Messages = new List<_MessageSinkMessage>();
 
 	public void Dispose()
 	{ }
 
-	public bool QueueMessage(IMessageSinkMessage message)
+	public bool QueueMessage(_MessageSinkMessage message)
 	{
 		Messages.Add(message);
 		return cancellationThunk(message);
