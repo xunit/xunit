@@ -1,4 +1,6 @@
-﻿namespace Xunit.Runner.v1
+﻿#if NETFRAMEWORK
+
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// Collects statistics from running tests.
@@ -55,3 +57,5 @@
 		}
 	}
 }
+
+#endif

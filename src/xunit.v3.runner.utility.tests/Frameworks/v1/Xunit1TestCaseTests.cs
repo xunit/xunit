@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+
+using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Internal;
@@ -37,3 +39,5 @@ public class Xunit1TestCaseTests
 		return new Xunit1TestCase(assemblyFileName, null, typeUnderTest.FullName!, methodName, null, traits);
 	}
 }
+
+#endif

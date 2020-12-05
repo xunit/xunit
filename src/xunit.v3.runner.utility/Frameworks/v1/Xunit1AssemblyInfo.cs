@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if NETFRAMEWORK
+
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit.Abstractions;
@@ -38,3 +40,5 @@ namespace Xunit.Runner.v1
 		IEnumerable<ITypeInfo> IAssemblyInfo.GetTypes(bool includePrivateTypes) => Enumerable.Empty<ITypeInfo>();
 	}
 }
+
+#endif

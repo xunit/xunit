@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿#if NETFRAMEWORK
+
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.v1
 {
@@ -27,3 +29,5 @@ namespace Xunit.Runner.v1
 		public ITestCase TestCase { get; }
 	}
 }
+
+#endif

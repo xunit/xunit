@@ -1,3 +1,5 @@
+#if NETFRAMEWORK
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -125,3 +127,5 @@ namespace Xunit.Runner.v1
 		}
 	}
 }
+
+#endif

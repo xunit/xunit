@@ -1,3 +1,5 @@
+#if NETFRAMEWORK
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -163,3 +165,5 @@ namespace Xunit.Runner.v1
 		ITestClass ITestMethod.TestClass => this;
 	}
 }
+
+#endif
