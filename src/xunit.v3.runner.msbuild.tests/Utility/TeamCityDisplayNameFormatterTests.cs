@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using NSubstitute;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Runner.MSBuild.Visitors
@@ -14,7 +13,7 @@ namespace Xunit.Runner.MSBuild.Visitors
 			[Fact]
 			public void UsesDisplayName()
 			{
-				var test = Substitute.For<ITest>();
+				var test = Substitute.For<_ITest>();
 				test.DisplayName.Returns("Display Name");
 
 				var result = ClassUnderTest.DisplayName(test);

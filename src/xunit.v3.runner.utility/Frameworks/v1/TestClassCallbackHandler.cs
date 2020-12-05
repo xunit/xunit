@@ -22,10 +22,10 @@ namespace Xunit.Runner.v1
 		readonly _IMessageSink messageSink;
 		readonly IList<ITestCase> testCases;
 		readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
-		readonly Dictionary<ITest, int> testIndicesByTest = new Dictionary<ITest, int>();
+		readonly Dictionary<_ITest, int> testIndicesByTest = new Dictionary<_ITest, int>();
 		readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
 
-		ITest? currentTest;
+		_ITest? currentTest;
 		ITestCase? lastTestCase;
 
 		/// <summary>
@@ -256,7 +256,7 @@ namespace Xunit.Runner.v1
 		// based on object identity, so that we don't have to recompute every time...?
 
 		_TestFailed ToTestFailed(
-			ITest test,
+			_ITest test,
 			decimal executionTime,
 			string output,
 			XmlNode failure)
@@ -292,7 +292,7 @@ namespace Xunit.Runner.v1
 		}
 
 		_TestFinished ToTestFinished(
-			ITest test,
+			_ITest test,
 			decimal executionTime,
 			string output)
 		{
@@ -325,7 +325,7 @@ namespace Xunit.Runner.v1
 		}
 
 		_TestOutput ToTestOutput(
-			ITest test,
+			_ITest test,
 			string output)
 		{
 			int testIndex;
@@ -353,7 +353,7 @@ namespace Xunit.Runner.v1
 		}
 
 		_TestPassed ToTestPassed(
-			ITest test,
+			_ITest test,
 			decimal executionTime,
 			string output)
 		{
@@ -383,7 +383,7 @@ namespace Xunit.Runner.v1
 		}
 
 		_TestSkipped ToTestSkipped(
-			ITest test,
+			_ITest test,
 			string reason)
 		{
 			int testIndex;
@@ -412,7 +412,7 @@ namespace Xunit.Runner.v1
 			};
 		}
 
-		_TestStarting ToTestStarting(ITest test)
+		_TestStarting ToTestStarting(_ITest test)
 		{
 			var testIndex = Interlocked.Increment(ref currentTestIndex);
 			lock (testIndicesByTest)

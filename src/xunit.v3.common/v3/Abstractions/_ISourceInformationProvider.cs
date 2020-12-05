@@ -17,6 +17,7 @@ namespace Xunit.v3
 		/// <param name="testMethodName">The test method name, if known</param>
 		/// <returns>The source information, with null string and int values when the information is not available.
 		/// Note: return value should never be <c>null</c>, only the interior data values inside.</returns>
+		// TODO: Can this return a named tuple instead of an interface?
 		_ISourceInformation GetSourceInformation(
 			string? testClassName,
 			string? testMethodName);

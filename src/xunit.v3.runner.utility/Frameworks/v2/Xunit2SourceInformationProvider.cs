@@ -48,5 +48,24 @@ namespace Xunit.Runner.v2
 				LineNumber = sourceInfo.LineNumber
 			};
 		}
+
+		class SourceInformation : ISourceInformation
+		{
+			public string? FileName { get; set; }
+
+			public int? LineNumber { get; set; }
+
+			public void Serialize(IXunitSerializationInfo info)
+			{
+				info.AddValue("FileName", FileName);
+				info.AddValue("LineNumber", LineNumber);
+			}
+
+			public void Deserialize(IXunitSerializationInfo info)
+			{
+				FileName = info.GetValue<string>("FileName");
+				LineNumber = info.GetValue<int?>("LineNumber");
+			}
+		}
 	}
 }

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -128,16 +129,16 @@ namespace Xunit.Sdk
 		protected object?[]? TestMethodArguments { get; set; }
 
 		/// <summary>
-		/// Creates the <see cref="ITest"/> instance for the given test case.
+		/// Creates the <see cref="_ITest"/> instance for the given test case.
 		/// </summary>
-		protected virtual ITest CreateTest(IXunitTestCase testCase, string displayName) =>
+		protected virtual _ITest CreateTest(IXunitTestCase testCase, string displayName) =>
 			new XunitTest(testCase, displayName);
 
 		/// <summary>
 		/// Creates the test runner used to run the given test.
 		/// </summary>
 		protected virtual XunitTestRunner CreateTestRunner(
-			ITest test,
+			_ITest test,
 			int testIndex,
 			IMessageBus messageBus,
 			Type testClass,

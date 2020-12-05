@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -41,7 +40,7 @@ namespace Xunit.Sdk
 			string? testMethodUniqueID,
 			string testCaseUniqueID,
 			string testUniqueID,
-			ITest test,
+			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,

@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -266,13 +265,13 @@ public class XunitTestInvokerTests
 			this.identifier = identifier;
 		}
 
-		public override void After(MethodInfo methodUnderTest, ITest test)
+		public override void After(MethodInfo methodUnderTest, _ITest test)
 		{
 			messages.Add("After #" + identifier);
 			base.After(methodUnderTest, test);
 		}
 
-		public override void Before(MethodInfo methodUnderTest, ITest test)
+		public override void Before(MethodInfo methodUnderTest, _ITest test)
 		{
 			messages.Add("Before #" + identifier);
 			base.Before(methodUnderTest, test);
@@ -288,7 +287,7 @@ public class XunitTestInvokerTests
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableXunitTestInvoker(
-			ITest test,
+			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,

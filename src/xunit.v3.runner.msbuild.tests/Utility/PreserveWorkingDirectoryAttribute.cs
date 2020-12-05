@@ -1,18 +1,18 @@
 ﻿using System.IO;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
 {
 	string? workingDirectory;
 
-	public override void Before(MethodInfo methodUnderTest, ITest test)
+	public override void Before(MethodInfo methodUnderTest, _ITest test)
 	{
 		workingDirectory = Directory.GetCurrentDirectory();
 	}
 
-	public override void After(MethodInfo methodUnderTest, ITest test)
+	public override void After(MethodInfo methodUnderTest, _ITest test)
 	{
 		Directory.SetCurrentDirectory(workingDirectory);
 	}

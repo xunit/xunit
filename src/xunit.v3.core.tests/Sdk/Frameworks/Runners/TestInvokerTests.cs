@@ -231,7 +231,7 @@ public class TestInvokerTests
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestInvoker(
-			ITest test,
+			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
 			MethodInfo testMethod,

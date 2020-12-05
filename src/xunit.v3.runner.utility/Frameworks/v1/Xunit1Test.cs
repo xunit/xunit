@@ -1,13 +1,14 @@
 ﻿#if NETFRAMEWORK
 
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Runner.v1
 {
 	/// <summary>
-	/// An implementation of <see cref="ITest"/> for xUnit v1.
+	/// An implementation of <see cref="_ITest"/> for xUnit v1.
 	/// </summary>
-	public class Xunit1Test : ITest
+	public class Xunit1Test : _ITest
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1Test"/> class.

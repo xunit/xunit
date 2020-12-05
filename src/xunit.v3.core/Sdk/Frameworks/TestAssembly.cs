@@ -45,7 +45,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IAssemblyInfo Assembly
 		{
-			get => assembly ?? throw new InvalidOperationException($"Attempted to get Assembly on an uninitialized '{GetType().FullName}' object");
+			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
 			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);
 		}
 
@@ -57,7 +57,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public Version Version
 		{
-			get => version ?? throw new InvalidOperationException($"Attempted to get Version on an uninitialized '{GetType().FullName}' object");
+			get => version ?? throw new InvalidOperationException($"Attempted to get {nameof(Version)} on an uninitialized '{GetType().FullName}' object");
 		}
 
 		/// <inheritdoc/>

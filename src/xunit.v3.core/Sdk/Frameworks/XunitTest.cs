@@ -1,12 +1,13 @@
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// An implementation of <see cref="ITest"/> for xUnit v3.
+	/// An implementation of <see cref="_ITest"/> for xUnit v3.
 	/// </summary>
-	public class XunitTest : ITest
+	public class XunitTest : _ITest
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTest"/> class.
@@ -28,6 +29,6 @@ namespace Xunit.Sdk
 		public IXunitTestCase TestCase { get; }
 
 		/// <inheritdoc/>
-		ITestCase ITest.TestCase => TestCase;
+		ITestCase _ITest.TestCase => TestCase;
 	}
 }

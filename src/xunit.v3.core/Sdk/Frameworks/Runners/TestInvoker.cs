@@ -27,7 +27,7 @@ namespace Xunit.Sdk
 		CancellationTokenSource cancellationTokenSource;
 		object?[] constructorArguments;
 		IMessageBus messageBus;
-		ITest test;
+		_ITest test;
 		Type testClass;
 		MethodInfo testMethod;
 		ExecutionTimer timer = new ExecutionTimer();
@@ -56,7 +56,7 @@ namespace Xunit.Sdk
 			string? testMethodUniqueID,
 			string testCaseUniqueID,
 			string testUniqueID,
-			ITest test,
+			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,
@@ -128,7 +128,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the test to be run.
 		/// </summary>
-		protected ITest Test
+		protected _ITest Test
 		{
 			get => test;
 			set => test = Guard.ArgumentNotNull(nameof(Test), value);

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit
 {
@@ -19,7 +20,7 @@ namespace Xunit
 			return string.Concat(testCollection.DisplayName, " (", id, ")");
 		}
 
-		public virtual string DisplayName(ITest test)
+		public virtual string DisplayName(_ITest test)
 		{
 			return test.DisplayName;
 		}

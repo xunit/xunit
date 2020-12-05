@@ -9,7 +9,6 @@ using System.Threading;
 using System.Xml;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.v1;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -129,8 +128,8 @@ public class TestClassCallbackHandlerTests
 		/// and replaces them with the new cultures defined in the constructor.
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		/// <param name="test">The current <see cref="ITest"/></param>
-		public override void Before(MethodInfo methodUnderTest, ITest test)
+		/// <param name="test">The current <see cref="_ITest"/></param>
+		public override void Before(MethodInfo methodUnderTest, _ITest test)
 		{
 			originalCulture = CultureInfo.CurrentCulture;
 			originalUICulture = CultureInfo.CurrentUICulture;
@@ -144,8 +143,8 @@ public class TestClassCallbackHandlerTests
 		/// <see cref="CultureInfo.CurrentUICulture" /> to <see cref="Thread.CurrentPrincipal" />
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		/// <param name="test">The current <see cref="ITest"/></param>
-		public override void After(MethodInfo methodUnderTest, ITest test)
+		/// <param name="test">The current <see cref="_ITest"/></param>
+		public override void After(MethodInfo methodUnderTest, _ITest test)
 		{
 			if (originalCulture != null)
 				CultureInfo.CurrentCulture = originalCulture;

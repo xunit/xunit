@@ -246,7 +246,7 @@ public class TestRunnerTests
 		public CancellationTokenSource TokenSource;
 
 		TestableTestRunner(
-			ITest test,
+			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,

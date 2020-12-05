@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 
 namespace Xunit.Runner.Common
@@ -27,7 +26,7 @@ namespace Xunit.Runner.Common
 		readonly IRunnerLogger logger;
 		volatile bool previousErrors;
 		volatile bool shouldExit;
-		readonly ConcurrentDictionary<ITest, int> testToTestIdMap = new ConcurrentDictionary<ITest, int>();
+		readonly ConcurrentDictionary<string, int> testToTestIdMap = new ConcurrentDictionary<string, int>();
 		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
 		readonly AutoResetEvent workEvent = new AutoResetEvent(false);
 
@@ -108,9 +107,9 @@ namespace Xunit.Runner.Common
 
 		public void AddTest(
 			IDictionary<string, object?> request,
-			string testUniqueId)
+			string testUniqueID)
 		{
-			request.Add(UNIQUEIDKEY, testUniqueId);
+			request.Add(UNIQUEIDKEY, testUniqueID);
 			addQueue.Enqueue(request);
 			workEvent.Set();
 		}
@@ -218,16 +217,16 @@ namespace Xunit.Runner.Common
 
 			// For adds, we need to remove the unique IDs and correlate to the responses
 			// For update we need to look up the responses
-			List<ITest>? added = null;
+			List<string>? added = null;
 			if (isAdd)
 			{
-				added = new List<ITest>(body.Count);
+				added = new List<string>(body.Count);
 
 				// Add them to the list so we can ref by ordinal on the response
 				foreach (var item in body)
 				{
-					var test = (ITest?)item[UNIQUEIDKEY];
-					Guard.NotNull("Pulled null ITest item from work queue", test);
+					var test = (string?)item[UNIQUEIDKEY];
+					Guard.NotNull("Pulled null test unique ID from work queue", test);
 
 					item.Remove(UNIQUEIDKEY);
 					added.Add(test);
@@ -238,8 +237,8 @@ namespace Xunit.Runner.Common
 				// The values should be in the map
 				foreach (var item in body)
 				{
-					var test = (ITest?)item[UNIQUEIDKEY];
-					Guard.NotNull("Pulled null ITest item from work queue", test);
+					var test = (string?)item[UNIQUEIDKEY];
+					Guard.NotNull("Pulled null test unique ID from work queue", test);
 
 					item.Remove(UNIQUEIDKEY);
 

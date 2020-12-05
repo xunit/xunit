@@ -224,11 +224,11 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITest Test(
+		public static _ITest Test(
 			ITestCase testCase,
 			string displayName)
 		{
-			var result = Substitute.For<ITest, InterfaceProxy<ITest>>();
+			var result = Substitute.For<_ITest, InterfaceProxy<_ITest>>();
 			result.DisplayName.Returns(displayName);
 			result.TestCase.Returns(testCase);
 			return result;
@@ -453,20 +453,6 @@ namespace Xunit.v3
 				throw new Exception($"Unknown method: {type.FullName}.{methodName}");
 
 			return new TestMethod(@class, Reflector.Wrap(methodInfo));
-		}
-
-		public static ITestResultMessage TestResult<TClassUnderTest>(
-			string methodName,
-			string displayName,
-			decimal executionTime)
-		{
-			var testCase = TestCase<TClassUnderTest>(methodName);
-			var test = Test(testCase, displayName);
-			var result = Substitute.For<ITestResultMessage, InterfaceProxy<ITestResultMessage>>();
-			result.TestCase.Returns(testCase);
-			result.Test.Returns(test);
-			result.ExecutionTime.Returns(executionTime);
-			return result;
 		}
 
 		public static IReflectionAttributeInfo TheoryAttribute(

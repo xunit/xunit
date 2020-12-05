@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -342,18 +341,6 @@ namespace Xunit.Runner.Common
 			var testMetadata = metadataCache.TryGetTestMetadata(testResult);
 			var formattedName = Escape(testMetadata != null ? testMetadata.TestDisplayName : "<unknown test>");
 			var flowId = testResult.TestCollectionUniqueID;
-
-			if (!string.IsNullOrWhiteSpace(testResult.Output))
-				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{flowId}']");
-
-			logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{flowId}']");
-		}
-
-		// TODO: Delete this when there are no more callers
-		void LogFinish(ITestResultMessage testResult)
-		{
-			var formattedName = Escape("???");  // TODO: This needs to be based on the display name from metadata, but we don't have the unique ID here yet
-			var flowId = ToFlowId(testResult.TestCollection.DisplayName);
 
 			if (!string.IsNullOrWhiteSpace(testResult.Output))
 				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{flowId}']");

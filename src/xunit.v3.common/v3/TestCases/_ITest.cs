@@ -1,5 +1,3 @@
-#if false
-
 using Xunit.Abstractions;
 
 namespace Xunit.v3
@@ -22,5 +20,3 @@ namespace Xunit.v3
 		ITestCase TestCase { get; }
 	}
 }
-
-#endif
