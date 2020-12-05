@@ -116,6 +116,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 				var failCount = await RunProject(
 					commandLine.Project,
+					commandLine.Serialize,
 					commandLine.ParallelizeTestCollections,
 					commandLine.MaxParallelThreads,
 					commandLine.DiagnosticMessages,
@@ -327,6 +328,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 		async ValueTask<int> RunProject(
 			XunitProject project,
+			bool serialize,
 			bool? parallelizeTestCollections,
 			int? maxThreadCount,
 			bool diagnosticMessages,
@@ -350,6 +352,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			var assemblyElement = await ExecuteAssembly(
 				consoleLock,
 				assembly,
+				serialize,
 				needsXml,
 				parallelizeTestCollections,
 				maxThreadCount,
@@ -384,6 +387,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		async ValueTask<XElement?> ExecuteAssembly(
 			object consoleLock,
 			XunitProjectAssembly assembly,
+			bool serialize,
 			bool needsXml,
 			bool? parallelizeTestCollections,
 			int? maxThreadCount,
@@ -477,6 +481,15 @@ namespace Xunit.Runner.InProc.SystemConsole
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
 					var executor = testFramework.GetExecutor(assemblyInfo);
+
+					if (serialize)
+					{
+						filteredTestCases = (
+							from testCase in filteredTestCases
+							select executor.Deserialize(testDiscoverer.Serialize(testCase))
+						).ToList();
+					}
+
 					executor.RunTests(filteredTestCases, resultsSink, executionOptions);
 					resultsSink.Finished.WaitOne();
 

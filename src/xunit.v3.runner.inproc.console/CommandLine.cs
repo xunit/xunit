@@ -120,6 +120,13 @@ namespace Xunit.Runner.InProc.SystemConsole
 		public bool? ParallelizeTestCollections { get; set; }
 
 		/// <summary>
+		/// <para>Option: -serialize</para>
+		/// <para>When set to <c>true</c>, will serialize all tests cases. Useful by the
+		/// core developers to ensure that all test cases are properly serializable.</para>
+		/// </summary>
+		public bool Serialize { get; protected set; }
+
+		/// <summary>
 		/// <para>Option: -stoponfail</para>
 		/// <para>When set to <c>true</c>, will attempt to stop running tests as soon as one
 		/// has failed (by default, all tests will be run regardless of failures).</para>
@@ -271,6 +278,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 				{
 					GuardNoOptionValue(option);
 					Debug = true;
+				}
+				else if (optionName == "serialize")
+				{
+					GuardNoOptionValue(option);
+					Serialize = true;
 				}
 				else if (optionName == "wait")
 				{

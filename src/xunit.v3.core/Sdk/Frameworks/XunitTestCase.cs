@@ -85,7 +85,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the test class unique ID.
 		/// </summary>
-		protected string? TestClassUniqueID { get; }
+		protected string? TestClassUniqueID { get; set; }
 
 		/// <summary>
 		/// Gets the test collection unique ID.
@@ -99,7 +99,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the test method unique ID.
 		/// </summary>
-		protected string? TestMethodUniqueID { get; }
+		protected string? TestMethodUniqueID { get; set; }
 
 		/// <inheritdoc/>
 		public int Timeout
@@ -248,6 +248,10 @@ namespace Xunit.Sdk
 
 			base.Serialize(info);
 
+			info.AddValue("TestAssemblyUniqueID", TestAssemblyUniqueID);
+			info.AddValue("TestCollectionUniqueID", TestCollectionUniqueID);
+			info.AddValue("TestClassUniqueID", TestClassUniqueID);
+			info.AddValue("TestMethodUniqueID", TestMethodUniqueID);
 			info.AddValue("Timeout", Timeout);
 		}
 
@@ -258,6 +262,10 @@ namespace Xunit.Sdk
 
 			base.Deserialize(info);
 
+			TestAssemblyUniqueID = info.GetValue<string>("TestAssemblyUniqueID");
+			TestCollectionUniqueID = info.GetValue<string>("TestCollectionUniqueID");
+			TestClassUniqueID = info.GetValue<string?>("TestClassUniqueID");
+			TestMethodUniqueID = info.GetValue<string?>("TestMethodUniqueID");
 			Timeout = info.GetValue<int>("Timeout");
 		}
 	}
