@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Runner.v2
@@ -18,13 +16,11 @@ namespace Xunit.Runner.v2
 		/// </summary>
 		/// <param name="assemblyUniqueID">The unique ID of the assembly this adapter is for</param>
 		/// <param name="v3MessageSink">The v3 message sink to adapt</param>
-		/// <param name="adapter">The optional adapter (settable only for testing purposes)</param>
 		/// <returns>A v2 message sink which supports both <see cref="IMessageSink"/>
 		/// and <see cref="IMessageSinkWithTypes"/>.</returns>
 		public static Xunit2MessageSink Adapt(
 			string assemblyUniqueID,
-			_IMessageSink v3MessageSink,
-			Func<string, IMessageSinkMessage, HashSet<string>?, _MessageSinkMessage>? adapter = null) =>
-				new Xunit2MessageSink(assemblyUniqueID, v3MessageSink, adapter);
+			_IMessageSink v3MessageSink) =>
+				new Xunit2MessageSink(assemblyUniqueID, v3MessageSink);
 	}
 }
