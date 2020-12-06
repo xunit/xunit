@@ -230,16 +230,16 @@ namespace Xunit
 		/// <summary>
 		/// Starts the process of finding all xUnit.net v2 tests in an assembly.
 		/// </summary>
-		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		public void Find(
-			bool includeSourceInformation,
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+			var includeSourceInformation = discoveryOptions.GetIncludeSourceInformationOrDefault();
 
 			SendDiscoveryStartingMessage(messageSink);
 			RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
@@ -249,17 +249,17 @@ namespace Xunit
 		/// Starts the process of finding all xUnit.net v2 tests in a class.
 		/// </summary>
 		/// <param name="typeName">The fully qualified type name to find tests in.</param>
-		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		public void Find(
 			string typeName,
-			bool includeSourceInformation,
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+			var includeSourceInformation = discoveryOptions.GetIncludeSourceInformationOrDefault();
 
 			SendDiscoveryStartingMessage(messageSink);
 			RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));

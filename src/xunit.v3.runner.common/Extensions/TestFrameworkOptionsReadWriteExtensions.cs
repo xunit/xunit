@@ -21,16 +21,6 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
-	/// </summary>
-	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-		return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.InternalDiagnosticMessages);
-	}
-
-	/// <summary>
 	/// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not
 	/// set, returns the default value (<c>false</c>).
 	/// </summary>
@@ -39,6 +29,41 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
 		return discoveryOptions.GetDiagnosticMessages() ?? false;
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether discovered test cases should include source information.
+	/// Note that not all runners have access to source information, so this flag does not guarantee
+	/// that source information will be provided.
+	/// </summary>
+	public static bool? GetIncludeSourceInformation(this _ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+		return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.IncludeSourceInformation);
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether discovered test cases should include source information.
+	/// Note that not all runners have access to source information, so this flag does not guarantee
+	/// that source information will be provided. If the flag is not present, returns the default
+	/// value (<c>false</c>).
+	/// </summary>
+	public static bool GetIncludeSourceInformationOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+		return discoveryOptions.GetIncludeSourceInformation() ?? false;
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
+	/// </summary>
+	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+		return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.InternalDiagnosticMessages);
 	}
 
 	/// <summary>
@@ -152,6 +177,20 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
 		discoveryOptions.SetValue(TestOptionsNames.Discovery.DiagnosticMessages, value);
+	}
+
+	/// <summary>
+	/// Sets a flag that determines whether discovered test cases should include source information.
+	/// Note that not all runners have access to source information, so this flag does not guarantee
+	/// that source information will be provided.
+	/// </summary>
+	public static void SetIncludeSourceInformation(
+		this _ITestFrameworkDiscoveryOptions discoveryOptions,
+		bool? value)
+	{
+		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+		discoveryOptions.SetValue(TestOptionsNames.Discovery.IncludeSourceInformation, value);
 	}
 
 	/// <summary>

@@ -17,7 +17,7 @@ public class Xunit2Tests
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 
@@ -32,7 +32,7 @@ public class Xunit2Tests
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(typeName: "foo", includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(typeName: "foo", messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 
@@ -56,7 +56,7 @@ public class Foo
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 
@@ -106,7 +106,7 @@ namespace Namespace2
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 			var testCases = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase).ToArray();
@@ -146,7 +146,7 @@ public class TestClass
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
 			var testCaseNames = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();
@@ -187,7 +187,7 @@ let CustomName() =
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -232,7 +232,7 @@ let TestMethod (x:int) =
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
 
-			controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 			sink.Finished.WaitOne();
 
 			Assert.Collection(

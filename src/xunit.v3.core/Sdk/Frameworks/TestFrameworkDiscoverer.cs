@@ -117,7 +117,6 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public void Find(
-			bool includeSourceInformation,
 			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
@@ -141,7 +140,7 @@ namespace Xunit.Sdk
 					foreach (var type in AssemblyInfo.GetTypes(false).Where(IsValidTestClass))
 					{
 						var testClass = CreateTestClass(type);
-						if (!FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus, discoveryOptions))
+						if (!FindTestsForTypeAndWrapExceptions(testClass, messageBus, discoveryOptions))
 							break;
 					}
 
@@ -164,7 +163,6 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public void Find(
 			string typeName,
-			bool includeSourceInformation,
 			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
@@ -190,7 +188,7 @@ namespace Xunit.Sdk
 					if (typeInfo != null && IsValidTestClass(typeInfo))
 					{
 						var testClass = CreateTestClass(typeInfo);
-						FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus, discoveryOptions);
+						FindTestsForTypeAndWrapExceptions(testClass, messageBus, discoveryOptions);
 					}
 
 					var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
@@ -205,7 +203,6 @@ namespace Xunit.Sdk
 		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
 		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testClass">The test class.</param>
-		/// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
 		/// <param name="messageBus">The message sink to send discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
@@ -213,14 +210,12 @@ namespace Xunit.Sdk
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
 			ITestClass testClass,
-			bool includeSourceInformation,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
 		bool FindTestsForTypeAndWrapExceptions(
 			ITestClass testClass,
-			bool includeSourceInformation,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
@@ -228,7 +223,7 @@ namespace Xunit.Sdk
 			{
 				var testCollectionUniqueID = FactDiscoverer.ComputeUniqueID(TestAssemblyUniqueID, testClass.TestCollection);
 				var testClassUniqueID = FactDiscoverer.ComputeUniqueID(testCollectionUniqueID, testClass);
-				return FindTestsForType(testCollectionUniqueID, testClassUniqueID, testClass, includeSourceInformation, messageBus, discoveryOptions);
+				return FindTestsForType(testCollectionUniqueID, testClassUniqueID, testClass, messageBus, discoveryOptions);
 			}
 			catch (Exception ex)
 			{

@@ -180,20 +180,18 @@ namespace Xunit
 
 		/// <inheritdoc/>
 		public virtual void Find(
-			bool includeSourceInformation,
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			InnerController.Find(includeSourceInformation, messageSink, discoveryOptions);
+			InnerController.Find(messageSink, discoveryOptions);
 		}
 
 		/// <inheritdoc/>
 		public virtual void Find(
 			string typeName,
-			bool includeSourceInformation,
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
@@ -201,7 +199,7 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			InnerController.Find(typeName, includeSourceInformation, messageSink, discoveryOptions);
+			InnerController.Find(typeName, messageSink, discoveryOptions);
 		}
 
 		/// <inheritdoc/>

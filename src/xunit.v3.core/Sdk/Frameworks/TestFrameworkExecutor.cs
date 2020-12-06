@@ -113,7 +113,7 @@ namespace Xunit.Sdk
 			var discoverer = CreateDiscoverer();
 			tracker.Add(discoverer);
 
-			discoverer.Find(false, discoverySink, discoveryOptions);
+			discoverer.Find(discoverySink, discoveryOptions);
 			discoverySink.Finished.WaitOne();
 
 			RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), executionMessageSink, executionOptions);

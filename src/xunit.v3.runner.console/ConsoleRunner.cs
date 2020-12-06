@@ -465,7 +465,7 @@ namespace Xunit.Runner.SystemConsole
 					};
 					reporterMessageHandler.OnMessage(discoveryStarting);
 
-					controller.Find(false, discoverySink, discoveryOptions);
+					controller.Find(discoverySink, discoveryOptions);
 					discoverySink.Finished.WaitOne();
 
 					var testCasesDiscovered = discoverySink.TestCases.Count;

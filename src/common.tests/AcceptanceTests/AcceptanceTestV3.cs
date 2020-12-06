@@ -23,19 +23,19 @@ public class AcceptanceTestV3
 				var diagnosticMessageSink = new _NullMessageSink();
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
-				using var discoverySink = Xunit.v3.SpyMessageSink<_DiscoveryComplete>.Create();
+				using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
 				{
-					discoverer.Find(type.FullName!, includeSourceInformation: false, discoverySink, _TestFrameworkOptions.ForDiscovery());
+					discoverer.Find(type.FullName!, discoverySink, _TestFrameworkOptions.ForDiscovery());
 					discoverySink.Finished.WaitOne();
 					discoverySink.Finished.Reset();
 				}
 
 				var testCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(msg => msg.TestCase).ToArray();
 
-				using var runSink = Xunit.v3.SpyMessageSink<_TestAssemblyFinished>.Create();
+				using var runSink = SpyMessageSink<_TestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(assemblyInfo);
 				executor.RunTests(testCases, runSink, _TestFrameworkOptions.ForExecution());
 				runSink.Finished.WaitOne();

@@ -38,7 +38,7 @@ namespace Namespace1
 			await using (var serializationController = new TestableXunitFrontController(assembly.FileName))
 			{
 				using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
-				serializationController.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+				serializationController.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 				sink.Finished.WaitOne();
 
 				var testCases = sink.Messages.OfType<_TestCaseDiscovered>().OrderBy(tcdm => tcdm.TestCase.TestMethod.Method.Name).Select(tcdm => tcdm.TestCase).ToList();

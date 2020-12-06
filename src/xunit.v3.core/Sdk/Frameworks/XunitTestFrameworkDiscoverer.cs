@@ -92,7 +92,6 @@ namespace Xunit.Sdk
 		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
 		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethod">The test method.</param>
-		/// <param name="includeSourceInformation">Set to <c>true</c> to indicate that source information should be included.</param>
 		/// <param name="messageBus">The message bus to report discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
@@ -100,10 +99,10 @@ namespace Xunit.Sdk
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
 			ITestMethod testMethod,
-			bool includeSourceInformation,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
+			var includeSourceInformation = discoveryOptions.IncludeSourceInformationOrDefault();
 			var testMethodUniqueID = FactDiscoverer.ComputeUniqueID(testClassUniqueID, testMethod);
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
@@ -149,14 +148,13 @@ namespace Xunit.Sdk
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
 			ITestClass testClass,
-			bool includeSourceInformation,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			foreach (var method in testClass.Class.GetMethods(true))
 			{
 				var testMethod = new TestMethod(testClass, method);
-				if (!FindTestsForMethod(testCollectionUniqueID, testClassUniqueID, testMethod, includeSourceInformation, messageBus, discoveryOptions))
+				if (!FindTestsForMethod(testCollectionUniqueID, testClassUniqueID, testMethod, messageBus, discoveryOptions))
 					return false;
 			}
 

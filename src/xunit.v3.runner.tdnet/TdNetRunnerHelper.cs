@@ -43,7 +43,7 @@ namespace Xunit.Runner.TdNet
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-			return Discover(sink => xunit.Find(false, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
+			return Discover(sink => xunit.Find(sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
 		IReadOnlyList<ITestCase> Discover(Type? type)
@@ -53,7 +53,7 @@ namespace Xunit.Runner.TdNet
 			if (type == null)
 				return new ITestCase[0];
 
-			return Discover(sink => xunit.Find(type.FullName!, false, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
+			return Discover(sink => xunit.Find(type.FullName!, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
 		IReadOnlyList<ITestCase> Discover(Action<_IMessageSink> discoveryAction)

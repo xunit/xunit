@@ -262,9 +262,9 @@ namespace Xunit.Runners
 			{
 				var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
 				if (typeName != null)
-					controller.Find(typeName, false, this, discoveryOptions);
+					controller.Find(typeName, this, discoveryOptions);
 				else
-					controller.Find(false, this, discoveryOptions);
+					controller.Find(this, discoveryOptions);
 
 				discoveryCompleteEvent.WaitOne();
 				if (cancelled)

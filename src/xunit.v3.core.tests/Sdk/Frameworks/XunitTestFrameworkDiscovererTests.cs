@@ -32,8 +32,8 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
-			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()));
-			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: Substitute.For<_IMessageSink>(), discoveryOptions: null!));
+			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(discoveryMessageSink: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()));
+			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(discoveryMessageSink: Substitute.For<_IMessageSink>(), discoveryOptions: null!));
 		}
 
 		[Fact]
@@ -67,7 +67,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(0).FindTestsForClass(Arg.Any<ITestClass>(), Arg.Any<bool>());
+			framework.Received(0).FindTestsForClass(Arg.Any<ITestClass>());
 		}
 
 		[Fact]
@@ -82,8 +82,8 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == objectTypeInfo), false);
-			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == intTypeInfo), false);
+			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == objectTypeInfo));
+			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == intTypeInfo));
 		}
 
 		[Fact]
@@ -124,10 +124,10 @@ public class XunitTestFrameworkDiscovererTests
 			var sink = Substitute.For<_IMessageSink>();
 			var options = _TestFrameworkOptions.ForDiscovery();
 
-			Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null!, includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
-			Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
-			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(typeName, includeSourceInformation: false, discoveryMessageSink: null!, discoveryOptions: options));
-			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(typeName, includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: null!));
+			Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null!, discoveryMessageSink: sink, discoveryOptions: options));
+			Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", discoveryMessageSink: sink, discoveryOptions: options));
+			Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(typeName, discoveryMessageSink: null!, discoveryOptions: options));
+			Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(typeName, discoveryMessageSink: sink, discoveryOptions: null!));
 		}
 
 		[Fact]
@@ -153,7 +153,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == type), false);
+			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == type));
 		}
 
 		[Fact]
@@ -167,7 +167,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(0).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == type), Arg.Any<bool>());
+			framework.Received(0).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == type));
 		}
 
 		[Fact]
@@ -513,37 +513,32 @@ public class XunitTestFrameworkDiscovererTests
 			return base.CreateTestClass(@class);
 		}
 
-		public void Find(bool includeSourceInformation = false)
+		public void Find()
 		{
-			base.Find(includeSourceInformation, Sink, _TestFrameworkOptions.ForDiscovery());
+			base.Find(Sink, _TestFrameworkOptions.ForDiscovery());
 			Sink.Finished.WaitOne();
 		}
 
-		public void Find(
-			string typeName,
-			bool includeSourceInformation = false)
+		public void Find(string typeName)
 		{
-			Find(typeName, includeSourceInformation, Sink, _TestFrameworkOptions.ForDiscovery());
+			Find(typeName, Sink, _TestFrameworkOptions.ForDiscovery());
 			Sink.Finished.WaitOne();
 		}
 
-		public virtual bool FindTestsForClass(
-			ITestClass testClass,
-			bool includeSourceInformation = false)
+		public virtual bool FindTestsForClass(ITestClass testClass)
 		{
 			using var messageBus = new MessageBus(Sink);
-			return base.FindTestsForType("test-collection-id", "test-class-id", testClass, includeSourceInformation, messageBus, _TestFrameworkOptions.ForDiscovery());
+			return base.FindTestsForType("test-collection-id", "test-class-id", testClass, messageBus, _TestFrameworkOptions.ForDiscovery());
 		}
 
 		protected sealed override bool FindTestsForType(
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
 			ITestClass testClass,
-			bool includeSourceInformation,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			return FindTestsForClass(testClass, includeSourceInformation);
+			return FindTestsForClass(testClass);
 		}
 
 		protected sealed override bool IsValidTestClass(ITypeInfo type)

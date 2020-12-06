@@ -446,7 +446,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				};
 				reporterMessageHandler.OnMessage(discoveryStarting);
 
-				testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
+				testDiscoverer.Find(discoverySink, discoveryOptions);
 				discoverySink.Finished.WaitOne();
 
 				var testCasesDiscovered = discoverySink.TestCases.Count;

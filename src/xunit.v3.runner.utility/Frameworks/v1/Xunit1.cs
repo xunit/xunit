@@ -138,13 +138,17 @@ namespace Xunit
 
 		/// <inheritdoc/>
 		void _ITestFrameworkDiscoverer.Find(
-			bool includeSourceInformation,
-			_IMessageSink? messageSink,
-			_ITestFrameworkDiscoveryOptions? discoveryOptions)
+			_IMessageSink messageSink,
+			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			Find(msg => true, includeSourceInformation, messageSink);
+			Find(
+				msg => true,
+				discoveryOptions.GetIncludeSourceInformationOrDefault(),
+				messageSink
+			);
 		}
 
 		/// <summary>
@@ -158,17 +162,31 @@ namespace Xunit
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
-			Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
+			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+
+			Find(
+				msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName,
+				includeSourceInformation,
+				messageSink
+			);
 		}
 
 		/// <inheritdoc/>
 		void _ITestFrameworkDiscoverer.Find(
 			string typeName,
-			bool includeSourceInformation,
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
+			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+			Find(
+				msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName,
+				discoveryOptions.GetIncludeSourceInformationOrDefault(),
+				messageSink
+			);
 		}
 
 		void Find(
