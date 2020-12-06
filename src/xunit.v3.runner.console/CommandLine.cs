@@ -52,8 +52,6 @@ namespace Xunit.Runner.SystemConsole
 
 		public bool? ParallelizeTestCollections { get; set; }
 
-		public bool Serialize { get; protected set; }
-
 		public bool StopOnFail { get; protected set; }
 
 		public bool Wait { get; protected set; }
@@ -199,7 +197,8 @@ namespace Xunit.Runner.SystemConsole
 				else if (optionName == "serialize")
 				{
 					GuardNoOptionValue(option);
-					Serialize = true;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.IncludeSerialization = true;
 				}
 				else if (optionName == "wait")
 				{

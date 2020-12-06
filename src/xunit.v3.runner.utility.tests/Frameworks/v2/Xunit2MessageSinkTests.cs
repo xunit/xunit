@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
@@ -196,16 +197,19 @@ public class Xunit2MessageSinkTests
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
 		}
 
-		[Fact]
-		public void TestCaseDiscoveryMessage()
+		[Theory]
+		[InlineData(default(string))]
+		[InlineData("abc123")]
+		public void TestCaseDiscoveryMessage(string? expectedSerialization)
 		{
 			var v2Message = Xunit2Mocks.TestCaseDiscoveryMessage(TestCase);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Sink = TestableXunit2MessageSink.Create(expectedSerialization);
 
 			var adapted = v2Sink.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCaseDiscovered>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(expectedSerialization, v3Message.Serialization);
 			Assert.Equal("skip-reason", v3Message.SkipReason);
 			Assert.Equal("source-file", v3Message.SourceFilePath);
 			Assert.Equal(2112, v3Message.SourceLineNumber);
@@ -784,14 +788,21 @@ public class Xunit2MessageSinkTests
 
 	class TestableXunit2MessageSink : Xunit2MessageSink
 	{
-		TestableXunit2MessageSink(List<_MessageSinkMessage> messages)
-			: base(TestAssemblyUniqueID, SpyMessageSink.Create())
+		TestableXunit2MessageSink(
+			ITestFrameworkDiscoverer discoverer,
+			bool includeSerialization)
+				: base(TestAssemblyUniqueID, discoverer, includeSerialization, SpyMessageSink.Create())
 		{ }
 
 		public _MessageSinkMessage Adapt(IMessageSinkMessage message) =>
 			base.Adapt(message);
 
-		public static TestableXunit2MessageSink Create() =>
-			new TestableXunit2MessageSink(new List<_MessageSinkMessage>());
+		public static TestableXunit2MessageSink Create(string? testCaseSerializedValue = null)
+		{
+			var discoverer = Substitute.For<ITestFrameworkDiscoverer, InterfaceProxy<ITestFrameworkDiscoverer>>();
+			discoverer.Serialize(null).ReturnsForAnyArgs(testCaseSerializedValue);
+
+			return new TestableXunit2MessageSink(discoverer, testCaseSerializedValue != null);
+		}
 	}
 }

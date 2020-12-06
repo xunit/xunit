@@ -14,6 +14,13 @@ namespace Xunit.v3
 		string? testCaseDisplayName;
 		Dictionary<string, List<string>> traits = new Dictionary<string, List<string>>();
 
+		/// <summary>
+		/// Gets the serialized value of the test case, which allows it to be transferred across
+		/// process boundaries. Will only be available if <see cref="TestOptionsNames.Discovery.IncludeSerialization"/>
+		/// is present inside the discovery options when the test case was discovered.
+		/// </summary>
+		public string? Serialization { get; set; }
+
 		/// <inheritdoc/>
 		public string? SkipReason { get; set; }
 

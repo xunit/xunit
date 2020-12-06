@@ -189,6 +189,7 @@ namespace Xunit.Runner.MSBuild
 						configFileName = null;
 
 					var projectAssembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName, ConfigFilename = configFileName };
+					projectAssembly.Configuration.IncludeSerialization = SerializeTestCases;
 					if (shadowCopy.HasValue)
 						projectAssembly.Configuration.ShadowCopy = shadowCopy;
 
@@ -327,12 +328,6 @@ namespace Xunit.Runner.MSBuild
 					completionMessages.TryAdd(controller.TestAssemblyUniqueID, new ExecutionSummary());
 				else
 				{
-					if (SerializeTestCases)
-						filteredTestCases = (
-							from testCase in filteredTestCases
-							select controller.Deserialize(controller.Serialize(testCase))
-						).ToList();
-
 					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
 					if (assemblyElement != null)
 						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
@@ -348,6 +343,7 @@ namespace Xunit.Runner.MSBuild
 					};
 					reporterMessageHandler!.OnMessage(executionStarting);
 
+					// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
 					controller.RunTests(filteredTestCases, resultsSink, executionOptions);
 					resultsSink.Finished.WaitOne();
 

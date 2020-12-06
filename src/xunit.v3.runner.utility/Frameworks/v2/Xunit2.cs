@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -17,7 +18,7 @@ namespace Xunit
 	/// This class be used to do discovery and execution of xUnit.net v2 tests
 	/// using a reflection-based implementation of <see cref="IAssemblyInfo"/>.
 	/// </summary>
-	public class Xunit2 : Xunit2Discoverer, IFrontController, ITestCaseBulkDeserializer
+	public class Xunit2 : Xunit2Discoverer, IFrontController
 	{
 		ITestCaseBulkDeserializer? defaultTestCaseBulkDeserializer;
 		readonly ITestFrameworkExecutor remoteExecutor;
@@ -58,8 +59,7 @@ namespace Xunit
 			DisposalTracker.Add(remoteExecutor);
 		}
 
-		/// <inheritdoc/>
-		public List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations)
+		List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations)
 		{
 			var callbackContainer = new DeserializeCallback();
 			Action<List<KeyValuePair<string?, ITestCase?>>> callback = callbackContainer.Callback;
@@ -77,15 +77,11 @@ namespace Xunit
 					catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseBulkDeserialize" doesn't exist
 				}
 
-				defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(this);
+				defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(remoteExecutor);
 			}
 
 			return defaultTestCaseBulkDeserializer.BulkDeserialize(serializations);
 		}
-
-		/// <inheritdoc/>
-		public ITestCase Deserialize(string value) =>
-			remoteExecutor.Deserialize(value);
 
 		/// <summary>
 		/// Starts the process of running all the xUnit.net v2 tests in the assembly.
@@ -114,6 +110,21 @@ namespace Xunit
 			_IMessageSink messageSink,
 			_ITestFrameworkExecutionOptions executionOptions) =>
 				remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(executionOptions));
+
+		/// <summary>
+		/// Starts the process of running the selected xUnit.net v2 tests.
+		/// </summary>
+		/// <param name="serializedTestCases">The test cases to run; if null, all tests in the assembly are run.</param>
+		/// <param name="executionMessageSink">The message sink to report results back to.</param>
+		/// <param name="executionOptions">The options to be used during test execution.</param>
+		public void RunTests(
+			IEnumerable<string> serializedTestCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
+		{
+			var testCases = BulkDeserialize(serializedTestCases.ToList()).Select(kvp => kvp.Value).ToList();
+			RunTests(testCases, executionMessageSink, executionOptions);
+		}
 
 		class DeserializeCallback : LongLivedMarshalByRefObject
 		{

@@ -3,16 +3,17 @@ using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.v2;
 using Xunit.v3;
 
 public class DefaultTestCaseDescriptorProviderTests
 {
-	_ITestFrameworkDiscoverer discoverer;
+	ITestFrameworkDiscoverer discoverer;
 	DefaultTestCaseDescriptorProvider provider;
 
 	public DefaultTestCaseDescriptorProviderTests()
 	{
-		discoverer = Substitute.For<_ITestFrameworkDiscoverer>();
+		discoverer = Substitute.For<ITestFrameworkDiscoverer>();
 		discoverer.Serialize(null!).ReturnsForAnyArgs(callInfo => $"Serialization of test case ID '{callInfo.Arg<ITestCase>().UniqueID}'");
 
 		provider = new DefaultTestCaseDescriptorProvider(discoverer);

@@ -125,15 +125,17 @@ namespace Xunit
 		/// <summary>
 		/// Starts the process of finding all xUnit.net v1 tests in an assembly.
 		/// </summary>
+		/// <param name="includeSerialization">Whether to include the serialization of the test case.</param>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Find(
+			bool includeSerialization,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
-			Find(msg => true, includeSourceInformation, messageSink);
+			Find(msg => true, includeSerialization, includeSourceInformation, messageSink);
 		}
 
 		/// <inheritdoc/>
@@ -146,6 +148,7 @@ namespace Xunit
 
 			Find(
 				msg => true,
+				discoveryOptions.GetIncludeSerializationOrDefault(),
 				discoveryOptions.GetIncludeSourceInformationOrDefault(),
 				messageSink
 			);
@@ -155,10 +158,12 @@ namespace Xunit
 		/// Starts the process of finding all xUnit.net v1 tests in a class.
 		/// </summary>
 		/// <param name="typeName">The fully qualified type name to find tests in.</param>
+		/// <param name="includeSerialization">Whether to include the serialization of the test case.</param>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Find(
 			string typeName,
+			bool includeSerialization,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
@@ -167,6 +172,7 @@ namespace Xunit
 
 			Find(
 				msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName,
+				includeSerialization,
 				includeSourceInformation,
 				messageSink
 			);
@@ -184,6 +190,7 @@ namespace Xunit
 
 			Find(
 				msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName,
+				discoveryOptions.GetIncludeSerializationOrDefault(),
 				discoveryOptions.GetIncludeSourceInformationOrDefault(),
 				messageSink
 			);
@@ -191,6 +198,7 @@ namespace Xunit
 
 		void Find(
 			Predicate<_TestCaseDiscovered> filter,
+			bool includeSerialization,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
@@ -229,6 +237,7 @@ namespace Xunit
 							var message = new _TestCaseDiscovered
 							{
 								AssemblyUniqueID = TestAssemblyUniqueID,
+								Serialization = includeSerialization ? SerializationHelper.Serialize(testCase) : null,
 								SkipReason = testCase.SkipReason,
 								SourceFilePath = testCase.SourceInformation?.FileName,
 								SourceLineNumber = testCase.SourceInformation?.LineNumber,
@@ -263,7 +272,7 @@ namespace Xunit
 			var discoverySink = new TestDiscoverySink();
 			disposalTracker.Add(discoverySink);
 
-			Find(false, discoverySink);
+			Find(false, false, discoverySink);
 			discoverySink.Finished.WaitOne();
 
 			Run(discoverySink.TestCases, messageSink);
@@ -275,6 +284,19 @@ namespace Xunit
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Run(messageSink);
+		}
+
+		/// <summary>
+		/// Starts the process of running all the xUnit.net v1 tests.
+		/// </summary>
+		/// <param name="serializedTestCases">The serialized test cases to run</param>
+		/// <param name="messageSink">The message sink to report results back to.</param>
+		public void Run(
+			IEnumerable<string> serializedTestCases,
+			_IMessageSink messageSink)
+		{
+			var testCases = serializedTestCases.Select(x => Deserialize(x)).Where(x => x != null).Select(x => x!).ToList();
+			Run(testCases, messageSink);
 		}
 
 		/// <summary>
@@ -346,10 +368,14 @@ namespace Xunit
 		void _ITestFrameworkExecutor.RunTests(
 			IEnumerable<ITestCase> testCases,
 			_IMessageSink messageSink,
-			_ITestFrameworkExecutionOptions executionOptions)
-		{
-			Run(testCases, messageSink);
-		}
+			_ITestFrameworkExecutionOptions executionOptions) =>
+				Run(testCases, messageSink);
+
+		void _ITestFrameworkExecutor.RunTests(
+			IEnumerable<string> serializedTestCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions) =>
+				Run(serializedTestCases, executionMessageSink);
 
 		Xunit1RunSummary RunTestCollection(
 			string assemblyUniqueID,

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.v2
 {
 	/// <summary>
 	/// INTERNAL INTERFACE. DO NOT USE.

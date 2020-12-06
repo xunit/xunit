@@ -11,15 +11,6 @@ namespace Xunit.v3
 	/// </summary>
 	public interface _ITestFrameworkExecutor
 	{
-		// TODO: Can we get away without Deserialize?
-
-		/// <summary>
-		/// De-serializes a test case.
-		/// </summary>
-		/// <param name="value">The string representation of the test case.</param>
-		/// <returns>The de-serialized test case.</returns>
-		ITestCase? Deserialize(string value);
-
 		/// <summary>
 		/// Starts the process of running all the tests in the assembly.
 		/// </summary>
@@ -40,6 +31,18 @@ namespace Xunit.v3
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunTests(
 			IEnumerable<ITestCase> testCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions
+		);
+
+		/// <summary>
+		/// Starts the process of running selected tests in the assembly.
+		/// </summary>
+		/// <param name="serializedTestCases">The test cases to run.</param>
+		/// <param name="executionMessageSink">The message sink to report results back to.</param>
+		/// <param name="executionOptions">The options to be used during test execution.</param>
+		void RunTests(
+			IEnumerable<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);

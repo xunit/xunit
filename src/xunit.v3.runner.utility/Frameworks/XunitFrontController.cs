@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Xunit.Abstractions;
-using Xunit.Runner.Common;
-using Xunit.Internal;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
+using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.v3;
 
 #if NETFRAMEWORK
@@ -17,13 +17,11 @@ namespace Xunit
 	/// Default implementation of <see cref="IFrontController"/> which supports running tests from
 	/// both xUnit.net v1 and v2.
 	/// </summary>
-	public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider, ITestCaseBulkDeserializer, IAsyncDisposable
+	public class XunitFrontController : IFrontController, IAsyncDisposable
 	{
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
-		ITestCaseBulkDeserializer? bulkDeserializer;
 		readonly string? configFileName;
-		ITestCaseDescriptorProvider? descriptorProvider;
 		readonly _IMessageSink diagnosticMessageSink;
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		bool disposed;
@@ -87,30 +85,8 @@ namespace Xunit
 			}
 		}
 
-		ITestCaseBulkDeserializer BulkDeserializer
-		{
-			get
-			{
-				if (bulkDeserializer == null)
-					bulkDeserializer = (InnerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(InnerController);
-
-				return bulkDeserializer;
-			}
-		}
-
 		/// <inheritdoc/>
 		public bool CanUseAppDomains => InnerController.CanUseAppDomains;
-
-		ITestCaseDescriptorProvider DescriptorProvider
-		{
-			get
-			{
-				if (descriptorProvider == null)
-					descriptorProvider = (InnerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(InnerController);
-
-				return descriptorProvider;
-			}
-		}
 
 		IFrontController InnerController
 		{
@@ -135,10 +111,6 @@ namespace Xunit
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => InnerController.TestFrameworkDisplayName;
 
-		/// <inheritdoc/>
-		public List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations) =>
-			BulkDeserializer.BulkDeserialize(serializations);
-
 		/// <summary>
 		/// FOR INTERNAL USE ONLY.
 		/// </summary>
@@ -157,14 +129,6 @@ namespace Xunit
 #else
 			return new Xunit2(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
-		}
-
-		/// <inheritdoc/>
-		public ITestCase? Deserialize(string value)
-		{
-			Guard.ArgumentNotNull(nameof(value), value);
-
-			return InnerController.Deserialize(value);
 		}
 
 		/// <inheritdoc/>
@@ -203,10 +167,6 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization) =>
-			DescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
-
-		/// <inheritdoc/>
 		public virtual void RunAll(
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
@@ -233,11 +193,16 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public string Serialize(ITestCase testCase)
+		public virtual void RunTests(
+			IEnumerable<string> serializedTestCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(testCase), testCase);
+			Guard.ArgumentNotNull(nameof(serializedTestCases), serializedTestCases);
+			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
-			return InnerController.Serialize(testCase);
+			InnerController.RunTests(serializedTestCases, executionMessageSink, executionOptions);
 		}
 	}
 }

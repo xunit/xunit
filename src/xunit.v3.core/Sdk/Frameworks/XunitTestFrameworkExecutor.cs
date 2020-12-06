@@ -5,6 +5,8 @@ using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.v3;
 
+// TODO: Need to acceptance test this via Xunit3, once it comes into existence. See Xunit2Tests.cs for examples.
+
 namespace Xunit.Sdk
 {
 	/// <summary>
@@ -51,7 +53,7 @@ namespace Xunit.Sdk
 		protected override _ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
 
 		/// <inheritdoc/>
-		public override ITestCase Deserialize(string value)
+		protected override ITestCase Deserialize(string value)
 		{
 			if (value.Length > 3 && value.StartsWith(":F:"))
 			{

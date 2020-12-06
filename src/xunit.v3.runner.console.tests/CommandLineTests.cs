@@ -141,7 +141,7 @@ public class CommandLineTests
 			("-noshadow", cmd => !cmd.Project.Assemblies.Single().Configuration.ShadowCopyOrDefault),
 			("-pause", cmd => cmd.Pause),
 			("-preenumeratetheories", cmd => cmd.PreEnumerateTheories),
-			("-serialize", cmd => cmd.Serialize),
+			("-serialize", cmd => cmd.Project.Assemblies.Single().Configuration.IncludeSerializationOrDefault),
 			("-stoponfail", cmd => cmd.StopOnFail),
 			("-wait", cmd => cmd.Wait),
 		};

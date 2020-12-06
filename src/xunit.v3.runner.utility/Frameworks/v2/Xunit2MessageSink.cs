@@ -16,6 +16,8 @@ namespace Xunit.Runner.v2
 	public class Xunit2MessageSink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 	{
 		readonly string assemblyUniqueID;
+		readonly ITestFrameworkDiscoverer? discoverer;
+		readonly bool includeSerialization;
 		readonly Dictionary<ITestCase, Dictionary<ITest, string>> testUniqueIDsByTestCase = new Dictionary<ITestCase, Dictionary<ITest, string>>();
 		readonly _IMessageSink v3MessageSink;
 
@@ -23,12 +25,23 @@ namespace Xunit.Runner.v2
 		/// Initializes a new instance of the <see cref="Xunit2MessageSink"/> class.
 		/// </summary>
 		/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
+		/// <param name="discoverer">The discoverer used to serialize test cases (must not be <c>null</c>
+		/// if <paramref name="includeSerialization"/> is <c>true</c>)</param>
+		/// <param name="includeSerialization">A flag to indicate whether test case discovery metadata should
+		/// include the serialized version of the test case</param>
 		/// <param name="v3MessageSink">The v3 message sink to which to report the messages</param>
 		protected internal Xunit2MessageSink(
 			string assemblyUniqueID,
+			ITestFrameworkDiscoverer? discoverer,
+			bool includeSerialization,
 			_IMessageSink v3MessageSink)
 		{
+			if (includeSerialization)
+				Guard.ArgumentValid(nameof(discoverer), $"{nameof(discoverer)} cannot be null when {nameof(includeSerialization)} is true", discoverer != null);
+
 			this.assemblyUniqueID = Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
+			this.discoverer = discoverer;
+			this.includeSerialization = includeSerialization;
 			this.v3MessageSink = Guard.ArgumentNotNull(nameof(v3MessageSink), v3MessageSink);
 		}
 
@@ -256,6 +269,7 @@ namespace Xunit.Runner.v2
 			return new _TestCaseDiscovered
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Serialization = includeSerialization ? discoverer!.Serialize(testCase) : null,
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceInformation?.FileName,
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,

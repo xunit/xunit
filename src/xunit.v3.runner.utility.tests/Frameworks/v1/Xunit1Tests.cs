@@ -11,6 +11,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v1;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -98,7 +99,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(false, sink);
+			xunit1.Find(includeSerialization: false, includeSourceInformation: false, sink);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -167,7 +168,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find("Type2", false, sink);
+			xunit1.Find("Type2", includeSerialization: false, includeSourceInformation: false, sink);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -198,13 +199,49 @@ public class Xunit1Tests
 				.ReturnsForAnyArgs(callInfo => new _SourceInformation { FileName = $"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}" });
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(true, sink);
+			xunit1.Find(includeSerialization: false, includeSourceInformation: true, sink);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(sink.TestCases,
 				testCase => Assert.Equal("File for Type2.Method1", testCase.SourceInformation.FileName),
 				testCase => Assert.Equal("File for Type2.Method2", testCase.SourceInformation.FileName)
 			);
+		}
+
+		[Fact]
+		public void CanIncludeSerializationOfTestCase()
+		{
+			var xml = @"
+<assembly>
+	<class name='Type2'>
+		<method name='Type2.Method1' type='Type2' method='Method1'/>
+		<method name='Type2.Method2' type='Type2' method='Method2'/>
+	</class>
+</assembly>";
+
+			var xunit1 = new TestableXunit1();
+			xunit1
+				.Executor
+				.WhenForAnyArgs(x => x.EnumerateTests(null))
+				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
+			var sink = new TestableTestDiscoverySink();
+
+			xunit1.Find(includeSerialization: true, includeSourceInformation: false, sink);
+			sink.Finished.WaitOne();
+
+			// Paths differ, so we have different serialized values
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				Assert.Collection(
+					sink.DiscoveredTestCases,
+					testCase => Assert.Equal("Xunit.Runner.v1.Xunit1TestCase, xunit.v3.runner.utility.net472:QXNzZW1ibHlGaWxlTmFtZTpTeXN0ZW0uU3RyaW5nOlF6cGNWWE5sY25OY1luSmhaSGRwYkhOdmJseGhjM05sYldKc2VTNWtiR3c9CkNvbmZpZ0ZpbGVOYW1lOlN5c3RlbS5PYmplY3QKTWV0aG9kTmFtZTpTeXN0ZW0uU3RyaW5nOlRXVjBhRzlrTVE9PQpUeXBlTmFtZTpTeXN0ZW0uU3RyaW5nOlZIbHdaVEk9CkRpc3BsYXlOYW1lOlN5c3RlbS5TdHJpbmc6Vkhsd1pUSXVUV1YwYUc5a01RPT0KU2tpcFJlYXNvbjpTeXN0ZW0uT2JqZWN0ClNvdXJjZUluZm9ybWF0aW9uOlN5c3RlbS5PYmplY3QKVHJhaXRzLktleXM6U3lzdGVtLlN0cmluZ1tdOlJXeGxiV1Z1ZEZSNWNHVTZVM2x6ZEdWdExsTjBjbWx1WnpwVk0yeDZaRWRXZEV4c1RqQmpiV3gxV25jOVBRcFNZVzVyT2xONWMzUmxiUzVKYm5Rek1qb3hDbFJ2ZEdGc1RHVnVaM1JvT2xONWMzUmxiUzVKYm5Rek1qb3dDa3hsYm1kMGFEQTZVM2x6ZEdWdExrbHVkRE15T2pBS1RHOTNaWEpDYjNWdVpEQTZVM2x6ZEdWdExrbHVkRE15T2pBPQ==", testCase.Serialization),
+					testCase => Assert.Equal("Xunit.Runner.v1.Xunit1TestCase, xunit.v3.runner.utility.net472:QXNzZW1ibHlGaWxlTmFtZTpTeXN0ZW0uU3RyaW5nOlF6cGNWWE5sY25OY1luSmhaSGRwYkhOdmJseGhjM05sYldKc2VTNWtiR3c9CkNvbmZpZ0ZpbGVOYW1lOlN5c3RlbS5PYmplY3QKTWV0aG9kTmFtZTpTeXN0ZW0uU3RyaW5nOlRXVjBhRzlrTWc9PQpUeXBlTmFtZTpTeXN0ZW0uU3RyaW5nOlZIbHdaVEk9CkRpc3BsYXlOYW1lOlN5c3RlbS5TdHJpbmc6Vkhsd1pUSXVUV1YwYUc5a01nPT0KU2tpcFJlYXNvbjpTeXN0ZW0uT2JqZWN0ClNvdXJjZUluZm9ybWF0aW9uOlN5c3RlbS5PYmplY3QKVHJhaXRzLktleXM6U3lzdGVtLlN0cmluZ1tdOlJXeGxiV1Z1ZEZSNWNHVTZVM2x6ZEdWdExsTjBjbWx1WnpwVk0yeDZaRWRXZEV4c1RqQmpiV3gxV25jOVBRcFNZVzVyT2xONWMzUmxiUzVKYm5Rek1qb3hDbFJ2ZEdGc1RHVnVaM1JvT2xONWMzUmxiUzVKYm5Rek1qb3dDa3hsYm1kMGFEQTZVM2x6ZEdWdExrbHVkRE15T2pBS1RHOTNaWEpDYjNWdVpEQTZVM2x6ZEdWdExrbHVkRE15T2pBPQ==", testCase.Serialization)
+				);
+			else
+				Assert.Collection(
+					sink.DiscoveredTestCases,
+					testCase => Assert.Equal("Xunit.Runner.v1.Xunit1TestCase, xunit.v3.runner.utility.net472:QXNzZW1ibHlGaWxlTmFtZTpTeXN0ZW0uU3RyaW5nOkwyaHZiV1V2WW5KaFpIZHBiSE52Ymk5aGMzTmxiV0pzZVM1a2JHdz0KQ29uZmlnRmlsZU5hbWU6U3lzdGVtLk9iamVjdApNZXRob2ROYW1lOlN5c3RlbS5TdHJpbmc6VFdWMGFHOWtNUT09ClR5cGVOYW1lOlN5c3RlbS5TdHJpbmc6Vkhsd1pUST0KRGlzcGxheU5hbWU6U3lzdGVtLlN0cmluZzpWSGx3WlRJdVRXVjBhRzlrTVE9PQpTa2lwUmVhc29uOlN5c3RlbS5PYmplY3QKU291cmNlSW5mb3JtYXRpb246U3lzdGVtLk9iamVjdApUcmFpdHMuS2V5czpTeXN0ZW0uU3RyaW5nW106Uld4bGJXVnVkRlI1Y0dVNlUzbHpkR1Z0TGxOMGNtbHVaenBWTTJ4NlpFZFdkRXhzVGpCamJXeDFXbmM5UFFwU1lXNXJPbE41YzNSbGJTNUpiblF6TWpveENsUnZkR0ZzVEdWdVozUm9PbE41YzNSbGJTNUpiblF6TWpvd0NreGxibWQwYURBNlUzbHpkR1Z0TGtsdWRETXlPakFLVEc5M1pYSkNiM1Z1WkRBNlUzbHpkR1Z0TGtsdWRETXlPakE9", testCase.Serialization),
+					testCase => Assert.Equal("Xunit.Runner.v1.Xunit1TestCase, xunit.v3.runner.utility.net472:QXNzZW1ibHlGaWxlTmFtZTpTeXN0ZW0uU3RyaW5nOkwyaHZiV1V2WW5KaFpIZHBiSE52Ymk5aGMzTmxiV0pzZVM1a2JHdz0KQ29uZmlnRmlsZU5hbWU6U3lzdGVtLk9iamVjdApNZXRob2ROYW1lOlN5c3RlbS5TdHJpbmc6VFdWMGFHOWtNZz09ClR5cGVOYW1lOlN5c3RlbS5TdHJpbmc6Vkhsd1pUST0KRGlzcGxheU5hbWU6U3lzdGVtLlN0cmluZzpWSGx3WlRJdVRXVjBhRzlrTWc9PQpTa2lwUmVhc29uOlN5c3RlbS5PYmplY3QKU291cmNlSW5mb3JtYXRpb246U3lzdGVtLk9iamVjdApUcmFpdHMuS2V5czpTeXN0ZW0uU3RyaW5nW106Uld4bGJXVnVkRlI1Y0dVNlUzbHpkR1Z0TGxOMGNtbHVaenBWTTJ4NlpFZFdkRXhzVGpCamJXeDFXbmM5UFFwU1lXNXJPbE41YzNSbGJTNUpiblF6TWpveENsUnZkR0ZzVEdWdVozUm9PbE41YzNSbGJTNUpiblF6TWpvd0NreGxibWQwYURBNlUzbHpkR1Z0TGtsdWRETXlPakFLVEc5M1pYSkNiM1Z1WkRBNlUzbHpkR1Z0TGtsdWRETXlPakE9", testCase.Serialization)
+				);
 		}
 
 		[Fact]
@@ -219,7 +256,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(true, sink);
+			xunit1.Find(includeSerialization: false, includeSourceInformation: true, sink);
 			sink.Finished.WaitOne();
 
 			Assert.True(sink.StartSeen);
@@ -228,8 +265,10 @@ public class Xunit1Tests
 
 	public class Run
 	{
-		[Fact]
-		public void RunWithTestCases()
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public void RunWithTestCases(bool serializeTestCases)
 		{
 			var testCases = new[] {
 				new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing"),
@@ -269,7 +308,11 @@ public class Xunit1Tests
 				});
 			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
-			xunit1.Run(testCases, sink);
+			if (serializeTestCases)
+				xunit1.Run(testCases.Select(testCase => SerializationHelper.Serialize(testCase)).ToList(), sink);
+			else
+				xunit1.Run(testCases, sink);
+
 			sink.Finished.WaitOne();
 
 			var firstTestCase = testCases[0];
@@ -948,12 +991,14 @@ public class AmbiguouslyNamedTestMethods
 
 	class TestableTestDiscoverySink : TestDiscoverySink
 	{
+		public List<_TestCaseDiscovered> DiscoveredTestCases = new List<_TestCaseDiscovered>();
 		public bool StartSeen = false;
 
 		public TestableTestDiscoverySink(Func<bool>? cancelThunk = null)
 			: base(cancelThunk)
 		{
 			DiscoverySink.DiscoveryStartingEvent += args => StartSeen = true;
+			DiscoverySink.TestCaseDiscoveredEvent += args => DiscoveredTestCases.Add(args.Message);
 		}
 	}
 }

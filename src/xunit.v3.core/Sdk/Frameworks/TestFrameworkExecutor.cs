@@ -78,12 +78,17 @@ namespace Xunit.Sdk
 		/// <returns>The test framework discoverer</returns>
 		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer();
 
-		/// <inheritdoc/>
-		public virtual ITestCase Deserialize(string value)
+		/// <summary>
+		/// Override to change the way test cases are deserialized. By default, uses <see cref="SerializationHelper"/>
+		/// to do the deserialization work to restore an <see cref="ITestCase"/> object.
+		/// </summary>
+		/// <param name="serializedTestCase">The serialized test case value</param>
+		/// <returns>The deserialized test case</returns>
+		protected virtual ITestCase Deserialize(string serializedTestCase)
 		{
-			Guard.ArgumentNotNull(nameof(value), value);
+			Guard.ArgumentNotNull(nameof(serializedTestCase), serializedTestCase);
 
-			return SerializationHelper.Deserialize<ITestCase>(value) ?? throw new ArgumentException($"Could not deserialize test case: {value}", nameof(value));
+			return SerializationHelper.Deserialize<ITestCase>(serializedTestCase) ?? throw new ArgumentException($"Could not deserialize test case: {serializedTestCase}", nameof(serializedTestCase));
 		}
 
 		/// <inheritdoc/>
@@ -125,11 +130,24 @@ namespace Xunit.Sdk
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull("testCases", testCases);
-			Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
-			Guard.ArgumentNotNull("executionOptions", executionOptions);
+			Guard.ArgumentNotNull(nameof(testCases), testCases);
+			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
 			RunTestCases(testCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
+		}
+
+		/// <inheritdoc/>
+		public virtual void RunTests(
+			IEnumerable<string> serializedTestCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
+		{
+			Guard.ArgumentNotNull(nameof(serializedTestCases), serializedTestCases);
+			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+			RunTestCases(serializedTestCases.Select(x => Deserialize(x)).Cast<TTestCase>(), executionMessageSink, executionOptions);
 		}
 
 		/// <summary>

@@ -11,6 +11,8 @@ namespace Xunit.Internal
 			/// <summary/>
 			public static readonly string DiagnosticMessages = "xunit.discovery.DiagnosticMessages";
 			/// <summary/>
+			public static readonly string IncludeSerialization = "xunit.discovery.IncludeSerialization";
+			/// <summary/>
 			public static readonly string IncludeSourceInformation = "xunit.discovery.IncludeSourceInformation";
 			/// <summary/>
 			public static readonly string InternalDiagnosticMessages = "xunit.discovery.InternalDiagnosticMessages";

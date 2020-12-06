@@ -1,5 +1,4 @@
 using System;
-using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -46,14 +45,5 @@ namespace Xunit.v3
 			_IMessageSink discoveryMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
-
-		// TODO: Can we get away without Serialize?
-
-		/// <summary>
-		/// Serializes a test case into string form.
-		/// </summary>
-		/// <param name="testCase">The test case to be serialized.</param>
-		/// <returns>The serialized representation of the test case.</returns>
-		string Serialize(ITestCase testCase);
 	}
 }

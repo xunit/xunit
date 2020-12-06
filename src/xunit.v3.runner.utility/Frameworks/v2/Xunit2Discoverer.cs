@@ -141,7 +141,7 @@ namespace Xunit
 			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.Name, this.assemblyInfo.AssemblyPath, configFileName);
 
 			var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
-			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(TestAssemblyUniqueID, DiagnosticMessageSink);
+			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(TestAssemblyUniqueID, null, includeSerialization: false, DiagnosticMessageSink);
 			Framework = Guard.NotNull(
 				"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
 				AppDomain.CreateObject<ITestFramework>(
@@ -198,11 +198,15 @@ namespace Xunit
 		/// which can be passed to <see cref="ITestFrameworkDiscoverer"/> and <see cref="ITestFrameworkExecutor"/>.
 		/// </summary>
 		/// <param name="sink">The local message sink to receive the messages.</param>
-		protected IMessageSink CreateOptimizedRemoteMessageSink(_IMessageSink sink)
+		/// <param name="includeSerialization">A flag to indicate whether test discovery should include serialization
+		/// values for the discovered test cases</param>
+		protected IMessageSink CreateOptimizedRemoteMessageSink(
+			_IMessageSink sink,
+			bool includeSerialization = false)
 		{
 			Guard.ArgumentNotNull(nameof(sink), sink);
 
-			var v2MessageSink = Xunit2MessageSinkAdapter.Adapt(TestAssemblyUniqueID, sink);
+			var v2MessageSink = Xunit2MessageSinkAdapter.Adapt(TestAssemblyUniqueID, RemoteDiscoverer, includeSerialization, sink);
 
 			try
 			{
@@ -239,10 +243,15 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
+			var includeSerialization = discoveryOptions.GetIncludeSerializationOrDefault();
 			var includeSourceInformation = discoveryOptions.GetIncludeSourceInformationOrDefault();
 
 			SendDiscoveryStartingMessage(messageSink);
-			RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
+			RemoteDiscoverer.Find(
+				includeSourceInformation,
+				CreateOptimizedRemoteMessageSink(messageSink, includeSerialization),
+				Xunit2OptionsAdapter.Adapt(discoveryOptions)
+			);
 		}
 
 		/// <summary>
@@ -259,10 +268,16 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
+			var includeSerialization = discoveryOptions.GetIncludeSerializationOrDefault();
 			var includeSourceInformation = discoveryOptions.GetIncludeSourceInformationOrDefault();
 
 			SendDiscoveryStartingMessage(messageSink);
-			RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(discoveryOptions));
+			RemoteDiscoverer.Find(
+				typeName,
+				includeSourceInformation,
+				CreateOptimizedRemoteMessageSink(messageSink, includeSerialization),
+				Xunit2OptionsAdapter.Adapt(discoveryOptions)
+			);
 		}
 
 		/// <inheritdoc/>
@@ -288,7 +303,7 @@ namespace Xunit
 					catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseDescriptorFactory" doesn't exist
 				}
 
-				defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(this);
+				defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer);
 			}
 
 			return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
@@ -371,10 +386,6 @@ namespace Xunit
 			};
 			messageSink.OnMessage(discoveryStarting);
 		}
-
-		/// <inheritdoc/>
-		public string Serialize(ITestCase testCase) =>
-			RemoteDiscoverer.Serialize(testCase);
 
 		class DescriptorCallback : LongLivedMarshalByRefObject
 		{

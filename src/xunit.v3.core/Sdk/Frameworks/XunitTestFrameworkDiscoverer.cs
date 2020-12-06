@@ -102,6 +102,7 @@ namespace Xunit.Sdk
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
+			var includeSerialization = discoveryOptions.IncludeSerializationOrDefault();
 			var includeSourceInformation = discoveryOptions.IncludeSourceInformationOrDefault();
 			var testMethodUniqueID = FactDiscoverer.ComputeUniqueID(testClassUniqueID, testMethod);
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
@@ -109,7 +110,7 @@ namespace Xunit.Sdk
 			{
 				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
 				var testCase = new ExecutionErrorTestCase(TestAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
-				return ReportDiscoveredTestCase(testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, includeSourceInformation, messageBus);
+				return ReportDiscoveredTestCase(testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, includeSerialization, includeSourceInformation, messageBus);
 			}
 
 			var factAttribute = factAttributes.FirstOrDefault();
@@ -137,7 +138,7 @@ namespace Xunit.Sdk
 				return true;
 
 			foreach (var testCase in discoverer.Discover(discoveryOptions, testMethod, factAttribute))
-				if (!ReportDiscoveredTestCase(testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, includeSourceInformation, messageBus))
+				if (!ReportDiscoveredTestCase(testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, includeSerialization, includeSourceInformation, messageBus))
 					return false;
 
 			return true;
@@ -182,7 +183,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public override string Serialize(ITestCase testCase)
+		protected override string Serialize(ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 

@@ -34,6 +34,30 @@ namespace Xunit.Runner.Common
 		public bool DiagnosticMessagesOrDefault => DiagnosticMessages ?? false;
 
 		/// <summary>
+		/// Gets or sets a flag indicating that discovery should include serialization
+		/// of the test cases.
+		/// </summary>
+		public bool? IncludeSerialization { get; set; }
+
+		/// <summary>
+		/// Gets a flag indicating that discovery should include serialization of the
+		/// test cases. If the flag is not set, returns the default value (<c>false</c>).
+		/// </summary>
+		public bool IncludeSerializationOrDefault => IncludeSerialization ?? false;
+
+		/// <summary>
+		/// Gets or sets a flag indicating that discovery should include source information
+		/// for the test cases.
+		/// </summary>
+		public bool? IncludeSourceInformation { get; set; }
+
+		/// <summary>
+		/// Gets a flag indicating that discovery should include source information for the
+		/// test cases. If the flag is not set, returns the default value (<c>false</c>).
+		/// </summary>
+		public bool IncludeSourceInformationOrDefault => IncludeSourceInformation ?? false;
+
+		/// <summary>
 		/// Gets or sets a flag indicating that the end user wants internal diagnostic messages
 		/// from the test framework.
 		/// </summary>

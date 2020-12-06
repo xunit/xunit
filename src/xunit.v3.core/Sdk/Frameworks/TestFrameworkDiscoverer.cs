@@ -256,6 +256,7 @@ namespace Xunit.Sdk
 		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to report</param>
+		/// <param name="includeSerialization">A flag to indicate whether the test case reported should include serialization</param>
 		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
 		/// <param name="messageBus">The message bus to report to the test case to</param>
 		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(_MessageSinkMessage)"/>.</returns>
@@ -264,6 +265,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			ITestCase testCase,
+			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus)
 		{
@@ -279,6 +281,7 @@ namespace Xunit.Sdk
 			var testCaseDiscovered = new _TestCaseDiscovered
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
+				Serialization = includeSerialization ? Serialize(testCase) : null,
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceInformation?.FileName,
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,
@@ -294,8 +297,13 @@ namespace Xunit.Sdk
 			return messageBus.QueueMessage(testCaseDiscovered);
 		}
 
-		/// <inheritdoc/>
-		public virtual string Serialize(ITestCase testCase)
+		/// <summary>
+		/// Override to change the way test cases are serialized. By default, uses <see cref="SerializationHelper"/>
+		/// to serialize an <see cref="ITestCase"/> object.
+		/// </summary>
+		/// <param name="testCase">The test case to serialize</param>
+		/// <returns>The serialized test case</returns>
+		protected virtual string Serialize(ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 

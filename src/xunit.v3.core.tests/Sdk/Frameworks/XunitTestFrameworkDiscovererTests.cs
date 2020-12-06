@@ -5,6 +5,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -441,7 +442,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testCase = Mocks.TestCase<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod));
 
-			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization: false, includeSourceInformation: true, messageBus);
 
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
@@ -455,13 +456,34 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testCase = Mocks.TestCase<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod), fileName: "Alt Source File", lineNumber: 2112);
 
-			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization: false, includeSourceInformation: true, messageBus);
 
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
 			Assert.Same(testCase, discoveryMsg.TestCase);
 			Assert.Equal("Alt Source File", testCase.SourceInformation.FileName);
 			Assert.Equal(2112, testCase.SourceInformation.LineNumber);
+		}
+
+		[Theory]
+		[InlineData(false, null)]
+		[InlineData(true, ":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0:")]
+		public void SerializationTestsForXunitTestCase(
+			bool includeSerialization,
+			string? expectedSerializationStartingText)
+		{
+			var messageSink = SpyMessageSink.Create();
+			var testMethod = Mocks.TestMethod(typeof(ClassWithSingleTest), nameof(ClassWithSingleTest.TestMethod));
+			var testCase = new XunitTestCase("asm-id", "col-id", "class-id", "method-id", messageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization, includeSourceInformation: true, messageBus);
+
+			var msg = Assert.Single(messageBus.Messages);
+			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
+			if (expectedSerializationStartingText != null)
+				Assert.StartsWith(expectedSerializationStartingText, discoveryMsg.Serialization);
+			else
+				Assert.Null(discoveryMsg.Serialization);
 		}
 	}
 
@@ -548,9 +570,10 @@ public class XunitTestFrameworkDiscovererTests
 
 		public bool ReportDiscoveredTestCase_Public(
 			ITestCase testCase,
+			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus) =>
-				ReportDiscoveredTestCase("test-collection-id", "test-class-id", "test-method-id", testCase, includeSourceInformation, messageBus);
+				ReportDiscoveredTestCase("test-collection-id", "test-class-id", "test-method-id", testCase, includeSerialization, includeSourceInformation, messageBus);
 	}
 
 	internal class TestableTestDiscoverySink : TestDiscoverySink

@@ -87,7 +87,6 @@ namespace Xunit.Runner.SystemConsole
 
 				var failCount = await RunProject(
 					commandLine.Project,
-					commandLine.Serialize,
 					commandLine.ParallelizeAssemblies,
 					commandLine.ParallelizeTestCollections,
 					commandLine.MaxParallelThreads,
@@ -301,7 +300,6 @@ namespace Xunit.Runner.SystemConsole
 
 		async ValueTask<int> RunProject(
 			XunitProject project,
-			bool serialize,
 			bool? parallelizeAssemblies,
 			bool? parallelizeTestCollections,
 			int? maxThreadCount,
@@ -333,7 +331,6 @@ namespace Xunit.Runner.SystemConsole
 						() => ExecuteAssembly(
 							consoleLock,
 							assembly,
-							serialize,
 							needsXml,
 							parallelizeTestCollections,
 							maxThreadCount,
@@ -360,7 +357,6 @@ namespace Xunit.Runner.SystemConsole
 					var assemblyElement = await ExecuteAssembly(
 						consoleLock,
 						assembly,
-						serialize,
 						needsXml,
 						parallelizeTestCollections,
 						maxThreadCount,
@@ -403,7 +399,6 @@ namespace Xunit.Runner.SystemConsole
 		async ValueTask<XElement?> ExecuteAssembly(
 			object consoleLock,
 			XunitProjectAssembly assembly,
-			bool serialize,
 			bool needsXml,
 			bool? parallelizeTestCollections,
 			int? maxThreadCount,
@@ -486,12 +481,6 @@ namespace Xunit.Runner.SystemConsole
 						completionMessages.TryAdd(controller.TestAssemblyUniqueID, new ExecutionSummary());
 					else
 					{
-						if (serialize)
-							filteredTestCases = (
-								from testCase in filteredTestCases
-								select controller.Deserialize(controller.Serialize(testCase))
-							).ToList();
-
 						var executionStarting = new TestAssemblyExecutionStarting
 						{
 							Assembly = assembly,
@@ -507,6 +496,7 @@ namespace Xunit.Runner.SystemConsole
 						if (failSkips)
 							resultsSink = new DelegatingFailSkipSink(resultsSink);
 
+						// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
 						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
 						resultsSink.Finished.WaitOne();
 

@@ -2,19 +2,18 @@
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v2
 {
 	/// <summary>
 	/// INTERNAL CLASS. DO NOT USE.
 	/// </summary>
 	public class DefaultTestCaseBulkDeserializer : ITestCaseBulkDeserializer
 	{
-		readonly _ITestFrameworkExecutor executor;
+		readonly ITestFrameworkExecutor executor;
 
 		/// <summary/>
-		public DefaultTestCaseBulkDeserializer(_ITestFrameworkExecutor executor)
+		public DefaultTestCaseBulkDeserializer(ITestFrameworkExecutor executor)
 		{
 			Guard.ArgumentNotNull(nameof(executor), executor);
 

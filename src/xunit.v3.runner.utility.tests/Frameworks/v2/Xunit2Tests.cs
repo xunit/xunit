@@ -1,9 +1,12 @@
 ﻿#if NETFRAMEWORK
 
 using System.Linq;
+using System.Reflection;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class Xunit2Tests
@@ -68,7 +71,7 @@ public class Foo
 	public class CSharp
 	{
 		[Fact]
-		public async void FactAcceptanceTest()
+		public async void FactAcceptanceTest_Find()
 		{
 			var code = @"
 using System;
@@ -124,6 +127,53 @@ namespace Namespace2
 
 			Assert.Single(testCases, tc => tc.DisplayName == "Custom Test Name");
 			Assert.Single(testCases, tc => tc.DisplayName == "Namespace2.OuterClass+Class2.TestMethod");
+		}
+
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public async void FactAcceptanceTest_Run(bool serializeTestCases)
+		{
+			var code = @"
+using System;
+using Xunit;
+
+public class TestClass
+{
+	[Fact]
+	public void TestMethod() { Assert.True(false); }
+}";
+
+			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
+			var controller = new TestableXunit2(assembly.FileName, null, true);
+			var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
+			discoveryOptions.SetIncludeSerialization(serializeTestCases);
+
+			using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
+			controller.Find(messageSink: discoverySink, discoveryOptions);
+			discoverySink.Finished.WaitOne();
+
+			using var executionSink = SpyMessageSink<_TestAssemblyFinished>.Create();
+
+			if (serializeTestCases)
+			{
+				var serializedTestCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
+				Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+				controller.RunTests(serializedTestCases, executionSink, _TestFrameworkOptions.ForExecution());
+			}
+			else
+			{
+				var testCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase).ToArray();
+				controller.RunTests(testCases, executionSink, _TestFrameworkOptions.ForExecution());
+			}
+
+			executionSink.Finished.WaitOne();
+
+			Assert.Empty(executionSink.Messages.OfType<_TestPassed>());
+			Assert.Empty(executionSink.Messages.OfType<_TestSkipped>());
+			var failedTest = Assert.Single(executionSink.Messages.OfType<_TestFailed>());
+			var failedMetadata = executionSink.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failedTest.TestUniqueID);
+			Assert.Equal("TestClass.TestMethod", failedMetadata.TestDisplayName);
 		}
 
 		[Fact]

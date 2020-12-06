@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v2
 {
 	/// <summary>
 	/// INTERNAL CLASS. DO NOT USE.
 	/// </summary>
 	public class DefaultTestCaseDescriptorProvider : ITestCaseDescriptorProvider
 	{
-		readonly _ITestFrameworkDiscoverer discoverer;
+		readonly ITestFrameworkDiscoverer discoverer;
 
 		/// <summary/>
-		public DefaultTestCaseDescriptorProvider(_ITestFrameworkDiscoverer discoverer)
+		public DefaultTestCaseDescriptorProvider(ITestFrameworkDiscoverer discoverer)
 		{
 			Guard.ArgumentNotNull(nameof(discoverer), discoverer);
 

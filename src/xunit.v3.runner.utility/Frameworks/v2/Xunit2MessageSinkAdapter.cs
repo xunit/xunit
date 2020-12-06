@@ -15,12 +15,18 @@ namespace Xunit.Runner.v2
 		/// v3 message sink.
 		/// </summary>
 		/// <param name="assemblyUniqueID">The unique ID of the assembly this adapter is for</param>
+		/// <param name="discoverer">The discoverer used to serialize test cases (must not be <c>null</c>
+		/// if <paramref name="includeSerialization"/> is <c>true</c>)</param>
+		/// <param name="includeSerialization">A flag to indicate whether test case discovery metadata should
+		/// include the serialized version of the test case</param>
 		/// <param name="v3MessageSink">The v3 message sink to adapt</param>
 		/// <returns>A v2 message sink which supports both <see cref="IMessageSink"/>
 		/// and <see cref="IMessageSinkWithTypes"/>.</returns>
 		public static Xunit2MessageSink Adapt(
 			string assemblyUniqueID,
+			ITestFrameworkDiscoverer? discoverer,
+			bool includeSerialization,
 			_IMessageSink v3MessageSink) =>
-				new Xunit2MessageSink(assemblyUniqueID, v3MessageSink);
+				new Xunit2MessageSink(assemblyUniqueID, discoverer, includeSerialization, v3MessageSink);
 	}
 }
