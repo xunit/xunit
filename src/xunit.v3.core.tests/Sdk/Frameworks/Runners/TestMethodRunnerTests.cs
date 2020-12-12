@@ -174,7 +174,7 @@ public class TestMethodRunnerTests
 		public void Other() { }
 	}
 
-	class TestableTestMethodRunner : TestMethodRunner<ITestCase>
+	class TestableTestMethodRunner : TestMethodRunner<_ITestCase>
 	{
 		readonly bool cancelInRunTestCaseAsync;
 		readonly RunSummary result;
@@ -186,7 +186,7 @@ public class TestMethodRunnerTests
 		public Exception? RunTestCaseAsync_AggregatorResult;
 		public readonly CancellationTokenSource TokenSource;
 
-		public List<ITestCase> TestCasesRun = new List<ITestCase>();
+		public List<_ITestCase> TestCasesRun = new List<_ITestCase>();
 
 		TestableTestMethodRunner(
 			string testAssemblyUniqueID,
@@ -195,7 +195,7 @@ public class TestMethodRunnerTests
 			ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
@@ -211,7 +211,7 @@ public class TestMethodRunnerTests
 
 		public static TestableTestMethodRunner Create(
 			IMessageBus? messageBus = null,
-			ITestCase[]? testCases = null,
+			_ITestCase[]? testCases = null,
 			RunSummary? result = null,
 			Exception? aggregatorSeedException = null,
 			bool cancelInRunTestCaseAsync = false)
@@ -253,7 +253,7 @@ public class TestMethodRunnerTests
 			BeforeTestMethodFinished_Callback(Aggregator);
 		}
 
-		protected override Task<RunSummary> RunTestCaseAsync(ITestCase testCase)
+		protected override Task<RunSummary> RunTestCaseAsync(_ITestCase testCase)
 		{
 			if (cancelInRunTestCaseAsync)
 				CancellationTokenSource.Cancel();

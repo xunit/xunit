@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -155,7 +154,7 @@ public class TestCaseRunnerTests
 		Assert.True(runner.TokenSource.IsCancellationRequested);
 	}
 
-	class TestableTestCaseRunner : TestCaseRunner<ITestCase>
+	class TestableTestCaseRunner : TestCaseRunner<_ITestCase>
 	{
 		readonly RunSummary result;
 
@@ -165,11 +164,11 @@ public class TestCaseRunnerTests
 		public bool BeforeTestCaseFinished_Called;
 		public Exception? RunTestAsync_AggregatorResult;
 		public bool RunTestAsync_Called;
-		public readonly new ITestCase TestCase;
+		public readonly new _ITestCase TestCase;
 		public CancellationTokenSource TokenSource;
 
 		TestableTestCaseRunner(
-			ITestCase testCase,
+			_ITestCase testCase,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource tokenSource,
@@ -184,7 +183,7 @@ public class TestCaseRunnerTests
 
 		public static TestableTestCaseRunner Create(
 			IMessageBus messageBus,
-			ITestCase? testCase = null,
+			_ITestCase? testCase = null,
 			RunSummary? result = null,
 			Exception? aggregatorSeedException = null)
 		{

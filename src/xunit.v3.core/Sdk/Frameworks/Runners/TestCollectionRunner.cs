@@ -13,9 +13,9 @@ namespace Xunit.Sdk
 	/// by test class, and then runs the individual test classes.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="ITestCase"/>.</typeparam>
+	/// derive from <see cref="_ITestCase"/>.</typeparam>
 	public abstract class TestCollectionRunner<TTestCase>
-		where TTestCase : class, ITestCase
+		where TTestCase : class, _ITestCase
 	{
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;

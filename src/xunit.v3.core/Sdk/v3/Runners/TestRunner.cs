@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -13,9 +12,9 @@ namespace Xunit.v3
 	/// for skipping tests.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="ITestCase"/>.</typeparam>
+	/// derive from <see cref="_ITestCase"/>.</typeparam>
 	public abstract class TestRunner<TTestCase>
-		where TTestCase : ITestCase
+		where TTestCase : _ITestCase
 	{
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;

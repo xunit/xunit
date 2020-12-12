@@ -225,7 +225,7 @@ namespace Xunit.v3
 		}
 
 		public static _ITest Test(
-			ITestCase testCase,
+			_ITestCase testCase,
 			string displayName,
 			string uniqueID)
 		{
@@ -271,17 +271,17 @@ namespace Xunit.v3
 			return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 		}
 
-		public static ITestCase TestCase(ITestCollection? collection = null)
+		public static _ITestCase TestCase(ITestCollection? collection = null)
 		{
 			if (collection == null)
 				collection = TestCollection();
 
-			var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
+			var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
 			result.TestMethod.TestClass.TestCollection.Returns(collection);
 			return result;
 		}
 
-		public static ITestCase TestCase<TClassUnderTest>(
+		public static _ITestCase TestCase<TClassUnderTest>(
 			string methodName,
 			string? displayName = null,
 			string? skipReason = null,
@@ -292,7 +292,7 @@ namespace Xunit.v3
 			return TestCase(typeof(TClassUnderTest), methodName, displayName, skipReason, uniqueID, fileName, lineNumber);
 		}
 
-		public static ITestCase TestCase(
+		public static _ITestCase TestCase(
 			Type type,
 			string methodName,
 			string? displayName = null,
@@ -304,7 +304,7 @@ namespace Xunit.v3
 			var testMethod = TestMethod(type, methodName);
 			var traits = GetTraits(testMethod.Method);
 
-			var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
+			var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
 			result.DisplayName.Returns(displayName ?? $"{type}.{methodName}");
 			result.SkipReason.Returns(skipReason);
 			result.TestMethod.Returns(testMethod);
@@ -313,7 +313,7 @@ namespace Xunit.v3
 
 			if (fileName != null && lineNumber != null)
 			{
-				var sourceInfo = new SourceInformation { FileName = fileName, LineNumber = lineNumber };
+				var sourceInfo = new _SourceInformation { FileName = fileName, LineNumber = lineNumber };
 				result.SourceInformation.Returns(sourceInfo);
 			}
 

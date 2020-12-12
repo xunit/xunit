@@ -4,7 +4,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class DefaultTestCaseDescriptorProviderTests
 {
@@ -52,7 +52,7 @@ public class DefaultTestCaseDescriptorProviderTests
 			{ "Name 2", new List<string> { "Value 2" } }
 		};
 
-		var testCase = Mocks.TestCase<DefaultTestCaseDescriptorProviderTests>("PopulatedTestCase", "Display \n Name", "Skip \n Reason", "ABCDEF0123456789");
+		var testCase = MockTestCase<DefaultTestCaseDescriptorProviderTests>("PopulatedTestCase", "Display \n Name", "Skip \n Reason", "ABCDEF0123456789");
 		testCase.SourceInformation.Returns(sourceInfo);
 		testCase.Traits.Returns(traits);
 
@@ -85,5 +85,18 @@ public class DefaultTestCaseDescriptorProviderTests
 				Assert.Equal("Value 2", value);
 			}
 		);
+	}
+
+	static ITestCase MockTestCase<TClassUnderTest>(
+		string methodName,
+		string displayName = "test-case-display-name",
+		string? skipReason = null,
+		string uniqueID = "test-case-unique-id",
+		string? fileName = null,
+		int? lineNumber = null)
+	{
+		var testClass = Xunit2Mocks.TestClass(classType: Reflector.Wrap(typeof(TClassUnderTest)));
+		var testMethod = Xunit2Mocks.TestMethod(testClass, methodName);
+		return Xunit2Mocks.TestCase(testMethod, displayName, skipReason, fileName, lineNumber, uniqueID: uniqueID);
 	}
 }

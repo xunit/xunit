@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -83,7 +83,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="testCase">The test case to filter.</param>
 		/// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
-		public bool Filter(ITestCase testCase)
+		public bool Filter(_ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 
@@ -104,7 +104,7 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterExcludedNamespaces(ITestCase testCase)
+		bool FilterExcludedNamespaces(_ITestCase testCase)
 		{
 			// No assemblies in the filter == everything is okay
 			if (ExcludedNamespaces.Count == 0)
@@ -115,7 +115,7 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterIncludedNamespaces(ITestCase testCase)
+		bool FilterIncludedNamespaces(_ITestCase testCase)
 		{
 			// No assemblies in the filter == everything is okay
 			if (IncludedNamespaces.Count == 0)
@@ -127,7 +127,7 @@ namespace Xunit.Runner.Common
 			return false;
 		}
 
-		bool FilterExcludedMethodsAndClasses(ITestCase testCase)
+		bool FilterExcludedMethodsAndClasses(_ITestCase testCase)
 		{
 			// No methods or classes in the filter == everything is okay
 			if (excludeMethodStandardFilters?.Count == 0 && excludeMethodRegexFilters?.Count == 0 && ExcludedClasses.Count == 0)
@@ -149,7 +149,7 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterIncludedMethodsAndClasses(ITestCase testCase)
+		bool FilterIncludedMethodsAndClasses(_ITestCase testCase)
 		{
 			// No methods or classes in the filter == everything is okay
 			if (includeMethodStandardFilters?.Count == 0 && includeMethodRegexFilters?.Count == 0 && IncludedClasses.Count == 0)
@@ -171,7 +171,7 @@ namespace Xunit.Runner.Common
 			return false;
 		}
 
-		bool FilterExcludedTraits(ITestCase testCase)
+		bool FilterExcludedTraits(_ITestCase testCase)
 		{
 			// No traits in the filter == everything is okay
 			if (ExcludedTraits.Count == 0)
@@ -189,7 +189,7 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterIncludedTraits(ITestCase testCase)
+		bool FilterIncludedTraits(_ITestCase testCase)
 		{
 			// No traits in the filter == everything is okay
 			if (IncludedTraits.Count == 0)

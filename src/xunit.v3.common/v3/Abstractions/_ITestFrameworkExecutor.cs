@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -30,7 +29,7 @@ namespace Xunit.v3
 		/// <param name="executionMessageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunTests(
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);

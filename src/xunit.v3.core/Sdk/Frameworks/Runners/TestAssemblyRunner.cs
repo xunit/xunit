@@ -18,9 +18,9 @@ namespace Xunit.Sdk
 	/// by test collection, and then runs the individual test collections.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="ITestCase"/>.</typeparam>
+	/// derive from <see cref="_ITestCase"/>.</typeparam>
 	public abstract class TestAssemblyRunner<TTestCase> : IAsyncDisposable
-		where TTestCase : ITestCase
+		where TTestCase : _ITestCase
 	{
 		ExceptionAggregator aggregator = new ExceptionAggregator();
 		_IMessageSink diagnosticMessageSink;

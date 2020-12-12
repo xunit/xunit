@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using Xunit.Abstractions;
+using System.Text.Json.Serialization;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -92,12 +92,11 @@ namespace Xunit.v3
 				writer.WriteStartObject();
 				writer.WriteString("$type", valueType.Name);
 
-				// Only serializing the public read/write properties
+				// Only serializing the public read/write properties without [JsonIgnore]
 				var properties =
 					valueType
 						.GetProperties()
-						.Where(p => p.CanRead && p.CanWrite)
-						.Where(p => p.PropertyType != typeof(ITestCase))  // TODO: Temporary filter for _TestCaseDiscovered
+						.Where(p => p.CanRead && p.CanWrite && p.GetCustomAttributes(typeof(JsonIgnoreAttribute), true).Length == 0)
 						.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase);
 
 				foreach (var property in properties)

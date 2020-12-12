@@ -213,7 +213,7 @@ public class XunitTestAssemblyRunnerTests
 
 		class MyTestCaseOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
 			{
 				throw new NotImplementedException();
 			}
@@ -254,7 +254,7 @@ public class XunitTestAssemblyRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
 			{
 				return Enumerable.Empty<TTestCase>();
 			}

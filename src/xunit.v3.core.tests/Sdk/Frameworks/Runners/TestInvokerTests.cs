@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -222,12 +221,12 @@ public class TestInvokerTests
 		public void Passing() { }
 	}
 
-	class TestableTestInvoker : TestInvoker<ITestCase>
+	class TestableTestInvoker : TestInvoker<_ITestCase>
 	{
 		public readonly new ExceptionAggregator Aggregator;
 		public bool AfterTestMethodInvoked_Called;
 		public bool BeforeTestMethodInvoked_Called;
-		public readonly new ITestCase TestCase;
+		public readonly new _ITestCase TestCase;
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestInvoker(

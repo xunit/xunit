@@ -4,7 +4,6 @@ using System.Reflection;
 using NSubstitute;
 using TestDriven.Framework;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
 using Xunit.v3;
 
@@ -96,8 +95,8 @@ public class TdNetRunnerTests
 	class TestableTdNetRunner : TdNetRunner
 	{
 		public List<string> Operations = new List<string>();
-		public List<ITestCase> TestsRun = new List<ITestCase>();
-		public List<ITestCase> TestsToDiscover = new List<ITestCase> { Substitute.For<ITestCase>() };
+		public List<_ITestCase> TestsRun = new List<_ITestCase>();
+		public List<_ITestCase> TestsToDiscover = new List<_ITestCase> { Substitute.For<_ITestCase>() };
 
 		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly)
 		{
@@ -116,7 +115,7 @@ public class TdNetRunnerTests
 				.ReturnsForAnyArgs(callInfo =>
 				{
 					Operations.Add($"Run(initialRunState: {callInfo[1]})");
-					TestsRun.AddRange((IEnumerable<ITestCase>)callInfo[0]);
+					TestsRun.AddRange((IEnumerable<_ITestCase>)callInfo[0]);
 					return TestRunState.NoTests;
 				});
 

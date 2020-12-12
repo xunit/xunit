@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -17,7 +15,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test case this test belongs to.
 		/// </summary>
-		ITestCase TestCase { get; }
+		_ITestCase TestCase { get; }
 
 		/// <summary>
 		/// Gets a unique identifier for the test.

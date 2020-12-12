@@ -1,6 +1,4 @@
-using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Sdk;
 
 namespace Xunit.v3
 {
@@ -34,7 +32,7 @@ namespace Xunit.v3
 		public IXunitTestCase TestCase { get; }
 
 		/// <inheritdoc/>
-		ITestCase _ITest.TestCase => TestCase;
+		_ITestCase _ITest.TestCase => TestCase;
 
 		/// <inheritdoc/>
 		public string UniqueID { get; }

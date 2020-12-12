@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TestDriven.Framework;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.v3;
@@ -39,24 +38,24 @@ namespace Xunit.Runner.TdNet
 			disposalTracker.Add(xunit);
 		}
 
-		public virtual IReadOnlyList<ITestCase> Discover()
+		public virtual IReadOnlyList<_ITestCase> Discover()
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
 			return Discover(sink => xunit.Find(sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
-		IReadOnlyList<ITestCase> Discover(Type? type)
+		IReadOnlyList<_ITestCase> Discover(Type? type)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
 			if (type == null)
-				return new ITestCase[0];
+				return new _ITestCase[0];
 
 			return Discover(sink => xunit.Find(type.FullName!, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
-		IReadOnlyList<ITestCase> Discover(Action<_IMessageSink> discoveryAction)
+		IReadOnlyList<_ITestCase> Discover(Action<_IMessageSink> discoveryAction)
 		{
 			try
 			{
@@ -69,7 +68,7 @@ namespace Xunit.Runner.TdNet
 			catch (Exception ex)
 			{
 				testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
-				return new ITestCase[0];
+				return new _ITestCase[0];
 			}
 		}
 
@@ -84,7 +83,7 @@ namespace Xunit.Runner.TdNet
 		}
 
 		public virtual TestRunState Run(
-			IReadOnlyList<ITestCase>? testCases = null,
+			IReadOnlyList<_ITestCase>? testCases = null,
 			TestRunState initialRunState = TestRunState.NoTests)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);

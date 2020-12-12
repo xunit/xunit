@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A base implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports test filtering
@@ -232,7 +232,7 @@ namespace Xunit.Sdk
 			}
 		}
 
-		bool IsEmpty(ISourceInformation sourceInformation) =>
+		bool IsEmpty(_ISourceInformation? sourceInformation) =>
 			sourceInformation == null || (string.IsNullOrWhiteSpace(sourceInformation.FileName) && sourceInformation.LineNumber == null);
 
 		/// <summary>
@@ -264,7 +264,7 @@ namespace Xunit.Sdk
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
-			ITestCase testCase,
+			_ITestCase testCase,
 			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus)
@@ -275,7 +275,7 @@ namespace Xunit.Sdk
 			if (includeSourceInformation && SourceProvider != null && IsEmpty(testCase.SourceInformation))
 			{
 				var result = SourceProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
-				testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+				testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 			}
 
 			var testCaseDiscovered = new _TestCaseDiscovered
@@ -299,11 +299,11 @@ namespace Xunit.Sdk
 
 		/// <summary>
 		/// Override to change the way test cases are serialized. By default, uses <see cref="SerializationHelper"/>
-		/// to serialize an <see cref="ITestCase"/> object.
+		/// to serialize an <see cref="_ITestCase"/> object.
 		/// </summary>
 		/// <param name="testCase">The test case to serialize</param>
 		/// <returns>The serialized test case</returns>
-		protected virtual string Serialize(ITestCase testCase)
+		protected virtual string Serialize(_ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 

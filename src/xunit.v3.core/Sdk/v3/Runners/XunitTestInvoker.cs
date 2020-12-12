@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The test invoker for xUnit.net v3 tests.

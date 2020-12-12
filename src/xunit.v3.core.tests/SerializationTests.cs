@@ -4,7 +4,6 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -45,8 +44,8 @@ public class SerializationTests
 
 		Assert.True(TestCollectionComparer.Instance.Equals(first.TestMethod.TestClass.TestCollection, second.TestMethod.TestClass.TestCollection));
 
-		var serializedFirst = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(first));
-		var serializedSecond = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(second));
+		var serializedFirst = SerializationHelper.Deserialize<_ITestCase>(SerializationHelper.Serialize(first));
+		var serializedSecond = SerializationHelper.Deserialize<_ITestCase>(SerializationHelper.Serialize(second));
 
 		Assert.NotNull(serializedFirst);
 		Assert.NotNull(serializedSecond);
@@ -79,8 +78,8 @@ public class SerializationTests
 
 		Assert.True(TestCollectionComparer.Instance.Equals(first.TestMethod.TestClass.TestCollection, second.TestMethod.TestClass.TestCollection));
 
-		var serializedFirst = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(first));
-		var serializedSecond = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(second));
+		var serializedFirst = SerializationHelper.Deserialize<_ITestCase>(SerializationHelper.Serialize(first));
+		var serializedSecond = SerializationHelper.Deserialize<_ITestCase>(SerializationHelper.Serialize(second));
 
 		Assert.NotNull(serializedFirst);
 		Assert.NotNull(serializedSecond);
@@ -109,7 +108,7 @@ public class SerializationTests
 		var testCase = Assert.Single(sink.TestCases);
 		Assert.IsType<XunitTheoryTestCase>(testCase);
 
-		var deserialized = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(testCase));
+		var deserialized = SerializationHelper.Deserialize<_ITestCase>(SerializationHelper.Serialize(testCase));
 		Assert.IsType<XunitTheoryTestCase>(deserialized);
 	}
 

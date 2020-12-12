@@ -20,12 +20,12 @@ namespace Xunit.Runner.v1
 		volatile int currentTestIndex = 0;
 		readonly Dictionary<string, Predicate<XmlNode>> handlers;
 		readonly _IMessageSink messageSink;
-		readonly IList<ITestCase> testCases;
+		readonly IList<_ITestCase> testCases;
 		readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
 		readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
 
 		_ITest? currentTest;
-		ITestCase? lastTestCase;
+		_ITestCase? lastTestCase;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassCallbackHandler" /> class.
@@ -33,7 +33,7 @@ namespace Xunit.Runner.v1
 		/// <param name="testCases">The test cases that are being run.</param>
 		/// <param name="messageSink">The message sink to call with the translated results.</param>
 		public TestClassCallbackHandler(
-			IList<ITestCase> testCases,
+			IList<_ITestCase> testCases,
 			_IMessageSink messageSink)
 				: base(lastNodeName: "class")
 		{
@@ -57,7 +57,7 @@ namespace Xunit.Runner.v1
 		/// </summary>
 		public Xunit1RunSummary TestClassResults { get; }
 
-		ITestCase FindTestCase(string typeName, string methodName) =>
+		_ITestCase FindTestCase(string typeName, string methodName) =>
 			testCases
 				.FirstOrDefault(tc => tc.TestMethod.TestClass.Class.Name == typeName && tc.TestMethod.Method.Name == methodName);
 
@@ -160,7 +160,7 @@ namespace Xunit.Runner.v1
 			return TestClassResults.Continue;
 		}
 
-		void SendTestCaseMessagesWhenAppropriate(ITestCase? current)
+		void SendTestCaseMessagesWhenAppropriate(_ITestCase? current)
 		{
 			var results = TestClassResults;
 

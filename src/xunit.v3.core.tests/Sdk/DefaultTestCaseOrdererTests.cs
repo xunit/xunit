@@ -1,11 +1,10 @@
 ﻿using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
 public class DefaultTestCaseOrdererTests
 {
-	static readonly ITestCase[] TestCases = new[] {
+	static readonly _ITestCase[] TestCases = new[] {
 		Mocks.TestCase<ClassUnderTest>("Test1"),
 		Mocks.TestCase<ClassUnderTest>("Test2"),
 		Mocks.TestCase<ClassUnderTest>("Test3"),

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -13,12 +12,12 @@ namespace Xunit.Sdk
 		public TestDiscoveryVisitor()
 		{
 			Finished = new ManualResetEvent(initialState: false);
-			TestCases = new List<ITestCase>();
+			TestCases = new List<_ITestCase>();
 		}
 
 		public ManualResetEvent Finished { get; }
 
-		public List<ITestCase> TestCases { get; }
+		public List<_ITestCase> TestCases { get; }
 
 		/// <inheritdoc/>
 		public void Dispose()

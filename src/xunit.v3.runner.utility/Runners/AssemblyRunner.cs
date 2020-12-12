@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
@@ -27,7 +26,7 @@ namespace Xunit.Runners
 		readonly ManualResetEvent executionCompleteEvent = new ManualResetEvent(true);
 		readonly object statusLock = new object();
 		int testCasesDiscovered;
-		readonly List<ITestCase> testCasesToRun = new List<ITestCase>();
+		readonly List<_ITestCase> testCasesToRun = new List<_ITestCase>();
 
 		static AssemblyRunner()
 		{
@@ -137,7 +136,7 @@ namespace Xunit.Runners
 		/// Set to be able to filter the test cases to decide which ones to run. If this is not set,
 		/// then all test cases will be run.
 		/// </summary>
-		public Func<ITestCase, bool>? TestCaseFilter { get; set; }
+		public Func<_ITestCase, bool>? TestCaseFilter { get; set; }
 
 		static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName!);
 

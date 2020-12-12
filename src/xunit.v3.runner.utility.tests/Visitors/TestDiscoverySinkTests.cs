@@ -1,6 +1,5 @@
 ﻿using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.v3;
 
@@ -10,9 +9,9 @@ public class TestDiscoverySinkTests
 	public void CollectsTestCases()
 	{
 		var visitor = new TestDiscoverySink();
-		var testCase1 = Substitute.For<ITestCase>();
-		var testCase2 = Substitute.For<ITestCase>();
-		var testCase3 = Substitute.For<ITestCase>();
+		var testCase1 = Substitute.For<_ITestCase>();
+		var testCase2 = Substitute.For<_ITestCase>();
+		var testCase3 = Substitute.For<_ITestCase>();
 
 		visitor.OnMessage(new _TestCaseDiscovered { TestCase = testCase1 });
 		visitor.OnMessage(new _TestCaseDiscovered { TestCase = testCase2 });

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -47,7 +46,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// The list of discovered test cases.
 		/// </summary>
-		public List<ITestCase> TestCases { get; } = new List<ITestCase>();
+		public List<_ITestCase> TestCases { get; } = new List<_ITestCase>();
 
 		/// <inheritdoc/>
 		public void Dispose()

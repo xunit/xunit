@@ -213,7 +213,8 @@ public class Xunit2MessageSinkTests
 			Assert.Equal("skip-reason", v3Message.SkipReason);
 			Assert.Equal("source-file", v3Message.SourceFilePath);
 			Assert.Equal(2112, v3Message.SourceLineNumber);
-			Assert.Same(TestCase, v3Message.TestCase);
+			var testCaseAdapter = Assert.IsType<Xunit2TestCase>(v3Message.TestCase);
+			Assert.Same(TestCase, testCaseAdapter.V2TestCase);
 			Assert.Equal("test-case-display-name", v3Message.TestCaseDisplayName);
 			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
 			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);

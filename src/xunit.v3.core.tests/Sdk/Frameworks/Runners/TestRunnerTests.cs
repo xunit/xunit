@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -231,7 +230,7 @@ public class TestRunnerTests
 		Assert.True(runner.TokenSource.IsCancellationRequested);
 	}
 
-	class TestableTestRunner : TestRunner<ITestCase>
+	class TestableTestRunner : TestRunner<_ITestCase>
 	{
 		readonly Action? lambda;
 		readonly string output;
@@ -242,7 +241,7 @@ public class TestRunnerTests
 		public bool AfterTestStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestFinished_Callback = _ => { };
 		public bool BeforeTestFinished_Called;
-		public readonly new ITestCase TestCase;
+		public readonly new _ITestCase TestCase;
 		public CancellationTokenSource TokenSource;
 
 		TestableTestRunner(
@@ -285,7 +284,7 @@ public class TestRunnerTests
 
 		public static TestableTestRunner Create(
 			IMessageBus messageBus,
-			ITestCase? testCase = null,
+			_ITestCase? testCase = null,
 			string displayName = "MockDisplayName",
 			string? skipReason = null,
 			decimal runTime = 0m,

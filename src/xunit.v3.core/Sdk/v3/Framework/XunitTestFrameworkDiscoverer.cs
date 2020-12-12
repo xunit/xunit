@@ -4,9 +4,9 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
@@ -183,7 +183,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		protected override string Serialize(ITestCase testCase)
+		protected override string Serialize(_ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 

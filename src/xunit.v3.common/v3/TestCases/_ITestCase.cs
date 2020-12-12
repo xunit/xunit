@@ -1,5 +1,3 @@
-#if false
-
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
@@ -19,24 +17,24 @@ namespace Xunit.v3
 
 		/// <summary>
 		/// Gets the display text for the reason a test is being skipped; if the test
-		/// is not skipped, returns null.
+		/// is not skipped, returns <c>null</c>.
 		/// </summary>
-		string SkipReason { get; }
+		string? SkipReason { get; }
 
 		/// <summary>
 		/// Get or sets the source file name and line where the test is defined, if requested (and known).
 		/// </summary>
-		ISourceInformation SourceInformation { get; set; }
+		_ISourceInformation? SourceInformation { get; set; }
 
 		/// <summary>
 		/// Gets the test method this test case belongs to.
 		/// </summary>
-		_ITestMethod TestMethod { get; }
+		ITestMethod TestMethod { get; }
 
 		/// <summary>
 		/// Gets the arguments that will be passed to the test method.
 		/// </summary>
-		object[] TestMethodArguments { get; }
+		object?[]? TestMethodArguments { get; }
 
 		/// <summary>
 		/// Gets the trait values associated with this test case. If
@@ -62,5 +60,3 @@ namespace Xunit.v3
 		string UniqueID { get; }
 	}
 }
-
-#endif

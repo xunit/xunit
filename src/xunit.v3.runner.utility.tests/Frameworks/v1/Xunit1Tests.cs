@@ -203,8 +203,8 @@ public class Xunit1Tests
 			sink.Finished.WaitOne();
 
 			Assert.Collection(sink.TestCases,
-				testCase => Assert.Equal("File for Type2.Method1", testCase.SourceInformation.FileName),
-				testCase => Assert.Equal("File for Type2.Method2", testCase.SourceInformation.FileName)
+				testCase => Assert.Equal("File for Type2.Method1", testCase.SourceInformation?.FileName),
+				testCase => Assert.Equal("File for Type2.Method2", testCase.SourceInformation?.FileName)
 			);
 		}
 

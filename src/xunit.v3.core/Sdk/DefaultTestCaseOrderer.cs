@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -27,7 +26,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
-			where TTestCase : ITestCase
+			where TTestCase : _ITestCase
 		{
 			var result = testCases.ToList();
 
@@ -60,7 +59,7 @@ namespace Xunit.Sdk
 		}
 
 		int Compare<TTestCase>(TTestCase x, TTestCase y)
-			where TTestCase : ITestCase
+			where TTestCase : _ITestCase
 		{
 			Guard.ArgumentNotNull(nameof(x), x);
 			Guard.ArgumentNotNull(nameof(y), y);

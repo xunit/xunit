@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
 // TODO: Need to acceptance test this via Xunit3, once it comes into existence. See Xunit2Tests.cs for examples.
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The implementation of <see cref="_ITestFrameworkExecutor"/> that supports execution
@@ -53,7 +53,7 @@ namespace Xunit.Sdk
 		protected override _ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
 
 		/// <inheritdoc/>
-		protected override ITestCase Deserialize(string value)
+		protected override _ITestCase Deserialize(string value)
 		{
 			if (value.Length > 3 && value.StartsWith(":F:"))
 			{

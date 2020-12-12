@@ -2,14 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Represents a single test case from xUnit.net v3.
 	/// </summary>
-	public interface IXunitTestCase : ITestCase
+	public interface IXunitTestCase : _ITestCase
 	{
 		/// <summary>
 		/// Gets the exception that happened during initialization. When this is set, then
@@ -18,8 +18,7 @@ namespace Xunit.Sdk
 		Exception? InitializationException { get; }
 
 		/// <summary>
-		/// Gets the method to be run. Differs from <see cref="ITestCase"/>.<see cref="ITestMethod.Method"/> in that
-		/// any generic argument types will have been closed based on the arguments.
+		/// Gets the method to be run. Generic argument types will have been closed based on the arguments.
 		/// </summary>
 		IMethodInfo Method { get; }
 

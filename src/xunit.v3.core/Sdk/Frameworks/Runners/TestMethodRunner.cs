@@ -11,9 +11,9 @@ namespace Xunit.Sdk
 	/// A base class that provides default behavior when running tests in a test method.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="ITestCase"/>.</typeparam>
+	/// derive from <see cref="_ITestCase"/>.</typeparam>
 	public abstract class TestMethodRunner<TTestCase>
-		where TTestCase : ITestCase
+		where TTestCase : _ITestCase
 	{
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;

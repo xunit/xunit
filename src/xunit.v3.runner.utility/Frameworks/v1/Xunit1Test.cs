@@ -1,6 +1,5 @@
 ﻿#if NETFRAMEWORK
 
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Runner.v1
@@ -18,7 +17,7 @@ namespace Xunit.Runner.v1
 		/// <param name="testIndex">The index of this test within the test case. Used to
 		/// compute the <see cref="UniqueID"/>.</param>
 		public Xunit1Test(
-			ITestCase testCase,
+			_ITestCase testCase,
 			string displayName,
 			int testIndex)
 		{
@@ -31,7 +30,7 @@ namespace Xunit.Runner.v1
 		public string DisplayName { get; }
 
 		/// <inheritdoc/>
-		public ITestCase TestCase { get; }
+		public _ITestCase TestCase { get; }
 
 		/// <inheritdoc/>
 		public string UniqueID { get; }

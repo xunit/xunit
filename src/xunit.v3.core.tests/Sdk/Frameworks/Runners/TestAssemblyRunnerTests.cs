@@ -331,12 +331,12 @@ public class TestAssemblyRunnerTests
 		}
 	}
 
-	class TestableTestAssemblyRunner : TestAssemblyRunner<ITestCase>
+	class TestableTestAssemblyRunner : TestAssemblyRunner<_ITestCase>
 	{
 		readonly bool cancelInRunTestCollectionAsync;
 		readonly RunSummary result;
 
-		public List<Tuple<ITestCollection, IEnumerable<ITestCase>>> CollectionsRun = new List<Tuple<ITestCollection, IEnumerable<ITestCase>>>();
+		public List<Tuple<ITestCollection, IEnumerable<_ITestCase>>> CollectionsRun = new List<Tuple<ITestCollection, IEnumerable<_ITestCase>>>();
 		public Action<ExceptionAggregator> AfterTestAssemblyStarting_Callback = _ => { };
 		public bool AfterTestAssemblyStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
@@ -346,7 +346,7 @@ public class TestAssemblyRunnerTests
 
 		TestableTestAssemblyRunner(
 			ITestAssembly testAssembly,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions,
@@ -365,13 +365,13 @@ public class TestAssemblyRunnerTests
 		public static TestableTestAssemblyRunner Create(
 			_IMessageSink? executionMessageSink = null,
 			RunSummary? result = null,
-			ITestCase[]? testCases = null,
+			_ITestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null,
 			bool cancelInRunTestCollectionAsync = false)
 		{
 			return new TestableTestAssemblyRunner(
 				Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
-				testCases ?? new[] { Substitute.For<ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
+				testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
 				new List<_MessageSinkMessage>(),
 				executionMessageSink ?? SpyMessageSink.Create(),
 				executionOptions ?? _TestFrameworkOptions.ForExecution(),
@@ -417,7 +417,7 @@ public class TestAssemblyRunnerTests
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			ITestCollection testCollection,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			CancellationTokenSource cancellationTokenSource)
 		{
 			if (cancelInRunTestCollectionAsync)

@@ -7,14 +7,15 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// A base class implementation of <see cref="ITestCase"/> which is based on test cases being
+	/// A base class implementation of <see cref="_ITestCase"/> which is based on test cases being
 	/// related directly to test methods.
 	/// </summary>
-	public abstract class TestMethodTestCase : ITestCase, IDisposable
+	public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IDisposable
 	{
 		string? displayName;
 		DisplayNameFormatter formatter;
@@ -22,7 +23,7 @@ namespace Xunit.Sdk
 		IMethodInfo? method;
 		ITypeInfo[]? methodGenericTypes;
 		string? skipReason;
-		ISourceInformation? sourceInformation;
+		_ISourceInformation? sourceInformation;
 		ITestMethod? testMethod;
 		Dictionary<string, List<string>>? traits;
 		volatile string? uniqueID;
@@ -148,9 +149,9 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public ISourceInformation SourceInformation
+		public _ISourceInformation? SourceInformation
 		{
-			get => sourceInformation ?? new SourceInformation();
+			get => sourceInformation ?? new _SourceInformation();
 			set => sourceInformation = Guard.ArgumentNotNull(nameof(SourceInformation), value);
 		}
 

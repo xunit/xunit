@@ -213,12 +213,12 @@ public class TestCollectionRunnerTests
 
 	class ClassUnderTest2 : ClassUnderTest { }
 
-	class TestableTestCollectionRunner : TestCollectionRunner<ITestCase>
+	class TestableTestCollectionRunner : TestCollectionRunner<_ITestCase>
 	{
 		readonly bool cancelInRunTestClassAsync;
 		readonly RunSummary result;
 
-		public readonly List<Tuple<IReflectionTypeInfo, IEnumerable<ITestCase>>> ClassesRun = new List<Tuple<IReflectionTypeInfo, IEnumerable<ITestCase>>>();
+		public readonly List<Tuple<IReflectionTypeInfo, IEnumerable<_ITestCase>>> ClassesRun = new List<Tuple<IReflectionTypeInfo, IEnumerable<_ITestCase>>>();
 		public Action<ExceptionAggregator> AfterTestCollectionStarting_Callback = _ => { };
 		public bool AfterTestCollectionStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestCollectionFinished_Callback = _ => { };
@@ -229,7 +229,7 @@ public class TestCollectionRunnerTests
 		TestableTestCollectionRunner(
 			string testAssemblyUniqueID,
 			ITestCollection testCollection,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -246,7 +246,7 @@ public class TestCollectionRunnerTests
 
 		public static TestableTestCollectionRunner Create(
 			IMessageBus? messageBus = null,
-			ITestCase[]? testCases = null,
+			_ITestCase[]? testCases = null,
 			RunSummary? result = null,
 			Exception? aggregatorSeedException = null,
 			bool cancelInRunTestClassAsync = false)
@@ -288,7 +288,7 @@ public class TestCollectionRunnerTests
 		protected override Task<RunSummary> RunTestClassAsync(
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
-			IEnumerable<ITestCase> testCases)
+			IEnumerable<_ITestCase> testCases)
 		{
 			if (cancelInRunTestClassAsync)
 				CancellationTokenSource.Cancel();

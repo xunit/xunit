@@ -1,7 +1,7 @@
 ﻿using Xunit.Abstractions;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The implementation of <see cref="_ITestFramework"/> that supports discovery and

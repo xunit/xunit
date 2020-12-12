@@ -337,7 +337,7 @@ public class XunitTestClassRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
 				=> Enumerable.Empty<TTestCase>();
 		}
 	}
@@ -382,7 +382,7 @@ public class XunitTestClassRunnerTests
 
 	class CustomTestCaseOrderer : ITestCaseOrderer
 	{
-		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
 			=> testCases;
 	}
 

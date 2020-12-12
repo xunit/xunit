@@ -275,7 +275,7 @@ public class TestClassRunnerTests
 
 		class ThrowingOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
 			{
 				throw new DivideByZeroException();
 			}
@@ -345,14 +345,14 @@ public class TestClassRunnerTests
 		public void Passing() { }
 	}
 
-	class TestableTestClassRunner : TestClassRunner<ITestCase>
+	class TestableTestClassRunner : TestClassRunner<_ITestCase>
 	{
 		readonly object[] availableArguments;
 		readonly bool cancelInRunTestMethodAsync;
 		readonly ConstructorInfo? constructor;
 		readonly RunSummary result;
 
-		public List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object?[]>> MethodsRun = new List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object?[]>>();
+		public List<Tuple<IReflectionMethodInfo, IEnumerable<_ITestCase>, object?[]>> MethodsRun = new List<Tuple<IReflectionMethodInfo, IEnumerable<_ITestCase>, object?[]>>();
 		public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
 		public bool AfterTestClassStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
@@ -366,7 +366,7 @@ public class TestClassRunnerTests
 			string collectionUniqueID,
 			ITestClass testClass,
 			IReflectionTypeInfo @class,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -389,7 +389,7 @@ public class TestClassRunnerTests
 
 		public static TestableTestClassRunner Create(
 			IMessageBus? messageBus = null,
-			ITestCase[]? testCases = null,
+			_ITestCase[]? testCases = null,
 			ITestCaseOrderer? orderer = null,
 			ConstructorInfo? constructor = null,
 			object[]? availableArguments = null,
@@ -443,7 +443,7 @@ public class TestClassRunnerTests
 		protected override Task<RunSummary> RunTestMethodAsync(
 			ITestMethod testMethod,
 			IReflectionMethodInfo method,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			object?[] constructorArguments)
 		{
 			if (cancelInRunTestMethodAsync)

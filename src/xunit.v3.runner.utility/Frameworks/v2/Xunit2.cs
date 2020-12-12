@@ -106,24 +106,28 @@ namespace Xunit
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		public void RunTests(
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			_IMessageSink messageSink,
 			_ITestFrameworkExecutionOptions executionOptions) =>
-				remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(executionOptions));
+				remoteExecutor.RunTests(
+					testCases.Cast<Xunit2TestCase>().Select(tc => tc.V2TestCase).ToList(),
+					CreateOptimizedRemoteMessageSink(messageSink),
+					Xunit2OptionsAdapter.Adapt(executionOptions)
+				);
 
 		/// <summary>
 		/// Starts the process of running the selected xUnit.net v2 tests.
 		/// </summary>
 		/// <param name="serializedTestCases">The test cases to run; if null, all tests in the assembly are run.</param>
-		/// <param name="executionMessageSink">The message sink to report results back to.</param>
+		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		public void RunTests(
 			IEnumerable<string> serializedTestCases,
-			_IMessageSink executionMessageSink,
+			_IMessageSink messageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			var testCases = BulkDeserialize(serializedTestCases.ToList()).Select(kvp => kvp.Value).ToList();
-			RunTests(testCases, executionMessageSink, executionOptions);
+			remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(executionOptions));
 		}
 
 		class DeserializeCallback : LongLivedMarshalByRefObject

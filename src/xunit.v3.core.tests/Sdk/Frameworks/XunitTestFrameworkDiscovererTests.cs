@@ -447,8 +447,8 @@ public class XunitTestFrameworkDiscovererTests
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
 			Assert.Same(testCase, discoveryMsg.TestCase);
-			Assert.Equal("Source File", testCase.SourceInformation.FileName);
-			Assert.Equal(42, testCase.SourceInformation.LineNumber);
+			Assert.Equal("Source File", testCase.SourceInformation?.FileName);
+			Assert.Equal(42, testCase.SourceInformation?.LineNumber);
 		}
 
 		[Fact]
@@ -461,8 +461,8 @@ public class XunitTestFrameworkDiscovererTests
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
 			Assert.Same(testCase, discoveryMsg.TestCase);
-			Assert.Equal("Alt Source File", testCase.SourceInformation.FileName);
-			Assert.Equal(2112, testCase.SourceInformation.LineNumber);
+			Assert.Equal("Alt Source File", testCase.SourceInformation?.FileName);
+			Assert.Equal(2112, testCase.SourceInformation?.LineNumber);
 		}
 
 		[Theory]
@@ -510,7 +510,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		public override sealed string TestAssemblyUniqueID => "asm-id";
 
-		public List<ITestCase> TestCases
+		public List<_ITestCase> TestCases
 		{
 			get
 			{
@@ -569,7 +569,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		public bool ReportDiscoveredTestCase_Public(
-			ITestCase testCase,
+			_ITestCase testCase,
 			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus) =>

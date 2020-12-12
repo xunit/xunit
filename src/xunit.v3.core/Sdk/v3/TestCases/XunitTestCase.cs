@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Default implementation of <see cref="IXunitTestCase"/> for xUnit v3 that supports tests decorated with

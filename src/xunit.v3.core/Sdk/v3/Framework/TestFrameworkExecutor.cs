@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A reusable implementation of <see cref="_ITestFrameworkExecutor"/> which contains the basic behavior
 	/// for running tests.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="ITestCase"/>.</typeparam>
+	/// derive from <see cref="_ITestCase"/>.</typeparam>
 	public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor, IAsyncDisposable
-		where TTestCase : ITestCase
+		where TTestCase : _ITestCase
 	{
 		IReflectionAssemblyInfo assemblyInfo;
 		_IMessageSink diagnosticMessageSink;
@@ -80,15 +80,15 @@ namespace Xunit.Sdk
 
 		/// <summary>
 		/// Override to change the way test cases are deserialized. By default, uses <see cref="SerializationHelper"/>
-		/// to do the deserialization work to restore an <see cref="ITestCase"/> object.
+		/// to do the deserialization work to restore an <see cref="_ITestCase"/> object.
 		/// </summary>
 		/// <param name="serializedTestCase">The serialized test case value</param>
 		/// <returns>The deserialized test case</returns>
-		protected virtual ITestCase Deserialize(string serializedTestCase)
+		protected virtual _ITestCase Deserialize(string serializedTestCase)
 		{
 			Guard.ArgumentNotNull(nameof(serializedTestCase), serializedTestCase);
 
-			return SerializationHelper.Deserialize<ITestCase>(serializedTestCase) ?? throw new ArgumentException($"Could not deserialize test case: {serializedTestCase}", nameof(serializedTestCase));
+			return SerializationHelper.Deserialize<_ITestCase>(serializedTestCase) ?? throw new ArgumentException($"Could not deserialize test case: {serializedTestCase}", nameof(serializedTestCase));
 		}
 
 		/// <inheritdoc/>
@@ -126,13 +126,15 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public virtual void RunTests(
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			Guard.ArgumentNotNull(nameof(testCases), testCases);
 			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+			// TODO: Should this be OfType? Or should we guard against non-TTestCase test cases? What about null test cases?
 
 			RunTestCases(testCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
 		}

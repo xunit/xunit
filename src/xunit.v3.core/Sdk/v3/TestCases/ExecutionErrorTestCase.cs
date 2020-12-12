@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A simple implementation of <see cref="IXunitTestCase"/> that can be used to report an error

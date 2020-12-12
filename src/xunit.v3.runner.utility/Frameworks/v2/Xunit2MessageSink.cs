@@ -273,7 +273,7 @@ namespace Xunit.Runner.v2
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceInformation?.FileName,
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,
-				TestCase = testCase,
+				TestCase = new Xunit2TestCase(testCase),
 				TestCaseDisplayName = testCase.DisplayName,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,

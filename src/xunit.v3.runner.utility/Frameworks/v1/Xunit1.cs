@@ -103,11 +103,11 @@ namespace Xunit
 			new Xunit1Executor(diagnosticMessageSink, appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
 		/// <inheritdoc/>
-		public ITestCase? Deserialize(string value)
+		public _ITestCase? Deserialize(string value)
 		{
 			Guard.ArgumentNotNull(nameof(value), value);
 
-			return SerializationHelper.Deserialize<ITestCase>(value);
+			return SerializationHelper.Deserialize<_ITestCase>(value);
 		}
 
 		/// <inheritdoc/>
@@ -228,7 +228,7 @@ namespace Xunit
 							if (includeSourceInformation)
 							{
 								var result = sourceInformationProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
-								testCase.SourceInformation = new SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
 							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
@@ -305,7 +305,7 @@ namespace Xunit
 		/// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Run(
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			_IMessageSink messageSink)
 		{
 			var results = new Xunit1RunSummary();
@@ -366,7 +366,7 @@ namespace Xunit
 		}
 
 		void _ITestFrameworkExecutor.RunTests(
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			_IMessageSink messageSink,
 			_ITestFrameworkExecutionOptions executionOptions) =>
 				Run(testCases, messageSink);
@@ -380,7 +380,7 @@ namespace Xunit
 		Xunit1RunSummary RunTestCollection(
 			string assemblyUniqueID,
 			ITestCollection testCollection,
-			IEnumerable<ITestCase> testCases,
+			IEnumerable<_ITestCase> testCases,
 			_IMessageSink messageSink)
 		{
 			var collectionStarting = new _TestCollectionStarting
@@ -432,7 +432,7 @@ namespace Xunit
 			string assemblyUniqueID,
 			string collectionUniqueID,
 			ITestClass testClass,
-			IList<ITestCase> testCases,
+			IList<_ITestCase> testCases,
 			_IMessageSink messageSink)
 		{
 			var handler = new TestClassCallbackHandler(testCases, messageSink);
@@ -476,7 +476,7 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public string Serialize(ITestCase testCase) => SerializationHelper.Serialize(testCase);
+		public string Serialize(_ITestCase testCase) => SerializationHelper.Serialize(testCase);
 
 		class Comparer : IEqualityComparer<ITestClass>
 		{
