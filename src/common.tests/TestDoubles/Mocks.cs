@@ -226,11 +226,13 @@ namespace Xunit.v3
 
 		public static _ITest Test(
 			ITestCase testCase,
-			string displayName)
+			string displayName,
+			string uniqueID)
 		{
 			var result = Substitute.For<_ITest, InterfaceProxy<_ITest>>();
 			result.DisplayName.Returns(displayName);
 			result.TestCase.Returns(testCase);
+			result.UniqueID.Returns(uniqueID);
 			return result;
 		}
 

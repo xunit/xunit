@@ -18,5 +18,10 @@ namespace Xunit.v3
 		/// Gets the test case this test belongs to.
 		/// </summary>
 		ITestCase TestCase { get; }
+
+		/// <summary>
+		/// Gets a unique identifier for the test.
+		/// </summary>
+		string UniqueID { get; }
 	}
 }

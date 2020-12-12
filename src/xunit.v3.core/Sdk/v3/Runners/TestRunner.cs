@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A base class that provides default behavior when running a test. This includes support
@@ -34,7 +34,6 @@ namespace Xunit.Sdk
 		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCaseUniqueID">The test case unique ID.</param>
 		/// <param name="test">The test that this invocation belongs to.</param>
-		/// <param name="testIndex">The test index for this test in the test case.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testClass">The test class that the test method belongs to.</param>
 		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
@@ -50,7 +49,6 @@ namespace Xunit.Sdk
 			string? testMethodUniqueID,
 			string testCaseUniqueID,
 			_ITest test,
-			int testIndex,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,
@@ -75,7 +73,7 @@ namespace Xunit.Sdk
 			TestClassUniqueID = testClassUniqueID;
 			TestMethodArguments = testMethodArguments;
 			TestMethodUniqueID = testMethodUniqueID;
-			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, testIndex);
+			TestUniqueID = test.UniqueID;
 
 			Guard.ArgumentValid(nameof(test), $"test.TestCase must implement {typeof(TTestCase).FullName}", test.TestCase is TTestCase);
 		}

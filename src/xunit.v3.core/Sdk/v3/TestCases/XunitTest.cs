@@ -1,8 +1,8 @@
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// An implementation of <see cref="_ITest"/> for xUnit v3.
@@ -14,10 +14,15 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="testCase">The test case this test belongs to.</param>
 		/// <param name="displayName">The display name for this test.</param>
-		public XunitTest(IXunitTestCase testCase, string displayName)
+		/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
+		public XunitTest(
+			IXunitTestCase testCase,
+			string displayName,
+			int testIndex)
 		{
 			TestCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
 			DisplayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
+			UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		}
 
 		/// <inheritdoc/>
@@ -30,5 +35,8 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		ITestCase _ITest.TestCase => TestCase;
+
+		/// <inheritdoc/>
+		public string UniqueID { get; }
 	}
 }

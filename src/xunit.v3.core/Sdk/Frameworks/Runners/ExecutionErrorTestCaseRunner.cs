@@ -36,11 +36,9 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestAsync()
 		{
-			var test = new XunitTest(TestCase, TestCase.DisplayName);
-			var summary = new RunSummary { Total = 1 };
-
 			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
-			var testUniqueID = UniqueIDGenerator.ForTest(TestCase.UniqueID, -1);
+			var test = new XunitTest(TestCase, TestCase.DisplayName, testIndex: -1);
+			var summary = new RunSummary { Total = 1 };
 
 			var testStarting = new _TestStarting
 			{
@@ -50,7 +48,7 @@ namespace Xunit.Sdk
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestDisplayName = test.DisplayName,
 				TestMethodUniqueID = TestMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = test.UniqueID
 			};
 
 			if (!MessageBus.QueueMessage(testStarting))
@@ -72,7 +70,7 @@ namespace Xunit.Sdk
 					TestClassUniqueID = TestClassUniqueID,
 					TestCollectionUniqueID = TestCollectionUniqueID,
 					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = testUniqueID
+					TestUniqueID = test.UniqueID
 				};
 
 				if (!MessageBus.QueueMessage(testFailed))
@@ -87,7 +85,7 @@ namespace Xunit.Sdk
 					TestClassUniqueID = TestClassUniqueID,
 					TestCollectionUniqueID = TestCollectionUniqueID,
 					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = testUniqueID
+					TestUniqueID = test.UniqueID
 				};
 
 				if (!MessageBus.QueueMessage(testFinished))

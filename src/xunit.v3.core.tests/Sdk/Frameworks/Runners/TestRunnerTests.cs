@@ -265,7 +265,6 @@ public class TestRunnerTests
 					"test-method-id",
 					"test-case-id",
 					test,
-					testIndex: 0,
 					messageBus,
 					testClass,
 					constructorArguments,
@@ -299,7 +298,7 @@ public class TestRunnerTests
 				aggregator.Add(aggregatorSeedException);
 			if (testCase == null)
 				testCase = Mocks.TestCase<object>("ToString");
-			var test = Mocks.Test(testCase, displayName);
+			var test = Mocks.Test(testCase, displayName, "test-id");
 
 			return new TestableTestRunner(
 				test,

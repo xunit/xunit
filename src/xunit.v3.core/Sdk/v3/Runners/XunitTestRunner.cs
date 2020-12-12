@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The test runner for xUnit.net v3 tests.
@@ -22,7 +22,6 @@ namespace Xunit.Sdk
 		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCaseUniqueID">The test case unique ID.</param>
 		/// <param name="test">The test that this invocation belongs to.</param>
-		/// <param name="testIndex">The test index for this test in the test case.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testClass">The test class that the test method belongs to.</param>
 		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
@@ -39,7 +38,6 @@ namespace Xunit.Sdk
 			string? testMethodUniqueID,
 			string testCaseUniqueID,
 			_ITest test,
-			int testIndex,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,
@@ -56,7 +54,6 @@ namespace Xunit.Sdk
 					testMethodUniqueID,
 					testCaseUniqueID,
 					test,
-					testIndex,
 					messageBus,
 					testClass,
 					constructorArguments,

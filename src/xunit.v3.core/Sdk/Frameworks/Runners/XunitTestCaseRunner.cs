@@ -131,15 +131,17 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Creates the <see cref="_ITest"/> instance for the given test case.
 		/// </summary>
-		protected virtual _ITest CreateTest(IXunitTestCase testCase, string displayName) =>
-			new XunitTest(testCase, displayName);
+		protected virtual _ITest CreateTest(
+			IXunitTestCase testCase,
+			string displayName,
+			int testIndex) =>
+				new XunitTest(testCase, displayName, testIndex);
 
 		/// <summary>
 		/// Creates the test runner used to run the given test.
 		/// </summary>
 		protected virtual XunitTestRunner CreateTestRunner(
 			_ITest test,
-			int testIndex,
 			IMessageBus messageBus,
 			Type testClass,
 			object?[] constructorArguments,
@@ -156,7 +158,6 @@ namespace Xunit.Sdk
 					TestMethodUniqueID,
 					TestCase.UniqueID,
 					test,
-					testIndex,
 					messageBus,
 					testClass,
 					constructorArguments,
@@ -191,8 +192,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestAsync() =>
 			CreateTestRunner(
-				CreateTest(TestCase, DisplayName),
-				testIndex: 0,
+				CreateTest(TestCase, DisplayName, testIndex: 0),
 				MessageBus,
 				TestClass,
 				ConstructorArguments,

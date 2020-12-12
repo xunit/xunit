@@ -134,9 +134,9 @@ namespace Xunit.Sdk
 						convertedDataRow = Reflector.ConvertArguments(convertedDataRow, parameterTypes);
 
 						var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
-						var test = CreateTest(TestCase, theoryDisplayName);
+						var test = CreateTest(TestCase, theoryDisplayName, testIndex++);
 						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
-						testRunners.Add(CreateTestRunner(test, testIndex++, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
+						testRunners.Add(CreateTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
 					}
 				}
 			}
@@ -180,10 +180,8 @@ namespace Xunit.Sdk
 
 		RunSummary RunTest_DataDiscoveryException()
 		{
-			var test = new XunitTest(TestCase, DisplayName);
-
 			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
-			var testUniqueID = UniqueIDGenerator.ForTest(TestCase.UniqueID, -1);
+			var test = new XunitTest(TestCase, DisplayName, testIndex: -1);
 
 			var testStarting = new _TestStarting
 			{
@@ -193,7 +191,7 @@ namespace Xunit.Sdk
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestDisplayName = test.DisplayName,
 				TestMethodUniqueID = TestMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = test.UniqueID
 			};
 
 			if (!MessageBus.QueueMessage(testStarting))
@@ -214,7 +212,7 @@ namespace Xunit.Sdk
 					TestClassUniqueID = TestClassUniqueID,
 					TestCollectionUniqueID = TestCollectionUniqueID,
 					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = testUniqueID
+					TestUniqueID = test.UniqueID
 				};
 				if (!MessageBus.QueueMessage(testFailed))
 					CancellationTokenSource.Cancel();
@@ -229,7 +227,7 @@ namespace Xunit.Sdk
 				TestClassUniqueID = TestClassUniqueID,
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestMethodUniqueID = TestMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = test.UniqueID
 			};
 
 			if (!MessageBus.QueueMessage(testFinished))

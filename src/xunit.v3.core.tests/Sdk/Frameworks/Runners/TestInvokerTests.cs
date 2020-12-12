@@ -267,7 +267,7 @@ public class TestInvokerTests
 			object?[]? testMethodArguments = null)
 		{
 			var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
-			var test = Mocks.Test(testCase, displayName);
+			var test = Mocks.Test(testCase, displayName, "test-id");
 
 			return new TestableTestInvoker(
 				test,

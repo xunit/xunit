@@ -329,7 +329,7 @@ public class XunitTestInvokerTests
 			Action? lambda = null)
 		{
 			var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing");
-			var test = Mocks.Test(testCase, displayName);
+			var test = Mocks.Test(testCase, displayName, "test-id");
 
 			return new TestableXunitTestInvoker(
 				test,
