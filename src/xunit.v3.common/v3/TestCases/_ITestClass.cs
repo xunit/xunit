@@ -1,5 +1,3 @@
-#if false
-
 using Xunit.Abstractions;
 
 namespace Xunit.v3
@@ -17,8 +15,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test collection this test case belongs to.
 		/// </summary>
-		_ITestCollection TestCollection { get; }
+		ITestCollection TestCollection { get; }
 	}
 }
-
-#endif

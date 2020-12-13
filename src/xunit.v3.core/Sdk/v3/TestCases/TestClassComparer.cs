@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using Xunit.Abstractions;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestClass"/>.
+	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestClass"/>.
 	/// Compares the fully qualified names of the types.
 	/// </summary>
-	public class TestClassComparer : IEqualityComparer<ITestClass>
+	public class TestClassComparer : IEqualityComparer<_ITestClass>
 	{
 		/// <summary>
 		/// The singleton instance of the comparer.
@@ -15,7 +14,7 @@ namespace Xunit.Sdk
 		public static readonly TestClassComparer Instance = new TestClassComparer();
 
 		/// <inheritdoc/>
-		public bool Equals(ITestClass? x, ITestClass? y)
+		public bool Equals(_ITestClass? x, _ITestClass? y)
 		{
 			if (x == null && y == null)
 				return true;
@@ -26,7 +25,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public int GetHashCode(ITestClass obj) =>
+		public int GetHashCode(_ITestClass obj) =>
 			obj.Class.Name.GetHashCode();
 	}
 }

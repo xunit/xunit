@@ -13,7 +13,7 @@ namespace Xunit.v3
 	public class TestMethod : _ITestMethod, IXunitSerializable
 	{
 		private IMethodInfo? method;
-		private ITestClass? testClass;
+		private _ITestClass? testClass;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -27,7 +27,7 @@ namespace Xunit.v3
 		/// <param name="testClass">The test class</param>
 		/// <param name="method">The test method</param>
 		public TestMethod(
-			ITestClass testClass,
+			_ITestClass testClass,
 			IMethodInfo method)
 		{
 			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
@@ -42,7 +42,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public ITestClass TestClass
+		public _ITestClass TestClass
 		{
 			get => testClass ?? throw new InvalidOperationException($"Attempted to get TestClass on an uninitialized '{GetType().FullName}' object");
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
@@ -62,7 +62,7 @@ namespace Xunit.v3
 		{
 			Guard.ArgumentNotNull(nameof(info), info);
 
-			testClass = info.GetValue<ITestClass>("TestClass");
+			testClass = info.GetValue<_ITestClass>("TestClass");
 
 			var methodName = info.GetValue<string>("MethodName");
 

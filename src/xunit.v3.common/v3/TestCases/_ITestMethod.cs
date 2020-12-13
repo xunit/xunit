@@ -15,6 +15,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test class that this test method belongs to.
 		/// </summary>
-		ITestClass TestClass { get; }
+		_ITestClass TestClass { get; }
 	}
 }

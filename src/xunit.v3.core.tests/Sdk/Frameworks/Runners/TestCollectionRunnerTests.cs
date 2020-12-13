@@ -286,7 +286,7 @@ public class TestCollectionRunnerTests
 		}
 
 		protected override Task<RunSummary> RunTestClassAsync(
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<_ITestCase> testCases)
 		{

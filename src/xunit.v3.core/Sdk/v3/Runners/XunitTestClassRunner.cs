@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The test class runner for xUnit.net v3 tests.
@@ -38,7 +38,7 @@ namespace Xunit.Sdk
 		public XunitTestClassRunner(
 			string testAssemblyUniqueID,
 			string testCollectionUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,

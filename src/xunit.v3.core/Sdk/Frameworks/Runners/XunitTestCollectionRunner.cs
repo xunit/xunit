@@ -165,7 +165,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestClassAsync(
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases) =>
 				new XunitTestClassRunner(

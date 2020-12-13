@@ -364,7 +364,7 @@ public class TestClassRunnerTests
 		TestableTestClassRunner(
 			string assemblyUniqueID,
 			string collectionUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,

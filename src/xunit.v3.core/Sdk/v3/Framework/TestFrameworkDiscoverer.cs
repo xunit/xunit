@@ -102,7 +102,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="class">The CLR type.</param>
 		/// <returns>The test class.</returns>
-		protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
+		protected internal abstract _ITestClass CreateTestClass(ITypeInfo @class);
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()
@@ -209,13 +209,13 @@ namespace Xunit.v3
 		protected abstract bool FindTestsForType(
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
 		bool FindTestsForTypeAndWrapExceptions(
-			ITestClass testClass,
+			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{

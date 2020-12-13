@@ -395,7 +395,7 @@ public class XunitTestClassRunnerTests
 		TestableXunitTestClassRunner(
 			string assemblyUniqueID,
 			string collectionUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,

@@ -398,6 +398,8 @@ namespace Xunit.Runner.v1
 			};
 		}
 
+		// TODO: These should go away once the test case object hierarchy includes UniqueID at all levels
+
 		string GetAssemblyUniqueID(ITestAssembly testAssembly) =>
 			UniqueIDGenerator.ForAssembly(
 				testAssembly.Assembly.Name,
@@ -407,7 +409,7 @@ namespace Xunit.Runner.v1
 
 		string? GetClassUniqueID(
 			string collectionUniqueID,
-			ITestClass testClass) =>
+			_ITestClass testClass) =>
 				UniqueIDGenerator.ForTestClass(collectionUniqueID, testClass.Class?.Name);
 
 		string GetCollectionUniqueID(

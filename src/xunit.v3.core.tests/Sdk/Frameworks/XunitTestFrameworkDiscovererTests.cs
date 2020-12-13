@@ -68,7 +68,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(0).FindTestsForClass(Arg.Any<ITestClass>());
+			framework.Received(0).FindTestsForClass(Arg.Any<_ITestClass>());
 		}
 
 		[Fact]
@@ -83,8 +83,8 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == objectTypeInfo));
-			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == intTypeInfo));
+			framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == objectTypeInfo));
+			framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == intTypeInfo));
 		}
 
 		[Fact]
@@ -154,7 +154,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(1).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == type));
+			framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == type));
 		}
 
 		[Fact]
@@ -168,7 +168,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(0).FindTestsForClass(Arg.Is<ITestClass>(testClass => testClass.Class == type));
+			framework.Received(0).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == type));
 		}
 
 		[Fact]
@@ -530,7 +530,7 @@ public class XunitTestFrameworkDiscovererTests
 			return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, diagnosticMessageSink, collectionFactory);
 		}
 
-		public new ITestClass CreateTestClass(ITypeInfo @class)
+		public new _ITestClass CreateTestClass(ITypeInfo @class)
 		{
 			return base.CreateTestClass(@class);
 		}
@@ -547,7 +547,7 @@ public class XunitTestFrameworkDiscovererTests
 			Sink.Finished.WaitOne();
 		}
 
-		public virtual bool FindTestsForClass(ITestClass testClass)
+		public virtual bool FindTestsForClass(_ITestClass testClass)
 		{
 			using var messageBus = new MessageBus(Sink);
 			return base.FindTestsForType("test-collection-id", "test-class-id", testClass, messageBus, _TestFrameworkOptions.ForDiscovery());
@@ -556,7 +556,7 @@ public class XunitTestFrameworkDiscovererTests
 		protected sealed override bool FindTestsForType(
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{

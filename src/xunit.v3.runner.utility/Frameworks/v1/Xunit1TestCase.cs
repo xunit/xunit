@@ -14,7 +14,7 @@ namespace Xunit.Runner.v1
 	/// An implementation of <see cref="_ITestCase"/> (and parents) that adapts xUnit.net v1's XML-based APIs
 	/// into xUnit.net v3's object-based APIs.
 	/// </summary>
-	public class Xunit1TestCase : ITestAssembly, ITestCollection, ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
+	public class Xunit1TestCase : ITestAssembly, ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -153,16 +153,16 @@ namespace Xunit.Runner.v1
 		Guid ITestCollection.UniqueID => Guid.Empty;
 
 		/// <inheritdoc/>
-		ITypeInfo ITestClass.Class => ReflectionWrapper;
+		ITypeInfo _ITestClass.Class => ReflectionWrapper;
 
 		/// <inheritdoc/>
-		ITestCollection ITestClass.TestCollection => this;
+		ITestCollection _ITestClass.TestCollection => this;
 
 		/// <inheritdoc/>
 		IMethodInfo _ITestMethod.Method => ReflectionWrapper;
 
 		/// <inheritdoc/>
-		ITestClass _ITestMethod.TestClass => this;
+		_ITestClass _ITestMethod.TestClass => this;
 	}
 }
 

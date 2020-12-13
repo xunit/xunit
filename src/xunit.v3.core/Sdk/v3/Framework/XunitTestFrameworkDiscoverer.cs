@@ -72,10 +72,10 @@ namespace Xunit.v3
 		public override string TestFrameworkDisplayName => testFrameworkDisplayName;
 
 		/// <inheritdoc/>
-		protected internal override ITestClass CreateTestClass(ITypeInfo @class) =>
+		protected internal override _ITestClass CreateTestClass(ITypeInfo @class) =>
 			new TestClass(TestCollectionFactory.Get(@class), @class);
 
-		internal ITestClass CreateTestClass(
+		internal _ITestClass CreateTestClass(
 			ITypeInfo @class,
 			Guid testCollectionUniqueId)
 		{
@@ -148,7 +148,7 @@ namespace Xunit.v3
 		protected override bool FindTestsForType(
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{

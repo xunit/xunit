@@ -339,14 +339,14 @@ namespace Xunit.v3
 		public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>() =>
 			TestCaseOrdererAttribute(typeof(TOrderer));
 
-		public static ITestClass TestClass(
+		public static _ITestClass TestClass(
 			string? typeName = null,
 			IReflectionAttributeInfo[]? attributes = null)
 		{
 			var testCollection = TestCollection();
 			var typeInfo = TypeInfo(typeName, attributes: attributes);
 
-			var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
+			var result = Substitute.For<_ITestClass, InterfaceProxy<_ITestClass>>();
 			result.Class.Returns(typeInfo);
 			result.TestCollection.Returns(testCollection);
 			return result;

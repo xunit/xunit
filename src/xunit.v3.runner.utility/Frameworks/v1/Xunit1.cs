@@ -232,7 +232,7 @@ namespace Xunit
 							}
 
 							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
-							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((ITestClass)testCase).Class?.Name);
+							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((_ITestClass)testCase).Class?.Name);
 							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((_ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
 							{
@@ -431,7 +431,7 @@ namespace Xunit
 		Xunit1RunSummary RunTestClass(
 			string assemblyUniqueID,
 			string collectionUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IList<_ITestCase> testCases,
 			_IMessageSink messageSink)
 		{
@@ -478,13 +478,13 @@ namespace Xunit
 		/// <inheritdoc/>
 		public string Serialize(_ITestCase testCase) => SerializationHelper.Serialize(testCase);
 
-		class Comparer : IEqualityComparer<ITestClass>
+		class Comparer : IEqualityComparer<_ITestClass>
 		{
 			public static readonly Comparer Instance = new Comparer();
 
-			public bool Equals(ITestClass? x, ITestClass? y) => x?.Class.Name == y?.Class.Name;
+			public bool Equals(_ITestClass? x, _ITestClass? y) => x?.Class.Name == y?.Class.Name;
 
-			public int GetHashCode(ITestClass obj) => obj.Class.Name.GetHashCode();
+			public int GetHashCode(_ITestClass obj) => obj.Class.Name.GetHashCode();
 		}
 	}
 }

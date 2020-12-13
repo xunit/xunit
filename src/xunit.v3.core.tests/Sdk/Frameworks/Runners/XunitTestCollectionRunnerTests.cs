@@ -296,7 +296,7 @@ public class XunitTestCollectionRunnerTests
 
 		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
-		protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
+		protected override Task<RunSummary> RunTestClassAsync(_ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
 		{
 			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
 

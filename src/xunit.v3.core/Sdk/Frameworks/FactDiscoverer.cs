@@ -123,7 +123,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static string? ComputeUniqueID(
 			string testCollectionUniqueID,
-			ITestClass? testClass) =>
+			_ITestClass? testClass) =>
 				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass?.Class?.Name);
 
 		/// <summary>

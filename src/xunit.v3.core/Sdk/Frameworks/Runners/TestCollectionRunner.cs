@@ -216,7 +216,7 @@ namespace Xunit.Sdk
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestClassAsync(
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases
 		);

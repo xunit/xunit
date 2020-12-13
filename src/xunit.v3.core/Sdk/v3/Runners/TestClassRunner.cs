@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A base class that provides default behavior when running tests in a test class. It groups the tests
@@ -27,7 +27,7 @@ namespace Xunit.Sdk
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
-		ITestClass testClass;
+		_ITestClass testClass;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
@@ -45,7 +45,7 @@ namespace Xunit.Sdk
 		protected TestClassRunner(
 			string testAssemblyUniqueID,
 			string testCollectionUniqueID,
-			ITestClass testClass,
+			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
@@ -139,7 +139,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the test class to be run.
 		/// </summary>
-		protected ITestClass TestClass
+		protected _ITestClass TestClass
 		{
 			get => testClass;
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
