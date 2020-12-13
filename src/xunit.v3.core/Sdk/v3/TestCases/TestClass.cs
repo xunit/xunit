@@ -15,7 +15,7 @@ namespace Xunit.v3
 	public class TestClass : _ITestClass, IXunitSerializable
 	{
 		ITypeInfo? @class;
-		ITestCollection? testCollection;
+		_ITestCollection? testCollection;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -28,7 +28,7 @@ namespace Xunit.v3
 		/// <param name="testCollection">The test collection the class belongs to</param>
 		/// <param name="class">The test class</param>
 		public TestClass(
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			ITypeInfo @class)
 		{
 			this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
@@ -43,7 +43,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public ITestCollection TestCollection
+		public _ITestCollection TestCollection
 		{
 			get => testCollection ?? throw new InvalidOperationException($"Attempted to get TestCollection on an uninitialized '{GetType().FullName}' object");
 			set => testCollection = Guard.ArgumentNotNull(nameof(TestCollection), value);
@@ -64,7 +64,7 @@ namespace Xunit.v3
 		{
 			Guard.ArgumentNotNull(nameof(info), info);
 
-			TestCollection = info.GetValue<ITestCollection>("TestCollection");
+			TestCollection = info.GetValue<_ITestCollection>("TestCollection");
 
 			var assemblyName = info.GetValue<string>("ClassAssemblyName");
 			var typeName = info.GetValue<string>("ClassTypeName");

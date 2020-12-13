@@ -131,7 +131,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static string ComputeUniqueID(
 			string assemblyUniqueID,
-			ITestCollection testCollection) =>
+			_ITestCollection testCollection) =>
 				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
 
 		/// <summary>

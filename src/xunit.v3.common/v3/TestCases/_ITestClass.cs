@@ -15,6 +15,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test collection this test case belongs to.
 		/// </summary>
-		ITestCollection TestCollection { get; }
+		_ITestCollection TestCollection { get; }
 	}
 }

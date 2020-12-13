@@ -235,7 +235,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitTestCollectionRunner(

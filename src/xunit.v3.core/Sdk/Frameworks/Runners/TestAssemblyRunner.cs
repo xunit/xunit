@@ -195,14 +195,14 @@ namespace Xunit.Sdk
 		/// Orders the test collections using the <see cref="TestCollectionOrderer"/>.
 		/// </summary>
 		/// <returns>Test collections (and the associated test cases) in run order</returns>
-		protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCollections()
+		protected List<Tuple<_ITestCollection, List<TTestCase>>> OrderTestCollections()
 		{
 			var testCasesByCollection =
 				TestCases
 					.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
 					.ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
-			IEnumerable<ITestCollection> orderedTestCollections;
+			IEnumerable<_ITestCollection> orderedTestCollections;
 
 			try
 			{
@@ -331,7 +331,7 @@ namespace Xunit.Sdk
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<TTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource
 		);

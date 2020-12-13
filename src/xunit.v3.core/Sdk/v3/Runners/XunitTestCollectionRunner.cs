@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The test collection runner for xUnit.net v3 tests.
@@ -30,7 +30,7 @@ namespace Xunit.Sdk
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestCollectionRunner(
 			string testAssemblyUniqueID,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,

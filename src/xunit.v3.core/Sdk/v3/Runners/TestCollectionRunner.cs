@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A base class that provides default behavior when running tests in a test collection. It groups the tests
@@ -22,7 +22,7 @@ namespace Xunit.Sdk
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
-		ITestCollection testCollection;
+		_ITestCollection testCollection;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionRunner{TTestCase}"/> class.
@@ -36,7 +36,7 @@ namespace Xunit.Sdk
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestCollectionRunner(
 			string testAssemblyUniqueID,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<TTestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -113,7 +113,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the test collection that contains the tests to be run.
 		/// </summary>
-		protected ITestCollection TestCollection
+		protected _ITestCollection TestCollection
 		{
 			get => testCollection;
 			set => testCollection = Guard.ArgumentNotNull(nameof(TestCollection), value);

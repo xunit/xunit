@@ -4,14 +4,15 @@ using System.Diagnostics;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// The default implementation of <see cref="ITestCollection"/>.
+	/// The default implementation of <see cref="_ITestCollection"/>.
 	/// </summary>
 	[DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
-	public class TestCollection : ITestCollection
+	public class TestCollection : _ITestCollection, IXunitSerializable
 	{
 		string? displayName;
 		ITestAssembly? testAssembly;

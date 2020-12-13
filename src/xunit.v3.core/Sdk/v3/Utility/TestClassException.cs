@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// Represents an exception that happened during the process of a test class. This typically
+	/// Represents an exception that happened during the processing of a test class. This typically
 	/// means there were problems identifying the correct test class constructor, or problems
 	/// creating the fixture data for the test class.
 	/// </summary>

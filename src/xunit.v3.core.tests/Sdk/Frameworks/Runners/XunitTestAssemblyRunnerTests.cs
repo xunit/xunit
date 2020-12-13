@@ -106,7 +106,7 @@ public class XunitTestAssemblyRunnerTests
 
 			public MyTestCollectionFactory(ITestAssembly assembly) { }
 
-			public ITestCollection Get(ITypeInfo testClass)
+			public _ITestCollection Get(ITypeInfo testClass)
 			{
 				throw new NotImplementedException();
 			}
@@ -277,7 +277,7 @@ public class XunitTestAssemblyRunnerTests
 
 		class MyTestCollectionOrderer : ITestCollectionOrderer
 		{
-			public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> TestCollections)
+			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> TestCollections)
 			{
 				return TestCollections.OrderByDescending(c => c.DisplayName);
 			}
@@ -318,9 +318,9 @@ public class XunitTestAssemblyRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
+			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections)
 			{
-				return Enumerable.Empty<ITestCollection>();
+				return Enumerable.Empty<_ITestCollection>();
 			}
 		}
 	}
@@ -396,7 +396,7 @@ public class XunitTestAssemblyRunnerTests
 
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource)
 		{

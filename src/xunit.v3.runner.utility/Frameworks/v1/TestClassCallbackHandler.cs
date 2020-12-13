@@ -414,7 +414,7 @@ namespace Xunit.Runner.v1
 
 		string GetCollectionUniqueID(
 			string assemblyUniqueID,
-			ITestCollection testCollection) =>
+			_ITestCollection testCollection) =>
 				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
 
 		string? GetMethodUniqueID(

@@ -266,7 +266,7 @@ public class XunitTestCollectionRunnerTests
 
 		TestableXunitTestCollectionRunner(
 			string testAssemblyUniqueID,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,

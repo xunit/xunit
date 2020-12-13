@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.v3;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A helper class that gets the list of test collection definitions for a given assembly.

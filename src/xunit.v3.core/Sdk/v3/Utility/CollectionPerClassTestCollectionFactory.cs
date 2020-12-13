@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Implementation of <see cref="IXunitTestCollectionFactory"/> which creates a new test
@@ -15,7 +15,7 @@ namespace Xunit.Sdk
 	{
 		readonly Dictionary<string, ITypeInfo> collectionDefinitions;
 		readonly ITestAssembly testAssembly;
-		readonly ConcurrentDictionary<string, ITestCollection> testCollections = new ConcurrentDictionary<string, ITestCollection>();
+		readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new ConcurrentDictionary<string, _ITestCollection>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CollectionPerClassTestCollectionFactory" /> class.
@@ -36,14 +36,14 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public string DisplayName => "collection-per-class";
 
-		ITestCollection CreateCollection(string name)
+		_ITestCollection CreateCollection(string name)
 		{
 			collectionDefinitions.TryGetValue(name, out var definitionType);
 			return new TestCollection(testAssembly, definitionType, name);
 		}
 
 		/// <inheritdoc/>
-		public ITestCollection Get(ITypeInfo testClass)
+		public _ITestCollection Get(ITypeInfo testClass)
 		{
 			Guard.ArgumentNotNull(nameof(testClass), testClass);
 

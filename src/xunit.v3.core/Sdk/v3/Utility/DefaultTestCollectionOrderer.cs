@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Default implementation of <see cref="ITestCollectionOrderer"/>. Orders tests in
@@ -13,7 +12,7 @@ namespace Xunit.Sdk
 	public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 	{
 		/// <inheritdoc/>
-		public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
+		public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections)
 		{
 			Guard.ArgumentNotNull(nameof(testCollections), testCollections);
 
@@ -23,7 +22,7 @@ namespace Xunit.Sdk
 		}
 
 		int Compare<TTestCollection>(TTestCollection x, TTestCollection y)
-			where TTestCollection : ITestCollection
+			where TTestCollection : _ITestCollection
 		{
 			var xHash = x.UniqueID.GetHashCode();
 			var yHash = y.UniqueID.GetHashCode();

@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -9,6 +10,8 @@ namespace Xunit.Runner.v2
 	/// </summary>
 	public class Xunit2TestClass : _ITestClass
 	{
+		readonly Lazy<_ITestCollection> testCollection;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2TestClass"/> class.
 		/// </summary>
@@ -16,13 +19,15 @@ namespace Xunit.Runner.v2
 		public Xunit2TestClass(ITestClass v2TestClass)
 		{
 			V2TestClass = Guard.ArgumentNotNull(nameof(v2TestClass), v2TestClass);
+
+			testCollection = new Lazy<_ITestCollection>(() => new Xunit2TestCollection(V2TestClass.TestCollection));
 		}
 
 		/// <inheritdoc/>
 		public ITypeInfo Class => V2TestClass.Class;
 
 		/// <inheritdoc/>
-		public ITestCollection TestCollection => V2TestClass.TestCollection;
+		public _ITestCollection TestCollection => testCollection.Value;
 
 		/// <summary>
 		/// Gets the underlying xUnit.net v2 <see cref="ITestClass"/> that this class is wrapping.

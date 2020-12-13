@@ -231,7 +231,7 @@ namespace Xunit
 								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
-							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
+							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((_ITestCollection)testCase).DisplayName, null);
 							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((_ITestClass)testCase).Class?.Name);
 							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((_ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
@@ -379,7 +379,7 @@ namespace Xunit
 
 		Xunit1RunSummary RunTestCollection(
 			string assemblyUniqueID,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<_ITestCase> testCases,
 			_IMessageSink messageSink)
 		{

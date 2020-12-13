@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A class implements this interface to participate in ordering tests
@@ -16,6 +15,6 @@ namespace Xunit
 		/// </summary>
 		/// <param name="testCollections">The test collections to be ordered.</param>
 		/// <returns>The test collections in the order to be run.</returns>
-		IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections);
+		IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections);
 	}
 }

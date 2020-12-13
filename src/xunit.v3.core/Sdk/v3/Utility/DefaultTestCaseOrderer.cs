@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Default implementation of <see cref="ITestCaseOrderer"/>. Orders tests in

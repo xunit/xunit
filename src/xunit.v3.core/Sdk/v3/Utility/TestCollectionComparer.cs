@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using Xunit.Abstractions;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestCollection"/>.
+	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestCollection"/>.
 	/// Compares the IDs of the test collections.
 	/// </summary>
-	public class TestCollectionComparer : IEqualityComparer<ITestCollection>
+	public class TestCollectionComparer : IEqualityComparer<_ITestCollection>
 	{
 		/// <summary>
 		/// The singleton instance of the comparer.
@@ -15,7 +14,7 @@ namespace Xunit.Sdk
 		public static readonly TestCollectionComparer Instance = new TestCollectionComparer();
 
 		/// <inheritdoc/>
-		public bool Equals(ITestCollection? x, ITestCollection? y)
+		public bool Equals(_ITestCollection? x, _ITestCollection? y)
 		{
 			if (x == null && y == null)
 				return true;
@@ -26,7 +25,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public int GetHashCode(ITestCollection obj) =>
+		public int GetHashCode(_ITestCollection obj) =>
 			obj.UniqueID.GetHashCode();
 	}
 }

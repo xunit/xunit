@@ -286,7 +286,7 @@ public class ExtensibilityPointFactoryTests
 			public string DisplayName =>
 				"My Factory";
 
-			public ITestCollection Get(ITypeInfo testClass) =>
+			public _ITestCollection Get(ITypeInfo testClass) =>
 				throw new NotImplementedException();
 		}
 
@@ -318,7 +318,7 @@ public class ExtensibilityPointFactoryTests
 			public string DisplayName =>
 				throw new NotImplementedException();
 
-			public ITestCollection Get(ITypeInfo testClass) =>
+			public _ITestCollection Get(ITypeInfo testClass) =>
 				throw new NotImplementedException();
 		}
 

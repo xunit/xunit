@@ -291,7 +291,7 @@ public class TestAssemblyRunnerTests
 
 		class MyTestCollectionOrderer : ITestCollectionOrderer
 		{
-			public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> TestCollections)
+			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> TestCollections)
 			{
 				return TestCollections.OrderByDescending(c => c.DisplayName);
 			}
@@ -324,7 +324,7 @@ public class TestAssemblyRunnerTests
 
 		class ThrowingOrderer : ITestCollectionOrderer
 		{
-			public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
+			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections)
 			{
 				throw new DivideByZeroException();
 			}
@@ -336,7 +336,7 @@ public class TestAssemblyRunnerTests
 		readonly bool cancelInRunTestCollectionAsync;
 		readonly RunSummary result;
 
-		public List<Tuple<ITestCollection, IEnumerable<_ITestCase>>> CollectionsRun = new List<Tuple<ITestCollection, IEnumerable<_ITestCase>>>();
+		public List<Tuple<_ITestCollection, IEnumerable<_ITestCase>>> CollectionsRun = new List<Tuple<_ITestCollection, IEnumerable<_ITestCase>>>();
 		public Action<ExceptionAggregator> AfterTestAssemblyStarting_Callback = _ => { };
 		public bool AfterTestAssemblyStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
@@ -416,7 +416,7 @@ public class TestAssemblyRunnerTests
 
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<_ITestCase> testCases,
 			CancellationTokenSource cancellationTokenSource)
 		{

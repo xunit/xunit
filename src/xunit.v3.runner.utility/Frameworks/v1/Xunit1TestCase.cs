@@ -14,7 +14,7 @@ namespace Xunit.Runner.v1
 	/// An implementation of <see cref="_ITestCase"/> (and parents) that adapts xUnit.net v1's XML-based APIs
 	/// into xUnit.net v3's object-based APIs.
 	/// </summary>
-	public class Xunit1TestCase : ITestAssembly, ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
+	public class Xunit1TestCase : ITestAssembly, _ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -141,22 +141,22 @@ namespace Xunit.Runner.v1
 		IAssemblyInfo ITestAssembly.Assembly => ReflectionWrapper;
 
 		/// <inheritdoc/>
-		ITypeInfo? ITestCollection.CollectionDefinition => null;
+		ITypeInfo? _ITestCollection.CollectionDefinition => null;
 
 		/// <inheritdoc/>
-		string ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
+		string _ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
 
 		/// <inheritdoc/>
-		ITestAssembly ITestCollection.TestAssembly => this;
+		ITestAssembly _ITestCollection.TestAssembly => this;
 
 		/// <inheritdoc/>
-		Guid ITestCollection.UniqueID => Guid.Empty;
+		Guid _ITestCollection.UniqueID => Guid.Empty;
 
 		/// <inheritdoc/>
 		ITypeInfo _ITestClass.Class => ReflectionWrapper;
 
 		/// <inheritdoc/>
-		ITestCollection _ITestClass.TestCollection => this;
+		_ITestCollection _ITestClass.TestCollection => this;
 
 		/// <inheritdoc/>
 		IMethodInfo _ITestMethod.Method => ReflectionWrapper;

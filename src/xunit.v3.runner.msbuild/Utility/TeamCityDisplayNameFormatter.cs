@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit
@@ -10,7 +9,7 @@ namespace Xunit
 		int assemblyCount;
 		readonly ConcurrentDictionary<string, int> assemblyMappings = new ConcurrentDictionary<string, int>();
 
-		public virtual string DisplayName(ITestCollection testCollection)
+		public virtual string DisplayName(_ITestCollection testCollection)
 		{
 			var id = assemblyMappings.GetOrAdd(
 				testCollection.TestAssembly.Assembly.Name,

@@ -228,7 +228,7 @@ public class TestCollectionRunnerTests
 
 		TestableTestCollectionRunner(
 			string testAssemblyUniqueID,
-			ITestCollection testCollection,
+			_ITestCollection testCollection,
 			IEnumerable<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,

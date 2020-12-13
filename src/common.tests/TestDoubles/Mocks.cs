@@ -271,7 +271,7 @@ namespace Xunit.v3
 			return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 		}
 
-		public static _ITestCase TestCase(ITestCollection? collection = null)
+		public static _ITestCase TestCase(_ITestCollection? collection = null)
 		{
 			if (collection == null)
 				collection = TestCollection();
@@ -354,7 +354,7 @@ namespace Xunit.v3
 
 		public static TestClass TestClass(
 			Type type,
-			ITestCollection? collection = null)
+			_ITestCollection? collection = null)
 		{
 			if (collection == null)
 				collection = TestCollection(type.Assembly);
@@ -447,7 +447,7 @@ namespace Xunit.v3
 		public static TestMethod TestMethod(
 			Type type,
 			string methodName,
-			ITestCollection? collection = null)
+			_ITestCollection? collection = null)
 		{
 			var @class = TestClass(type, collection);
 			var methodInfo = type.GetMethod(methodName);
@@ -517,7 +517,7 @@ namespace Xunit.v3
 
 		public static XunitTestCase XunitTestCase<TClassUnderTest>(
 			string methodName,
-			ITestCollection? collection = null,
+			_ITestCollection? collection = null,
 			object[]? testMethodArguments = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
@@ -538,7 +538,7 @@ namespace Xunit.v3
 
 		public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(
 			string methodName,
-			ITestCollection? collection = null,
+			_ITestCollection? collection = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
 			var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
