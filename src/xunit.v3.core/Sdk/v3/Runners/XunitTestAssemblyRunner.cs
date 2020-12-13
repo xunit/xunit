@@ -5,9 +5,9 @@ using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// The test assembly runner for xUnit.net v3 tests.
@@ -30,7 +30,7 @@ namespace Xunit.Sdk
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		public XunitTestAssemblyRunner(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			IEnumerable<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			_IMessageSink executionMessageSink,

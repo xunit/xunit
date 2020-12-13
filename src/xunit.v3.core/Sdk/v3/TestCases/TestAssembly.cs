@@ -5,14 +5,15 @@ using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// The default implementation of <see cref="ITestAssembly"/>.
+	/// The default implementation of <see cref="_ITestAssembly"/>.
 	/// </summary>
 	[DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
-	public class TestAssembly : ITestAssembly
+	public class TestAssembly : _ITestAssembly, IXunitSerializable
 	{
 		IAssemblyInfo? assembly;
 		Version? version;
@@ -55,10 +56,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the assembly version.
 		/// </summary>
-		public Version Version
-		{
-			get => version ?? throw new InvalidOperationException($"Attempted to get {nameof(Version)} on an uninitialized '{GetType().FullName}' object");
-		}
+		public Version Version => version ?? throw new InvalidOperationException($"Attempted to get {nameof(Version)} on an uninitialized '{GetType().FullName}' object");
 
 		/// <inheritdoc/>
 		public void Serialize(IXunitSerializationInfo info)

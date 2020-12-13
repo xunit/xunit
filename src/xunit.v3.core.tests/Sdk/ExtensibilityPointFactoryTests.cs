@@ -276,12 +276,12 @@ public class ExtensibilityPointFactoryTests
 
 		class MyTestCollectionFactory : IXunitTestCollectionFactory
 		{
-			public MyTestCollectionFactory(ITestAssembly assembly)
+			public MyTestCollectionFactory(_ITestAssembly assembly)
 			{
 				Assembly = assembly;
 			}
 
-			public readonly ITestAssembly Assembly;
+			public readonly _ITestAssembly Assembly;
 
 			public string DisplayName =>
 				"My Factory";
@@ -293,7 +293,7 @@ public class ExtensibilityPointFactoryTests
 		[Theory]
 		[InlineData(
 			"ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor",
-			"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.Sdk.TestAssembly")]
+			"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.v3.TestAssembly")]
 		[InlineData(
 			"ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface",
 			"Test collection factory type 'xunit.v3.core.tests, ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface' does not implement IXunitTestCollectionFactory")]

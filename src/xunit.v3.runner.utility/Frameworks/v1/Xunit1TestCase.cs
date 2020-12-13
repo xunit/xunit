@@ -14,11 +14,12 @@ namespace Xunit.Runner.v1
 	/// An implementation of <see cref="_ITestCase"/> (and parents) that adapts xUnit.net v1's XML-based APIs
 	/// into xUnit.net v3's object-based APIs.
 	/// </summary>
-	public class Xunit1TestCase : ITestAssembly, _ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
+	public class Xunit1TestCase : _ITestAssembly, _ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
 		Xunit1ReflectionWrapper? reflectionWrapper;
+		Version version = new Version(0, 0, 0, 0);
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -138,7 +139,9 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		IAssemblyInfo ITestAssembly.Assembly => ReflectionWrapper;
+		IAssemblyInfo _ITestAssembly.Assembly => ReflectionWrapper;
+
+		Version _ITestAssembly.Version => version;
 
 		/// <inheritdoc/>
 		ITypeInfo? _ITestCollection.CollectionDefinition => null;
@@ -147,7 +150,7 @@ namespace Xunit.Runner.v1
 		string _ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
 
 		/// <inheritdoc/>
-		ITestAssembly _ITestCollection.TestAssembly => this;
+		_ITestAssembly _ITestCollection.TestAssembly => this;
 
 		/// <inheritdoc/>
 		Guid _ITestCollection.UniqueID => Guid.Empty;

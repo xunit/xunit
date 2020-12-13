@@ -24,7 +24,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test assembly this test collection belongs to.
 		/// </summary>
-		ITestAssembly TestAssembly { get; }
+		_ITestAssembly TestAssembly { get; }
 
 		/// <summary>
 		/// Gets the test collection ID. Test collection equality is determined by comparing IDs.

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Sdk;
 
 namespace Xunit.v3
 {
@@ -14,7 +13,7 @@ namespace Xunit.v3
 	public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFactory
 	{
 		readonly Dictionary<string, ITypeInfo> collectionDefinitions;
-		readonly ITestAssembly testAssembly;
+		readonly _ITestAssembly testAssembly;
 		readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new ConcurrentDictionary<string, _ITestCollection>();
 
 		/// <summary>
@@ -23,7 +22,7 @@ namespace Xunit.v3
 		/// <param name="testAssembly">The assembly info.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public CollectionPerClassTestCollectionFactory(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			_IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);

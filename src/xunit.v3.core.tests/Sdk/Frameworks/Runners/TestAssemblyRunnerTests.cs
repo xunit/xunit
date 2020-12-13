@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -345,7 +344,7 @@ public class TestAssemblyRunnerTests
 		public Exception? RunTestCollectionAsync_AggregatorResult;
 
 		TestableTestAssemblyRunner(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			IEnumerable<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
@@ -360,7 +359,7 @@ public class TestAssemblyRunnerTests
 			this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
 		}
 
-		public new ITestAssembly TestAssembly => base.TestAssembly;
+		public new _ITestAssembly TestAssembly => base.TestAssembly;
 
 		public static TestableTestAssemblyRunner Create(
 			_IMessageSink? executionMessageSink = null,

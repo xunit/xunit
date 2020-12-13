@@ -332,7 +332,7 @@ namespace Xunit.Sdk
 		public static IXunitTestCollectionFactory? GetXunitTestCollectionFactory(
 			_IMessageSink diagnosticMessageSink,
 			Type testCollectionFactoryType,
-			ITestAssembly testAssembly) =>
+			_ITestAssembly testAssembly) =>
 				Get<IXunitTestCollectionFactory>(diagnosticMessageSink, testCollectionFactoryType, new object[] { testAssembly });
 
 		/// <summary>
@@ -345,7 +345,7 @@ namespace Xunit.Sdk
 		public static IXunitTestCollectionFactory? GetXunitTestCollectionFactory(
 			_IMessageSink diagnosticMessageSink,
 			IAttributeInfo? collectionBehaviorAttribute,
-			ITestAssembly testAssembly)
+			_ITestAssembly testAssembly)
 		{
 			try
 			{

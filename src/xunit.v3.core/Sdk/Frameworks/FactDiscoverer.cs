@@ -112,10 +112,12 @@ namespace Xunit.Sdk
 			);
 		}
 
+		// TODO: Get rid of these once UniqueID is everywhere in the test case object hierarchy.
+
 		/// <summary>
 		/// INTERNAL METHOD, DO NOT USE.
 		/// </summary>
-		public static string ComputeUniqueID(ITestAssembly testAssembly) =>
+		public static string ComputeUniqueID(_ITestAssembly testAssembly) =>
 			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
 
 		/// <summary>

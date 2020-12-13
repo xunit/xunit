@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.v2
@@ -15,7 +16,8 @@ namespace Xunit.Runner.v2
 		/// <param name="v2TestCollection">The v2 test collection to wrap.</param>
 		public Xunit2TestCollection(ITestCollection v2TestCollection)
 		{
-			V2TestCollection = v2TestCollection;
+			V2TestCollection = Guard.ArgumentNotNull(nameof(v2TestCollection), v2TestCollection);
+			TestAssembly = new Xunit2TestAssembly(V2TestCollection.TestAssembly);
 		}
 
 		/// <inheritdoc/>
@@ -25,7 +27,7 @@ namespace Xunit.Runner.v2
 		public string DisplayName => V2TestCollection.DisplayName;
 
 		/// <inheritdoc/>
-		public ITestAssembly TestAssembly => V2TestCollection.TestAssembly;
+		public _ITestAssembly TestAssembly { get; }
 
 		/// <inheritdoc/>
 		public Guid UniqueID => V2TestCollection.UniqueID;

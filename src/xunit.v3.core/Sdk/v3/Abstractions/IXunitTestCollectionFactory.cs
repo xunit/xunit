@@ -6,7 +6,7 @@ namespace Xunit.v3
 	/// This interface is intended to be implemented by components which generate test collections.
 	/// End users specify the desired test collection factory by applying <see cref="CollectionBehaviorAttribute"/>
 	/// at the assembly level. Classes which implement this interface must have a constructor
-	/// that takes <see cref="ITestAssembly"/> and <see cref="_IMessageSink"/>.
+	/// that takes <see cref="_ITestAssembly"/> and <see cref="_IMessageSink"/>.
 	/// </summary>
 	public interface IXunitTestCollectionFactory
 	{

@@ -236,16 +236,16 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestAssembly TestAssembly(IReflectionAttributeInfo[] attributes)
+		public static _ITestAssembly TestAssembly(IReflectionAttributeInfo[] attributes)
 		{
 			var assemblyInfo = AssemblyInfo(attributes: attributes);
 
-			var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
+			var result = Substitute.For<_ITestAssembly, InterfaceProxy<_ITestAssembly>>();
 			result.Assembly.Returns(assemblyInfo);
 			return result;
 		}
 
-		public static ITestAssembly TestAssembly(
+		public static _ITestAssembly TestAssembly(
 			string assemblyFileName,
 			string? configFileName = null,
 			ITypeInfo[]? types = null,
@@ -253,7 +253,7 @@ namespace Xunit.v3
 		{
 			var assemblyInfo = AssemblyInfo(types, attributes, assemblyFileName);
 
-			var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
+			var result = Substitute.For<_ITestAssembly, InterfaceProxy<_ITestAssembly>>();
 			result.Assembly.Returns(assemblyInfo);
 			result.ConfigFileName.Returns(configFileName);
 			return result;

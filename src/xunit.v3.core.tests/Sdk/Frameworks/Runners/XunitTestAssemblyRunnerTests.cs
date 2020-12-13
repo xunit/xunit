@@ -104,7 +104,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			public string DisplayName { get { return "My Factory"; } }
 
-			public MyTestCollectionFactory(ITestAssembly assembly) { }
+			public MyTestCollectionFactory(_ITestAssembly assembly) { }
 
 			public _ITestCollection Get(ITypeInfo testClass)
 			{
@@ -341,7 +341,7 @@ public class XunitTestAssemblyRunnerTests
 		public ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>> TestCasesRun = new ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>>();
 
 		TestableXunitTestAssemblyRunner(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			IEnumerable<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
@@ -352,7 +352,7 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		public static TestableXunitTestAssemblyRunner Create(
-			ITestAssembly? assembly = null,
+			_ITestAssembly? assembly = null,
 			IXunitTestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null)
 		{

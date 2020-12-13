@@ -7,11 +7,10 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A base class that provides default behavior when running tests in an assembly. It groups the tests
@@ -26,7 +25,7 @@ namespace Xunit.Sdk
 		_IMessageSink diagnosticMessageSink;
 		_IMessageSink executionMessageSink;
 		_ITestFrameworkExecutionOptions executionOptions;
-		ITestAssembly testAssembly;
+		_ITestAssembly testAssembly;
 		ITestCaseOrderer testCaseOrderer;
 		IEnumerable<TTestCase> testCases;
 		ITestCollectionOrderer testCollectionOrderer = new DefaultTestCollectionOrderer();
@@ -40,7 +39,7 @@ namespace Xunit.Sdk
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected TestAssemblyRunner(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			IEnumerable<TTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			_IMessageSink executionMessageSink,
@@ -100,7 +99,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the assembly that contains the tests to be run.
 		/// </summary>
-		protected ITestAssembly TestAssembly
+		protected _ITestAssembly TestAssembly
 		{
 			get => testAssembly;
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);

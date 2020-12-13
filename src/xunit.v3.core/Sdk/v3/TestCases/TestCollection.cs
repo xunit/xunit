@@ -15,7 +15,7 @@ namespace Xunit.v3
 	public class TestCollection : _ITestCollection, IXunitSerializable
 	{
 		string? displayName;
-		ITestAssembly? testAssembly;
+		_ITestAssembly? testAssembly;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -30,14 +30,14 @@ namespace Xunit.v3
 		/// <param name="collectionDefinition">The optional type which contains the collection definition</param>
 		/// <param name="displayName">The display name for the test collection</param>
 		public TestCollection(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			ITypeInfo? collectionDefinition,
 			string displayName)
 				: this(testAssembly, collectionDefinition, displayName, Guid.NewGuid())
 		{ }
 
 		internal TestCollection(
-			ITestAssembly testAssembly,
+			_ITestAssembly testAssembly,
 			ITypeInfo? collectionDefinition,
 			string displayName,
 			Guid uniqueId)
@@ -59,7 +59,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public ITestAssembly TestAssembly
+		public _ITestAssembly TestAssembly
 		{
 			get => testAssembly ?? throw new InvalidOperationException($"Attempted to get TestAssembly on an uninitialized '{GetType().FullName}' object");
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
@@ -95,7 +95,7 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(info), info);
 
 			DisplayName = info.GetValue<string>("DisplayName");
-			TestAssembly = info.GetValue<ITestAssembly>("TestAssembly");
+			TestAssembly = info.GetValue<_ITestAssembly>("TestAssembly");
 			UniqueID = Guid.Parse(info.GetValue<string>("UniqueID"));
 
 			var assemblyName = info.GetValue<string>("DeclarationAssemblyName");

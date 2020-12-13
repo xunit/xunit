@@ -1,5 +1,3 @@
-#if false
-
 using System;
 using Xunit.Abstractions;
 
@@ -22,10 +20,8 @@ namespace Xunit.v3
 		string? ConfigFileName { get; }
 
 		/// <summary>
-		/// Gets the assembly version.
+		/// Gets the assembly version. If the version is not known, this may return 0.0.0.0.
 		/// </summary>
 		Version Version { get; }
 	}
 }
-
-#endif

@@ -400,7 +400,7 @@ namespace Xunit.Runner.v1
 
 		// TODO: These should go away once the test case object hierarchy includes UniqueID at all levels
 
-		string GetAssemblyUniqueID(ITestAssembly testAssembly) =>
+		string GetAssemblyUniqueID(_ITestAssembly testAssembly) =>
 			UniqueIDGenerator.ForAssembly(
 				testAssembly.Assembly.Name,
 				testAssembly.Assembly.AssemblyPath,
