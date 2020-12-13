@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
 		IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo factAttribute
 		);
 	}

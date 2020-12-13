@@ -441,7 +441,7 @@ public class TestClassRunnerTests
 		}
 
 		protected override Task<RunSummary> RunTestMethodAsync(
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IReflectionMethodInfo method,
 			IEnumerable<_ITestCase> testCases,
 			object?[] constructorArguments)

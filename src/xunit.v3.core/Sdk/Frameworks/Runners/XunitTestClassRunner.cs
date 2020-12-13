@@ -189,7 +189,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestMethodAsync(
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IReflectionMethodInfo method,
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>

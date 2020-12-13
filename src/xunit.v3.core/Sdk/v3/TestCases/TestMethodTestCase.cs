@@ -24,7 +24,7 @@ namespace Xunit.v3
 		ITypeInfo[]? methodGenericTypes;
 		string? skipReason;
 		_ISourceInformation? sourceInformation;
-		ITestMethod? testMethod;
+		_ITestMethod? testMethod;
 		Dictionary<string, List<string>>? traits;
 		volatile string? uniqueID;
 
@@ -47,7 +47,7 @@ namespace Xunit.v3
 		protected TestMethodTestCase(
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			object?[]? testMethodArguments = null,
 			string? skipReason = null)
 		{
@@ -156,7 +156,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public ITestMethod TestMethod
+		public _ITestMethod TestMethod
 		{
 			get => testMethod ?? throw new InvalidOperationException($"Attempted to get TestMethod on an uninitialized '{GetType().FullName}' object");
 			protected set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
@@ -299,7 +299,7 @@ namespace Xunit.v3
 		{
 			Guard.ArgumentNotNull(nameof(info), info);
 
-			TestMethod = info.GetValue<ITestMethod>("TestMethod");
+			TestMethod = info.GetValue<_ITestMethod>("TestMethod");
 			TestMethodArguments = info.GetValue<object[]>("TestMethodArguments");
 			DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), info.GetValue<string>("DefaultMethodDisplay"));
 			DefaultMethodDisplayOptions = (TestMethodDisplayOptions)Enum.Parse(typeof(TestMethodDisplayOptions), info.GetValue<string>("DefaultMethodDisplayOptions"));

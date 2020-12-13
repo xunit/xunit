@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
@@ -10,12 +11,18 @@ namespace Xunit.Runner.v2
 	/// </summary>
 	public class Xunit2TestCase : _ITestCase
 	{
+		readonly Lazy<_ITestMethod> testMethod;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2TestCase"/> class.
 		/// </summary>
-		/// <param name="innerTestCase"></param>
-		public Xunit2TestCase(ITestCase innerTestCase) =>
-			V2TestCase = Guard.ArgumentNotNull(nameof(innerTestCase), innerTestCase);
+		/// <param name="v2TestCase">The v2 test case to wrap</param>
+		public Xunit2TestCase(ITestCase v2TestCase)
+		{
+			V2TestCase = Guard.ArgumentNotNull(nameof(v2TestCase), v2TestCase);
+
+			testMethod = new Lazy<_ITestMethod>(() => new Xunit2TestMethod(V2TestCase.TestMethod));
+		}
 
 		/// <inheritdoc/>
 		public string DisplayName => V2TestCase.DisplayName;
@@ -31,7 +38,7 @@ namespace Xunit.Runner.v2
 		}
 
 		/// <inheritdoc/>
-		public ITestMethod TestMethod => V2TestCase.TestMethod;
+		public _ITestMethod TestMethod => testMethod.Value;
 
 		/// <inheritdoc/>
 		public object?[]? TestMethodArguments => V2TestCase.TestMethodArguments;

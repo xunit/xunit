@@ -4,13 +4,13 @@ using System.Diagnostics;
 using Xunit.Abstractions;
 using Xunit.Internal;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// The default implementation of <see cref="ITestMethod"/>.
+	/// The default implementation of <see cref="_ITestMethod"/>.
 	/// </summary>
 	[DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
-	public class TestMethod : ITestMethod
+	public class TestMethod : _ITestMethod, IXunitSerializable
 	{
 		private IMethodInfo? method;
 		private ITestClass? testClass;

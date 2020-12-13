@@ -1,13 +1,12 @@
 using System.Collections.Generic;
-using Xunit.Abstractions;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
-	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestMethod"/>.
+	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestMethod"/>.
 	/// Compares the names of the methods.
 	/// </summary>
-	public class TestMethodComparer : IEqualityComparer<ITestMethod>
+	public class TestMethodComparer : IEqualityComparer<_ITestMethod>
 	{
 		/// <summary>
 		/// The singleton instance of the comparer.
@@ -15,7 +14,7 @@ namespace Xunit.Sdk
 		public static readonly TestMethodComparer Instance = new TestMethodComparer();
 
 		/// <inheritdoc/>
-		public bool Equals(ITestMethod? x, ITestMethod? y)
+		public bool Equals(_ITestMethod? x, _ITestMethod? y)
 		{
 			if (x == null && y == null)
 				return true;
@@ -26,7 +25,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public int GetHashCode(ITestMethod obj) =>
+		public int GetHashCode(_ITestMethod obj) =>
 			obj.Method.Name.GetHashCode();
 	}
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// An implementation of <see cref="TestCaseRunner{TTestCase}"/> to support <see cref="ExecutionErrorTestCase"/>.

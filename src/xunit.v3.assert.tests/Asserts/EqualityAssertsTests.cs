@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class EqualityAssertsTests
 {

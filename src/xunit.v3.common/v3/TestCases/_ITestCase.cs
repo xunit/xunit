@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -29,7 +28,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test method this test case belongs to.
 		/// </summary>
-		ITestMethod TestMethod { get; }
+		_ITestMethod TestMethod { get; }
 
 		/// <summary>
 		/// Gets the arguments that will be passed to the test method.

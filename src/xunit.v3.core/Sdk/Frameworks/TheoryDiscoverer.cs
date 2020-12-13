@@ -47,7 +47,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow)
 		{
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			string skipReason)
 		{
@@ -124,7 +124,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{
 			var testCase = new XunitTheoryTestCase(
@@ -163,7 +163,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow,
 			string skipReason)
@@ -200,7 +200,7 @@ namespace Xunit.Sdk
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
 		public virtual IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);

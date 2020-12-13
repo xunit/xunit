@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 	{
@@ -16,7 +16,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow)
 		{
@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{
 			var cultures = GetCultures(theoryAttribute);

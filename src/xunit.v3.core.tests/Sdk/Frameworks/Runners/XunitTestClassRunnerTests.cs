@@ -443,7 +443,7 @@ public class XunitTestClassRunnerTests
 			);
 
 		protected override Task<RunSummary> RunTestMethodAsync(
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IReflectionMethodInfo method,
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments)

@@ -233,7 +233,7 @@ namespace Xunit
 
 							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((ITestCollection)testCase).DisplayName, null);
 							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((ITestClass)testCase).Class?.Name);
-							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((ITestMethod)testCase).Method?.Name);
+							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((_ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
 							{
 								AssemblyUniqueID = TestAssemblyUniqueID,

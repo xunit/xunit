@@ -2,9 +2,9 @@
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 	{
@@ -17,7 +17,7 @@ namespace Xunit.Sdk
 
 		public IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo factAttribute)
 		{
 			var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
@@ -45,7 +45,7 @@ namespace Xunit.Sdk
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
 			string? testMethodUniqueID,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			string culture,
 			TestMethodDisplay methodDisplay,
 			TestMethodDisplayOptions methodDisplayOptions)

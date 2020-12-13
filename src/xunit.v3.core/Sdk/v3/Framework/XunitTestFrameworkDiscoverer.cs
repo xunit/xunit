@@ -98,7 +98,7 @@ namespace Xunit.v3
 		protected internal virtual bool FindTestsForMethod(
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{

@@ -316,7 +316,7 @@ namespace Xunit.Sdk
 		/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestMethodAsync(
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IReflectionMethodInfo method,
 			IEnumerable<TTestCase> testCases,
 			object?[] constructorArguments

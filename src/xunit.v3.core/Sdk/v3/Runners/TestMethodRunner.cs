@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
-namespace Xunit.Sdk
+namespace Xunit.v3
 {
 	/// <summary>
 	/// A base class that provides default behavior when running tests in a test method.
@@ -21,7 +21,7 @@ namespace Xunit.Sdk
 		IMessageBus messageBus;
 		IReflectionMethodInfo method;
 		IEnumerable<TTestCase> testCases;
-		ITestMethod testMethod;
+		_ITestMethod testMethod;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodRunner{TTestCase}"/> class.
@@ -40,7 +40,7 @@ namespace Xunit.Sdk
 			string testAssemblyUniqueID,
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
 			IEnumerable<TTestCase> testCases,
@@ -119,7 +119,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets or sets the test method that contains the test cases.
 		/// </summary>
-		protected ITestMethod TestMethod
+		protected _ITestMethod TestMethod
 		{
 			get => testMethod;
 			set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);

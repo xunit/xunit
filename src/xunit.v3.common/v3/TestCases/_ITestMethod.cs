@@ -1,5 +1,3 @@
-#if false
-
 using Xunit.Abstractions;
 
 namespace Xunit.v3
@@ -17,8 +15,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the test class that this test method belongs to.
 		/// </summary>
-		_ITestClass TestClass { get; }
+		ITestClass TestClass { get; }
 	}
 }
-
-#endif

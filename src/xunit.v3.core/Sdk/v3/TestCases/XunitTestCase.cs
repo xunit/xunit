@@ -57,7 +57,7 @@ namespace Xunit.v3
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			object?[]? testMethodArguments = null)
 				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
 		{
@@ -201,7 +201,7 @@ namespace Xunit.v3
 			return typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
-		static IEnumerable<IAttributeInfo> GetTraitAttributesData(ITestMethod testMethod)
+		static IEnumerable<IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 

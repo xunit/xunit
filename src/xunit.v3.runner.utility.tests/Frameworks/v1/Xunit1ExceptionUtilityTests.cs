@@ -3,7 +3,7 @@
 using System;
 using Xunit;
 using Xunit.Runner.v1;
-using Xunit.Sdk;
+using Xunit.v3;
 
 public class Xunit1ExceptionUtilityTests
 {

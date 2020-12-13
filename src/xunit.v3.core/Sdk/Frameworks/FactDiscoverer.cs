@@ -35,7 +35,7 @@ namespace Xunit.Sdk
 		/// <returns></returns>
 		protected virtual IXunitTestCase CreateTestCase(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo factAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
@@ -70,7 +70,7 @@ namespace Xunit.Sdk
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
 		public virtual IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IAttributeInfo factAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
@@ -91,7 +91,7 @@ namespace Xunit.Sdk
 
 		ExecutionErrorTestCase ErrorTestCase(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			string message)
 		{
 			var assemblyUniqueID = ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
@@ -139,7 +139,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static string? ComputeUniqueID(
 			string? classUniqueID,
-			ITestMethod testMethod) =>
+			_ITestMethod testMethod) =>
 				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method.Name);
 	}
 }

@@ -192,7 +192,7 @@ public class TestMethodRunnerTests
 			string testAssemblyUniqueID,
 			string testCollectionUniqueID,
 			string? testClassUniqueID,
-			ITestMethod testMethod,
+			_ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
 			IEnumerable<_ITestCase> testCases,

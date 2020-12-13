@@ -417,7 +417,7 @@ namespace Xunit.Runner.v1
 
 		string? GetMethodUniqueID(
 			string? classUniqueID,
-			ITestMethod testMethod) =>
+			_ITestMethod testMethod) =>
 				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method?.Name);
 	}
 }

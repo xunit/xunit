@@ -411,7 +411,7 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static ITestMethod TestMethod(
+		public static _ITestMethod TestMethod(
 			string? typeName = null,
 			string? methodName = null,
 			string? displayName = null,
@@ -438,7 +438,7 @@ namespace Xunit.v3
 			var testClass = TestClass(typeName, attributes: classAttributes.ToArray());
 			var methodInfo = MethodInfo(methodName, methodAttributes.ToArray(), parameters.ToArray(), testClass.Class);
 
-			var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
+			var result = Substitute.For<_ITestMethod, InterfaceProxy<_ITestMethod>>();
 			result.Method.Returns(methodInfo);
 			result.TestClass.Returns(testClass);
 			return result;
