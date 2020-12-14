@@ -20,6 +20,11 @@ namespace Xunit.v3
 		string? ConfigFileName { get; }
 
 		/// <summary>
+		/// Gets the unique ID for this test assembly.
+		/// </summary>
+		string UniqueID { get; }
+
+		/// <summary>
 		/// Gets the assembly version. If the version is not known, this may return 0.0.0.0.
 		/// </summary>
 		Version Version { get; }

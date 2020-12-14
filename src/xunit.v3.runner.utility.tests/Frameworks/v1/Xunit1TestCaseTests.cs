@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.v1;
+using Xunit.v3;
 
 public class Xunit1TestCaseTests
 {
@@ -16,9 +17,9 @@ public class Xunit1TestCaseTests
 			var typeUnderTest = typeof(ClassUnderTest);
 			var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
 
-			var result = Create(typeUnderTest, "TestMethod").UniqueID;
+			var result = Create(typeUnderTest, "TestMethod");
 
-			Assert.Equal($"Xunit1TestCaseTests+UniqueID+ClassUnderTest.TestMethod ({assemblyFileName})", result);
+			Assert.Equal($"Xunit1TestCaseTests+UniqueID+ClassUnderTest.TestMethod ({assemblyFileName})", ((_ITestCase)result).UniqueID);
 		}
 
 		class ClassUnderTest
@@ -35,8 +36,9 @@ public class Xunit1TestCaseTests
 		Dictionary<string, List<string>>? traits = null)
 	{
 		var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
+		var assembly = new Xunit1TestAssembly(assemblyFileName);
 
-		return new Xunit1TestCase(assemblyFileName, null, typeUnderTest.FullName!, methodName, null, traits);
+		return new Xunit1TestCase(assembly, typeUnderTest.FullName!, methodName, null, traits);
 	}
 }
 

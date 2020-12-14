@@ -14,12 +14,12 @@ namespace Xunit.Runner.v1
 	/// An implementation of <see cref="_ITestCase"/> (and parents) that adapts xUnit.net v1's XML-based APIs
 	/// into xUnit.net v3's object-based APIs.
 	/// </summary>
-	public class Xunit1TestCase : _ITestAssembly, _ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
+	public class Xunit1TestCase : _ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
 		Xunit1ReflectionWrapper? reflectionWrapper;
-		Version version = new Version(0, 0, 0, 0);
+		Xunit1TestAssembly? testAssembly;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -33,41 +33,35 @@ namespace Xunit.Runner.v1
 		/// <summary>
 		/// Initializes a new instance  of the <see cref="Xunit1TestCase"/> class.
 		/// </summary>
-		/// <param name="assemblyFileName">The assembly under test.</param>
-		/// <param name="configFileName">The configuration file name.</param>
+		/// <param name="testAssembly">The test assembly.</param>
 		/// <param name="typeName">The type under test.</param>
 		/// <param name="methodName">The method under test.</param>
 		/// <param name="displayName">The display name of the unit test.</param>
 		/// <param name="traits">The traits of the unit test.</param>
 		/// <param name="skipReason">The skip reason, if the test is skipped.</param>
 		public Xunit1TestCase(
-			string assemblyFileName,
-			string? configFileName,
+			Xunit1TestAssembly testAssembly,
 			string typeName,
 			string methodName,
 			string? displayName,
 			Dictionary<string, List<string>>? traits = null,
 			string? skipReason = null)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
 			Guard.ArgumentNotNullOrEmpty(nameof(methodName), methodName);
 
-			reflectionWrapper = new Xunit1ReflectionWrapper(assemblyFileName, typeName, methodName);
+			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+			reflectionWrapper = new Xunit1ReflectionWrapper(testAssembly.Assembly.AssemblyPath, typeName, methodName);
 
-			ConfigFileName = configFileName;
 			DisplayName = displayName ?? $"{typeName}.{methodName}";
 			Traits = traits ?? EmptyTraits;
 			SkipReason = skipReason;
 		}
 
 		/// <inheritdoc/>
-		public string? ConfigFileName { get; set; }
-
-		/// <inheritdoc/>
 		public string DisplayName { get; set; }
 
-		Xunit1ReflectionWrapper ReflectionWrapper => Guard.NotNull($"Attempted to get ReflectionWrapper on an uninitialized '{GetType().FullName}' object", reflectionWrapper);
+		Xunit1ReflectionWrapper ReflectionWrapper => reflectionWrapper ?? throw new InvalidOperationException($"Attempted to get {nameof(ReflectionWrapper)} on an uninitialized '{GetType().FullName}' object");
 
 		/// <inheritdoc/>
 		public string? SkipReason { get; set; }
@@ -85,24 +79,21 @@ namespace Xunit.Runner.v1
 		public Dictionary<string, List<string>> Traits { get; set; }
 
 		/// <inheritdoc/>
-		public string UniqueID => ReflectionWrapper.UniqueID;
-
-		/// <inheritdoc/>
-		public void Dispose()
-		{ }
-
-		/// <inheritdoc/>
 		public void Deserialize(IXunitSerializationInfo data)
 		{
 			Guard.ArgumentNotNull(nameof(data), data);
 
-			reflectionWrapper = new Xunit1ReflectionWrapper(
+			testAssembly = new Xunit1TestAssembly(
 				data.GetValue<string>("AssemblyFileName"),
+				data.GetValue<string>("ConfigFileName")
+			);
+
+			reflectionWrapper = new Xunit1ReflectionWrapper(
+				testAssembly.Assembly.AssemblyPath,
 				data.GetValue<string>("TypeName"),
 				data.GetValue<string>("MethodName")
 			);
 
-			ConfigFileName = data.GetValue<string>("ConfigFileName");
 			DisplayName = data.GetValue<string>("DisplayName");
 			SkipReason = data.GetValue<string>("SkipReason");
 			SourceInformation = data.GetValue<_SourceInformation>("SourceInformation");
@@ -118,8 +109,8 @@ namespace Xunit.Runner.v1
 		{
 			Guard.ArgumentNotNull(nameof(data), data);
 
-			data.AddValue("AssemblyFileName", ReflectionWrapper.AssemblyFileName);
-			data.AddValue("ConfigFileName", ConfigFileName);
+			data.AddValue("AssemblyFileName", testAssembly?.Assembly.AssemblyPath);
+			data.AddValue("ConfigFileName", testAssembly?.ConfigFileName);
 			data.AddValue("MethodName", ReflectionWrapper.MethodName);
 			data.AddValue("TypeName", ReflectionWrapper.TypeName);
 			data.AddValue("DisplayName", DisplayName);
@@ -138,33 +129,17 @@ namespace Xunit.Runner.v1
 			}
 		}
 
-		/// <inheritdoc/>
-		IAssemblyInfo _ITestAssembly.Assembly => ReflectionWrapper;
+		string _ITestCase.UniqueID => ReflectionWrapper.UniqueID;
 
-		Version _ITestAssembly.Version => version;
-
-		/// <inheritdoc/>
-		ITypeInfo? _ITestCollection.CollectionDefinition => null;
-
-		/// <inheritdoc/>
-		string _ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
-
-		/// <inheritdoc/>
-		_ITestAssembly _ITestCollection.TestAssembly => this;
-
-		/// <inheritdoc/>
-		Guid _ITestCollection.UniqueID => Guid.Empty;
-
-		/// <inheritdoc/>
 		ITypeInfo _ITestClass.Class => ReflectionWrapper;
-
-		/// <inheritdoc/>
 		_ITestCollection _ITestClass.TestCollection => this;
 
-		/// <inheritdoc/>
-		IMethodInfo _ITestMethod.Method => ReflectionWrapper;
+		ITypeInfo? _ITestCollection.CollectionDefinition => null;
+		string _ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
+		_ITestAssembly _ITestCollection.TestAssembly => testAssembly ?? throw new InvalidOperationException($"Attempted to get {nameof(_ITestCollection)}.{nameof(_ITestCollection.TestAssembly)} on an uninitialized '{GetType().FullName}' object");
+		Guid _ITestCollection.UniqueID => Guid.Empty;
 
-		/// <inheritdoc/>
+		IMethodInfo _ITestMethod.Method => ReflectionWrapper;
 		_ITestClass _ITestMethod.TestClass => this;
 	}
 }

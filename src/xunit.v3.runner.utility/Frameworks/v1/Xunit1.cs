@@ -23,7 +23,6 @@ namespace Xunit
 	public class Xunit1 : IFrontController, IAsyncDisposable
 	{
 		readonly AppDomainSupport appDomainSupport;
-		readonly IAssemblyInfo assembly;
 		readonly string assemblyFileName;
 		readonly string? configFileName;
 		readonly _IMessageSink diagnosticMessageSink;
@@ -33,6 +32,7 @@ namespace Xunit
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
+		readonly Xunit1TestAssembly testAssembly;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -66,8 +66,7 @@ namespace Xunit
 			this.shadowCopy = shadowCopy;
 			this.shadowCopyFolder = shadowCopyFolder;
 
-			assembly = new Xunit1AssemblyInfo(assemblyFileName);
-			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
+			testAssembly = new Xunit1TestAssembly(assemblyFileName, configFileName);
 		}
 
 		/// <inheritdoc/>
@@ -90,7 +89,7 @@ namespace Xunit
 		public string TargetFramework => string.Empty;
 
 		/// <inheritdoc/>
-		public string TestAssemblyUniqueID { get; }
+		string _ITestFrameworkDiscoverer.TestAssemblyUniqueID => testAssembly.UniqueID;
 
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
@@ -204,9 +203,9 @@ namespace Xunit
 		{
 			var discoveryStarting = new _DiscoveryStarting
 			{
-				AssemblyName = assembly.Name,
-				AssemblyPath = assembly.AssemblyPath,
-				AssemblyUniqueID = TestAssemblyUniqueID,
+				AssemblyName = testAssembly.Assembly.Name,
+				AssemblyPath = testAssembly.Assembly.AssemblyPath,
+				AssemblyUniqueID = testAssembly.UniqueID,
 				ConfigFilePath = configFileName
 			};
 			messageSink.OnMessage(discoveryStarting);
@@ -222,7 +221,7 @@ namespace Xunit
 				{
 					foreach (var method in assemblyXml.SelectNodes("//method").Cast<XmlNode>())
 					{
-						var testCase = method.ToTestCase(assemblyFileName, configFileName);
+						var testCase = method.ToTestCase(testAssembly);
 						if (testCase != null)
 						{
 							if (includeSourceInformation)
@@ -231,19 +230,19 @@ namespace Xunit
 								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
-							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, ((_ITestCollection)testCase).DisplayName, null);
+							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, ((_ITestCollection)testCase).DisplayName, null);
 							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((_ITestClass)testCase).Class?.Name);
 							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((_ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
 							{
-								AssemblyUniqueID = TestAssemblyUniqueID,
+								AssemblyUniqueID = testAssembly.UniqueID,
 								Serialization = includeSerialization ? SerializationHelper.Serialize(testCase) : null,
 								SkipReason = testCase.SkipReason,
 								SourceFilePath = testCase.SourceInformation?.FileName,
 								SourceLineNumber = testCase.SourceInformation?.LineNumber,
 								TestCase = testCase,
 								TestCaseDisplayName = testCase.DisplayName,
-								TestCaseUniqueID = testCase.UniqueID,
+								TestCaseUniqueID = ((_ITestCase)testCase).UniqueID,
 								TestClassUniqueID = testClassUniqueID,
 								TestCollectionUniqueID = testCollectionUniqueID,
 								TestMethodUniqueID = testMethodUniqueID,
@@ -258,7 +257,7 @@ namespace Xunit
 			}
 			finally
 			{
-				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
+				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = testAssembly.UniqueID };
 				messageSink.OnMessage(discoveryComplete);
 			}
 		}

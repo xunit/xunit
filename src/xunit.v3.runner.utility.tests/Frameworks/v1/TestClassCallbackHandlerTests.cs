@@ -36,7 +36,8 @@ public class TestClassCallbackHandlerTests
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
+		var assembly = new Xunit1TestAssembly("assembly", "config");
+		var testCase = new Xunit1TestCase(assembly, "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
@@ -55,7 +56,8 @@ public class TestClassCallbackHandlerTests
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
+		var assembly = new Xunit1TestAssembly("assembly", "config");
+		var testCase = new Xunit1TestCase(assembly, "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");

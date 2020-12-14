@@ -270,11 +270,12 @@ public class Xunit1Tests
 		[InlineData(true)]
 		public void RunWithTestCases(bool serializeTestCases)
 		{
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing"),
-				new Xunit1TestCase("assembly", "config", "type1", "failing", "type1.failing"),
-				new Xunit1TestCase("assembly", "config", "type2", "skipping", "type2.skipping"),
-				new Xunit1TestCase("assembly", "config", "type2", "skipping_with_start", "type2.skipping_with_start")
+				new Xunit1TestCase(assembly, "type1", "passing", "type1.passing"),
+				new Xunit1TestCase(assembly, "type1", "failing", "type1.failing"),
+				new Xunit1TestCase(assembly, "type2", "skipping", "type2.skipping"),
+				new Xunit1TestCase(assembly, "type2", "skipping_with_start", "type2.skipping_with_start")
 			};
 
 			var xunit1 = new TestableXunit1();
@@ -627,8 +628,9 @@ public class Xunit1Tests
 		public void ExceptionThrownDuringRunTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
+				new Xunit1TestCase(assembly, "type1", "passing", "type1.passing")
 			};
 			var exception = new DivideByZeroException();
 			xunit1
@@ -654,8 +656,9 @@ public class Xunit1Tests
 		public void NestedExceptionsThrownDuringRunTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
+				new Xunit1TestCase(assembly, "type1", "passing", "type1.passing")
 			};
 			var exception = GetNestedExceptions();
 			xunit1
@@ -685,8 +688,9 @@ public class Xunit1Tests
 		public void NestedExceptionResultFromTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "type1", "failing", "type1.failing")
+				new Xunit1TestCase(assembly, "type1", "failing", "type1.failing")
 			};
 			var exception = GetNestedExceptions();
 			xunit1
@@ -722,8 +726,9 @@ public class Xunit1Tests
 		public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "type1", "failingclass", "type1.failingclass")
+				new Xunit1TestCase(assembly, "type1", "failingclass", "type1.failingclass")
 			};
 			var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
 			xunit1
@@ -759,8 +764,9 @@ public class Xunit1Tests
 		public void ExceptionThrownDuringClassFinish_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod")
+				new Xunit1TestCase(assembly, "failingtype", "passingmethod", "failingtype.passingmethod")
 			};
 			var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
 			xunit1
@@ -798,8 +804,9 @@ public class Xunit1Tests
 		public void NestedExceptionsThrownDuringClassStart_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+			var assembly = new Xunit1TestAssembly("assembly", "config");
 			var testCases = new[] {
-				new Xunit1TestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod")
+				new Xunit1TestCase(assembly, "failingtype", "passingmethod", "failingtype.passingmethod")
 			};
 			var exception = GetNestedExceptions();
 			xunit1

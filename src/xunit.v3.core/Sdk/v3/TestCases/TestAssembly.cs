@@ -16,6 +16,7 @@ namespace Xunit.v3
 	public class TestAssembly : _ITestAssembly, IXunitSerializable
 	{
 		IAssemblyInfo? assembly;
+		string? uniqueID;
 		Version? version;
 
 		/// <summary/>
@@ -32,11 +33,10 @@ namespace Xunit.v3
 		/// <param name="version">The version number of the assembly (defaults to "0.0.0.0")</param>
 		public TestAssembly(IAssemblyInfo assembly, string? configFileName = null, Version? version = null)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
-
-			Assembly = assembly;
+			Assembly = Guard.ArgumentNotNull(nameof(assembly), assembly);
 			ConfigFileName = configFileName;
 
+			uniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
 			this.version =
 				version
 				?? (assembly as IReflectionAssemblyInfo)?.Assembly?.GetName()?.Version
@@ -52,6 +52,9 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public string? ConfigFileName { get; set; }
+
+		/// <inheritdoc/>
+		public string UniqueID => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
 
 		/// <summary>
 		/// Gets the assembly version.
@@ -77,13 +80,16 @@ namespace Xunit.v3
 			ConfigFileName = info.GetValue<string>("ConfigFileName");
 
 			var assemblyPath = info.GetValue<string>("AssemblyPath");
+			var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
 			var assembly = System.Reflection.Assembly.Load(new AssemblyName
 			{
-				Name = Path.GetFileNameWithoutExtension(assemblyPath),
+				Name = assemblyName,
 				Version = Version
 			});
 
 			Assembly = Reflector.Wrap(assembly);
+
+			uniqueID = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, ConfigFileName);
 		}
 	}
 }

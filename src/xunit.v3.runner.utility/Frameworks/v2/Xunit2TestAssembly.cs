@@ -17,6 +17,7 @@ namespace Xunit.Runner.v2
 		public Xunit2TestAssembly(ITestAssembly v2TestAssembly)
 		{
 			V2TestAssembly = Guard.ArgumentNotNull(nameof(v2TestAssembly), v2TestAssembly);
+			UniqueID = UniqueIDGenerator.ForAssembly(v2TestAssembly.Assembly.Name, v2TestAssembly.Assembly.AssemblyPath, v2TestAssembly.ConfigFileName);
 		}
 
 		/// <inheritdoc/>
@@ -24,6 +25,9 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public string? ConfigFileName => throw new NotImplementedException();
+
+		/// <inheritdoc/>
+		public string UniqueID { get; }
 
 		/// <inheritdoc/>
 		public Version Version => throw new NotImplementedException();

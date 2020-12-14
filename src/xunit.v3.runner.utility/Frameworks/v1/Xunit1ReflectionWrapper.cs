@@ -46,7 +46,7 @@ namespace Xunit.Runner.v1
 		public string TypeName { get; }
 
 		/// <summary>
-		/// Gets the unique ID for the test.
+		/// Gets the unique ID for the test case.
 		/// </summary>
 		public string UniqueID { get; }
 
