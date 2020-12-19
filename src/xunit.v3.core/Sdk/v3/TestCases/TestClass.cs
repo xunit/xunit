@@ -16,6 +16,7 @@ namespace Xunit.v3
 	{
 		ITypeInfo? @class;
 		_ITestCollection? testCollection;
+		string? uniqueID;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -33,6 +34,8 @@ namespace Xunit.v3
 		{
 			this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
 			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+
+			uniqueID = UniqueIDGenerator.ForTestClass(TestCollection.UniqueID, Class.Name);
 		}
 
 		/// <inheritdoc/>
@@ -50,6 +53,13 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
+		public string UniqueID
+		{
+			get => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+		}
+
+		/// <inheritdoc/>
 		public void Serialize(IXunitSerializationInfo info)
 		{
 			Guard.ArgumentNotNull(nameof(info), info);
@@ -57,6 +67,7 @@ namespace Xunit.v3
 			info.AddValue("TestCollection", TestCollection);
 			info.AddValue("ClassAssemblyName", Class.Assembly.Name);
 			info.AddValue("ClassTypeName", Class.Name);
+			info.AddValue("UniqueID", UniqueID);
 		}
 
 		/// <inheritdoc/>
@@ -65,6 +76,7 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(info), info);
 
 			TestCollection = info.GetValue<_ITestCollection>("TestCollection");
+			UniqueID = info.GetValue<string>("UniqueID");
 
 			var assemblyName = info.GetValue<string>("ClassAssemblyName");
 			var typeName = info.GetValue<string>("ClassTypeName");

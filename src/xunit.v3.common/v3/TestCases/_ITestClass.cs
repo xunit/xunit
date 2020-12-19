@@ -16,5 +16,10 @@ namespace Xunit.v3
 		/// Gets the test collection this test case belongs to.
 		/// </summary>
 		_ITestCollection TestCollection { get; }
+
+		/// <summary>
+		/// Gets the unique ID for this test class.
+		/// </summary>
+		string UniqueID { get; }
 	}
 }

@@ -32,6 +32,7 @@ namespace Xunit
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
+		readonly Dictionary<string, Xunit1TestClass> testClassesByTypeName = new Dictionary<string, Xunit1TestClass>();
 		readonly Xunit1TestCollection testCollection;
 
 		/// <summary>
@@ -223,7 +224,12 @@ namespace Xunit
 				{
 					foreach (var method in assemblyXml.SelectNodes("//method").Cast<XmlNode>())
 					{
-						var testCase = method.ToTestCase(testCollection);
+						var typeName = method.Attributes["type"].Value;
+						var testClass = default(Xunit1TestClass);
+						lock (testClassesByTypeName)
+							testClass = testClassesByTypeName.GetOrAdd(typeName, () => new Xunit1TestClass(testCollection, typeName));
+
+						var testCase = method.ToTestCase(testClass);
 						if (testCase != null)
 						{
 							if (includeSourceInformation)
@@ -232,8 +238,7 @@ namespace Xunit
 								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
-							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollection.UniqueID, ((_ITestClass)testCase).Class?.Name);
-							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((_ITestMethod)testCase).Method?.Name);
+							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClass.UniqueID, ((_ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
 							{
 								AssemblyUniqueID = testAssemblyUniqueID,
@@ -244,7 +249,7 @@ namespace Xunit
 								TestCase = testCase,
 								TestCaseDisplayName = testCase.DisplayName,
 								TestCaseUniqueID = ((_ITestCase)testCase).UniqueID,
-								TestClassUniqueID = testClassUniqueID,
+								TestClassUniqueID = testClass.UniqueID,
 								TestCollectionUniqueID = testCollection.UniqueID,
 								TestMethodUniqueID = testMethodUniqueID,
 								Traits = testCase.Traits

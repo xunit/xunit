@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -129,8 +130,9 @@ namespace Xunit
 		/// </summary>
 		/// <param name="testCollectionUniqueID">The unique ID of the parent test collection for the test class</param>
 		/// <param name="className">The optional fully qualified type name of the test class</param>
-		/// <returns>The computed unique ID for the test class (may return <c>null</c> if the class
-		/// name is null)</returns>
+		/// <returns>The computed unique ID for the test class (may return <c>null</c> if <paramref name="className"/>
+		/// is null)</returns>
+		[return: NotNullIfNotNull("className")]
 		public static string? ForTestClass(
 			string testCollectionUniqueID,
 			string? className)

@@ -13,7 +13,7 @@ namespace Xunit.Runner.v1
 		/// Initializes a new instance of the <see cref="Xunit1TestCollection"/> class.
 		/// </summary>
 		/// <param name="testAssembly">The test assembly this test collection belongs to.</param>
-		public Xunit1TestCollection(_ITestAssembly testAssembly)
+		public Xunit1TestCollection(Xunit1TestAssembly testAssembly)
 		{
 			TestAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
 			UniqueID = UniqueIDGenerator.ForTestCollection(TestAssembly.UniqueID, DisplayName, null);
@@ -26,9 +26,11 @@ namespace Xunit.Runner.v1
 		public string DisplayName => $"xUnit.net v1 Tests for {TestAssembly.Assembly.AssemblyPath}";
 
 		/// <inheritdoc/>
-		public _ITestAssembly TestAssembly { get; }
+		public Xunit1TestAssembly TestAssembly { get; }
 
 		/// <inheritdoc/>
 		public string UniqueID { get; }
+
+		_ITestAssembly _ITestCollection.TestAssembly => TestAssembly;
 	}
 }

@@ -271,11 +271,13 @@ public class Xunit1Tests
 		{
 			var assembly = new Xunit1TestAssembly("assembly.dll", "config");
 			var collection = new Xunit1TestCollection(assembly);
+			var type1 = new Xunit1TestClass(collection, "type1");
+			var type2 = new Xunit1TestClass(collection, "type2");
 			var testCases = new[] {
-				new Xunit1TestCase(collection, "type1", "passing", "type1.passing"),
-				new Xunit1TestCase(collection, "type1", "failing", "type1.failing"),
-				new Xunit1TestCase(collection, "type2", "skipping", "type2.skipping"),
-				new Xunit1TestCase(collection, "type2", "skipping_with_start", "type2.skipping_with_start")
+				new Xunit1TestCase(type1, "passing", "type1.passing"),
+				new Xunit1TestCase(type1, "failing", "type1.failing"),
+				new Xunit1TestCase(type2, "skipping", "type2.skipping"),
+				new Xunit1TestCase(type2, "skipping_with_start", "type2.skipping_with_start")
 			};
 
 			var xunit1 = new TestableXunit1();
@@ -957,7 +959,8 @@ public class AmbiguouslyNamedTestMethods
 	{
 		var assembly = new Xunit1TestAssembly(assemblyPath, configFileName);
 		var collection = new Xunit1TestCollection(assembly);
-		return new Xunit1TestCase(collection, typeName, methodName, testCaseDisplayName);
+		var @class = new Xunit1TestClass(collection, typeName);
+		return new Xunit1TestCase(@class, methodName, testCaseDisplayName);
 	}
 
 	class TestableXunit1 : Xunit1

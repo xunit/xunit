@@ -11,10 +11,10 @@ static class XmlNodeExtensions
 {
 	public static Xunit1TestCase? ToTestCase(
 		this XmlNode xml,
-		Xunit1TestCollection testCollection)
+		Xunit1TestClass testClass)
 	{
 		Guard.ArgumentNotNull(nameof(xml), xml);
-		Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+		Guard.ArgumentNotNull(nameof(testClass), testClass);
 
 		if (xml.Name != "method")
 			return null;
@@ -25,7 +25,6 @@ static class XmlNodeExtensions
 		if (displayNameAttribute != null)
 			displayName = displayNameAttribute.Value;
 
-		var type = xml.Attributes["type"].Value;
 		var method = xml.Attributes["method"].Value;
 
 		string? skipReason = null;
@@ -37,7 +36,7 @@ static class XmlNodeExtensions
 		foreach (var traitNode in xml.SelectNodes("traits/trait").Cast<XmlNode>())
 			traits.Add(traitNode.Attributes["name"].Value, traitNode.Attributes["value"].Value);
 
-		return new Xunit1TestCase(testCollection, type, method, displayName, traits, skipReason);
+		return new Xunit1TestCase(testClass, method, displayName, traits, skipReason);
 	}
 }
 
