@@ -57,7 +57,7 @@ namespace Xunit.v3
 		{
 			if (value.Length > 3 && value.StartsWith(":F:"))
 			{
-				// Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{defaultMethodDisplayOptions}:{collectionId}"
+				// Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{defaultMethodDisplayOptions}"
 				// Colons in values are double-escaped, so we can't use String.Split
 				var parts = new List<string>();
 				var idx = 3;
@@ -83,15 +83,14 @@ namespace Xunit.v3
 				if (idx != idxEnd)
 					parts.Add(value.Substring(idx, idxEnd - idx).Replace("::", ":"));
 
-				if (parts.Count > 4)
+				if (parts.Count > 3)
 				{
 					var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[0]);
 					if (typeInfo == null)
 						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type {parts[0]} during test case deserialization" });
 					else
 					{
-						var testCollectionGuid = Guid.Parse(parts[4]);
-						var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionGuid);
+						var testClass = discoverer.Value.CreateTestClass(typeInfo);
 						var methodInfo = testClass.Class.GetMethod(parts[1], true);
 						if (methodInfo != null)
 						{

@@ -32,7 +32,7 @@ namespace Xunit
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
-		readonly Xunit1TestAssembly testAssembly;
+		readonly Xunit1TestCollection testCollection;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -66,7 +66,8 @@ namespace Xunit
 			this.shadowCopy = shadowCopy;
 			this.shadowCopyFolder = shadowCopyFolder;
 
-			testAssembly = new Xunit1TestAssembly(assemblyFileName, configFileName);
+			var testAssembly = new Xunit1TestAssembly(assemblyFileName, configFileName);
+			testCollection = new Xunit1TestCollection(testAssembly);
 		}
 
 		/// <inheritdoc/>
@@ -89,7 +90,7 @@ namespace Xunit
 		public string TargetFramework => string.Empty;
 
 		/// <inheritdoc/>
-		string _ITestFrameworkDiscoverer.TestAssemblyUniqueID => testAssembly.UniqueID;
+		string _ITestFrameworkDiscoverer.TestAssemblyUniqueID => testCollection.TestAssembly.UniqueID;
 
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
@@ -201,11 +202,12 @@ namespace Xunit
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
+			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 			var discoveryStarting = new _DiscoveryStarting
 			{
-				AssemblyName = testAssembly.Assembly.Name,
-				AssemblyPath = testAssembly.Assembly.AssemblyPath,
-				AssemblyUniqueID = testAssembly.UniqueID,
+				AssemblyName = testCollection.TestAssembly.Assembly.Name,
+				AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
+				AssemblyUniqueID = testAssemblyUniqueID,
 				ConfigFilePath = configFileName
 			};
 			messageSink.OnMessage(discoveryStarting);
@@ -221,7 +223,7 @@ namespace Xunit
 				{
 					foreach (var method in assemblyXml.SelectNodes("//method").Cast<XmlNode>())
 					{
-						var testCase = method.ToTestCase(testAssembly);
+						var testCase = method.ToTestCase(testCollection);
 						if (testCase != null)
 						{
 							if (includeSourceInformation)
@@ -230,12 +232,11 @@ namespace Xunit
 								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 							}
 
-							var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, ((_ITestCollection)testCase).DisplayName, null);
-							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, ((_ITestClass)testCase).Class?.Name);
+							var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollection.UniqueID, ((_ITestClass)testCase).Class?.Name);
 							var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, ((_ITestMethod)testCase).Method?.Name);
 							var message = new _TestCaseDiscovered
 							{
-								AssemblyUniqueID = testAssembly.UniqueID,
+								AssemblyUniqueID = testAssemblyUniqueID,
 								Serialization = includeSerialization ? SerializationHelper.Serialize(testCase) : null,
 								SkipReason = testCase.SkipReason,
 								SourceFilePath = testCase.SourceInformation?.FileName,
@@ -244,7 +245,7 @@ namespace Xunit
 								TestCaseDisplayName = testCase.DisplayName,
 								TestCaseUniqueID = ((_ITestCase)testCase).UniqueID,
 								TestClassUniqueID = testClassUniqueID,
-								TestCollectionUniqueID = testCollectionUniqueID,
+								TestCollectionUniqueID = testCollection.UniqueID,
 								TestMethodUniqueID = testMethodUniqueID,
 								Traits = testCase.Traits
 							};
@@ -257,7 +258,7 @@ namespace Xunit
 			}
 			finally
 			{
-				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = testAssembly.UniqueID };
+				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = testAssemblyUniqueID };
 				messageSink.OnMessage(discoveryComplete);
 			}
 		}
@@ -384,8 +385,10 @@ namespace Xunit
 		{
 			var collectionStarting = new _TestCollectionStarting
 			{
+				AssemblyUniqueID = assemblyUniqueID,
 				TestCollectionClass = testCollection.CollectionDefinition?.Name,
-				TestCollectionDisplayName = testCollection.DisplayName
+				TestCollectionDisplayName = testCollection.DisplayName,
+				TestCollectionUniqueID = testCollection.UniqueID
 			};
 			collectionStarting.TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
 				assemblyUniqueID,

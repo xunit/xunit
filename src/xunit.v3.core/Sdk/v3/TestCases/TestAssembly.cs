@@ -31,7 +31,10 @@ namespace Xunit.v3
 		/// <param name="assembly">The test assembly.</param>
 		/// <param name="configFileName">The optional configuration filename</param>
 		/// <param name="version">The version number of the assembly (defaults to "0.0.0.0")</param>
-		public TestAssembly(IAssemblyInfo assembly, string? configFileName = null, Version? version = null)
+		public TestAssembly(
+			IAssemblyInfo assembly,
+			string? configFileName = null,
+			Version? version = null)
 		{
 			Assembly = Guard.ArgumentNotNull(nameof(assembly), assembly);
 			ConfigFileName = configFileName;

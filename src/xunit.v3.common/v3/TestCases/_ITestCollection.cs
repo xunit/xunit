@@ -1,4 +1,3 @@
-using System;
 using Xunit.Abstractions;
 
 namespace Xunit.v3
@@ -27,8 +26,8 @@ namespace Xunit.v3
 		_ITestAssembly TestAssembly { get; }
 
 		/// <summary>
-		/// Gets the test collection ID. Test collection equality is determined by comparing IDs.
+		/// Gets the unique ID for this test collection.
 		/// </summary>
-		Guid UniqueID { get; }
+		string UniqueID { get; }
 	}
 }

@@ -12,7 +12,6 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v1;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class Xunit1Tests
@@ -270,12 +269,13 @@ public class Xunit1Tests
 		[InlineData(true)]
 		public void RunWithTestCases(bool serializeTestCases)
 		{
-			var assembly = new Xunit1TestAssembly("assembly", "config");
+			var assembly = new Xunit1TestAssembly("assembly.dll", "config");
+			var collection = new Xunit1TestCollection(assembly);
 			var testCases = new[] {
-				new Xunit1TestCase(assembly, "type1", "passing", "type1.passing"),
-				new Xunit1TestCase(assembly, "type1", "failing", "type1.failing"),
-				new Xunit1TestCase(assembly, "type2", "skipping", "type2.skipping"),
-				new Xunit1TestCase(assembly, "type2", "skipping_with_start", "type2.skipping_with_start")
+				new Xunit1TestCase(collection, "type1", "passing", "type1.passing"),
+				new Xunit1TestCase(collection, "type1", "failing", "type1.failing"),
+				new Xunit1TestCase(collection, "type2", "skipping", "type2.skipping"),
+				new Xunit1TestCase(collection, "type2", "skipping_with_start", "type2.skipping_with_start")
 			};
 
 			var xunit1 = new TestableXunit1();
@@ -317,16 +317,27 @@ public class Xunit1Tests
 			sink.Finished.WaitOne();
 
 			var firstTestCase = testCases[0];
+
 			var testCollection = firstTestCase.TestMethod.TestClass.TestCollection;
+			Assert.Null(testCollection.CollectionDefinition);
+			Assert.Equal("xUnit.net v1 Tests for assembly.dll", testCollection.DisplayName);
+			Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testCollection.UniqueID);
+
 			var testAssembly = testCollection.TestAssembly;
+			Assert.Equal("assembly.dll", testAssembly.Assembly.AssemblyPath);
+			Assert.Equal("assembly", testAssembly.Assembly.Name);
+			Assert.Equal("config", testAssembly.ConfigFileName);
+			Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testAssembly.UniqueID);
+			Assert.Equal(new Version(0, 0, 0, 0), testAssembly.Version);
+
 			Assert.Collection(
 				sink.Messages,
 				message =>
 				{
 					var assemblyStarting = Assert.IsType<_TestAssemblyStarting>(message);
 					Assert.Equal("assembly", assemblyStarting.AssemblyName);
-					Assert.Equal("assembly", assemblyStarting.AssemblyPath);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", assemblyStarting.AssemblyUniqueID);
+					Assert.Equal("assembly.dll", assemblyStarting.AssemblyPath);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", assemblyStarting.AssemblyUniqueID);
 					Assert.Equal("config", assemblyStarting.ConfigFilePath);
 					Assert.Null(assemblyStarting.TargetFramework);  // Always null with v1
 					Assert.Contains("-bit .NET ", assemblyStarting.TestEnvironment);
@@ -335,89 +346,86 @@ public class Xunit1Tests
 				message =>
 				{
 					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", collectionStarting.AssemblyUniqueID);
 					Assert.Null(collectionStarting.TestCollectionClass);
-					Assert.Equal("xUnit.net v1 Tests for assembly", collectionStarting.TestCollectionDisplayName);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", collectionStarting.TestCollectionUniqueID);
-
-					Assert.Equal(Guid.Empty, testCollection.UniqueID);
-					Assert.Equal("xUnit.net v1 Tests for assembly", testCollection.DisplayName);
-					Assert.Null(testCollection.CollectionDefinition);
+					Assert.Equal("xUnit.net v1 Tests for assembly.dll", collectionStarting.TestCollectionDisplayName);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", collectionStarting.TestCollectionUniqueID);
 				},
 				message =>
 				{
 					var testClassStarting = Assert.IsType<_TestClassStarting>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testClassStarting.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testClassStarting.AssemblyUniqueID);
 					Assert.Equal("type1", testClassStarting.TestClass);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testClassStarting.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testClassStarting.TestCollectionUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testClassStarting.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testClassStarting.TestCollectionUniqueID);
 				},
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testMethodStarting.AssemblyUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testMethodStarting.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testMethodStarting.TestCollectionUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testMethodStarting.AssemblyUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testMethodStarting.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testMethodStarting.TestCollectionUniqueID);
 					Assert.Equal("passing", testMethodStarting.TestMethod);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testMethodStarting.TestMethodUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testMethodStarting.TestMethodUniqueID);
 				},
 				message =>
 				{
 					var testCaseStarting = Assert.IsAssignableFrom<_TestCaseStarting>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testCaseStarting.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testCaseStarting.AssemblyUniqueID);
 					Assert.Null(testCaseStarting.SkipReason);
 					Assert.Null(testCaseStarting.SourceFilePath);
 					Assert.Null(testCaseStarting.SourceLineNumber);
 					Assert.Equal("type1.passing", testCaseStarting.TestCaseDisplayName);
-					Assert.Equal("type1.passing (assembly)", testCaseStarting.TestCaseUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testCaseStarting.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCaseStarting.TestCollectionUniqueID);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testCaseStarting.TestMethodUniqueID);
+					Assert.Equal("type1.passing (assembly.dll)", testCaseStarting.TestCaseUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testCaseStarting.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testCaseStarting.TestCollectionUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testCaseStarting.TestMethodUniqueID);
 					Assert.Empty(testCaseStarting.Traits);
 				},
 				message =>
 				{
 					var testStarting = Assert.IsAssignableFrom<_TestStarting>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testStarting.AssemblyUniqueID);
-					Assert.Equal("type1.passing (assembly)", testStarting.TestCaseUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testStarting.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testStarting.TestCollectionUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testStarting.AssemblyUniqueID);
+					Assert.Equal("type1.passing (assembly.dll)", testStarting.TestCaseUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testStarting.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testStarting.TestCollectionUniqueID);
 					Assert.Equal("type1.passing", testStarting.TestDisplayName);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testStarting.TestMethodUniqueID);
-					Assert.Equal("cdde74103fa02540cecac511aae36d1204c3e1de30e7c58b4471e0d5d08407a1", testStarting.TestUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testStarting.TestMethodUniqueID);
+					Assert.Equal("10a8331ca4a3119eff2d3cc4192481750ba67e4ddb3129333f6b34e8bf419a53", testStarting.TestUniqueID);
 				},
 				message =>
 				{
 					var testPassed = Assert.IsAssignableFrom<_TestPassed>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testPassed.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testPassed.AssemblyUniqueID);
 					Assert.Equal(1M, testPassed.ExecutionTime);
 					Assert.Empty(testPassed.Output);
-					Assert.Equal("type1.passing (assembly)", testPassed.TestCaseUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testPassed.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testPassed.TestCollectionUniqueID);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testPassed.TestMethodUniqueID);
-					Assert.Equal("cdde74103fa02540cecac511aae36d1204c3e1de30e7c58b4471e0d5d08407a1", testPassed.TestUniqueID);
+					Assert.Equal("type1.passing (assembly.dll)", testPassed.TestCaseUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testPassed.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testPassed.TestCollectionUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testPassed.TestMethodUniqueID);
+					Assert.Equal("10a8331ca4a3119eff2d3cc4192481750ba67e4ddb3129333f6b34e8bf419a53", testPassed.TestUniqueID);
 				},
 				message =>
 				{
 					var testFinished = Assert.IsAssignableFrom<_TestFinished>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testFinished.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testFinished.ExecutionTime);
 					Assert.Empty(testFinished.Output);
-					Assert.Equal("type1.passing (assembly)", testFinished.TestCaseUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testFinished.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testFinished.TestCollectionUniqueID);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testFinished.TestMethodUniqueID);
-					Assert.Equal("cdde74103fa02540cecac511aae36d1204c3e1de30e7c58b4471e0d5d08407a1", testFinished.TestUniqueID);
+					Assert.Equal("type1.passing (assembly.dll)", testFinished.TestCaseUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testFinished.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testFinished.TestCollectionUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testFinished.TestMethodUniqueID);
+					Assert.Equal("10a8331ca4a3119eff2d3cc4192481750ba67e4ddb3129333f6b34e8bf419a53", testFinished.TestUniqueID);
 				},
 				message =>
 				{
 					var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testCaseFinished.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testCaseFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testCaseFinished.ExecutionTime);
-					Assert.Equal("type1.passing (assembly)", testCaseFinished.TestCaseUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testCaseFinished.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCaseFinished.TestCollectionUniqueID);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testCaseFinished.TestMethodUniqueID);
+					Assert.Equal("type1.passing (assembly.dll)", testCaseFinished.TestCaseUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testCaseFinished.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testCaseFinished.TestCollectionUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testCaseFinished.TestMethodUniqueID);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -425,11 +433,11 @@ public class Xunit1Tests
 				message =>
 				{
 					var testMethodFinished = Assert.IsAssignableFrom<_TestMethodFinished>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testMethodFinished.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testMethodFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testMethodFinished.ExecutionTime);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testMethodFinished.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testMethodFinished.TestCollectionUniqueID);
-					Assert.Equal("9ba0af75ad5eb6c20ea6c32f330be3a960a4fc80a1a1321b92ea0cb82af598f9", testMethodFinished.TestMethodUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testMethodFinished.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testMethodFinished.TestCollectionUniqueID);
+					Assert.Equal("f7708079f4f28f872d4ab7958e87d8bcf6ab3f33f88217cfd3f4a82222c7b7e1", testMethodFinished.TestMethodUniqueID);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
@@ -452,18 +460,18 @@ public class Xunit1Tests
 				message =>
 				{
 					var testFailed = Assert.IsAssignableFrom<_TestFailed>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testFailed.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testFailed.AssemblyUniqueID);
 					Assert.Equal(-1, testFailed.ExceptionParentIndices.Single());
 					Assert.Equal("Xunit.MockFailureException", testFailed.ExceptionTypes.Single());
 					Assert.Equal(0.234M, testFailed.ExecutionTime);
 					Assert.Equal("Failure message", testFailed.Messages.Single());
 					Assert.Empty(testFailed.Output);
 					Assert.Equal("Stack trace", testFailed.StackTraces.Single());
-					Assert.Equal("type1.failing (assembly)", testFailed.TestCaseUniqueID);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testFailed.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testFailed.TestCollectionUniqueID);
-					Assert.Equal("10fb4304a4dca2f7e9249a4a7dc936006a4b00f12197163d155019ba0e876824", testFailed.TestMethodUniqueID);
-					Assert.Equal("5f00b4b73ea9af55424e1ca6f8d1c17ad9b4235998f8445ef2551158473c6583", testFailed.TestUniqueID);
+					Assert.Equal("type1.failing (assembly.dll)", testFailed.TestCaseUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testFailed.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testFailed.TestCollectionUniqueID);
+					Assert.Equal("1714957762efe1f123e780d527b7e319c0624338e1342dc009249aa9074a73be", testFailed.TestMethodUniqueID);
+					Assert.Equal("22d7a18fbc1d31a50ff103e3c3f0d6654da1dec22240fc49420449d783f9b7cd", testFailed.TestUniqueID);
 				},
 				message =>
 				{
@@ -489,10 +497,10 @@ public class Xunit1Tests
 				message =>
 				{
 					var testClassFinished = Assert.IsType<_TestClassFinished>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testClassFinished.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testClassFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, testClassFinished.ExecutionTime);
-					Assert.Equal("6a6c99fd765cff021ee0388a7fb75938a9ac543b8359c2ac1a14568c8b1b4624", testClassFinished.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testClassFinished.TestCollectionUniqueID);
+					Assert.Equal("49fb0c20ea941ab02cf91d5efdb3ef118df57da17afceae869238653061b1747", testClassFinished.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testClassFinished.TestCollectionUniqueID);
 					Assert.Equal(1, testClassFinished.TestsFailed);
 					Assert.Equal(2, testClassFinished.TestsRun);
 					Assert.Equal(0, testClassFinished.TestsSkipped);
@@ -520,15 +528,15 @@ public class Xunit1Tests
 				message =>
 				{
 					var testSkipped = Assert.IsType<_TestSkipped>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testSkipped.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testSkipped.AssemblyUniqueID);
 					Assert.Equal(0M, testSkipped.ExecutionTime);
 					Assert.Empty(testSkipped.Output);
 					Assert.Equal("Skip message", testSkipped.Reason);
-					Assert.Equal("type2.skipping (assembly)", testSkipped.TestCaseUniqueID);
-					Assert.Equal("f7aaa884103774ee304c9a051ade2c70b8086844b41ccb1f26fa12a2bbb14ec9", testSkipped.TestClassUniqueID);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testSkipped.TestCollectionUniqueID);
-					Assert.Equal("8683bf14e876b9aa2943ed5b8dd63d8be667061bcd8123124c3f682b399bcc5e", testSkipped.TestMethodUniqueID);
-					Assert.Equal("365e224b611976c8348fbbd3f4036789cd45230695c77de6c35cc5e749c4ea98", testSkipped.TestUniqueID);
+					Assert.Equal("type2.skipping (assembly.dll)", testSkipped.TestCaseUniqueID);
+					Assert.Equal("be98f543db110a1c396ee6cbba78af448a04d3e4e621bb0d07c940c1bc1020bf", testSkipped.TestClassUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testSkipped.TestCollectionUniqueID);
+					Assert.Equal("302172c3ec5473e1923fcc11571c0981166cc5124acb23b43f3d70979a6e7b5d", testSkipped.TestMethodUniqueID);
+					Assert.Equal("05154f78fdcfa4d5fe17026690eafe5e753ea05d9a505cb3a4d7fb9682b239b6", testSkipped.TestUniqueID);
 
 				},
 				message =>
@@ -605,9 +613,9 @@ public class Xunit1Tests
 				message =>
 				{
 					var testCollectionFinished = Assert.IsType<_TestCollectionFinished>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", testCollectionFinished.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", testCollectionFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, testCollectionFinished.ExecutionTime);
-					Assert.Equal("31f95cd8747e68290a2a0569e0ddd04df1265611c2b4770d434c02327648b53a", testCollectionFinished.TestCollectionUniqueID);
+					Assert.Equal("afe079e5b264c1b49ec973cfeee5c84b8701337135fcd737ea00f96166f3a7aa", testCollectionFinished.TestCollectionUniqueID);
 					Assert.Equal(1, testCollectionFinished.TestsFailed);
 					Assert.Equal(3, testCollectionFinished.TestsRun);
 					Assert.Equal(1, testCollectionFinished.TestsSkipped);
@@ -615,7 +623,7 @@ public class Xunit1Tests
 				message =>
 				{
 					var assemblyFinished = Assert.IsType<_TestAssemblyFinished>(message);
-					Assert.Equal("8ddf765e74f933ca16c01d9e73d13017e308dab1e149d56e3242cbd32d83ee8d", assemblyFinished.AssemblyUniqueID);
+					Assert.Equal("fea632f3664b106574ca98fd309f200770f1b0cc4b8f745abfe95a575b84c9a5", assemblyFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, assemblyFinished.ExecutionTime);
 					Assert.Equal(1, assemblyFinished.TestsFailed);
 					Assert.Equal(3, assemblyFinished.TestsRun);
@@ -628,10 +636,7 @@ public class Xunit1Tests
 		public void ExceptionThrownDuringRunTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
-			var assembly = new Xunit1TestAssembly("assembly", "config");
-			var testCases = new[] {
-				new Xunit1TestCase(assembly, "type1", "passing", "type1.passing")
-			};
+			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "passing", "type1.passing") };
 			var exception = new DivideByZeroException();
 			xunit1
 				.Executor
@@ -656,10 +661,7 @@ public class Xunit1Tests
 		public void NestedExceptionsThrownDuringRunTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
-			var assembly = new Xunit1TestAssembly("assembly", "config");
-			var testCases = new[] {
-				new Xunit1TestCase(assembly, "type1", "passing", "type1.passing")
-			};
+			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "passing", "type1.passing") };
 			var exception = GetNestedExceptions();
 			xunit1
 				.Executor
@@ -688,10 +690,7 @@ public class Xunit1Tests
 		public void NestedExceptionResultFromTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
-			var assembly = new Xunit1TestAssembly("assembly", "config");
-			var testCases = new[] {
-				new Xunit1TestCase(assembly, "type1", "failing", "type1.failing")
-			};
+			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "failing", "type1.failing") };
 			var exception = GetNestedExceptions();
 			xunit1
 				.Executor
@@ -726,10 +725,7 @@ public class Xunit1Tests
 		public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
-			var assembly = new Xunit1TestAssembly("assembly", "config");
-			var testCases = new[] {
-				new Xunit1TestCase(assembly, "type1", "failingclass", "type1.failingclass")
-			};
+			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "failingclass", "type1.failingclass") };
 			var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
 			xunit1
 				.Executor
@@ -764,10 +760,7 @@ public class Xunit1Tests
 		public void ExceptionThrownDuringClassFinish_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
-			var assembly = new Xunit1TestAssembly("assembly", "config");
-			var testCases = new[] {
-				new Xunit1TestCase(assembly, "failingtype", "passingmethod", "failingtype.passingmethod")
-			};
+			var testCases = new[] { CreateTestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod") };
 			var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
 			xunit1
 				.Executor
@@ -804,10 +797,7 @@ public class Xunit1Tests
 		public void NestedExceptionsThrownDuringClassStart_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
-			var assembly = new Xunit1TestAssembly("assembly", "config");
-			var testCases = new[] {
-				new Xunit1TestCase(assembly, "failingtype", "passingmethod", "failingtype.passingmethod")
-			};
+			var testCases = new[] { CreateTestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod") };
 			var exception = GetNestedExceptions();
 			xunit1
 				.Executor
@@ -956,6 +946,18 @@ public class AmbiguouslyNamedTestMethods
 				msg => Assert.IsType<_TestAssemblyFinished>(msg)
 			);
 		}
+	}
+
+	static Xunit1TestCase CreateTestCase(
+		string assemblyPath,
+		string configFileName,
+		string typeName,
+		string methodName,
+		string testCaseDisplayName)
+	{
+		var assembly = new Xunit1TestAssembly(assemblyPath, configFileName);
+		var collection = new Xunit1TestCollection(assembly);
+		return new Xunit1TestCase(collection, typeName, methodName, testCaseDisplayName);
 	}
 
 	class TestableXunit1 : Xunit1

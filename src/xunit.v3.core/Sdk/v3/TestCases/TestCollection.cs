@@ -16,6 +16,7 @@ namespace Xunit.v3
 	{
 		string? displayName;
 		_ITestAssembly? testAssembly;
+		string? uniqueID;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -33,19 +34,12 @@ namespace Xunit.v3
 			_ITestAssembly testAssembly,
 			ITypeInfo? collectionDefinition,
 			string displayName)
-				: this(testAssembly, collectionDefinition, displayName, Guid.NewGuid())
-		{ }
-
-		internal TestCollection(
-			_ITestAssembly testAssembly,
-			ITypeInfo? collectionDefinition,
-			string displayName,
-			Guid uniqueId)
 		{
 			CollectionDefinition = collectionDefinition;
 			this.displayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
 			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
-			UniqueID = uniqueId;
+
+			uniqueID = UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, this.displayName, CollectionDefinition?.Name);
 		}
 
 		/// <inheritdoc/>
@@ -54,19 +48,23 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public string DisplayName
 		{
-			get => displayName ?? throw new InvalidOperationException($"Attempted to get DisplayName on an uninitialized '{GetType().FullName}' object");
+			get => displayName ?? throw new InvalidOperationException($"Attempted to get {nameof(DisplayName)} on an uninitialized '{GetType().FullName}' object");
 			set => displayName = Guard.ArgumentNotNull(nameof(DisplayName), value);
 		}
 
 		/// <inheritdoc/>
 		public _ITestAssembly TestAssembly
 		{
-			get => testAssembly ?? throw new InvalidOperationException($"Attempted to get TestAssembly on an uninitialized '{GetType().FullName}' object");
+			get => testAssembly ?? throw new InvalidOperationException($"Attempted to get {nameof(TestAssembly)} on an uninitialized '{GetType().FullName}' object");
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
 		}
 
 		/// <inheritdoc/>
-		public Guid UniqueID { get; set; }
+		public string UniqueID
+		{
+			get => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+		}
 
 		/// <inheritdoc/>
 		public virtual void Serialize(IXunitSerializationInfo info)
@@ -75,7 +73,7 @@ namespace Xunit.v3
 
 			info.AddValue("DisplayName", DisplayName);
 			info.AddValue("TestAssembly", TestAssembly);
-			info.AddValue("UniqueID", UniqueID.ToString());
+			info.AddValue("UniqueID", UniqueID);
 
 			if (CollectionDefinition != null)
 			{
@@ -96,7 +94,7 @@ namespace Xunit.v3
 
 			DisplayName = info.GetValue<string>("DisplayName");
 			TestAssembly = info.GetValue<_ITestAssembly>("TestAssembly");
-			UniqueID = Guid.Parse(info.GetValue<string>("UniqueID"));
+			UniqueID = info.GetValue<string>("UniqueID");
 
 			var assemblyName = info.GetValue<string>("DeclarationAssemblyName");
 			var typeName = info.GetValue<string>("DeclarationTypeName");

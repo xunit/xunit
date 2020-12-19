@@ -14,12 +14,12 @@ namespace Xunit.Runner.v1
 	/// An implementation of <see cref="_ITestCase"/> (and parents) that adapts xUnit.net v1's XML-based APIs
 	/// into xUnit.net v3's object-based APIs.
 	/// </summary>
-	public class Xunit1TestCase : _ITestCollection, _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
+	public class Xunit1TestCase : _ITestClass, _ITestMethod, _ITestCase, IXunitSerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
 		Xunit1ReflectionWrapper? reflectionWrapper;
-		Xunit1TestAssembly? testAssembly;
+		Xunit1TestCollection? testCollection;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -33,14 +33,14 @@ namespace Xunit.Runner.v1
 		/// <summary>
 		/// Initializes a new instance  of the <see cref="Xunit1TestCase"/> class.
 		/// </summary>
-		/// <param name="testAssembly">The test assembly.</param>
+		/// <param name="testCollection">The test collection this test case belongs to.</param>
 		/// <param name="typeName">The type under test.</param>
 		/// <param name="methodName">The method under test.</param>
 		/// <param name="displayName">The display name of the unit test.</param>
 		/// <param name="traits">The traits of the unit test.</param>
 		/// <param name="skipReason">The skip reason, if the test is skipped.</param>
 		public Xunit1TestCase(
-			Xunit1TestAssembly testAssembly,
+			Xunit1TestCollection testCollection,
 			string typeName,
 			string methodName,
 			string? displayName,
@@ -50,8 +50,8 @@ namespace Xunit.Runner.v1
 			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
 			Guard.ArgumentNotNullOrEmpty(nameof(methodName), methodName);
 
-			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
-			reflectionWrapper = new Xunit1ReflectionWrapper(testAssembly.Assembly.AssemblyPath, typeName, methodName);
+			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+			reflectionWrapper = new Xunit1ReflectionWrapper(testCollection.TestAssembly.Assembly.AssemblyPath, typeName, methodName);
 
 			DisplayName = displayName ?? $"{typeName}.{methodName}";
 			Traits = traits ?? EmptyTraits;
@@ -83,10 +83,11 @@ namespace Xunit.Runner.v1
 		{
 			Guard.ArgumentNotNull(nameof(data), data);
 
-			testAssembly = new Xunit1TestAssembly(
+			var testAssembly = new Xunit1TestAssembly(
 				data.GetValue<string>("AssemblyFileName"),
 				data.GetValue<string>("ConfigFileName")
 			);
+			testCollection = new Xunit1TestCollection(testAssembly);
 
 			reflectionWrapper = new Xunit1ReflectionWrapper(
 				testAssembly.Assembly.AssemblyPath,
@@ -109,8 +110,8 @@ namespace Xunit.Runner.v1
 		{
 			Guard.ArgumentNotNull(nameof(data), data);
 
-			data.AddValue("AssemblyFileName", testAssembly?.Assembly.AssemblyPath);
-			data.AddValue("ConfigFileName", testAssembly?.ConfigFileName);
+			data.AddValue("AssemblyFileName", testCollection?.TestAssembly.Assembly.AssemblyPath);
+			data.AddValue("ConfigFileName", testCollection?.TestAssembly.ConfigFileName);
 			data.AddValue("MethodName", ReflectionWrapper.MethodName);
 			data.AddValue("TypeName", ReflectionWrapper.TypeName);
 			data.AddValue("DisplayName", DisplayName);
@@ -132,12 +133,7 @@ namespace Xunit.Runner.v1
 		string _ITestCase.UniqueID => ReflectionWrapper.UniqueID;
 
 		ITypeInfo _ITestClass.Class => ReflectionWrapper;
-		_ITestCollection _ITestClass.TestCollection => this;
-
-		ITypeInfo? _ITestCollection.CollectionDefinition => null;
-		string _ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
-		_ITestAssembly _ITestCollection.TestAssembly => testAssembly ?? throw new InvalidOperationException($"Attempted to get {nameof(_ITestCollection)}.{nameof(_ITestCollection.TestAssembly)} on an uninitialized '{GetType().FullName}' object");
-		Guid _ITestCollection.UniqueID => Guid.Empty;
+		_ITestCollection _ITestClass.TestCollection => testCollection!;
 
 		IMethodInfo _ITestMethod.Method => ReflectionWrapper;
 		_ITestClass _ITestMethod.TestClass => this;

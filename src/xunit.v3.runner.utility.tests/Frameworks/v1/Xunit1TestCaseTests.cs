@@ -37,8 +37,9 @@ public class Xunit1TestCaseTests
 	{
 		var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
 		var assembly = new Xunit1TestAssembly(assemblyFileName);
+		var collection = new Xunit1TestCollection(assembly);
 
-		return new Xunit1TestCase(assembly, typeUnderTest.FullName!, methodName, null, traits);
+		return new Xunit1TestCase(collection, typeUnderTest.FullName!, methodName, null, traits);
 	}
 }
 

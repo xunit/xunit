@@ -36,8 +36,7 @@ public class TestClassCallbackHandlerTests
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var assembly = new Xunit1TestAssembly("assembly", "config");
-		var testCase = new Xunit1TestCase(assembly, "foo", "bar", "foo.bar");
+		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
@@ -56,8 +55,7 @@ public class TestClassCallbackHandlerTests
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var assembly = new Xunit1TestAssembly("assembly", "config");
-		var testCase = new Xunit1TestCase(assembly, "foo", "bar", "foo.bar");
+		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
@@ -153,6 +151,18 @@ public class TestClassCallbackHandlerTests
 			if (originalUICulture != null)
 				CultureInfo.CurrentUICulture = originalUICulture;
 		}
+	}
+
+	static Xunit1TestCase CreateTestCase(
+		string assemblyPath,
+		string configFileName,
+		string typeName,
+		string methodName,
+		string testCaseDisplayName)
+	{
+		var assembly = new Xunit1TestAssembly(assemblyPath, configFileName);
+		var collection = new Xunit1TestCollection(assembly);
+		return new Xunit1TestCase(collection, typeName, methodName, testCaseDisplayName);
 	}
 }
 

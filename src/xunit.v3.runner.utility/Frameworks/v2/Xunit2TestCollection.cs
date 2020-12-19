@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -18,6 +17,7 @@ namespace Xunit.Runner.v2
 		{
 			V2TestCollection = Guard.ArgumentNotNull(nameof(v2TestCollection), v2TestCollection);
 			TestAssembly = new Xunit2TestAssembly(V2TestCollection.TestAssembly);
+			UniqueID = UniqueIDGenerator.ForTestCollection(TestAssembly.UniqueID, V2TestCollection.DisplayName, V2TestCollection.CollectionDefinition?.Name);
 		}
 
 		/// <inheritdoc/>
@@ -30,7 +30,7 @@ namespace Xunit.Runner.v2
 		public _ITestAssembly TestAssembly { get; }
 
 		/// <inheritdoc/>
-		public Guid UniqueID => V2TestCollection.UniqueID;
+		public string UniqueID { get; }
 
 		/// <summary>
 		/// Gets the underlying xUnit.net v2 <see cref="ITestCollection"/> that this class is wrapping.

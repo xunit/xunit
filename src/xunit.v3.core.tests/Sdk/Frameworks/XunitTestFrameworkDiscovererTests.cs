@@ -467,7 +467,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		[Theory]
 		[InlineData(false, null)]
-		[InlineData(true, ":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0:")]
+		[InlineData(true, ":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0")]
 		public void SerializationTestsForXunitTestCase(
 			bool includeSerialization,
 			string? expectedSerializationStartingText)
@@ -481,7 +481,7 @@ public class XunitTestFrameworkDiscovererTests
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
 			if (expectedSerializationStartingText != null)
-				Assert.StartsWith(expectedSerializationStartingText, discoveryMsg.Serialization);
+				Assert.Equal(expectedSerializationStartingText, discoveryMsg.Serialization);
 			else
 				Assert.Null(discoveryMsg.Serialization);
 		}

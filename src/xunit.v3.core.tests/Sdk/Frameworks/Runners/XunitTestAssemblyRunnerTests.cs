@@ -338,7 +338,7 @@ public class XunitTestAssemblyRunnerTests
 	{
 		public List<_MessageSinkMessage> DiagnosticMessages;
 
-		public ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>> TestCasesRun = new ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>>();
+		public ConcurrentBag<Tuple<int, IXunitTestCase>> TestCasesRun = new ConcurrentBag<Tuple<int, IXunitTestCase>>();
 
 		TestableXunitTestAssemblyRunner(
 			_ITestAssembly testAssembly,
@@ -400,7 +400,9 @@ public class XunitTestAssemblyRunnerTests
 			IEnumerable<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			TestCasesRun.Add(Tuple.Create(Thread.CurrentThread.ManagedThreadId, testCases));
+			foreach (var testCase in testCases)
+				TestCasesRun.Add(Tuple.Create(Thread.CurrentThread.ManagedThreadId, testCase));
+
 			Thread.Sleep(5); // Hold onto the worker thread long enough to ensure tests all get spread around
 			return Task.FromResult(new RunSummary());
 		}
