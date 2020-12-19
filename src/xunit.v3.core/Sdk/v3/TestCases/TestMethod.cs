@@ -12,8 +12,9 @@ namespace Xunit.v3
 	[DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
 	public class TestMethod : _ITestMethod, IXunitSerializable
 	{
-		private IMethodInfo? method;
-		private _ITestClass? testClass;
+		IMethodInfo? method;
+		_ITestClass? testClass;
+		string? uniqueID;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -32,6 +33,8 @@ namespace Xunit.v3
 		{
 			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
 			this.method = Guard.ArgumentNotNull(nameof(method), method);
+
+			uniqueID = UniqueIDGenerator.ForTestMethod(testClass.UniqueID, this.method.Name);
 		}
 
 		/// <inheritdoc/>
@@ -49,12 +52,20 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
+		public string UniqueID
+		{
+			get => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+		}
+
+		/// <inheritdoc/>
 		public void Serialize(IXunitSerializationInfo info)
 		{
 			Guard.ArgumentNotNull(nameof(info), info);
 
 			info.AddValue("MethodName", Method.Name);
 			info.AddValue("TestClass", TestClass);
+			info.AddValue("UniqueID", UniqueID);
 		}
 
 		/// <inheritdoc/>
@@ -63,9 +74,9 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(info), info);
 
 			testClass = info.GetValue<_ITestClass>("TestClass");
+			uniqueID = info.GetValue<string>("UniqueID");
 
 			var methodName = info.GetValue<string>("MethodName");
-
 			method = TestClass.Class.GetMethod(methodName, true);
 		}
 	}

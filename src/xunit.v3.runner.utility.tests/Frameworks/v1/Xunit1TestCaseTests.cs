@@ -39,8 +39,9 @@ public class Xunit1TestCaseTests
 		var assembly = new Xunit1TestAssembly(assemblyFileName);
 		var collection = new Xunit1TestCollection(assembly);
 		var @class = new Xunit1TestClass(collection, typeUnderTest.FullName!);
+		var method = new Xunit1TestMethod(@class, methodName);
 
-		return new Xunit1TestCase(@class, methodName, null, traits);
+		return new Xunit1TestCase(method, null, traits);
 	}
 }
 

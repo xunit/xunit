@@ -13,11 +13,9 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class ReflectionAttributeInfo : IReflectionAttributeInfo
 	{
-		static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
-		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>
-		{
-			[typeof(ITraitAttribute)] = new AttributeUsageAttribute(AttributeTargets.All) { AllowMultiple = true }
-		};
+		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();
+		static readonly AttributeUsageAttribute defaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
+		static readonly AttributeUsageAttribute traitAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All) { AllowMultiple = true };
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
@@ -57,10 +55,14 @@ namespace Xunit.Sdk
 
 		internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
 		{
+			// Can't have a strong type reference because this is part of xunit.v3.core, but this is required for issue #1958.
+			if (attributeType.FullName == "Xunit.Sdk.ITraitAttribute")
+				return traitAttributeUsageAttribute;
+
 			return attributeUsageCache.GetOrAdd(
 				attributeType,
 				at => (AttributeUsageAttribute)at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
-					?? DefaultAttributeUsageAttribute
+					?? defaultAttributeUsageAttribute
 			);
 		}
 

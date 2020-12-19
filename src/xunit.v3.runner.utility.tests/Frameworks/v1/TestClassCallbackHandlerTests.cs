@@ -163,7 +163,8 @@ public class TestClassCallbackHandlerTests
 		var assembly = new Xunit1TestAssembly(assemblyPath, configFileName);
 		var collection = new Xunit1TestCollection(assembly);
 		var @class = new Xunit1TestClass(collection, typeName);
-		return new Xunit1TestCase(@class, methodName, testCaseDisplayName);
+		var method = new Xunit1TestMethod(@class, methodName);
+		return new Xunit1TestCase(method, testCaseDisplayName);
 	}
 }
 

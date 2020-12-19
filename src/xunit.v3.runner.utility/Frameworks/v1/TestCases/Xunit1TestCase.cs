@@ -11,15 +11,13 @@ using Xunit.v3;
 namespace Xunit.Runner.v1
 {
 	/// <summary>
-	/// An implementation of <see cref="_ITestCase"/> (and parents) that adapts xUnit.net v1's XML-based APIs
-	/// into xUnit.net v3's object-based APIs.
+	/// Implementation of <see cref="_ITestCase"/> for xUnit.net v1 test cases.
 	/// </summary>
-	public class Xunit1TestCase : _ITestMethod, _ITestCase, IXunitSerializable
+	public class Xunit1TestCase : _ITestCase, IXunitSerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-		Xunit1ReflectionWrapper? reflectionWrapper;
-		Xunit1TestClass? testClass;
+		Xunit1TestMethod? testMethod;
 
 		/// <summary/>
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -33,24 +31,20 @@ namespace Xunit.Runner.v1
 		/// <summary>
 		/// Initializes a new instance  of the <see cref="Xunit1TestCase"/> class.
 		/// </summary>
-		/// <param name="testClass">The test class this test case belongs to.</param>
-		/// <param name="methodName">The method under test.</param>
+		/// <param name="testMethod">The test method this test case belongs to.</param>
 		/// <param name="displayName">The display name of the unit test.</param>
 		/// <param name="traits">The traits of the unit test.</param>
 		/// <param name="skipReason">The skip reason, if the test is skipped.</param>
 		public Xunit1TestCase(
-			Xunit1TestClass testClass,
-			string methodName,
+			Xunit1TestMethod testMethod,
 			string? displayName,
 			Dictionary<string, List<string>>? traits = null,
 			string? skipReason = null)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(methodName), methodName);
+			this.testMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 
-			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
-
-			var typeName = testClass.Class.Name;
-			reflectionWrapper = new Xunit1ReflectionWrapper(testClass.TestCollection.TestAssembly.Assembly.AssemblyPath, typeName, methodName);
+			var typeName = testMethod.TestClass.Class.Name;
+			var methodName = testMethod.Method.Name;
 
 			DisplayName = displayName ?? $"{typeName}.{methodName}";
 			Traits = traits ?? EmptyTraits;
@@ -60,8 +54,6 @@ namespace Xunit.Runner.v1
 		/// <inheritdoc/>
 		public string DisplayName { get; set; }
 
-		Xunit1ReflectionWrapper ReflectionWrapper => reflectionWrapper ?? throw new InvalidOperationException($"Attempted to get {nameof(ReflectionWrapper)} on an uninitialized '{GetType().FullName}' object");
-
 		/// <inheritdoc/>
 		public string? SkipReason { get; set; }
 
@@ -69,13 +61,17 @@ namespace Xunit.Runner.v1
 		public _ISourceInformation? SourceInformation { get; set; }
 
 		/// <inheritdoc/>
-		public _ITestMethod TestMethod => this;
+		public _ITestMethod TestMethod => testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
 
 		/// <inheritdoc/>
 		public object?[]? TestMethodArguments { get; set; }
 
 		/// <inheritdoc/>
 		public Dictionary<string, List<string>> Traits { get; set; }
+
+		/// <inheritdoc/>
+		// TODO: Should get updated to UniqueIDGenerator once it can generate test case unique IDs
+		public string UniqueID => $"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name} ({TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath})";
 
 		/// <inheritdoc/>
 		public void Deserialize(IXunitSerializationInfo data)
@@ -87,13 +83,8 @@ namespace Xunit.Runner.v1
 				data.GetValue<string>("ConfigFileName")
 			);
 			var testCollection = new Xunit1TestCollection(testAssembly);
-			testClass = new Xunit1TestClass(testCollection, data.GetValue<string>("TypeName"));
-
-			reflectionWrapper = new Xunit1ReflectionWrapper(
-				testAssembly.Assembly.AssemblyPath,
-				data.GetValue<string>("TypeName"),
-				data.GetValue<string>("MethodName")
-			);
+			var testClass = new Xunit1TestClass(testCollection, data.GetValue<string>("TypeName"));
+			testMethod = new Xunit1TestMethod(testClass, data.GetValue<string>("MethodName"));
 
 			DisplayName = data.GetValue<string>("DisplayName");
 			SkipReason = data.GetValue<string>("SkipReason");
@@ -110,10 +101,10 @@ namespace Xunit.Runner.v1
 		{
 			Guard.ArgumentNotNull(nameof(data), data);
 
-			data.AddValue("AssemblyFileName", testClass!.TestCollection.TestAssembly.Assembly.AssemblyPath);
-			data.AddValue("ConfigFileName", testClass!.TestCollection.TestAssembly.ConfigFileName);
-			data.AddValue("MethodName", ReflectionWrapper.MethodName);
-			data.AddValue("TypeName", testClass!.Class.Name);
+			data.AddValue("AssemblyFileName", TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
+			data.AddValue("ConfigFileName", TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
+			data.AddValue("MethodName", TestMethod.Method.Name);
+			data.AddValue("TypeName", TestMethod.TestClass.Class.Name);
 			data.AddValue("DisplayName", DisplayName);
 			data.AddValue("SkipReason", SkipReason);
 			data.AddValue("SourceInformation", SourceInformation);
@@ -129,11 +120,6 @@ namespace Xunit.Runner.v1
 					data.AddValue($"Traits[{key}]", Traits[key].ToArray());
 			}
 		}
-
-		string _ITestCase.UniqueID => ReflectionWrapper.UniqueID;
-
-		IMethodInfo _ITestMethod.Method => ReflectionWrapper;
-		_ITestClass _ITestMethod.TestClass => testClass!;
 	}
 }
 
