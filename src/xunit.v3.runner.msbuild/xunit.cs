@@ -394,7 +394,7 @@ namespace Xunit.Runner.MSBuild
 
 			foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
 			{
-				Type[] types;
+				Type?[] types;
 
 				try
 				{
@@ -403,7 +403,7 @@ namespace Xunit.Runner.MSBuild
 				}
 				catch (ReflectionTypeLoadException ex)
 				{
-					types = ex.Types ?? new Type[0];
+					types = ex.Types;
 				}
 				catch
 				{

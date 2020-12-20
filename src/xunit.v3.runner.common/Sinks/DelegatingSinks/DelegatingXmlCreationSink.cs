@@ -103,7 +103,7 @@ namespace Xunit.Runner.Common
 
 		static XElement CreateFailureElement(_IErrorMetadata errorMetadata) =>
 			new XElement("failure",
-				new XAttribute("exception-type", errorMetadata.ExceptionTypes[0]),
+				new XAttribute("exception-type", errorMetadata.ExceptionTypes[0] ?? "<unknown type>"),
 				new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(errorMetadata)))),
 				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(errorMetadata) ?? string.Empty))
 			);
@@ -271,7 +271,7 @@ namespace Xunit.Runner.Common
 		{
 			var assemblyStarting = args.Message;
 			assemblyElement.Add(
-				new XAttribute("name", assemblyStarting.AssemblyPath),
+				new XAttribute("name", assemblyStarting.AssemblyPath ?? "<unknown assembly>"),
 				new XAttribute("environment", assemblyStarting.TestEnvironment),
 				new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
 				new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),

@@ -53,7 +53,7 @@ namespace Xunit.Sdk
 
 			var traitDiscovererType = typeof(TraitDiscovererAttribute);
 			var typeChecking = traitAttribute;
-			CustomAttributeData result;
+			CustomAttributeData? result;
 
 			do
 			{

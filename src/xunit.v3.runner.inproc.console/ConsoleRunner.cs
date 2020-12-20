@@ -172,7 +172,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			{
 				foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
 				{
-					Type[]? types;
+					Type?[] types;
 
 					try
 					{
@@ -192,7 +192,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 						continue;
 					}
 
-					foreach (var type in types ?? new Type[0])
+					foreach (var type in types)
 					{
 						if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 							continue;

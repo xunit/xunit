@@ -1,6 +1,4 @@
-﻿using Xunit.Internal;
-
-namespace Xunit.Runners
+﻿namespace Xunit.Runners
 {
 	/// <summary>
 	/// Represents an error that happened outside the scope of a running test.
@@ -11,11 +9,9 @@ namespace Xunit.Runners
 		public ErrorMessageInfo(
 			ErrorMessageType messageType,
 			string? exceptionType,
-			string exceptionMessage,
+			string? exceptionMessage,
 			string? exceptionStackTrace)
 		{
-			Guard.ArgumentNotNull(nameof(exceptionMessage), exceptionMessage);
-
 			MesssageType = messageType;
 			ExceptionType = exceptionType;
 			ExceptionMessage = exceptionMessage;
@@ -35,7 +31,7 @@ namespace Xunit.Runners
 		/// <summary>
 		/// The message from the exception that caused the test failure.
 		/// </summary>
-		public string ExceptionMessage { get; }
+		public string? ExceptionMessage { get; }
 
 		/// <summary>
 		/// The stack trace from the exception that caused the test failure.

@@ -237,7 +237,9 @@ namespace Xunit.v3
 			{
 				try
 				{
-					Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
+					var assemblyFolder = Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath);
+					if (assemblyFolder != null)
+						Directory.SetCurrentDirectory(assemblyFolder);
 				}
 				catch { }
 

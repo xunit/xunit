@@ -1240,7 +1240,11 @@ public class ReflectorTests
 					.Select(x => Reflector.Wrap(x))
 					.Single();
 
-			Assert.True(expected.SequenceEqual((result.Attribute as SuperFact)!.Numbers));
+			var superFact = result.Attribute as SuperFact;
+			Assert.NotNull(superFact);
+			var numbers = superFact.Numbers;
+			Assert.NotNull(numbers);
+			Assert.True(expected.SequenceEqual(numbers));
 			Assert.True(expected.SequenceEqual(result.GetNamedArgument<int[]>("Numbers")));
 		}
 
@@ -1258,7 +1262,11 @@ public class ReflectorTests
 					.Select(Reflector.Wrap)
 					.Single();
 
-			Assert.True(expected.SequenceEqual((result.Attribute as SuperFact)!.Types));
+			var superFact = result.Attribute as SuperFact;
+			Assert.NotNull(superFact);
+			var types = superFact.Types;
+			Assert.NotNull(types);
+			Assert.True(expected.SequenceEqual(types));
 			Assert.True(expected.SequenceEqual(result.GetNamedArgument<Type[]>("Types")));
 		}
 
@@ -1276,7 +1284,11 @@ public class ReflectorTests
 					.Select(Reflector.Wrap)
 					.Single();
 
-			Assert.True(expected.SequenceEqual((result.Attribute as SuperFact)!.States));
+			var superFact = result.Attribute as SuperFact;
+			Assert.NotNull(superFact);
+			var states = superFact.States;
+			Assert.NotNull(states);
+			Assert.True(expected.SequenceEqual(states));
 			Assert.True(expected.SequenceEqual(result.GetNamedArgument<FactState[]>("States")));
 		}
 	}

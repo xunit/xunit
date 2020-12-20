@@ -222,55 +222,70 @@ namespace Xunit
 
 				if (assemblyXml != null)
 				{
-					foreach (var methodXml in assemblyXml.SelectNodes("//method").Cast<XmlNode>())
+					var methodNodes = assemblyXml.SelectNodes("//method")?.Cast<XmlNode>();
+					if (methodNodes != null)
 					{
-						var typeName = methodXml.Attributes["type"].Value;
-						var testClass = default(Xunit1TestClass);
-						lock (testClassesByTypeName)
-							testClass = testClassesByTypeName.GetOrAdd(typeName, () => new Xunit1TestClass(testCollection, typeName));
-
-						var methodName = methodXml.Attributes["method"].Value;
-						var testMethod = new Xunit1TestMethod(testClass, methodName);
-
-						string? displayName = null;
-						var displayNameAttribute = methodXml.Attributes["name"];
-						if (displayNameAttribute != null)
-							displayName = displayNameAttribute.Value;
-
-						string? skipReason = null;
-						var skipReasonAttribute = methodXml.Attributes["skip"];
-						if (skipReasonAttribute != null)
-							skipReason = skipReasonAttribute.Value;
-
-						var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-						foreach (var traitNode in methodXml.SelectNodes("traits/trait").Cast<XmlNode>())
-							traits.Add(traitNode.Attributes["name"].Value, traitNode.Attributes["value"].Value);
-
-						var testCase = new Xunit1TestCase(testMethod, displayName, traits, skipReason);
-						if (includeSourceInformation)
+						foreach (var methodXml in methodNodes)
 						{
-							var result = sourceInformationProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
-							testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+							var typeName = methodXml.Attributes?["type"]?.Value;
+							var methodName = methodXml.Attributes?["method"]?.Value;
+							if (typeName == null || methodName == null)
+								continue;
+
+							var testClass = default(Xunit1TestClass);
+							lock (testClassesByTypeName)
+								testClass = testClassesByTypeName.GetOrAdd(typeName, () => new Xunit1TestClass(testCollection, typeName));
+
+							var testMethod = new Xunit1TestMethod(testClass, methodName);
+
+							string? displayName = null;
+							var displayNameAttribute = methodXml.Attributes?["name"];
+							if (displayNameAttribute != null)
+								displayName = displayNameAttribute.Value;
+
+							string? skipReason = null;
+							var skipReasonAttribute = methodXml.Attributes?["skip"];
+							if (skipReasonAttribute != null)
+								skipReason = skipReasonAttribute.Value;
+
+							var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+							var traitNodes = methodXml.SelectNodes("traits/trait")?.Cast<XmlNode>();
+							if (traitNodes != null)
+								foreach (var traitNode in traitNodes)
+								{
+									var traitName = traitNode.Attributes?["name"]?.Value;
+									var traitValue = traitNode.Attributes?["value"]?.Value;
+
+									if (traitName != null && traitValue != null)
+										traits.Add(traitName, traitValue);
+								}
+
+							var testCase = new Xunit1TestCase(testMethod, displayName, traits, skipReason);
+							if (includeSourceInformation)
+							{
+								var result = sourceInformationProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+							}
+
+							var message = new _TestCaseDiscovered
+							{
+								AssemblyUniqueID = testAssemblyUniqueID,
+								Serialization = includeSerialization ? SerializationHelper.Serialize(testCase) : null,
+								SkipReason = testCase.SkipReason,
+								SourceFilePath = testCase.SourceInformation?.FileName,
+								SourceLineNumber = testCase.SourceInformation?.LineNumber,
+								TestCase = testCase,
+								TestCaseDisplayName = testCase.DisplayName,
+								TestCaseUniqueID = testCase.UniqueID,
+								TestClassUniqueID = testClass.UniqueID,
+								TestCollectionUniqueID = testCollection.UniqueID,
+								TestMethodUniqueID = testMethod.UniqueID,
+								Traits = testCase.Traits
+							};
+
+							if (filter(message))
+								messageSink.OnMessage(message);
 						}
-
-						var message = new _TestCaseDiscovered
-						{
-							AssemblyUniqueID = testAssemblyUniqueID,
-							Serialization = includeSerialization ? SerializationHelper.Serialize(testCase) : null,
-							SkipReason = testCase.SkipReason,
-							SourceFilePath = testCase.SourceInformation?.FileName,
-							SourceLineNumber = testCase.SourceInformation?.LineNumber,
-							TestCase = testCase,
-							TestCaseDisplayName = testCase.DisplayName,
-							TestCaseUniqueID = testCase.UniqueID,
-							TestClassUniqueID = testClass.UniqueID,
-							TestCollectionUniqueID = testCollection.UniqueID,
-							TestMethodUniqueID = testMethod.UniqueID,
-							Traits = testCase.Traits
-						};
-
-						if (filter(message))
-							messageSink.OnMessage(message);
 					}
 				}
 			}

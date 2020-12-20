@@ -7,7 +7,6 @@ using System.Xml.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class DelegatingXmlCreationSinkTests
@@ -40,13 +39,13 @@ public class DelegatingXmlCreationSinkTests
 
 		sink.OnMessage(assemblyStarting);
 
-		Assert.Equal("assembly", assemblyElement.Attribute("name").Value);
-		Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework").Value);
-		Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment").Value);
-		Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework").Value);
-		Assert.Equal("config", assemblyElement.Attribute("config-file").Value);
-		Assert.Equal("2013-07-06", assemblyElement.Attribute("run-date").Value);
-		Assert.Equal("16:24:32", assemblyElement.Attribute("run-time").Value);
+		Assert.Equal("assembly", assemblyElement.Attribute("name")!.Value);
+		Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework")!.Value);
+		Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment")!.Value);
+		Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework")!.Value);
+		Assert.Equal("config", assemblyElement.Attribute("config-file")!.Value);
+		Assert.Equal("2013-07-06", assemblyElement.Attribute("run-date")!.Value);
+		Assert.Equal("16:24:32", assemblyElement.Attribute("run-time")!.Value);
 	}
 
 	[Fact]
@@ -92,12 +91,12 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(errorMessage);
 		sink.OnMessage(assemblyFinished);
 
-		Assert.Equal("2112", assemblyElement.Attribute("total").Value);
-		Assert.Equal("2064", assemblyElement.Attribute("passed").Value);
-		Assert.Equal("42", assemblyElement.Attribute("failed").Value);
-		Assert.Equal("6", assemblyElement.Attribute("skipped").Value);
-		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), assemblyElement.Attribute("time").Value);
-		Assert.Equal("1", assemblyElement.Attribute("errors").Value);
+		Assert.Equal("2112", assemblyElement.Attribute("total")!.Value);
+		Assert.Equal("2064", assemblyElement.Attribute("passed")!.Value);
+		Assert.Equal("42", assemblyElement.Attribute("failed")!.Value);
+		Assert.Equal("6", assemblyElement.Attribute("skipped")!.Value);
+		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), assemblyElement.Attribute("time")!.Value);
+		Assert.Equal("1", assemblyElement.Attribute("errors")!.Value);
 	}
 
 	[CulturedFact]
@@ -115,12 +114,12 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var collectionElement = Assert.Single(assemblyElement.Elements("collection"));
-		Assert.Equal("Collection Name", collectionElement.Attribute("name").Value);
-		Assert.Equal("2112", collectionElement.Attribute("total").Value);
-		Assert.Equal("2064", collectionElement.Attribute("passed").Value);
-		Assert.Equal("42", collectionElement.Attribute("failed").Value);
-		Assert.Equal("6", collectionElement.Attribute("skipped").Value);
-		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), collectionElement.Attribute("time").Value);
+		Assert.Equal("Collection Name", collectionElement.Attribute("name")!.Value);
+		Assert.Equal("2112", collectionElement.Attribute("total")!.Value);
+		Assert.Equal("2064", collectionElement.Attribute("passed")!.Value);
+		Assert.Equal("42", collectionElement.Attribute("failed")!.Value);
+		Assert.Equal("6", collectionElement.Attribute("skipped")!.Value);
+		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), collectionElement.Attribute("time")!.Value);
 	}
 
 	[CulturedFact]
@@ -148,12 +147,12 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
-		Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type").Value);
-		Assert.Equal("TestMethod", testElement.Attribute("method").Value);
-		Assert.Equal("Pass", testElement.Attribute("result").Value);
-		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
-		Assert.Equal("test output", testElement.Element("output").Value);
+		Assert.Equal("Test Display Name", testElement.Attribute("name")!.Value);
+		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type")!.Value);
+		Assert.Equal("TestMethod", testElement.Attribute("method")!.Value);
+		Assert.Equal("Pass", testElement.Attribute("result")!.Value);
+		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")!.Value);
+		Assert.Equal("test output", testElement.Element("output")!.Value);
 		Assert.Null(testElement.Attribute("source-file"));
 		Assert.Null(testElement.Attribute("source-line"));
 		Assert.Empty(testElement.Elements("traits"));
@@ -186,11 +185,11 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
-		Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type").Value);
-		Assert.Equal("TestMethod", testElement.Attribute("method").Value);
-		Assert.Equal("Pass", testElement.Attribute("result").Value);
-		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
+		Assert.Equal("Test Display Name", testElement.Attribute("name")!.Value);
+		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type")!.Value);
+		Assert.Equal("TestMethod", testElement.Attribute("method")!.Value);
+		Assert.Equal("Pass", testElement.Attribute("result")!.Value);
+		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")!.Value);
 		Assert.Null(testElement.Attribute("output"));
 		Assert.Null(testElement.Attribute("source-file"));
 		Assert.Null(testElement.Attribute("source-line"));
@@ -231,14 +230,14 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
-		Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type").Value);
-		Assert.Equal("TestMethod", testElement.Attribute("method").Value);
-		Assert.Equal("Fail", testElement.Attribute("result").Value);
-		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
-		Assert.Equal("test output", testElement.Element("output").Value);
+		Assert.Equal("Test Display Name", testElement.Attribute("name")!.Value);
+		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type")!.Value);
+		Assert.Equal("TestMethod", testElement.Attribute("method")!.Value);
+		Assert.Equal("Fail", testElement.Attribute("result")!.Value);
+		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")!.Value);
+		Assert.Equal("test output", testElement.Element("output")!.Value);
 		var failureElement = Assert.Single(testElement.Elements("failure"));
-		Assert.Equal("Exception Type", failureElement.Attribute("exception-type").Value);
+		Assert.Equal("Exception Type", failureElement.Attribute("exception-type")!.Value);
 		Assert.Equal("Exception Type : Exception Message", failureElement.Elements("message").Single().Value);
 		Assert.Equal("Exception Stack Trace", failureElement.Elements("stack-trace").Single().Value);
 		Assert.Empty(testElement.Elements("reason"));
@@ -305,11 +304,11 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
-		Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type").Value);
-		Assert.Equal("TestMethod", testElement.Attribute("method").Value);
-		Assert.Equal("Skip", testElement.Attribute("result").Value);
-		Assert.Equal(0m.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
+		Assert.Equal("Test Display Name", testElement.Attribute("name")!.Value);
+		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type")!.Value);
+		Assert.Equal("TestMethod", testElement.Attribute("method")!.Value);
+		Assert.Equal("Skip", testElement.Attribute("result")!.Value);
+		Assert.Equal(0m.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")!.Value);
 		var reasonElement = Assert.Single(testElement.Elements("reason"));
 		Assert.Equal("Skip Reason", reasonElement.Value);
 		Assert.Empty(testElement.Elements("failure"));
@@ -340,8 +339,8 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
-		Assert.Equal("source file", testElement.Attribute("source-file").Value);
-		Assert.Equal("42", testElement.Attribute("source-line").Value);
+		Assert.Equal("source file", testElement.Attribute("source-file")!.Value);
+		Assert.Equal("42", testElement.Attribute("source-line")!.Value);
 	}
 
 	[Fact]
@@ -374,10 +373,10 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		var traitsElements = assemblyElement.Elements("collection").Single().Elements("test").Single().Elements("traits").Single().Elements("trait");
-		var name1Element = Assert.Single(traitsElements, e => e.Attribute("name").Value == "name1");
-		Assert.Equal("value1", name1Element.Attribute("value").Value);
-		var name2Element = Assert.Single(traitsElements, e => e.Attribute("name").Value == "name2");
-		Assert.Equal("value2", name2Element.Attribute("value").Value);
+		var name1Element = Assert.Single(traitsElements, e => e.Attribute("name")?.Value == "name1");
+		Assert.Equal("value1", name1Element.Attribute("value")!.Value);
+		var name2Element = Assert.Single(traitsElements, e => e.Attribute("name")?.Value == "name2");
+		Assert.Equal("value2", name2Element.Attribute("value")!.Value);
 	}
 
 	public static IEnumerable<object[]> IllegalXmlTestData()
@@ -673,16 +672,16 @@ public class DelegatingXmlCreationSinkTests
 		string messageType,
 		string? name)
 	{
-		var errorElement = Assert.Single(assemblyElement.Element("errors").Elements());
-		Assert.Equal(messageType, errorElement.Attribute("type").Value);
+		var errorElement = Assert.Single(assemblyElement.Element("errors")!.Elements());
+		Assert.Equal(messageType, errorElement.Attribute("type")!.Value);
 
 		if (name == null)
 			Assert.Null(errorElement.Attribute("name"));
 		else
-			Assert.Equal(name, errorElement.Attribute("name").Value);
+			Assert.Equal(name, errorElement.Attribute("name")!.Value);
 
 		var failureElement = Assert.Single(errorElement.Elements("failure"));
-		Assert.Equal("ExceptionType", failureElement.Attribute("exception-type").Value);
+		Assert.Equal("ExceptionType", failureElement.Attribute("exception-type")!.Value);
 		Assert.Equal("ExceptionType : This is my message \\t\\r\\n", failureElement.Elements("message").Single().Value);
 		Assert.Equal("Line 1\r\nLine 2\r\nLine 3", failureElement.Elements("stack-trace").Single().Value);
 	}

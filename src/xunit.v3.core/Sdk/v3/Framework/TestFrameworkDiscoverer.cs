@@ -319,7 +319,11 @@ namespace Xunit.v3
 				originalWorkingFolder = Directory.GetCurrentDirectory();
 
 				if (!string.IsNullOrEmpty(assemblyInfo.AssemblyPath))
-					Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
+				{
+					var assemblyFolder = Path.GetDirectoryName(assemblyInfo.AssemblyPath);
+					if (assemblyFolder != null)
+						Directory.SetCurrentDirectory(assemblyFolder);
+				}
 			}
 
 			public void Dispose()

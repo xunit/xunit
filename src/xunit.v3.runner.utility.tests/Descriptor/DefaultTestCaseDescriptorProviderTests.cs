@@ -68,6 +68,7 @@ public class DefaultTestCaseDescriptorProviderTests
 		Assert.Equal(123456, result.SourceLineNumber);
 		Assert.Equal("ABCDEF0123456789", result.UniqueID);
 
+		Assert.NotNull(result.Traits);
 		Assert.Collection(
 			result.Traits.OrderBy(kvp => kvp.Key),
 			key =>

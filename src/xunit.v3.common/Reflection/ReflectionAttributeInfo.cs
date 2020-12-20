@@ -61,7 +61,7 @@ namespace Xunit.Sdk
 
 			return attributeUsageCache.GetOrAdd(
 				attributeType,
-				at => (AttributeUsageAttribute)at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
+				at => (AttributeUsageAttribute?)at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
 					?? defaultAttributeUsageAttribute
 			);
 		}

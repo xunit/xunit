@@ -79,7 +79,7 @@ namespace Xunit.Sdk
 			}
 			catch (ReflectionTypeLoadException ex)
 			{
-				return ex.Types.Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
+				return ex.Types.Where(t => t != null).Select(t => Reflector.Wrap(t!)).Cast<ITypeInfo>();
 			}
 		}
 

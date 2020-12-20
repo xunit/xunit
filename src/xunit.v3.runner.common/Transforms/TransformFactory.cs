@@ -88,6 +88,9 @@ namespace Xunit.Runner.Common
 
 			using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
 			using var xsltStream = typeof(TransformFactory).Assembly.GetManifestResourceStream($"Xunit.Runner.Common.Transforms.templates.{resourceName}");
+			if (xsltStream == null)
+				throw new InvalidOperationException($"Could not load resource 'Xunit.Runner.Common.Transforms.templates.{resourceName}' from assembly '{typeof(TransformFactory).Assembly.Location}'");
+
 			using var xsltReader = XmlReader.Create(xsltStream);
 			using var xmlReader = xml.CreateReader();
 			xmlTransform.Load(xsltReader);

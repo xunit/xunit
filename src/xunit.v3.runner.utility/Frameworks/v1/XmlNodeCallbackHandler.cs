@@ -68,7 +68,7 @@ namespace Xunit.Runner.v1
 				LastNode = doc.ChildNodes[0];
 				@continue = OnXmlNode(LastNode);
 
-				if (lastNodeName != null && LastNode.Name == lastNodeName)
+				if (lastNodeName != null && LastNode?.Name == lastNodeName)
 					LastNodeArrived.Set();
 			}
 		}

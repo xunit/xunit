@@ -49,13 +49,13 @@ namespace Xunit.Runner.v1
 		{
 			Guard.ArgumentNotNull(nameof(failureNode), failureNode);
 
-			var exceptionTypeAttribute = failureNode.Attributes["exception-type"];
+			var exceptionTypeAttribute = failureNode.Attributes?["exception-type"];
 			var exceptionType = exceptionTypeAttribute != null ? exceptionTypeAttribute.Value : string.Empty;
-			var message = failureNode.SelectSingleNode("message").InnerText;
+			var message = failureNode.SelectSingleNode("message")?.InnerText;
 			var stackTraceNode = failureNode.SelectSingleNode("stack-trace");
 			var stackTrace = stackTraceNode == null ? string.Empty : stackTraceNode.InnerText;
 
-			return ConvertToErrorMetadata(exceptionType, message, stackTrace);
+			return ConvertToErrorMetadata(exceptionType, message ?? "<unknown message>", stackTrace);
 		}
 
 		static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ConvertToErrorMetadata(

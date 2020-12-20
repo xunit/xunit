@@ -142,40 +142,41 @@ namespace Xunit.Runner.SystemConsole
 
 			var runnerPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
-			foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath!, f)))
-			{
-				Type[]? types;
+			if (runnerPath != null)
+				foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath!, f)))
+				{
+					Type?[] types;
 
-				try
-				{
-					var assembly = Assembly.LoadFile(dllFile);
-					types = assembly.GetTypes();
-				}
-				catch (ReflectionTypeLoadException ex)
-				{
-					types = ex.Types;
-				}
-				catch
-				{
-					continue;
-				}
-
-				foreach (var type in types ?? new Type[0])
-				{
-					if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-						continue;
-					var ctor = type.GetConstructor(new Type[0]);
-					if (ctor == null)
+					try
 					{
-						ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-						Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-						ConsoleHelper.ResetColor();
+						var assembly = Assembly.LoadFile(dllFile);
+						types = assembly.GetTypes();
+					}
+					catch (ReflectionTypeLoadException ex)
+					{
+						types = ex.Types;
+					}
+					catch
+					{
 						continue;
 					}
 
-					result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+					foreach (var type in types)
+					{
+						if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+							continue;
+						var ctor = type.GetConstructor(new Type[0]);
+						if (ctor == null)
+						{
+							ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+							Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
+							ConsoleHelper.ResetColor();
+							continue;
+						}
+
+						result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+					}
 				}
-			}
 
 			return result;
 		}

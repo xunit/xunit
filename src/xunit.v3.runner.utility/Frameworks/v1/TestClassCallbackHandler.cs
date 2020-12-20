@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Xml;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -57,16 +56,15 @@ namespace Xunit.Runner.v1
 		/// </summary>
 		public Xunit1RunSummary TestClassResults { get; }
 
-		_ITestCase FindTestCase(string typeName, string methodName) =>
-			testCases
-				.FirstOrDefault(tc => tc.TestMethod.TestClass.Class.Name == typeName && tc.TestMethod.Method.Name == methodName);
+		_ITestCase? FindTestCase(string? typeName, string? methodName) =>
+			testCases.FirstOrDefault(tc => tc.TestMethod.TestClass.Class.Name == typeName && tc.TestMethod.Method.Name == methodName);
 
 		bool OnClass(XmlNode xml)
 		{
 			SendTestCaseMessagesWhenAppropriate(null);
 
 			var @continue = true;
-			XmlNode failureNode;
+			XmlNode? failureNode;
 			if ((failureNode = xml.SelectSingleNode("failure")) != null)
 			{
 				var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
@@ -81,73 +79,89 @@ namespace Xunit.Runner.v1
 				@continue = messageSink.OnMessage(errorMessage);
 			}
 
-			TestClassResults.Time = decimal.Parse(xml.Attributes["time"].Value, CultureInfo.InvariantCulture);
-			TestClassResults.Total = int.Parse(xml.Attributes["total"].Value, CultureInfo.InvariantCulture);
-			TestClassResults.Failed = int.Parse(xml.Attributes["failed"].Value, CultureInfo.InvariantCulture);
-			TestClassResults.Skipped = int.Parse(xml.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
+			TestClassResults.Time = decimal.Parse(xml.Attributes?["time"]?.Value ?? "0", CultureInfo.InvariantCulture);
+			TestClassResults.Total = int.Parse(xml.Attributes?["total"]?.Value ?? "0", CultureInfo.InvariantCulture);
+			TestClassResults.Failed = int.Parse(xml.Attributes?["failed"]?.Value ?? "0", CultureInfo.InvariantCulture);
+			TestClassResults.Skipped = int.Parse(xml.Attributes?["skipped"]?.Value ?? "0", CultureInfo.InvariantCulture);
 			return @continue && TestClassResults.Continue;
 		}
 
 		bool OnStart(XmlNode xml)
 		{
-			var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
-			currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value, Interlocked.Increment(ref currentTestIndex));
+			var typeName = xml.Attributes?["type"]?.Value;
+			var methodName = xml.Attributes?["method"]?.Value;
+			var testCase = FindTestCase(typeName, methodName);
+			if (testCase != null)
+				currentTest = new Xunit1Test(testCase, xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}", Interlocked.Increment(ref currentTestIndex));
+
 			SendTestCaseMessagesWhenAppropriate(testCase);
-			return messageSink.OnMessage(ToTestStarting(currentTest)) && TestClassResults.Continue;
+
+			var result = TestClassResults.Continue;
+			if (currentTest != null)
+				result = messageSink.OnMessage(ToTestStarting(currentTest)) && result;
+
+			return result;
 		}
 
 		bool OnTest(XmlNode xml)
 		{
-			var @continue = true;
-			var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
-			var timeAttribute = xml.Attributes["time"];
-			var time = timeAttribute == null ? 0M : decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
-			var outputElement = xml.SelectSingleNode("output");
-			var output = outputElement == null ? string.Empty : outputElement.InnerText;
-			_MessageSinkMessage? resultMessage = null;
+			var @continue = TestClassResults.Continue;
+			var typeName = xml.Attributes?["type"]?.Value;
+			var methodName = xml.Attributes?["method"]?.Value;
+			var testCase = FindTestCase(typeName, methodName);
 
-			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
-			if (currentTest == null)
-				currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value, Interlocked.Increment(ref currentTestIndex));
-
-			testCaseResults.Total++;
-			testCaseResults.Time += time;
-
-			switch (xml.Attributes["result"].Value)
+			if (testCase != null)
 			{
-				case "Pass":
-					resultMessage = ToTestPassed(currentTest, time, output);
-					break;
+				var time = decimal.Parse(xml.Attributes?["time"]?.Value ?? "0", CultureInfo.InvariantCulture);
+				var outputElement = xml.SelectSingleNode("output");
+				var output = outputElement == null ? string.Empty : outputElement.InnerText;
+				_MessageSinkMessage? resultMessage = null;
 
-				case "Fail":
-					testCaseResults.Failed++;
-					resultMessage = ToTestFailed(currentTest, time, output, xml.SelectSingleNode("failure"));
-					break;
+				// There is no <start> node for skipped tests, or with xUnit prior to v1.1
+				if (currentTest == null)
+					currentTest = new Xunit1Test(testCase, xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}", Interlocked.Increment(ref currentTestIndex));
 
-				case "Skip":
-					testCaseResults.Skipped++;
-					// TODO: What's special about Skip here that we dispatch test case changes?
-					if (testCase != lastTestCase)
-					{
-						SendTestCaseMessagesWhenAppropriate(testCase);
-						@continue = messageSink.OnMessage(ToTestStarting(currentTest)) && @continue;
-					}
-					resultMessage = ToTestSkipped(currentTest, xml.SelectSingleNode("reason/message").InnerText);
-					break;
+				testCaseResults.Total++;
+				testCaseResults.Time += time;
+
+				switch (xml.Attributes?["result"]?.Value)
+				{
+					case "Pass":
+						resultMessage = ToTestPassed(currentTest, time, output);
+						break;
+
+					case "Fail":
+						testCaseResults.Failed++;
+						var failureNode = xml.SelectSingleNode("failure");
+						if (failureNode != null)
+							resultMessage = ToTestFailed(currentTest, time, output, failureNode);
+						break;
+
+					case "Skip":
+						testCaseResults.Skipped++;
+						// TODO: What's special about Skip here that we dispatch test case changes?
+						if (testCase != lastTestCase)
+						{
+							SendTestCaseMessagesWhenAppropriate(testCase);
+							@continue = messageSink.OnMessage(ToTestStarting(currentTest)) && @continue;
+						}
+						resultMessage = ToTestSkipped(currentTest, xml.SelectSingleNode("reason/message")?.InnerText ?? "<unknown skip reason>");
+						break;
+				}
+
+				// Since we don't get live output from xUnit.net v1, we just send a single output message just before
+				// the result message (if there was any output).
+				if (!string.IsNullOrEmpty(output))
+					@continue = messageSink.OnMessage(ToTestOutput(currentTest, output)) && @continue;
+
+				if (resultMessage != null)
+					@continue = messageSink.OnMessage(resultMessage) && @continue;
+
+				@continue = messageSink.OnMessage(ToTestFinished(currentTest, time, output)) && @continue;
+				currentTest = null;
 			}
 
-			// Since we don't get live output from xUnit.net v1, we just send a single output message just before
-			// the result message (if there was any output).
-			if (!string.IsNullOrEmpty(output))
-				@continue = messageSink.OnMessage(ToTestOutput(currentTest, output)) && @continue;
-
-			if (resultMessage != null)
-				@continue = messageSink.OnMessage(resultMessage) && @continue;
-
-			@continue = messageSink.OnMessage(ToTestFinished(currentTest, time, output)) && @continue;
-			currentTest = null;
-
-			return @continue && TestClassResults.Continue;
+			return @continue;
 		}
 
 		/// <inheritdoc/>

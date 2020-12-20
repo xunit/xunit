@@ -14,6 +14,7 @@ public class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
 
 	public override void After(MethodInfo methodUnderTest, _ITest test)
 	{
-		Directory.SetCurrentDirectory(workingDirectory);
+		if (workingDirectory != null)
+			Directory.SetCurrentDirectory(workingDirectory);
 	}
 }
