@@ -1262,6 +1262,7 @@ public class ReflectorTests
 					.Select(Reflector.Wrap)
 					.Single();
 
+			Assert.NotNull(result);
 			var superFact = result.Attribute as SuperFact;
 			Assert.NotNull(superFact);
 			var types = superFact.Types;
@@ -1284,6 +1285,7 @@ public class ReflectorTests
 					.Select(Reflector.Wrap)
 					.Single();
 
+			Assert.NotNull(result);
 			var superFact = result.Attribute as SuperFact;
 			Assert.NotNull(superFact);
 			var states = superFact.States;
