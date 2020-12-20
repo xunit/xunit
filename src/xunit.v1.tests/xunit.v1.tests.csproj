@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.15.1" />
+    <PackageReference Include="Moq" Version="4.15.2" />
     <PackageReference Include="xunit.extensions" Version="1.9.2" />
   </ItemGroup>
 
