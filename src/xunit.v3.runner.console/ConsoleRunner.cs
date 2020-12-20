@@ -348,7 +348,7 @@ namespace Xunit.Runner.SystemConsole
 				);
 
 				var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-				foreach (var assemblyElement in results.Where(result => result != null))
+				foreach (var assemblyElement in results.WhereNotNull())
 					assembliesElement?.Add(assemblyElement);
 			}
 			else

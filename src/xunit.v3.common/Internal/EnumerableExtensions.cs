@@ -21,5 +21,13 @@ namespace Xunit.Internal
 		/// </summary>
 		public static T[] CastOrToArray<T>(this IEnumerable<T> source) =>
 			source as T[] ?? source.ToArray();
+
+		/// <summary>
+		/// Returns <paramref name="source"/> as an enumerable of <typeparamref name="T"/> with
+		/// all the <c>null</c> items removed.
+		/// </summary>
+		public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
+			where T : class =>
+				source.Where(item => item is not null).Cast<T>();
 	}
 }

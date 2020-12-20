@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CSharp;
+using Xunit.Internal;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
@@ -32,7 +33,7 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		{
 			var errors = new List<string>();
 
-			foreach (var error in results.Errors.Cast<CompilerError>().Where(x => x != null))
+			foreach (var error in results.Errors.Cast<CompilerError>().WhereNotNull())
 				errors.Add($"{error.FileName}({error.Line},{error.Column}): error {error.ErrorNumber}: {error.ErrorText}");
 
 			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");

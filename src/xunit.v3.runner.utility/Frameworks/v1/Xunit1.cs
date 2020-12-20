@@ -328,7 +328,7 @@ namespace Xunit
 			IEnumerable<string> serializedTestCases,
 			_IMessageSink messageSink)
 		{
-			var testCases = serializedTestCases.Select(x => Deserialize(x)).Where(x => x != null).Select(x => x!).ToList();
+			var testCases = serializedTestCases.Select(x => Deserialize(x)).WhereNotNull().ToList();
 			Run(testCases, messageSink);
 		}
 

@@ -208,7 +208,7 @@ namespace Xunit.Runner.MSBuild
 				{
 					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
 					var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-					foreach (var assemblyElement in results.Where(result => result != null))
+					foreach (var assemblyElement in results.WhereNotNull())
 						assembliesElement!.Add(assemblyElement);
 				}
 				else
