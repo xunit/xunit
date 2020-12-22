@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -28,7 +29,14 @@ public class TestOutputHelperTests
 	{
 		var output = new TestOutputHelper();
 		var messageBus = new SpyMessageBus();
-		output.Initialize(messageBus, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id");
+		var test = Substitute.For<_ITest>();
+		test.UniqueID.Returns("test-id");
+		test.TestCase.UniqueID.Returns("case-id");
+		test.TestCase.TestMethod.UniqueID.Returns("method-id");
+		test.TestCase.TestMethod.TestClass.UniqueID.Returns("class-id");
+		test.TestCase.TestMethod.TestClass.TestCollection.UniqueID.Returns("coll-id");
+		test.TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID.Returns("asm-id");
+		output.Initialize(messageBus, test);
 
 		output.WriteLine(outputText);
 

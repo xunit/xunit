@@ -13,10 +13,6 @@ namespace Xunit.Sdk
 		CultureInfo? originalUICulture;
 
 		public CulturedXunitTheoryTestCaseRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			CulturedXunitTheoryTestCase culturedXunitTheoryTestCase,
 			string displayName,
 			string? skipReason,
@@ -25,7 +21,7 @@ namespace Xunit.Sdk
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
+				: base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
 		{
 			culture = culturedXunitTheoryTestCase.Culture;
 		}

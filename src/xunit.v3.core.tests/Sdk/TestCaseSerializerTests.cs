@@ -1,7 +1,6 @@
 ﻿using System;
 using Xunit;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class TestCaseSerializerTests
@@ -21,7 +20,7 @@ public class TestCaseSerializerTests
 		[Fact]
 		public static void CanSerializeFactBasedTestCase()
 		{
-			var testCase = Mocks.XunitTestCase<ClassUnderTest>("FactMethod");
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod");
 
 			SerializationHelper.Serialize(testCase);  // Should not throw
 		}
@@ -29,7 +28,7 @@ public class TestCaseSerializerTests
 		[Fact]
 		public static void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
 		{
-			var testCase = Mocks.XunitTestCase<ClassUnderTest>("FactMethod");
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod");
 			var serialized = SerializationHelper.Serialize(testCase);
 
 			var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
@@ -65,7 +64,7 @@ public class TestCaseSerializerTests
 		[Fact]
 		public static void DeserializedTestWithSerializableArgumentsPreservesArguments()
 		{
-			var testCase = Mocks.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { 42, 21.12, "Hello world" });
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { 42, 21.12, "Hello world" });
 			var serialized = SerializationHelper.Serialize(testCase);
 
 			var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
@@ -83,7 +82,7 @@ public class TestCaseSerializerTests
 		[Fact]
 		public static void DeserializedTestWithNonSerializableArgumentsThrows()
 		{
-			var testCase = Mocks.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { new ClassUnderTest() });
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { new ClassUnderTest() });
 
 			var ex = Record.Exception(() => SerializationHelper.Serialize(testCase));
 
@@ -97,7 +96,7 @@ public class TestCaseSerializerTests
 		[Fact]
 		public static void CanSerializeFactBasedTestCase()
 		{
-			var testCase = Mocks.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
+			var testCase = TestData.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
 
 			SerializationHelper.Serialize(testCase);
 
@@ -107,7 +106,7 @@ public class TestCaseSerializerTests
 		[Fact]
 		public static void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
 		{
-			var testCase = Mocks.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
+			var testCase = TestData.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
 			var serialized = SerializationHelper.Serialize(testCase);
 
 			var result = SerializationHelper.Deserialize<XunitTheoryTestCase>(serialized);

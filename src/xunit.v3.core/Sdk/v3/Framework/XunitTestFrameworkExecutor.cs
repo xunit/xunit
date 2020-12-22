@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
 
 // TODO: Need to acceptance test this via Xunit3, once it comes into existence. See Xunit2Tests.cs for examples.
 
@@ -34,8 +33,6 @@ namespace Xunit.v3
 		{
 			testAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyInfo.Assembly.GetName().Version);
 			discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, configFileName, SourceInformationProvider, DiagnosticMessageSink));
-
-			TestAssemblyUniqueID = FactDiscoverer.ComputeUniqueID(TestAssembly);
 		}
 
 		/// <summary>
@@ -46,8 +43,6 @@ namespace Xunit.v3
 			get => testAssembly;
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
 		}
-
-		string TestAssemblyUniqueID { get; }
 
 		/// <inheritdoc/>
 		protected override _ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
@@ -98,11 +93,7 @@ namespace Xunit.v3
 							var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
 							var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
 
-							var testCollectionUniqueID = FactDiscoverer.ComputeUniqueID(TestAssemblyUniqueID, testClass.TestCollection);
-							var testClassUniqueID = FactDiscoverer.ComputeUniqueID(testCollectionUniqueID, testClass);
-							var testMethodUniqueID = FactDiscoverer.ComputeUniqueID(testClassUniqueID, testMethod);
-
-							return new XunitTestCase(TestAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
+							return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
 						}
 					}
 				}

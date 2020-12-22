@@ -23,6 +23,19 @@ namespace Xunit.v3
 			UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		}
 
+		/// <summary>
+		/// This constructor is for testing purposes only. Do not use in production code.
+		/// </summary>
+		public XunitTest(
+			IXunitTestCase testCase,
+			string displayName,
+			string uniqueID)
+		{
+			TestCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
+			DisplayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
+			UniqueID = Guard.ArgumentNotNull(nameof(uniqueID), uniqueID);
+		}
+
 		/// <inheritdoc/>
 		public string DisplayName { get; }
 

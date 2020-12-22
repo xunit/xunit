@@ -14,7 +14,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void CreatesFixtures()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -30,7 +30,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void DisposesFixtures()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -43,7 +43,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionForFixtureAsyncDisposableUnderTest)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		var runnerSessionTask = runner.RunAsync();
@@ -90,7 +90,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void MultiplePublicConstructorsOnCollectionFixture_ReturnsError()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionsWithMultiCtorCollectionFixture)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -111,7 +111,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void UnresolvedConstructorParameterOnCollectionFixture_ReturnsError()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithDependency)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -138,7 +138,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void CanInjectMessageSinkIntoCollectionFixture()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithMessageSinkDependency)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -153,7 +153,7 @@ public class XunitTestCollectionRunnerTests
 	public static async void CanLogSinkMessageFromCollectionFixture()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithMessageSinkDependency)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
 		var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -181,7 +181,7 @@ public class XunitTestCollectionRunnerTests
 		public static async void UsesCustomTestOrderer()
 		{
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
-			var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+			var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
 			var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 			await runner.RunAsync();
@@ -193,7 +193,7 @@ public class XunitTestCollectionRunnerTests
 		public static async void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithUnknownTestCaseOrderer)), "TestCollectionDisplayName");
-			var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+			var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
 			var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 			await runner.RunAsync();
@@ -210,7 +210,7 @@ public class XunitTestCollectionRunnerTests
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCtorThrowingTestCaseOrderer)), "TestCollectionDisplayName");
-			var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+			var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
 			var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
 			await runner.RunAsync();
@@ -265,7 +265,6 @@ public class XunitTestCollectionRunnerTests
 		public Exception? RunTestClassAsync_AggregatorResult;
 
 		TestableXunitTestCollectionRunner(
-			string testAssemblyUniqueID,
 			_ITestCollection testCollection,
 			IEnumerable<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
@@ -273,14 +272,13 @@ public class XunitTestCollectionRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testAssemblyUniqueID, testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
 
 		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
 			new TestableXunitTestCollectionRunner(
-				"assembly-id",
 				testCase.TestMethod.TestClass.TestCollection,
 				new[] { testCase },
 				new List<_MessageSinkMessage>(),

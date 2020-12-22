@@ -212,20 +212,7 @@ public class XunitTheoryTestCaseRunnerTests
 			string displayName,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus) :
-				base(
-					"test-assembly-id",
-					"test-collection-id",
-					"test-class-id",
-					"test-method-id",
-					testCase,
-					displayName,
-					null,
-					new object[0],
-					diagnosticMessageSink,
-					messageBus,
-					new ExceptionAggregator(),
-					new CancellationTokenSource()
-				)
+				base(testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
 		{ }
 
 		public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(
@@ -233,7 +220,7 @@ public class XunitTheoryTestCaseRunnerTests
 			IMessageBus messageBus,
 			string displayName = "MockDisplayName") =>
 				new TestableXunitTheoryTestCaseRunner(
-					Mocks.XunitTestCase<TClassUnderTest>(methodName),
+					TestData.XunitTestCase<TClassUnderTest>(methodName),
 					displayName,
 					SpyMessageSink.Create(),
 					messageBus

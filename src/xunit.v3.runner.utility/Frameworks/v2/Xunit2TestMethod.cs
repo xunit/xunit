@@ -17,7 +17,7 @@ namespace Xunit.Runner.v2
 		{
 			V2TestMethod = Guard.ArgumentNotNull(nameof(v2TestMethod), v2TestMethod);
 			TestClass = new Xunit2TestClass(V2TestMethod.TestClass);
-			UniqueID = UniqueIDGenerator.ForTestMethod(TestClass.UniqueID, V2TestMethod.Method.Name)!;
+			UniqueID = UniqueIDGenerator.ForTestMethod(TestClass.UniqueID, V2TestMethod.Method.Name);
 		}
 
 		/// <inheritdoc/>

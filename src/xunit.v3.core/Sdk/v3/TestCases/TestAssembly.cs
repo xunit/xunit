@@ -31,15 +31,17 @@ namespace Xunit.v3
 		/// <param name="assembly">The test assembly.</param>
 		/// <param name="configFileName">The optional configuration filename</param>
 		/// <param name="version">The version number of the assembly (defaults to "0.0.0.0")</param>
+		/// <param name="uniqueID">The unique ID for the test assembly (only used to override default behavior in testing scenarios)</param>
 		public TestAssembly(
 			IAssemblyInfo assembly,
 			string? configFileName = null,
-			Version? version = null)
+			Version? version = null,
+			string? uniqueID = null)
 		{
 			Assembly = Guard.ArgumentNotNull(nameof(assembly), assembly);
 			ConfigFileName = configFileName;
 
-			uniqueID = UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
+			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
 			this.version =
 				version
 				?? (assembly as IReflectionAssemblyInfo)?.Assembly?.GetName()?.Version

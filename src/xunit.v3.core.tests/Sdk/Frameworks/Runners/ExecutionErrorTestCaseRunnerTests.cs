@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Xunit;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -19,8 +20,8 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	[Fact]
 	public async void Messages()
 	{
-		var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
-		var runner = new ExecutionErrorTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource);
+		var testCase = ExecutionErrorTestCase("This is my error message");
+		var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
 		var result = await runner.RunAsync();
 
@@ -61,12 +62,26 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	[InlineData(typeof(_TestFinished))]
 	public async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
-		var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
+		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
-		var runner = new ExecutionErrorTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource);
+		var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
 		await runner.RunAsync();
 
 		Assert.True(tokenSource.IsCancellationRequested);
+	}
+
+	public static ExecutionErrorTestCase ExecutionErrorTestCase(
+		string message,
+		_IMessageSink? diagnosticMessageSink = null)
+	{
+		var testMethod = Mocks.TestMethod();
+		return new ExecutionErrorTestCase(
+			diagnosticMessageSink ?? new _NullMessageSink(),
+			TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions.None,
+			testMethod,
+			message
+		);
 	}
 }

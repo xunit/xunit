@@ -48,12 +48,6 @@ public class TestAssemblyRunnerTests
 			var messageSink = SpyMessageSink.Create(messages: messages);
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink, summary);
 			var thisAssembly = Assembly.GetExecutingAssembly();
-			var thisAppDomain = AppDomain.CurrentDomain;
-			var expectedUniqueID = UniqueIDGenerator.ForAssembly(
-				runner.TestAssembly.Assembly.Name,
-				runner.TestAssembly.Assembly.AssemblyPath,
-				runner.TestAssembly.ConfigFileName
-			);
 
 			var result = await runner.RunAsync();
 
@@ -68,7 +62,7 @@ public class TestAssemblyRunnerTests
 					var starting = Assert.IsAssignableFrom<_TestAssemblyStarting>(msg);
 #if NETFRAMEWORK
 					Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.AssemblyPath);
-					Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.ConfigFilePath);
+					Assert.Equal(runner.TestAssembly.ConfigFileName, starting.ConfigFilePath);
 					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
 #else
 					Assert.Equal(".NETCoreApp,Version=v2.1", starting.TargetFramework);
@@ -76,12 +70,12 @@ public class TestAssemblyRunnerTests
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);
 					Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
-					Assert.Equal(expectedUniqueID, starting.AssemblyUniqueID);
+					Assert.Equal("assembly-id", starting.AssemblyUniqueID);
 				},
 				msg =>
 				{
 					var finished = Assert.IsAssignableFrom<_TestAssemblyFinished>(msg);
-					Assert.Equal(expectedUniqueID, finished.AssemblyUniqueID);
+					Assert.Equal("assembly-id", finished.AssemblyUniqueID);
 					Assert.Equal(result.Time, finished.ExecutionTime);
 					Assert.Equal(2, finished.TestsFailed);
 					Assert.Equal(4, finished.TestsRun);
@@ -135,10 +129,9 @@ public class TestAssemblyRunnerTests
 		public static async ValueTask FailureInBeforeTestAssemblyFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestAssemblyStarting()
 		{
 			var thisAssembly = Assembly.GetExecutingAssembly();
-			var thisAppDomain = AppDomain.CurrentDomain;
 			var messages = new List<_MessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
-			var testCases = new[] { Mocks.TestCase() };
+			var testCases = new[] { TestCaseForTestCollection() };
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink, testCases: testCases);
 			var startingException = new DivideByZeroException();
 			var finishedException = new InvalidOperationException();
@@ -151,7 +144,7 @@ public class TestAssemblyRunnerTests
 			var cleanupFailure = Assert.Single(messages.OfType<_TestAssemblyCleanupFailure>());
 #if NETFRAMEWORK
 			Assert.Equal(thisAssembly.GetLocalCodeBase(), assemblyStarting.AssemblyPath);
-			Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, assemblyStarting.ConfigFilePath);
+			Assert.Equal(runner.TestAssembly.ConfigFileName, assemblyStarting.ConfigFilePath);
 #endif
 			Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 		}
@@ -183,12 +176,12 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask TestsAreGroupedByCollection()
 		{
-			var collection1 = Mocks.TestCollection(displayName: "1");
-			var testCase1a = Mocks.TestCase(collection1);
-			var testCase1b = Mocks.TestCase(collection1);
-			var collection2 = Mocks.TestCollection(displayName: "2");
-			var testCase2a = Mocks.TestCase(collection2);
-			var testCase2b = Mocks.TestCase(collection2);
+			var collection1 = Mocks.TestCollection(displayName: "1", uniqueID: "collection-1");
+			var testCase1a = TestCaseForTestCollection(collection1);
+			var testCase1b = TestCaseForTestCollection(collection1);
+			var collection2 = Mocks.TestCollection(displayName: "2", uniqueID: "collection-2");
+			var testCase2a = TestCaseForTestCollection(collection2);
+			var testCase2b = TestCaseForTestCollection(collection2);
 			await using var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1a, testCase2a, testCase2b, testCase1b });
 
 			await runner.RunAsync();
@@ -218,9 +211,9 @@ public class TestAssemblyRunnerTests
 		public static async void SignalingCancellationStopsRunningCollections()
 		{
 			var collection1 = Mocks.TestCollection();
-			var testCase1 = Mocks.TestCase(collection1);
+			var testCase1 = TestCaseForTestCollection(collection1);
 			var collection2 = Mocks.TestCollection();
-			var testCase2 = Mocks.TestCase(collection2);
+			var testCase2 = TestCaseForTestCollection(collection2);
 			await using var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1, testCase2 }, cancelInRunTestCollectionAsync: true);
 
 			await runner.RunAsync();
@@ -253,15 +246,15 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask OrdererUsedToOrderTestCases()
 		{
-			var collection1 = Mocks.TestCollection(displayName: "AAA");
-			var testCase1a = Mocks.TestCase(collection1);
-			var testCase1b = Mocks.TestCase(collection1);
-			var collection2 = Mocks.TestCollection(displayName: "ZZZZ");
-			var testCase2a = Mocks.TestCase(collection2);
-			var testCase2b = Mocks.TestCase(collection2);
-			var collection3 = Mocks.TestCollection(displayName: "MM");
-			var testCase3a = Mocks.TestCase(collection3);
-			var testCase3b = Mocks.TestCase(collection3);
+			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");
+			var testCase1a = TestCaseForTestCollection(collection1);
+			var testCase1b = TestCaseForTestCollection(collection1);
+			var collection2 = Mocks.TestCollection(displayName: "ZZZZ", uniqueID: "collection-2");
+			var testCase2a = TestCaseForTestCollection(collection2);
+			var testCase2b = TestCaseForTestCollection(collection2);
+			var collection3 = Mocks.TestCollection(displayName: "MM", uniqueID: "collection-3");
+			var testCase3a = TestCaseForTestCollection(collection3);
+			var testCase3b = TestCaseForTestCollection(collection3);
 			var testCases = new[] { testCase1a, testCase3a, testCase2a, testCase3b, testCase2b, testCase1b };
 			await using var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
 			runner.TestCollectionOrderer = new MyTestCollectionOrderer();
@@ -299,12 +292,12 @@ public class TestAssemblyRunnerTests
 		[CulturedFact("en-US")]
 		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
-			var collection1 = Mocks.TestCollection(displayName: "AAA");
-			var testCase1 = Mocks.TestCase(collection1);
-			var collection2 = Mocks.TestCollection(displayName: "ZZZZ");
-			var testCase2 = Mocks.TestCase(collection2);
-			var collection3 = Mocks.TestCollection(displayName: "MM");
-			var testCase3 = Mocks.TestCase(collection3);
+			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");
+			var testCase1 = TestCaseForTestCollection(collection1);
+			var collection2 = Mocks.TestCollection(displayName: "ZZZZ", uniqueID: "collection-2");
+			var testCase2 = TestCaseForTestCollection(collection2);
+			var collection3 = Mocks.TestCollection(displayName: "MM", uniqueID: "collection-3");
+			var testCase3 = TestCaseForTestCollection(collection3);
 			var testCases = new[] { testCase1, testCase2, testCase3 };
 			await using var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
 			runner.TestCollectionOrderer = new ThrowingOrderer();
@@ -426,5 +419,14 @@ public class TestAssemblyRunnerTests
 			CollectionsRun.Add(Tuple.Create(testCollection, testCases));
 			return Task.FromResult(result);
 		}
+	}
+
+	static _ITestCase TestCaseForTestCollection(_ITestCollection? collection = null)
+	{
+		collection ??= Mocks.TestCollection();
+
+		var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
+		result.TestMethod.TestClass.TestCollection.Returns(collection);
+		return result;
 	}
 }

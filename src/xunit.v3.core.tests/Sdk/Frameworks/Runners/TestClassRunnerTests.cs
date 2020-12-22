@@ -35,7 +35,7 @@ public class TestClassRunnerTests
 				var starting = Assert.IsType<_TestClassStarting>(msg);
 				Assert.Equal("assembly-id", starting.AssemblyUniqueID);
 				Assert.Equal("TestClassRunnerTests+ClassUnderTest", starting.TestClass);
-				Assert.Equal("6f31e62de7ecf1a1acf6350a67bb6e21b7e54d513925a8498532c7e9545ffd31", starting.TestClassUniqueID);
+				Assert.Equal("class-id", starting.TestClassUniqueID);
 				Assert.Equal("collection-id", starting.TestCollectionUniqueID);
 			},
 			msg =>
@@ -43,7 +43,7 @@ public class TestClassRunnerTests
 				var finished = Assert.IsType<_TestClassFinished>(msg);
 				Assert.Equal("assembly-id", finished.AssemblyUniqueID);
 				Assert.Equal(21.12m, finished.ExecutionTime);
-				Assert.Equal("6f31e62de7ecf1a1acf6350a67bb6e21b7e54d513925a8498532c7e9545ffd31", finished.TestClassUniqueID);
+				Assert.Equal("class-id", finished.TestClassUniqueID);
 				Assert.Equal("collection-id", finished.TestCollectionUniqueID);
 				Assert.Equal(2, finished.TestsFailed);
 				Assert.Equal(4, finished.TestsRun);
@@ -362,8 +362,6 @@ public class TestClassRunnerTests
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestClassRunner(
-			string assemblyUniqueID,
-			string collectionUniqueID,
 			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<_ITestCase> testCases,
@@ -376,7 +374,7 @@ public class TestClassRunnerTests
 			object[] availableArguments,
 			RunSummary result,
 			bool cancelInRunTestMethodAsync)
-				: base(assemblyUniqueID, collectionUniqueID, testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessages = diagnosticMessages;
 			TokenSource = cancellationTokenSource;
@@ -409,8 +407,6 @@ public class TestClassRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
-				"assembly-id",
-				"collection-id",
 				firstTest.TestMethod.TestClass,
 				(IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
 				testCases,

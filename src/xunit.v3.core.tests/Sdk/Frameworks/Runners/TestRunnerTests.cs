@@ -257,22 +257,7 @@ public class TestRunnerTests
 			decimal runTime,
 			string output,
 			Action? lambda) :
-				base(
-					"test-assembly-id",
-					"test-collection-id",
-					"test-class-id",
-					"test-method-id",
-					"test-case-id",
-					test,
-					messageBus,
-					testClass,
-					constructorArguments,
-					testMethod,
-					testMethodArguments,
-					skipReason,
-					aggregator,
-					cancellationTokenSource
-				)
+				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
 		{
 			TestCase = test.TestCase;
 			TokenSource = cancellationTokenSource;

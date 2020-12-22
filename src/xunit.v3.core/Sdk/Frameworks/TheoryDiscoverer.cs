@@ -32,30 +32,18 @@ namespace Xunit.Sdk
 		/// Creates test cases for a single row of data. By default, returns a single instance of <see cref="XunitTestCase"/>
 		/// with the data row inside of it.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <returns>The test cases</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
 			object?[] dataRow)
 		{
 			var testCase = new XunitTestCase(
-				testAssemblyUniqueID,
-				testCollectionUniqueID,
-				testClassUniqueID,
-				testMethodUniqueID,
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -70,20 +58,12 @@ namespace Xunit.Sdk
 		/// Creates test cases for a skipped theory. By default, returns a single instance of <see cref="XunitTestCase"/>
 		/// (which inherently discovers the skip reason via the fact attribute).
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
 		/// <returns>The test cases</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkip(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
@@ -91,10 +71,6 @@ namespace Xunit.Sdk
 		{
 			// TODO: Skip reason should be passed down into the test case
 			var testCase = new XunitTestCase(
-				testAssemblyUniqueID,
-				testCollectionUniqueID,
-				testClassUniqueID,
-				testMethodUniqueID,
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -110,28 +86,16 @@ namespace Xunit.Sdk
 		/// returns a single instance of <see cref="XunitTheoryTestCase"/>, which performs the data discovery
 		/// at runtime.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>The test case</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute)
 		{
 			var testCase = new XunitTheoryTestCase(
-				testAssemblyUniqueID,
-				testCollectionUniqueID,
-				testClassUniqueID,
-				testMethodUniqueID,
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -147,10 +111,6 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <remarks>If this method is overridden, the implementation will have to override <see cref="TestMethodTestCase.SkipReason"/> otherwise
 		/// the default behavior will look at the <see cref="TheoryAttribute"/> and the test case will not be skipped.</remarks>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
@@ -158,10 +118,6 @@ namespace Xunit.Sdk
 		/// <param name="skipReason">The reason this test case is to be skipped</param>
 		/// <returns>The test cases</returns>
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			IAttributeInfo theoryAttribute,
@@ -169,10 +125,6 @@ namespace Xunit.Sdk
 			string skipReason)
 		{
 			var testCase = new XunitSkippedDataRowTestCase(
-				testAssemblyUniqueID,
-				testCollectionUniqueID,
-				testClassUniqueID,
-				testMethodUniqueID,
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -207,16 +159,11 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 			Guard.ArgumentNotNull(nameof(theoryAttribute), theoryAttribute);
 
-			var assemblyUniqueID = FactDiscoverer.ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = FactDiscoverer.ComputeUniqueID(assemblyUniqueID, testMethod.TestClass.TestCollection);
-			var classUniqueID = FactDiscoverer.ComputeUniqueID(collectionUniqueID, testMethod.TestClass);
-			var methodUniqueID = FactDiscoverer.ComputeUniqueID(classUniqueID, testMethod);
-
 			// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped test may
 			// not actually have any data (which is quasi-legal, since it's skipped).
 			var skipReason = theoryAttribute.GetNamedArgument<string>("Skip");
 			if (skipReason != null)
-				return CreateTestCasesForSkip(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute, skipReason);
+				return CreateTestCasesForSkip(discoveryOptions, testMethod, theoryAttribute, skipReason);
 
 			if (discoveryOptions.PreEnumerateTheoriesOrDefault())
 			{
@@ -238,10 +185,6 @@ namespace Xunit.Sdk
 							if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
 								results.Add(
 									new ExecutionErrorTestCase(
-										assemblyUniqueID,
-										collectionUniqueID,
-										classUniqueID,
-										methodUniqueID,
 										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -252,10 +195,6 @@ namespace Xunit.Sdk
 							else
 								results.Add(
 									new ExecutionErrorTestCase(
-										assemblyUniqueID,
-										collectionUniqueID,
-										classUniqueID,
-										methodUniqueID,
 										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -272,10 +211,6 @@ namespace Xunit.Sdk
 							if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
 								results.Add(
 									new ExecutionErrorTestCase(
-										assemblyUniqueID,
-										collectionUniqueID,
-										classUniqueID,
-										methodUniqueID,
 										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -286,10 +221,6 @@ namespace Xunit.Sdk
 							else
 								results.Add(
 									new ExecutionErrorTestCase(
-										assemblyUniqueID,
-										collectionUniqueID,
-										classUniqueID,
-										methodUniqueID,
 										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -304,17 +235,13 @@ namespace Xunit.Sdk
 						skipReason = dataAttribute.GetNamedArgument<string>("Skip");
 
 						if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
-							return CreateTestCasesForTheory(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute);
+							return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 
 						var data = discoverer.GetData(dataAttribute, testMethod.Method);
 						if (data == null)
 						{
 							results.Add(
 								new ExecutionErrorTestCase(
-									assemblyUniqueID,
-									collectionUniqueID,
-									classUniqueID,
-									methodUniqueID,
 									DiagnosticMessageSink,
 									discoveryOptions.MethodDisplayOrDefault(),
 									discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -341,13 +268,13 @@ namespace Xunit.Sdk
 							if (!SerializationHelper.IsSerializable(resolvedData))
 							{
 								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
-								return CreateTestCasesForTheory(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute);
+								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 
 							var testCases =
 								skipReason != null
-									? CreateTestCasesForSkippedDataRow(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
-									: CreateTestCasesForDataRow(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute, dataRow);
+									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
+									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
 
 							results.AddRange(testCases);
 						}
@@ -356,10 +283,6 @@ namespace Xunit.Sdk
 					if (results.Count == 0)
 						results.Add(
 							new ExecutionErrorTestCase(
-								assemblyUniqueID,
-								collectionUniqueID,
-								classUniqueID,
-								methodUniqueID,
 								DiagnosticMessageSink,
 								discoveryOptions.MethodDisplayOrDefault(),
 								discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -376,7 +299,7 @@ namespace Xunit.Sdk
 				}
 			}
 
-			return CreateTestCasesForTheory(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, discoveryOptions, testMethod, theoryAttribute);
+			return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 		}
 	}
 }

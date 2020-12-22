@@ -37,7 +37,7 @@ public class ExtensibilityPointFactoryTests
 		[Fact]
 		public void Attribute_NoDiscoverer()
 		{
-			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithoutDiscoverer));
+			var attribute = Mocks.TestFrameworkAttribute<AttributeWithoutDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
@@ -53,7 +53,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
-			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingDiscovererCtor));
+			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingDiscovererCtor>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
 			var factory = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
@@ -80,7 +80,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
-			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingDiscovererMethod));
+			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingDiscovererMethod>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
@@ -104,7 +104,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
-			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingTestFrameworkCtor));
+			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingTestFrameworkCtor>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
 			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
@@ -140,7 +140,7 @@ public class ExtensibilityPointFactoryTests
 		[Fact]
 		public void Attribute_WithDiscoverer_NoMessageSink()
 		{
-			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithDiscoverer));
+			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
@@ -175,7 +175,7 @@ public class ExtensibilityPointFactoryTests
 		[Fact]
 		public void Attribute_WithDiscoverer_WithMessageSink()
 		{
-			var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithDiscovererWithMessageSink));
+			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscovererWithMessageSink>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
@@ -251,8 +251,7 @@ public class ExtensibilityPointFactoryTests
 		[Fact]
 		public void UserCanChooseCustomCollectionFactoryWithType()
 		{
-			var factoryType = typeof(MyTestCollectionFactory);
-			var attr = Mocks.CollectionBehaviorAttribute(factoryType);
+			var attr = Mocks.CollectionBehaviorAttribute<MyTestCollectionFactory>();
 			var assembly = Mocks.TestAssembly();
 
 			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
@@ -293,7 +292,7 @@ public class ExtensibilityPointFactoryTests
 		[Theory]
 		[InlineData(
 			"ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor",
-			"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Xunit.v3.TestAssembly")]
+			"Could not find constructor for 'ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_NoCompatibleConstructor' with arguments type(s): Castle.Proxies.InterfaceProxy")]
 		[InlineData(
 			"ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface",
 			"Test collection factory type 'xunit.v3.core.tests, ExtensibilityPointFactoryTests+GetXunitTestCollectionFactory+TestCollectionFactory_DoesNotImplementInterface' does not implement IXunitTestCollectionFactory")]
@@ -309,7 +308,7 @@ public class ExtensibilityPointFactoryTests
 
 			Assert.Collection(
 				DiagnosticMessages,
-				msg => Assert.Equal(expectedMessage, msg)
+				msg => Assert.StartsWith(expectedMessage, msg)
 			);
 		}
 

@@ -31,25 +31,12 @@ namespace Xunit.Sdk
 		/// </summary>
 		public void Initialize(
 			IMessageBus messageBus,
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
-			string testCaseUniqueID,
-			string testUniqueID)
+			_ITest test)
 		{
 			if (state != null)
 				throw new InvalidOperationException("Attempted to initialize a TestOutputHelper that has already been initialized");
 
-			state = new TestState(
-				messageBus,
-				testAssemblyUniqueID,
-				testCollectionUniqueID,
-				testClassUniqueID,
-				testMethodUniqueID,
-				testCaseUniqueID,
-				testUniqueID
-			);
+			state = new TestState(messageBus, test);
 		}
 
 		void QueueTestOutput(string output)
@@ -95,20 +82,18 @@ namespace Xunit.Sdk
 
 			public TestState(
 				IMessageBus messageBus,
-				string testAssemblyUniqueID,
-				string testCollectionUniqueID,
-				string? testClassUniqueID,
-				string? testMethodUniqueID,
-				string testCaseUniqueID,
-				string testUniqueID)
+				_ITest test)
 			{
+				Guard.ArgumentNotNull(nameof(test), test);
+
 				this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-				this.testAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
-				this.testCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
-				this.testClassUniqueID = testClassUniqueID;
-				this.testMethodUniqueID = testMethodUniqueID;
-				this.testCaseUniqueID = Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
-				this.testUniqueID = Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
+
+				testAssemblyUniqueID = test.TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+				testCollectionUniqueID = test.TestCase.TestMethod.TestClass.TestCollection.UniqueID;
+				testClassUniqueID = test.TestCase.TestMethod.TestClass.UniqueID;
+				testMethodUniqueID = test.TestCase.TestMethod.UniqueID;
+				testCaseUniqueID = test.TestCase.UniqueID;
+				testUniqueID = test.UniqueID;
 			}
 
 			public string BufferedOutput

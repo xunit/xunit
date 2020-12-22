@@ -28,46 +28,46 @@ public class XunitTestInvokerTests
 				msg =>
 				{
 					var beforeStarting = Assert.IsType<_BeforeTestStarting>(msg);
-					Assert.Equal("test-assembly-id", beforeStarting.AssemblyUniqueID);
+					Assert.Equal("assembly-id", beforeStarting.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", beforeStarting.AttributeName);
-					Assert.Equal("test-case-id", beforeStarting.TestCaseUniqueID);
-					Assert.Equal("test-class-id", beforeStarting.TestClassUniqueID);
-					Assert.Equal("test-collection-id", beforeStarting.TestCollectionUniqueID);
-					Assert.Equal("test-method-id", beforeStarting.TestMethodUniqueID);
+					Assert.Equal("case-id", beforeStarting.TestCaseUniqueID);
+					Assert.Equal("class-id", beforeStarting.TestClassUniqueID);
+					Assert.Equal("collection-id", beforeStarting.TestCollectionUniqueID);
+					Assert.Equal("method-id", beforeStarting.TestMethodUniqueID);
 					Assert.Equal("test-id", beforeStarting.TestUniqueID);
 				},
 				msg =>
 				{
 					var beforeFinished = Assert.IsType<_BeforeTestFinished>(msg);
-					Assert.Equal("test-assembly-id", beforeFinished.AssemblyUniqueID);
+					Assert.Equal("assembly-id", beforeFinished.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", beforeFinished.AttributeName);
-					Assert.Equal("test-case-id", beforeFinished.TestCaseUniqueID);
-					Assert.Equal("test-class-id", beforeFinished.TestClassUniqueID);
-					Assert.Equal("test-collection-id", beforeFinished.TestCollectionUniqueID);
-					Assert.Equal("test-method-id", beforeFinished.TestMethodUniqueID);
+					Assert.Equal("case-id", beforeFinished.TestCaseUniqueID);
+					Assert.Equal("class-id", beforeFinished.TestClassUniqueID);
+					Assert.Equal("collection-id", beforeFinished.TestCollectionUniqueID);
+					Assert.Equal("method-id", beforeFinished.TestMethodUniqueID);
 					Assert.Equal("test-id", beforeFinished.TestUniqueID);
 				},
 				// Test method is invoked here; no directly observable message (tested below)
 				msg =>
 				{
 					var afterStarting = Assert.IsType<_AfterTestStarting>(msg);
-					Assert.Equal("test-assembly-id", afterStarting.AssemblyUniqueID);
+					Assert.Equal("assembly-id", afterStarting.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", afterStarting.AttributeName);
-					Assert.Equal("test-case-id", afterStarting.TestCaseUniqueID);
-					Assert.Equal("test-class-id", afterStarting.TestClassUniqueID);
-					Assert.Equal("test-collection-id", afterStarting.TestCollectionUniqueID);
-					Assert.Equal("test-method-id", afterStarting.TestMethodUniqueID);
+					Assert.Equal("case-id", afterStarting.TestCaseUniqueID);
+					Assert.Equal("class-id", afterStarting.TestClassUniqueID);
+					Assert.Equal("collection-id", afterStarting.TestCollectionUniqueID);
+					Assert.Equal("method-id", afterStarting.TestMethodUniqueID);
 					Assert.Equal("test-id", afterStarting.TestUniqueID);
 				},
 				msg =>
 				{
 					var afterFinished = Assert.IsType<_AfterTestFinished>(msg);
-					Assert.Equal("test-assembly-id", afterFinished.AssemblyUniqueID);
+					Assert.Equal("assembly-id", afterFinished.AssemblyUniqueID);
 					Assert.Equal("SpyBeforeAfterTest", afterFinished.AttributeName);
-					Assert.Equal("test-case-id", afterFinished.TestCaseUniqueID);
-					Assert.Equal("test-class-id", afterFinished.TestClassUniqueID);
-					Assert.Equal("test-collection-id", afterFinished.TestCollectionUniqueID);
-					Assert.Equal("test-method-id", afterFinished.TestMethodUniqueID);
+					Assert.Equal("case-id", afterFinished.TestCaseUniqueID);
+					Assert.Equal("class-id", afterFinished.TestClassUniqueID);
+					Assert.Equal("collection-id", afterFinished.TestCollectionUniqueID);
+					Assert.Equal("method-id", afterFinished.TestMethodUniqueID);
 					Assert.Equal("test-id", afterFinished.TestUniqueID);
 				}
 			);
@@ -297,23 +297,7 @@ public class XunitTestInvokerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			Action? lambda) :
-				base(
-					"test-assembly-id",
-					"test-collection-id",
-					"test-class-id",
-					"test-method-id",
-					"test-case-id",
-					"test-id",
-					test,
-					messageBus,
-					testClass,
-					constructorArguments,
-					testMethod,
-					testMethodArguments,
-					beforeAfterAttributes,
-					aggregator,
-					cancellationTokenSource
-				)
+				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
 		{
 			this.lambda = lambda;
 
@@ -328,7 +312,7 @@ public class XunitTestInvokerTests
 			IReadOnlyList<BeforeAfterTestAttribute>? beforeAfterAttributes = null,
 			Action? lambda = null)
 		{
-			var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing");
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing", uniqueID: "case-id");
 			var test = Mocks.Test(testCase, displayName, "test-id");
 
 			return new TestableXunitTestInvoker(

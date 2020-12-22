@@ -5,7 +5,7 @@ namespace Xunit.Sdk
 	/// <summary>
 	/// An attribute used to decorate classes which implement <see cref="ITraitAttribute"/>,
 	/// to indicate how trait values should be discovered. The discoverer type must implement
-	/// <see cref="T:Xunit.Sdk.ITraitDiscoverer"/>.
+	/// <see cref="ITraitDiscoverer"/>.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 	public sealed class TraitDiscovererAttribute : Attribute

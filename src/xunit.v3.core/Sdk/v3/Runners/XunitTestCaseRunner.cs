@@ -24,10 +24,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <param name="displayName">The display name of the test case.</param>
 		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
@@ -37,10 +33,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestCaseRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			IXunitTestCase testCase,
 			string displayName,
 			string? skipReason,
@@ -49,7 +41,7 @@ namespace Xunit.v3
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, messageBus, aggregator, cancellationTokenSource)
+				: base(testCase, messageBus, aggregator, cancellationTokenSource)
 		{
 			this.displayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
 			this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
@@ -152,11 +144,6 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitTestRunner(
-					TestAssemblyUniqueID,
-					TestCollectionUniqueID,
-					TestClassUniqueID,
-					TestMethodUniqueID,
-					TestCase.UniqueID,
 					test,
 					messageBus,
 					testClass,

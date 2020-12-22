@@ -25,10 +25,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTheoryTestCaseRunner"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <param name="displayName">The display name of the test case.</param>
 		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
@@ -38,10 +34,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTheoryTestCaseRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			IXunitTestCase testCase,
 			string displayName,
 			string? skipReason,
@@ -50,7 +42,7 @@ namespace Xunit.v3
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
+				: base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
@@ -183,14 +175,20 @@ namespace Xunit.v3
 			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
 			var test = new XunitTest(TestCase, DisplayName, testIndex: -1);
 
+			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testCaseUniqueID = TestCase.UniqueID;
+
 			var testStarting = new _TestStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
-				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
 				TestDisplayName = test.DisplayName,
-				TestMethodUniqueID = TestMethodUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = test.UniqueID
 			};
 
@@ -201,17 +199,17 @@ namespace Xunit.v3
 				var errorMetadata = ExceptionUtility.ExtractMetadata(dataDiscoveryException!.Unwrap());
 				var testFailed = new _TestFailed
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 					ExceptionTypes = errorMetadata.ExceptionTypes,
 					ExecutionTime = 0m,
 					Messages = errorMetadata.Messages,
 					Output = "",
 					StackTraces = errorMetadata.StackTraces,
-					TestCaseUniqueID = TestCase.UniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
 					TestUniqueID = test.UniqueID
 				};
 				if (!MessageBus.QueueMessage(testFailed))
@@ -220,13 +218,13 @@ namespace Xunit.v3
 
 			var testFinished = new _TestFinished
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
 				ExecutionTime = 0m,
 				Output = "",
-				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID,
-				TestMethodUniqueID = TestMethodUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = test.UniqueID
 			};
 

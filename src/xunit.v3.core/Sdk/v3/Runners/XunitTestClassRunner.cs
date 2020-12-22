@@ -24,8 +24,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly</param>
-		/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 		/// <param name="testClass">The test class to be run.</param>
 		/// <param name="class">The test class that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
@@ -36,8 +34,6 @@ namespace Xunit.v3
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 		public XunitTestClassRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
 			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
@@ -47,7 +43,7 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			this.collectionFixtureMappings = Guard.ArgumentNotNull(nameof(collectionFixtureMappings), collectionFixtureMappings);
 		}
@@ -194,9 +190,6 @@ namespace Xunit.v3
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
 				new XunitTestMethodRunner(
-					TestAssemblyUniqueID,
-					TestCollectionUniqueID,
-					TestClassUniqueID,
 					testMethod,
 					Class,
 					method,

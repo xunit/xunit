@@ -34,14 +34,14 @@ public class TestCollectionRunnerTests
 				Assert.Equal("assembly-id", starting.AssemblyUniqueID);
 				Assert.Null(starting.TestCollectionClass);
 				Assert.Equal("Mock test collection", starting.TestCollectionDisplayName);
-				Assert.Equal("e59e2367912d9f03694edf120cf173056af08770263ae6215fb2cf7c9a510b0d", starting.TestCollectionUniqueID);
+				Assert.Equal("collection-id", starting.TestCollectionUniqueID);
 			},
 			msg =>
 			{
 				var finished = Assert.IsAssignableFrom<_TestCollectionFinished>(msg);
 				Assert.Equal("assembly-id", finished.AssemblyUniqueID);
 				Assert.Equal(21.12m, finished.ExecutionTime);
-				Assert.Equal("e59e2367912d9f03694edf120cf173056af08770263ae6215fb2cf7c9a510b0d", finished.TestCollectionUniqueID);
+				Assert.Equal("collection-id", finished.TestCollectionUniqueID);
 				Assert.Equal(2, finished.TestsFailed);
 				Assert.Equal(4, finished.TestsRun);
 				Assert.Equal(1, finished.TestsSkipped);
@@ -227,7 +227,6 @@ public class TestCollectionRunnerTests
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestCollectionRunner(
-			string testAssemblyUniqueID,
 			_ITestCollection testCollection,
 			IEnumerable<_ITestCase> testCases,
 			IMessageBus messageBus,
@@ -236,7 +235,7 @@ public class TestCollectionRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			RunSummary result,
 			bool cancelInRunTestClassAsync)
-				: base(testAssemblyUniqueID, testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			TokenSource = cancellationTokenSource;
 
@@ -259,7 +258,6 @@ public class TestCollectionRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestCollectionRunner(
-				"assembly-id",
 				testCases.First().TestMethod.TestClass.TestCollection,
 				testCases,
 				messageBus ?? new SpyMessageBus(),

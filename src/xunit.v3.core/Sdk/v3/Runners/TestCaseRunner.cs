@@ -21,19 +21,11 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCaseRunner{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestCaseRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			TTestCase testCase,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
@@ -43,11 +35,6 @@ namespace Xunit.v3
 			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
-
-			TestAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
-			TestCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
-			TestClassUniqueID = testClassUniqueID;
-			TestMethodUniqueID = testMethodUniqueID;
 		}
 
 		/// <summary>
@@ -78,11 +65,6 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the test assembly unique ID.
-		/// </summary>
-		protected string TestAssemblyUniqueID { get; }
-
-		/// <summary>
 		/// Gets or sets the test case to be run.
 		/// </summary>
 		protected TTestCase TestCase
@@ -90,21 +72,6 @@ namespace Xunit.v3
 			get => testCase;
 			set => testCase = Guard.ArgumentNotNull(nameof(TestCase), value);
 		}
-
-		/// <summary>
-		/// Gets the test class unique ID.
-		/// </summary>
-		protected string? TestClassUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test collection unique ID.
-		/// </summary>
-		protected string TestCollectionUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test method unique ID.
-		/// </summary>
-		protected string? TestMethodUniqueID { get; }
 
 		/// <summary>
 		/// This method is called just after <see cref="_TestCaseStarting"/> is sent, but before any test collections are run.
@@ -128,15 +95,15 @@ namespace Xunit.v3
 
 			var testCaseStarting = new _TestCaseStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
+				AssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				SkipReason = TestCase.SkipReason,
 				SourceFilePath = TestCase.SourceInformation?.FileName,
 				SourceLineNumber = TestCase.SourceInformation?.LineNumber,
 				TestCaseDisplayName = TestCase.DisplayName,
 				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID,
-				TestMethodUniqueID = TestMethodUniqueID,
+				TestClassUniqueID = TestCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = TestCase.TestMethod.UniqueID,
 				Traits = TestCase.Traits
 			};
 
@@ -156,10 +123,10 @@ namespace Xunit.v3
 					{
 						var testCaseCleanupFailure = _TestCaseCleanupFailure.FromException(
 							Aggregator.ToException()!,
-							TestAssemblyUniqueID,
-							TestCollectionUniqueID,
-							TestClassUniqueID,
-							TestMethodUniqueID,
+							TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+							TestCase.TestMethod.TestClass.TestCollection.UniqueID,
+							TestCase.TestMethod.TestClass.UniqueID,
+							TestCase.TestMethod.UniqueID,
 							TestCase.UniqueID
 						);
 
@@ -171,12 +138,12 @@ namespace Xunit.v3
 				{
 					var testCaseFinished = new _TestCaseFinished
 					{
-						AssemblyUniqueID = TestAssemblyUniqueID,
+						AssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 						ExecutionTime = summary.Time,
 						TestCaseUniqueID = TestCase.UniqueID,
-						TestClassUniqueID = TestClassUniqueID,
-						TestCollectionUniqueID = TestCollectionUniqueID,
-						TestMethodUniqueID = TestMethodUniqueID,
+						TestClassUniqueID = TestCase.TestMethod.TestClass.UniqueID,
+						TestCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID,
+						TestMethodUniqueID = TestCase.TestMethod.UniqueID,
 						TestsFailed = summary.Failed,
 						TestsRun = summary.Total,
 						TestsSkipped = summary.Skipped

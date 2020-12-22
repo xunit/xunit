@@ -27,11 +27,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestRunner{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
-		/// <param name="testCaseUniqueID">The test case unique ID.</param>
 		/// <param name="test">The test that this invocation belongs to.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testClass">The test class that the test method belongs to.</param>
@@ -42,11 +37,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
-			string testCaseUniqueID,
 			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
@@ -66,13 +56,7 @@ namespace Xunit.v3
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 
 			SkipReason = skipReason;
-			TestAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
-			TestCaseUniqueID = Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
-			TestCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
-			TestClassUniqueID = testClassUniqueID;
 			TestMethodArguments = testMethodArguments;
-			TestMethodUniqueID = testMethodUniqueID;
-			TestUniqueID = test.UniqueID;
 
 			Guard.ArgumentValid(nameof(test), $"test.TestCase must implement {typeof(TTestCase).FullName}", test.TestCase is TTestCase);
 		}
@@ -133,19 +117,9 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the test assembly unique ID.
-		/// </summary>
-		protected string TestAssemblyUniqueID { get; }
-
-		/// <summary>
 		/// Gets the test case to be run.
 		/// </summary>
 		protected TTestCase TestCase => (TTestCase)Test.TestCase;
-
-		/// <summary>
-		/// Gets the test case unique ID.
-		/// </summary>
-		protected string TestCaseUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the runtime type of the class that contains the test method.
@@ -155,16 +129,6 @@ namespace Xunit.v3
 			get => testClass;
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
 		}
-
-		/// <summary>
-		/// Gets the test class unique ID.
-		/// </summary>
-		protected string? TestClassUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test collection unique ID.
-		/// </summary>
-		protected string TestCollectionUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the runtime method of the method that contains the test.
@@ -180,16 +144,6 @@ namespace Xunit.v3
 		/// Maybe be <c>null</c> to indicate there are no arguments.
 		/// </summary>
 		protected object?[]? TestMethodArguments { get; set; }
-
-		/// <summary>
-		/// Gets the test method unique ID.
-		/// </summary>
-		protected string? TestMethodUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test unique ID.
-		/// </summary>
-		protected string TestUniqueID { get; }
 
 		/// <summary>
 		/// This method is called just after <see cref="_TestStarting"/> is sent, but before the test class is created.
@@ -214,15 +168,22 @@ namespace Xunit.v3
 			var runSummary = new RunSummary { Total = 1 };
 			var output = string.Empty;
 
+			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testCaseUniqueID = TestCase.UniqueID;
+			var testUniqueID = Test.UniqueID;
+
 			var testStarting = new _TestStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
-				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
 				TestDisplayName = Test.DisplayName,
-				TestMethodUniqueID = TestMethodUniqueID,
-				TestUniqueID = TestUniqueID
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
 			};
 
 			if (!MessageBus.QueueMessage(testStarting))
@@ -237,15 +198,15 @@ namespace Xunit.v3
 
 					var testSkipped = new _TestSkipped
 					{
-						AssemblyUniqueID = TestAssemblyUniqueID,
+						AssemblyUniqueID = testAssemblyUniqueID,
 						ExecutionTime = 0m,
 						Output = "",
 						Reason = SkipReason,
-						TestCaseUniqueID = TestCase.UniqueID,
-						TestClassUniqueID = TestClassUniqueID,
-						TestCollectionUniqueID = TestCollectionUniqueID,
-						TestMethodUniqueID = TestMethodUniqueID,
-						TestUniqueID = TestUniqueID
+						TestCaseUniqueID = testCaseUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID
 					};
 
 					if (!MessageBus.QueueMessage(testSkipped))
@@ -272,14 +233,14 @@ namespace Xunit.v3
 					{
 						testResult = new _TestPassed
 						{
-							AssemblyUniqueID = TestAssemblyUniqueID,
+							AssemblyUniqueID = testAssemblyUniqueID,
 							ExecutionTime = runSummary.Time,
 							Output = output,
-							TestCaseUniqueID = TestCaseUniqueID,
-							TestClassUniqueID = TestClassUniqueID,
-							TestCollectionUniqueID = TestCollectionUniqueID,
-							TestMethodUniqueID = TestMethodUniqueID,
-							TestUniqueID = TestUniqueID
+							TestCaseUniqueID = testCaseUniqueID,
+							TestClassUniqueID = testClassUniqueID,
+							TestCollectionUniqueID = testCollectionUniqueID,
+							TestMethodUniqueID = testMethodUniqueID,
+							TestUniqueID = testUniqueID
 						};
 					}
 					// We don't want a strongly typed contract here; any exception can be a dynamically
@@ -288,15 +249,15 @@ namespace Xunit.v3
 					{
 						testResult = new _TestSkipped
 						{
-							AssemblyUniqueID = TestAssemblyUniqueID,
+							AssemblyUniqueID = testAssemblyUniqueID,
 							ExecutionTime = runSummary.Time,
 							Output = output,
 							Reason = exception.Message.Substring(DynamicSkipToken.Value.Length),
-							TestCaseUniqueID = TestCaseUniqueID,
-							TestClassUniqueID = TestClassUniqueID,
-							TestCollectionUniqueID = TestCollectionUniqueID,
-							TestMethodUniqueID = TestMethodUniqueID,
-							TestUniqueID = TestUniqueID
+							TestCaseUniqueID = testCaseUniqueID,
+							TestClassUniqueID = testClassUniqueID,
+							TestCollectionUniqueID = testCollectionUniqueID,
+							TestMethodUniqueID = testMethodUniqueID,
+							TestUniqueID = testUniqueID
 						};
 						runSummary.Skipped++;
 					}
@@ -305,18 +266,18 @@ namespace Xunit.v3
 						var errorMetadata = ExceptionUtility.ExtractMetadata(exception);
 						testResult = new _TestFailed
 						{
-							AssemblyUniqueID = TestAssemblyUniqueID,
+							AssemblyUniqueID = testAssemblyUniqueID,
 							ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 							ExceptionTypes = errorMetadata.ExceptionTypes,
 							ExecutionTime = runSummary.Time,
 							Messages = errorMetadata.Messages,
 							Output = output,
 							StackTraces = errorMetadata.StackTraces,
-							TestCaseUniqueID = TestCaseUniqueID,
-							TestClassUniqueID = TestClassUniqueID,
-							TestCollectionUniqueID = TestCollectionUniqueID,
-							TestMethodUniqueID = TestMethodUniqueID,
-							TestUniqueID = TestUniqueID
+							TestCaseUniqueID = testCaseUniqueID,
+							TestClassUniqueID = testClassUniqueID,
+							TestCollectionUniqueID = testCollectionUniqueID,
+							TestMethodUniqueID = testMethodUniqueID,
+							TestUniqueID = testUniqueID
 						};
 						runSummary.Failed++;
 					}
@@ -333,12 +294,12 @@ namespace Xunit.v3
 				{
 					var testCleanupFailure = _TestCleanupFailure.FromException(
 						Aggregator.ToException()!,
-						TestAssemblyUniqueID,
-						TestCollectionUniqueID,
-						TestClassUniqueID,
-						TestMethodUniqueID,
-						TestCaseUniqueID,
-						TestUniqueID
+						testAssemblyUniqueID,
+						testCollectionUniqueID,
+						testClassUniqueID,
+						testMethodUniqueID,
+						testCaseUniqueID,
+						testUniqueID
 					);
 
 					if (!MessageBus.QueueMessage(testCleanupFailure))
@@ -347,14 +308,14 @@ namespace Xunit.v3
 
 				var testFinished = new _TestFinished
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					ExecutionTime = runSummary.Time,
 					Output = output,
-					TestCaseUniqueID = TestCase.UniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = TestUniqueID
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
 				};
 
 				if (!MessageBus.QueueMessage(testFinished))

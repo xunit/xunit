@@ -28,14 +28,16 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testCollection">The test collection the class belongs to</param>
 		/// <param name="class">The test class</param>
+		/// <param name="uniqueID">The unique ID for the test class (only used to override default behavior in testing scenarios)</param>
 		public TestClass(
 			_ITestCollection testCollection,
-			ITypeInfo @class)
+			ITypeInfo @class,
+			string? uniqueID = null)
 		{
 			this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
 			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
 
-			uniqueID = UniqueIDGenerator.ForTestClass(TestCollection.UniqueID, Class.Name);
+			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestClass(TestCollection.UniqueID, Class.Name);
 		}
 
 		/// <inheritdoc/>

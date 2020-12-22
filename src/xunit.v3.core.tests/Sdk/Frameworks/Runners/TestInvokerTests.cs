@@ -237,22 +237,7 @@ public class TestInvokerTests
 			object?[]? testMethodArguments,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) :
-				base(
-					"test-assembly-id",
-					"test-collection-id",
-					"test-class-id",
-					"test-method-id",
-					"test-case-id",
-					"test-id",
-					test,
-					messageBus,
-					testClass,
-					new object[0],
-					testMethod,
-					testMethodArguments,
-					aggregator,
-					cancellationTokenSource
-				)
+				base(test, messageBus, testClass, new object[0], testMethod, testMethodArguments, aggregator, cancellationTokenSource)
 		{
 			TestCase = test.TestCase;
 			Aggregator = aggregator;

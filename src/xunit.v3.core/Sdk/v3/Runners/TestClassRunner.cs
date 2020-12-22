@@ -32,8 +32,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly</param>
-		/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 		/// <param name="testClass">The test class to be run.</param>
 		/// <param name="class">The test class that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
@@ -43,8 +41,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestClassRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
 			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases,
@@ -62,10 +58,6 @@ namespace Xunit.v3
 			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
-
-			TestAssemblyUniqueID = Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
-			TestCollectionUniqueID = Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
-			TestClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass.Class.Name);
 		}
 
 		/// <summary>
@@ -114,11 +106,6 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the unique ID of the test assembly.
-		/// </summary>
-		protected string TestAssemblyUniqueID { get; }
-
-		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the test.
 		/// </summary>
 		protected ITestCaseOrderer TestCaseOrderer
@@ -144,16 +131,6 @@ namespace Xunit.v3
 			get => testClass;
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
 		}
-
-		/// <summary>
-		/// Gets the unique ID of the test class.
-		/// </summary>
-		protected string? TestClassUniqueID { get; }
-
-		/// <summary>
-		/// Gets the unique ID of the test collection.
-		/// </summary>
-		protected string TestCollectionUniqueID { get; }
 
 		/// <summary>
 		/// Creates the arguments for the test class constructor. Attempts to resolve each parameter
@@ -227,12 +204,16 @@ namespace Xunit.v3
 		{
 			var classSummary = new RunSummary();
 
+			var testAssemblyUniqueID = TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestClass.TestCollection.UniqueID;
+			var testClassUniqueID = TestClass.UniqueID;
+
 			var classStarting = new _TestClassStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
 				TestClass = TestClass.Class.Name,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID
 			};
 
 			if (!MessageBus.QueueMessage(classStarting))
@@ -249,7 +230,7 @@ namespace Xunit.v3
 
 					if (Aggregator.HasExceptions)
 					{
-						var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID);
+						var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
 						if (!MessageBus.QueueMessage(classCleanupFailure))
 							CancellationTokenSource.Cancel();
 					}
@@ -258,10 +239,10 @@ namespace Xunit.v3
 				{
 					var classFinished = new _TestClassFinished
 					{
-						AssemblyUniqueID = TestAssemblyUniqueID,
+						AssemblyUniqueID = testAssemblyUniqueID,
 						ExecutionTime = classSummary.Time,
-						TestClassUniqueID = TestClassUniqueID,
-						TestCollectionUniqueID = TestCollectionUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
 						TestsFailed = classSummary.Failed,
 						TestsRun = classSummary.Total,
 						TestsSkipped = classSummary.Skipped

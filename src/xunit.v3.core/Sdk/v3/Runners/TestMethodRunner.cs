@@ -26,9 +26,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodRunner{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testMethod">The test method under test.</param>
 		/// <param name="class">The CLR class that contains the test method.</param>
 		/// <param name="method">The CLR method that contains the tests to be run.</param>
@@ -37,9 +34,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestMethodRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
 			_ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
@@ -55,11 +49,6 @@ namespace Xunit.v3
 			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
-
-			TestAssemblyUniqueID = testAssemblyUniqueID;
-			TestCollectionUniqueID = testCollectionUniqueID;
-			TestClassUniqueID = testClassUniqueID;
-			TestMethodUniqueID = UniqueIDGenerator.ForTestMethod(TestClassUniqueID, testMethod.Method?.Name);
 		}
 
 		/// <summary>
@@ -126,26 +115,6 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the test assembly unique ID.
-		/// </summary>
-		protected string TestAssemblyUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test class unique ID.
-		/// </summary>
-		protected string? TestClassUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test collection unique ID.
-		/// </summary>
-		protected string TestCollectionUniqueID { get; }
-
-		/// <summary>
-		/// Gets the test method unique ID.
-		/// </summary>
-		protected string? TestMethodUniqueID { get; }
-
-		/// <summary>
 		/// This method is called just after <see cref="_TestMethodStarting"/> is sent, but before any test cases are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
@@ -167,13 +136,18 @@ namespace Xunit.v3
 		{
 			var methodSummary = new RunSummary();
 
+			var testAssemblyUniqueID = TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestMethod.TestClass.TestCollection.UniqueID;
+			var testClassUniqueID = TestMethod.TestClass.UniqueID;
+			var testMethodUniqueID = TestMethod.UniqueID;
+
 			var methodStarting = new _TestMethodStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethod = TestMethod.Method.Name,
-				TestMethodUniqueID = TestMethodUniqueID
+				TestMethodUniqueID = testMethodUniqueID
 			};
 			if (!MessageBus.QueueMessage(methodStarting))
 				CancellationTokenSource.Cancel();
@@ -189,7 +163,7 @@ namespace Xunit.v3
 
 					if (Aggregator.HasExceptions)
 					{
-						var methodCleanupFailure = _TestMethodCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID, TestClassUniqueID, TestMethodUniqueID);
+						var methodCleanupFailure = _TestMethodCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID);
 						if (!MessageBus.QueueMessage(methodCleanupFailure))
 							CancellationTokenSource.Cancel();
 					}
@@ -198,11 +172,11 @@ namespace Xunit.v3
 				{
 					var testMethodFinished = new _TestMethodFinished
 					{
-						AssemblyUniqueID = TestAssemblyUniqueID,
+						AssemblyUniqueID = testAssemblyUniqueID,
 						ExecutionTime = methodSummary.Time,
-						TestClassUniqueID = TestClassUniqueID,
-						TestCollectionUniqueID = TestCollectionUniqueID,
-						TestMethodUniqueID = TestMethodUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
 						TestsFailed = methodSummary.Failed,
 						TestsRun = methodSummary.Total,
 						TestsSkipped = methodSummary.Skipped

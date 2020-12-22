@@ -14,7 +14,7 @@ public class XunitTestCaseTests
 	{
 		var testMethod = Mocks.TestMethod("MockType", "MockMethod");
 
-		var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+		var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 		Assert.Equal("MockType.MockMethod", testCase.DisplayName);
 		Assert.Null(testCase.SkipReason);
@@ -26,7 +26,7 @@ public class XunitTestCaseTests
 	{
 		var testMethod = Mocks.TestMethod(skip: "Skip Reason");
 
-		var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+		var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 		Assert.Equal("Skip Reason", testCase.SkipReason);
 	}
@@ -36,7 +36,7 @@ public class XunitTestCaseTests
 	{
 		var testMethod = Mocks.TestMethod(timeout: 42);
 
-		var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+		var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 		Assert.Equal(42, testCase.Timeout);
 	}
@@ -50,7 +50,7 @@ public class XunitTestCaseTests
 			var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { trait1, trait2 });
 
-			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 			Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
 			Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
@@ -63,7 +63,7 @@ public class XunitTestCaseTests
 			var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait1, trait2 });
 
-			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 			Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
 			Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
@@ -110,7 +110,7 @@ public class XunitTestCaseTests
 			var messages = new List<_MessageSinkMessage>();
 			var spy = SpyMessageSink.Create(messages: messages);
 
-			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", spy, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new XunitTestCase(spy, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 			Assert.Empty(testCase.Traits);
 			var diagnosticMessages = messages.OfType<_DiagnosticMessage>();
@@ -169,10 +169,6 @@ public class XunitTestCaseTests
 			var methodInfo = new ReflectionMethodInfo(classType.GetMethod("TraitsTest")!);
 			var testMethod = new TestMethod(testClass, methodInfo);
 			var testCase = new XunitTestCase(
-				"test-assembly-id",
-				"test-collection-id",
-				"test-class-id",
-				"test-method-id",
 				SpyMessageSink.Create(),
 				TestMethodDisplay.ClassAndMethod,
 				TestMethodDisplayOptions.None,
@@ -283,7 +279,7 @@ public class XunitTestCaseTests
 		{
 			var testMethod = Mocks.TestMethod(displayName: "Custom Display Name");
 
-			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 			Assert.Equal("Custom Display Name", testCase.DisplayName);
 		}
@@ -297,7 +293,7 @@ public class XunitTestCaseTests
 			var testMethod = Mocks.TestMethod(displayName: "Custom Display Name", parameters: new[] { param1, param2, param3 });
 			var arguments = new object[] { 42, "Hello, world!", 'A' };
 
-			var testCase = new XunitTestCase("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, arguments);
+			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, arguments);
 
 			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
 		}

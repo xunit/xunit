@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Xunit.Internal
@@ -8,6 +9,8 @@ namespace Xunit.Internal
 	/// </summary>
 	public static class EnumerableExtensions
 	{
+		static readonly Func<object, bool> notNullTest = x => x is not null;
+
 		/// <summary>
 		/// Returns <paramref name="source"/> as a <see cref="List{T}"/>, using a cast when
 		/// available and <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})"/> when not.
@@ -28,6 +31,6 @@ namespace Xunit.Internal
 		/// </summary>
 		public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
 			where T : class =>
-				source.Where(item => item is not null).Cast<T>();
+				source.Where((Func<T?, bool>)notNullTest)!;
 	}
 }

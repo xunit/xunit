@@ -270,7 +270,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
-			var testClass = Mocks.TestClass(typeof(TheoryWithInlineData));
+			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 
 			framework.FindTestsForClass(testClass);
 
@@ -299,7 +299,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
-			var testClass = Mocks.TestClass(typeof(TheoryWithPropertyData));
+			var testClass = Mocks.TestClass<TheoryWithPropertyData>();
 
 			framework.FindTestsForClass(testClass);
 
@@ -312,7 +312,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void AssemblyWithMultiLevelHierarchyWithFactOverridenInNonImmediateDerivedClass_ReturnsOneTestCase()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
-			var testClass = Mocks.TestClass(typeof(Child));
+			var testClass = Mocks.TestClass<Child>();
 
 			framework.FindTestsForClass(testClass);
 
@@ -473,8 +473,8 @@ public class XunitTestFrameworkDiscovererTests
 			string? expectedSerializationStartingText)
 		{
 			var messageSink = SpyMessageSink.Create();
-			var testMethod = Mocks.TestMethod(typeof(ClassWithSingleTest), nameof(ClassWithSingleTest.TestMethod));
-			var testCase = new XunitTestCase("asm-id", "col-id", "class-id", "method-id", messageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testMethod = Mocks.TestMethod<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod));
+			var testCase = new XunitTestCase(messageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
 			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization, includeSourceInformation: true, messageBus);
 
@@ -550,12 +550,10 @@ public class XunitTestFrameworkDiscovererTests
 		public virtual bool FindTestsForClass(_ITestClass testClass)
 		{
 			using var messageBus = new MessageBus(Sink);
-			return base.FindTestsForType("test-collection-id", "test-class-id", testClass, messageBus, _TestFrameworkOptions.ForDiscovery());
+			return base.FindTestsForType(testClass, messageBus, _TestFrameworkOptions.ForDiscovery());
 		}
 
 		protected sealed override bool FindTestsForType(
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
 			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -573,7 +571,7 @@ public class XunitTestFrameworkDiscovererTests
 			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus) =>
-				ReportDiscoveredTestCase("test-collection-id", "test-class-id", "test-method-id", testCase, includeSerialization, includeSourceInformation, messageBus);
+				ReportDiscoveredTestCase(testCase, includeSerialization, includeSourceInformation, messageBus);
 	}
 
 	internal class TestableTestDiscoverySink : TestDiscoverySink

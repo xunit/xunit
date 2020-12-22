@@ -18,12 +18,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestInvoker"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
-		/// <param name="testCaseUniqueID">The test case unique ID.</param>
-		/// <param name="testUniqueID">The test unique ID.</param>
 		/// <param name="test">The test that this invocation belongs to.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testClass">The test class that the test method belongs to.</param>
@@ -34,12 +28,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestInvoker(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
-			string testCaseUniqueID,
-			string testUniqueID,
 			_ITest test,
 			IMessageBus messageBus,
 			Type testClass,
@@ -50,12 +38,6 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) :
 				base(
-					testAssemblyUniqueID,
-					testCollectionUniqueID,
-					testClassUniqueID,
-					testMethodUniqueID,
-					testCaseUniqueID,
-					testUniqueID,
 					test,
 					messageBus,
 					testClass,
@@ -77,18 +59,25 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override Task BeforeTestMethodInvokedAsync()
 		{
+			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testCaseUniqueID = TestCase.UniqueID;
+			var testUniqueID = Test.UniqueID;
+
 			foreach (var beforeAfterAttribute in BeforeAfterAttributes)
 			{
 				var attributeName = beforeAfterAttribute.GetType().Name;
 				var beforeTestStarting = new _BeforeTestStarting
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					AttributeName = attributeName,
-					TestCaseUniqueID = TestCaseUniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = TestUniqueID
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
 				};
 				if (!MessageBus.QueueMessage(beforeTestStarting))
 					CancellationTokenSource.Cancel();
@@ -108,13 +97,13 @@ namespace Xunit.v3
 					{
 						var beforeTestFinished = new _BeforeTestFinished
 						{
-							AssemblyUniqueID = TestAssemblyUniqueID,
+							AssemblyUniqueID = testAssemblyUniqueID,
 							AttributeName = attributeName,
-							TestCaseUniqueID = TestCaseUniqueID,
-							TestClassUniqueID = TestClassUniqueID,
-							TestCollectionUniqueID = TestCollectionUniqueID,
-							TestMethodUniqueID = TestMethodUniqueID,
-							TestUniqueID = TestUniqueID
+							TestCaseUniqueID = testCaseUniqueID,
+							TestClassUniqueID = testClassUniqueID,
+							TestCollectionUniqueID = testCollectionUniqueID,
+							TestMethodUniqueID = testMethodUniqueID,
+							TestUniqueID = testUniqueID
 						};
 						if (!MessageBus.QueueMessage(beforeTestFinished))
 							CancellationTokenSource.Cancel();
@@ -131,18 +120,25 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override Task AfterTestMethodInvokedAsync()
 		{
+			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testCaseUniqueID = TestCase.UniqueID;
+			var testUniqueID = Test.UniqueID;
+
 			foreach (var beforeAfterAttribute in beforeAfterAttributesRun)
 			{
 				var attributeName = beforeAfterAttribute.GetType().Name;
 				var afterTestStarting = new _AfterTestStarting
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					AttributeName = attributeName,
-					TestCaseUniqueID = TestCaseUniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = TestUniqueID
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
 				};
 				if (!MessageBus.QueueMessage(afterTestStarting))
 					CancellationTokenSource.Cancel();
@@ -151,13 +147,13 @@ namespace Xunit.v3
 
 				var afterTestFinished = new _AfterTestFinished
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					AttributeName = attributeName,
-					TestCaseUniqueID = TestCaseUniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
-					TestUniqueID = TestUniqueID
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestUniqueID = testUniqueID
 				};
 				if (!MessageBus.QueueMessage(afterTestFinished))
 					CancellationTokenSource.Cancel();

@@ -177,6 +177,7 @@ namespace Xunit
 		/// <param name="methodName">The optional test method name</param>
 		/// <returns>The computed unique ID for the test method (may return <c>null</c> if either the class
 		/// unique ID or the method name is null)</returns>
+		[return: NotNullIfNotNull("methodName")]
 		public static string? ForTestMethod(
 			string? testClassUniqueID,
 			string? methodName)

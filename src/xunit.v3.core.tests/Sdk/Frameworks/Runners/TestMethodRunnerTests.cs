@@ -189,9 +189,6 @@ public class TestMethodRunnerTests
 		public List<_ITestCase> TestCasesRun = new List<_ITestCase>();
 
 		TestableTestMethodRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
 			_ITestMethod testMethod,
 			IReflectionTypeInfo @class,
 			IReflectionMethodInfo method,
@@ -201,7 +198,7 @@ public class TestMethodRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			RunSummary result,
 			bool cancelInRunTestCaseAsync)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+				: base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
 		{
 			TokenSource = cancellationTokenSource;
 
@@ -226,9 +223,6 @@ public class TestMethodRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestMethodRunner(
-				"assembly-id",
-				"collection-id",
-				"class-id",
 				firstTestCase.TestMethod,
 				(IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
 				(IReflectionMethodInfo)firstTestCase.TestMethod.Method,

@@ -29,32 +29,19 @@ namespace Xunit.v3
 			var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
 			var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
 
-			var assemblyUniqueID = FactDiscoverer.ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = FactDiscoverer.ComputeUniqueID(assemblyUniqueID, testMethod.TestClass.TestCollection);
-			var classUniqueID = FactDiscoverer.ComputeUniqueID(collectionUniqueID, testMethod.TestClass);
-			var methodUniqueID = FactDiscoverer.ComputeUniqueID(classUniqueID, testMethod);
-
 			return
 				cultures
-					.Select(culture => CreateTestCase(assemblyUniqueID, collectionUniqueID, classUniqueID, methodUniqueID, testMethod, culture, methodDisplay, methodDisplayOptions))
+					.Select(culture => CreateTestCase(testMethod, culture, methodDisplay, methodDisplayOptions))
 					.ToList();
 		}
 
 		CulturedXunitTestCase CreateTestCase(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_ITestMethod testMethod,
 			string culture,
 			TestMethodDisplay methodDisplay,
 			TestMethodDisplayOptions methodDisplayOptions)
 		{
 			return new CulturedXunitTestCase(
-				testAssemblyUniqueID,
-				testCollectionUniqueID,
-				testClassUniqueID,
-				testMethodUniqueID,
 				diagnosticMessageSink,
 				methodDisplay,
 				methodDisplayOptions,

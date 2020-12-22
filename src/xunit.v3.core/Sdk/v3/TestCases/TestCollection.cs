@@ -30,16 +30,17 @@ namespace Xunit.v3
 		/// <param name="testAssembly">The test assembly the collection belongs to</param>
 		/// <param name="collectionDefinition">The optional type which contains the collection definition</param>
 		/// <param name="displayName">The display name for the test collection</param>
+		/// <param name="uniqueID">The unique ID for the test collection (only used to override default behavior in testing scenarios)</param>
 		public TestCollection(
 			_ITestAssembly testAssembly,
 			ITypeInfo? collectionDefinition,
-			string displayName)
+			string displayName,
+			string? uniqueID = null)
 		{
 			CollectionDefinition = collectionDefinition;
 			this.displayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
 			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
-
-			uniqueID = UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, this.displayName, CollectionDefinition?.Name);
+			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, this.displayName, CollectionDefinition?.Name);
 		}
 
 		/// <inheritdoc/>

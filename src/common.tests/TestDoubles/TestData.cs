@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Xunit.Abstractions;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.Sdk;
 
 namespace Xunit.v3
 {
@@ -37,6 +41,17 @@ namespace Xunit.v3
 					Messages = messages,
 					StackTraces = stackTraces
 				};
+
+		public static TestAssembly TestAssembly(
+			Assembly assembly,
+			string? configFileName = null,
+			Version? version = null) =>
+				new TestAssembly(Reflector.Wrap(assembly), configFileName, version);
+
+		public static TestAssembly TestAssembly<TClassUnderTest>(
+			string? configFileName = null,
+			Version? version = null) =>
+				new TestAssembly(Reflector.Wrap(typeof(TClassUnderTest).Assembly), configFileName, version);
 
 		public static _TestAssemblyFinished TestAssemblyFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -279,6 +294,14 @@ namespace Xunit.v3
 					Traits = traits ?? new Dictionary<string, List<string>>()
 				};
 
+		public static TestClass TestClass<TClassUnderTest>(_ITestCollection collection) =>
+			new TestClass(collection, Reflector.Wrap(typeof(TClassUnderTest)));
+
+		public static TestClass TestClass(
+			_ITestCollection collection,
+			Type classType) =>
+				new TestClass(collection, Reflector.Wrap(classType));
+
 		public static _TestClassFinished TestClassFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			decimal executionTime = 123.4567m,
@@ -310,6 +333,12 @@ namespace Xunit.v3
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID
 				};
+
+		public static TestCollection TestCollection(
+			_ITestAssembly assembly,
+			ITypeInfo? collectionDefinition = null,
+			string? displayName = null) =>
+				new TestCollection(assembly, collectionDefinition, displayName ?? $"[Unit Test] Collection for '{assembly.Assembly.Name}'");
 
 		public static _TestCollectionFinished TestCollectionFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -407,6 +436,28 @@ namespace Xunit.v3
 					TestMethodUniqueID = testMethodUniqueID,
 					TestUniqueID = testUniqueID
 				};
+
+		public static TestMethod TestMethod(
+			_ITestClass testClass,
+			IMethodInfo methodInfo,
+			string? uniqueID = null) =>
+				new TestMethod(testClass, methodInfo, uniqueID);
+
+		public static TestMethod TestMethod<TClass>(
+			string methodName,
+			_ITestCollection? collection = null)
+		{
+			var assembly = Reflector.Wrap(typeof(TClass).Assembly);
+			var testAssembly = new TestAssembly(assembly, uniqueID: "assembly-id");
+			collection ??= new TestCollection(testAssembly, null, $"Test data: Test Collection for '{typeof(TClass).FullName}'", uniqueID: "collection-id");
+			var @class = Reflector.Wrap(typeof(TClass));
+			var testClass = new TestClass(collection, @class, uniqueID: "class-id");
+			var method = typeof(TClass).GetMethod(methodName);
+			Guard.ArgumentValidNotNull(nameof(methodName), $"Could not find method '{methodName}' on type '{typeof(TClass).FullName}'", method);
+			var methodInfo = Reflector.Wrap(method);
+
+			return new TestMethod(testClass, methodInfo, uniqueID: "method-id");
+		}
 
 		public static _TestMethodFinished TestMethodFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -506,5 +557,36 @@ namespace Xunit.v3
 					TestMethodUniqueID = testMethodUniqueID,
 					TestUniqueID = testUniqueID
 				};
+
+		public static XunitTestCase XunitTestCase<TClassUnderTest>(
+			string methodName,
+			_ITestCollection? collection = null,
+			object[]? testMethodArguments = null,
+			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			string? uniqueID = null,
+			_IMessageSink? diagnosticMessageSink = null)
+		{
+			diagnosticMessageSink ??= new _NullMessageSink();
+
+			var method = TestMethod<TClassUnderTest>(methodName, collection);
+
+			return new XunitTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, testMethodArguments, uniqueID);
+		}
+
+		public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(
+			string methodName,
+			_ITestCollection? collection = null,
+			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			string? uniqueID = null,
+			_IMessageSink? diagnosticMessageSink = null)
+		{
+			diagnosticMessageSink ??= new _NullMessageSink();
+
+			var method = TestMethod<TClassUnderTest>(methodName, collection);
+
+			return new XunitTheoryTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, uniqueID);
+		}
 	}
 }

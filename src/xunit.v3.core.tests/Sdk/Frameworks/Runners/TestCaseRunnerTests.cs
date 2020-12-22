@@ -173,7 +173,7 @@ public class TestCaseRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource tokenSource,
 			RunSummary result)
-				: base("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, messageBus, aggregator, tokenSource)
+				: base(testCase, messageBus, aggregator, tokenSource)
 		{
 			this.result = result;
 

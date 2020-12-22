@@ -180,11 +180,10 @@ namespace Xunit.Runner.v1
 
 			if (current != lastTestCase && lastTestCase != null)
 			{
-				var assemblyUniqueID = GetAssemblyUniqueID(lastTestCase.TestMethod.TestClass.TestCollection.TestAssembly);
-				var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, lastTestCase.TestMethod.TestClass.TestCollection);
-				var classUniqueID = GetClassUniqueID(collectionUniqueID, lastTestCase.TestMethod.TestClass);
-				var methodUniqueID = GetMethodUniqueID(classUniqueID, lastTestCase.TestMethod);
-
+				var assemblyUniqueID = lastTestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+				var classUniqueID = lastTestCase.TestMethod.TestClass.UniqueID;
+				var collectionUniqueID = lastTestCase.TestMethod.TestClass.TestCollection.UniqueID;
+				var methodUniqueID = lastTestCase.TestMethod.UniqueID;
 				var testCaseFinished = new _TestCaseFinished
 				{
 					AssemblyUniqueID = assemblyUniqueID,
@@ -224,10 +223,10 @@ namespace Xunit.Runner.v1
 
 			if (current != lastTestCase && current != null)
 			{
-				var assemblyUniqueID = GetAssemblyUniqueID(current.TestMethod.TestClass.TestCollection.TestAssembly);
-				var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, current.TestMethod.TestClass.TestCollection);
-				var classUniqueID = GetClassUniqueID(collectionUniqueID, current.TestMethod.TestClass);
-				var methodUniqueID = GetMethodUniqueID(classUniqueID, current.TestMethod);
+				var assemblyUniqueID = current.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+				var classUniqueID = current.TestMethod.TestClass.UniqueID;
+				var collectionUniqueID = current.TestMethod.TestClass.TestCollection.UniqueID;
+				var methodUniqueID = current.TestMethod.UniqueID;
 
 				// Dispatch TestMethodStarting if we've moved onto a new method
 				if (lastTestCase == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
@@ -275,15 +274,11 @@ namespace Xunit.Runner.v1
 			XmlNode failure)
 		{
 			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 			var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(failure);
 
 			return new _TestFailed
 			{
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = testCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 				ExceptionTypes = errorMetadata.ExceptionTypes,
 				ExecutionTime = executionTime,
@@ -291,9 +286,9 @@ namespace Xunit.Runner.v1
 				Output = output,
 				StackTraces = errorMetadata.StackTraces,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestMethodUniqueID = methodUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				TestUniqueID = test.UniqueID
 			};
 		}
@@ -304,20 +299,16 @@ namespace Xunit.Runner.v1
 			string output)
 		{
 			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 
 			return new _TestFinished
 			{
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = testCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				ExecutionTime = executionTime,
 				Output = output,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestMethodUniqueID = methodUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				TestUniqueID = test.UniqueID
 			};
 		}
@@ -327,19 +318,15 @@ namespace Xunit.Runner.v1
 			string output)
 		{
 			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 
 			return new _TestOutput
 			{
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = testCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				Output = output,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestMethodUniqueID = methodUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				TestUniqueID = test.UniqueID
 			};
 		}
@@ -350,20 +337,16 @@ namespace Xunit.Runner.v1
 			string output)
 		{
 			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 
 			return new _TestPassed
 			{
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = testCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				ExecutionTime = executionTime,
 				Output = output,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestMethodUniqueID = methodUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				TestUniqueID = test.UniqueID
 			};
 		}
@@ -373,21 +356,17 @@ namespace Xunit.Runner.v1
 			string reason)
 		{
 			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 
 			return new _TestSkipped
 			{
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = testCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				ExecutionTime = 0m,
 				Output = "",
 				Reason = reason,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
-				TestMethodUniqueID = methodUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				TestUniqueID = test.UniqueID
 			};
 		}
@@ -395,46 +374,18 @@ namespace Xunit.Runner.v1
 		_TestStarting ToTestStarting(_ITest test)
 		{
 			var testCase = test.TestCase;
-			var assemblyUniqueID = GetAssemblyUniqueID(testCase.TestMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = GetCollectionUniqueID(assemblyUniqueID, testCase.TestMethod.TestClass.TestCollection);
-			var classUniqueID = GetClassUniqueID(collectionUniqueID, testCase.TestMethod.TestClass);
-			var methodUniqueID = GetMethodUniqueID(classUniqueID, testCase.TestMethod);
 
 			return new _TestStarting
 			{
-				AssemblyUniqueID = assemblyUniqueID,
+				AssemblyUniqueID = testCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = classUniqueID,
-				TestCollectionUniqueID = collectionUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
 				TestDisplayName = test.DisplayName,
-				TestMethodUniqueID = methodUniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				TestUniqueID = test.UniqueID
 			};
 		}
-
-		// TODO: These should go away once the test case object hierarchy includes UniqueID at all levels
-
-		string GetAssemblyUniqueID(_ITestAssembly testAssembly) =>
-			UniqueIDGenerator.ForAssembly(
-				testAssembly.Assembly.Name,
-				testAssembly.Assembly.AssemblyPath,
-				testAssembly.ConfigFileName
-			);
-
-		string? GetClassUniqueID(
-			string collectionUniqueID,
-			_ITestClass testClass) =>
-				UniqueIDGenerator.ForTestClass(collectionUniqueID, testClass.Class?.Name);
-
-		string GetCollectionUniqueID(
-			string assemblyUniqueID,
-			_ITestCollection testCollection) =>
-				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
-
-		string? GetMethodUniqueID(
-			string? classUniqueID,
-			_ITestMethod testMethod) =>
-				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method?.Name);
 	}
 }
 

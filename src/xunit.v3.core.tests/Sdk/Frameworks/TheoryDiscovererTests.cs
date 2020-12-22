@@ -85,7 +85,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
+		var testMethod = Mocks.TestMethod<MultipleDataClass>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute).ToList();
@@ -100,7 +100,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		discoveryOptions.SetPreEnumerateTheories(false);
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
+		var testMethod = Mocks.TestMethod<MultipleDataClass>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
@@ -130,7 +130,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(MultipleDataClassSkipped), "TheoryMethod");
+		var testMethod = Mocks.TestMethod<MultipleDataClassSkipped>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute).ToList();
@@ -151,7 +151,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public void ThrowingData()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(ThrowingDataClass), "TheoryWithMisbehavingData");
+		var testMethod = Mocks.TestMethod<ThrowingDataClass>("TheoryWithMisbehavingData");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
@@ -197,7 +197,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public void NonSerializableDataYieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(NonSerializableDataClass), "TheoryMethod");
+		var testMethod = Mocks.TestMethod<NonSerializableDataClass>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
@@ -232,7 +232,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "The GAC is only available on Windows");
 
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(NonSerializableEnumDataClass), "TheTest");
+		var testMethod = Mocks.TestMethod<NonSerializableEnumDataClass>("TheTest");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
@@ -307,7 +307,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(NonDiscoveryEnumeratedData), "TheoryMethod");
+		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
@@ -332,7 +332,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public void MixedDiscoveryEnumerationDataYieldSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(MixedDiscoveryEnumeratedData), "TheoryMethod");
+		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
@@ -393,7 +393,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(ClassWithExplicitConvertedData), "ParameterDeclaredExplicitConversion");
+		var testMethod = Mocks.TestMethod<ClassWithExplicitConvertedData>("ParameterDeclaredExplicitConversion");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);

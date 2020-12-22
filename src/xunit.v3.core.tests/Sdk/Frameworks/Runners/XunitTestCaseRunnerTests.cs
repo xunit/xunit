@@ -13,12 +13,12 @@ public class XunitTestCaseRunnerTests
 	public static void BeforeAfterTestAttributesComeFromTestCollectionAndTestClassAndTestMethod()
 	{
 		var collection = Mocks.TestCollection(definition: Reflector.Wrap(typeof(BeforeAfterCollection)));
-		var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing", collection);
+		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing", collection);
 		var messageBus = Substitute.For<IMessageBus>();
 		var aggregator = new ExceptionAggregator();
 		var tokenSource = new CancellationTokenSource();
 
-		var runner = new XunitTestCaseRunner("test-assembly-id", "test-collection-id", "test-class-id", "test-method-id", testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
+		var runner = new XunitTestCaseRunner(testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
 
 		Assert.Collection(
 			runner.BeforeAfterAttributes.OrderBy(a => a.GetType().Name),

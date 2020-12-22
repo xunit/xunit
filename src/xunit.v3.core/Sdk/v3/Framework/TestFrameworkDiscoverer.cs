@@ -200,15 +200,11 @@ namespace Xunit.v3
 		/// <summary>
 		/// Core implementation to discover unit tests in a given test class.
 		/// </summary>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
 		/// <param name="testClass">The test class.</param>
 		/// <param name="messageBus">The message sink to send discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
 		protected abstract bool FindTestsForType(
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
 			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
@@ -221,9 +217,7 @@ namespace Xunit.v3
 		{
 			try
 			{
-				var testCollectionUniqueID = FactDiscoverer.ComputeUniqueID(TestAssemblyUniqueID, testClass.TestCollection);
-				var testClassUniqueID = FactDiscoverer.ComputeUniqueID(testCollectionUniqueID, testClass);
-				return FindTestsForType(testCollectionUniqueID, testClassUniqueID, testClass, messageBus, discoveryOptions);
+				return FindTestsForType(testClass, messageBus, discoveryOptions);
 			}
 			catch (Exception ex)
 			{
@@ -252,18 +246,12 @@ namespace Xunit.v3
 		/// Reports a discovered test case to the message bus, after updating the source code information
 		/// (if desired and not already provided).
 		/// </summary>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case to report</param>
 		/// <param name="includeSerialization">A flag to indicate whether the test case reported should include serialization</param>
 		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
 		/// <param name="messageBus">The message bus to report to the test case to</param>
 		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(_MessageSinkMessage)"/>.</returns>
 		protected bool ReportDiscoveredTestCase(
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_ITestCase testCase,
 			bool includeSerialization,
 			bool includeSourceInformation,
@@ -288,9 +276,9 @@ namespace Xunit.v3
 				TestCase = testCase,
 				TestCaseDisplayName = testCase.DisplayName,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID,
-				TestMethodUniqueID = testMethodUniqueID,
+				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethodUniqueID = testCase.TestMethod.UniqueID,
 				Traits = testCase.Traits
 			};
 
@@ -318,10 +306,10 @@ namespace Xunit.v3
 			{
 				originalWorkingFolder = Directory.GetCurrentDirectory();
 
-				if (!string.IsNullOrEmpty(assemblyInfo.AssemblyPath))
+				if (!string.IsNullOrWhiteSpace(assemblyInfo.AssemblyPath))
 				{
 					var assemblyFolder = Path.GetDirectoryName(assemblyInfo.AssemblyPath);
-					if (assemblyFolder != null)
+					if (!string.IsNullOrWhiteSpace(assemblyFolder))
 						Directory.SetCurrentDirectory(assemblyFolder);
 				}
 			}
@@ -330,7 +318,8 @@ namespace Xunit.v3
 			{
 				try
 				{
-					Directory.SetCurrentDirectory(originalWorkingFolder);
+					if (!string.IsNullOrWhiteSpace(originalWorkingFolder))
+						Directory.SetCurrentDirectory(originalWorkingFolder);
 				}
 				catch { }
 			}

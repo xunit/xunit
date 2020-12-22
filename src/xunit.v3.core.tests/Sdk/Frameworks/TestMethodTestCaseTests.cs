@@ -2,7 +2,6 @@
 using NSubstitute;
 using Xunit;
 using Xunit.Runner.v2;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class TestMethodTestCaseTests
@@ -77,7 +76,7 @@ public class TestMethodTestCaseTests
 		[InlineData(TestMethodDisplay.Method, "OverrideDefaultMethodDisplay")]
 		public static void OverrideDefaultMethodDisplay(TestMethodDisplay methodDisplay, string expectedDisplayName)
 		{
-			var testMethod = Mocks.TestMethod(typeof(DisplayName), "OverrideDefaultMethodDisplay");
+			var testMethod = Mocks.TestMethod<DisplayName>("OverrideDefaultMethodDisplay");
 
 			var testCase = new TestableTestMethodTestCase(testMethod, defaultMethodDisplay: methodDisplay);
 
@@ -174,7 +173,7 @@ public class TestMethodTestCaseTests
 			string methodName,
 			object?[]? testMethodArguments = null)
 		{
-			var testMethod = Mocks.TestMethod(typeof(TClass), methodName);
+			var testMethod = TestData.TestMethod<TClass>(methodName);
 			return new TestableTestMethodTestCase(testMethod, testMethodArguments);
 		}
 	}

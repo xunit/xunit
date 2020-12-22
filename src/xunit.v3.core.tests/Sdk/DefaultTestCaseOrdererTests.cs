@@ -1,17 +1,17 @@
-﻿using Xunit;
-using Xunit.Sdk;
+﻿using System;
+using Xunit;
 using Xunit.v3;
 
 public class DefaultTestCaseOrdererTests
 {
 	static readonly _ITestCase[] TestCases = new[] {
-		Mocks.TestCase<ClassUnderTest>("Test1"),
-		Mocks.TestCase<ClassUnderTest>("Test2"),
-		Mocks.TestCase<ClassUnderTest>("Test3"),
-		Mocks.TestCase<ClassUnderTest>("Test4"),
-		Mocks.TestCase<ClassUnderTest>("Test3"),
-		Mocks.TestCase<ClassUnderTest>("Test5"),
-		Mocks.TestCase<ClassUnderTest>("Test6")
+		Mocks.TestCase<ClassUnderTest>("Test1", uniqueID: $"test-case-{Guid.NewGuid():n}"),
+		Mocks.TestCase<ClassUnderTest>("Test2", uniqueID: $"test-case-{Guid.NewGuid():n}"),
+		Mocks.TestCase<ClassUnderTest>("Test3", uniqueID: $"test-case-{Guid.NewGuid():n}"),
+		Mocks.TestCase<ClassUnderTest>("Test4", uniqueID: $"test-case-{Guid.NewGuid():n}"),
+		Mocks.TestCase<ClassUnderTest>("Test3", uniqueID: $"test-case-{Guid.NewGuid():n}"),
+		Mocks.TestCase<ClassUnderTest>("Test5", uniqueID: $"test-case-{Guid.NewGuid():n}"),
+		Mocks.TestCase<ClassUnderTest>("Test6", uniqueID: $"test-case-{Guid.NewGuid():n}")
 	};
 
 	[Fact]

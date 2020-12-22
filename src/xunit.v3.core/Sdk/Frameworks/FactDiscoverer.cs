@@ -42,16 +42,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
 
-			var assemblyUniqueID = ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = ComputeUniqueID(assemblyUniqueID, testMethod.TestClass.TestCollection);
-			var classUniqueID = ComputeUniqueID(collectionUniqueID, testMethod.TestClass);
-			var methodUniqueID = ComputeUniqueID(classUniqueID, testMethod);
-
 			return new XunitTestCase(
-				assemblyUniqueID,
-				collectionUniqueID,
-				classUniqueID,
-				methodUniqueID,
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -92,56 +83,13 @@ namespace Xunit.Sdk
 		ExecutionErrorTestCase ErrorTestCase(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			string message)
-		{
-			var assemblyUniqueID = ComputeUniqueID(testMethod.TestClass.TestCollection.TestAssembly);
-			var collectionUniqueID = ComputeUniqueID(assemblyUniqueID, testMethod.TestClass.TestCollection);
-			var classUniqueID = ComputeUniqueID(collectionUniqueID, testMethod.TestClass);
-			var methodUniqueID = ComputeUniqueID(classUniqueID, testMethod);
-
-			return new ExecutionErrorTestCase(
-				assemblyUniqueID,
-				collectionUniqueID,
-				classUniqueID,
-				methodUniqueID,
-				DiagnosticMessageSink,
-				discoveryOptions.MethodDisplayOrDefault(),
-				discoveryOptions.MethodDisplayOptionsOrDefault(),
-				testMethod,
-				message
-			);
-		}
-
-		// TODO: Get rid of these once UniqueID is everywhere in the test case object hierarchy.
-
-		/// <summary>
-		/// INTERNAL METHOD, DO NOT USE.
-		/// </summary>
-		public static string ComputeUniqueID(_ITestAssembly testAssembly) =>
-			UniqueIDGenerator.ForAssembly(testAssembly.Assembly.Name, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
-
-		/// <summary>
-		/// INTERNAL METHOD, DO NOT USE.
-		/// </summary>
-		public static string? ComputeUniqueID(
-			string testCollectionUniqueID,
-			_ITestClass? testClass) =>
-				UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass?.Class?.Name);
-
-		/// <summary>
-		/// INTERNAL METHOD, DO NOT USE.
-		/// </summary>
-		public static string ComputeUniqueID(
-			string assemblyUniqueID,
-			_ITestCollection testCollection) =>
-				UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
-
-		/// <summary>
-		/// INTERNAL METHOD, DO NOT USE.
-		/// </summary>
-		public static string? ComputeUniqueID(
-			string? classUniqueID,
-			_ITestMethod testMethod) =>
-				UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method.Name);
+			string message) =>
+				new ExecutionErrorTestCase(
+					DiagnosticMessageSink,
+					discoveryOptions.MethodDisplayOrDefault(),
+					discoveryOptions.MethodDisplayOptionsOrDefault(),
+					testMethod,
+					message
+				);
 	}
 }

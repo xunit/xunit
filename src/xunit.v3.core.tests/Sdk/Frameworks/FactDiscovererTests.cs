@@ -28,7 +28,7 @@ public class FactDiscovererTests
 	public async void FactWithoutParameters_ReturnsTestCaseThatRunsFact()
 	{
 		var discoverer = TestableFactDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(ClassUnderTest), "FactWithNoParameters");
+		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithNoParameters");
 
 		var testCases = discoverer.Discover(options, testMethod, factAttribute);
 
@@ -41,7 +41,7 @@ public class FactDiscovererTests
 	public async void FactWithParameters_ReturnsTestCaseWhichThrows()
 	{
 		var discoverer = TestableFactDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(ClassUnderTest), "FactWithParameters");
+		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithParameters");
 
 		var testCases = discoverer.Discover(options, testMethod, factAttribute);
 
@@ -56,7 +56,7 @@ public class FactDiscovererTests
 	public async void GenericFact_ReturnsTestCaseWhichThrows()
 	{
 		var discoverer = TestableFactDiscoverer.Create();
-		var testMethod = Mocks.TestMethod(typeof(ClassUnderTest), "GenericFact");
+		var testMethod = Mocks.TestMethod<ClassUnderTest>("GenericFact");
 
 		var testCases = discoverer.Discover(options, testMethod, factAttribute);
 

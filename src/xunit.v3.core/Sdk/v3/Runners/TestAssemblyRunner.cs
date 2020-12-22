@@ -52,12 +52,6 @@ namespace Xunit.v3
 			this.executionOptions = Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
 			testCaseOrderer = new DefaultTestCaseOrderer(DiagnosticMessageSink);
-
-			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(
-				testAssembly.Assembly.Name,
-				testAssembly.Assembly.AssemblyPath,
-				testAssembly.ConfigFileName
-			);
 		}
 
 		/// <summary>
@@ -104,11 +98,6 @@ namespace Xunit.v3
 			get => testAssembly;
 			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
 		}
-
-		/// <summary>
-		/// Gets the unique ID of the test assembly.
-		/// </summary>
-		protected string TestAssemblyUniqueID { get; }
 
 		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the tests.
@@ -247,7 +236,7 @@ namespace Xunit.v3
 				{
 					AssemblyName = TestAssembly.Assembly.Name,
 					AssemblyPath = TestAssembly.Assembly.AssemblyPath,
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = TestAssembly.UniqueID,
 					ConfigFilePath = TestAssembly.ConfigFileName,
 					StartTime = DateTimeOffset.Now,
 					TargetFramework = targetFramework,
@@ -271,7 +260,7 @@ namespace Xunit.v3
 
 						if (Aggregator.HasExceptions)
 						{
-							var cleanupFailure = _TestAssemblyCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID);
+							var cleanupFailure = _TestAssemblyCleanupFailure.FromException(Aggregator.ToException()!, TestAssembly.UniqueID);
 							messageBus.QueueMessage(cleanupFailure);
 						}
 					}
@@ -279,7 +268,7 @@ namespace Xunit.v3
 					{
 						var assemblyFinished = new _TestAssemblyFinished
 						{
-							AssemblyUniqueID = TestAssemblyUniqueID,
+							AssemblyUniqueID = TestAssembly.UniqueID,
 							ExecutionTime = totalSummary.Time,
 							TestsFailed = totalSummary.Failed,
 							TestsRun = totalSummary.Total,

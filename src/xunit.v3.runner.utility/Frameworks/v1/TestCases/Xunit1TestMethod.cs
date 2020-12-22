@@ -30,7 +30,7 @@ namespace Xunit.Runner.v1
 			this.methodName = Guard.ArgumentNotNull(nameof(methodName), methodName);
 
 			TestClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
-			UniqueID = UniqueIDGenerator.ForTestMethod(TestClass.UniqueID, methodName)!;
+			UniqueID = UniqueIDGenerator.ForTestMethod(TestClass.UniqueID, methodName);
 		}
 
 		/// <inheritdoc/>

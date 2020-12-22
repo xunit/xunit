@@ -13,24 +13,16 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ExecutionErrorTestCaseRunner"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="testCase">The test case that the lambda represents.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public ExecutionErrorTestCaseRunner(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			ExecutionErrorTestCase testCase,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, testCase, messageBus, aggregator, cancellationTokenSource)
+				: base(testCase, messageBus, aggregator, cancellationTokenSource)
 		{ }
 
 		/// <inheritdoc/>
@@ -40,14 +32,20 @@ namespace Xunit.v3
 			var test = new XunitTest(TestCase, TestCase.DisplayName, testIndex: -1);
 			var summary = new RunSummary { Total = 1 };
 
+			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
+			var testCaseUniqueID = TestCase.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
+			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+
 			var testStarting = new _TestStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
-				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestClassUniqueID,
-				TestCollectionUniqueID = TestCollectionUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
 				TestDisplayName = test.DisplayName,
-				TestMethodUniqueID = TestMethodUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = test.UniqueID
 			};
 
@@ -59,17 +57,17 @@ namespace Xunit.v3
 
 				var testFailed = new _TestFailed
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					ExceptionParentIndices = new[] { -1 },
 					ExceptionTypes = new[] { typeof(InvalidOperationException).FullName },
 					ExecutionTime = 0m,
 					Messages = new[] { TestCase.ErrorMessage },
 					StackTraces = new[] { "" },
 					Output = "",
-					TestCaseUniqueID = TestCase.UniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
 					TestUniqueID = test.UniqueID
 				};
 
@@ -78,13 +76,13 @@ namespace Xunit.v3
 
 				var testFinished = new _TestFinished
 				{
-					AssemblyUniqueID = TestAssemblyUniqueID,
+					AssemblyUniqueID = testAssemblyUniqueID,
 					ExecutionTime = 0m,
 					Output = "",
-					TestCaseUniqueID = TestCase.UniqueID,
-					TestClassUniqueID = TestClassUniqueID,
-					TestCollectionUniqueID = TestCollectionUniqueID,
-					TestMethodUniqueID = TestMethodUniqueID,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
 					TestUniqueID = test.UniqueID
 				};
 

@@ -239,7 +239,6 @@ namespace Xunit.v3
 			IEnumerable<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitTestCollectionRunner(
-					TestAssemblyUniqueID,
 					testCollection,
 					testCases,
 					DiagnosticMessageSink,

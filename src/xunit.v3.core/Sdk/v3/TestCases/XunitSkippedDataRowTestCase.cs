@@ -23,10 +23,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitSkippedDataRowTestCase"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The test assembly unique ID.</param>
-		/// <param name="testCollectionUniqueID">The test collection unique ID.</param>
-		/// <param name="testClassUniqueID">The test class unique ID.</param>
-		/// <param name="testMethodUniqueID">The test method unique ID.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
@@ -34,17 +30,13 @@ namespace Xunit.v3
 		/// <param name="skipReason">The reason that this test case will be skipped</param>
 		/// <param name="testMethodArguments">The arguments for the test method.</param>
 		public XunitSkippedDataRowTestCase(
-			string testAssemblyUniqueID,
-			string testCollectionUniqueID,
-			string? testClassUniqueID,
-			string? testMethodUniqueID,
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
 			string skipReason,
 			object?[] testMethodArguments)
-				: base(testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID, diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
+				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
 		{
 			this.skipReason = Guard.ArgumentNotNull(nameof(skipReason), skipReason);
 		}

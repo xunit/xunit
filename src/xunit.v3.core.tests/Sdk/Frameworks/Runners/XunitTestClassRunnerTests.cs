@@ -13,7 +13,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void ClassCannotBeDecoratedWithICollectionFixture()
 	{
-		var testCase = Mocks.XunitTestCase<ClassWithCollectionFixture>("Passing");
+		var testCase = TestData.XunitTestCase<ClassWithCollectionFixture>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -31,7 +31,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void TestClassCannotHaveMoreThanOneConstructor()
 	{
-		var testCase = Mocks.XunitTestCase<ClassWithTwoConstructors>("Passing");
+		var testCase = TestData.XunitTestCase<ClassWithTwoConstructors>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -52,7 +52,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void TestClassCanHavePublicAndPrivateConstructor()
 	{
-		var testCase = Mocks.XunitTestCase<ClassWithMixedConstructors>("Passing");
+		var testCase = TestData.XunitTestCase<ClassWithMixedConstructors>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -72,7 +72,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void TestClassCanHaveStaticConstructor()
 	{
-		var testCase = Mocks.XunitTestCase<ClassWithStaticConstructor>("Passing");
+		var testCase = TestData.XunitTestCase<ClassWithStaticConstructor>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -93,7 +93,7 @@ public class XunitTestClassRunnerTests
 	public static async void CreatesFixturesFromClassAndCollection()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
-		var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing", collection);
+		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing", collection);
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -108,7 +108,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void DisposesFixtures()
 	{
-		var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing");
+		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -120,7 +120,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassForFixtureAsyncDisposableUnderTest>("Passing");
+		var testCase = TestData.XunitTestCase<TestClassForFixtureAsyncDisposableUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		var runnerSessionTask = runner.RunAsync();
@@ -169,7 +169,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void MultiplePublicConstructorsOnClassFixture_ReturnsError()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassWithMultiCtorClassFixture>("Passing");
+		var testCase = TestData.XunitTestCase<TestClassWithMultiCtorClassFixture>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -193,7 +193,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void UnresolvedConstructorParameterOnClassFixture_ReturnsError()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
+		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -205,7 +205,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void CanInjectCollectionFixtureIntoClassFixture()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
+		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
 		var collectionFixture = new DependentCollectionFixture();
 		var runner = TestableXunitTestClassRunner.Create(testCase, collectionFixture);
 
@@ -237,7 +237,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void CanInjectMessageSinkIntoClassFixture()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
+		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -251,7 +251,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void CanLogSinkMessageFromClassFixture()
 	{
-		var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
+		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
@@ -282,7 +282,7 @@ public class XunitTestClassRunnerTests
 		[Fact]
 		public static async void UsesCustomTestOrderer()
 		{
-			var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing");
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 
 			await runner.RunAsync();
@@ -293,7 +293,7 @@ public class XunitTestClassRunnerTests
 		[Fact]
 		public static async void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
-			var testCase = Mocks.XunitTestCase<TestClassWithUnknownTestCaseOrderer>("Passing");
+			var testCase = TestData.XunitTestCase<TestClassWithUnknownTestCaseOrderer>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 
 			await runner.RunAsync();
@@ -313,7 +313,7 @@ public class XunitTestClassRunnerTests
 		[CulturedFact("en-US")]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
-			var testCase = Mocks.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>("Passing");
+			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 
 			await runner.RunAsync();
@@ -345,7 +345,7 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void PassesFixtureValuesToConstructor()
 	{
-		var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing");
+		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase, 42, "Hello, world!", 21.12m);
 
 		await runner.RunAsync();
@@ -393,8 +393,6 @@ public class XunitTestClassRunnerTests
 		public Exception? RunTestMethodAsync_AggregatorResult;
 
 		TestableXunitTestClassRunner(
-			string assemblyUniqueID,
-			string collectionUniqueID,
 			_ITestClass testClass,
 			IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
@@ -404,19 +402,7 @@ public class XunitTestClassRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(
-					assemblyUniqueID,
-					collectionUniqueID,
-					testClass,
-					@class,
-					testCases,
-					SpyMessageSink.Create(messages: diagnosticMessages),
-					messageBus,
-					testCaseOrderer,
-					aggregator,
-					cancellationTokenSource,
-					collectionFixtureMappings
-				)
+				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
@@ -429,8 +415,6 @@ public class XunitTestClassRunnerTests
 
 		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
 			new TestableXunitTestClassRunner(
-				"assembly-id",
-				"collection-id",
 				testCase.TestMethod.TestClass,
 				(IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
 				new[] { testCase },

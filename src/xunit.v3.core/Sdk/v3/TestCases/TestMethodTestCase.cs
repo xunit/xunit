@@ -44,18 +44,21 @@ namespace Xunit.v3
 		/// <param name="testMethod">The test method this test case belongs to.</param>
 		/// <param name="testMethodArguments">The arguments for the test method.</param>
 		/// <param name="skipReason">The reason for skipping the test.</param>
+		/// <param name="uniqueID">The unique ID for the test case (only used to override default behavior in testing scenarios)</param>
 		protected TestMethodTestCase(
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
 			object?[]? testMethodArguments = null,
-			string? skipReason = null)
+			string? skipReason = null,
+			string? uniqueID = null)
 		{
 			DefaultMethodDisplay = defaultMethodDisplay;
 			DefaultMethodDisplayOptions = defaultMethodDisplayOptions;
 			this.testMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 			TestMethodArguments = testMethodArguments;
 			this.skipReason = skipReason;
+			this.uniqueID = uniqueID;
 
 			formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
 		}

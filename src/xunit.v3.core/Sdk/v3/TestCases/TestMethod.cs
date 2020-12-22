@@ -27,14 +27,16 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testClass">The test class</param>
 		/// <param name="method">The test method</param>
+		/// <param name="uniqueID">The unique ID for the test method (only used to override default behavior in testing scenarios)</param>
 		public TestMethod(
 			_ITestClass testClass,
-			IMethodInfo method)
+			IMethodInfo method,
+			string? uniqueID = null)
 		{
 			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
 			this.method = Guard.ArgumentNotNull(nameof(method), method);
 
-			uniqueID = UniqueIDGenerator.ForTestMethod(testClass.UniqueID, this.method.Name);
+			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestMethod(testClass.UniqueID, this.method.Name);
 		}
 
 		/// <inheritdoc/>

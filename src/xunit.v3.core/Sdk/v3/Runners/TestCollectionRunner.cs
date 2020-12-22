@@ -27,7 +27,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestCollectionRunner{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="testAssemblyUniqueID">The unique ID of the test assembly that this collection belongs to.</param>
 		/// <param name="testCollection">The test collection that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
@@ -35,7 +34,6 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestCollectionRunner(
-			string testAssemblyUniqueID,
 			_ITestCollection testCollection,
 			IEnumerable<TTestCase> testCases,
 			IMessageBus messageBus,
@@ -43,21 +41,12 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			Guard.ArgumentNotNull(nameof(testAssemblyUniqueID), testAssemblyUniqueID);
-
 			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
 			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
 			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
-
-			TestAssemblyUniqueID = testAssemblyUniqueID;
-			TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				testAssemblyUniqueID,
-				testCollection.DisplayName,
-				testCollection.CollectionDefinition?.Name
-			);
 		}
 
 		/// <summary>
@@ -88,11 +77,6 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the unique ID of the test assembly.
-		/// </summary>
-		protected string TestAssemblyUniqueID { get; }
-
-		/// <summary>
 		/// Gets or sets the test case orderer that will be used to decide how to order the test.
 		/// </summary>
 		protected ITestCaseOrderer TestCaseOrderer
@@ -120,11 +104,6 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the unique ID for the test collection.
-		/// </summary>
-		protected string TestCollectionUniqueID { get; }
-
-		/// <summary>
 		/// This method is called just after <see cref="_TestCollectionStarting"/> is sent, but before any test classes are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
@@ -143,12 +122,16 @@ namespace Xunit.v3
 		public async Task<RunSummary> RunAsync()
 		{
 			var collectionSummary = new RunSummary();
+
+			var testAssemblyUniqueID = TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCollection.UniqueID;
+
 			var collectionStarting = new _TestCollectionStarting
 			{
-				AssemblyUniqueID = TestAssemblyUniqueID,
+				AssemblyUniqueID = testAssemblyUniqueID,
 				TestCollectionClass = TestCollection.CollectionDefinition?.Name,
 				TestCollectionDisplayName = TestCollection.DisplayName,
-				TestCollectionUniqueID = TestCollectionUniqueID
+				TestCollectionUniqueID = testCollectionUniqueID
 			};
 
 			if (!MessageBus.QueueMessage(collectionStarting))
@@ -165,7 +148,7 @@ namespace Xunit.v3
 
 					if (Aggregator.HasExceptions)
 					{
-						var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(Aggregator.ToException()!, TestAssemblyUniqueID, TestCollectionUniqueID);
+						var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID);
 						if (!MessageBus.QueueMessage(collectionCleanupFailure))
 							CancellationTokenSource.Cancel();
 					}
@@ -174,9 +157,9 @@ namespace Xunit.v3
 				{
 					var collectionFinished = new _TestCollectionFinished
 					{
-						AssemblyUniqueID = TestAssemblyUniqueID,
+						AssemblyUniqueID = testAssemblyUniqueID,
 						ExecutionTime = collectionSummary.Time,
-						TestCollectionUniqueID = TestCollectionUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
 						TestsFailed = collectionSummary.Failed,
 						TestsRun = collectionSummary.Total,
 						TestsSkipped = collectionSummary.Skipped
