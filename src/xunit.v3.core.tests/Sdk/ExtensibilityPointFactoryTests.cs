@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -71,7 +70,7 @@ public class ExtensibilityPointFactoryTests
 			public ThrowingDiscovererCtor() =>
 				throw new DivideByZeroException();
 
-			public Type GetTestFrameworkType(IAttributeInfo attribute) =>
+			public Type GetTestFrameworkType(_IAttributeInfo attribute) =>
 				throw new NotImplementedException();
 		}
 
@@ -95,7 +94,7 @@ public class ExtensibilityPointFactoryTests
 
 		public class ThrowingDiscoverer : ITestFrameworkTypeDiscoverer
 		{
-			public Type GetTestFrameworkType(IAttributeInfo attribute) =>
+			public Type GetTestFrameworkType(_IAttributeInfo attribute) =>
 				throw new DivideByZeroException();
 		}
 
@@ -119,7 +118,7 @@ public class ExtensibilityPointFactoryTests
 
 		public class DiscovererForThrowingTestFrameworkCtor : ITestFrameworkTypeDiscoverer
 		{
-			public Type GetTestFrameworkType(IAttributeInfo attribute) =>
+			public Type GetTestFrameworkType(_IAttributeInfo attribute) =>
 				typeof(ThrowingTestFrameworkCtor);
 		}
 
@@ -130,10 +129,10 @@ public class ExtensibilityPointFactoryTests
 
 			public _ISourceInformationProvider SourceInformationProvider { get; set; }
 
-			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
+			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
@@ -157,7 +156,7 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyDiscoverer : ITestFrameworkTypeDiscoverer
 		{
-			public Type GetTestFrameworkType(IAttributeInfo attribute) =>
+			public Type GetTestFrameworkType(_IAttributeInfo attribute) =>
 				typeof(MyTestFramework);
 		}
 
@@ -165,10 +164,10 @@ public class ExtensibilityPointFactoryTests
 		{
 			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
-			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
+			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
@@ -193,7 +192,7 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyDiscovererWithMessageSink : ITestFrameworkTypeDiscoverer
 		{
-			public Type GetTestFrameworkType(IAttributeInfo attribute) =>
+			public Type GetTestFrameworkType(_IAttributeInfo attribute) =>
 				typeof(MyTestFrameworkWithMessageSink);
 		}
 
@@ -208,10 +207,10 @@ public class ExtensibilityPointFactoryTests
 
 			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
-			public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly) =>
+			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 
-			public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly) =>
+			public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
 
@@ -230,7 +229,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			var assembly = Mocks.TestAssembly();
 
-			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (IAttributeInfo?)null, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (_IAttributeInfo?)null, assembly);
 
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
 		}
@@ -285,7 +284,7 @@ public class ExtensibilityPointFactoryTests
 			public string DisplayName =>
 				"My Factory";
 
-			public _ITestCollection Get(ITypeInfo testClass) =>
+			public _ITestCollection Get(_ITypeInfo testClass) =>
 				throw new NotImplementedException();
 		}
 
@@ -317,13 +316,13 @@ public class ExtensibilityPointFactoryTests
 			public string DisplayName =>
 				throw new NotImplementedException();
 
-			public _ITestCollection Get(ITypeInfo testClass) =>
+			public _ITestCollection Get(_ITypeInfo _) =>
 				throw new NotImplementedException();
 		}
 
 		class TestCollectionFactory_DoesNotImplementInterface
 		{
-			public TestCollectionFactory_DoesNotImplementInterface(IAssemblyInfo _)
+			public TestCollectionFactory_DoesNotImplementInterface(_IAssemblyInfo _)
 			{ }
 		}
 	}

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -13,13 +13,13 @@ namespace Xunit.Sdk
 	public class TestFrameworkTypeDiscoverer : ITestFrameworkTypeDiscoverer
 	{
 		/// <inheritdoc/>
-		public Type? GetTestFrameworkType(IAttributeInfo attribute)
+		public Type? GetTestFrameworkType(_IAttributeInfo attribute)
 		{
 			Guard.ArgumentNotNull(nameof(attribute), attribute);
 
 			var args = attribute.GetConstructorArguments().ToArray();
 			if (args.Length == 1)
-				return (Type)args[0];
+				return (Type)args[0]!;
 
 			var stringArgs = args.Cast<string>().ToArray();
 			return SerializationHelper.GetType(stringArgs[1], stringArgs[0]);

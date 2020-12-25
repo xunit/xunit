@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NSubstitute;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -29,8 +28,8 @@ namespace Xunit.v3
 
 		public static _ITestAssembly TestAssembly(
 			string? assemblyFileName,
-			ITypeInfo[]? types = null,
-			IReflectionAttributeInfo[]? assemblyAttributes = null,
+			_ITypeInfo[]? types = null,
+			_IReflectionAttributeInfo[]? assemblyAttributes = null,
 			string? configFileName = null,
 			Version? version = null,
 			string? uniqueID = null) =>
@@ -44,7 +43,7 @@ namespace Xunit.v3
 				TestAssembly(Reflector.Wrap(assembly), configFileName, version, uniqueID);
 
 		public static _ITestAssembly TestAssembly(
-			IAssemblyInfo? assemblyInfo = null,
+			_IAssemblyInfo? assemblyInfo = null,
 			string? configFileName = null,
 			Version? version = null,
 			string? uniqueID = null)
@@ -120,15 +119,15 @@ namespace Xunit.v3
 
 		public static _ITestClass TestClass(
 			string? typeName,
-			IMethodInfo[]? methods = null,
-			IReflectionAttributeInfo[]? attributes = null,
-			ITypeInfo? baseType = null,
+			_IMethodInfo[]? methods = null,
+			_IReflectionAttributeInfo[]? attributes = null,
+			_ITypeInfo? baseType = null,
 			_ITestCollection? collection = null,
 			string? uniqueID = null) =>
 				TestClass(TypeInfo(typeName, methods, attributes, baseType), collection, uniqueID);
 
 		public static _ITestClass TestClass(
-			ITypeInfo? typeInfo = null,
+			_ITypeInfo? typeInfo = null,
 			_ITestCollection? collection = null,
 			string? uniqueID = null)
 		{
@@ -145,14 +144,14 @@ namespace Xunit.v3
 
 		public static _ITestCollection TestCollection(
 			Assembly assembly,
-			ITypeInfo? definition = null,
+			_ITypeInfo? definition = null,
 			string? displayName = null,
 			string? uniqueID = null) =>
 				TestCollection(TestAssembly(assembly), definition, displayName, uniqueID);
 
 		public static _ITestCollection TestCollection(
 			_ITestAssembly? assembly = null,
-			ITypeInfo? definition = null,
+			_ITypeInfo? definition = null,
 			string? displayName = null,
 			string? uniqueID = null)
 		{
@@ -174,9 +173,9 @@ namespace Xunit.v3
 			string? displayName = null,
 			string? skip = null,
 			int timeout = 0,
-			IParameterInfo[]? parameters = null,
-			IReflectionAttributeInfo[]? classAttributes = null,
-			IReflectionAttributeInfo[]? methodAttributes = null,
+			_IParameterInfo[]? parameters = null,
+			_IReflectionAttributeInfo[]? classAttributes = null,
+			_IReflectionAttributeInfo[]? methodAttributes = null,
 			_ITestCollection? collection = null,
 			string? uniqueID = null)
 		{
@@ -205,7 +204,7 @@ namespace Xunit.v3
 				TestMethod(MethodInfo<TClassUnderTest>(methodName), TestClass<TClassUnderTest>(collection), uniqueID);
 
 		public static _ITestMethod TestMethod(
-			IMethodInfo methodInfo,
+			_IMethodInfo methodInfo,
 			_ITestClass testClass,
 			string? uniqueID = null)
 		{

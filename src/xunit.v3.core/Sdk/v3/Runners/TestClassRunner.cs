@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -22,7 +21,7 @@ namespace Xunit.v3
 	{
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
-		IReflectionTypeInfo @class;
+		_IReflectionTypeInfo @class;
 		_IMessageSink diagnosticMessageSink;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
@@ -42,7 +41,7 @@ namespace Xunit.v3
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestClassRunner(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
@@ -81,7 +80,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the CLR class that contains the tests to be run.
 		/// </summary>
-		protected IReflectionTypeInfo Class
+		protected _IReflectionTypeInfo Class
 		{
 			get => @class;
 			set => @class = Guard.ArgumentNotNull(nameof(Class), value);
@@ -280,7 +279,7 @@ namespace Xunit.v3
 
 			foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
 			{
-				summary.Aggregate(await RunTestMethodAsync(method.Key, (IReflectionMethodInfo)method.Key.Method, method, constructorArguments));
+				summary.Aggregate(await RunTestMethodAsync(method.Key, (_IReflectionMethodInfo)method.Key.Method, method, constructorArguments));
 				if (CancellationTokenSource.IsCancellationRequested)
 					break;
 			}
@@ -298,7 +297,7 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
-			IReflectionMethodInfo method,
+			_IReflectionMethodInfo method,
 			IEnumerable<TTestCase> testCases,
 			object?[] constructorArguments
 		);

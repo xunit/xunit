@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v1;
@@ -16,7 +15,7 @@ namespace Xunit
 {
 	/// <summary>
 	/// This class be used to do discovery and execution of xUnit.net v1 tests
-	/// using a reflection-based implementation of <see cref="IAssemblyInfo"/>.
+	/// using a reflection-based implementation of <see cref="_IAssemblyInfo"/>.
 	/// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
 	/// instead of using this class directly.
 	/// </summary>

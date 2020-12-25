@@ -15,7 +15,7 @@ namespace Xunit.v3
 	[DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
 	public class TestAssembly : _ITestAssembly, IXunitSerializable
 	{
-		IAssemblyInfo? assembly;
+		_IAssemblyInfo? assembly;
 		string? uniqueID;
 		Version? version;
 
@@ -33,7 +33,7 @@ namespace Xunit.v3
 		/// <param name="version">The version number of the assembly (defaults to "0.0.0.0")</param>
 		/// <param name="uniqueID">The unique ID for the test assembly (only used to override default behavior in testing scenarios)</param>
 		public TestAssembly(
-			IAssemblyInfo assembly,
+			_IAssemblyInfo assembly,
 			string? configFileName = null,
 			Version? version = null,
 			string? uniqueID = null)
@@ -44,12 +44,12 @@ namespace Xunit.v3
 			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
 			this.version =
 				version
-				?? (assembly as IReflectionAssemblyInfo)?.Assembly?.GetName()?.Version
+				?? (assembly as _IReflectionAssemblyInfo)?.Assembly?.GetName()?.Version
 				?? new Version(0, 0, 0, 0);
 		}
 
 		/// <inheritdoc/>
-		public IAssemblyInfo Assembly
+		public _IAssemblyInfo Assembly
 		{
 			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
 			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);

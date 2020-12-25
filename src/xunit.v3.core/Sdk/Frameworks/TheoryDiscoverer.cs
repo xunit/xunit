@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.v3;
@@ -40,7 +39,7 @@ namespace Xunit.Sdk
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute,
+			_IAttributeInfo theoryAttribute,
 			object?[] dataRow)
 		{
 			var testCase = new XunitTestCase(
@@ -66,7 +65,7 @@ namespace Xunit.Sdk
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkip(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute,
+			_IAttributeInfo theoryAttribute,
 			string skipReason)
 		{
 			// TODO: Skip reason should be passed down into the test case
@@ -93,7 +92,7 @@ namespace Xunit.Sdk
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute)
+			_IAttributeInfo theoryAttribute)
 		{
 			var testCase = new XunitTheoryTestCase(
 				DiagnosticMessageSink,
@@ -120,7 +119,7 @@ namespace Xunit.Sdk
 		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute,
+			_IAttributeInfo theoryAttribute,
 			object?[] dataRow,
 			string skipReason)
 		{
@@ -153,7 +152,7 @@ namespace Xunit.Sdk
 		public virtual IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute)
+			_IAttributeInfo theoryAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
@@ -182,7 +181,7 @@ namespace Xunit.Sdk
 						}
 						catch (InvalidCastException)
 						{
-							if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
+							if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 								results.Add(
 									new ExecutionErrorTestCase(
 										DiagnosticMessageSink,
@@ -208,7 +207,7 @@ namespace Xunit.Sdk
 
 						if (discoverer == null)
 						{
-							if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
+							if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 								results.Add(
 									new ExecutionErrorTestCase(
 										DiagnosticMessageSink,
@@ -262,19 +261,25 @@ namespace Xunit.Sdk
 							// the incoming data might be serializable but the actual parameter value that it gets converted
 							// to might not be, and serialization uses the resolved argument and not the input argument.
 							var resolvedData = dataRow;
-							if (testMethod.Method is IReflectionMethodInfo reflectionMethodInfo)
+							if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
 								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(dataRow);
 
 							if (!SerializationHelper.IsSerializable(resolvedData))
 							{
-								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
+								var typeNames = resolvedData
+									.Select(x => x?.GetType().FullName)
+									.WhereNotNull()
+									.Select(x => $"'{x}'")
+									.ToList();
+
+								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data (one or more of: {string.Join(", ", typeNames)}) found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
 								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 
 							var testCases =
 								skipReason != null
-									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
-									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
+									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData, skipReason)
+									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData);
 
 							results.AddRange(testCases);
 						}

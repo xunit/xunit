@@ -2,15 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Reflection-based implementation of <see cref="IReflectionAssemblyInfo"/>.
+	/// Reflection-based implementation of <see cref="_IReflectionAssemblyInfo"/>.
 	/// </summary>
-	public class ReflectionAssemblyInfo : IReflectionAssemblyInfo
+	public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionAssemblyInfo"/> class.
@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
@@ -56,12 +56,12 @@ namespace Xunit.Sdk
 					.Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
 					.OrderBy(attr => attr.AttributeType.Name)
 					.Select(a => Reflector.Wrap(a))
-					.Cast<IAttributeInfo>()
+					.Cast<_IAttributeInfo>()
 					.ToList();
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo? GetType(string typeName)
+		public _ITypeInfo? GetType(string typeName)
 		{
 			var type = Assembly.GetType(typeName);
 
@@ -69,17 +69,17 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
+		public IEnumerable<_ITypeInfo> GetTypes(bool includePrivateTypes)
 		{
 			var selector = includePrivateTypes ? Assembly.DefinedTypes.Select(t => t.AsType()) : Assembly.ExportedTypes;
 
 			try
 			{
-				return selector.Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
+				return selector.Select(t => Reflector.Wrap(t)).Cast<_ITypeInfo>();
 			}
 			catch (ReflectionTypeLoadException ex)
 			{
-				return ex.Types.WhereNotNull().Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
+				return ex.Types.WhereNotNull().Select(t => Reflector.Wrap(t)).Cast<_ITypeInfo>();
 			}
 		}
 

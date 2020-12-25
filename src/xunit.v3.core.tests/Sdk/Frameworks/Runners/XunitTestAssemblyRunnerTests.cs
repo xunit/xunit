@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -106,7 +105,7 @@ public class XunitTestAssemblyRunnerTests
 
 			public MyTestCollectionFactory(_ITestAssembly assembly) { }
 
-			public _ITestCollection Get(ITypeInfo testClass)
+			public _ITestCollection Get(_ITypeInfo testClass)
 			{
 				throw new NotImplementedException();
 			}

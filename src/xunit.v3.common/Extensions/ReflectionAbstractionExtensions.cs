@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
+using Xunit.v3;
 
 /// <summary>
 /// This class represents utility methods needed to supplement the
@@ -12,7 +12,7 @@ using Xunit.Runner.v2;
 /// </summary>
 public static class ReflectionAbstractionExtensions
 {
-	static MethodInfo? GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
+	static MethodInfo? GetMethodInfoFromIMethodInfo(this Type type, _IMethodInfo methodInfo)
 	{
 		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();
 
@@ -44,7 +44,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="assemblyInfo">The assembly</param>
 	/// <param name="attributeType">The type of the attribute</param>
 	/// <returns>The matching attributes that decorate the assembly</returns>
-	public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IAssemblyInfo assemblyInfo, Type attributeType)
+	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _IAssemblyInfo assemblyInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -59,7 +59,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="attributeInfo">The attribute</param>
 	/// <param name="attributeType">The type of the attribute to find</param>
 	/// <returns>The matching attributes that decorate the attribute</returns>
-	public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IAttributeInfo attributeInfo, Type attributeType)
+	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _IAttributeInfo attributeInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(attributeInfo), attributeInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -74,7 +74,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="methodInfo">The method</param>
 	/// <param name="attributeType">The type of the attribute</param>
 	/// <returns>The matching attributes that decorate the method</returns>
-	public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IMethodInfo methodInfo, Type attributeType)
+	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _IMethodInfo methodInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -89,7 +89,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="typeInfo">The type</param>
 	/// <param name="attributeType">The type of the attribute</param>
 	/// <returns>The matching attributes that decorate the type</returns>
-	public static IEnumerable<IAttributeInfo> GetCustomAttributes(this ITypeInfo typeInfo, Type attributeType)
+	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _ITypeInfo typeInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(typeInfo), typeInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -99,30 +99,30 @@ public static class ReflectionAbstractionExtensions
 	}
 
 	/// <summary>
-	/// Converts an <see cref="IMethodInfo"/> into a <see cref="MethodInfo"/>, if possible (for example, this
+	/// Converts an <see cref="_IMethodInfo"/> into a <see cref="MethodInfo"/>, if possible (for example, this
 	/// will not work when the test method is based on source code rather than binaries).
 	/// </summary>
 	/// <param name="methodInfo">The method to convert</param>
 	/// <returns>The runtime method, if available; <c>null</c>, otherwise</returns>
-	public static MethodInfo? ToRuntimeMethod(this IMethodInfo methodInfo)
+	public static MethodInfo? ToRuntimeMethod(this _IMethodInfo methodInfo)
 	{
 		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
 
-		if (methodInfo is IReflectionMethodInfo reflectionMethodInfo)
+		if (methodInfo is _IReflectionMethodInfo reflectionMethodInfo)
 			return reflectionMethodInfo.MethodInfo;
 
 		return methodInfo.Type.ToRuntimeType()?.GetMethodInfoFromIMethodInfo(methodInfo);
 	}
 
 	/// <summary>
-	/// Converts an <see cref="ITypeInfo"/> into a <see cref="Type"/>, if possible (for example, this
+	/// Converts an <see cref="_ITypeInfo"/> into a <see cref="Type"/>, if possible (for example, this
 	/// will not work when the test class is based on source code rather than binaries).
 	/// </summary>
 	/// <param name="typeInfo">The type to convert</param>
 	/// <returns>The runtime type, if available, <c>null</c>, otherwise</returns>
-	public static Type? ToRuntimeType(this ITypeInfo typeInfo)
+	public static Type? ToRuntimeType(this _ITypeInfo typeInfo)
 	{
-		if (typeInfo is IReflectionTypeInfo reflectionTypeInfo)
+		if (typeInfo is _IReflectionTypeInfo reflectionTypeInfo)
 			return reflectionTypeInfo.Type;
 
 		return SerializationHelper.GetType(typeInfo.Assembly.Name, typeInfo.Name);

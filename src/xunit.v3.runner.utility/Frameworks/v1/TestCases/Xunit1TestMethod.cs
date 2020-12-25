@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -9,12 +8,12 @@ using Xunit.v3;
 namespace Xunit.Runner.v1
 {
 	/// <summary>
-	/// Implementation of <see cref="_ITestMethod"/> and <see cref="IMethodInfo"/> for
+	/// Implementation of <see cref="_ITestMethod"/> and <see cref="_IMethodInfo"/> for
 	/// xUnit.net v1 test methods.
 	/// </summary>
-	public class Xunit1TestMethod : _ITestMethod, IMethodInfo
+	public class Xunit1TestMethod : _ITestMethod, _IMethodInfo
 	{
-		static readonly ITypeInfo VoidType = Reflector.Wrap(typeof(void));
+		static readonly _ITypeInfo VoidType = Reflector.Wrap(typeof(void));
 
 		readonly string methodName;
 
@@ -34,7 +33,7 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		public IMethodInfo Method => this;
+		public _IMethodInfo Method => this;
 
 		/// <inheritdoc/>
 		public Xunit1TestClass TestClass { get; }
@@ -44,28 +43,28 @@ namespace Xunit.Runner.v1
 
 		_ITestClass _ITestMethod.TestClass => TestClass;
 
-		// IMethodInfo explicit implementation
+		// _IMethodInfo explicit implementation
 
-		bool IMethodInfo.IsAbstract => false;
+		bool _IMethodInfo.IsAbstract => false;
 
-		bool IMethodInfo.IsGenericMethodDefinition => false;
+		bool _IMethodInfo.IsGenericMethodDefinition => false;
 
-		bool IMethodInfo.IsPublic => true;
+		bool _IMethodInfo.IsPublic => true;
 
-		bool IMethodInfo.IsStatic => false;
+		bool _IMethodInfo.IsStatic => false;
 
-		string? IMethodInfo.Name => methodName;
+		string _IMethodInfo.Name => methodName;
 
-		ITypeInfo IMethodInfo.ReturnType => VoidType;
+		_ITypeInfo _IMethodInfo.ReturnType => VoidType;
 
-		ITypeInfo IMethodInfo.Type => TestClass;
+		_ITypeInfo _IMethodInfo.Type => TestClass;
 
-		IEnumerable<IAttributeInfo> IMethodInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<_IAttributeInfo> _IMethodInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<_IAttributeInfo>();
 
-		IEnumerable<ITypeInfo> IMethodInfo.GetGenericArguments() => Enumerable.Empty<ITypeInfo>();
+		IEnumerable<_ITypeInfo> _IMethodInfo.GetGenericArguments() => Enumerable.Empty<_ITypeInfo>();
 
-		IEnumerable<IParameterInfo> IMethodInfo.GetParameters() => Enumerable.Empty<IParameterInfo>();
+		IEnumerable<_IParameterInfo> _IMethodInfo.GetParameters() => Enumerable.Empty<_IParameterInfo>();
 
-		IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments) => throw new NotImplementedException();
+		_IMethodInfo _IMethodInfo.MakeGenericMethod(params _ITypeInfo[] typeArguments) => throw new NotImplementedException();
 	}
 }

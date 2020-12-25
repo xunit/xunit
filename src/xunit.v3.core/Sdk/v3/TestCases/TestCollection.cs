@@ -33,7 +33,7 @@ namespace Xunit.v3
 		/// <param name="uniqueID">The unique ID for the test collection (only used to override default behavior in testing scenarios)</param>
 		public TestCollection(
 			_ITestAssembly testAssembly,
-			ITypeInfo? collectionDefinition,
+			_ITypeInfo? collectionDefinition,
 			string displayName,
 			string? uniqueID = null)
 		{
@@ -44,7 +44,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo? CollectionDefinition { get; set; }
+		public _ITypeInfo? CollectionDefinition { get; set; }
 
 		/// <inheritdoc/>
 		public string DisplayName

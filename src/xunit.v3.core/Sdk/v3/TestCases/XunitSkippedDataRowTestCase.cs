@@ -50,7 +50,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override string GetSkipReason(IAttributeInfo factAttribute) =>
+		protected override string? GetSkipReason(_IAttributeInfo factAttribute) =>
 			skipReason ?? throw new InvalidOperationException($"Attempted to call GetSkipReason on an uninitialized '{GetType().FullName}' object");
 
 		/// <inheritdoc/>

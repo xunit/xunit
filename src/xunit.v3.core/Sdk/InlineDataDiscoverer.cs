@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -12,8 +12,8 @@ namespace Xunit.Sdk
 	{
 		/// <inheritdoc/>
 		public virtual IEnumerable<object?[]> GetData(
-			IAttributeInfo dataAttribute,
-			IMethodInfo testMethod)
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod)
 		{
 			// The data from GetConstructorArguments does not maintain its original form (in particular, collections
 			// end up as generic IEnumerable<T>). So we end up needing to call .ToArray() on the enumerable so that
@@ -29,7 +29,7 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public virtual bool SupportsDiscoveryEnumeration(
-			IAttributeInfo dataAttribute,
-			IMethodInfo testMethod) => true;
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod) => true;
 	}
 }

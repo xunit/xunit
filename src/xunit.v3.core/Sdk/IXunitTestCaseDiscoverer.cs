@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -20,7 +19,7 @@ namespace Xunit.Sdk
 		IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo factAttribute
+			_IAttributeInfo factAttribute
 		);
 	}
 }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -18,12 +18,12 @@ namespace Xunit.Sdk
 		/// <remarks>
 		/// This will be called during
 		/// discovery, at which point the <paramref name="testMethod"/> may or may not
-		/// be backed by reflection (i.e., implementing <see cref="IReflectionMethodInfo"/>).
+		/// be backed by reflection (i.e., implementing <see cref="_IReflectionMethodInfo"/>).
 		/// If the data is not available because reflection is required, then you may return
 		/// null to inform xUnit that the quantity of data is unknown at this point.
 		/// When the tests are run, if you returned back null during discovery, then this method
 		/// will be called again to retrieve the data, this time guaranteed to provide
-		/// an implementation of <see cref="IReflectionMethodInfo"/>. At this time, you
+		/// an implementation of <see cref="_IReflectionMethodInfo"/>. At this time, you
 		/// must return the actual data, and returning null is not legal.
 		/// </remarks>
 		/// <param name="dataAttribute">The data attribute being discovered</param>
@@ -31,8 +31,8 @@ namespace Xunit.Sdk
 		/// <returns>The theory data (or null during discovery, if not enough
 		/// information is available to enumerate the data)</returns>
 		IEnumerable<object?[]>? GetData(
-			IAttributeInfo dataAttribute,
-			IMethodInfo testMethod
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod
 		);
 
 		/// <summary>
@@ -41,8 +41,8 @@ namespace Xunit.Sdk
 		/// costs and/or randomized data sets should return <c>false</c>.
 		/// </summary>
 		bool SupportsDiscoveryEnumeration(
-			IAttributeInfo dataAttribute,
-			IMethodInfo testMethod
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod
 		);
 	}
 }

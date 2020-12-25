@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -130,10 +129,10 @@ public class XunitTestCaseTests
 
 		public class BugDiscoverer : ITraitDiscoverer
 		{
-			public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
+			public IEnumerable<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
 			{
 				var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
-				yield return new KeyValuePair<string, string>("Bug", ctorArgs[0].ToString()!);
+				yield return new KeyValuePair<string, string>("Bug", ctorArgs[0]!.ToString()!);
 			}
 		}
 

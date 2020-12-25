@@ -21,7 +21,7 @@ namespace Xunit.Runner.v2
 		}
 
 		/// <inheritdoc/>
-		public IAssemblyInfo Assembly => throw new NotImplementedException();
+		public _IAssemblyInfo Assembly => throw new NotImplementedException();
 
 		/// <inheritdoc/>
 		public string? ConfigFileName => throw new NotImplementedException();

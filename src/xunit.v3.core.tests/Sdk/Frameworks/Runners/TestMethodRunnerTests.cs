@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -190,8 +189,8 @@ public class TestMethodRunnerTests
 
 		TestableTestMethodRunner(
 			_ITestMethod testMethod,
-			IReflectionTypeInfo @class,
-			IReflectionMethodInfo method,
+			_IReflectionTypeInfo @class,
+			_IReflectionMethodInfo method,
 			IEnumerable<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
@@ -224,8 +223,8 @@ public class TestMethodRunnerTests
 
 			return new TestableTestMethodRunner(
 				firstTestCase.TestMethod,
-				(IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
-				(IReflectionMethodInfo)firstTestCase.TestMethod.Method,
+				(_IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
+				(_IReflectionMethodInfo)firstTestCase.TestMethod.Method,
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				aggregator,

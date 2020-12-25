@@ -1,5 +1,4 @@
 using System;
-using Xunit.Abstractions;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -15,6 +14,6 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="attribute">The test framework attribute that decorated the assembly</param>
 		/// <returns>The test framework type</returns>
-		Type? GetTestFrameworkType(IAttributeInfo attribute);
+		Type? GetTestFrameworkType(_IAttributeInfo attribute);
 	}
 }

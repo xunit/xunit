@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -13,13 +13,15 @@ namespace Xunit.Sdk
 	public class DataDiscoverer : IDataDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IEnumerable<object?[]>? GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+		public virtual IEnumerable<object?[]>? GetData(
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 
-			if (dataAttribute is IReflectionAttributeInfo reflectionDataAttribute &&
-				testMethod is IReflectionMethodInfo reflectionTestMethod)
+			if (dataAttribute is _IReflectionAttributeInfo reflectionDataAttribute &&
+				testMethod is _IReflectionMethodInfo reflectionTestMethod)
 			{
 				var attribute = (DataAttribute)reflectionDataAttribute.Attribute;
 
@@ -31,7 +33,7 @@ namespace Xunit.Sdk
 				{
 					// If we couldn't find the data on the base type, check if it is in current type.
 					// This allows base classes to specify data that exists on a sub type, but not on the base type.
-					var reflectionTestMethodType = (IReflectionTypeInfo)reflectionTestMethod.Type;
+					var reflectionTestMethodType = (_IReflectionTypeInfo)reflectionTestMethod.Type;
 					if (attribute is MemberDataAttribute memberDataAttribute && memberDataAttribute.MemberType == null)
 						memberDataAttribute.MemberType = reflectionTestMethodType.Type;
 
@@ -43,7 +45,9 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public virtual bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+		public virtual bool SupportsDiscoveryEnumeration(
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);

@@ -14,7 +14,7 @@ namespace Xunit
 {
 	/// <summary>
 	/// This class be used to do discovery of xUnit.net v2 tests, via any implementation
-	/// of <see cref="IAssemblyInfo"/>, including AST-based runners like CodeRush and
+	/// of <see cref="_IAssemblyInfo"/>, including AST-based runners like CodeRush and
 	/// Resharper. Runner authors who are not using AST-based discovery are strongly
 	/// encouraged to use <see cref="XunitFrontController"/> instead.
 	/// </summary>
@@ -28,7 +28,7 @@ namespace Xunit
 		static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
 
-		readonly IAssemblyInfo assemblyInfo;
+		readonly _IAssemblyInfo assemblyInfo;
 		readonly string? configFileName;
 		bool disposed;
 		ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
@@ -50,7 +50,7 @@ namespace Xunit
 			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			_ISourceInformationProvider sourceInformationProvider,
-			IAssemblyInfo assemblyInfo,
+			_IAssemblyInfo assemblyInfo,
 			string? configFileName,
 			string? xunitExecutionAssemblyPath = null,
 			string? shadowCopyFolder = null,
@@ -97,7 +97,7 @@ namespace Xunit
 			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			_ISourceInformationProvider sourceInformationProvider,
-			IAssemblyInfo? assemblyInfo,
+			_IAssemblyInfo? assemblyInfo,
 			string? assemblyFileName,
 			string xunitExecutionAssemblyPath,
 			string? configFileName,
@@ -132,29 +132,38 @@ namespace Xunit
 
 			TestFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
-			// If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
-			if (assemblyInfo == null)
-				assemblyInfo = AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
+			// We need both a v2 and v3 assembly info, so manufacture the things we're missing
+			IAssemblyInfo remoteAssemblyInfo;
+			if (assemblyInfo != null)
+				remoteAssemblyInfo = new Xunit2AssemblyInfo(assemblyInfo);
+			else
+			{
+				remoteAssemblyInfo = Guard.NotNull(
+					"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
+					AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName)
+				);
+				assemblyInfo = new Xunit3AssemblyInfo(remoteAssemblyInfo);
+			}
 
-			this.assemblyInfo = assemblyInfo!;
+			this.assemblyInfo = assemblyInfo;
 			this.configFileName = configFileName;
 			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.Name, this.assemblyInfo.AssemblyPath, configFileName);
 
 			var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
 			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.Adapt(TestAssemblyUniqueID, null, includeSerialization: false, DiagnosticMessageSink);
-			Framework = Guard.NotNull(
+			RemoteFramework = Guard.NotNull(
 				"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
 				AppDomain.CreateObject<ITestFramework>(
 					TestFrameworkAssemblyName,
 					"Xunit.Sdk.TestFrameworkProxy",
-					assemblyInfo,
+					remoteAssemblyInfo,
 					v2SourceInformationProvider,
 					v2DiagnosticMessageSink
 				)
 			);
-			DisposalTracker.Add(Framework);
+			DisposalTracker.Add(RemoteFramework);
 
-			RemoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", Framework.GetDiscoverer(assemblyInfo));
+			RemoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", RemoteFramework.GetDiscoverer(remoteAssemblyInfo));
 			DisposalTracker.Add(RemoteDiscoverer);
 		}
 
@@ -175,12 +184,12 @@ namespace Xunit
 		/// </summary>
 		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
+		internal ITestFrameworkDiscoverer RemoteDiscoverer { get; }
+
 		/// <summary>
 		/// Returns the test framework from the remote app domain.
 		/// </summary>
-		public ITestFramework Framework { get; }
-
-		internal ITestFrameworkDiscoverer RemoteDiscoverer { get; }
+		public ITestFramework RemoteFramework { get; }
 
 		/// <inheritdoc/>
 		public string TestAssemblyUniqueID { get; protected set; }
@@ -352,7 +361,10 @@ namespace Xunit
 #endif
 		}
 
-		static string GetXunitExecutionAssemblyPath(AppDomainSupport appDomainSupport, string assemblyFileName, bool verifyTestAssemblyExists)
+		static string GetXunitExecutionAssemblyPath(
+			AppDomainSupport appDomainSupport,
+			string assemblyFileName,
+			bool verifyTestAssemblyExists)
 		{
 			Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 			if (verifyTestAssemblyExists)
@@ -361,7 +373,9 @@ namespace Xunit
 			return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyFileName)!);
 		}
 
-		static string GetXunitExecutionAssemblyPath(AppDomainSupport appDomainSupport, IAssemblyInfo assemblyInfo)
+		static string GetXunitExecutionAssemblyPath(
+			AppDomainSupport appDomainSupport,
+			_IAssemblyInfo assemblyInfo)
 		{
 			Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
 			Guard.ArgumentNotNullOrEmpty("assemblyInfo.AssemblyPath", assemblyInfo.AssemblyPath);

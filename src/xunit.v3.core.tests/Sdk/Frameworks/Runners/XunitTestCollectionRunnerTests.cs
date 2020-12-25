@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -294,7 +293,7 @@ public class XunitTestCollectionRunnerTests
 
 		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
-		protected override Task<RunSummary> RunTestClassAsync(_ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
+		protected override Task<RunSummary> RunTestClassAsync(_ITestClass testClass, _IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
 		{
 			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
 

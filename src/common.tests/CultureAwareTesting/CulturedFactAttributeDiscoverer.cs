@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
 
@@ -18,7 +17,7 @@ namespace Xunit.v3
 		public IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo factAttribute)
+			_IAttributeInfo factAttribute)
 		{
 			var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
 			var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();

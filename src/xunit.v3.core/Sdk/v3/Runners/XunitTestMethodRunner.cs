@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -29,8 +28,8 @@ namespace Xunit.v3
 		/// <param name="constructorArguments">The constructor arguments for the test class.</param>
 		public XunitTestMethodRunner(
 			_ITestMethod testMethod,
-			IReflectionTypeInfo @class,
-			IReflectionMethodInfo method,
+			_IReflectionTypeInfo @class,
+			_IReflectionMethodInfo method,
 			IEnumerable<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,

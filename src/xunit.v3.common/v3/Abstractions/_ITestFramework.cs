@@ -1,5 +1,4 @@
 using System;
-using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -23,13 +22,13 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assembly">The assembly to discover tests from.</param>
 		/// <returns>The test discoverer.</returns>
-		_ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly);
+		_ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly);
 
 		/// <summary>
 		/// Get a test executor.
 		/// </summary>
 		/// <param name="assembly">The assembly to run tests from.</param>
 		/// <returns>The test executor.</returns>
-		_ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly);
+		_ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly);
 	}
 }

@@ -1,5 +1,5 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
+﻿using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -9,7 +9,9 @@ namespace Xunit.Sdk
 	public class MemberDataDiscoverer : DataDiscoverer
 	{
 		/// <inheritdoc/>
-		public override bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+		public override bool SupportsDiscoveryEnumeration(
+			_IAttributeInfo dataAttribute,
+			_IMethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);

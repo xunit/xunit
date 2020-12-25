@@ -207,7 +207,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", theoryTestCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
 		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
-		Assert.Equal("Non-serializable data ('System.Object[]') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
+		Assert.Equal("Non-serializable data (one or more of: 'TheoryDiscovererTests+NonSerializableDataAttribute') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
 	}
 
 	class NonSerializableDataAttribute : DataAttribute

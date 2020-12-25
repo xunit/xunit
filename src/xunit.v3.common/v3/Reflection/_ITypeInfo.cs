@@ -15,9 +15,10 @@ namespace Xunit.v3
 		_IAssemblyInfo Assembly { get; }
 
 		/// <summary>
-		/// Gets the base type of the given type.
+		/// Gets the base type of the given type. Will be <c>null</c> if this type represents
+		/// <see cref="object"/>; otherwise, will not be <c>null</c>.
 		/// </summary>
-		_ITypeInfo BaseType { get; }
+		_ITypeInfo? BaseType { get; }
 
 		/// <summary>
 		/// Gets the interfaces implemented by the given type.
@@ -74,7 +75,7 @@ namespace Xunit.v3
 		/// <param name="methodName">The name of the method.</param>
 		/// <param name="includePrivateMethod">Set to <c>true</c> to look for the method in both public and private.</param>
 		/// <returns>The method.</returns>
-		_IMethodInfo GetMethod(string methodName, bool includePrivateMethod);
+		_IMethodInfo? GetMethod(string methodName, bool includePrivateMethod);
 
 		/// <summary>
 		/// Gets all the methods in this type.

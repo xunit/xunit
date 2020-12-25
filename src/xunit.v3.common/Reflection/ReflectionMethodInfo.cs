@@ -3,19 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Reflection-based implementation of <see cref="IReflectionMethodInfo"/>.
+	/// Reflection-based implementation of <see cref="_IReflectionMethodInfo"/>.
 	/// </summary>
-	public class ReflectionMethodInfo : IReflectionMethodInfo
+	public class ReflectionMethodInfo : _IReflectionMethodInfo
 	{
 		static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
 
-		IEnumerable<IParameterInfo>? cachedParameters = null;
+		IEnumerable<_IParameterInfo>? cachedParameters = null;
+		readonly Lazy<_ITypeInfo> returnType;
+		readonly Lazy<_ITypeInfo> type;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionMethodInfo"/> class.
@@ -24,6 +26,9 @@ namespace Xunit.Sdk
 		public ReflectionMethodInfo(MethodInfo method)
 		{
 			MethodInfo = Guard.ArgumentNotNull(nameof(method), method);
+
+			returnType = new(() => Reflector.Wrap(MethodInfo.ReturnType));
+			type = new(() => Reflector.Wrap(MethodInfo.ReflectedType!));
 		}
 
 		/// <inheritdoc/>
@@ -45,20 +50,20 @@ namespace Xunit.Sdk
 		public string Name => MethodInfo.Name;
 
 		/// <inheritdoc/>
-		public ITypeInfo ReturnType => Reflector.Wrap(MethodInfo.ReturnType);
+		public _ITypeInfo ReturnType => returnType.Value;
 
 		/// <inheritdoc/>
-		public ITypeInfo Type => Reflector.Wrap(MethodInfo.ReflectedType!);
+		public _ITypeInfo Type => type.Value;
 
 		/// <inheritdoc/>
-		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
 		}
 
-		static IEnumerable<IAttributeInfo> GetCustomAttributes(
+		static IEnumerable<_IAttributeInfo> GetCustomAttributes(
 			MethodInfo method,
 			string assemblyQualifiedAttributeTypeName)
 		{
@@ -72,7 +77,7 @@ namespace Xunit.Sdk
 			return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 		}
 
-		static IEnumerable<IAttributeInfo> GetCustomAttributes(
+		static IEnumerable<_IAttributeInfo> GetCustomAttributes(
 			MethodInfo method,
 			Type attributeType,
 			AttributeUsageAttribute attributeUsage)
@@ -93,7 +98,7 @@ namespace Xunit.Sdk
 			if (list != null)
 				list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
 
-			var results = list ?? Enumerable.Empty<IAttributeInfo>();
+			var results = list ?? Enumerable.Empty<_IAttributeInfo>();
 
 			if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
 			{
@@ -107,7 +112,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<ITypeInfo> GetGenericArguments() =>
+		public IEnumerable<_ITypeInfo> GetGenericArguments() =>
 			MethodInfo.GetGenericArguments().Select(t => Reflector.Wrap(t)).ToArray();
 
 		static MethodInfo? GetParent(MethodInfo method)
@@ -153,11 +158,11 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments)
+		public _IMethodInfo MakeGenericMethod(params _ITypeInfo[] typeArguments)
 		{
 			Guard.ArgumentNotNull(nameof(typeArguments), typeArguments);
 
-			var unwrapedTypeArguments = typeArguments.Select(t => ((IReflectionTypeInfo)t).Type).ToArray();
+			var unwrapedTypeArguments = typeArguments.Select(t => ((_IReflectionTypeInfo)t).Type).ToArray();
 
 			return Reflector.Wrap(MethodInfo.MakeGenericMethod(unwrapedTypeArguments));
 		}
@@ -166,12 +171,12 @@ namespace Xunit.Sdk
 		public override string? ToString() => MethodInfo.ToString();
 
 		/// <inheritdoc/>
-		public IEnumerable<IParameterInfo> GetParameters()
+		public IEnumerable<_IParameterInfo> GetParameters()
 		{
 			if (cachedParameters == null)
 			{
 				var parameters = MethodInfo.GetParameters();
-				var parameterInfos = new IParameterInfo[parameters.Length];
+				var parameterInfos = new _IParameterInfo[parameters.Length];
 
 				for (var i = 0; i < parameterInfos.Length; i++)
 					parameterInfos[i] = Reflector.Wrap(parameters[i]);

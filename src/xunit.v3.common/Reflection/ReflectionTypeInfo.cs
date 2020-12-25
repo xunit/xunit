@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Reflection-based implementation of <see cref="IReflectionTypeInfo"/>.
+	/// Reflection-based implementation of <see cref="_IReflectionTypeInfo"/>.
 	/// </summary>
-	public class ReflectionTypeInfo : IReflectionTypeInfo
+	public class ReflectionTypeInfo : _IReflectionTypeInfo
 	{
+		readonly Lazy<_IAssemblyInfo> assembly;
+		readonly Lazy<_ITypeInfo?> baseType;
+		readonly Lazy<IEnumerable<_ITypeInfo>> interfaces;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionTypeInfo"/> class.
 		/// </summary>
@@ -19,16 +23,20 @@ namespace Xunit.Sdk
 		public ReflectionTypeInfo(Type type)
 		{
 			Type = Guard.ArgumentNotNull(nameof(type), type);
+
+			assembly = new(() => Reflector.Wrap(Type.Assembly));
+			baseType = new(() => Type.BaseType == null ? null : Reflector.Wrap(Type.BaseType!));
+			interfaces = new(() => Type.GetInterfaces().Select(i => Reflector.Wrap(i)).ToList());
 		}
 
 		/// <inheritdoc/>
-		public IAssemblyInfo Assembly => Reflector.Wrap(Type.Assembly);
+		public _IAssemblyInfo Assembly => assembly.Value;
 
 		/// <inheritdoc/>
-		public ITypeInfo? BaseType => Type.BaseType == null ? null : Reflector.Wrap(Type.BaseType!);
+		public _ITypeInfo? BaseType => baseType.Value;
 
 		/// <inheritdoc/>
-		public IEnumerable<ITypeInfo> Interfaces => Type.GetInterfaces().Select(i => Reflector.Wrap(i)).ToList();
+		public IEnumerable<_ITypeInfo> Interfaces => interfaces.Value;
 
 		/// <inheritdoc/>
 		public bool IsAbstract => Type.IsAbstract;
@@ -52,7 +60,7 @@ namespace Xunit.Sdk
 		public Type Type { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
 
@@ -60,14 +68,14 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<ITypeInfo> GetGenericArguments() =>
+		public IEnumerable<_ITypeInfo> GetGenericArguments() =>
 			Type
 				.GenericTypeArguments
 				.Select(t => Reflector.Wrap(t))
 				.ToList();
 
 		/// <inheritdoc/>
-		public IMethodInfo? GetMethod(
+		public _IMethodInfo? GetMethod(
 			string methodName,
 			bool includePrivateMethod)
 		{
@@ -85,7 +93,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
+		public IEnumerable<_IMethodInfo> GetMethods(bool includePrivateMethods)
 		{
 			var methodInfos = Type.GetRuntimeMethods();
 

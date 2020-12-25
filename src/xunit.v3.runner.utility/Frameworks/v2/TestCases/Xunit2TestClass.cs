@@ -16,12 +16,14 @@ namespace Xunit.Runner.v2
 		public Xunit2TestClass(ITestClass v2TestClass)
 		{
 			V2TestClass = Guard.ArgumentNotNull(nameof(v2TestClass), v2TestClass);
+
+			Class = new Xunit3TypeInfo(V2TestClass.Class);
 			TestCollection = new Xunit2TestCollection(V2TestClass.TestCollection);
 			UniqueID = UniqueIDGenerator.ForTestClass(TestCollection.UniqueID, v2TestClass.Class.Name);
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo Class => V2TestClass.Class;
+		public _ITypeInfo Class { get; }
 
 		/// <inheritdoc/>
 		public _ITestCollection TestCollection { get; }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -17,7 +16,7 @@ namespace Xunit.v3
 	/// </summary>
 	public abstract class TestFrameworkDiscoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
 	{
-		IAssemblyInfo assemblyInfo;
+		_IAssemblyInfo assemblyInfo;
 		string? configFileName;
 		_IMessageSink diagnosticMessageSink;
 		bool disposed;
@@ -32,7 +31,7 @@ namespace Xunit.v3
 		/// <param name="sourceProvider">The source information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkDiscoverer(
-			IAssemblyInfo assemblyInfo,
+			_IAssemblyInfo assemblyInfo,
 			string? configFileName,
 			_ISourceInformationProvider sourceProvider,
 			_IMessageSink diagnosticMessageSink)
@@ -57,7 +56,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the assembly that's being discovered.
 		/// </summary>
-		protected internal IAssemblyInfo AssemblyInfo
+		protected internal _IAssemblyInfo AssemblyInfo
 		{
 			get => assemblyInfo;
 			set => assemblyInfo = Guard.ArgumentNotNull(nameof(AssemblyInfo), value);
@@ -102,7 +101,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="class">The CLR type.</param>
 		/// <returns>The test class.</returns>
-		protected internal abstract _ITestClass CreateTestClass(ITypeInfo @class);
+		protected internal abstract _ITestClass CreateTestClass(_ITypeInfo @class);
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()
@@ -235,7 +234,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="type">The type.</param>
 		/// <returns>Returns <c>true</c> if the type can contain tests; <c>false</c>, otherwise.</returns>
-		protected virtual bool IsValidTestClass(ITypeInfo type)
+		protected virtual bool IsValidTestClass(_ITypeInfo type)
 		{
 			Guard.ArgumentNotNull(nameof(type), type);
 
@@ -302,7 +301,7 @@ namespace Xunit.v3
 		{
 			readonly string originalWorkingFolder;
 
-			public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)
+			public PreserveWorkingFolder(_IAssemblyInfo assemblyInfo)
 			{
 				originalWorkingFolder = Directory.GetCurrentDirectory();
 

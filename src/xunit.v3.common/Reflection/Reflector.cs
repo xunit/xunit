@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -78,48 +78,48 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Converts an <see cref="Assembly"/> into an <see cref="IReflectionAssemblyInfo"/>.
+		/// Converts an <see cref="Assembly"/> into an <see cref="_IReflectionAssemblyInfo"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly to wrap.</param>
 		/// <returns>The wrapper</returns>
 		[return: NotNullIfNotNull("assembly")]
-		public static IReflectionAssemblyInfo? Wrap(Assembly? assembly) =>
+		public static _IReflectionAssemblyInfo? Wrap(Assembly? assembly) =>
 			assembly == null ? null : new ReflectionAssemblyInfo(assembly);
 
 		/// <summary>
-		/// Converts an <see cref="Attribute"/> into an <see cref="IAttributeInfo"/> using reflection.
+		/// Converts an <see cref="Attribute"/> into an <see cref="_IAttributeInfo"/> using reflection.
 		/// </summary>
 		/// <param name="attribute">The attribute to wrap.</param>
 		/// <returns>The wrapper</returns>
 		[return: NotNullIfNotNull("attribute")]
-		public static IReflectionAttributeInfo? Wrap(CustomAttributeData? attribute) =>
+		public static _IReflectionAttributeInfo? Wrap(CustomAttributeData? attribute) =>
 			attribute == null ? null : new ReflectionAttributeInfo(attribute);
 
 		/// <summary>
-		/// Converts a <see cref="MethodInfo"/> into an <see cref="IMethodInfo"/> using reflection.
+		/// Converts a <see cref="MethodInfo"/> into an <see cref="_IMethodInfo"/> using reflection.
 		/// </summary>
 		/// <param name="method">The method to wrap</param>
 		/// <returns>The wrapper</returns>
 		[return: NotNullIfNotNull("method")]
-		public static IReflectionMethodInfo? Wrap(MethodInfo? method) =>
+		public static _IReflectionMethodInfo? Wrap(MethodInfo? method) =>
 			method == null ? null : new ReflectionMethodInfo(method);
 
 		/// <summary>
-		/// Converts a <see cref="ParameterInfo"/> into an <see cref="IParameterInfo"/> using reflection.
+		/// Converts a <see cref="ParameterInfo"/> into an <see cref="_IParameterInfo"/> using reflection.
 		/// </summary>
 		/// <param name="parameter">THe parameter to wrap</param>
 		/// <returns>The wrapper</returns>
 		[return: NotNullIfNotNull("parameter")]
-		public static IReflectionParameterInfo? Wrap(ParameterInfo? parameter) =>
+		public static _IReflectionParameterInfo? Wrap(ParameterInfo? parameter) =>
 			parameter == null ? null : new ReflectionParameterInfo(parameter);
 
 		/// <summary>
-		/// Converts a <see cref="Type"/> into an <see cref="ITypeInfo"/> using reflection.
+		/// Converts a <see cref="Type"/> into an <see cref="_ITypeInfo"/> using reflection.
 		/// </summary>
 		/// <param name="type">The type to wrap</param>
 		/// <returns>The wrapper</returns>
 		[return: NotNullIfNotNull("type")]
-		public static IReflectionTypeInfo? Wrap(Type? type) =>
+		public static _IReflectionTypeInfo? Wrap(Type? type) =>
 			type == null ? null : new ReflectionTypeInfo(type);
 	}
 }

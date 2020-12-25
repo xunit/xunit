@@ -96,7 +96,7 @@ public class DefaultTestCaseDescriptorProviderTests
 		string? fileName = null,
 		int? lineNumber = null)
 	{
-		var testClass = Xunit2Mocks.TestClass(classType: Reflector.Wrap(typeof(TClassUnderTest)));
+		var testClass = Xunit2Mocks.TestClass(classType: new Xunit2TypeInfo(Reflector.Wrap(typeof(TClassUnderTest))));
 		var testMethod = Xunit2Mocks.TestMethod(testClass, methodName);
 		return Xunit2Mocks.TestCase(testMethod, displayName, skipReason, fileName, lineNumber, uniqueID: uniqueID);
 	}

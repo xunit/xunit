@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -68,7 +67,7 @@ namespace Xunit.v3
 					var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).FirstOrDefault();
 					if (discovererAttribute == null)
 					{
-						if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
+						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							Aggregator.Add(new InvalidOperationException($"Data attribute {reflectionAttribute.Attribute.GetType().FullName} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
 						else
 							Aggregator.Add(new InvalidOperationException($"A data attribute specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
@@ -82,7 +81,7 @@ namespace Xunit.v3
 						discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererAttribute);
 						if (discoverer == null)
 						{
-							if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
+							if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 								Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
 							else
 								Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
@@ -92,7 +91,7 @@ namespace Xunit.v3
 					}
 					catch (InvalidCastException)
 					{
-						if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
+						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
 						else
 							Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
@@ -112,14 +111,14 @@ namespace Xunit.v3
 						foreach (var dataRowItem in dataRow)
 							disposalTracker.Add(dataRowItem);
 
-						ITypeInfo[]? resolvedTypes = null;
+						_ITypeInfo[]? resolvedTypes = null;
 						var methodToRun = TestMethod;
 						var convertedDataRow = methodToRun.ResolveMethodArguments(dataRow);
 
 						if (methodToRun.IsGenericMethodDefinition)
 						{
 							resolvedTypes = TestCase.TestMethod.Method.ResolveGenericTypes(convertedDataRow);
-							methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
+							methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((_IReflectionTypeInfo)t).Type).ToArray());
 						}
 
 						var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();

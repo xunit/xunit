@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -13,7 +11,7 @@ namespace Xunit.v3
 		/// Gets the type that the test collection was defined with, if available; may be <c>null</c>
 		/// if the test collection didn't have a definition type.
 		/// </summary>
-		ITypeInfo? CollectionDefinition { get; }
+		_ITypeInfo? CollectionDefinition { get; }
 
 		/// <summary>
 		/// Gets the display name of the test collection.

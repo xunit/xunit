@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -10,7 +8,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the class that this test case is attached to.
 		/// </summary>
-		ITypeInfo Class { get; }
+		_ITypeInfo Class { get; }
 
 		/// <summary>
 		/// Gets the test collection this test case belongs to.

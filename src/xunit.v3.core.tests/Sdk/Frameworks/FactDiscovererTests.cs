@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -11,7 +10,7 @@ public class FactDiscovererTests
 {
 	readonly ExceptionAggregator aggregator;
 	readonly CancellationTokenSource cancellationTokenSource;
-	readonly IReflectionAttributeInfo factAttribute;
+	readonly _IReflectionAttributeInfo factAttribute;
 	readonly SpyMessageBus messageBus;
 	readonly _ITestFrameworkDiscoveryOptions options;
 

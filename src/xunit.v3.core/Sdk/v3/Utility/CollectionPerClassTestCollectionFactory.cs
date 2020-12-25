@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -12,7 +11,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFactory
 	{
-		readonly Dictionary<string, ITypeInfo> collectionDefinitions;
+		readonly Dictionary<string, _ITypeInfo> collectionDefinitions;
 		readonly _ITestAssembly testAssembly;
 		readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new ConcurrentDictionary<string, _ITestCollection>();
 
@@ -42,7 +41,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public _ITestCollection Get(ITypeInfo testClass)
+		public _ITestCollection Get(_ITypeInfo testClass)
 		{
 			Guard.ArgumentNotNull(nameof(testClass), testClass);
 

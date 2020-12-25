@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class TraitHelperTests
 {
@@ -143,7 +143,7 @@ public class TraitHelperTests
 
 	class CustomTraitDiscoverer : ITraitDiscoverer
 	{
-		public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
+		public IEnumerable<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
 		{
 			yield return new KeyValuePair<string, string>("Foo", "Biff");
 			yield return new KeyValuePair<string, string>("Baz", "2112");

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -14,7 +13,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestAssemblyRunner : TestAssemblyRunner<IXunitTestCase>
 	{
-		IAttributeInfo? collectionBehaviorAttribute;
+		_IAttributeInfo? collectionBehaviorAttribute;
 		bool disableParallelization;
 		bool initialized;
 		int maxParallelThreads;

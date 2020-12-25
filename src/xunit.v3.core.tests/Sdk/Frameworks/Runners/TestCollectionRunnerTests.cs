@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -218,7 +217,7 @@ public class TestCollectionRunnerTests
 		readonly bool cancelInRunTestClassAsync;
 		readonly RunSummary result;
 
-		public readonly List<Tuple<IReflectionTypeInfo, IEnumerable<_ITestCase>>> ClassesRun = new List<Tuple<IReflectionTypeInfo, IEnumerable<_ITestCase>>>();
+		public readonly List<Tuple<_IReflectionTypeInfo, IEnumerable<_ITestCase>>> ClassesRun = new();
 		public Action<ExceptionAggregator> AfterTestCollectionStarting_Callback = _ => { };
 		public bool AfterTestCollectionStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestCollectionFinished_Callback = _ => { };
@@ -285,7 +284,7 @@ public class TestCollectionRunnerTests
 
 		protected override Task<RunSummary> RunTestClassAsync(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<_ITestCase> testCases)
 		{
 			if (cancelInRunTestClassAsync)

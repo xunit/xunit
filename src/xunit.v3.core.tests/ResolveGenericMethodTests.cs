@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ResolveGenericMethodTests
 {
@@ -467,7 +467,7 @@ public class ResolveGenericMethodTests
 		var methodInfo = typeof(ResolveGenericMethodTests).GetMethod(methodName);
 		Assert.NotNull(methodInfo);
 
-		IMethodInfo method = Reflector.Wrap(methodInfo);
+		_IMethodInfo method = Reflector.Wrap(methodInfo);
 		Type[] actual = method.ResolveGenericTypes(parameters).Select(t => ((ReflectionTypeInfo)t).Type).ToArray();
 		Assert.Equal(expected, actual);
 	}

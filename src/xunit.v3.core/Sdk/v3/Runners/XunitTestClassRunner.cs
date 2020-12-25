@@ -35,7 +35,7 @@ namespace Xunit.v3
 		/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 		public XunitTestClassRunner(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
@@ -164,7 +164,7 @@ namespace Xunit.v3
 
 			if (TestClass.TestCollection.CollectionDefinition != null)
 			{
-				var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
+				var declarationType = ((_IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
 				foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
 					createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()));
 			}
@@ -186,7 +186,7 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
-			IReflectionMethodInfo method,
+			_IReflectionMethodInfo method,
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
 				new XunitTestMethodRunner(

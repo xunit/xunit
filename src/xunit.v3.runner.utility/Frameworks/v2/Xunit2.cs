@@ -16,7 +16,7 @@ namespace Xunit
 {
 	/// <summary>
 	/// This class be used to do discovery and execution of xUnit.net v2 tests
-	/// using a reflection-based implementation of <see cref="IAssemblyInfo"/>.
+	/// using a reflection-based implementation of <see cref="_IAssemblyInfo"/>.
 	/// </summary>
 	public class Xunit2 : Xunit2Discoverer, IFrontController
 	{
@@ -55,7 +55,7 @@ namespace Xunit
 			var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
 			var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #endif
-			remoteExecutor = Framework.GetExecutor(assemblyName);
+			remoteExecutor = RemoteFramework.GetExecutor(assemblyName);
 			DisposalTracker.Add(remoteExecutor);
 		}
 

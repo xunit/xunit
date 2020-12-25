@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NSubstitute;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -12,15 +11,20 @@ namespace Xunit.v3
 	// This file contains mocks of reflection-based attribute information.
 	public static partial class Mocks
 	{
-		public static IReflectionAttributeInfo CollectionAttribute(string collectionName)
+		static readonly _IReflectionAttributeInfo[] EmptyAttributeInfos = new _IReflectionAttributeInfo[0];
+		static readonly _IReflectionMethodInfo[] EmptyMethodInfos = new _IReflectionMethodInfo[0];
+		static readonly _IReflectionParameterInfo[] EmptyParameterInfos = new _IReflectionParameterInfo[0];
+		static readonly _IReflectionTypeInfo[] EmptyTypeInfos = new _IReflectionTypeInfo[0];
+
+		public static _IReflectionAttributeInfo CollectionAttribute(string collectionName)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new CollectionAttribute(collectionName));
 			result.GetConstructorArguments().Returns(new[] { collectionName });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo CollectionBehaviorAttribute(
+		public static _IReflectionAttributeInfo CollectionBehaviorAttribute(
 			CollectionBehavior? collectionBehavior = null,
 			bool disableTestParallelization = false,
 			int maxParallelThreads = 0)
@@ -29,20 +33,20 @@ namespace Xunit.v3
 			return CollectionBehaviorAttribute(disableTestParallelization, maxParallelThreads, ctorArgs);
 		}
 
-		public static IReflectionAttributeInfo CollectionBehaviorAttribute(
+		public static _IReflectionAttributeInfo CollectionBehaviorAttribute(
 			string factoryTypeName,
 			string factoryAssemblyName,
 			bool disableTestParallelization = false,
 			int maxParallelThreads = 0) =>
 				CollectionBehaviorAttribute(disableTestParallelization, maxParallelThreads, factoryTypeName, factoryAssemblyName);
 
-		public static IReflectionAttributeInfo CollectionBehaviorAttribute<TTestCollectionFactory>(
+		public static _IReflectionAttributeInfo CollectionBehaviorAttribute<TTestCollectionFactory>(
 			bool disableTestParallelization = false,
 			int maxParallelThreads = 0)
 				where TTestCollectionFactory : IXunitTestCollectionFactory =>
 					CollectionBehaviorAttribute(disableTestParallelization, maxParallelThreads, typeof(TTestCollectionFactory));
 
-		static IReflectionAttributeInfo CollectionBehaviorAttribute(
+		static _IReflectionAttributeInfo CollectionBehaviorAttribute(
 			bool disableTestParallelization,
 			int maxParallelThreads,
 			params object?[] constructorArguments)
@@ -52,7 +56,7 @@ namespace Xunit.v3
 			attribute.DisableTestParallelization = disableTestParallelization;
 			attribute.MaxParallelThreads = maxParallelThreads;
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetConstructorArguments().Returns(constructorArguments);
 			result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
@@ -60,15 +64,15 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static IReflectionAttributeInfo CollectionDefinitionAttribute(string collectionName)
+		public static _IReflectionAttributeInfo CollectionDefinitionAttribute(string collectionName)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new CollectionDefinitionAttribute(collectionName));
 			result.GetConstructorArguments().Returns(new[] { collectionName });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo DataAttribute(
+		public static _IReflectionAttributeInfo DataAttribute(
 			IEnumerable<object[]>? data = null,
 			string? skip = null)
 		{
@@ -76,18 +80,18 @@ namespace Xunit.v3
 			dataAttribute.Skip.Returns(skip);
 			dataAttribute.GetData(null!).ReturnsForAnyArgs(data);
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(dataAttribute);
 			result.GetNamedArgument<string?>("Skip").Returns(skip);
 			return result;
 		}
 
-		public static IReflectionAttributeInfo FactAttribute(
+		public static _IReflectionAttributeInfo FactAttribute(
 			string? displayName = null,
 			string? skip = null,
 			int timeout = 0)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
 			result.GetNamedArgument<string?>("DisplayName").Returns(displayName);
 			result.GetNamedArgument<string?>("Skip").Returns(skip);
@@ -95,9 +99,9 @@ namespace Xunit.v3
 			return result;
 		}
 
-		static IEnumerable<IReflectionAttributeInfo> LookupAttribute(
+		static IEnumerable<_IReflectionAttributeInfo> LookupAttribute(
 			string fullyQualifiedTypeName,
-			IReflectionAttributeInfo[]? attributes)
+			_IReflectionAttributeInfo[]? attributes)
 		{
 			if (attributes == null)
 				return EmptyAttributeInfos;
@@ -112,7 +116,7 @@ namespace Xunit.v3
 					.ToList();
 		}
 
-		static IEnumerable<IReflectionAttributeInfo> LookupAttribute<TLookupType, TAttributeType>()
+		static IEnumerable<_IReflectionAttributeInfo> LookupAttribute<TLookupType, TAttributeType>()
 			where TAttributeType : Attribute =>
 				typeof(TLookupType)
 					.GetCustomAttributesData()
@@ -120,56 +124,56 @@ namespace Xunit.v3
 					.Select(cad => Reflector.Wrap(cad))
 					.ToList();
 
-		public static IReflectionAttributeInfo TestCaseOrdererAttribute(
+		public static _IReflectionAttributeInfo TestCaseOrdererAttribute(
 			string typeName,
 			string assemblyName)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new TestCaseOrdererAttribute(typeName, assemblyName));
 			result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TestCaseOrdererAttribute(Type type)
+		public static _IReflectionAttributeInfo TestCaseOrdererAttribute(Type type)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new TestCaseOrdererAttribute(type));
 			result.GetConstructorArguments().Returns(new object[] { type });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrdererAttribute>()
+		public static _IReflectionAttributeInfo TestCaseOrdererAttribute<TOrdererAttribute>()
 			where TOrdererAttribute : ITestCaseOrderer =>
 				TestCaseOrdererAttribute(typeof(TOrdererAttribute));
 
-		public static IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
+		public static _IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new TestCollectionOrdererAttribute(typeName, assemblyName));
 			result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TestCollectionOrdererAttribute(Type type)
+		public static _IReflectionAttributeInfo TestCollectionOrdererAttribute(Type type)
 		{
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(new TestCollectionOrdererAttribute(type));
 			result.GetConstructorArguments().Returns(new object[] { type });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrdererAttribute>()
+		public static _IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrdererAttribute>()
 			where TOrdererAttribute : ITestCollectionOrderer =>
 				TestCollectionOrdererAttribute(typeof(TOrdererAttribute));
 
-		public static IReflectionAttributeInfo TestFrameworkAttribute<TTestFrameworkAttribute>()
+		public static _IReflectionAttributeInfo TestFrameworkAttribute<TTestFrameworkAttribute>()
 			where TTestFrameworkAttribute : Attribute, ITestFrameworkAttribute, new()
 		{
 			var attribute = new TTestFrameworkAttribute();
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
-			result.GetCustomAttributes(null).ReturnsForAnyArgs(
+			result.GetCustomAttributes(null!).ReturnsForAnyArgs(
 				callInfo => LookupAttribute(
 					callInfo.Arg<string>(),
 					CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(x => Reflector.Wrap(x)).ToArray()
@@ -178,14 +182,14 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TheoryAttribute(
+		public static _IReflectionAttributeInfo TheoryAttribute(
 			string? displayName = null,
 			string? skip = null,
 			int timeout = 0)
 		{
 			var attribute = new TheoryAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout };
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetNamedArgument<string>("DisplayName").Returns(displayName);
 			result.GetNamedArgument<string>("Skip").Returns(skip);
@@ -193,50 +197,50 @@ namespace Xunit.v3
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TraitAttribute(
+		public static _IReflectionAttributeInfo TraitAttribute(
 			string name,
 			string value)
 		{
 			var attribute = new TraitAttribute(name, value);
 			var traitDiscovererAttributes = new[] { TraitDiscovererAttribute() };
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetConstructorArguments().Returns(new object[] { name, value });
 			result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TraitAttribute<TTraitAttribute>()
+		public static _IReflectionAttributeInfo TraitAttribute<TTraitAttribute>()
 			where TTraitAttribute : Attribute, ITraitAttribute, new()
 		{
 			var attribute = new TTraitAttribute();
 			var traitDiscovererAttributes = LookupAttribute<TTraitAttribute, TraitDiscovererAttribute>();
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TraitDiscovererAttribute(
+		public static _IReflectionAttributeInfo TraitDiscovererAttribute(
 			string typeName = "Xunit.Sdk.TraitDiscoverer",
 			string assemblyName = "xunit.v3.core")
 		{
 			var attribute = new TraitDiscovererAttribute(typeName, assemblyName);
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 			return result;
 		}
 
-		public static IReflectionAttributeInfo TraitDiscovererAttribute<TTraitDiscoverer>()
+		public static _IReflectionAttributeInfo TraitDiscovererAttribute<TTraitDiscoverer>()
 			where TTraitDiscoverer : ITraitDiscoverer
 		{
 			var attribute = new TraitDiscovererAttribute(typeof(TTraitDiscoverer));
 
-			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
 			result.GetConstructorArguments().Returns(new object[] { typeof(TTraitDiscoverer) });
 			return result;

@@ -1,7 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Sdk;
-
-namespace Xunit.v3
+﻿namespace Xunit.v3
 {
 	/// <summary>
 	/// The implementation of <see cref="_ITestFramework"/> that supports discovery and
@@ -33,11 +30,11 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override _ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly) =>
+		protected override _ITestFrameworkDiscoverer CreateDiscoverer(_IAssemblyInfo assembly) =>
 			new XunitTestFrameworkDiscoverer(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 
 		/// <inheritdoc/>
-		protected override _ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly) =>
+		protected override _ITestFrameworkExecutor CreateExecutor(_IReflectionAssemblyInfo assembly) =>
 			new XunitTestFrameworkExecutor(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
 	}
 }

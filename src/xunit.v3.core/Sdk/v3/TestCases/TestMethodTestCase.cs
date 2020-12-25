@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -20,8 +18,8 @@ namespace Xunit.v3
 		string? displayName;
 		DisplayNameFormatter formatter;
 		bool initialized;
-		IMethodInfo? method;
-		ITypeInfo[]? methodGenericTypes;
+		_IMethodInfo? method;
+		_ITypeInfo[]? methodGenericTypes;
 		string? skipReason;
 		_ISourceInformation? sourceInformation;
 		_ITestMethod? testMethod;
@@ -109,7 +107,7 @@ namespace Xunit.v3
 		public Exception? InitializationException { get; protected set; }
 
 		/// <inheritdoc/>
-		public IMethodInfo Method
+		public _IMethodInfo Method
 		{
 			get
 			{
@@ -127,7 +125,7 @@ namespace Xunit.v3
 		/// Gets the generic types that were used to close the generic test method, if
 		/// applicable; <c>null</c>, if the test method was not an open generic.
 		/// </summary>
-		protected ITypeInfo[]? MethodGenericTypes
+		protected _ITypeInfo[]? MethodGenericTypes
 		{
 			get
 			{
@@ -225,7 +223,7 @@ namespace Xunit.v3
 			var assemblyName = TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name;
 
 			// Get just the assembly name (without version info) when obtained by reflection
-			if (TestMethod.TestClass.TestCollection.TestAssembly.Assembly is IReflectionAssemblyInfo assembly)
+			if (TestMethod.TestClass.TestCollection.TestAssembly.Assembly is _IReflectionAssemblyInfo assembly)
 				assemblyName = assembly.Assembly.GetName().Name ?? assemblyName;
 
 			idGenerator.Add(assemblyName);
@@ -254,7 +252,7 @@ namespace Xunit.v3
 
 			if (TestMethodArguments != null)
 			{
-				if (Method is IReflectionMethodInfo reflectionMethod)
+				if (Method is _IReflectionMethodInfo reflectionMethod)
 				{
 					try
 					{
@@ -272,18 +270,11 @@ namespace Xunit.v3
 			if (TestMethodArguments != null && Method.IsGenericMethodDefinition)
 			{
 				methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
-				Method = Method.MakeGenericMethod(MethodGenericTypes);
+				Method = Method.MakeGenericMethod(MethodGenericTypes!);
 			}
 
 			if (displayName == null)
 				displayName = Method.GetDisplayNameWithArguments(BaseDisplayName, TestMethodArguments, MethodGenericTypes);
-		}
-
-		static void Write(Stream stream, string value)
-		{
-			var bytes = Encoding.UTF8.GetBytes(value);
-			stream.Write(bytes, 0, bytes.Length);
-			stream.WriteByte(0);
 		}
 
 		/// <inheritdoc/>

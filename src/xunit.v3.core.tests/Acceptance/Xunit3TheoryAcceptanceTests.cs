@@ -271,6 +271,8 @@ public class Xunit3TheoryAcceptanceTests
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", displayName)
 			);
+			Assert.Empty(results.OfType<_TestFailed>());
+			Assert.Empty(results.OfType<_TestSkipped>());
 		}
 
 		class ClassWithOperatorConversions

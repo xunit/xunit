@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -17,9 +16,9 @@ namespace Xunit.v3
 	{
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
-		IReflectionTypeInfo @class;
+		_IReflectionTypeInfo @class;
 		IMessageBus messageBus;
-		IReflectionMethodInfo method;
+		_IReflectionMethodInfo method;
 		IEnumerable<TTestCase> testCases;
 		_ITestMethod testMethod;
 
@@ -35,8 +34,8 @@ namespace Xunit.v3
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestMethodRunner(
 			_ITestMethod testMethod,
-			IReflectionTypeInfo @class,
-			IReflectionMethodInfo method,
+			_IReflectionTypeInfo @class,
+			_IReflectionMethodInfo method,
 			IEnumerable<TTestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
@@ -72,7 +71,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the CLR class that contains the test method.
 		/// </summary>
-		protected IReflectionTypeInfo Class
+		protected _IReflectionTypeInfo Class
 		{
 			get => @class;
 			set => @class = Guard.ArgumentNotNull(nameof(Class), value);
@@ -90,7 +89,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the CLR method that contains the tests to be run.
 		/// </summary>
-		protected IReflectionMethodInfo Method
+		protected _IReflectionMethodInfo Method
 		{
 			get => method;
 			set => method = Guard.ArgumentNotNull(nameof(Method), value);

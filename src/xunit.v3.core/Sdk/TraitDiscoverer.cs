@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -12,7 +12,7 @@ namespace Xunit.Sdk
 	public class TraitDiscoverer : ITraitDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
+		public virtual IEnumerable<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(traitAttribute), traitAttribute);
 

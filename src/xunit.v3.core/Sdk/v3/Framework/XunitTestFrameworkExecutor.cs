@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 
@@ -25,7 +24,7 @@ namespace Xunit.v3
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public XunitTestFrameworkExecutor(
-			IReflectionAssemblyInfo assemblyInfo,
+			_IReflectionAssemblyInfo assemblyInfo,
 			string? configFileName,
 			_ISourceInformationProvider sourceInformationProvider,
 			_IMessageSink diagnosticMessageSink)

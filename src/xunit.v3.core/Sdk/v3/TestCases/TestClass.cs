@@ -14,7 +14,7 @@ namespace Xunit.v3
 	[DebuggerDisplay(@"\{ class = {Class.Name} \}")]
 	public class TestClass : _ITestClass, IXunitSerializable
 	{
-		ITypeInfo? @class;
+		_ITypeInfo? @class;
 		_ITestCollection? testCollection;
 		string? uniqueID;
 
@@ -31,7 +31,7 @@ namespace Xunit.v3
 		/// <param name="uniqueID">The unique ID for the test class (only used to override default behavior in testing scenarios)</param>
 		public TestClass(
 			_ITestCollection testCollection,
-			ITypeInfo @class,
+			_ITypeInfo @class,
 			string? uniqueID = null)
 		{
 			this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
@@ -41,7 +41,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo Class
+		public _ITypeInfo Class
 		{
 			get => @class ?? throw new InvalidOperationException($"Attempted to get Class on an uninitialized '{GetType().FullName}' object");
 			set => @class = Guard.ArgumentNotNull(nameof(Class), value);

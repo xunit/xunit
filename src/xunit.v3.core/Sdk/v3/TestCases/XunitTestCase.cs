@@ -20,8 +20,8 @@ namespace Xunit.v3
 	[DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
 	public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	{
-		static readonly ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> assemblyTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
-		static readonly ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> typeTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
+		static readonly ConcurrentDictionary<string, IEnumerable<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
+		static readonly ConcurrentDictionary<string, IEnumerable<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 
 		int timeout;
 
@@ -85,7 +85,7 @@ namespace Xunit.v3
 		/// <param name="displayName">The base display name from <see cref="TestMethodTestCase.BaseDisplayName"/>.</param>
 		/// <returns>The display name for the test case.</returns>
 		protected virtual string GetDisplayName(
-			IAttributeInfo factAttribute,
+			_IAttributeInfo factAttribute,
 			string displayName)
 		{
 			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
@@ -100,7 +100,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="factAttribute">The fact attribute the decorated the test case.</param>
 		/// <returns>The skip reason, if skipped; <c>null</c>, otherwise.</returns>
-		protected virtual string GetSkipReason(IAttributeInfo factAttribute)
+		protected virtual string? GetSkipReason(_IAttributeInfo factAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
 
@@ -113,7 +113,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="factAttribute">The fact attribute the decorated the test case.</param>
 		/// <returns>The timeout in milliseconds, if set; 0, if unset.</returns>
-		protected virtual int GetTimeout(IAttributeInfo factAttribute)
+		protected virtual int GetTimeout(_IAttributeInfo factAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
 
@@ -147,21 +147,21 @@ namespace Xunit.v3
 			}
 		}
 
-		static IEnumerable<IAttributeInfo> GetCachedTraitAttributes(IAssemblyInfo assembly)
+		static IEnumerable<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
 			return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
-		static IEnumerable<IAttributeInfo> GetCachedTraitAttributes(ITypeInfo type)
+		static IEnumerable<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
 		{
 			Guard.ArgumentNotNull(nameof(type), type);
 
 			return typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
-		static IEnumerable<IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
+		static IEnumerable<_IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 

@@ -1,5 +1,4 @@
 using System;
-using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -11,7 +10,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the assembly that this test assembly belongs to.
 		/// </summary>
-		IAssemblyInfo Assembly { get; }
+		_IAssemblyInfo Assembly { get; }
 
 		/// <summary>
 		/// Gets the full path of the configuration file name, if one is present.

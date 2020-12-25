@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -10,7 +8,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the method associated with this test method.
 		/// </summary>
-		IMethodInfo Method { get; }
+		_IMethodInfo Method { get; }
 
 		/// <summary>
 		/// Gets the test class that this test method belongs to.

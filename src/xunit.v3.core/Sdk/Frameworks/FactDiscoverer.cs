@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -36,7 +35,7 @@ namespace Xunit.Sdk
 		protected virtual IXunitTestCase CreateTestCase(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo factAttribute)
+			_IAttributeInfo factAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
@@ -62,7 +61,7 @@ namespace Xunit.Sdk
 		public virtual IEnumerable<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo factAttribute)
+			_IAttributeInfo factAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);

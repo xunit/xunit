@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -59,17 +58,17 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assembly">The assembly that is being discovered.</param>
 		/// <returns>Returns the test framework discoverer.</returns>
-		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assembly);
+		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer(_IAssemblyInfo assembly);
 
 		/// <summary>
 		/// Override this method to provide the implementation of <see cref="_ITestFrameworkExecutor"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly that is being executed.</param>
 		/// <returns>Returns the test framework executor.</returns>
-		protected abstract _ITestFrameworkExecutor CreateExecutor(IReflectionAssemblyInfo assembly);
+		protected abstract _ITestFrameworkExecutor CreateExecutor(_IReflectionAssemblyInfo assembly);
 
 		/// <inheritdoc/>
-		public _ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
+		public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
@@ -79,7 +78,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public _ITestFrameworkExecutor GetExecutor(IReflectionAssemblyInfo assembly)
+		public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 

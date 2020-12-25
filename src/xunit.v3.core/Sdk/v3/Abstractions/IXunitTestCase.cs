@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -20,7 +19,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the method to be run. Generic argument types will have been closed based on the arguments.
 		/// </summary>
-		IMethodInfo Method { get; }
+		_IMethodInfo Method { get; }
 
 		/// <summary>
 		/// Gets the timeout of the test, in milliseconds; if zero or negative, means the test case has no timeout.

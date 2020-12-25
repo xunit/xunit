@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.v1
 {
 	/// <summary>
-	/// Implementation of <see cref="_ITestClass"/> and <see cref="ITypeInfo"/> for
+	/// Implementation of <see cref="_ITestClass"/> and <see cref="_ITypeInfo"/> for
 	/// xUnit.net v1 test classes.
 	/// </summary>
-	public class Xunit1TestClass : _ITestClass, ITypeInfo
+	public class Xunit1TestClass : _ITestClass, _ITypeInfo
 	{
 		readonly string typeName;
 
@@ -30,7 +29,7 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo Class => this;
+		public _ITypeInfo Class => this;
 
 		/// <inheritdoc/>
 		public Xunit1TestCollection TestCollection { get; }
@@ -40,32 +39,32 @@ namespace Xunit.Runner.v1
 
 		_ITestCollection _ITestClass.TestCollection => TestCollection;
 
-		// ITypeInfo explicit implementation
+		// _ITypeInfo explicit implementation
 
-		IAssemblyInfo ITypeInfo.Assembly => TestCollection.TestAssembly;
+		_IAssemblyInfo _ITypeInfo.Assembly => TestCollection.TestAssembly;
 
-		ITypeInfo? ITypeInfo.BaseType => null;
+		_ITypeInfo? _ITypeInfo.BaseType => null;
 
-		IEnumerable<ITypeInfo> ITypeInfo.Interfaces => Enumerable.Empty<ITypeInfo>();
+		IEnumerable<_ITypeInfo> _ITypeInfo.Interfaces => Enumerable.Empty<_ITypeInfo>();
 
-		bool ITypeInfo.IsAbstract => false;
+		bool _ITypeInfo.IsAbstract => false;
 
-		bool ITypeInfo.IsGenericParameter => false;
+		bool _ITypeInfo.IsGenericParameter => false;
 
-		bool ITypeInfo.IsGenericType => false;
+		bool _ITypeInfo.IsGenericType => false;
 
-		bool ITypeInfo.IsSealed => false;
+		bool _ITypeInfo.IsSealed => false;
 
-		bool ITypeInfo.IsValueType => false;
+		bool _ITypeInfo.IsValueType => false;
 
-		string ITypeInfo.Name => typeName;
+		string _ITypeInfo.Name => typeName;
 
-		IEnumerable<IAttributeInfo> ITypeInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<_IAttributeInfo> _ITypeInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) => Enumerable.Empty<_IAttributeInfo>();
 
-		IEnumerable<ITypeInfo> ITypeInfo.GetGenericArguments() => Enumerable.Empty<ITypeInfo>();
+		IEnumerable<_ITypeInfo> _ITypeInfo.GetGenericArguments() => Enumerable.Empty<_ITypeInfo>();
 
-		IMethodInfo ITypeInfo.GetMethod(string? methodName, bool includePrivateMethods) => null!;
+		_IMethodInfo? _ITypeInfo.GetMethod(string? methodName, bool includePrivateMethods) => null;
 
-		IEnumerable<IMethodInfo> ITypeInfo.GetMethods(bool includePrivateMethods) => Enumerable.Empty<IMethodInfo>();
+		IEnumerable<_IMethodInfo> _ITypeInfo.GetMethods(bool includePrivateMethods) => Enumerable.Empty<_IMethodInfo>();
 	}
 }

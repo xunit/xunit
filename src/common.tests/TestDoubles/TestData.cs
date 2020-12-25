@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
@@ -336,7 +335,7 @@ namespace Xunit.v3
 
 		public static TestCollection TestCollection(
 			_ITestAssembly assembly,
-			ITypeInfo? collectionDefinition = null,
+			_ITypeInfo? collectionDefinition = null,
 			string? displayName = null) =>
 				new TestCollection(assembly, collectionDefinition, displayName ?? $"[Unit Test] Collection for '{assembly.Assembly.Name}'");
 
@@ -439,7 +438,7 @@ namespace Xunit.v3
 
 		public static TestMethod TestMethod(
 			_ITestClass testClass,
-			IMethodInfo methodInfo,
+			_IMethodInfo methodInfo,
 			string? uniqueID = null) =>
 				new TestMethod(testClass, methodInfo, uniqueID);
 

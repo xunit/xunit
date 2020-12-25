@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
@@ -16,7 +15,7 @@ public class XunitTestFrameworkDiscovererTests
 		[Fact]
 		public static void GuardClause()
 		{
-			var assembly = Substitute.For<IAssemblyInfo>();
+			var assembly = Substitute.For<_IAssemblyInfo>();
 			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 			var diagnosticMessageSink = SpyMessageSink.Create();
 
@@ -135,7 +134,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void RequestsPublicAndPrivateMethodsFromType()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
-			var type = Substitute.For<ITypeInfo>();
+			var type = Substitute.For<_ITypeInfo>();
 			framework.Assembly.GetType("abc").Returns(type);
 
 			framework.Find("abc");
@@ -148,7 +147,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void CallsFindImplWhenMethodsAreFoundOnType()
 		{
 			var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>();
-			var type = Substitute.For<ITypeInfo>();
+			var type = Substitute.For<_ITypeInfo>();
 			framework.Assembly.GetType("abc").Returns(type);
 
 			framework.Find("abc");
@@ -161,7 +160,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void ExcludesAbstractTypesFromDiscovery()
 		{
 			var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>();
-			var type = Substitute.For<ITypeInfo>();
+			var type = Substitute.For<_ITypeInfo>();
 			type.IsAbstract.Returns(true);
 			framework.Assembly.GetType("abc").Returns(type);
 
@@ -492,11 +491,11 @@ public class XunitTestFrameworkDiscovererTests
 		protected TestableXunitTestFrameworkDiscoverer()
 			: this(Mocks.AssemblyInfo()) { }
 
-		protected TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly)
+		protected TestableXunitTestFrameworkDiscoverer(_IAssemblyInfo assembly)
 			: this(assembly, null, null, null) { }
 
 		protected TestableXunitTestFrameworkDiscoverer(
-			IAssemblyInfo assembly,
+			_IAssemblyInfo assembly,
 			_ISourceInformationProvider? sourceProvider,
 			_IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
@@ -506,7 +505,7 @@ public class XunitTestFrameworkDiscovererTests
 			Sink = new TestableTestDiscoverySink();
 		}
 
-		public IAssemblyInfo Assembly { get; private set; }
+		public _IAssemblyInfo Assembly { get; private set; }
 
 		public override sealed string TestAssemblyUniqueID => "asm-id";
 
@@ -522,7 +521,7 @@ public class XunitTestFrameworkDiscovererTests
 		internal TestableTestDiscoverySink Sink { get; private set; }
 
 		public static TestableXunitTestFrameworkDiscoverer Create(
-			IAssemblyInfo? assembly = null,
+			_IAssemblyInfo? assembly = null,
 			_ISourceInformationProvider? sourceProvider = null,
 			_IMessageSink? diagnosticMessageSink = null,
 			IXunitTestCollectionFactory? collectionFactory = null)
@@ -530,7 +529,7 @@ public class XunitTestFrameworkDiscovererTests
 			return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, diagnosticMessageSink, collectionFactory);
 		}
 
-		public new _ITestClass CreateTestClass(ITypeInfo @class)
+		public new _ITestClass CreateTestClass(_ITypeInfo @class)
 		{
 			return base.CreateTestClass(@class);
 		}
@@ -561,7 +560,7 @@ public class XunitTestFrameworkDiscovererTests
 			return FindTestsForClass(testClass);
 		}
 
-		protected sealed override bool IsValidTestClass(ITypeInfo type)
+		protected sealed override bool IsValidTestClass(_ITypeInfo type)
 		{
 			return base.IsValidTestClass(type);
 		}

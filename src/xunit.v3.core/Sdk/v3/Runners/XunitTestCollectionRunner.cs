@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -117,7 +116,7 @@ namespace Xunit.v3
 			if (TestCollection.CollectionDefinition == null)
 				return Task.CompletedTask;
 
-			var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
+			var declarationType = ((_IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
 			foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
 			{
 				var fixtureType = interfaceType.GenericTypeArguments.Single();
@@ -164,7 +163,7 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestClassAsync(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases) =>
 				new XunitTestClassRunner(
 					testClass,

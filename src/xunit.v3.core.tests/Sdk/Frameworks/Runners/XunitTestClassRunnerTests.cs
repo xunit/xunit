@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -394,7 +393,7 @@ public class XunitTestClassRunnerTests
 
 		TestableXunitTestClassRunner(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
@@ -416,7 +415,7 @@ public class XunitTestClassRunnerTests
 		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
 			new TestableXunitTestClassRunner(
 				testCase.TestMethod.TestClass,
-				(IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
+				(_IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
 				new[] { testCase },
 				new List<_MessageSinkMessage>(),
 				new SpyMessageBus(),
@@ -428,7 +427,7 @@ public class XunitTestClassRunnerTests
 
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
-			IReflectionMethodInfo method,
+			_IReflectionMethodInfo method,
 			IEnumerable<IXunitTestCase> testCases,
 			object?[] constructorArguments)
 		{

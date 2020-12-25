@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -183,7 +182,7 @@ namespace Xunit.v3
 
 			foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.TestMethod.TestClass, TestClassComparer.Instance))
 			{
-				summary.Aggregate(await RunTestClassAsync(testCasesByClass.Key, (IReflectionTypeInfo)testCasesByClass.Key.Class, testCasesByClass));
+				summary.Aggregate(await RunTestClassAsync(testCasesByClass.Key, (_IReflectionTypeInfo)testCasesByClass.Key.Class, testCasesByClass));
 				if (CancellationTokenSource.IsCancellationRequested)
 					break;
 			}
@@ -200,7 +199,7 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestClassAsync(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<TTestCase> testCases
 		);
 	}

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.v3;
@@ -101,7 +100,7 @@ namespace Xunit.Sdk
 		/// <returns>The data discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static IDataDiscoverer? GetDataDiscoverer(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo dataDiscovererAttribute)
+			_IAttributeInfo dataDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(dataDiscovererAttribute), dataDiscovererAttribute);
 
@@ -130,7 +129,7 @@ namespace Xunit.Sdk
 		/// <returns>The test case orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static ITestCaseOrderer? GetTestCaseOrderer(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo testCaseOrdererAttribute)
+			_IAttributeInfo testCaseOrdererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(testCaseOrdererAttribute), testCaseOrdererAttribute);
 
@@ -159,7 +158,7 @@ namespace Xunit.Sdk
 		/// <returns>The test collection orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static ITestCollectionOrderer? GetTestCollectionOrderer(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo testCollectionOrdererAttribute)
+			_IAttributeInfo testCollectionOrdererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(testCollectionOrdererAttribute), testCollectionOrdererAttribute);
 
@@ -179,7 +178,7 @@ namespace Xunit.Sdk
 		/// <returns>The test framework object</returns>
 		public static _ITestFramework GetTestFramework(
 			_IMessageSink diagnosticMessageSink,
-			IAssemblyInfo testAssembly,
+			_IAssemblyInfo testAssembly,
 			_ISourceInformationProvider? sourceInformationProvider = null)
 		{
 			// TODO Guard
@@ -222,7 +221,7 @@ namespace Xunit.Sdk
 
 		static Type GetTestFrameworkType(
 			_IMessageSink diagnosticMessageSink,
-			IAssemblyInfo testAssembly)
+			_IAssemblyInfo testAssembly)
 		{
 			try
 			{
@@ -273,7 +272,7 @@ namespace Xunit.Sdk
 		/// <param name="testFrameworkDiscovererAttribute">The test framework discoverer attribute</param>
 		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo testFrameworkDiscovererAttribute)
+			_IAttributeInfo testFrameworkDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(testFrameworkDiscovererAttribute), testFrameworkDiscovererAttribute);
 
@@ -302,7 +301,7 @@ namespace Xunit.Sdk
 		/// <returns>The trait discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
 		public static ITraitDiscoverer? GetTraitDiscoverer(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo traitDiscovererAttribute)
+			_IAttributeInfo traitDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(nameof(traitDiscovererAttribute), traitDiscovererAttribute);
 
@@ -344,7 +343,7 @@ namespace Xunit.Sdk
 		/// <returns>The collection factory.</returns>
 		public static IXunitTestCollectionFactory? GetXunitTestCollectionFactory(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo? collectionBehaviorAttribute,
+			_IAttributeInfo? collectionBehaviorAttribute,
 			_ITestAssembly testAssembly)
 		{
 			try
@@ -360,7 +359,7 @@ namespace Xunit.Sdk
 
 		static Type GetTestCollectionFactoryType(
 			_IMessageSink diagnosticMessageSink,
-			IAttributeInfo? collectionBehaviorAttribute)
+			_IAttributeInfo? collectionBehaviorAttribute)
 		{
 			if (collectionBehaviorAttribute == null)
 				return typeof(CollectionPerClassTestCollectionFactory);
@@ -422,7 +421,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="attribute">The attribute to get the type from</param>
 		/// <returns>The type, if it exists; <c>null</c>, otherwise</returns>
-		public static Type? TypeFromAttributeConstructor(IAttributeInfo attribute)
+		public static Type? TypeFromAttributeConstructor(_IAttributeInfo attribute)
 		{
 			Guard.ArgumentNotNull(nameof(attribute), attribute);
 
@@ -444,7 +443,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="attribute">The attribute to get the type from</param>
 		/// <returns>The type, if it exists; <c>null</c>, otherwise</returns>
-		public static (string? typeName, string? assemblyName) TypeStringsFromAttributeConstructor(IAttributeInfo attribute)
+		public static (string? typeName, string? assemblyName) TypeStringsFromAttributeConstructor(_IAttributeInfo attribute)
 		{
 			Guard.ArgumentNotNull(nameof(attribute), attribute);
 

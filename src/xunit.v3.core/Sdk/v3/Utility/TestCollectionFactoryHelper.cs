@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 
 namespace Xunit.v3
 {
@@ -16,9 +15,9 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyInfo">The assembly.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="ITypeInfo"/></returns>
-		public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(
-			IAssemblyInfo assemblyInfo,
+		/// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="_ITypeInfo"/></returns>
+		public static Dictionary<string, _ITypeInfo> GetTestCollectionDefinitions(
+			_IAssemblyInfo assemblyInfo,
 			_IMessageSink diagnosticMessageSink)
 		{
 			var attributeTypesByName =
@@ -32,7 +31,7 @@ namespace Xunit.v3
 						StringComparer.OrdinalIgnoreCase
 					);
 
-			var result = new Dictionary<string, ITypeInfo>();
+			var result = new Dictionary<string, _ITypeInfo>();
 
 			foreach (var grouping in attributeTypesByName)
 			{

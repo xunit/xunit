@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -352,7 +351,7 @@ public class TestClassRunnerTests
 		readonly ConstructorInfo? constructor;
 		readonly RunSummary result;
 
-		public List<Tuple<IReflectionMethodInfo, IEnumerable<_ITestCase>, object?[]>> MethodsRun = new List<Tuple<IReflectionMethodInfo, IEnumerable<_ITestCase>, object?[]>>();
+		public List<Tuple<_IReflectionMethodInfo, IEnumerable<_ITestCase>, object?[]>> MethodsRun = new();
 		public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
 		public bool AfterTestClassStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
@@ -363,7 +362,7 @@ public class TestClassRunnerTests
 
 		TestableTestClassRunner(
 			_ITestClass testClass,
-			IReflectionTypeInfo @class,
+			_IReflectionTypeInfo @class,
 			IEnumerable<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
@@ -408,7 +407,7 @@ public class TestClassRunnerTests
 
 			return new TestableTestClassRunner(
 				firstTest.TestMethod.TestClass,
-				(IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
+				(_IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
 				testCases,
 				new List<_MessageSinkMessage>(),
 				messageBus ?? new SpyMessageBus(),
@@ -438,7 +437,7 @@ public class TestClassRunnerTests
 
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
-			IReflectionMethodInfo method,
+			_IReflectionMethodInfo method,
 			IEnumerable<_ITestCase> testCases,
 			object?[] constructorArguments)
 		{

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.v3
 {
@@ -13,7 +14,7 @@ namespace Xunit.v3
 		/// Gets the arguments passed to the constructor.
 		/// </summary>
 		/// <returns>The constructor arguments, in order</returns>
-		IEnumerable<object> GetConstructorArguments();
+		IEnumerable<object?> GetConstructorArguments();
 
 		/// <summary>
 		/// Gets all the custom attributes for the given attribute.
@@ -29,6 +30,7 @@ namespace Xunit.v3
 		/// <typeparam name="TValue">The type of the argument</typeparam>
 		/// <param name="argumentName">The name of the argument</param>
 		/// <returns>The argument value</returns>
+		[return: MaybeNull]
 		TValue GetNamedArgument<TValue>(string argumentName);
 	}
 }

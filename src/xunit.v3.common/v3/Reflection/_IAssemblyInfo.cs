@@ -20,7 +20,7 @@ namespace Xunit.v3
 		/// support an explicit path to the test framework DLL) rather than relying on the
 		/// use of <see cref="T:Xunit.XunitFrontController"/>.
 		/// </remarks>
-		string AssemblyPath { get; }
+		string? AssemblyPath { get; }
 
 		/// <summary>
 		/// Gets the assembly name. May return a fully qualified name for assemblies found via
@@ -42,7 +42,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="typeName">The fully qualified type name.</param>
 		/// <returns>The <see cref="_ITypeInfo"/> if the type exists, or <c>null</c> if not.</returns>
-		_ITypeInfo GetType(string typeName);
+		_ITypeInfo? GetType(string typeName);
 
 		/// <summary>
 		/// Gets all the types for the assembly.

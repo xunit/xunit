@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -13,7 +12,7 @@ namespace Xunit.v3
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute,
+			_IAttributeInfo theoryAttribute,
 			object?[] dataRow)
 		{
 			var cultures = GetCultures(theoryAttribute);
@@ -33,7 +32,7 @@ namespace Xunit.v3
 		protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
-			IAttributeInfo theoryAttribute)
+			_IAttributeInfo theoryAttribute)
 		{
 			var cultures = GetCultures(theoryAttribute);
 			return cultures.Select(
@@ -47,7 +46,7 @@ namespace Xunit.v3
 			).ToList();
 		}
 
-		static string[] GetCultures(IAttributeInfo culturedTheoryAttribute)
+		static string[] GetCultures(_IAttributeInfo culturedTheoryAttribute)
 		{
 			var ctorArgs = culturedTheoryAttribute.GetConstructorArguments().ToArray();
 			var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();

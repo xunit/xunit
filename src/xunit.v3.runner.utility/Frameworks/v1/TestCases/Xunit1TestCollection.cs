@@ -1,5 +1,4 @@
-﻿using Xunit.Abstractions;
-using Xunit.Internal;
+﻿using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.v1
@@ -20,7 +19,7 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo? CollectionDefinition => null;
+		public _ITypeInfo? CollectionDefinition => null;
 
 		/// <inheritdoc/>
 		public string DisplayName => $"xUnit.net v1 Tests for {TestAssembly.Assembly.AssemblyPath}";

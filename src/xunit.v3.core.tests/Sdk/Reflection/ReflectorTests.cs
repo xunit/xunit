@@ -4,8 +4,8 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ReflectorTests
 {
@@ -117,7 +117,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -138,7 +138,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -185,7 +185,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -204,7 +204,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -243,7 +243,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -259,7 +259,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -316,7 +316,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -337,7 +337,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -384,7 +384,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -403,7 +403,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -442,7 +442,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -458,7 +458,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -515,7 +515,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(parentAttribute)
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -544,7 +544,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(childAttribute)
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -601,7 +601,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -628,7 +628,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(typeof(Child).GetMethod(nameof(Child.TheMethod))!)
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -671,7 +671,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(typeof(Parent))
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -695,7 +695,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(typeof(Child))
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -762,7 +762,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -827,7 +827,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -882,7 +882,7 @@ public class ReflectorTests
 						.GetCustomAttributes(typeof(AttributeUnderTest));
 
 				var result = Assert.Single(results);
-				var reflectionResult = Assert.IsAssignableFrom<IReflectionAttributeInfo>(result);
+				var reflectionResult = Assert.IsAssignableFrom<_IReflectionAttributeInfo>(result);
 				var attributeUnderTest = Assert.IsType<AttributeUnderTest>(reflectionResult.Attribute);
 				Assert.Equal("Parent", attributeUnderTest.Level);
 			}
@@ -952,7 +952,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(parentAttribute)
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -1025,7 +1025,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -1088,7 +1088,7 @@ public class ReflectorTests
 					Reflector
 						.Wrap(typeof(Parent))
 						.GetCustomAttributes(typeof(AttributeUnderTest))
-						.Cast<IReflectionAttributeInfo>()
+						.Cast<_IReflectionAttributeInfo>()
 						.Select(attr => attr.Attribute)
 						.Cast<AttributeUnderTest>()
 						.Select(attr => attr.Level)
@@ -1245,7 +1245,7 @@ public class ReflectorTests
 			var numbers = superFact.Numbers;
 			Assert.NotNull(numbers);
 			Assert.True(expected.SequenceEqual(numbers));
-			Assert.True(expected.SequenceEqual(result.GetNamedArgument<int[]>("Numbers")));
+			Assert.True(expected.SequenceEqual(result.GetNamedArgument<int[]>("Numbers")!));
 		}
 
 		[Fact]
@@ -1268,7 +1268,7 @@ public class ReflectorTests
 			var types = superFact.Types;
 			Assert.NotNull(types);
 			Assert.True(expected.SequenceEqual(types));
-			Assert.True(expected.SequenceEqual(result.GetNamedArgument<Type[]>("Types")));
+			Assert.True(expected.SequenceEqual(result.GetNamedArgument<Type[]>("Types")!));
 		}
 
 		[Fact]
@@ -1291,7 +1291,7 @@ public class ReflectorTests
 			var states = superFact.States;
 			Assert.NotNull(states);
 			Assert.True(expected.SequenceEqual(states));
-			Assert.True(expected.SequenceEqual(result.GetNamedArgument<FactState[]>("States")));
+			Assert.True(expected.SequenceEqual(result.GetNamedArgument<FactState[]>("States")!));
 		}
 	}
 }

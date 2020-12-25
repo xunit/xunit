@@ -12,7 +12,7 @@ namespace Xunit.v3
 	[DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
 	public class TestMethod : _ITestMethod, IXunitSerializable
 	{
-		IMethodInfo? method;
+		_IMethodInfo? method;
 		_ITestClass? testClass;
 		string? uniqueID;
 
@@ -30,7 +30,7 @@ namespace Xunit.v3
 		/// <param name="uniqueID">The unique ID for the test method (only used to override default behavior in testing scenarios)</param>
 		public TestMethod(
 			_ITestClass testClass,
-			IMethodInfo method,
+			_IMethodInfo method,
 			string? uniqueID = null)
 		{
 			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
@@ -40,7 +40,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public IMethodInfo Method
+		public _IMethodInfo Method
 		{
 			get => method ?? throw new InvalidOperationException($"Attempted to get Method on an uninitialized '{GetType().FullName}' object");
 			set => method = Guard.ArgumentNotNull(nameof(Method), value);

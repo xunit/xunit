@@ -3,15 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Reflection-based implementation of <see cref="IReflectionAttributeInfo"/>.
+	/// Reflection-based implementation of <see cref="_IReflectionAttributeInfo"/>.
 	/// </summary>
-	public class ReflectionAttributeInfo : IReflectionAttributeInfo
+	public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	{
 		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();
 		static readonly AttributeUsageAttribute defaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
@@ -71,14 +71,14 @@ namespace Xunit.Sdk
 			Convert(AttributeData.ConstructorArguments).ToList();
 
 		/// <inheritdoc/>
-		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(Attribute.GetType(), assemblyQualifiedAttributeTypeName).ToList();
 		}
 
-		internal static IEnumerable<IAttributeInfo> GetCustomAttributes(
+		internal static IEnumerable<_IAttributeInfo> GetCustomAttributes(
 			Type type,
 			string assemblyQualifiedAttributeTypeName)
 		{
@@ -89,12 +89,12 @@ namespace Xunit.Sdk
 			return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
 		}
 
-		internal static IEnumerable<IAttributeInfo> GetCustomAttributes(
+		internal static IEnumerable<_IAttributeInfo> GetCustomAttributes(
 			Type? type,
 			Type attributeType,
 			AttributeUsageAttribute attributeUsage)
 		{
-			var results = Enumerable.Empty<IAttributeInfo>();
+			var results = Enumerable.Empty<_IAttributeInfo>();
 
 			if (type != null)
 			{
@@ -113,7 +113,7 @@ namespace Xunit.Sdk
 				if (list != null)
 					list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
 
-				results = list ?? Enumerable.Empty<IAttributeInfo>();
+				results = list ?? Enumerable.Empty<_IAttributeInfo>();
 
 				if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
 					results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage));

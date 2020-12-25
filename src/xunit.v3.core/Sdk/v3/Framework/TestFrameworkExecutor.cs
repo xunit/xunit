@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -18,7 +17,7 @@ namespace Xunit.v3
 	public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor, IAsyncDisposable
 		where TTestCase : _ITestCase
 	{
-		IReflectionAssemblyInfo assemblyInfo;
+		_IReflectionAssemblyInfo assemblyInfo;
 		_IMessageSink diagnosticMessageSink;
 		bool disposed;
 		_ISourceInformationProvider sourceInformationProvider;
@@ -30,7 +29,7 @@ namespace Xunit.v3
 		/// <param name="sourceInformationProvider">The source line number information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkExecutor(
-			IReflectionAssemblyInfo assemblyInfo,
+			_IReflectionAssemblyInfo assemblyInfo,
 			_ISourceInformationProvider sourceInformationProvider,
 			_IMessageSink diagnosticMessageSink)
 		{
@@ -42,7 +41,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the assembly information of the assembly under test.
 		/// </summary>
-		protected IReflectionAssemblyInfo AssemblyInfo
+		protected _IReflectionAssemblyInfo AssemblyInfo
 		{
 			get => assemblyInfo;
 			set => assemblyInfo = Guard.ArgumentNotNull(nameof(AssemblyInfo), value);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -9,7 +8,7 @@ using Xunit.Sdk;
 namespace Xunit.v3
 {
 	/// <summary>
-	/// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
+	/// The implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports discovery
 	/// of unit tests linked against xunit.v3.core.dll.
 	/// </summary>
 	public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer
@@ -30,7 +29,7 @@ namespace Xunit.v3
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
 		public XunitTestFrameworkDiscoverer(
-			IAssemblyInfo assemblyInfo,
+			_IAssemblyInfo assemblyInfo,
 			string? configFileName,
 			_ISourceInformationProvider sourceProvider,
 			_IMessageSink diagnosticMessageSink,
@@ -70,7 +69,7 @@ namespace Xunit.v3
 		public override string TestFrameworkDisplayName { get; }
 
 		/// <inheritdoc/>
-		protected internal override _ITestClass CreateTestClass(ITypeInfo @class) =>
+		protected internal override _ITestClass CreateTestClass(_ITypeInfo @class) =>
 			new TestClass(TestCollectionFactory.Get(@class), @class);
 
 		/// <summary>
@@ -99,7 +98,7 @@ namespace Xunit.v3
 			if (factAttribute == null)
 				return true;
 
-			var factAttributeType = (factAttribute as IReflectionAttributeInfo)?.Attribute.GetType();
+			var factAttributeType = (factAttribute as _IReflectionAttributeInfo)?.Attribute.GetType();
 
 			Type? discovererType = null;
 			if (factAttributeType == null || !DiscovererTypeCache.TryGetValue(factAttributeType, out discovererType))

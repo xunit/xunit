@@ -16,12 +16,14 @@ namespace Xunit.Runner.v2
 		public Xunit2TestCollection(ITestCollection v2TestCollection)
 		{
 			V2TestCollection = Guard.ArgumentNotNull(nameof(v2TestCollection), v2TestCollection);
+
+			CollectionDefinition = V2TestCollection.CollectionDefinition == null ? null : new Xunit3TypeInfo(V2TestCollection.CollectionDefinition);
 			TestAssembly = new Xunit2TestAssembly(V2TestCollection.TestAssembly);
 			UniqueID = UniqueIDGenerator.ForTestCollection(TestAssembly.UniqueID, V2TestCollection.DisplayName, V2TestCollection.CollectionDefinition?.Name);
 		}
 
 		/// <inheritdoc/>
-		public ITypeInfo? CollectionDefinition => V2TestCollection.CollectionDefinition;
+		public _ITypeInfo? CollectionDefinition { get; }
 
 		/// <inheritdoc/>
 		public string DisplayName => V2TestCollection.DisplayName;

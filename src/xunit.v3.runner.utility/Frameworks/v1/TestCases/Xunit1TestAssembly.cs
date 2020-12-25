@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.v1
 {
 	/// <summary>
-	/// Implementation of <see cref="_ITestAssembly"/> and <see cref="IAssemblyInfo"/> for
+	/// Implementation of <see cref="_ITestAssembly"/> and <see cref="_IAssemblyInfo"/> for
 	/// xUnit.net v1 test assemblies.
 	/// </summary>
-	public class Xunit1TestAssembly : _ITestAssembly, IAssemblyInfo
+	public class Xunit1TestAssembly : _ITestAssembly, _IAssemblyInfo
 	{
 		readonly string assemblyFileName;
 		readonly string uniqueID;
@@ -34,7 +33,7 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		public IAssemblyInfo Assembly => this;
+		public _IAssemblyInfo Assembly => this;
 
 		/// <inheritdoc/>
 		public string? ConfigFileName { get; private set; }
@@ -45,16 +44,16 @@ namespace Xunit.Runner.v1
 		/// <inheritdoc/>
 		public Version Version => version;
 
-		// IAssemblyInfo explicit implementation
+		// _IAssemblyInfo explicit implementation
 
-		string IAssemblyInfo.AssemblyPath => assemblyFileName ?? throw new InvalidOperationException($"Attempted to get {nameof(IAssemblyInfo)}.{nameof(IAssemblyInfo.AssemblyPath)} on an uninitialized '{GetType().FullName}' object");
+		string _IAssemblyInfo.AssemblyPath => assemblyFileName ?? throw new InvalidOperationException($"Attempted to get {nameof(_IAssemblyInfo)}.{nameof(_IAssemblyInfo.AssemblyPath)} on an uninitialized '{GetType().FullName}' object");
 
-		string IAssemblyInfo.Name => Path.GetFileNameWithoutExtension(((IAssemblyInfo)this).AssemblyPath);
+		string _IAssemblyInfo.Name => Path.GetFileNameWithoutExtension(((_IAssemblyInfo)this).AssemblyPath) ?? "<unknown assembly>";
 
-		IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName) => Enumerable.Empty<IAttributeInfo>();
+		IEnumerable<_IAttributeInfo> _IAssemblyInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName) => Enumerable.Empty<_IAttributeInfo>();
 
-		ITypeInfo? IAssemblyInfo.GetType(string typeName) => null;
+		_ITypeInfo? _IAssemblyInfo.GetType(string typeName) => null;
 
-		IEnumerable<ITypeInfo> IAssemblyInfo.GetTypes(bool includePrivateTypes) => Enumerable.Empty<ITypeInfo>();
+		IEnumerable<_ITypeInfo> _IAssemblyInfo.GetTypes(bool includePrivateTypes) => Enumerable.Empty<_ITypeInfo>();
 	}
 }

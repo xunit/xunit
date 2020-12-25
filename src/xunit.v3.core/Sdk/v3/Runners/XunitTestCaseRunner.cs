@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -163,7 +162,7 @@ namespace Xunit.v3
 		{
 			IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
 
-			if (TestCase.TestMethod.TestClass.TestCollection.CollectionDefinition is IReflectionTypeInfo collectionDefinition)
+			if (TestCase.TestMethod.TestClass.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
 				beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetCustomAttributes(typeof(BeforeAfterTestAttribute));
 			else
 				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();

@@ -136,7 +136,7 @@ namespace Xunit.v3
 		/// </summary>
 		protected virtual string? GetTargetFramework()
 		{
-			var attrib = TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
+			var attrib = TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName!).FirstOrDefault();
 			return attrib?.GetConstructorArguments().FirstOrDefault() as string;
 		}
 

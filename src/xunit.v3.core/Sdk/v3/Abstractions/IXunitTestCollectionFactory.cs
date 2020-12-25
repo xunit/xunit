@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace Xunit.v3
+﻿namespace Xunit.v3
 {
 	/// <summary>
 	/// This interface is intended to be implemented by components which generate test collections.
@@ -21,6 +19,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testClass">The test class.</param>
 		/// <returns>The test collection.</returns>
-		_ITestCollection Get(ITypeInfo testClass);
+		_ITestCollection Get(_ITypeInfo testClass);
 	}
 }
