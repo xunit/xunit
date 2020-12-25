@@ -1,5 +1,3 @@
-#if false
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -21,5 +19,3 @@ namespace Xunit.v3
 		void WriteLine(string format, params object[] args);
 	}
 }
-
-#endif

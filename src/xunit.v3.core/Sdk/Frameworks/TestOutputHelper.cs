@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Text;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Default implementation of <see cref="ITestOutputHelper"/>.
+	/// Default implementation of <see cref="_ITestOutputHelper"/>.
 	/// </summary>
-	public class TestOutputHelper : ITestOutputHelper
+	public class TestOutputHelper : _ITestOutputHelper
 	{
 		TestState? state;
 
@@ -145,9 +144,7 @@ namespace Xunit.Sdk
 					}
 					// Check for stray surrogates/other invalid chars
 					else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
-					{
 						builder.AppendFormat(@"\x{0}", (+ch).ToString("x4"));
-					}
 					else
 						builder.Append(ch); // Append the char like normal
 				}

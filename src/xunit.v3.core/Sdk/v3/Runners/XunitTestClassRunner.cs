@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -225,7 +224,7 @@ namespace Xunit.v3
 			ParameterInfo parameter,
 			[MaybeNullWhen(false)] out object argumentValue)
 		{
-			if (parameter.ParameterType == typeof(ITestOutputHelper))
+			if (parameter.ParameterType == typeof(_ITestOutputHelper))
 			{
 				argumentValue = new TestOutputHelper();
 				return true;

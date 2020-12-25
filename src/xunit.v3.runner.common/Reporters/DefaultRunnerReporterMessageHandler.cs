@@ -194,7 +194,7 @@ namespace Xunit.Runner.Common
 			if (string.IsNullOrEmpty(output))
 				return;
 
-			// ITestOutputHelper terminates everything with NewLine, but we really don't need that
+			// The test output helper terminates everything with NewLine, but we really don't need that
 			// extra blank line in our output.
 			if (output.EndsWith(Environment.NewLine, StringComparison.Ordinal))
 				output = output.Substring(0, output.Length - Environment.NewLine.Length);

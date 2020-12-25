@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -680,9 +679,9 @@ public class Xunit3AcceptanceTests
 
 		class ClassUnderTest : IDisposable
 		{
-			readonly ITestOutputHelper output;
+			readonly _ITestOutputHelper output;
 
-			public ClassUnderTest(ITestOutputHelper output)
+			public ClassUnderTest(_ITestOutputHelper output)
 			{
 				this.output = output;
 
@@ -716,9 +715,9 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncLifetime : IAsyncLifetime, IDisposable
 		{
-			protected readonly ITestOutputHelper output;
+			protected readonly _ITestOutputHelper output;
 
-			public ClassWithAsyncLifetime(ITestOutputHelper output)
+			public ClassWithAsyncLifetime(_ITestOutputHelper output)
 			{
 				this.output = output;
 
@@ -760,9 +759,9 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncDisposable : IAsyncDisposable, IDisposable
 		{
-			protected readonly ITestOutputHelper output;
+			protected readonly _ITestOutputHelper output;
 
-			public ClassWithAsyncDisposable(ITestOutputHelper output)
+			public ClassWithAsyncDisposable(_ITestOutputHelper output)
 			{
 				this.output = output;
 
@@ -798,7 +797,7 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncLifetime_ThrowingCtor : ClassWithAsyncLifetime
 		{
-			public ClassWithAsyncLifetime_ThrowingCtor(ITestOutputHelper output)
+			public ClassWithAsyncLifetime_ThrowingCtor(_ITestOutputHelper output)
 				: base(output)
 			{
 				throw new DivideByZeroException();
@@ -816,7 +815,7 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncLifetime_ThrowingInitializeAsync : ClassWithAsyncLifetime
 		{
-			public ClassWithAsyncLifetime_ThrowingInitializeAsync(ITestOutputHelper output) : base(output) { }
+			public ClassWithAsyncLifetime_ThrowingInitializeAsync(_ITestOutputHelper output) : base(output) { }
 
 			public override async ValueTask InitializeAsync()
 			{
@@ -837,7 +836,7 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncLifetime_ThrowingDisposeAsync : ClassWithAsyncLifetime
 		{
-			public ClassWithAsyncLifetime_ThrowingDisposeAsync(ITestOutputHelper output) : base(output) { }
+			public ClassWithAsyncLifetime_ThrowingDisposeAsync(_ITestOutputHelper output) : base(output) { }
 
 			public override async ValueTask DisposeAsync()
 			{
@@ -858,7 +857,7 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncDisposable_ThrowingDisposeAsync : ClassWithAsyncDisposable
 		{
-			public ClassWithAsyncDisposable_ThrowingDisposeAsync(ITestOutputHelper output) : base(output) { }
+			public ClassWithAsyncDisposable_ThrowingDisposeAsync(_ITestOutputHelper output) : base(output) { }
 
 			public override async ValueTask DisposeAsync()
 			{
@@ -879,7 +878,7 @@ public class Xunit3AcceptanceTests
 
 		class ClassWithAsyncLifetime_FailingTest : ClassWithAsyncLifetime
 		{
-			public ClassWithAsyncLifetime_FailingTest(ITestOutputHelper output) : base(output) { }
+			public ClassWithAsyncLifetime_FailingTest(_ITestOutputHelper output) : base(output) { }
 
 			public override void TheTest()
 			{
@@ -890,15 +889,6 @@ public class Xunit3AcceptanceTests
 		}
 
 		void AssertOperations(_TestResultMessage result, params string[] operations)
-		{
-			Assert.Collection(
-				result.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries),
-				operations.Select<string, Action<string>>(expected => actual => Assert.Equal(expected, actual)).ToArray()
-			);
-		}
-
-		// TODO: Delete this once we're down to zero callers
-		void AssertOperations(ITestResultMessage result, params string[] operations)
 		{
 			Assert.Collection(
 				result.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries),
