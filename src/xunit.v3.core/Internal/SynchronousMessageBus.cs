@@ -1,7 +1,7 @@
-﻿using Xunit.Internal;
+﻿using Xunit.Sdk;
 using Xunit.v3;
 
-namespace Xunit.Sdk
+namespace Xunit.Internal
 {
 	/// <summary>
 	/// INTERNAL CLASS. DO NOT USE.

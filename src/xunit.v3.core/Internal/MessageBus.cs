@@ -7,7 +7,7 @@ using Xunit.v3;
 namespace Xunit.Internal
 {
 	/// <summary>
-	/// This is an internal class, and is not intended to be called from end-user code.
+	/// INTERNAL CLASS. DO NOT USE.
 	/// </summary>
 	public class MessageBus : IMessageBus
 	{

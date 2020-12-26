@@ -19,7 +19,7 @@ namespace Xunit
 	/// Resharper. Runner authors who are not using AST-based discovery are strongly
 	/// encouraged to use <see cref="XunitFrontController"/> instead.
 	/// </summary>
-	public class Xunit2Discoverer : _ITestFrameworkDiscoverer, ITestCaseDescriptorProvider
+	public class Xunit2Discoverer : _ITestFrameworkDiscoverer
 	{
 #if NETFRAMEWORK
 		static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
@@ -32,7 +32,6 @@ namespace Xunit
 		readonly _IAssemblyInfo assemblyInfo;
 		readonly string? configFileName;
 		bool disposed;
-		ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
@@ -288,35 +287,6 @@ namespace Xunit
 				CreateOptimizedRemoteMessageSink(messageSink, includeSerialization),
 				Xunit2OptionsAdapter.Adapt(discoveryOptions)
 			);
-		}
-
-		/// <inheritdoc/>
-		public List<TestCaseDescriptor> GetTestCaseDescriptors(
-			List<ITestCase> testCases,
-			bool includeSerialization)
-		{
-			Guard.ArgumentNotNull(nameof(testCases), testCases);
-
-			var callbackContainer = new DescriptorCallback();
-			Action<List<string>> callback = callbackContainer.Callback;
-
-			if (defaultTestCaseDescriptorProvider == null)
-			{
-				if (AppDomain.HasAppDomain)
-				{
-					try
-					{
-						AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? RemoteDiscoverer : null, testCases, callback);
-						if (callbackContainer.Results != null)
-							return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
-					}
-					catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseDescriptorFactory" doesn't exist
-				}
-
-				defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer);
-			}
-
-			return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
 		}
 
 		static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)

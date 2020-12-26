@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.Internal;
 
-namespace Xunit.Runner.v2
+namespace Xunit.Internal
 {
 	/// <summary>
 	/// INTERNAL CLASS. DO NOT USE.
