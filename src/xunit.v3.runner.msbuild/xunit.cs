@@ -336,32 +336,35 @@ namespace Xunit.Runner.MSBuild
 					if (FailSkips)
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-					var executionStarting = new TestAssemblyExecutionStarting
+					using (resultsSink)
 					{
-						Assembly = assembly,
-						ExecutionOptions = executionOptions
-					};
-					reporterMessageHandler!.OnMessage(executionStarting);
-
-					// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
-					controller.RunTests(filteredTestCases, resultsSink, executionOptions);
-					resultsSink.Finished.WaitOne();
-
-					var executionFinished = new TestAssemblyExecutionFinished
-					{
-						Assembly = assembly,
-						ExecutionOptions = executionOptions,
-						ExecutionSummary = resultsSink.ExecutionSummary
-					};
-					reporterMessageHandler!.OnMessage(executionFinished);
-
-					if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
-					{
-						ExitCode = 1;
-						if (stopOnFail == true)
+						var executionStarting = new TestAssemblyExecutionStarting
 						{
-							Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
-							Cancel();
+							Assembly = assembly,
+							ExecutionOptions = executionOptions
+						};
+						reporterMessageHandler!.OnMessage(executionStarting);
+
+						// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
+						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+						resultsSink.Finished.WaitOne();
+
+						var executionFinished = new TestAssemblyExecutionFinished
+						{
+							Assembly = assembly,
+							ExecutionOptions = executionOptions,
+							ExecutionSummary = resultsSink.ExecutionSummary
+						};
+						reporterMessageHandler!.OnMessage(executionFinished);
+
+						if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
+						{
+							ExitCode = 1;
+							if (stopOnFail == true)
+							{
+								Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+								Cancel();
+							}
 						}
 					}
 				}

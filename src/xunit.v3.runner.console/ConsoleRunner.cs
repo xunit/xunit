@@ -497,22 +497,25 @@ namespace Xunit.Runner.SystemConsole
 						if (failSkips)
 							resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-						// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
-						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
-						resultsSink.Finished.WaitOne();
-
-						var executionFinished = new TestAssemblyExecutionFinished
+						using (resultsSink)
 						{
-							Assembly = assembly,
-							ExecutionOptions = executionOptions,
-							ExecutionSummary = resultsSink.ExecutionSummary
-						};
-						reporterMessageHandler.OnMessage(executionFinished);
+							// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
+							controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+							resultsSink.Finished.WaitOne();
 
-						if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
-						{
-							Console.WriteLine("Canceling due to test failure...");
-							cancel = true;
+							var executionFinished = new TestAssemblyExecutionFinished
+							{
+								Assembly = assembly,
+								ExecutionOptions = executionOptions,
+								ExecutionSummary = resultsSink.ExecutionSummary
+							};
+							reporterMessageHandler.OnMessage(executionFinished);
+
+							if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
+							{
+								Console.WriteLine("Canceling due to test failure...");
+								cancel = true;
+							}
 						}
 					}
 				}

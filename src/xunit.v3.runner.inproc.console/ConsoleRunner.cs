@@ -476,25 +476,29 @@ namespace Xunit.Runner.InProc.SystemConsole
 					if (failSkips)
 						resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-					var executor = testFramework.GetExecutor(assemblyInfo);
-					// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
-					executor.RunTests(filteredTestCases, resultsSink, executionOptions);
-					resultsSink.Finished.WaitOne();
-
-					testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
-
-					var executionFinished = new TestAssemblyExecutionFinished
+					using (resultsSink)
 					{
-						Assembly = assembly,
-						ExecutionOptions = executionOptions,
-						ExecutionSummary = resultsSink.ExecutionSummary
-					};
-					reporterMessageHandler.OnMessage(executionFinished);
+						var executor = testFramework.GetExecutor(assemblyInfo);
 
-					if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
-					{
-						Console.WriteLine("Canceling due to test failure...");
-						cancel = true;
+						// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
+						executor.RunTests(filteredTestCases, resultsSink, executionOptions);
+						resultsSink.Finished.WaitOne();
+
+						testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
+
+						var executionFinished = new TestAssemblyExecutionFinished
+						{
+							Assembly = assembly,
+							ExecutionOptions = executionOptions,
+							ExecutionSummary = resultsSink.ExecutionSummary
+						};
+						reporterMessageHandler.OnMessage(executionFinished);
+
+						if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
+						{
+							Console.WriteLine("Canceling due to test failure...");
+							cancel = true;
+						}
 					}
 				}
 			}
