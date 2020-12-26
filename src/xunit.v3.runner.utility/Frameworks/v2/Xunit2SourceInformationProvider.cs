@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.v2

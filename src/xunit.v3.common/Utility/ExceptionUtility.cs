@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Sdk
 {
 	/// <summary>
 	/// Utility class for dealing with <see cref="Exception"/> and <see cref="_IErrorMetadata"/> objects.

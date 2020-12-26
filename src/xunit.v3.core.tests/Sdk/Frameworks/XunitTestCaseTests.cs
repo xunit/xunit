@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -8,36 +9,55 @@ using Xunit.v3;
 
 public class XunitTestCaseTests
 {
-	[Fact]
-	public static void DefaultBehavior()
+	public class FactAttributeValues
 	{
-		var testMethod = Mocks.TestMethod("MockType", "MockMethod");
+		[Fact]
+		public static void DisplayName()
+		{
+			var factAttribute = Mocks.FactAttribute(displayName: "Custom Display Name");
+			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
 
-		var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new TestableXunitTestCase(testMethod);
 
-		Assert.Equal("MockType.MockMethod", testCase.DisplayName);
-		Assert.Null(testCase.SkipReason);
-		Assert.Empty(testCase.Traits);
-	}
+			Assert.Equal("Custom Display Name", testCase.DisplayName);
+		}
 
-	[Fact]
-	public static void SkipReason()
-	{
-		var testMethod = Mocks.TestMethod(skip: "Skip Reason");
+		[Fact]
+		public static void DisplayNameWithArguments()
+		{
+			var factAttribute = Mocks.FactAttribute(displayName: "Custom Display Name");
+			var param1 = Mocks.ParameterInfo("p1");
+			var param2 = Mocks.ParameterInfo("p2");
+			var param3 = Mocks.ParameterInfo("p3");
+			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute }, parameters: new[] { param1, param2, param3 });
+			var arguments = new object[] { 42, "Hello, world!", 'A' };
 
-		var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new TestableXunitTestCase(testMethod, arguments);
 
-		Assert.Equal("Skip Reason", testCase.SkipReason);
-	}
+			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
+		}
 
-	[Fact]
-	public static void Timeout()
-	{
-		var testMethod = Mocks.TestMethod(timeout: 42);
+		[Fact]
+		public static void SkipReason()
+		{
+			var factAttribute = Mocks.FactAttribute(skip: "Skip Reason");
+			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
 
-		var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new TestableXunitTestCase(testMethod);
 
-		Assert.Equal(42, testCase.Timeout);
+			Assert.Equal("Skip Reason", testCase.SkipReason);
+		}
+
+		[Fact]
+		public static void Timeout()
+		{
+			var factAttribute = Mocks.FactAttribute(timeout: 42);
+			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
+
+			var testCase = new TestableXunitTestCase(testMethod);
+
+			Assert.Equal(42, testCase.Timeout);
+		}
 	}
 
 	public class Traits : AcceptanceTestV3
@@ -49,7 +69,7 @@ public class XunitTestCaseTests
 			var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { trait1, trait2 });
 
-			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new TestableXunitTestCase(testMethod);
 
 			Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
 			Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
@@ -62,7 +82,7 @@ public class XunitTestCaseTests
 			var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait1, trait2 });
 
-			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new TestableXunitTestCase(testMethod);
 
 			Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
 			Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
@@ -109,7 +129,7 @@ public class XunitTestCaseTests
 			var messages = new List<_MessageSinkMessage>();
 			var spy = SpyMessageSink.Create(messages: messages);
 
-			var testCase = new XunitTestCase(spy, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+			var testCase = new TestableXunitTestCase(testMethod, diagnosticMessageSink: spy);
 
 			Assert.Empty(testCase.Traits);
 			var diagnosticMessages = messages.OfType<_DiagnosticMessage>();
@@ -167,12 +187,7 @@ public class XunitTestCaseTests
 			var testClass = new TestClass(testCollection, @class);
 			var methodInfo = new ReflectionMethodInfo(classType.GetMethod("TraitsTest")!);
 			var testMethod = new TestMethod(testClass, methodInfo);
-			var testCase = new XunitTestCase(
-				SpyMessageSink.Create(),
-				TestMethodDisplay.ClassAndMethod,
-				TestMethodDisplayOptions.None,
-				testMethod
-			);
+			var testCase = new TestableXunitTestCase(testMethod);
 
 			var testTraits = testCase.Traits["Test"];
 
@@ -271,30 +286,30 @@ public class XunitTestCaseTests
 		}
 	}
 
-	public class DisplayName
+	[Serializable]
+	class TestableXunitTestCase : XunitTestCase
 	{
-		[Fact]
-		public static void CustomDisplayName()
-		{
-			var testMethod = Mocks.TestMethod(displayName: "Custom Display Name");
+		protected TestableXunitTestCase(
+			SerializationInfo info,
+			StreamingContext context) :
+				base(info, context)
+		{ }
 
-			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
-
-			Assert.Equal("Custom Display Name", testCase.DisplayName);
-		}
-
-		[Fact]
-		public static void CustomDisplayNameWithArguments()
-		{
-			var param1 = Mocks.ParameterInfo("p1");
-			var param2 = Mocks.ParameterInfo("p2");
-			var param3 = Mocks.ParameterInfo("p3");
-			var testMethod = Mocks.TestMethod(displayName: "Custom Display Name", parameters: new[] { param1, param2, param3 });
-			var arguments = new object[] { 42, "Hello, world!", 'A' };
-
-			var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, arguments);
-
-			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
-		}
+		public TestableXunitTestCase(
+			_ITestMethod testMethod,
+			object?[]? testMethodArguments = null,
+			_IMessageSink? diagnosticMessageSink = null) :
+				base(
+					diagnosticMessageSink ?? SpyMessageSink.Create(),
+					TestMethodDisplay.ClassAndMethod,
+					TestMethodDisplayOptions.None,
+					testMethod,
+					testMethodArguments,
+					null,
+					null,
+					null,
+					null
+				)
+		{ }
 	}
 }

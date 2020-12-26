@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -15,25 +14,53 @@ namespace Xunit.v3
 {
 	/// <summary>
 	/// Default implementation of <see cref="IXunitTestCase"/> for xUnit v3 that supports tests decorated with
-	/// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
+	/// <see cref="FactAttribute"/>. Tests decorated with derived attributes may use this as a base class
+	/// to build from.
 	/// </summary>
+	[Serializable]
 	[DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
 	public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	{
 		static readonly ConcurrentDictionary<string, IEnumerable<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 		static readonly ConcurrentDictionary<string, IEnumerable<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 
-		int timeout;
-
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public XunitTestCase()
+		/// <inheritdoc/>
+		protected XunitTestCase(
+			SerializationInfo info,
+			StreamingContext context) :
+				base(info, context)
 		{
 			// No way for us to get access to the message sink on the execution deserialization path, but that should
 			// be okay, because we assume all the issues were reported during discovery.
 			DiagnosticMessageSink = new _NullMessageSink();
+			Timeout = info.GetValue<int>("Timeout");
 		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// This constructor is intended to be used by test methods which are decorated directly with <see cref="FactAttribute"/>
+		/// (and not any derived attribute). Developers creating custom attributes derived from <see cref="FactAttribute"/>
+		/// should create their own test case class (derived from this) and use the protected constructor instead.
+		/// </remarks>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
+		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
+		/// <param name="testMethod">The test method this test case belongs to.</param>
+		/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+		/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		public XunitTestCase(
+			_IMessageSink diagnosticMessageSink,
+			TestMethodDisplay defaultMethodDisplay,
+			TestMethodDisplayOptions defaultMethodDisplayOptions,
+			_ITestMethod testMethod,
+			string? skipReason = null,
+			int? timeout = null,
+			string? uniqueID = null)
+				: this(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, null, timeout, uniqueID)
+		{ }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
@@ -43,17 +70,47 @@ namespace Xunit.v3
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method this test case belongs to.</param>
 		/// <param name="testMethodArguments">The arguments for the test method.</param>
-		/// <param name="uniqueID">The unique ID for the test case (only used to override default behavior in testing scenarios)</param>
-		public XunitTestCase(
+		/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+		/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
+		/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		protected XunitTestCase(
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
-			object?[]? testMethodArguments = null,
-			string? uniqueID = null)
-				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, uniqueID: uniqueID)
+			object?[]? testMethodArguments,
+			string? skipReason,
+			Dictionary<string, List<string>>? traits,
+			int? timeout,
+			string? uniqueID)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+
+			var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
+			var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
+
+			DisplayName = TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
+			SkipReason ??= factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
+			Timeout = timeout ?? factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
+
+			if (traits == null)
+			{
+				foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
+				{
+					var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
+					if (discovererAttribute != null)
+					{
+						var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
+						if (discoverer != null)
+							foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+								Traits.Add(keyValuePair.Key, keyValuePair.Value);
+					}
+					else
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]" });
+				}
+			}
 		}
 
 		/// <summary>
@@ -62,90 +119,7 @@ namespace Xunit.v3
 		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
-		public int Timeout
-		{
-			get
-			{
-				EnsureInitialized();
-				return timeout;
-			}
-			protected set
-			{
-				EnsureInitialized();
-				timeout = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets the display name for the test case. Calls <see cref="TypeUtility.GetDisplayNameWithArguments"/>
-		/// with the given base display name (which is itself either derived from <see cref="FactAttribute.DisplayName"/>,
-		/// falling back to <see cref="TestMethodTestCase.BaseDisplayName"/>.
-		/// </summary>
-		/// <param name="factAttribute">The fact attribute the decorated the test case.</param>
-		/// <param name="displayName">The base display name from <see cref="TestMethodTestCase.BaseDisplayName"/>.</param>
-		/// <returns>The display name for the test case.</returns>
-		protected virtual string GetDisplayName(
-			_IAttributeInfo factAttribute,
-			string displayName)
-		{
-			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
-			Guard.ArgumentNotNull(nameof(displayName), displayName);
-
-			return TestMethod.Method.GetDisplayNameWithArguments(displayName, TestMethodArguments, MethodGenericTypes);
-		}
-
-		/// <summary>
-		/// Gets the skip reason for the test case. By default, pulls the skip reason from the
-		/// <see cref="FactAttribute.Skip"/> property.
-		/// </summary>
-		/// <param name="factAttribute">The fact attribute the decorated the test case.</param>
-		/// <returns>The skip reason, if skipped; <c>null</c>, otherwise.</returns>
-		protected virtual string? GetSkipReason(_IAttributeInfo factAttribute)
-		{
-			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
-
-			return factAttribute.GetNamedArgument<string>("Skip");
-		}
-
-		/// <summary>
-		/// Gets the timeout for the test case. By default, pulls the skip reason from the
-		/// <see cref="FactAttribute.Timeout"/> property.
-		/// </summary>
-		/// <param name="factAttribute">The fact attribute the decorated the test case.</param>
-		/// <returns>The timeout in milliseconds, if set; 0, if unset.</returns>
-		protected virtual int GetTimeout(_IAttributeInfo factAttribute)
-		{
-			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
-
-			return factAttribute.GetNamedArgument<int>("Timeout");
-		}
-
-		/// <inheritdoc/>
-		protected override void Initialize()
-		{
-			base.Initialize();
-
-			var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
-			var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
-
-			DisplayName = GetDisplayName(factAttribute, baseDisplayName);
-			SkipReason = GetSkipReason(factAttribute);
-			Timeout = GetTimeout(factAttribute);
-
-			foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
-			{
-				var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
-				if (discovererAttribute != null)
-				{
-					var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
-					if (discoverer != null)
-						foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
-							Traits.Add(keyValuePair.Key, keyValuePair.Value);
-				}
-				else
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]" });
-			}
-		}
+		public int Timeout { get; protected set; }
 
 		static IEnumerable<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
 		{
@@ -198,23 +172,13 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public override void Serialize(IXunitSerializationInfo info)
+		public override void GetObjectData(
+			SerializationInfo info,
+			StreamingContext context)
 		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
-			base.Serialize(info);
+			base.GetObjectData(info, context);
 
 			info.AddValue("Timeout", Timeout);
-		}
-
-		/// <inheritdoc/>
-		public override void Deserialize(IXunitSerializationInfo info)
-		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
-			base.Deserialize(info);
-
-			Timeout = info.GetValue<int>("Timeout");
 		}
 	}
 }

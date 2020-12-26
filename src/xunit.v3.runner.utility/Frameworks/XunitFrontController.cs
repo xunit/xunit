@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.v3;
+using Xunit.Sdk;
 
 #if NETFRAMEWORK
 using System.Linq;

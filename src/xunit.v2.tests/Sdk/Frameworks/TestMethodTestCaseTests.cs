@@ -2,9 +2,7 @@
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
-using Xunit.Serialization;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 
@@ -85,51 +83,6 @@ public class TestMethodTestCaseTests
 			var testCase = new TestableTestMethodTestCase(testMethod, defaultMethodDisplay: methodDisplay);
 
 			Assert.Equal(expectedDisplayName, testCase.DisplayName);
-		}
-	}
-
-	public class Serialization
-	{
-		[Fact]
-		public static void CanRoundTrip_PublicClass_PublicTestMethod()
-		{
-			var testCase = TestableTestMethodTestCase.Create<Serialization>("CanRoundTrip_PublicClass_PublicTestMethod");
-
-			var serialized = XunitSerializationInfo.Serialize(testCase);
-			var deserialized = XunitSerializationInfo.Deserialize(typeof(TestableTestMethodTestCase), serialized);
-
-			Assert.NotNull(deserialized);
-		}
-
-		[Fact]
-		public static void CanRoundTrip_PublicClass_PrivateTestMethod()
-		{
-			var testCase = TestableTestMethodTestCase.Create<Serialization>("CanRoundTrip_PublicClass_PrivateTestMethod");
-
-			var serialized = XunitSerializationInfo.Serialize(testCase);
-			var deserialized = XunitSerializationInfo.Deserialize(typeof(TestableTestMethodTestCase), serialized);
-
-			Assert.NotNull(deserialized);
-		}
-
-		[Fact]
-		public static void CanRoundTrip_PrivateClass()
-		{
-			var testCase = TestableTestMethodTestCase.Create<PrivateClass>("TestMethod");
-
-			var serialized = XunitSerializationInfo.Serialize(testCase);
-			var deserialized = XunitSerializationInfo.Deserialize(typeof(TestableTestMethodTestCase), serialized);
-
-			Assert.NotNull(deserialized);
-		}
-
-		class PrivateClass
-		{
-			[Fact]
-			public static void TestMethod()
-			{
-				Assert.True(false);
-			}
 		}
 	}
 

@@ -3,15 +3,16 @@
   <PropertyGroup>
     <Description>Includes common code shared between xunit.v3.core and xunit.v3.runner.common (xunit.v3.common.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- -V- Temporarily dual-targeted until we remove the code that belongs in xunit.v3.runner.common -V- -->
-    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Title>xUnit.net [Common Library]</Title>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="5.0.0" />
-    <!-- -V- Temporarily here until support for v2 can be removed -V- -->
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
 </Project>

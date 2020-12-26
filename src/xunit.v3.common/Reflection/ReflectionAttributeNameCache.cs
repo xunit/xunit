@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 
 namespace Xunit.Sdk
 {

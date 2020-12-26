@@ -1,6 +1,5 @@
-﻿using System;
-using Xunit;
-using Xunit.Runner.v2;
+﻿using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class TestCaseSerializerTests
@@ -31,7 +30,7 @@ public class TestCaseSerializerTests
 			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod");
 			var serialized = SerializationHelper.Serialize(testCase);
 
-			var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
+			var result = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
 
 			Assert.NotNull(result);
 			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
@@ -60,14 +59,17 @@ public class TestCaseSerializerTests
 			);
 			Assert.Equal(testCase.UniqueID, result.UniqueID);
 		}
+	}
 
+	public class WithXunitPreEnumeratedTheoryTestCase
+	{
 		[Fact]
 		public static void DeserializedTestWithSerializableArgumentsPreservesArguments()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { 42, 21.12, "Hello world" });
+			var testCase = TestData.XunitPreEnumeratedTheoryTestCase<ClassUnderTest>("FactMethod", new object[] { 42, 21.12, "Hello world" });
 			var serialized = SerializationHelper.Serialize(testCase);
 
-			var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
+			var result = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
 
 			Assert.NotNull(result);
 			Assert.NotNull(result.TestMethodArguments);
@@ -78,38 +80,25 @@ public class TestCaseSerializerTests
 				arg => Assert.Equal("Hello world", arg)
 			);
 		}
-
-		[Fact]
-		public static void DeserializedTestWithNonSerializableArgumentsThrows()
-		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { new ClassUnderTest() });
-
-			var ex = Record.Exception(() => SerializationHelper.Serialize(testCase));
-
-			Assert.IsType<ArgumentException>(ex);
-			Assert.StartsWith("There is at least one object in this array that cannot be serialized", ex.Message);
-		}
 	}
 
-	public class WithXunitTheoryTestCase
+	public class WithXunitDelayEnumeratedTheoryTestCase
 	{
 		[Fact]
 		public static void CanSerializeFactBasedTestCase()
 		{
-			var testCase = TestData.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
+			var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassUnderTest>("FactMethod");
 
-			SerializationHelper.Serialize(testCase);
-
-			// Should not throw
+			SerializationHelper.Serialize(testCase);  // Should not throw
 		}
 
 		[Fact]
 		public static void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
 		{
-			var testCase = TestData.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
+			var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassUnderTest>("FactMethod");
 			var serialized = SerializationHelper.Serialize(testCase);
 
-			var result = SerializationHelper.Deserialize<XunitTheoryTestCase>(serialized);
+			var result = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
 
 			Assert.NotNull(result);
 			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
@@ -119,7 +108,7 @@ public class TestCaseSerializerTests
 			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.UniqueID, result.TestMethod.TestClass.TestCollection.UniqueID);
 			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod.TestClass.Class.Name);
 			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod.Method.Name);
-			Assert.Equal(testCase.DisplayName, result.DisplayName);
+			Assert.Equal<object>(testCase.DisplayName, result.DisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);
 			Assert.Null(result.TestMethodArguments);

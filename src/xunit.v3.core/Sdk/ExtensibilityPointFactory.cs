@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk

@@ -1,26 +1,35 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using Xunit.Abstractions;
+using System.Runtime.Serialization;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.v3
 {
 	/// <summary>
 	/// The default implementation of <see cref="_ITestMethod"/>.
 	/// </summary>
+	[Serializable]
 	[DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
-	public class TestMethod : _ITestMethod, IXunitSerializable
+	public class TestMethod : _ITestMethod, ISerializable
 	{
-		_IMethodInfo? method;
-		_ITestClass? testClass;
-		string? uniqueID;
+		_IMethodInfo method;
+		_ITestClass testClass;
+		string uniqueID;
 
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public TestMethod()
-		{ }
+		/// <summary>
+		/// Used for de-serialization.
+		/// </summary>
+		protected TestMethod(
+			SerializationInfo info,
+			StreamingContext context)
+		{
+			testClass = Guard.NotNull("Could not retrieve TestClass from serialization", info.GetValue<_ITestClass>("TestClass"));
+			uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("UniqueID"));
+
+			var methodName = Guard.NotNull("Could not retrieve MethodName from serialization", info.GetValue<string>("MethodName"));
+			method = Guard.NotNull($"Could not find test method {methodName} on test class {testClass.Class.Name}", TestClass.Class.GetMethod(methodName, true));
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethod"/> class.
@@ -42,44 +51,32 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public _IMethodInfo Method
 		{
-			get => method ?? throw new InvalidOperationException($"Attempted to get Method on an uninitialized '{GetType().FullName}' object");
+			get => method;
 			set => method = Guard.ArgumentNotNull(nameof(Method), value);
 		}
 
 		/// <inheritdoc/>
 		public _ITestClass TestClass
 		{
-			get => testClass ?? throw new InvalidOperationException($"Attempted to get TestClass on an uninitialized '{GetType().FullName}' object");
+			get => testClass;
 			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
 		}
 
 		/// <inheritdoc/>
 		public string UniqueID
 		{
-			get => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+			get => uniqueID;
 			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
 		}
 
 		/// <inheritdoc/>
-		public void Serialize(IXunitSerializationInfo info)
+		public virtual void GetObjectData(
+			SerializationInfo info,
+			StreamingContext context)
 		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
 			info.AddValue("MethodName", Method.Name);
 			info.AddValue("TestClass", TestClass);
 			info.AddValue("UniqueID", UniqueID);
-		}
-
-		/// <inheritdoc/>
-		public void Deserialize(IXunitSerializationInfo info)
-		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
-			testClass = info.GetValue<_ITestClass>("TestClass");
-			uniqueID = info.GetValue<string>("UniqueID");
-
-			var methodName = info.GetValue<string>("MethodName");
-			method = TestClass.Class.GetMethod(methodName, true);
 		}
 	}
 }

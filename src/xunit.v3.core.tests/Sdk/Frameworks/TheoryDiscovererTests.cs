@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Xml;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -96,7 +94,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTheoryTestCase()
+	public void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTestCase()
 	{
 		discoveryOptions.SetPreEnumerateTheories(false);
 		var discoverer = TestableTheoryDiscoverer.Create();
@@ -106,8 +104,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+MultipleDataClass.TheoryMethod", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+MultipleDataClass.TheoryMethod", testCase.DisplayName);
 	}
 
 	class MultipleDataAttribute : DataAttribute
@@ -157,8 +155,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", testCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
 		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
@@ -189,8 +187,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, theoryAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("MockTheoryType.MockTheoryMethod", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("MockTheoryType.MockTheoryMethod", testCase.DisplayName);
 	}
 
 	[Fact]
@@ -203,8 +201,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", testCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
 		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
 		Assert.Equal("Non-serializable data (one or more of: 'TheoryDiscovererTests+NonSerializableDataAttribute') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
@@ -224,32 +222,6 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[Theory, NonSerializableData]
 		public void TheoryMethod(object a) { }
 	}
-
-#if NETFRAMEWORK
-	[Fact]
-	public void TheoryWithNonSerializableEnumYieldsSingleTheoryTestCase()
-	{
-		Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "The GAC is only available on Windows");
-
-		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<NonSerializableEnumDataClass>("TheTest");
-		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
-
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
-
-		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+NonSerializableEnumDataClass.TheTest", theoryTestCase.DisplayName);
-	}
-
-	class NonSerializableEnumDataClass
-	{
-		[Theory]
-		[InlineData(42)]
-		[InlineData(ConformanceLevel.Auto)]
-		public void TheTest(object x) { }
-	}
-#endif
 
 	[Fact]
 	public async void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
@@ -313,8 +285,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+NonDiscoveryEnumeratedData.TheoryMethod", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+NonDiscoveryEnumeratedData.TheoryMethod", testCase.DisplayName);
 	}
 
 	class NonDiscoveryEnumeratedData
@@ -338,8 +310,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+MixedDiscoveryEnumeratedData.TheoryMethod", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+MixedDiscoveryEnumeratedData.TheoryMethod", testCase.DisplayName);
 	}
 
 	class MixedDiscoveryEnumeratedData
@@ -399,8 +371,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion", theoryTestCase.DisplayName);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion", testCase.DisplayName);
 	}
 
 	class ClassWithExplicitConvertedData

@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common

@@ -1,5 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Runner.v2;
@@ -11,29 +12,37 @@ namespace Xunit.v3
 	/// Represents a test case which runs multiple tests for theory data, either because the
 	/// data was not enumerable or because the data was not serializable.
 	/// </summary>
-	public class XunitTheoryTestCase : XunitTestCase
+	[Serializable]
+	public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 	{
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public XunitTheoryTestCase()
+		/// <inheritdoc/>
+		protected XunitDelayEnumeratedTheoryTestCase(
+			SerializationInfo info,
+			StreamingContext context) :
+				base(info, context)
 		{ }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitTheoryTestCase"/> class.
+		/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCase"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The method under test.</param>
-		/// <param name="uniqueID">The unique ID for the test case (only used to override default behavior in testing scenarios)</param>
-		public XunitTheoryTestCase(
+		/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+		/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
+		/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		public XunitDelayEnumeratedTheoryTestCase(
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
+			string? skipReason = null,
+			Dictionary<string, List<string>>? traits = null,
+			int? timeout = null,
 			string? uniqueID = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, uniqueID: uniqueID)
+				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, traits, timeout, uniqueID)
 		{ }
 
 		/// <inheritdoc/>
@@ -43,7 +52,7 @@ namespace Xunit.v3
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
-				new XunitTheoryTestCaseRunner(
+				new XunitDelayEnumeratedTheoryTestCaseRunner(
 					this,
 					DisplayName,
 					SkipReason,

@@ -12,7 +12,7 @@ namespace Xunit.v3
 	/// The test case runner for xUnit.net v3 theories (which could not be pre-enumerated;
 	/// pre-enumerated test cases use <see cref="XunitTestCaseRunner"/>).
 	/// </summary>
-	public class XunitTheoryTestCaseRunner : XunitTestCaseRunner
+	public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunner
 	{
 		static readonly object?[] NoArguments = new object[0];
 
@@ -22,7 +22,7 @@ namespace Xunit.v3
 		readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitTheoryTestCaseRunner"/> class.
+		/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCaseRunner"/> class.
 		/// </summary>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <param name="displayName">The display name of the test case.</param>
@@ -32,7 +32,7 @@ namespace Xunit.v3
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-		public XunitTheoryTestCaseRunner(
+		public XunitDelayEnumeratedTheoryTestCaseRunner(
 			IXunitTestCase testCase,
 			string displayName,
 			string? skipReason,

@@ -7,7 +7,7 @@ using System.Text;
 using Xunit.Internal;
 using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Sdk
 {
 	/// <summary>
 	/// Generates unique IDs from multiple string inputs. Used to compute the unique
@@ -122,6 +122,36 @@ namespace Xunit
 			using var generator = new UniqueIDGenerator();
 			generator.Add(testCaseUniqueID);
 			generator.Add(testIndex.ToString());
+			return generator.Compute();
+		}
+
+		/// <summary>
+		/// Computes a unique ID for a test case, to be placed into <see cref="_TestCaseMessage.TestCaseUniqueID"/>
+		/// </summary>
+		/// <param name="parentUniqueID">The unique ID of the parent in the hierarchy; typically the test method
+		/// unique ID, but may also be the test class or test collection unique ID, when test method (and
+		/// possibly test class) don't exist.</param>
+		/// <param name="testMethodGenericTypes"></param>
+		/// <param name="testMethodArguments"></param>
+		/// <returns></returns>
+		public static string ForTestCase(
+			string parentUniqueID,
+			_ITypeInfo[]? testMethodGenericTypes,
+			object?[]? testMethodArguments)
+		{
+			Guard.ArgumentNotNull(nameof(parentUniqueID), parentUniqueID);
+
+			using var generator = new UniqueIDGenerator();
+
+			generator.Add(parentUniqueID);
+
+			if (testMethodArguments != null)
+				generator.Add(SerializationHelper.Serialize(testMethodArguments));
+
+			if (testMethodGenericTypes != null)
+				for (var idx = 0; idx < testMethodGenericTypes.Length; idx++)
+					generator.Add(TypeUtility.ConvertToSimpleTypeName(testMethodGenericTypes[idx]));
+
 			return generator.Compute();
 		}
 

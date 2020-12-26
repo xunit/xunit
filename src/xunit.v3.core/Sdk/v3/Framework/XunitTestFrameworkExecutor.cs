@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 
@@ -51,7 +52,7 @@ namespace Xunit.v3
 		{
 			if (value.Length > 3 && value.StartsWith(":F:"))
 			{
-				// Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{defaultMethodDisplayOptions}"
+				// Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{defaultMethodDisplayOptions}:{timeout}:{skipReason}"
 				// Colons in values are double-escaped, so we can't use String.Split
 				var parts = new List<string>();
 				var idx = 3;
@@ -77,7 +78,7 @@ namespace Xunit.v3
 				if (idx != idxEnd)
 					parts.Add(value.Substring(idx, idxEnd - idx).Replace("::", ":"));
 
-				if (parts.Count > 3)
+				if (parts.Count >= 6)
 				{
 					var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[0]);
 					if (typeInfo == null)
@@ -91,8 +92,10 @@ namespace Xunit.v3
 							var testMethod = new TestMethod(testClass, methodInfo);
 							var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
 							var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
+							var timeout = int.Parse(parts[4]);
+							var skipReason = parts[5] == "(null)" ? null : Encoding.UTF8.GetString(Convert.FromBase64String(parts[5]));
 
-							return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
+							return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, skipReason, timeout);
 						}
 					}
 				}

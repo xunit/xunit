@@ -8,13 +8,13 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class XunitTheoryTestCaseRunnerTests
+public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 {
 	[Fact]
 	public static async void EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
 	{
 		var messageBus = new SpyMessageBus();
-		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithData", messageBus, "Display Name");
+		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithData", messageBus, "Display Name");
 
 		var summary = await runner.RunAsync();
 
@@ -33,7 +33,7 @@ public class XunitTheoryTestCaseRunnerTests
 	public static async void DiscovererWhichThrowsReturnsASingleFailedTest()
 	{
 		var messageBus = new SpyMessageBus();
-		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithThrowingData", messageBus, "Display Name");
+		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithThrowingData", messageBus, "Display Name");
 
 		var summary = await runner.RunAsync();
 
@@ -53,7 +53,7 @@ public class XunitTheoryTestCaseRunnerTests
 	{
 		ClassUnderTest.DataWasDisposed = false;
 		var messageBus = new SpyMessageBus();
-		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithDisposableData", messageBus);
+		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithDisposableData", messageBus);
 
 		await runner.RunAsync();
 
@@ -64,7 +64,7 @@ public class XunitTheoryTestCaseRunnerTests
 	public static async void OnlySkipsDataRowsWithSkipReason()
 	{
 		var messageBus = new SpyMessageBus();
-		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithSomeDataSkipped", messageBus, "Display Name");
+		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithSomeDataSkipped", messageBus, "Display Name");
 
 		var summary = await runner.RunAsync();
 
@@ -87,13 +87,13 @@ public class XunitTheoryTestCaseRunnerTests
 	public async void ThrowingToString()
 	{
 		var messageBus = new SpyMessageBus();
-		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassWithThrowingToString>("Test", messageBus, "Display Name");
+		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassWithThrowingToString>("Test", messageBus, "Display Name");
 
 		await runner.RunAsync();
 
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passedStarting.TestDisplayName);
+		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitDelayEnumeratedTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passedStarting.TestDisplayName);
 	}
 
 	class ClassWithThrowingToString
@@ -120,7 +120,7 @@ public class XunitTheoryTestCaseRunnerTests
 	public async void ThrowingEnumerator()
 	{
 		var messageBus = new SpyMessageBus();
-		var runner = TestableXunitTheoryTestCaseRunner.Create<ClassWithThrowingEnumerator>("Test", messageBus, "Display Name");
+		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassWithThrowingEnumerator>("Test", messageBus, "Display Name");
 
 		var summary = await runner.RunAsync();
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
@@ -205,9 +205,9 @@ public class XunitTheoryTestCaseRunnerTests
 		public void TestWithThrowingData(int x) { }
 	}
 
-	class TestableXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
+	class TestableXunitDelayEnumeratedTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestCaseRunner
 	{
-		TestableXunitTheoryTestCaseRunner(
+		TestableXunitDelayEnumeratedTheoryTestCaseRunner(
 			IXunitTestCase testCase,
 			string displayName,
 			_IMessageSink diagnosticMessageSink,
@@ -215,11 +215,11 @@ public class XunitTheoryTestCaseRunnerTests
 				base(testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
 		{ }
 
-		public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(
+		public static TestableXunitDelayEnumeratedTheoryTestCaseRunner Create<TClassUnderTest>(
 			string methodName,
 			IMessageBus messageBus,
 			string displayName = "MockDisplayName") =>
-				new TestableXunitTheoryTestCaseRunner(
+				new TestableXunitDelayEnumeratedTheoryTestCaseRunner(
 					TestData.XunitTestCase<TClassUnderTest>(methodName),
 					displayName,
 					SpyMessageSink.Create(),

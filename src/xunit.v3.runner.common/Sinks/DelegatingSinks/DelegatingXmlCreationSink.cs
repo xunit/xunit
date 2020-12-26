@@ -6,6 +6,7 @@ using System.Threading;
 using System.Xml.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common

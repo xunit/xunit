@@ -2,10 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using Xunit.Abstractions;
+using System.Runtime.Serialization;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.v1
@@ -13,19 +12,32 @@ namespace Xunit.Runner.v1
 	/// <summary>
 	/// Implementation of <see cref="_ITestCase"/> for xUnit.net v1 test cases.
 	/// </summary>
-	public class Xunit1TestCase : _ITestCase, IXunitSerializable
+	[Serializable]
+	public class Xunit1TestCase : _ITestCase, ISerializable
 	{
 		static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
 		Xunit1TestMethod? testMethod;
 
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public Xunit1TestCase()
+		/// <summary>
+		/// Used for de-serialization.
+		/// </summary>
+		protected Xunit1TestCase(
+			SerializationInfo info,
+			StreamingContext context)
 		{
-			DisplayName = "<unset>";
-			Traits = new Dictionary<string, List<string>>();
+			var testAssembly = new Xunit1TestAssembly(
+				Guard.NotNull("Could not retrieve AssemblyFileName from serialization", info.GetValue<string>("AssemblyFileName")),
+				info.GetValue<string>("ConfigFileName")
+			);
+			var testCollection = new Xunit1TestCollection(testAssembly);
+			var testClass = new Xunit1TestClass(testCollection, Guard.NotNull("Could not retrieve TypeName from serialization", info.GetValue<string>("TypeName")));
+			testMethod = new Xunit1TestMethod(testClass, Guard.NotNull("Could not retrieve MethodName from serialization", info.GetValue<string>("MethodName")));
+
+			DisplayName = Guard.NotNull("Could not retrieve DisplayName from serialization", info.GetValue<string>("DisplayName"));
+			SkipReason = info.GetValue<string>("SkipReason");
+			SourceInformation = info.GetValue<_SourceInformation>("SourceInformation");
+			Traits = SerializationHelper.DeserializeTraits(info);
 		}
 
 		/// <summary>
@@ -73,52 +85,18 @@ namespace Xunit.Runner.v1
 		// TODO: Should get updated to UniqueIDGenerator once it can generate test case unique IDs
 		public string UniqueID => $"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name} ({TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath})";
 
-		/// <inheritdoc/>
-		public void Deserialize(IXunitSerializationInfo data)
+		void ISerializable.GetObjectData(
+			SerializationInfo info,
+			StreamingContext context)
 		{
-			Guard.ArgumentNotNull(nameof(data), data);
-
-			var testAssembly = new Xunit1TestAssembly(
-				data.GetValue<string>("AssemblyFileName"),
-				data.GetValue<string>("ConfigFileName")
-			);
-			var testCollection = new Xunit1TestCollection(testAssembly);
-			var testClass = new Xunit1TestClass(testCollection, data.GetValue<string>("TypeName"));
-			testMethod = new Xunit1TestMethod(testClass, data.GetValue<string>("MethodName"));
-
-			DisplayName = data.GetValue<string>("DisplayName");
-			SkipReason = data.GetValue<string>("SkipReason");
-			SourceInformation = data.GetValue<_SourceInformation>("SourceInformation");
-
-			Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-			var keys = data.GetValue<string[]>("Traits.Keys");
-			foreach (var key in keys)
-				Traits.Add(key, data.GetValue<string[]>($"Traits[{key}]").ToList());
-		}
-
-		/// <inheritdoc/>
-		public void Serialize(IXunitSerializationInfo data)
-		{
-			Guard.ArgumentNotNull(nameof(data), data);
-
-			data.AddValue("AssemblyFileName", TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
-			data.AddValue("ConfigFileName", TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
-			data.AddValue("MethodName", TestMethod.Method.Name);
-			data.AddValue("TypeName", TestMethod.TestClass.Class.Name);
-			data.AddValue("DisplayName", DisplayName);
-			data.AddValue("SkipReason", SkipReason);
-			data.AddValue("SourceInformation", SourceInformation);
-
-			if (Traits == null)
-			{
-				data.AddValue("Traits.Keys", new string[0]);
-			}
-			else
-			{
-				data.AddValue("Traits.Keys", Traits.Keys.ToArray());
-				foreach (var key in Traits.Keys)
-					data.AddValue($"Traits[{key}]", Traits[key].ToArray());
-			}
+			info.AddValue("AssemblyFileName", TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
+			info.AddValue("ConfigFileName", TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
+			info.AddValue("MethodName", TestMethod.Method.Name);
+			info.AddValue("TypeName", TestMethod.TestClass.Class.Name);
+			info.AddValue("DisplayName", DisplayName);
+			info.AddValue("SkipReason", SkipReason);
+			info.AddValue("SourceInformation", SourceInformation);
+			SerializationHelper.SerializeTraits(info, Traits);
 		}
 	}
 }

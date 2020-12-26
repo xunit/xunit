@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit;
+using Xunit.Sdk;
 
 public class UniqueIDGeneratorTests
 {

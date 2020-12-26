@@ -444,7 +444,8 @@ namespace Xunit.v3
 
 		public static TestMethod TestMethod<TClass>(
 			string methodName,
-			_ITestCollection? collection = null)
+			_ITestCollection? collection = null,
+			string? uniqueID = null)
 		{
 			var assembly = Reflector.Wrap(typeof(TClass).Assembly);
 			var testAssembly = new TestAssembly(assembly, uniqueID: "assembly-id");
@@ -455,7 +456,7 @@ namespace Xunit.v3
 			Guard.ArgumentValidNotNull(nameof(methodName), $"Could not find method '{methodName}' on type '{typeof(TClass).FullName}'", method);
 			var methodInfo = Reflector.Wrap(method);
 
-			return new TestMethod(testClass, methodInfo, uniqueID: "method-id");
+			return new TestMethod(testClass, methodInfo, uniqueID ?? "method-id");
 		}
 
 		public static _TestMethodFinished TestMethodFinished(
@@ -557,12 +558,50 @@ namespace Xunit.v3
 					TestUniqueID = testUniqueID
 				};
 
+		public static XunitDelayEnumeratedTheoryTestCase XunitDelayEnumeratedTheoryTestCase<TClassUnderTest>(
+			string methodName,
+			_ITestCollection? collection = null,
+			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			string? skipReason = null,
+			Dictionary<string, List<string>>? traits = null,
+			int? timeout = null,
+			string? uniqueID = null,
+			_IMessageSink? diagnosticMessageSink = null)
+		{
+			diagnosticMessageSink ??= new _NullMessageSink();
+
+			var method = TestMethod<TClassUnderTest>(methodName, collection);
+
+			return new XunitDelayEnumeratedTheoryTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, skipReason, traits, timeout, uniqueID);
+		}
+
+		public static XunitPreEnumeratedTheoryTestCase XunitPreEnumeratedTheoryTestCase<TClassUnderTest>(
+			string methodName,
+			object?[] methodArguments,
+			_ITestCollection? collection = null,
+			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			string? skipReason = null,
+			Dictionary<string, List<string>>? traits = null,
+			int? timeout = null,
+			string? uniqueID = null,
+			_IMessageSink? diagnosticMessageSink = null)
+		{
+			diagnosticMessageSink ??= new _NullMessageSink();
+
+			var method = TestMethod<TClassUnderTest>(methodName, collection);
+
+			return new XunitPreEnumeratedTheoryTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, methodArguments, skipReason, traits, timeout, uniqueID);
+		}
+
 		public static XunitTestCase XunitTestCase<TClassUnderTest>(
 			string methodName,
 			_ITestCollection? collection = null,
-			object[]? testMethodArguments = null,
 			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+			string? skipReason = null,
+			int? timeout = null,
 			string? uniqueID = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
@@ -570,22 +609,7 @@ namespace Xunit.v3
 
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-			return new XunitTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, testMethodArguments, uniqueID);
-		}
-
-		public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(
-			string methodName,
-			_ITestCollection? collection = null,
-			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
-			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
-			string? uniqueID = null,
-			_IMessageSink? diagnosticMessageSink = null)
-		{
-			diagnosticMessageSink ??= new _NullMessageSink();
-
-			var method = TestMethod<TClassUnderTest>(methodName, collection);
-
-			return new XunitTheoryTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, uniqueID);
+			return new XunitTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, skipReason, timeout, uniqueID);
 		}
 	}
 }

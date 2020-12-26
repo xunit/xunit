@@ -109,6 +109,10 @@ namespace Xunit.Sdk
 					{
 						Array.Copy(arguments, parameters.Length - 1, paramsArray, 0, paramsArray.Length);
 					}
+					catch (ArrayTypeMismatchException)
+					{
+						throw new InvalidOperationException($"The arguments for this test method did not match the parameters: {ArgumentFormatter.Format(arguments)}");
+					}
 					catch (InvalidCastException)
 					{
 						throw new InvalidOperationException($"The arguments for this test method did not match the parameters: {ArgumentFormatter.Format(arguments)}");
@@ -470,7 +474,13 @@ namespace Xunit.Sdk
 			return resolvedTypes;
 		}
 
-		internal static object? GetDefaultValue(this Type type)
+		/// <summary>
+		/// Returns the default value for the given type. For value types, this means a 0-initialized
+		/// instance of the type; for reference types, this means <c>null</c>.
+		/// </summary>
+		/// <param name="type">The type to get the default value of.</param>
+		/// <returns>The default value for the given type.</returns>
+		public static object? GetDefaultValue(this Type type)
 		{
 			if (type.IsValueType)
 				return Activator.CreateInstance(type);

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -42,7 +41,7 @@ namespace Xunit.Sdk
 			_IAttributeInfo theoryAttribute,
 			object?[] dataRow)
 		{
-			var testCase = new XunitTestCase(
+			var testCase = new XunitPreEnumeratedTheoryTestCase(
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -82,7 +81,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Creates test cases for the entire theory. This is used when one or more of the theory data items
 		/// are not serializable, or if the user has requested to skip theory pre-enumeration. By default,
-		/// returns a single instance of <see cref="XunitTheoryTestCase"/>, which performs the data discovery
+		/// returns a single instance of <see cref="XunitDelayEnumeratedTheoryTestCase"/>, which performs the data discovery
 		/// at runtime.
 		/// </summary>
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
@@ -94,7 +93,7 @@ namespace Xunit.Sdk
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
 		{
-			var testCase = new XunitTheoryTestCase(
+			var testCase = new XunitDelayEnumeratedTheoryTestCase(
 				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
@@ -128,9 +127,9 @@ namespace Xunit.Sdk
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod,
-				skipReason,
 				dataRow
-			);
+,
+				skipReason);
 
 			return new[] { testCase };
 		}
@@ -264,7 +263,7 @@ namespace Xunit.Sdk
 							if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
 								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(dataRow);
 
-							if (!SerializationHelper.IsSerializable(resolvedData))
+							if (!resolvedData.All(d => SerializationHelper.IsSerializable(d)))
 							{
 								var typeNames = resolvedData
 									.Select(x => x?.GetType().FullName)
@@ -276,12 +275,20 @@ namespace Xunit.Sdk
 								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 
-							var testCases =
-								skipReason != null
-									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData, skipReason)
-									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData);
+							try
+							{
+								var testCases =
+									skipReason != null
+										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData, skipReason)
+										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData);
 
-							results.AddRange(testCases);
+								results.AddRange(testCases);
+							}
+							catch (Exception ex)
+							{
+								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Error creating theory test case for for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case. Exception message: '{ex.Message}'" });
+								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+							}
 						}
 					}
 

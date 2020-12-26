@@ -1,20 +1,24 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 namespace Xunit.v3
 {
-	public class CulturedXunitTheoryTestCase : XunitTheoryTestCase
+	[Serializable]
+	public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 	{
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public CulturedXunitTheoryTestCase() { }
+		/// <inheritdoc/>
+		protected CulturedXunitTheoryTestCase(
+			SerializationInfo info,
+			StreamingContext context) :
+				base(info, context)
+		{
+			Culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("Culture"));
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CulturedXunitTheoryTestCase"/> class.
@@ -31,27 +35,24 @@ namespace Xunit.v3
 			string culture)
 				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
-			Initialize(culture);
+			Culture = Guard.ArgumentNotNull(nameof(culture), culture);
+
+			Traits.Add("Culture", Culture);
+
+			var cultureDisplay = $"[{Culture}]";
+			DisplayName += cultureDisplay;
+			UniqueID += cultureDisplay;
 		}
 
-		public string Culture { get; private set; } = "<unset>";
+		public string Culture { get; }
 
-		public override void Deserialize(IXunitSerializationInfo data)
+		public override void GetObjectData(
+			SerializationInfo info,
+			StreamingContext context)
 		{
-			base.Deserialize(data);
+			base.GetObjectData(info, context);
 
-			Initialize(data.GetValue<string>("Culture"));
-		}
-
-		protected override string GetUniqueID() => $"{base.GetUniqueID()}[{Culture}]";
-
-		void Initialize(string culture)
-		{
-			Culture = culture;
-
-			Traits.Add("Culture", culture);
-
-			DisplayName += $"[{culture}]";
+			info.AddValue("Culture", Culture);
 		}
 
 		public override Task<RunSummary> RunAsync(
@@ -70,12 +71,5 @@ namespace Xunit.v3
 					aggregator,
 					cancellationTokenSource
 				).RunAsync();
-
-		public override void Serialize(IXunitSerializationInfo data)
-		{
-			base.Serialize(data);
-
-			data.AddValue("Culture", Culture);
-		}
 	}
 }

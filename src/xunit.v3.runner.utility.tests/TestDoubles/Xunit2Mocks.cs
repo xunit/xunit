@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Versioning;
 using NSubstitute;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.v2
 {

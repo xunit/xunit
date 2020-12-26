@@ -1,8 +1,7 @@
 using System;
-using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -13,15 +12,19 @@ namespace Xunit.v3
 	/// A simple implementation of <see cref="IXunitTestCase"/> that can be used to report an error
 	/// rather than running a test.
 	/// </summary>
+	[Serializable]
 	public class ExecutionErrorTestCase : XunitTestCase
 	{
-		string? errorMessage;
+		string errorMessage;
 
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public ExecutionErrorTestCase()
-		{ }
+		/// <inheritdoc/>
+		protected ExecutionErrorTestCase(
+			SerializationInfo info,
+			StreamingContext context) :
+				base(info, context)
+		{
+			errorMessage = Guard.NotNull("Could not retrieve ErrorMessage from serialization", info.GetValue<string>("ErrorMessage"));
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ExecutionErrorTestCase"/> class.
@@ -39,7 +42,7 @@ namespace Xunit.v3
 			string errorMessage)
 				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
-			ErrorMessage = Guard.ArgumentNotNull(nameof(errorMessage), errorMessage);
+			this.errorMessage = Guard.ArgumentNotNull(nameof(errorMessage), errorMessage);
 		}
 
 		/// <summary>
@@ -47,8 +50,18 @@ namespace Xunit.v3
 		/// </summary>
 		public string ErrorMessage
 		{
-			get => errorMessage ?? throw new InvalidOperationException($"Attempted to get ErrorMessage on an uninitialized '{GetType().FullName}' object");
+			get => errorMessage;
 			private set => errorMessage = Guard.ArgumentNotNull(nameof(ErrorMessage), value);
+		}
+
+		/// <inheritdoc/>
+		public override void GetObjectData(
+			SerializationInfo info,
+			StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+
+			info.AddValue("ErrorMessage", ErrorMessage);
 		}
 
 		/// <inheritdoc/>
@@ -59,25 +72,5 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
 				new ExecutionErrorTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
-
-		/// <inheritdoc/>
-		public override void Serialize(IXunitSerializationInfo info)
-		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
-			base.Serialize(info);
-
-			info.AddValue("ErrorMessage", ErrorMessage);
-		}
-
-		/// <inheritdoc/>
-		public override void Deserialize(IXunitSerializationInfo info)
-		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
-			base.Deserialize(info);
-
-			ErrorMessage = info.GetValue<string>("ErrorMessage");
-		}
 	}
 }

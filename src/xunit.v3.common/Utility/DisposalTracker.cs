@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Xunit
+namespace Xunit.Sdk
 {
 	/// <summary>
 	/// Tracks disposable objects, and disposes them in the reverse order they were added to
@@ -64,18 +64,30 @@ namespace Xunit
 		/// Add an object to be disposed. It may optionally support <see cref="IDisposable"/>
 		/// and/or <see cref="IAsyncDisposable"/>.
 		/// </summary>
-		/// <param name="obj">The object to be disposed.</param>
-		public void Add(object? obj)
+		/// <param name="object">The object to be disposed.</param>
+		public void Add(object? @object)
 		{
 			lock (toDispose)
 			{
 				GuardNotDisposed();
 
-				if (obj is IDisposable disposable)
+				if (@object is IDisposable disposable)
 					toDispose.Push(disposable);
-				if (obj is IAsyncDisposable asyncDisposable)
+				if (@object is IAsyncDisposable asyncDisposable)
 					toAsyncDispose.Push(asyncDisposable);
 			}
+		}
+
+		/// <summary>
+		/// Add a collection of objects to be disposed. They may optionally support <see cref="IDisposable"/>
+		/// and/or <see cref="IAsyncDisposable"/>.
+		/// </summary>
+		/// <param name="objects">The objects to be disposed.</param>
+		public void AddRange(object?[]? objects)
+		{
+			if (objects != null)
+				foreach (var @object in objects)
+					Add(@object);
 		}
 
 		/// <inheritdoc/>

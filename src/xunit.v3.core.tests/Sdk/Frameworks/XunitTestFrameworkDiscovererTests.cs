@@ -466,7 +466,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		[Theory]
 		[InlineData(false, null)]
-		[InlineData(true, ":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0")]
+		[InlineData(true, ":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0:0:(null)")]
 		public void SerializationTestsForXunitTestCase(
 			bool includeSerialization,
 			string? expectedSerializationStartingText)

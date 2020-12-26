@@ -1,10 +1,10 @@
 ﻿using System;
-using Xunit.Abstractions;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Decorates an implementation of <see cref="ITestFrameworkDiscoverer"/> that is used to
+	/// Decorates an implementation of <see cref="_ITestFrameworkDiscoverer"/> that is used to
 	/// determine which test framework is used to discover and run tests.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

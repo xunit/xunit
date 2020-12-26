@@ -6,7 +6,7 @@ using Xunit.v3;
 
 namespace Xunit.Sdk
 {
-	public class CulturedXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
+	public class CulturedXunitTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestCaseRunner
 	{
 		readonly string culture;
 		CultureInfo? originalCulture;

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using Xunit.Abstractions;
+using System.Runtime.Serialization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -12,18 +11,35 @@ namespace Xunit.v3
 	/// <summary>
 	/// The default implementation of <see cref="_ITestAssembly"/>.
 	/// </summary>
+	[Serializable]
 	[DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
-	public class TestAssembly : _ITestAssembly, IXunitSerializable
+	public class TestAssembly : _ITestAssembly, ISerializable
 	{
 		_IAssemblyInfo? assembly;
 		string? uniqueID;
-		Version? version;
 
-		/// <summary/>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public TestAssembly()
-		{ }
+		/// <summary>
+		/// Used for de-serialization.
+		/// </summary>
+		protected TestAssembly(
+			SerializationInfo info,
+			StreamingContext context)
+		{
+			Version = Guard.NotNull("Could not retrieve Version from serialization", info.GetValue<Version>("Version"));
+			ConfigFileName = info.GetValue<string>("ConfigFileName");
+
+			var assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("AssemblyPath"));
+			var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+			var assembly = System.Reflection.Assembly.Load(new AssemblyName
+			{
+				Name = assemblyName,
+				Version = Version
+			});
+
+			Assembly = Reflector.Wrap(assembly);
+
+			uniqueID = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, ConfigFileName);
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssembly"/> class.
@@ -42,7 +58,7 @@ namespace Xunit.v3
 			ConfigFileName = configFileName;
 
 			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
-			this.version =
+			Version =
 				version
 				?? (assembly as _IReflectionAssemblyInfo)?.Assembly?.GetName()?.Version
 				?? new Version(0, 0, 0, 0);
@@ -64,37 +80,16 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the assembly version.
 		/// </summary>
-		public Version Version => version ?? throw new InvalidOperationException($"Attempted to get {nameof(Version)} on an uninitialized '{GetType().FullName}' object");
+		public Version Version { get; }
 
 		/// <inheritdoc/>
-		public void Serialize(IXunitSerializationInfo info)
+		public virtual void GetObjectData(
+			SerializationInfo info,
+			StreamingContext context)
 		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
 			info.AddValue("AssemblyPath", Assembly.AssemblyPath);
 			info.AddValue("ConfigFileName", ConfigFileName);
-			info.AddValue("Version", Version.ToString());
-		}
-
-		/// <inheritdoc/>
-		public void Deserialize(IXunitSerializationInfo info)
-		{
-			Guard.ArgumentNotNull(nameof(info), info);
-
-			version = new Version(info.GetValue<string>("Version"));
-			ConfigFileName = info.GetValue<string>("ConfigFileName");
-
-			var assemblyPath = info.GetValue<string>("AssemblyPath");
-			var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-			var assembly = System.Reflection.Assembly.Load(new AssemblyName
-			{
-				Name = assemblyName,
-				Version = Version
-			});
-
-			Assembly = Reflector.Wrap(assembly);
-
-			uniqueID = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, ConfigFileName);
+			info.AddValue("Version", Version);
 		}
 	}
 }

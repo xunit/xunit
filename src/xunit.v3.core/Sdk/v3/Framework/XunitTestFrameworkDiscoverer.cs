@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Xunit.Internal;
 using Xunit.Runner.v2;
 using Xunit.Sdk;
@@ -169,10 +170,13 @@ namespace Xunit.v3
 			if (testCase.GetType() == XunitTestCaseType)
 			{
 				var xunitTestCase = (XunitTestCase)testCase;
-				var className = testCase.TestMethod?.TestClass?.Class?.Name;
-				var methodName = testCase.TestMethod?.Method?.Name;
-				if (className != null && methodName != null && (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0))
-					return $":F:{className.Replace(":", "::")}:{methodName.Replace(":", "::")}:{(int)xunitTestCase.DefaultMethodDisplay}:{(int)xunitTestCase.DefaultMethodDisplayOptions}";
+				var className = testCase.TestMethod.TestClass.Class.Name.Replace(":", "::");
+				var methodName = testCase.TestMethod.Method.Name.Replace(":", "::");
+				var timeout = xunitTestCase.Timeout;
+				var methodDisplay = (int)xunitTestCase.DefaultMethodDisplay;
+				var methodDisplayOptions = (int)xunitTestCase.DefaultMethodDisplayOptions;
+				var skipReason = testCase.SkipReason == null ? "(null)" : Convert.ToBase64String(Encoding.UTF8.GetBytes(testCase.SkipReason));
+				return $":F:{className}:{methodName}:{methodDisplay}:{methodDisplayOptions}:{timeout}:{skipReason}";
 			}
 
 			return base.Serialize(testCase);

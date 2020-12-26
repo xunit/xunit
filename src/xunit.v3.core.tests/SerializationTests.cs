@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -106,15 +105,17 @@ public class SerializationTests
 		sink.Finished.WaitOne();
 
 		var testCase = Assert.Single(sink.TestCases);
-		Assert.IsType<XunitTheoryTestCase>(testCase);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 
 		var deserialized = SerializationHelper.Deserialize<_ITestCase>(SerializationHelper.Serialize(testCase));
-		Assert.IsType<XunitTheoryTestCase>(deserialized);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(deserialized);
 	}
+
+	class NonSerializableData { }
 
 	class ClassWithNonSerializableTheoryData
 	{
-		public static IEnumerable<object[]> Data = new[] { new[] { new object() }, new[] { new object() } };
+		public static IEnumerable<object[]> Data = new[] { new[] { new NonSerializableData() }, new[] { new object() } };
 
 		[Theory]
 		[MemberData("Data")]

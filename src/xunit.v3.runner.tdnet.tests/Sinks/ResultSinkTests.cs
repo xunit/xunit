@@ -4,6 +4,7 @@ using NSubstitute;
 using TestDriven.Framework;
 using Xunit;
 using Xunit.Runner.TdNet;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class ResultSinkTests

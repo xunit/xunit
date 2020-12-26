@@ -31,7 +31,6 @@ namespace Xunit.Sdk
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method.</param>
 		/// <param name="factAttribute">The attribute that decorates the test method.</param>
-		/// <returns></returns>
 		protected virtual IXunitTestCase CreateTestCase(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
