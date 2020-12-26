@@ -8,18 +8,18 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// Provides a class which wraps <see cref="ITestMethod"/> instances to implement <see cref="_ITestMethod"/>.
 	/// </summary>
-	public class Xunit2TestMethod : _ITestMethod
+	public class Xunit3TestMethod : _ITestMethod
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2TestMethod"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestMethod"/> class.
 		/// </summary>
 		/// <param name="v2TestMethod">The v2 test method to wrap.</param>
-		public Xunit2TestMethod(ITestMethod v2TestMethod)
+		public Xunit3TestMethod(ITestMethod v2TestMethod)
 		{
 			V2TestMethod = Guard.ArgumentNotNull(nameof(v2TestMethod), v2TestMethod);
 
 			Method = new Xunit3MethodInfo(V2TestMethod.Method);
-			TestClass = new Xunit2TestClass(V2TestMethod.TestClass);
+			TestClass = new Xunit3TestClass(V2TestMethod.TestClass);
 			UniqueID = UniqueIDGenerator.ForTestMethod(TestClass.UniqueID, V2TestMethod.Method.Name);
 		}
 

@@ -8,18 +8,18 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// Provides a class which wraps <see cref="ITestCollection"/> instances to implement <see cref="_ITestCollection"/>.
 	/// </summary>
-	public class Xunit2TestCollection : _ITestCollection
+	public class Xunit3TestCollection : _ITestCollection
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2TestCollection"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestCollection"/> class.
 		/// </summary>
 		/// <param name="v2TestCollection">The v2 test collection to wrap.</param>
-		public Xunit2TestCollection(ITestCollection v2TestCollection)
+		public Xunit3TestCollection(ITestCollection v2TestCollection)
 		{
 			V2TestCollection = Guard.ArgumentNotNull(nameof(v2TestCollection), v2TestCollection);
 
 			CollectionDefinition = V2TestCollection.CollectionDefinition == null ? null : new Xunit3TypeInfo(V2TestCollection.CollectionDefinition);
-			TestAssembly = new Xunit2TestAssembly(V2TestCollection.TestAssembly);
+			TestAssembly = new Xunit3TestAssembly(V2TestCollection.TestAssembly);
 			UniqueID = UniqueIDGenerator.ForTestCollection(TestAssembly.UniqueID, V2TestCollection.DisplayName, V2TestCollection.CollectionDefinition?.Name);
 		}
 

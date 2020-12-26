@@ -9,13 +9,13 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// Provides a class which wraps <see cref="ITestAssembly"/> instances to implement <see cref="_ITestAssembly"/>.
 	/// </summary>
-	public class Xunit2TestAssembly : _ITestAssembly
+	public class Xunit3TestAssembly : _ITestAssembly
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2TestAssembly"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestAssembly"/> class.
 		/// </summary>
 		/// <param name="v2TestAssembly">The v2 test assembly to wrap.</param>
-		public Xunit2TestAssembly(ITestAssembly v2TestAssembly)
+		public Xunit3TestAssembly(ITestAssembly v2TestAssembly)
 		{
 			V2TestAssembly = Guard.ArgumentNotNull(nameof(v2TestAssembly), v2TestAssembly);
 			UniqueID = UniqueIDGenerator.ForAssembly(v2TestAssembly.Assembly.Name, v2TestAssembly.Assembly.AssemblyPath, v2TestAssembly.ConfigFileName);

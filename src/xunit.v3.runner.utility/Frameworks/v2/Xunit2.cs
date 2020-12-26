@@ -110,7 +110,7 @@ namespace Xunit
 			_IMessageSink messageSink,
 			_ITestFrameworkExecutionOptions executionOptions) =>
 				remoteExecutor.RunTests(
-					testCases.Cast<Xunit2TestCase>().Select(tc => tc.V2TestCase).ToList(),
+					testCases.Cast<Xunit3TestCase>().Select(tc => tc.V2TestCase).ToList(),
 					CreateOptimizedRemoteMessageSink(messageSink),
 					Xunit2OptionsAdapter.Adapt(executionOptions)
 				);

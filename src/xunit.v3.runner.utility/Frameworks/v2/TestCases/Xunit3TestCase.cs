@@ -9,19 +9,19 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// Provides a class which wraps <see cref="ITestCase"/> instances to implement <see cref="_ITestCase"/>.
 	/// </summary>
-	public class Xunit2TestCase : _ITestCase
+	public class Xunit3TestCase : _ITestCase
 	{
 		readonly Lazy<_ITestMethod> testMethod;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2TestCase"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestCase"/> class.
 		/// </summary>
 		/// <param name="v2TestCase">The v2 test case to wrap</param>
-		public Xunit2TestCase(ITestCase v2TestCase)
+		public Xunit3TestCase(ITestCase v2TestCase)
 		{
 			V2TestCase = Guard.ArgumentNotNull(nameof(v2TestCase), v2TestCase);
 
-			testMethod = new Lazy<_ITestMethod>(() => new Xunit2TestMethod(V2TestCase.TestMethod));
+			testMethod = new Lazy<_ITestMethod>(() => new Xunit3TestMethod(V2TestCase.TestMethod));
 		}
 
 		/// <inheritdoc/>

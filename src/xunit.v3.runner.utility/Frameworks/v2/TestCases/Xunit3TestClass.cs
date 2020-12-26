@@ -8,18 +8,18 @@ namespace Xunit.Runner.v2
 	/// <summary>
 	/// Provides a class which wraps <see cref="ITestClass"/> instances to implement <see cref="_ITestClass"/>.
 	/// </summary>
-	public class Xunit2TestClass : _ITestClass
+	public class Xunit3TestClass : _ITestClass
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2TestClass"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestClass"/> class.
 		/// </summary>
 		/// <param name="v2TestClass">The v2 test class to wrap.</param>
-		public Xunit2TestClass(ITestClass v2TestClass)
+		public Xunit3TestClass(ITestClass v2TestClass)
 		{
 			V2TestClass = Guard.ArgumentNotNull(nameof(v2TestClass), v2TestClass);
 
 			Class = new Xunit3TypeInfo(V2TestClass.Class);
-			TestCollection = new Xunit2TestCollection(V2TestClass.TestCollection);
+			TestCollection = new Xunit3TestCollection(V2TestClass.TestCollection);
 			UniqueID = UniqueIDGenerator.ForTestClass(TestCollection.UniqueID, v2TestClass.Class.Name);
 		}
 
