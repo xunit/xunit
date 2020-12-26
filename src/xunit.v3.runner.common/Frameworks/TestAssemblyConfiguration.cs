@@ -1,5 +1,5 @@
 using System;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 namespace Xunit.v3

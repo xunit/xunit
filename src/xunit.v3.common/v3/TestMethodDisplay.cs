@@ -1,4 +1,4 @@
-namespace Xunit.Runner.v2
+namespace Xunit.v3
 {
 	/// <summary>
 	/// Indicates the default display name format for test methods.

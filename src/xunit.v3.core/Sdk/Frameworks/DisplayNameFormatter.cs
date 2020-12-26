@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Sdk
 {

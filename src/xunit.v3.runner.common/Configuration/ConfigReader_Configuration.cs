@@ -3,7 +3,7 @@
 using System;
 using System.Configuration;
 using System.Linq;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {

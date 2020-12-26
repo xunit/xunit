@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Xunit.Runner.v2;
 
 namespace Xunit.v3
 {

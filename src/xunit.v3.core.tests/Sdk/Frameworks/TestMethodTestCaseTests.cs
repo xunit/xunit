@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 

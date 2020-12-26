@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 
 namespace Xunit.v3

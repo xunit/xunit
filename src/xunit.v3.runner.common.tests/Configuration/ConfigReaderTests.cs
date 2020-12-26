@@ -4,7 +4,7 @@ using System.Reflection;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
+using Xunit.v3;
 
 public class ConfigReaderTests
 {
