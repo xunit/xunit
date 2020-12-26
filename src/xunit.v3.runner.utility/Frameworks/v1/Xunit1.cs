@@ -31,8 +31,8 @@ namespace Xunit
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
-		readonly Dictionary<string, Xunit1TestClass> testClassesByTypeName = new Dictionary<string, Xunit1TestClass>();
-		readonly Xunit1TestCollection testCollection;
+		readonly Dictionary<string, Xunit3TestClass> testClassesByTypeName = new Dictionary<string, Xunit3TestClass>();
+		readonly Xunit3TestCollection testCollection;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -66,8 +66,8 @@ namespace Xunit
 			this.shadowCopy = shadowCopy;
 			this.shadowCopyFolder = shadowCopyFolder;
 
-			var testAssembly = new Xunit1TestAssembly(assemblyFileName, configFileName);
-			testCollection = new Xunit1TestCollection(testAssembly);
+			var testAssembly = new Xunit3TestAssembly(assemblyFileName, configFileName);
+			testCollection = new Xunit3TestCollection(testAssembly);
 		}
 
 		/// <inheritdoc/>
@@ -231,11 +231,11 @@ namespace Xunit
 							if (typeName == null || methodName == null)
 								continue;
 
-							var testClass = default(Xunit1TestClass);
+							var testClass = default(Xunit3TestClass);
 							lock (testClassesByTypeName)
-								testClass = testClassesByTypeName.GetOrAdd(typeName, () => new Xunit1TestClass(testCollection, typeName));
+								testClass = testClassesByTypeName.GetOrAdd(typeName, () => new Xunit3TestClass(testCollection, typeName));
 
-							var testMethod = new Xunit1TestMethod(testClass, methodName);
+							var testMethod = new Xunit3TestMethod(testClass, methodName);
 
 							string? displayName = null;
 							var displayNameAttribute = methodXml.Attributes?["name"];
@@ -259,7 +259,7 @@ namespace Xunit
 										traits.Add(traitName, traitValue);
 								}
 
-							var testCase = new Xunit1TestCase(testMethod, displayName, traits, skipReason);
+							var testCase = new Xunit3TestCase(testMethod, displayName, traits, skipReason);
 							if (includeSourceInformation)
 							{
 								var result = sourceInformationProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);

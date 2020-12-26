@@ -10,17 +10,17 @@ namespace Xunit.Runner.v1
 	/// Implementation of <see cref="_ITestClass"/> and <see cref="_ITypeInfo"/> for
 	/// xUnit.net v1 test classes.
 	/// </summary>
-	public class Xunit1TestClass : _ITestClass, _ITypeInfo
+	public class Xunit3TestClass : _ITestClass, _ITypeInfo
 	{
 		readonly string typeName;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit1TestClass"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestClass"/> class.
 		/// </summary>
 		/// <param name="testCollection">The test collection this test class belongs to.</param>
 		/// <param name="typeName">The type that defines this test class.</param>
-		public Xunit1TestClass(
-			Xunit1TestCollection testCollection,
+		public Xunit3TestClass(
+			Xunit3TestCollection testCollection,
 			string typeName)
 		{
 			this.typeName = Guard.ArgumentNotNull(nameof(typeName), typeName);
@@ -33,7 +33,7 @@ namespace Xunit.Runner.v1
 		public _ITypeInfo Class => this;
 
 		/// <inheritdoc/>
-		public Xunit1TestCollection TestCollection { get; }
+		public Xunit3TestCollection TestCollection { get; }
 
 		/// <inheritdoc/>
 		public string UniqueID { get; }

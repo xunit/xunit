@@ -12,18 +12,18 @@ namespace Xunit.Runner.v1
 	/// Implementation of <see cref="_ITestAssembly"/> and <see cref="_IAssemblyInfo"/> for
 	/// xUnit.net v1 test assemblies.
 	/// </summary>
-	public class Xunit1TestAssembly : _ITestAssembly, _IAssemblyInfo
+	public class Xunit3TestAssembly : _ITestAssembly, _IAssemblyInfo
 	{
 		readonly string assemblyFileName;
 		readonly string uniqueID;
 		readonly Version version = new Version(0, 0, 0, 0);
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit1TestAssembly"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestAssembly"/> class.
 		/// </summary>
 		/// <param name="assemblyFileName">The assembly under test.</param>
 		/// <param name="configFileName">The configuration file name.</param>
-		public Xunit1TestAssembly(
+		public Xunit3TestAssembly(
 			string assemblyFileName,
 			string? configFileName = null)
 		{

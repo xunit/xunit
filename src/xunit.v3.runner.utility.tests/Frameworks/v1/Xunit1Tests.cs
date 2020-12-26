@@ -230,8 +230,8 @@ public class Xunit1Tests
 
 			Assert.Collection(
 				sink.DiscoveredTestCases,
-				testCase => Assert.IsType<Xunit1TestCase>(xunit1.Deserialize(testCase.Serialization!)),
-				testCase => Assert.IsType<Xunit1TestCase>(xunit1.Deserialize(testCase.Serialization!))
+				testCase => Assert.IsType<Xunit3TestCase>(xunit1.Deserialize(testCase.Serialization!)),
+				testCase => Assert.IsType<Xunit3TestCase>(xunit1.Deserialize(testCase.Serialization!))
 			);
 		}
 
@@ -261,15 +261,15 @@ public class Xunit1Tests
 		[InlineData(true)]
 		public void RunWithTestCases(bool serializeTestCases)
 		{
-			var assembly = new Xunit1TestAssembly("assembly.dll", "config");
-			var collection = new Xunit1TestCollection(assembly);
-			var type1 = new Xunit1TestClass(collection, "type1");
-			var type2 = new Xunit1TestClass(collection, "type2");
+			var assembly = new Xunit3TestAssembly("assembly.dll", "config");
+			var collection = new Xunit3TestCollection(assembly);
+			var type1 = new Xunit3TestClass(collection, "type1");
+			var type2 = new Xunit3TestClass(collection, "type2");
 			var testCases = new[] {
-				new Xunit1TestCase(new Xunit1TestMethod(type1, "passing"), "type1.passing"),
-				new Xunit1TestCase(new Xunit1TestMethod(type1, "failing"), "type1.failing"),
-				new Xunit1TestCase(new Xunit1TestMethod(type2, "skipping"), "type2.skipping"),
-				new Xunit1TestCase(new Xunit1TestMethod(type2, "skipping_with_start"), "type2.skipping_with_start")
+				new Xunit3TestCase(new Xunit3TestMethod(type1, "passing"), "type1.passing"),
+				new Xunit3TestCase(new Xunit3TestMethod(type1, "failing"), "type1.failing"),
+				new Xunit3TestCase(new Xunit3TestMethod(type2, "skipping"), "type2.skipping"),
+				new Xunit3TestCase(new Xunit3TestMethod(type2, "skipping_with_start"), "type2.skipping_with_start")
 			};
 
 			var xunit1 = new TestableXunit1();
@@ -942,18 +942,18 @@ public class AmbiguouslyNamedTestMethods
 		}
 	}
 
-	static Xunit1TestCase CreateTestCase(
+	static Xunit3TestCase CreateTestCase(
 		string assemblyPath,
 		string configFileName,
 		string typeName,
 		string methodName,
 		string testCaseDisplayName)
 	{
-		var assembly = new Xunit1TestAssembly(assemblyPath, configFileName);
-		var collection = new Xunit1TestCollection(assembly);
-		var @class = new Xunit1TestClass(collection, typeName);
-		var method = new Xunit1TestMethod(@class, methodName);
-		return new Xunit1TestCase(method, testCaseDisplayName);
+		var assembly = new Xunit3TestAssembly(assemblyPath, configFileName);
+		var collection = new Xunit3TestCollection(assembly);
+		var @class = new Xunit3TestClass(collection, typeName);
+		var method = new Xunit3TestMethod(@class, methodName);
+		return new Xunit3TestCase(method, testCaseDisplayName);
 	}
 
 	class TestableXunit1 : Xunit1

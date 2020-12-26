@@ -11,19 +11,19 @@ namespace Xunit.Runner.v1
 	/// Implementation of <see cref="_ITestMethod"/> and <see cref="_IMethodInfo"/> for
 	/// xUnit.net v1 test methods.
 	/// </summary>
-	public class Xunit1TestMethod : _ITestMethod, _IMethodInfo
+	public class Xunit3TestMethod : _ITestMethod, _IMethodInfo
 	{
 		static readonly _ITypeInfo VoidType = Reflector.Wrap(typeof(void));
 
 		readonly string methodName;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit1TestMethod"/> class.
+		/// Initializes a new instance of the <see cref="Xunit3TestMethod"/> class.
 		/// </summary>
 		/// <param name="testClass">The test class that this test method belongs to.</param>
 		/// <param name="methodName">The test method name.</param>
-		public Xunit1TestMethod(
-			Xunit1TestClass testClass,
+		public Xunit3TestMethod(
+			Xunit3TestClass testClass,
 			string methodName)
 		{
 			this.methodName = Guard.ArgumentNotNull(nameof(methodName), methodName);
@@ -36,7 +36,7 @@ namespace Xunit.Runner.v1
 		public _IMethodInfo Method => this;
 
 		/// <inheritdoc/>
-		public Xunit1TestClass TestClass { get; }
+		public Xunit3TestClass TestClass { get; }
 
 		/// <inheritdoc/>
 		public string UniqueID { get; }

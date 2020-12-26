@@ -19,7 +19,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithClassNode_ParsesNumbersWithInvariantCulture()
 	{
-		var handler = new TestClassCallbackHandler(new Xunit1TestCase[0], Substitute.For<_IMessageSink>());
+		var handler = new TestClassCallbackHandler(new Xunit3TestCase[0], Substitute.For<_IMessageSink>());
 		var xml = new XmlDocument();
 		xml.LoadXml("<class time='1.234' total='4' failed='3' skipped='2' />");
 
@@ -153,18 +153,18 @@ public class TestClassCallbackHandlerTests
 		}
 	}
 
-	static Xunit1TestCase CreateTestCase(
+	static Xunit3TestCase CreateTestCase(
 		string assemblyPath,
 		string configFileName,
 		string typeName,
 		string methodName,
 		string testCaseDisplayName)
 	{
-		var assembly = new Xunit1TestAssembly(assemblyPath, configFileName);
-		var collection = new Xunit1TestCollection(assembly);
-		var @class = new Xunit1TestClass(collection, typeName);
-		var method = new Xunit1TestMethod(@class, methodName);
-		return new Xunit1TestCase(method, testCaseDisplayName);
+		var assembly = new Xunit3TestAssembly(assemblyPath, configFileName);
+		var collection = new Xunit3TestCollection(assembly);
+		var @class = new Xunit3TestClass(collection, typeName);
+		var method = new Xunit3TestMethod(@class, methodName);
+		return new Xunit3TestCase(method, testCaseDisplayName);
 	}
 }
 

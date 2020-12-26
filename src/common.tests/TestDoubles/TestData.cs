@@ -452,7 +452,7 @@ namespace Xunit.v3
 			collection ??= new TestCollection(testAssembly, null, $"Test data: Test Collection for '{typeof(TClass).FullName}'", uniqueID: "collection-id");
 			var @class = Reflector.Wrap(typeof(TClass));
 			var testClass = new TestClass(collection, @class, uniqueID: "class-id");
-			var method = typeof(TClass).GetMethod(methodName);
+			var method = typeof(TClass).GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 			Guard.ArgumentValidNotNull(nameof(methodName), $"Could not find method '{methodName}' on type '{typeof(TClass).FullName}'", method);
 			var methodInfo = Reflector.Wrap(method);
 

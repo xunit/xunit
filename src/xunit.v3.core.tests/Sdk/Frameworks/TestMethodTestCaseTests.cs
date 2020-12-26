@@ -228,7 +228,7 @@ public class TestMethodTestCaseTests
 		[Fact]
 		public static void CanRoundTrip_PublicClass_PrivateTestMethod()
 		{
-			var testCase = TestableTestMethodTestCase.Create<Serialization>("CanRoundTrip_PublicClass_PrivateTestMethod");
+			var testCase = TestableTestMethodTestCase.Create<Serialization>("PrivateTestMethod");
 
 			var serialized = SerializationHelper.Serialize(testCase);
 			var deserialized = SerializationHelper.Deserialize<_ITestCase>(serialized);
@@ -248,6 +248,9 @@ public class TestMethodTestCaseTests
 			Assert.NotNull(deserialized);
 			Assert.IsType<TestableTestMethodTestCase>(deserialized);
 		}
+
+		[Fact]
+		void PrivateTestMethod() { }
 
 		class PrivateClass
 		{

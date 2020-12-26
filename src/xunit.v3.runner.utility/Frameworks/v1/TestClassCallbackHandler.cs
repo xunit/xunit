@@ -92,7 +92,7 @@ namespace Xunit.Runner.v1
 			var methodName = xml.Attributes?["method"]?.Value;
 			var testCase = FindTestCase(typeName, methodName);
 			if (testCase != null)
-				currentTest = new Xunit1Test(testCase, xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}", Interlocked.Increment(ref currentTestIndex));
+				currentTest = new Xunit3Test(testCase, xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}", Interlocked.Increment(ref currentTestIndex));
 
 			SendTestCaseMessagesWhenAppropriate(testCase);
 
@@ -119,7 +119,7 @@ namespace Xunit.Runner.v1
 
 				// There is no <start> node for skipped tests, or with xUnit prior to v1.1
 				if (currentTest == null)
-					currentTest = new Xunit1Test(testCase, xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}", Interlocked.Increment(ref currentTestIndex));
+					currentTest = new Xunit3Test(testCase, xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}", Interlocked.Increment(ref currentTestIndex));
 
 				testCaseResults.Total++;
 				testCaseResults.Time += time;
