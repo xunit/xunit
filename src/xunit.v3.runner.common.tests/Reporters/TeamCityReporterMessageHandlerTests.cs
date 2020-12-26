@@ -330,8 +330,8 @@ public class TeamCityReporterMessageHandlerTests
 	{
 		public IReadOnlyList<string> Messages;
 
-		TestableTeamCityReporterMessageHandler(SpyRunnerLogger logger)
-				: base(logger, _ => "myFlowId")
+		TestableTeamCityReporterMessageHandler(SpyRunnerLogger logger) :
+			base(logger)
 		{
 			Messages = logger.Messages;
 		}

@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -9,7 +8,7 @@ namespace Xunit.Runner.Common
 	/// <summary>
 	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="TeamCityReporter" />.
 	/// </summary>
-	public class TeamCityReporterMessageHandler : FlowMappedTestMessageSink
+	public class TeamCityReporterMessageHandler : TestMessageSink
 	{
 		readonly IRunnerLogger logger;
 		MessageMetadataCache metadataCache = new MessageMetadataCache();
@@ -18,12 +17,7 @@ namespace Xunit.Runner.Common
 		/// Initializes a new instance of the <see cref="TeamCityReporterMessageHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger used to report messages</param>
-		/// <param name="flowIdMapper">Optional code which maps a test collection name to a flow ID
-		/// (the default behavior generates a new GUID for each test collection)</param>
-		public TeamCityReporterMessageHandler(
-			IRunnerLogger logger,
-			Func<string, string>? flowIdMapper = null)
-				: base(flowIdMapper)
+		public TeamCityReporterMessageHandler(IRunnerLogger logger)
 		{
 			Guard.ArgumentNotNull(nameof(logger), logger);
 
