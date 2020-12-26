@@ -15,7 +15,8 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework=".NETStandard2.0">
-				<dependency id="xunit.abstractions" version="2.0.3" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="5.0.0" exclude="Build,Analyzers" />
+				<dependency id="System.Threading.Tasks.Extensions" version="4.5.4" exclude="Build,Analyzers" />
 			</group>
 		</dependencies>
 	</metadata>
