@@ -21,7 +21,7 @@ namespace Xunit.v3
 			if (x == null || y == null)
 				return false;
 
-			return x.Method.Name == y.Method.Name;
+			return x.UniqueID == y.UniqueID;
 		}
 
 		/// <inheritdoc/>
