@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -141,65 +140,6 @@ namespace Xunit.Runner.Common
 				testResultElement.Add(new XAttribute("source-line", lineNumber.GetValueOrDefault()));
 
 			var traits = testCaseMetadata.Traits;
-			if (traits != null && traits.Count > 0)
-			{
-				var traitsElement = new XElement("traits");
-
-				foreach (var keyValuePair in traits)
-					foreach (var val in keyValuePair.Value)
-						traitsElement.Add(
-							new XElement("trait",
-								new XAttribute("name", XmlEscape(keyValuePair.Key)),
-								new XAttribute("value", XmlEscape(val))
-							)
-						);
-
-				testResultElement.Add(traitsElement);
-			}
-
-			collectionElement.Add(testResultElement);
-
-			return testResultElement;
-		}
-
-		// TODO: Delete this when there are no more callers
-		XElement CreateTestResultElement(
-			ITestResultMessage testResult,
-			string resultText)
-		{
-			var test = testResult.Test;
-			var testCase = testResult.TestCase;
-			var testMethod = testCase.TestMethod;
-			var testClass = testMethod.TestClass;
-
-			// TODO: This is broken because that's the wrong unique ID
-			var collectionElement = GetTestCollectionElement(testClass.TestCollection.UniqueID.ToString());
-			var testResultElement =
-				new XElement("test",
-					new XAttribute("name", XmlEscape(test.DisplayName)),
-					new XAttribute("type", testClass.Class.Name),
-					new XAttribute("method", testMethod.Method.Name),
-					new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
-					new XAttribute("result", resultText)
-				);
-
-			var testOutput = testResult.Output;
-			if (!string.IsNullOrWhiteSpace(testOutput))
-				testResultElement.Add(new XElement("output", new XCData(testOutput)));
-
-			var sourceInformation = testCase.SourceInformation;
-			if (sourceInformation != null)
-			{
-				var fileName = sourceInformation.FileName;
-				if (fileName != null)
-					testResultElement.Add(new XAttribute("source-file", fileName));
-
-				var lineNumber = sourceInformation.LineNumber;
-				if (lineNumber != null)
-					testResultElement.Add(new XAttribute("source-line", lineNumber.GetValueOrDefault()));
-			}
-
-			var traits = testCase.Traits;
 			if (traits != null && traits.Count > 0)
 			{
 				var traitsElement = new XElement("traits");

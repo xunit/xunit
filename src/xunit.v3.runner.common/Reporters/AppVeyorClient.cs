@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -125,7 +126,7 @@ namespace Xunit.Runner.Common
 
 		static string ToJson(IEnumerable<IDictionary<string, object?>> data)
 		{
-			var results = string.Join(",", data.Select(x => x.ToJson()));
+			var results = string.Join(",", data.Select(x => JsonSerializer.Serialize(x)));
 			return $"[{results}]";
 		}
 	}

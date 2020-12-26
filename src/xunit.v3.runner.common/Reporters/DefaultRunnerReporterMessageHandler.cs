@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -100,21 +99,6 @@ namespace Xunit.Runner.Common
 				return string.Empty;
 
 			return text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0");
-		}
-
-		/// <summary>
-		/// Gets the display name of a test assembly from a test assembly message.
-		/// </summary>
-		/// <param name="assemblyMessage">The test assembly message</param>
-		/// <returns>The assembly display name</returns>
-		protected virtual string GetAssemblyDisplayName(ITestAssemblyMessage assemblyMessage)
-		{
-			Guard.ArgumentNotNull(nameof(assemblyMessage), assemblyMessage);
-
-			return
-				string.IsNullOrWhiteSpace(assemblyMessage.TestAssembly.Assembly.AssemblyPath)
-					? "<dynamic>"
-					: Path.GetFileNameWithoutExtension(assemblyMessage.TestAssembly.Assembly.AssemblyPath);
 		}
 
 		/// <summary>

@@ -132,7 +132,7 @@ namespace Xunit.Runner.Common
 				{ "isAutomated", true }
 			};
 
-			var bodyString = requestMessage.ToJson();
+			var bodyString = JsonSerializer.Serialize(requestMessage);
 			var url = $"{baseUri}?api-version=1.0";
 			var responseString = default(string);
 			try
@@ -179,7 +179,7 @@ namespace Xunit.Runner.Common
 				{ "state", "Completed" }
 			};
 
-			var bodyString = requestMessage.ToJson();
+			var bodyString = JsonSerializer.Serialize(requestMessage);
 			var url = $"{baseUri}/{testRunId}?api-version=1.0";
 			try
 			{
@@ -307,7 +307,7 @@ namespace Xunit.Runner.Common
 
 		static string ToJson(IEnumerable<IDictionary<string, object?>> data)
 		{
-			var results = string.Join(",", data.Select(x => x.ToJson()));
+			var results = string.Join(",", data.Select(x => JsonSerializer.Serialize(x)));
 			return $"[{results}]";
 		}
 	}
