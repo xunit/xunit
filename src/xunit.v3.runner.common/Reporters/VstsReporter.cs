@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -25,7 +26,7 @@ namespace Xunit.Runner.Common
 		public string? RunnerSwitch => null;
 
 		/// <inheritdoc/>
-		public _IMessageSink CreateMessageHandler(IRunnerLogger logger)
+		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger)
 		{
 			var collectionUri = Guard.NotNull("Environment variable SYSTEM_TEAMFOUNDATIONCOLLECTIONURI is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"));
 			var teamProject = Guard.NotNull("Environment variable SYSTEM_TEAMPROJECT is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT"));
@@ -34,7 +35,10 @@ namespace Xunit.Runner.Common
 
 			var baseUri = $"{collectionUri}{teamProject}/_apis/test/runs";
 
-			return new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId);
+			return new ValueTask<_IMessageSink>(new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId));
 		}
+
+		/// <inheritdoc/>
+		public ValueTask DisposeAsync() => default;
 	}
 }

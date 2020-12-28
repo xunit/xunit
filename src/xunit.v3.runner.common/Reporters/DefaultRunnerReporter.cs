@@ -1,4 +1,5 @@
-﻿using Xunit.v3;
+﻿using System.Threading.Tasks;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -20,7 +21,10 @@ namespace Xunit.Runner.Common
 		public virtual string? RunnerSwitch => null;
 
 		/// <inheritdoc/>
-		public virtual _IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
-			new DefaultRunnerReporterMessageHandler(logger);
+		public virtual ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger) =>
+			new ValueTask<_IMessageSink>(new DefaultRunnerReporterMessageHandler(logger));
+
+		/// <inheritdoc/>
+		public ValueTask DisposeAsync() => default;
 	}
 }

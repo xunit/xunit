@@ -67,7 +67,7 @@ namespace Xunit.Runner.SystemConsole
 				if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar }), StringComparison.Ordinal))
 					defaultDirectory += Path.DirectorySeparatorChar;
 
-				var reporter = commandLine.ChooseReporter(reporters);
+				await using var reporter = commandLine.ChooseReporter(reporters);
 
 				if (commandLine.Pause)
 				{
@@ -80,7 +80,7 @@ namespace Xunit.Runner.SystemConsole
 					Debugger.Launch();
 
 				logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-				var reporterMessageHandler = reporter.CreateMessageHandler(logger);
+				var reporterMessageHandler = await reporter.CreateMessageHandler(logger);
 
 				if (!commandLine.NoLogo)
 					PrintHeader();

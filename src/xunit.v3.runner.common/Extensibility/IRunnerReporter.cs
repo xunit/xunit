@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -8,7 +10,7 @@ namespace Xunit.Runner.Common
 	/// line switch or implicitly invoked by being environmentally enabled (for
 	/// example, a reporter that emits messages for TeamCity).
 	/// </summary>
-	public interface IRunnerReporter
+	public interface IRunnerReporter : IAsyncDisposable
 	{
 		/// <summary>
 		/// Gets the description of the reporter. This is typically used when showing
@@ -37,6 +39,6 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="logger">The logger used to send result messages to</param>
 		/// <returns>The message handler that handles the messages</returns>
-		_IMessageSink CreateMessageHandler(IRunnerLogger logger);
+		ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger);
 	}
 }

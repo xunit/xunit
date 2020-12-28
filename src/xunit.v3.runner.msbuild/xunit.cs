@@ -174,64 +174,71 @@ namespace Xunit.Runner.MSBuild
 				if (reporter == null)
 					return false;
 
-				logger = new MSBuildLogger(Log);
-				reporterMessageHandler = reporter.CreateMessageHandler(logger);
-
-				if (!NoLogo)
-					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
-
-				var project = new XunitProject();
-				foreach (var assembly in Assemblies)
+				try
 				{
-					var assemblyFileName = assembly.GetMetadata("FullPath");
-					var configFileName = assembly.GetMetadata("ConfigFile");
-					if (configFileName != null && configFileName.Length == 0)
-						configFileName = null;
+					logger = new MSBuildLogger(Log);
+					reporterMessageHandler = reporter.CreateMessageHandler(logger).GetAwaiter().GetResult();
 
-					var projectAssembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName, ConfigFilename = configFileName };
-					projectAssembly.Configuration.IncludeSerialization = SerializeTestCases;
-					if (shadowCopy.HasValue)
-						projectAssembly.Configuration.ShadowCopy = shadowCopy;
+					if (!NoLogo)
+						Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
 
-					project.Add(projectAssembly);
-				}
-
-				if (WorkingFolder != null)
-					Directory.SetCurrentDirectory(WorkingFolder);
-
-				var clockTime = Stopwatch.StartNew();
-
-				if (!parallelizeAssemblies.HasValue)
-					parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
-
-				if (parallelizeAssemblies.GetValueOrDefault())
-				{
-					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
-					var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-					foreach (var assemblyElement in results.WhereNotNull())
-						assembliesElement!.Add(assemblyElement);
-				}
-				else
-				{
-					foreach (var assembly in project.Assemblies)
+					var project = new XunitProject();
+					foreach (var assembly in Assemblies)
 					{
-						var assemblyElement = ExecuteAssembly(assembly, appDomains);
-						if (assemblyElement != null)
+						var assemblyFileName = assembly.GetMetadata("FullPath");
+						var configFileName = assembly.GetMetadata("ConfigFile");
+						if (configFileName != null && configFileName.Length == 0)
+							configFileName = null;
+
+						var projectAssembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName, ConfigFilename = configFileName };
+						projectAssembly.Configuration.IncludeSerialization = SerializeTestCases;
+						if (shadowCopy.HasValue)
+							projectAssembly.Configuration.ShadowCopy = shadowCopy;
+
+						project.Add(projectAssembly);
+					}
+
+					if (WorkingFolder != null)
+						Directory.SetCurrentDirectory(WorkingFolder);
+
+					var clockTime = Stopwatch.StartNew();
+
+					if (!parallelizeAssemblies.HasValue)
+						parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
+
+					if (parallelizeAssemblies.GetValueOrDefault())
+					{
+						var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
+						var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
+						foreach (var assemblyElement in results.WhereNotNull())
 							assembliesElement!.Add(assemblyElement);
 					}
+					else
+					{
+						foreach (var assembly in project.Assemblies)
+						{
+							var assemblyElement = ExecuteAssembly(assembly, appDomains);
+							if (assemblyElement != null)
+								assembliesElement!.Add(assemblyElement);
+						}
+					}
+
+					clockTime.Stop();
+
+					if (assembliesElement != null)
+						assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
+					if (completionMessages.Count > 0)
+					{
+						var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
+						foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
+							summaries.Add(completionMessage.Key, completionMessage.Value);
+						reporterMessageHandler.OnMessage(summaries);
+					}
 				}
-
-				clockTime.Stop();
-
-				if (assembliesElement != null)
-					assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
-				if (completionMessages.Count > 0)
+				finally
 				{
-					var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
-					foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
-						summaries.Add(completionMessage.Key, completionMessage.Value);
-					reporterMessageHandler.OnMessage(summaries);
+					reporter.DisposeAsync().GetAwaiter().GetResult();
 				}
 			}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -20,7 +21,10 @@ namespace Xunit.Runner.Common
 		public string RunnerSwitch => "teamcity";
 
 		/// <inheritdoc/>
-		public _IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
-			new TeamCityReporterMessageHandler(logger);
+		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger) =>
+			new ValueTask<_IMessageSink>(new TeamCityReporterMessageHandler(logger));
+
+		/// <inheritdoc/>
+		public ValueTask DisposeAsync() => default;
 	}
 }

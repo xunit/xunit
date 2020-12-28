@@ -1,4 +1,5 @@
-﻿using Xunit.v3;
+﻿using System.Threading.Tasks;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common
 {
@@ -18,7 +19,10 @@ namespace Xunit.Runner.Common
 		public string RunnerSwitch => "verbose";
 
 		/// <inheritdoc/>
-		public _IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
-			new VerboseReporterMessageHandler(logger);
+		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger) =>
+			new ValueTask<_IMessageSink>(new VerboseReporterMessageHandler(logger));
+
+		/// <inheritdoc/>
+		public ValueTask DisposeAsync() => default;
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -21,13 +22,17 @@ namespace Xunit.Runner.Common
 		public string? RunnerSwitch => null;
 
 		/// <inheritdoc/>
-		public _IMessageSink CreateMessageHandler(IRunnerLogger logger)
+		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger)
 		{
 			var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
-			return
+			return new ValueTask<_IMessageSink>(
 				baseUri == null
 					? new DefaultRunnerReporterMessageHandler(logger)
-					: new AppVeyorReporterMessageHandler(logger, baseUri);
+					: new AppVeyorReporterMessageHandler(logger, baseUri)
+			);
 		}
+
+		/// <inheritdoc/>
+		public ValueTask DisposeAsync() => default;
 	}
 }
