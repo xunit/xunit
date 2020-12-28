@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -16,11 +18,14 @@ namespace Xunit.Runner.Common
 #endif
 	public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFrameworkExecutionOptions
 	{
-		readonly Dictionary<string, object> properties = new Dictionary<string, object>();
+		readonly Dictionary<string, string> properties = new Dictionary<string, string>();
 
 		// Force users to use one of the factory methods
-		_TestFrameworkOptions()
-		{ }
+		_TestFrameworkOptions(string? optionsJson = null)
+		{
+			if (optionsJson != null)
+				properties = JsonSerializer.Deserialize<Dictionary<string, string>>(optionsJson) ?? throw new ArgumentException("Invalid JSON", nameof(optionsJson));
+		}
 
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
@@ -45,6 +50,13 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
+		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
+		/// </summary>
+		/// <param name="optionsJson">The serialized discovery options.</param>
+		public static _ITestFrameworkDiscoveryOptions ForDiscovery(string optionsJson) =>
+			new _TestFrameworkOptions(optionsJson);
+
+		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 		/// </summary>
 		/// <param name="configuration">The optional configuration to copy values from.</param>
@@ -64,6 +76,13 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
+		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
+		/// </summary>
+		/// <param name="optionsJson">The serialized execution options.</param>
+		public static _ITestFrameworkExecutionOptions ForExecution(string optionsJson) =>
+			new _TestFrameworkOptions(optionsJson);
+
+		/// <summary>
 		/// Gets a value from the options collection.
 		/// </summary>
 		/// <typeparam name="TValue">The type of the value.</typeparam>
@@ -75,7 +94,16 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNullOrEmpty(nameof(name), name);
 
 			if (properties.TryGetValue(name, out var result))
-				return (TValue)result;
+			{
+				if (result == null)
+					return default;
+
+				if (typeof(TValue) == typeof(string))
+					return (TValue)(object)result;
+
+				var targetType = typeof(TValue).UnwrapNullable();
+				return (TValue)Convert.ChangeType(result, targetType);
+			}
 
 			return default;
 		}
@@ -93,21 +121,19 @@ namespace Xunit.Runner.Common
 			if (value == null)
 				properties.Remove(name);
 			else
-				properties[name] = value;
+			{
+				if (typeof(TValue) == typeof(string))
+					properties[name] = (string)(object)value;
+				else
+					properties[name] = (string)Convert.ChangeType(value, typeof(string));
+			}
 		}
 
 		string ToDebuggerDisplay()
-			=> $"{{ {string.Join(", ", properties.Select(p => string.Format("{{ {0} = {1} }}", new object[] { p.Key, ToDebuggerDisplay(p.Value) })).ToArray())} }}";
+			=> $"{{ {string.Join(", ", properties.Select(p => $"{{ {p.Key} = {p.Value} }}").ToArray())} }}";
 
-		string ToDebuggerDisplay(object value)
-		{
-			if (value == null)
-				return "null";
-
-			if (value is string stringValue)
-				return $"\"{stringValue}\"";
-
-			return value.ToString()!;
-		}
+		/// <inheritdoc/>
+		public string ToJson() =>
+			JsonSerializer.Serialize(properties);
 	}
 }

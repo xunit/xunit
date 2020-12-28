@@ -22,5 +22,12 @@ namespace Xunit.v3
 		/// <param name="name">The name of the value.</param>
 		/// <param name="value">The value to be set.</param>
 		void SetValue<TValue>(string name, TValue value);
+
+		/// <summary>
+		/// Converts the test framework options into JSON. Used for serializing the options
+		/// for sending across a process boundary.
+		/// </summary>
+		/// <returns>The serialized framework options.</returns>
+		string ToJson();
 	}
 }
