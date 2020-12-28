@@ -29,7 +29,7 @@ namespace Xunit.v3
 
 			assemblyQualifiedNameTemplate = assemblyQualifiedName.Replace(nameof(_MessageSinkMessage), "{0}");
 
-			// Default converters list doesn't support dictionarys, so we need to use this as an override
+			// Default converters list doesn't support dictionaries, so we need to use this as an override
 			propertyWriters.Add(typeof(Dictionary<string, List<string>>), SerializeTraits);
 		}
 
