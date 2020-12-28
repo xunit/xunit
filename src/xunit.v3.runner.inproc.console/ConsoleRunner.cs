@@ -194,7 +194,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 					foreach (var type in types)
 					{
-						if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+						if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 							continue;
 						var ctor = type.GetConstructor(new Type[0]);
 						if (ctor == null)
