@@ -19,7 +19,7 @@ namespace Xunit
 	/// Resharper. Runner authors who are not using AST-based discovery are strongly
 	/// encouraged to use <see cref="XunitFrontController"/> instead.
 	/// </summary>
-	public class Xunit2Discoverer : _ITestFrameworkDiscoverer
+	public class Xunit2Discoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
 	{
 #if NETFRAMEWORK
 		static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
@@ -111,7 +111,7 @@ namespace Xunit
 #if NETFRAMEWORK
 			// Only safe to assume the execution reference is copied in a desktop project
 			if (verifyAssembliesOnDisk)
-				Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
+				Guard.FileExists(nameof(xunitExecutionAssemblyPath), xunitExecutionAssemblyPath);
 
 			CanUseAppDomains = !IsDotNet(xunitExecutionAssemblyPath);
 #else
