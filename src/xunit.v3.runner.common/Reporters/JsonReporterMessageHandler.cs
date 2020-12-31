@@ -1,3 +1,4 @@
+using System.Text;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -22,7 +23,7 @@ namespace Xunit.Runner.Common
 		public bool OnMessage(_MessageSinkMessage message)
 		{
 			if (message is _MessageSinkMessage v3Message)
-				logger.LogImportantMessage(v3Message.Serialize());
+				logger.LogImportantMessage(Encoding.UTF8.GetString(v3Message.ToJson()));
 
 			return true;
 		}

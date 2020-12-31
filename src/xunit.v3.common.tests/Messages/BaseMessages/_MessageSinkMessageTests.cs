@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Xunit;
 using Xunit.v3;
 
@@ -11,7 +12,7 @@ public class _MessageSinkMessageTests
 	{
 		var msg = new _MessageSinkMessage();
 
-		var result = msg.Serialize();
+		var result = Encoding.UTF8.GetString(msg.ToJson());
 
 		Assert.Equal(@"{""$type"":""_MessageSinkMessage""}", result);
 	}
@@ -31,7 +32,7 @@ public class _MessageSinkMessageTests
 			TestFrameworkDisplayName = "test-framework"
 		};
 
-		var result = msg.Serialize();
+		var result = Encoding.UTF8.GetString(msg.ToJson());
 
 		Assert.Equal(
 			@"{" +
@@ -65,7 +66,7 @@ public class _MessageSinkMessageTests
 
 		// Validate serialization
 
-		var serialized = msg.Serialize();
+		var serialized = msg.ToJson();
 
 		Assert.Equal(
 			@"{" +
@@ -81,12 +82,12 @@ public class _MessageSinkMessageTests
 					@"""empty"":[]" +
 				@"}" +
 			@"}",
-			serialized
+			Encoding.UTF8.GetString(serialized)
 		);
 
 		// Validate deserialization
 
-		var deserialized = _MessageSinkMessage.Deserialize(serialized);
+		var deserialized = _MessageSinkMessage.ParseJson(serialized);
 
 		var deserializedDiscovered = Assert.IsType<_TestCaseDiscovered>(deserialized);
 		Assert.Collection(
@@ -114,8 +115,8 @@ public class _MessageSinkMessageTests
 	{
 		var msg = new _TestAssemblyMessage { AssemblyUniqueID = "asm-id" };
 
-		var serialized = msg.Serialize();
-		var deserialized = _MessageSinkMessage.Deserialize(serialized);
+		var serialized = msg.ToJson();
+		var deserialized = _MessageSinkMessage.ParseJson(serialized);
 
 		var deserializedTAM = Assert.IsType<_TestAssemblyMessage>(deserialized);
 		Assert.Equal("asm-id", deserializedTAM.AssemblyUniqueID);

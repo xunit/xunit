@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit.Internal;
@@ -34,14 +33,13 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Deserializes a previously serialized <see cref="_MessageSinkMessage"/>-derived object.
+		/// Parses a previously serialized <see cref="_MessageSinkMessage"/>-derived object.
 		/// </summary>
 		/// <param name="serialization">The serialized value</param>
 		/// <returns>The deserialized object</returns>
-		// TODO: Should we rename Deserialize() to ParseJson()?
-		public static _MessageSinkMessage Deserialize(string serialization)
+		public static _MessageSinkMessage ParseJson(ReadOnlyMemory<byte> serialization)
 		{
-			var byteSpan = Encoding.UTF8.GetBytes(serialization).AsSpan();
+			var byteSpan = serialization.Span;
 			var reader = new Utf8JsonReader(byteSpan);
 
 			reader.Read();
@@ -78,11 +76,10 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Serializes this object. Can be re-hydrated using <see cref="Deserialize"/>.
+		/// Creates a JSON serialized version of this message. Can be re-hydrated using <see cref="ParseJson"/>.
 		/// </summary>
 		/// <returns>The serialization of this message</returns>
-		// TODO: Should we rename Serialize() to ToJson()?
-		public string Serialize()
+		public byte[] ToJson()
 		{
 			using var stream = new MemoryStream();
 			using (var writer = new Utf8JsonWriter(stream))
@@ -116,8 +113,7 @@ namespace Xunit.v3
 			}
 
 			stream.Seek(0, SeekOrigin.Begin);
-			using var streamReader = new StreamReader(stream);
-			return streamReader.ReadToEnd();
+			return stream.ToArray();
 		}
 
 		static void SerializeTraits(Utf8JsonWriter writer, object? value, JsonSerializerOptions options)
