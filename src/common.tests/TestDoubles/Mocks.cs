@@ -26,7 +26,7 @@ namespace Xunit.v3
 			result.Description.Returns(description);
 			result.IsEnvironmentallyEnabled.ReturnsForAnyArgs(isEnvironmentallyEnabled);
 			result.RunnerSwitch.Returns(runnerSwitch);
-			result.CreateMessageHandler(null!).ReturnsForAnyArgs(messageSink);
+			result.CreateMessageHandler(null!, null!).ReturnsForAnyArgs(messageSink);
 			return result;
 		}
 	}

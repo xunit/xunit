@@ -21,8 +21,10 @@ namespace Xunit.Runner.Common
 		public string RunnerSwitch => "teamcity";
 
 		/// <inheritdoc/>
-		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger) =>
-			new ValueTask<_IMessageSink>(new TeamCityReporterMessageHandler(logger));
+		public ValueTask<_IMessageSink> CreateMessageHandler(
+			IRunnerLogger logger,
+			_IMessageSink diagnosticMessageSink) =>
+				new ValueTask<_IMessageSink>(new TeamCityReporterMessageHandler(logger));
 
 		/// <inheritdoc/>
 		public ValueTask DisposeAsync() => default;

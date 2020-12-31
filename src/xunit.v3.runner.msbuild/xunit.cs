@@ -177,7 +177,7 @@ namespace Xunit.Runner.MSBuild
 				try
 				{
 					logger = new MSBuildLogger(Log);
-					reporterMessageHandler = reporter.CreateMessageHandler(logger).GetAwaiter().GetResult();
+					reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
 
 					if (!NoLogo)
 						Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");

@@ -18,8 +18,10 @@ namespace Xunit.Runner.Common
 		public string RunnerSwitch => "quiet";
 
 		/// <inheritdoc/>
-		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger) =>
-			new ValueTask<_IMessageSink>(new QuietReporterMessageHandler(logger));
+		public ValueTask<_IMessageSink> CreateMessageHandler(
+			IRunnerLogger logger,
+			_IMessageSink diagnosticMessageSink) =>
+				new ValueTask<_IMessageSink>(new QuietReporterMessageHandler(logger));
 
 		/// <inheritdoc/>
 		public ValueTask DisposeAsync() => default;

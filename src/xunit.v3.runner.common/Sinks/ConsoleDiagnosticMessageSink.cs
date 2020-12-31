@@ -9,7 +9,7 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class ConsoleDiagnosticMessageSink : _IMessageSink
 	{
-		readonly string assemblyDisplayName;
+		readonly string? assemblyDisplayName;
 		readonly object consoleLock;
 		readonly ConsoleColor displayColor;
 		readonly bool noColor;
@@ -17,7 +17,7 @@ namespace Xunit.Runner.Common
 
 		ConsoleDiagnosticMessageSink(
 			object consoleLock,
-			string assemblyDisplayName,
+			string? assemblyDisplayName,
 			bool showDiagnostics,
 			bool noColor,
 			ConsoleColor displayColor)
@@ -59,6 +59,18 @@ namespace Xunit.Runner.Common
 			bool noColor) =>
 				new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
+		/// <summary>
+		/// Creates a message sink for internal diagnostics.
+		/// </summary>
+		/// <param name="consoleLock">The console lock, used to prevent console contention</param>
+		/// <param name="showDiagnostics">A flag to indicate whether to show internal diagnostics</param>
+		/// <param name="noColor">A flag to indicate whether to disable color output</param>
+		public static ConsoleDiagnosticMessageSink ForInternalDiagnostics(
+			object consoleLock,
+			bool showDiagnostics,
+			bool noColor) =>
+				new ConsoleDiagnosticMessageSink(consoleLock, null, showDiagnostics, noColor, ConsoleColor.DarkGray);
+
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
@@ -71,7 +83,10 @@ namespace Xunit.Runner.Common
 					if (!noColor)
 						ConsoleHelper.SetForegroundColor(displayColor);
 
-					Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
+					if (assemblyDisplayName == null)
+						Console.WriteLine(diagnosticMessage.Message);
+					else
+						Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
 
 					if (!noColor)
 						ConsoleHelper.ResetColor();

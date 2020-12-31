@@ -22,7 +22,9 @@ namespace Xunit.Runner.Common
 		public string? RunnerSwitch => null;
 
 		/// <inheritdoc/>
-		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger)
+		public ValueTask<_IMessageSink> CreateMessageHandler(
+			IRunnerLogger logger,
+			_IMessageSink diagnosticMessageSink)
 		{
 			var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
 			return new ValueTask<_IMessageSink>(

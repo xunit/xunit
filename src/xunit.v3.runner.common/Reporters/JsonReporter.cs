@@ -19,8 +19,10 @@ namespace Xunit.Runner.Common
 		public string? RunnerSwitch => "json";
 
 		/// <inheritdoc/>
-		public ValueTask<_IMessageSink> CreateMessageHandler(IRunnerLogger logger) =>
-			new ValueTask<_IMessageSink>(new JsonReporterMessageHandler(logger));
+		public ValueTask<_IMessageSink> CreateMessageHandler(
+			IRunnerLogger logger,
+			_IMessageSink diagnosticMessageSink) =>
+				new ValueTask<_IMessageSink>(new JsonReporterMessageHandler(logger));
 
 		/// <inheritdoc/>
 		public ValueTask DisposeAsync() => default;

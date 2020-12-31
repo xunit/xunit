@@ -80,7 +80,8 @@ namespace Xunit.Runner.SystemConsole
 					Debugger.Launch();
 
 				logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-				var reporterMessageHandler = await reporter.CreateMessageHandler(logger);
+				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, commandLine.InternalDiagnosticMessages, commandLine.NoColor);
+				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
 				if (!commandLine.NoLogo)
 					PrintHeader();
