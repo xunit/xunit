@@ -32,6 +32,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 			for (var i = args.Length - 1; i >= 0; i--)
 				arguments.Push(args[i]);
 
+			if (Environment.GetEnvironmentVariable("NO_COLOR") != null)
+				NoColor = true;
+
 			Project = Parse(assemblyFileName, fileExists);
 		}
 
