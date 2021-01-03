@@ -210,14 +210,11 @@ public class CommandLineTests
 			{
 				var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomains", "foo"));
 
-				Assert.Equal("incorrect argument value for -appdomains (must be 'ifavailable', 'required', or 'denied')", ex.Message);
+				Assert.Equal("incorrect argument value for -appdomains (must be 'required' or 'denied')", ex.Message);
 			}
 
 			[Theory]
-			[InlineData("ifavailable", AppDomainSupport.IfAvailable)]
-#if NETFRAMEWORK
 			[InlineData("required", AppDomainSupport.Required)]
-#endif
 			[InlineData("denied", AppDomainSupport.Denied)]
 			public static void ValidValues(
 				string value,

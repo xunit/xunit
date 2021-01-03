@@ -216,45 +216,50 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
 			Console.WriteLine();
 			Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
-			Console.WriteLine("      XML is supported for v1 and v2 on .NET Framework only. For v3, only JSON is supported.");
+			Console.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
+			Console.WriteLine("      JSON is supported for v2 and later, on all supported plaforms");
 			Console.WriteLine();
-			Console.WriteLine("Options");
+			Console.WriteLine("General options");
 			Console.WriteLine();
-			Console.WriteLine("  -nologo                : do not show the copyright message");
-			Console.WriteLine("  -nocolor               : do not output results with colors");
+			Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
+			Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
 			Console.WriteLine("  -failskips             : convert skipped tests into failures");
-			Console.WriteLine("  -stoponfail            : stop on first test failure");
-			Console.WriteLine("  -parallel option       : set parallelization based on option");
+			Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
+			Console.WriteLine("  -maxthreads <option>   : maximum thread count for collection parallelization");
+			Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
+			Console.WriteLine("                         :   unlimited - run with unbounded thread count");
+			Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
+			Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
+			Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -nocolor               : do not output results with colors");
+			Console.WriteLine("  -nologo                : do not show the copyright message");
+			Console.WriteLine("  -parallel <option>     : set parallelization based on option");
 			Console.WriteLine("                         :   none        - turn off all parallelization");
 			Console.WriteLine("                         :   collections - only parallelize collections");
 			Console.WriteLine("                         :   assemblies  - only parallelize assemblies");
 			Console.WriteLine("                         :   all         - parallelize assemblies & collections");
-			Console.WriteLine("  -maxthreads count      : maximum thread count for collection parallelization");
-			Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
-			Console.WriteLine("                         :   unlimited - run with unbounded thread count");
-			Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
-			Console.WriteLine("  -appdomains mode       : choose an app domain mode (.NET Framework projects only)");
-			Console.WriteLine("                         :   ifavailable - choose based on library type");
-			Console.WriteLine("                         :   required    - force app domains on");
-			Console.WriteLine("                         :   denied      - force app domains off");
-			Console.WriteLine("  -noshadow              : do not shadow copy assemblies (.NET Framework projects only)");
-			Console.WriteLine("  -wait                  : wait for input after completion");
-			Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
-			Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
-			Console.WriteLine("  -pause                 : pause before doing any work, to help attach a debugger");
-			Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
-			Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
-			Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -pause                 : wait for input before running tests");
 			Console.WriteLine("  -preenumeratetheories  : enable theory pre-enumeration (disabled by default)");
 			Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
+			Console.WriteLine("  -stoponfail            : stop on first test failure");
+			Console.WriteLine("  -wait                  : wait for input after completion");
+			Console.WriteLine();
+			Console.WriteLine("Options for .NET Framework projects");
+			Console.WriteLine();
+			Console.WriteLine("  -appdomains <option> : choose an app domain mode");
+			Console.WriteLine("                       :   required - force app domains on");
+			Console.WriteLine("                       :   denied   - force app domains off");
+			Console.WriteLine("  -noshadow            : do not shadow copy assemblies");
 			Console.WriteLine();
 			// TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
 			Console.WriteLine("Filtering (optional, choose one or more)");
 			Console.WriteLine("If more than one filter type is specified, cross-filter type filters act as an AND operation");
 			Console.WriteLine();
-			Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
+			Console.WriteLine("  -class \"name\"          : run all methods in a given test class (should be fully");
+			Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
 			Console.WriteLine("                         : if specified more than once, acts as an OR operation");
-			Console.WriteLine("  -notrait \"name=value\"  : do not run tests with matching name/value traits");
+			Console.WriteLine("  -noclass \"name\"        : do not run any methods in a given test class (should be fully");
+			Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
 			Console.WriteLine("                         : if specified more than once, acts as an AND operation");
 			Console.WriteLine("  -method \"name\"         : run a given test method (can be fully specified or use a wildcard;");
 			Console.WriteLine("                         : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
@@ -262,17 +267,15 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine("  -nomethod \"name\"       : do not run a given test method (can be fully specified or use a wildcard;");
 			Console.WriteLine("                         : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
 			Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-			Console.WriteLine("  -class \"name\"          : run all methods in a given test class (should be fully");
-			Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
-			Console.WriteLine("                         : if specified more than once, acts as an OR operation");
-			Console.WriteLine("  -noclass \"name\"        : do not run any methods in a given test class (should be fully");
-			Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
-			Console.WriteLine("                         : if specified more than once, acts as an AND operation");
 			Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
 			Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
 			Console.WriteLine("                         : if specified more than once, acts as an OR operation");
 			Console.WriteLine("  -nonamespace \"name\"    : do not run any methods in a given namespace (i.e.,");
 			Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
+			Console.WriteLine("                         : if specified more than once, acts as an AND operation");
+			Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
+			Console.WriteLine("                         : if specified more than once, acts as an OR operation");
+			Console.WriteLine("  -notrait \"name=value\"  : do not run tests with matching name/value traits");
 			Console.WriteLine("                         : if specified more than once, acts as an AND operation");
 			Console.WriteLine();
 
@@ -292,12 +295,15 @@ namespace Xunit.Runner.SystemConsole
 				Console.WriteLine();
 			}
 
-			Console.WriteLine("Result formats (optional, choose one or more)");
-			Console.WriteLine();
+			if (TransformFactory.AvailableTransforms.Count != 0)
+			{
+				Console.WriteLine("Result formats (optional, choose one or more)");
+				Console.WriteLine();
 
-			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
-			foreach (var transform in TransformFactory.AvailableTransforms)
-				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
+				var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
+				foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
+					Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
+			}
 		}
 
 		async ValueTask<int> RunProject(

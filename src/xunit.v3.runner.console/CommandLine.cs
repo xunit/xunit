@@ -225,10 +225,9 @@ namespace Xunit.Runner.SystemConsole
 
 					AppDomains = option.Value switch
 					{
-						"ifavailable" => AppDomainSupport.IfAvailable,
 						"required" => AppDomainSupport.Required,
 						"denied" => AppDomainSupport.Denied,
-						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'ifavailable', 'required', or 'denied')"),
+						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'required' or 'denied')"),
 					};
 				}
 				else if (optionName == "maxthreads")
@@ -263,28 +262,13 @@ namespace Xunit.Runner.SystemConsole
 					if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelismOption parallelismOption))
 						throw new ArgumentException("incorrect argument value for -parallel");
 
-					switch (parallelismOption)
+					(ParallelizeAssemblies, ParallelizeTestCollections) = parallelismOption switch
 					{
-						case ParallelismOption.all:
-							ParallelizeAssemblies = true;
-							ParallelizeTestCollections = true;
-							break;
-
-						case ParallelismOption.assemblies:
-							ParallelizeAssemblies = true;
-							ParallelizeTestCollections = false;
-							break;
-
-						case ParallelismOption.collections:
-							ParallelizeAssemblies = false;
-							ParallelizeTestCollections = true;
-							break;
-
-						default:
-							ParallelizeAssemblies = false;
-							ParallelizeTestCollections = false;
-							break;
-					}
+						ParallelismOption.all => (true, true),
+						ParallelismOption.assemblies => (true, false),
+						ParallelismOption.collections => (false, true),
+						_ => (false, false)
+					};
 				}
 				else if (optionName == "noshadow")
 				{

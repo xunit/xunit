@@ -237,35 +237,37 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine();
 			Console.WriteLine($"usage: [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
 			Console.WriteLine();
-			Console.WriteLine("Options");
+			Console.WriteLine("General options");
 			Console.WriteLine();
-			Console.WriteLine("  -nologo               : do not show the copyright message");
-			Console.WriteLine("  -nocolor              : do not output results with colors");
+			Console.WriteLine("  -debug                : launch the debugger to debug the tests");
+			Console.WriteLine("  -diagnostics          : enable diagnostics messages for all test assemblies");
 			Console.WriteLine("  -failskips            : convert skipped tests into failures");
-			Console.WriteLine("  -stoponfail           : stop on first test failure");
-			Console.WriteLine("  -parallel option      : set parallelization based on option");
-			Console.WriteLine("                        :   none        - turn off all parallelization");
-			Console.WriteLine("                        :   collections - only parallelize collections");
-			Console.WriteLine("  -maxthreads count     : maximum thread count for collection parallelization");
+			Console.WriteLine("  -internaldiagnostics  : enable internal diagnostics messages for all test assemblies");
+			Console.WriteLine("  -maxthreads <option>  : maximum thread count for collection parallelization");
 			Console.WriteLine("                        :   default   - run with default (1 thread per CPU thread)");
 			Console.WriteLine("                        :   unlimited - run with unbounded thread count");
 			Console.WriteLine("                        :   (number)  - limit task thread pool size to 'count'");
-			Console.WriteLine("  -wait                 : wait for input after completion");
-			Console.WriteLine("  -diagnostics          : enable diagnostics messages for all test assemblies");
-			Console.WriteLine("  -internaldiagnostics  : enable internal diagnostics messages for all test assemblies");
-			Console.WriteLine("  -pause                : pause before doing any work, to help attach a debugger");
-			Console.WriteLine("  -debug                : launch the debugger to debug the tests");
 			Console.WriteLine("  -noautoreporters      : do not allow reporters to be auto-enabled by environment");
 			Console.WriteLine("                        : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -nocolor              : do not output results with colors");
+			Console.WriteLine("  -nologo               : do not show the copyright message");
+			Console.WriteLine("  -pause                : wait for input before running tests");
+			Console.WriteLine("  -parallel <option>    : set parallelization based on option");
+			Console.WriteLine("                        :   none        - turn off all parallelization");
+			Console.WriteLine("                        :   collections - only parallelize collections");
 			Console.WriteLine("  -preenumeratetheories : enable theory pre-enumeration (disabled by default)");
+			Console.WriteLine("  -stoponfail           : stop on first test failure");
+			Console.WriteLine("  -wait                 : wait for input after completion");
 			Console.WriteLine();
 			// TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
 			Console.WriteLine("Filtering (optional, choose one or more)");
 			Console.WriteLine("If more than one filter type is specified, cross-filter type filters act as an AND operation");
 			Console.WriteLine();
-			Console.WriteLine("  -trait \"name=value\"   : only run tests with matching name/value traits");
+			Console.WriteLine("  -class \"name\"         : run all methods in a given test class (should be fully");
+			Console.WriteLine("                        : specified; i.e., 'MyNamespace.MyClass')");
 			Console.WriteLine("                        : if specified more than once, acts as an OR operation");
-			Console.WriteLine("  -notrait \"name=value\" : do not run tests with matching name/value traits");
+			Console.WriteLine("  -noclass \"name\"       : do not run any methods in a given test class (should be fully");
+			Console.WriteLine("                        : specified; i.e., 'MyNamespace.MyClass')");
 			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
 			Console.WriteLine("  -method \"name\"        : run a given test method (can be fully specified or use a wildcard;");
 			Console.WriteLine("                        : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
@@ -273,17 +275,15 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine("  -nomethod \"name\"      : do not run a given test method (can be fully specified or use a wildcard;");
 			Console.WriteLine("                        : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
 			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
-			Console.WriteLine("  -class \"name\"         : run all methods in a given test class (should be fully");
-			Console.WriteLine("                        : specified; i.e., 'MyNamespace.MyClass')");
-			Console.WriteLine("                        : if specified more than once, acts as an OR operation");
-			Console.WriteLine("  -noclass \"name\"       : do not run any methods in a given test class (should be fully");
-			Console.WriteLine("                        : specified; i.e., 'MyNamespace.MyClass')");
-			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
 			Console.WriteLine("  -namespace \"name\"     : run all methods in a given namespace (i.e.,");
 			Console.WriteLine("                        : 'MyNamespace.MySubNamespace')");
 			Console.WriteLine("                        : if specified more than once, acts as an OR operation");
 			Console.WriteLine("  -nonamespace \"name\"   : do not run any methods in a given namespace (i.e.,");
 			Console.WriteLine("                        : 'MyNamespace.MySubNamespace')");
+			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
+			Console.WriteLine("  -trait \"name=value\"   : only run tests with matching name/value traits");
+			Console.WriteLine("                        : if specified more than once, acts as an OR operation");
+			Console.WriteLine("  -notrait \"name=value\" : do not run tests with matching name/value traits");
 			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
 			Console.WriteLine();
 
@@ -303,12 +303,15 @@ namespace Xunit.Runner.InProc.SystemConsole
 				Console.WriteLine();
 			}
 
-			Console.WriteLine("Result formats (optional, choose one or more)");
-			Console.WriteLine();
+			if (TransformFactory.AvailableTransforms.Count != 0)
+			{
+				Console.WriteLine("Result formats (optional, choose one or more)");
+				Console.WriteLine();
 
-			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
-			foreach (var transform in TransformFactory.AvailableTransforms)
-				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
+				var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
+				foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
+					Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
+			}
 		}
 
 		/// <summary>
