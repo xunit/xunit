@@ -92,10 +92,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 					}
 				};
 
-				var defaultDirectory = Directory.GetCurrentDirectory();
-				if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar }), StringComparison.Ordinal))
-					defaultDirectory += Path.DirectorySeparatorChar;
-
 				await using var reporter = commandLine.ChooseReporter(runnerReporters);
 
 				if (commandLine.Pause)
