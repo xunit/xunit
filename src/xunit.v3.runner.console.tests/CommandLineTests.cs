@@ -14,10 +14,10 @@ public class CommandLineTests
 		[Fact]
 		public static void UnknownOptionThrows()
 		{
-			var exception = Record.Exception(() => TestableCommandLine.Parse("-unknown"));
+			var commandLine = TestableCommandLine.Parse("-unknown");
 
-			Assert.IsType<ArgumentException>(exception);
-			Assert.Equal("unknown option: -unknown", exception.Message);
+			Assert.IsType<ArgumentException>(commandLine.ParseFault);
+			Assert.Equal("unknown option: -unknown", commandLine.ParseFault.Message);
 		}
 	}
 
@@ -26,10 +26,10 @@ public class CommandLineTests
 		[Fact]
 		public static void AssemblyDoesNotExist_Throws()
 		{
-			var exception = Record.Exception(() => TestableCommandLine.Parse("badAssembly.dll"));
+			var commandLine = TestableCommandLine.Parse("badAssembly.dll");
 
-			Assert.IsType<ArgumentException>(exception);
-			Assert.Equal("file not found: badAssembly.dll", exception.Message);
+			Assert.IsType<ArgumentException>(commandLine.ParseFault);
+			Assert.Equal("file not found: badAssembly.dll", commandLine.ParseFault.Message);
 		}
 
 		[Theory]
@@ -37,10 +37,10 @@ public class CommandLineTests
 		[InlineData("badConfig.json")]
 		public static void AssemblyExists_ConfigFileDoesNotExist_Throws(string configFile)
 		{
-			var exception = Record.Exception(() => TestableCommandLine.Parse("assembly1.dll", configFile));
+			var commandLine = TestableCommandLine.Parse("assembly1.dll", configFile);
 
-			Assert.IsType<ArgumentException>(exception);
-			Assert.Equal("config file not found: " + configFile, exception.Message);
+			Assert.IsType<ArgumentException>(commandLine.ParseFault);
+			Assert.Equal("config file not found: " + configFile, commandLine.ParseFault.Message);
 		}
 
 		[Fact]
@@ -120,10 +120,10 @@ public class CommandLineTests
 		{
 			var arguments = new[] { "assemblyName.dll", configFile1, configFile2 };
 
-			var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
+			var commandLine = TestableCommandLine.Parse(arguments);
 
-			Assert.IsType<ArgumentException>(exception);
-			Assert.Equal("expecting assembly, got config file: " + configFile2, exception.Message);
+			Assert.IsType<ArgumentException>(commandLine.ParseFault);
+			Assert.Equal("expecting assembly, got config file: " + configFile2, commandLine.ParseFault.Message);
 		}
 	}
 
@@ -200,17 +200,19 @@ public class CommandLineTests
 			[Fact]
 			public static void MissingValue()
 			{
-				var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomains"));
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-appdomains");
 
-				Assert.Equal("missing argument for -appdomains", ex.Message);
+				Assert.IsType<ArgumentException>(commandLine.ParseFault);
+				Assert.Equal("missing argument for -appdomains", commandLine.ParseFault.Message);
 			}
 
 			[Fact]
 			public static void InvalidValue()
 			{
-				var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomains", "foo"));
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-appdomains", "foo");
 
-				Assert.Equal("incorrect argument value for -appdomains (must be 'required' or 'denied')", ex.Message);
+				Assert.IsType<ArgumentException>(commandLine.ParseFault);
+				Assert.Equal("incorrect argument value for -appdomains (must be 'required' or 'denied')", commandLine.ParseFault.Message);
 			}
 
 			[Theory]
@@ -239,9 +241,10 @@ public class CommandLineTests
 			[Fact]
 			public static void MissingValue()
 			{
-				var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("-maxthreads"));
+				var commandLine = TestableCommandLine.Parse("-maxthreads");
 
-				Assert.Equal("missing argument for -maxthreads", ex.Message);
+				Assert.IsType<ArgumentException>(commandLine.ParseFault);
+				Assert.Equal("missing argument for -maxthreads", commandLine.ParseFault.Message);
 			}
 
 			[Theory]
@@ -249,9 +252,10 @@ public class CommandLineTests
 			[InlineData("abc")]
 			public static void InvalidValues(string value)
 			{
-				var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("-maxthreads", value));
+				var commandLine = TestableCommandLine.Parse("-maxthreads", value);
 
-				Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", ex.Message);
+				Assert.IsType<ArgumentException>(commandLine.ParseFault);
+				Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", commandLine.ParseFault.Message);
 			}
 
 			[Theory]
@@ -282,11 +286,13 @@ public class CommandLineTests
 			[Fact]
 			public static void FailsWithoutOptionOrWithIncorrectOptions()
 			{
-				var aex1 = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("-parallel"));
-				Assert.Equal("missing argument for -parallel", aex1.Message);
+				var commandLine1 = TestableCommandLine.Parse("-parallel");
+				Assert.IsType<ArgumentException>(commandLine1.ParseFault);
+				Assert.Equal("missing argument for -parallel", commandLine1.ParseFault.Message);
 
-				var aex2 = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("-parallel", "nonsense"));
-				Assert.Equal("incorrect argument value for -parallel", aex2.Message);
+				var commandLine2 = TestableCommandLine.Parse("-parallel", "nonsense");
+				Assert.IsType<ArgumentException>(commandLine2.ParseFault);
+				Assert.Equal("incorrect argument value for -parallel", commandLine2.ParseFault.Message);
 			}
 
 			[Theory]
@@ -352,10 +358,10 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> _)
 		{
-			var ex = Record.Exception(() => TestableCommandLine.Parse(@switch));
+			var commandLine = TestableCommandLine.Parse(@switch);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", ex.Message);
+			Assert.IsType<ArgumentException>(commandLine.ParseFault);
+			Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", commandLine.ParseFault.Message);
 		}
 
 		[Theory]
@@ -492,10 +498,10 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> _)
 			{
-				var ex = Record.Exception(() => TestableCommandLine.Parse(@switch));
+				var commandLine = TestableCommandLine.Parse(@switch);
 
-				Assert.IsType<ArgumentException>(ex);
-				Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", ex.Message);
+				Assert.IsType<ArgumentException>(commandLine.ParseFault);
+				Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", commandLine.ParseFault.Message);
 			}
 
 			[Theory]
@@ -505,10 +511,10 @@ public class CommandLineTests
 				string @switch,
 				string optionValue)
 			{
-				var ex = Record.Exception(() => TestableCommandLine.Parse(@switch, optionValue));
+				var commandLine = TestableCommandLine.Parse(@switch, optionValue);
 
-				Assert.IsType<ArgumentException>(ex);
-				Assert.Equal($"incorrect argument format for {@switch.ToLowerInvariant()} (should be \"name=value\")", ex.Message);
+				Assert.IsType<ArgumentException>(commandLine.ParseFault);
+				Assert.Equal($"incorrect argument format for {@switch.ToLowerInvariant()} (should be \"name=value\")", commandLine.ParseFault.Message);
 			}
 		}
 	}
@@ -526,10 +532,10 @@ public class CommandLineTests
 		[MemberData(nameof(SwitchesUpperCase))]
 		public static void OutputMissingFilename(string @switch)
 		{
-			var ex = Record.Exception(() => TestableCommandLine.Parse(@switch));
+			var commandLine = TestableCommandLine.Parse(@switch);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal($"missing filename for {@switch}", ex.Message);
+			Assert.IsType<ArgumentException>(commandLine.ParseFault);
+			Assert.Equal($"missing filename for {@switch}", commandLine.ParseFault.Message);
 		}
 
 		[Theory]
@@ -611,14 +617,24 @@ public class CommandLineTests
 
 	class TestableCommandLine : CommandLine
 	{
-		public readonly IRunnerReporter Reporter;
+		public readonly IRunnerReporter? Reporter;
 
 		private TestableCommandLine(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] arguments)
 				: base(arguments, filename => !filename.StartsWith("bad") && filename != "fileName")
 		{
-			Reporter = ChooseReporter(reporters);
+			if (ParseFault == null)
+			{
+				try
+				{
+					Reporter = ChooseReporter(reporters);
+				}
+				catch (Exception ex)
+				{
+					ParseFault = ex;
+				}
+			}
 		}
 
 		protected override string GetFullPath(string fileName) =>

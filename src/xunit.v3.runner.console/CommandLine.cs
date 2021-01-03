@@ -53,7 +53,7 @@ namespace Xunit.Runner.SystemConsole
 
 		public bool NoLogo { get; protected set; }
 
-		public Exception? ParseFault { get; }
+		public Exception? ParseFault { get; protected set; }
 
 		public bool Pause { get; protected set; }
 

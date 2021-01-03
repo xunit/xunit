@@ -108,7 +108,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// <summary>
 		/// Gets the fault that happened during parsing.
 		/// </summary>
-		public Exception? ParseFault { get; }
+		public Exception? ParseFault { get; protected set; }
 
 		/// <summary>
 		/// <para>Option: -pause</para>
