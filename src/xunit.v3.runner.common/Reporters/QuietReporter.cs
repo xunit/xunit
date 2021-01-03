@@ -12,6 +12,9 @@ namespace Xunit.Runner.Common
 		public string Description => "do not show progress messages";
 
 		/// <inheritdoc/>
+		public bool ForceNoLogo => false;
+
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled => false;
 
 		/// <inheritdoc/>

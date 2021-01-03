@@ -83,7 +83,7 @@ namespace Xunit.Runner.SystemConsole
 				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, commandLine.InternalDiagnosticMessages, commandLine.NoColor);
 				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
-				if (!commandLine.NoLogo)
+				if (!reporter.ForceNoLogo && !commandLine.NoLogo)
 					PrintHeader();
 
 				var failCount = await RunProject(

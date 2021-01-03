@@ -14,6 +14,9 @@ namespace Xunit.Runner.Common
 		public string Description => "TeamCity CI support [normally auto-enabled]";
 
 		/// <inheritdoc/>
+		public bool ForceNoLogo => false;
+
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled =>
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
 

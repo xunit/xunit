@@ -16,6 +16,9 @@ namespace Xunit.Runner.Common
 		public string Description => "Azure DevOps/VSTS CI support";
 
 		/// <inheritdoc/>
+		public bool ForceNoLogo => false;
+
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled =>
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("VSTS_ACCESS_TOKEN")) &&
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI")) &&

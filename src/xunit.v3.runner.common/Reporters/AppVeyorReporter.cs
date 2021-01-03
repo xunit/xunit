@@ -15,6 +15,9 @@ namespace Xunit.Runner.Common
 		public string Description => "AppVeyor CI support";
 
 		/// <inheritdoc/>
+		public bool ForceNoLogo => false;
+
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled =>
 			!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("APPVEYOR_API_URL"));
 

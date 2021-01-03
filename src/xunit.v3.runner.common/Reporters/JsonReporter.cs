@@ -13,6 +13,9 @@ namespace Xunit.Runner.Common
 		public string Description => "show progress messages in JSON format";
 
 		/// <inheritdoc/>
+		public bool ForceNoLogo => true;
+
+		/// <inheritdoc/>
 		public bool IsEnvironmentallyEnabled => false;
 
 		/// <inheritdoc/>

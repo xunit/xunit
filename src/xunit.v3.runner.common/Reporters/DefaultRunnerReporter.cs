@@ -15,6 +15,9 @@ namespace Xunit.Runner.Common
 		public virtual string Description => string.Empty;
 
 		/// <inheritdoc/>
+		public bool ForceNoLogo => false;
+
+		/// <inheritdoc/>
 		public virtual bool IsEnvironmentallyEnabled => false;
 
 		/// <inheritdoc/>

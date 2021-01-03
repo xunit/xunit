@@ -19,6 +19,13 @@ namespace Xunit.Runner.Common
 		string Description { get; }
 
 		/// <summary>
+		/// Gets a value which indicates whether this runner wishes to force no logo.
+		/// Useful for runners which are designed for purely parseable output
+		/// (for example, <see cref="JsonReporter"/>).
+		/// </summary>
+		bool ForceNoLogo { get; }
+
+		/// <summary>
 		/// Gets a value which indicates whether the reporter should be
 		/// environmentally enabled.
 		/// </summary>
