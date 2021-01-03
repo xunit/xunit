@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -51,13 +52,10 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 			commandLine = CommandLine.Parse(this.testAssembly.Location, args);
 
-			var projectAssembly = commandLine.Project.Assemblies.SingleOrDefault();
-			Guard.NotNull("commandLine.Project.Assemblies is empty", projectAssembly);
-
 			this.runnerReporters =
 				runnerReporters != null
 					? runnerReporters.ToList()
-					: GetAvailableRunnerReporters(projectAssembly.AssemblyFilename);
+					: GetAvailableRunnerReporters(this.testAssembly.Location);
 		}
 
 		/// <summary>
@@ -79,6 +77,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 					PrintUsage();
 					return 2;
 				}
+
+				if (commandLine.ParseFault != null)
+					ExceptionDispatchInfo.Capture(commandLine.ParseFault).Throw();
 
 				AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 

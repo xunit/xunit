@@ -10,21 +10,29 @@ namespace Xunit.Runner.SystemConsole
 	public class CommandLine
 	{
 		readonly Stack<string> arguments = new Stack<string>();
+		XunitProject? project;
 		readonly List<string> unknownOptions = new List<string>();
 
 		protected CommandLine(
 			string[] args,
 			Predicate<string>? fileExists = null)
 		{
-			fileExists ??= File.Exists;
+			try
+			{
+				fileExists ??= File.Exists;
 
-			for (var i = args.Length - 1; i >= 0; i--)
-				arguments.Push(args[i]);
+				for (var i = args.Length - 1; i >= 0; i--)
+					arguments.Push(args[i]);
 
-			if (Environment.GetEnvironmentVariable("NO_COLOR") != null)
-				NoColor = true;
+				if (Environment.GetEnvironmentVariable("NO_COLOR") != null)
+					NoColor = true;
 
-			Project = Parse(fileExists);
+				Project = Parse(fileExists);
+			}
+			catch (Exception ex)
+			{
+				ParseFault = ex;
+			}
 		}
 
 		public AppDomainSupport? AppDomains { get; protected set; }
@@ -45,11 +53,17 @@ namespace Xunit.Runner.SystemConsole
 
 		public bool NoLogo { get; protected set; }
 
+		public Exception? ParseFault { get; }
+
 		public bool Pause { get; protected set; }
 
 		public bool PreEnumerateTheories { get; protected set; }
 
-		public XunitProject Project { get; protected set; }
+		public XunitProject Project
+		{
+			get => project ?? throw new InvalidOperationException($"Attempted to get {nameof(Project)} on an uninitialized '{GetType().FullName}' object");
+			protected set => project = Guard.ArgumentNotNull(nameof(Project), value);
+		}
 
 		public bool? ParallelizeAssemblies { get; protected set; }
 

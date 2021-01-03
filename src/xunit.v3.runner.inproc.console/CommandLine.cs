@@ -13,6 +13,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 	public class CommandLine
 	{
 		readonly Stack<string> arguments = new Stack<string>();
+		XunitProject? project;
 		readonly List<string> unknownOptions = new List<string>();
 
 		/// <summary>
@@ -27,15 +28,22 @@ namespace Xunit.Runner.InProc.SystemConsole
 			string[] args,
 			Predicate<string>? fileExists = null)
 		{
-			fileExists ??= File.Exists;
+			try
+			{
+				fileExists ??= File.Exists;
 
-			for (var i = args.Length - 1; i >= 0; i--)
-				arguments.Push(args[i]);
+				for (var i = args.Length - 1; i >= 0; i--)
+					arguments.Push(args[i]);
 
-			if (Environment.GetEnvironmentVariable("NO_COLOR") != null)
-				NoColor = true;
+				if (Environment.GetEnvironmentVariable("NO_COLOR") != null)
+					NoColor = true;
 
-			Project = Parse(assemblyFileName, fileExists);
+				Project = Parse(assemblyFileName, fileExists);
+			}
+			catch (Exception ex)
+			{
+				ParseFault = ex;
+			}
 		}
 
 		/// <summary>
@@ -98,6 +106,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 		public bool NoLogo { get; protected set; }
 
 		/// <summary>
+		/// Gets the fault that happened during parsing.
+		/// </summary>
+		public Exception? ParseFault { get; }
+
+		/// <summary>
 		/// <para>Option: -pause</para>
 		/// <para>When set to <c>true</c>, will pause the test runner just before running tests.</para>
 		/// </summary>
@@ -113,7 +126,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// <summary>
 		/// Gets or sets the project that describes the assembly to be tested.
 		/// </summary>
-		public XunitProject Project { get; protected set; }
+		public XunitProject Project
+		{
+			get => project ?? throw new InvalidOperationException($"Attempted to get {nameof(Project)} on an uninitialized '{GetType().FullName}' object");
+			protected set => project = Guard.ArgumentNotNull(nameof(Project), value);
+		}
 
 		/// <summary>
 		/// <para>Option: -parallel &lt;none | collections&gt;</para>
