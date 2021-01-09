@@ -65,6 +65,7 @@ namespace Xunit.Runner.Common
 
 			return
 				project
+					.Configuration
 					.Output
 					.Select(output => new Action<XElement>(xml => instance.availableTransforms.Single(t => t.ID == output.Key).OutputHandler(xml, output.Value)))
 					.ToList();

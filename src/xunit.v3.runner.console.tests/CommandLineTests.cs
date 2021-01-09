@@ -131,19 +131,19 @@ public class CommandLineTests
 	{
 		static readonly (string Switch, Expression<Func<CommandLine, bool>> Accessor)[] SwitchOptionsList = new (string, Expression<Func<CommandLine, bool>>)[]
 		{
-			("-debug", cmd => cmd.Debug),
-			("-diagnostics", cmd => cmd.DiagnosticMessages),
-			("-failskips", cmd => cmd.FailSkips),
-			("-internaldiagnostics", cmd => cmd.InternalDiagnosticMessages),
-			("-noautoreporters", cmd => cmd.NoAutoReporters),
-			("-nocolor", cmd => cmd.NoColor),
-			("-nologo", cmd => cmd.NoLogo),
+			("-debug", cmd => cmd.Project.Configuration.DebugOrDefault),
+			("-diagnostics", cmd => cmd.Project.Assemblies.All(a => a.Configuration.DiagnosticMessagesOrDefault)),
+			("-failskips", cmd => cmd.Project.Assemblies.All(a => a.Configuration.FailSkipsOrDefault)),
+			("-internaldiagnostics", cmd => cmd.Project.Assemblies.All(a => a.Configuration.InternalDiagnosticMessagesOrDefault)),
+			("-noautoreporters", cmd => cmd.Project.Configuration.NoAutoReportersOrDefault),
+			("-nocolor", cmd => cmd.Project.Configuration.NoColorOrDefault),
+			("-nologo", cmd => cmd.Project.Configuration.NoLogoOrDefault),
 			("-noshadow", cmd => !cmd.Project.Assemblies.Single().Configuration.ShadowCopyOrDefault),
-			("-pause", cmd => cmd.Pause),
-			("-preenumeratetheories", cmd => cmd.PreEnumerateTheories),
+			("-pause", cmd => cmd.Project.Configuration.PauseOrDefault),
+			("-preenumeratetheories", cmd => cmd.Project.Assemblies.All(a => a.Configuration.PreEnumerateTheories ?? false)),
 			("-serialize", cmd => cmd.Project.Assemblies.Single().Configuration.IncludeSerializationOrDefault),
-			("-stoponfail", cmd => cmd.StopOnFail),
-			("-wait", cmd => cmd.Wait),
+			("-stoponfail", cmd => cmd.Project.Assemblies.All(a => a.Configuration.StopOnFailOrDefault)),
+			("-wait", cmd => cmd.Project.Configuration.WaitOrDefault),
 		};
 
 		public static readonly TheoryData<string, Expression<Func<CommandLine, bool>>> SwitchesLowerCase =
@@ -159,11 +159,11 @@ public class CommandLineTests
 		[Theory]
 		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
-		public static void SwitchOptionIsFalseByDefault(
+		public static void SwitchDefault(
 			string _,
 			Expression<Func<CommandLine, bool>> accessor)
 		{
-			var commandLine = TestableCommandLine.Parse("assembly1.dll");
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
 
 			var result = accessor.Compile().Invoke(commandLine);
 
@@ -173,11 +173,11 @@ public class CommandLineTests
 		[Theory]
 		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
-		public static void SwitchOptionIsTrueWhenSpecified(
+		public static void SwitchOverride(
 			string @switch,
 			Expression<Func<CommandLine, bool>> accessor)
 		{
-			var commandLine = TestableCommandLine.Parse("assembly1.dll", @switch);
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch);
 
 			var result = accessor.Compile().Invoke(commandLine);
 
@@ -192,15 +192,16 @@ public class CommandLineTests
 			[Fact]
 			public static void DefaultValueIsNull()
 			{
-				var commandLine = TestableCommandLine.Parse("assemblyName.dll");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
 
-				Assert.Null(commandLine.AppDomains);
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Null(assembly.Configuration.AppDomain);
 			}
 
 			[Fact]
 			public static void MissingValue()
 			{
-				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-appdomains");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-appdomains");
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
 				Assert.Equal("missing argument for -appdomains", commandLine.ParseFault.Message);
@@ -209,7 +210,7 @@ public class CommandLineTests
 			[Fact]
 			public static void InvalidValue()
 			{
-				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-appdomains", "foo");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-appdomains", "foo");
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
 				Assert.Equal("incorrect argument value for -appdomains (must be 'required' or 'denied')", commandLine.ParseFault.Message);
@@ -222,9 +223,10 @@ public class CommandLineTests
 				string value,
 				AppDomainSupport expected)
 			{
-				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-appdomains", value);
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-appdomains", value);
 
-				Assert.Equal(expected, commandLine.AppDomains);
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Equal(expected, assembly.Configuration.AppDomain);
 			}
 		}
 
@@ -233,15 +235,16 @@ public class CommandLineTests
 			[Fact]
 			public static void DefaultValueIsNull()
 			{
-				var commandLine = TestableCommandLine.Parse();
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
 
-				Assert.Null(commandLine.MaxParallelThreads);
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Null(assembly.Configuration.MaxParallelThreads);
 			}
 
 			[Fact]
 			public static void MissingValue()
 			{
-				var commandLine = TestableCommandLine.Parse("-maxthreads");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-maxthreads");
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
 				Assert.Equal("missing argument for -maxthreads", commandLine.ParseFault.Message);
@@ -252,7 +255,7 @@ public class CommandLineTests
 			[InlineData("abc")]
 			public static void InvalidValues(string value)
 			{
-				var commandLine = TestableCommandLine.Parse("-maxthreads", value);
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-maxthreads", value);
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
 				Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", commandLine.ParseFault.Message);
@@ -266,9 +269,10 @@ public class CommandLineTests
 				string value,
 				int expected)
 			{
-				var commandLine = TestableCommandLine.Parse("-maxthreads", value);
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-maxthreads", value);
 
-				Assert.Equal(expected, commandLine.MaxParallelThreads);
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Equal(expected, assembly.Configuration.MaxParallelThreads);
 			}
 		}
 
@@ -277,20 +281,23 @@ public class CommandLineTests
 			[Fact]
 			public static void ParallelizationOptionsAreNullByDefault()
 			{
-				var commandLine = TestableCommandLine.Parse();
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
 
-				Assert.Null(commandLine.ParallelizeAssemblies);
-				Assert.Null(commandLine.ParallelizeTestCollections);
+				foreach (var assembly in commandLine.Project.Assemblies)
+				{
+					Assert.Null(assembly.Configuration.ParallelizeAssembly);
+					Assert.Null(assembly.Configuration.ParallelizeTestCollections);
+				}
 			}
 
 			[Fact]
 			public static void FailsWithoutOptionOrWithIncorrectOptions()
 			{
-				var commandLine1 = TestableCommandLine.Parse("-parallel");
+				var commandLine1 = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-parallel");
 				Assert.IsType<ArgumentException>(commandLine1.ParseFault);
 				Assert.Equal("missing argument for -parallel", commandLine1.ParseFault.Message);
 
-				var commandLine2 = TestableCommandLine.Parse("-parallel", "nonsense");
+				var commandLine2 = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-parallel", "nonsense");
 				Assert.IsType<ArgumentException>(commandLine2.ParseFault);
 				Assert.Equal("incorrect argument value for -parallel", commandLine2.ParseFault.Message);
 			}
@@ -305,10 +312,13 @@ public class CommandLineTests
 				bool expectedAssembliesParallelization,
 				bool expectedCollectionsParallelization)
 			{
-				var commandLine = TestableCommandLine.Parse("-parallel", parallelOption);
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-parallel", parallelOption);
 
-				Assert.Equal(expectedAssembliesParallelization, commandLine.ParallelizeAssemblies);
-				Assert.Equal(expectedCollectionsParallelization, commandLine.ParallelizeTestCollections);
+				foreach (var assembly in commandLine.Project.Assemblies)
+				{
+					Assert.Equal(expectedAssembliesParallelization, assembly.Configuration.ParallelizeAssembly);
+					Assert.Equal(expectedCollectionsParallelization, assembly.Configuration.ParallelizeTestCollections);
+				}
 			}
 		}
 	}
@@ -318,27 +328,28 @@ public class CommandLineTests
 		[Fact]
 		public static void DefaultFilters()
 		{
-			var commandLine = TestableCommandLine.Parse();
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
 
-			Assert.Equal(0, commandLine.Project.Filters.IncludedTraits.Count);
-			Assert.Equal(0, commandLine.Project.Filters.ExcludedTraits.Count);
-			Assert.Equal(0, commandLine.Project.Filters.IncludedNamespaces.Count);
-			Assert.Equal(0, commandLine.Project.Filters.ExcludedNamespaces.Count);
-			Assert.Equal(0, commandLine.Project.Filters.IncludedClasses.Count);
-			Assert.Equal(0, commandLine.Project.Filters.ExcludedClasses.Count);
-			Assert.Equal(0, commandLine.Project.Filters.IncludedMethods.Count);
-			Assert.Equal(0, commandLine.Project.Filters.ExcludedMethods.Count);
+			var filters = commandLine.Project.Assemblies.Single().Configuration.Filters;
+			Assert.Equal(0, filters.IncludedTraits.Count);
+			Assert.Equal(0, filters.ExcludedTraits.Count);
+			Assert.Equal(0, filters.IncludedNamespaces.Count);
+			Assert.Equal(0, filters.ExcludedNamespaces.Count);
+			Assert.Equal(0, filters.IncludedClasses.Count);
+			Assert.Equal(0, filters.ExcludedClasses.Count);
+			Assert.Equal(0, filters.IncludedMethods.Count);
+			Assert.Equal(0, filters.ExcludedMethods.Count);
 		}
 
 		static readonly (string Switch, Expression<Func<CommandLine, ICollection<string>>> Accessor)[] SwitchOptionsList =
 			new (string, Expression<Func<CommandLine, ICollection<string>>>)[]
 			{
-				("-namespace", cmd => cmd.Project.Filters.IncludedNamespaces),
-				("-nonamespace", cmd => cmd.Project.Filters.ExcludedNamespaces),
-				("-class", cmd => cmd.Project.Filters.IncludedClasses),
-				("-noclass", cmd => cmd.Project.Filters.ExcludedClasses),
-				("-method", cmd => cmd.Project.Filters.IncludedMethods),
-				("-nomethod", cmd => cmd.Project.Filters.ExcludedMethods),
+				("-namespace", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.IncludedNamespaces),
+				("-nonamespace", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.ExcludedNamespaces),
+				("-class", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.IncludedClasses),
+				("-noclass", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.ExcludedClasses),
+				("-method", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.IncludedMethods),
+				("-nomethod", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.ExcludedMethods),
 			};
 
 		public static readonly TheoryData<string, Expression<Func<CommandLine, ICollection<string>>>> SwitchesLowerCase =
@@ -358,7 +369,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> _)
 		{
-			var commandLine = TestableCommandLine.Parse(@switch);
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch);
 
 			Assert.IsType<ArgumentException>(commandLine.ParseFault);
 			Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", commandLine.ParseFault.Message);
@@ -371,7 +382,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> accessor)
 		{
-			var commandLine = TestableCommandLine.Parse(@switch, "value1");
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, "value1");
 
 			var results = accessor.Compile().Invoke(commandLine);
 
@@ -387,7 +398,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> accessor)
 		{
-			var commandLine = TestableCommandLine.Parse(@switch, "value2", @switch, "value1");
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, "value2", @switch, "value1");
 
 			var results = accessor.Compile().Invoke(commandLine);
 
@@ -402,8 +413,8 @@ public class CommandLineTests
 			static readonly (string Switch, Expression<Func<CommandLine, Dictionary<string, List<string>>>> Accessor)[] SwitchOptionsList =
 				new (string Switch, Expression<Func<CommandLine, Dictionary<string, List<string>>>> Accessor)[]
 				{
-					("-trait", cmd => cmd.Project.Filters.IncludedTraits),
-					("-notrait", cmd => cmd.Project.Filters.ExcludedTraits),
+					("-trait", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.IncludedTraits),
+					("-notrait", cmd => cmd.Project.Assemblies.Single().Configuration.Filters.ExcludedTraits),
 				};
 
 			static readonly string[] BadFormatValues =
@@ -450,7 +461,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
 			{
-				var commandLine = TestableCommandLine.Parse(@switch, "foo=bar");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, "foo=bar");
 
 				var traits = accessor.Compile().Invoke(commandLine);
 				Assert.Equal(1, traits.Count);
@@ -465,7 +476,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
 			{
-				var commandLine = TestableCommandLine.Parse(@switch, "foo=bar", @switch, "foo=baz");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, "foo=bar", @switch, "foo=baz");
 
 				var traits = accessor.Compile().Invoke(commandLine);
 				Assert.Equal(1, traits.Count);
@@ -481,7 +492,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
 			{
-				var commandLine = TestableCommandLine.Parse(@switch, "foo=bar", @switch, "baz=biff");
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, "foo=bar", @switch, "baz=biff");
 
 				var traits = accessor.Compile().Invoke(commandLine);
 				Assert.Equal(2, traits.Count);
@@ -498,7 +509,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> _)
 			{
-				var commandLine = TestableCommandLine.Parse(@switch);
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch);
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
 				Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", commandLine.ParseFault.Message);
@@ -511,7 +522,7 @@ public class CommandLineTests
 				string @switch,
 				string optionValue)
 			{
-				var commandLine = TestableCommandLine.Parse(@switch, optionValue);
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, optionValue);
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
 				Assert.Equal($"incorrect argument format for {@switch.ToLowerInvariant()} (should be \"name=value\")", commandLine.ParseFault.Message);
@@ -532,7 +543,7 @@ public class CommandLineTests
 		[MemberData(nameof(SwitchesUpperCase))]
 		public static void OutputMissingFilename(string @switch)
 		{
-			var commandLine = TestableCommandLine.Parse(@switch);
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch);
 
 			Assert.IsType<ArgumentException>(commandLine.ParseFault);
 			Assert.Equal($"missing filename for {@switch}", commandLine.ParseFault.Message);
@@ -543,9 +554,9 @@ public class CommandLineTests
 		[MemberData(nameof(SwitchesUpperCase))]
 		public static void Output(string @switch)
 		{
-			var commandLine = TestableCommandLine.Parse(@switch, "outputFile");
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", @switch, "outputFile");
 
-			var output = Assert.Single(commandLine.Project.Output);
+			var output = Assert.Single(commandLine.Project.Configuration.Output);
 			Assert.Equal(@switch.Substring(1).ToLowerInvariant(), output.Key);
 			Assert.Equal("outputFile", output.Value);
 		}
@@ -556,7 +567,7 @@ public class CommandLineTests
 		[Fact]
 		public void NoReporters_UsesDefaultReporter()
 		{
-			var commandLine = TestableCommandLine.Parse();
+			var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
 
 			Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
 		}
@@ -566,7 +577,7 @@ public class CommandLineTests
 		{
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: false);
 
-			var commandLine = TestableCommandLine.Parse(new[] { implicitReporter });
+			var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "assemblyName.dll", "no-config.json");
 
 			Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
 		}
@@ -576,7 +587,7 @@ public class CommandLineTests
 		{
 			var explicitReporter = Mocks.RunnerReporter("switch");
 
-			var commandLine = TestableCommandLine.Parse(new[] { explicitReporter }, "-switch");
+			var commandLine = TestableCommandLine.Parse(new[] { explicitReporter }, "assemblyName.dll", "no-config.json", "-switch");
 
 			Assert.Same(explicitReporter, commandLine.Reporter);
 		}
@@ -587,7 +598,7 @@ public class CommandLineTests
 			var explicitReporter = Mocks.RunnerReporter("switch");
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 
-			var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter }, "-switch");
+			var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter }, "assemblyName.dll", "no-config.json", "-switch");
 
 			Assert.Same(implicitReporter, commandLine.Reporter);
 		}
@@ -597,7 +608,7 @@ public class CommandLineTests
 		{
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 
-			var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "-noautoreporters");
+			var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "assemblyName.dll", "no-config.json", "-noautoreporters");
 
 			Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
 		}
@@ -609,7 +620,7 @@ public class CommandLineTests
 			var implicitReporter1 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 			var implicitReporter2 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 
-			var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter1, implicitReporter2 });
+			var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter1, implicitReporter2 }, "assemblyName.dll", "no-config.json");
 
 			Assert.Same(implicitReporter1, commandLine.Reporter);
 		}

@@ -24,9 +24,6 @@ namespace Xunit.Runner.SystemConsole
 				for (var i = args.Length - 1; i >= 0; i--)
 					arguments.Push(args[i]);
 
-				if (Environment.GetEnvironmentVariable("NO_COLOR") != null)
-					NoColor = true;
-
 				Project = Parse(fileExists);
 			}
 			catch (Exception ex)
@@ -35,43 +32,13 @@ namespace Xunit.Runner.SystemConsole
 			}
 		}
 
-		public AppDomainSupport? AppDomains { get; protected set; }
-
-		public bool Debug { get; protected set; }
-
-		public bool DiagnosticMessages { get; protected set; }
-
-		public bool FailSkips { get; protected set; }
-
-		public bool InternalDiagnosticMessages { get; protected set; }
-
-		public int? MaxParallelThreads { get; set; }
-
-		public bool NoAutoReporters { get; protected set; }
-
-		public bool NoColor { get; protected set; }
-
-		public bool NoLogo { get; protected set; }
-
 		public Exception? ParseFault { get; protected set; }
-
-		public bool Pause { get; protected set; }
-
-		public bool PreEnumerateTheories { get; protected set; }
 
 		public XunitProject Project
 		{
 			get => project ?? throw new InvalidOperationException($"Attempted to get {nameof(Project)} on an uninitialized '{GetType().FullName}' object");
 			protected set => project = Guard.ArgumentNotNull(nameof(Project), value);
 		}
-
-		public bool? ParallelizeAssemblies { get; protected set; }
-
-		public bool? ParallelizeTestCollections { get; set; }
-
-		public bool StopOnFail { get; protected set; }
-
-		public bool Wait { get; protected set; }
 
 		public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
 		{
@@ -87,7 +54,7 @@ namespace Xunit.Runner.SystemConsole
 				result = reporter;
 			}
 
-			if (!NoAutoReporters)
+			if (!Project.Configuration.NoAutoReportersOrDefault)
 				result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
 
 			return result ?? new DefaultRunnerReporter();
@@ -100,7 +67,7 @@ namespace Xunit.Runner.SystemConsole
 			var result = new XunitProject();
 
 			foreach (var assembly in assemblies)
-				result.Add(new XunitProjectAssembly
+				result.Add(new XunitProjectAssembly(result)
 				{
 					AssemblyFilename = GetFullPath(assembly.assemblyFileName),
 					ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.configFileName) : null,
@@ -169,47 +136,51 @@ namespace Xunit.Runner.SystemConsole
 				if (optionName == "nologo")
 				{
 					GuardNoOptionValue(option);
-					NoLogo = true;
+					project.Configuration.NoLogo = true;
 				}
 				else if (optionName == "failskips")
 				{
 					GuardNoOptionValue(option);
-					FailSkips = true;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.FailSkips = true;
 				}
 				else if (optionName == "stoponfail")
 				{
 					GuardNoOptionValue(option);
-					StopOnFail = true;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.StopOnFail = true;
 				}
 				else if (optionName == "nocolor")
 				{
 					GuardNoOptionValue(option);
-					NoColor = true;
+					project.Configuration.NoColor = true;
 				}
 				else if (optionName == "noappdomain")    // Here for historical reasons
 				{
 					GuardNoOptionValue(option);
-					AppDomains = AppDomainSupport.Denied;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.AppDomain = AppDomainSupport.Denied;
 				}
 				else if (optionName == "noautoreporters")
 				{
 					GuardNoOptionValue(option);
-					NoAutoReporters = true;
+					project.Configuration.NoAutoReporters = true;
 				}
 				else if (optionName == "pause")
 				{
 					GuardNoOptionValue(option);
-					Pause = true;
+					project.Configuration.Pause = true;
 				}
 				else if (optionName == "preenumeratetheories")
 				{
 					GuardNoOptionValue(option);
-					PreEnumerateTheories = true;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.PreEnumerateTheories = true;
 				}
 				else if (optionName == "debug")
 				{
 					GuardNoOptionValue(option);
-					Debug = true;
+					project.Configuration.Debug = true;
 				}
 				else if (optionName == "serialize")
 				{
@@ -220,43 +191,50 @@ namespace Xunit.Runner.SystemConsole
 				else if (optionName == "wait")
 				{
 					GuardNoOptionValue(option);
-					Wait = true;
+					project.Configuration.Wait = true;
 				}
 				else if (optionName == "diagnostics")
 				{
 					GuardNoOptionValue(option);
-					DiagnosticMessages = true;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.DiagnosticMessages = true;
 				}
 				else if (optionName == "internaldiagnostics")
 				{
 					GuardNoOptionValue(option);
-					InternalDiagnosticMessages = true;
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.InternalDiagnosticMessages = true;
 				}
 				else if (optionName == "appdomains")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -appdomains");
 
-					AppDomains = option.Value switch
+					var appDomainSupport = option.Value switch
 					{
 						"required" => AppDomainSupport.Required,
 						"denied" => AppDomainSupport.Denied,
 						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'required' or 'denied')"),
 					};
+
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.AppDomain = appDomainSupport;
 				}
 				else if (optionName == "maxthreads")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -maxthreads");
 
+					int? maxParallelThreads = null;
+
 					switch (option.Value)
 					{
 						case "default":
-							MaxParallelThreads = 0;
+							maxParallelThreads = 0;
 							break;
 
 						case "unlimited":
-							MaxParallelThreads = -1;
+							maxParallelThreads = -1;
 							break;
 
 						default:
@@ -264,9 +242,12 @@ namespace Xunit.Runner.SystemConsole
 							if (!int.TryParse(option.Value, out threadValue) || threadValue < 1)
 								throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
 
-							MaxParallelThreads = threadValue;
+							maxParallelThreads = threadValue;
 							break;
 					}
+
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.MaxParallelThreads = maxParallelThreads;
 				}
 				else if (optionName == "parallel")
 				{
@@ -276,13 +257,19 @@ namespace Xunit.Runner.SystemConsole
 					if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelismOption parallelismOption))
 						throw new ArgumentException("incorrect argument value for -parallel");
 
-					(ParallelizeAssemblies, ParallelizeTestCollections) = parallelismOption switch
+					var (parallelizeAssemblies, parallelizeTestCollections) = parallelismOption switch
 					{
 						ParallelismOption.all => (true, true),
 						ParallelismOption.assemblies => (true, false),
 						ParallelismOption.collections => (false, true),
 						_ => (false, false)
 					};
+
+					foreach (var assembly in project.Assemblies)
+					{
+						assembly.Configuration.ParallelizeAssembly = parallelizeAssemblies;
+						assembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+					}
 				}
 				else if (optionName == "noshadow")
 				{
@@ -301,7 +288,9 @@ namespace Xunit.Runner.SystemConsole
 
 					var name = pieces[0];
 					var value = pieces[1];
-					project.Filters.IncludedTraits.Add(name, value);
+
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.IncludedTraits.Add(name, value);
 				}
 				else if (optionName == "notrait")
 				{
@@ -314,49 +303,57 @@ namespace Xunit.Runner.SystemConsole
 
 					var name = pieces[0];
 					var value = pieces[1];
-					project.Filters.ExcludedTraits.Add(name, value);
+
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.ExcludedTraits.Add(name, value);
 				}
 				else if (optionName == "class")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -class");
 
-					project.Filters.IncludedClasses.Add(option.Value);
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.IncludedClasses.Add(option.Value);
 				}
 				else if (optionName == "noclass")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -noclass");
 
-					project.Filters.ExcludedClasses.Add(option.Value);
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.ExcludedClasses.Add(option.Value);
 				}
 				else if (optionName == "method")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -method");
 
-					project.Filters.IncludedMethods.Add(option.Value);
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.IncludedMethods.Add(option.Value);
 				}
 				else if (optionName == "nomethod")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -nomethod");
 
-					project.Filters.ExcludedMethods.Add(option.Value);
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.ExcludedMethods.Add(option.Value);
 				}
 				else if (optionName == "namespace")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -namespace");
 
-					project.Filters.IncludedNamespaces.Add(option.Value);
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.IncludedNamespaces.Add(option.Value);
 				}
 				else if (optionName == "nonamespace")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -nonamespace");
 
-					project.Filters.ExcludedNamespaces.Add(option.Value);
+					foreach (var assembly in project.Assemblies)
+						assembly.Configuration.Filters.ExcludedNamespaces.Add(option.Value);
 				}
 				else
 				{
@@ -368,7 +365,7 @@ namespace Xunit.Runner.SystemConsole
 
 						EnsurePathExists(option.Value);
 
-						project.Output.Add(optionName, option.Value);
+						project.Configuration.Output.Add(optionName, option.Value);
 					}
 					// ...or it might be a reporter (we won't know until later)
 					else

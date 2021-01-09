@@ -113,7 +113,8 @@ namespace Xunit.v3
 			int testCasesDiscovered = 2112,
 			int testCasesToRun = 42)
 		{
-			var assembly = new XunitProjectAssembly
+			var project = new XunitProject();
+			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
 				ConfigFilename = configFilePath
@@ -148,7 +149,8 @@ namespace Xunit.v3
 			bool preEnumerateTheories = false,
 			bool shadowCopy = false)
 		{
-			var assembly = new XunitProjectAssembly
+			var project = new XunitProject();
+			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
 				ConfigFilename = configFilePath
@@ -185,7 +187,8 @@ namespace Xunit.v3
 			int testsRun = DefaultCountRun,
 			int testsSkipped = DefaultCountSkipped)
 		{
-			var assembly = new XunitProjectAssembly
+			var project = new XunitProject();
+			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
 				ConfigFilename = configFilePath
@@ -223,7 +226,8 @@ namespace Xunit.v3
 			int maxParallelThreads = 2600,
 			bool parallelizeTestCollections = false)
 		{
-			var assembly = new XunitProjectAssembly
+			var project = new XunitProject();
+			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
 				ConfigFilename = configFilePath

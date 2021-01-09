@@ -38,6 +38,9 @@ namespace Xunit.Runner.SystemConsole
 
 		public async ValueTask<int> EntryPoint()
 		{
+			var globalInternalDiagnosticMessages = false;
+			var noColor = false;
+
 			try
 			{
 				var reporters = GetAvailableRunnerReporters();
@@ -69,41 +72,35 @@ namespace Xunit.Runner.SystemConsole
 
 				await using var reporter = commandLine.ChooseReporter(reporters);
 
-				if (commandLine.Pause)
+				if (commandLine.Project.Configuration.PauseOrDefault)
 				{
 					Console.Write("Press any key to start execution...");
 					Console.ReadKey(true);
 					Console.WriteLine();
 				}
 
-				if (commandLine.Debug)
+				if (commandLine.Project.Configuration.DebugOrDefault)
 					Debugger.Launch();
 
-				logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, commandLine.InternalDiagnosticMessages, commandLine.NoColor);
+				// We will enable "global" internal diagnostic messages if any test assembly wanted them
+				globalInternalDiagnosticMessages = commandLine.Project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
+				noColor = commandLine.Project.Configuration.NoColorOrDefault;
+				logger = new ConsoleRunnerLogger(!noColor, consoleLock);
+				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, globalInternalDiagnosticMessages, noColor);
 				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
-				if (!reporter.ForceNoLogo && !commandLine.NoLogo)
+				if (!reporter.ForceNoLogo && !commandLine.Project.Configuration.NoLogoOrDefault)
 					PrintHeader();
 
 				var failCount = await RunProject(
 					commandLine.Project,
-					commandLine.ParallelizeAssemblies,
-					commandLine.ParallelizeTestCollections,
-					commandLine.MaxParallelThreads,
-					commandLine.DiagnosticMessages,
-					commandLine.NoColor,
-					commandLine.AppDomains,
-					commandLine.FailSkips,
-					commandLine.StopOnFail,
-					commandLine.InternalDiagnosticMessages,
 					reporterMessageHandler
 				);
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
 
-				if (commandLine.Wait)
+				if (commandLine.Project.Configuration.WaitOrDefault)
 				{
 					Console.WriteLine();
 					Console.Write("Press any key to continue...");
@@ -115,14 +112,14 @@ namespace Xunit.Runner.SystemConsole
 			}
 			catch (Exception ex)
 			{
-				if (!commandLine.NoColor)
+				if (!noColor)
 					ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
 
 				Console.WriteLine($"error: {ex.Message}");
 
-				if (commandLine.InternalDiagnosticMessages)
+				if (globalInternalDiagnosticMessages)
 				{
-					if (!commandLine.NoColor)
+					if (!noColor)
 						ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
 
 					Console.WriteLine(ex.StackTrace);
@@ -132,7 +129,7 @@ namespace Xunit.Runner.SystemConsole
 			}
 			finally
 			{
-				if (!commandLine.NoColor)
+				if (!noColor)
 					ConsoleHelper.ResetColor();
 			}
 		}
@@ -308,47 +305,27 @@ namespace Xunit.Runner.SystemConsole
 
 		async ValueTask<int> RunProject(
 			XunitProject project,
-			bool? parallelizeAssemblies,
-			bool? parallelizeTestCollections,
-			int? maxThreadCount,
-			bool diagnosticMessages,
-			bool noColor,
-			AppDomainSupport? appDomains,
-			bool failSkips,
-			bool stopOnFail,
-			bool internalDiagnosticMessages,
 			_IMessageSink reporterMessageHandler)
 		{
 			XElement? assembliesElement = null;
 			var clockTime = Stopwatch.StartNew();
 			var xmlTransformers = TransformFactory.GetXmlTransformers(project);
 			var needsXml = xmlTransformers.Count > 0;
-
-			if (!parallelizeAssemblies.HasValue)
-				parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
+			// TODO: Parallelize the ones that will parallelize, and then run the rest sequentially?
+			var parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
 
 			if (needsXml)
 				assembliesElement = new XElement("assemblies");
 
 			var originalWorkingFolder = Directory.GetCurrentDirectory();
 
-			if (parallelizeAssemblies.GetValueOrDefault())
+			if (parallelizeAssemblies)
 			{
 				var tasks = project.Assemblies.Select(
 					assembly => Task.Run(
 						() => ExecuteAssembly(
-							consoleLock,
 							assembly,
 							needsXml,
-							parallelizeTestCollections,
-							maxThreadCount,
-							diagnosticMessages,
-							noColor,
-							appDomains,
-							failSkips,
-							stopOnFail,
-							project.Filters,
-							internalDiagnosticMessages,
 							reporterMessageHandler
 						).AsTask()
 					)
@@ -363,18 +340,8 @@ namespace Xunit.Runner.SystemConsole
 				foreach (var assembly in project.Assemblies)
 				{
 					var assemblyElement = await ExecuteAssembly(
-						consoleLock,
 						assembly,
 						needsXml,
-						parallelizeTestCollections,
-						maxThreadCount,
-						diagnosticMessages,
-						noColor,
-						appDomains,
-						failSkips,
-						stopOnFail,
-						project.Filters,
-						internalDiagnosticMessages,
 						reporterMessageHandler
 					);
 
@@ -405,18 +372,8 @@ namespace Xunit.Runner.SystemConsole
 		}
 
 		async ValueTask<XElement?> ExecuteAssembly(
-			object consoleLock,
 			XunitProjectAssembly assembly,
 			bool needsXml,
-			bool? parallelizeTestCollections,
-			int? maxThreadCount,
-			bool diagnosticMessages,
-			bool noColor,
-			AppDomainSupport? appDomains,
-			bool failSkips,
-			bool stopOnFail,
-			XunitFilters filters,
-			bool internalDiagnosticMessages,
 			_IMessageSink reporterMessageHandler)
 		{
 			if (cancel)
@@ -427,26 +384,17 @@ namespace Xunit.Runner.SystemConsole
 			try
 			{
 				var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
-				if (!ValidateFileExists(consoleLock, assemblyFileName) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
-					return null;
-
-				assembly.Configuration.PreEnumerateTheories = commandLine.PreEnumerateTheories;
-				assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
-				assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
-
-				if (appDomains.HasValue)
-					assembly.Configuration.AppDomain = appDomains;
 
 				// Setup discovery and execution options with command-line overrides
 				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
-				executionOptions.SetStopOnTestFail(stopOnFail);
-				if (maxThreadCount.HasValue)
-					executionOptions.SetMaxParallelThreads(maxThreadCount);
-				if (parallelizeTestCollections.HasValue)
-					executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
+
+				// The normal default is true here, but we want it to be false for us by default
+				if (!assembly.Configuration.PreEnumerateTheories.HasValue)
+					discoveryOptions.SetPreEnumerateTheories(false);
 
 				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+				var noColor = assembly.Project.Configuration.NoColorOrDefault;
 				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
 				var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
 				var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
@@ -472,7 +420,7 @@ namespace Xunit.Runner.SystemConsole
 					discoverySink.Finished.WaitOne();
 
 					var testCasesDiscovered = discoverySink.TestCases.Count;
-					var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
+					var filteredTestCases = discoverySink.TestCases.Where(assembly.Configuration.Filters.Filter).ToList();
 					var testCasesToRun = filteredTestCases.Count;
 
 					var discoveryFinished = new TestAssemblyDiscoveryFinished
@@ -501,7 +449,7 @@ namespace Xunit.Runner.SystemConsole
 							resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 						if (longRunningSeconds > 0)
 							resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-						if (failSkips)
+						if (assembly.Configuration.FailSkipsOrDefault)
 							resultsSink = new DelegatingFailSkipSink(resultsSink);
 
 						using (resultsSink)
@@ -518,7 +466,7 @@ namespace Xunit.Runner.SystemConsole
 							};
 							reporterMessageHandler.OnMessage(executionFinished);
 
-							if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
+							if (assembly.Configuration.StopOnFailOrDefault && resultsSink.ExecutionSummary.Failed != 0)
 							{
 								Console.WriteLine("Canceling due to test failure...");
 								cancel = true;
@@ -536,7 +484,7 @@ namespace Xunit.Runner.SystemConsole
 				{
 					Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
 
-					if (internalDiagnosticMessages)
+					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 						Console.WriteLine(e.StackTrace);
 
 					e = e.InnerException;

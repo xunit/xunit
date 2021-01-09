@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common
 {
@@ -8,6 +9,15 @@ namespace Xunit.Runner.Common
 	public class XunitProjectAssembly
 	{
 		TestAssemblyConfiguration? configuration;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="XunitProjectAssembly"/> class.
+		/// </summary>
+		/// <param name="project">The project this assembly belongs to.</param>
+		public XunitProjectAssembly(XunitProject project)
+		{
+			Project = Guard.ArgumentNotNull(nameof(project), project);
+		}
 
 		/// <summary>
 		/// Gets the assembly display name. Will return the value "&lt;dynamic&gt;" if the
@@ -39,5 +49,10 @@ namespace Xunit.Runner.Common
 				return configuration;
 			}
 		}
+
+		/// <summary>
+		/// Gets the project that this project assembly belongs to.
+		/// </summary>
+		public XunitProject Project { get; }
 	}
 }
