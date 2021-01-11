@@ -67,11 +67,15 @@ namespace Xunit.Runner.SystemConsole
 			var result = new XunitProject();
 
 			foreach (var assembly in assemblies)
+			{
+				var targetFramework = AssemblyUtility.GetTargetFramework(assembly.assemblyFileName);
 				result.Add(new XunitProjectAssembly(result)
 				{
 					AssemblyFilename = GetFullPath(assembly.assemblyFileName),
 					ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.configFileName) : null,
+					TargetFramework = targetFramework
 				});
+			}
 
 			return result;
 		}

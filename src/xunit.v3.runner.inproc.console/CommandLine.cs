@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 
@@ -19,12 +20,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CommandLine"/> class.
 		/// </summary>
-		/// <param name="assemblyFileName">The assembly filename.</param>
+		/// <param name="assembly">The assembly under test.</param>
+		/// <param name="assemblyFileName">The optional assembly filename.</param>
 		/// <param name="args">The command line arguments passed to the Main method.</param>
 		/// <param name="fileExists">An optional delegate which checks for file existence.
 		/// Available as an override solely for testing purposes.</param>
 		protected CommandLine(
-			string assemblyFileName,
+			Assembly assembly,
+			string? assemblyFileName,
 			string[] args,
 			Predicate<string>? fileExists = null)
 		{
@@ -35,7 +38,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				for (var i = args.Length - 1; i >= 0; i--)
 					arguments.Push(args[i]);
 
-				Project = Parse(assemblyFileName, fileExists);
+				Project = Parse(assembly, assemblyFileName, fileExists);
 			}
 			catch (Exception ex)
 			{
@@ -95,17 +98,21 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Path.GetFullPath(fileName);
 
 		XunitProject GetProjectFile(
+			Assembly assembly,
 			string? assemblyFileName,
 			string? configFileName)
 		{
 			var project = new XunitProject();
-			var assembly = new XunitProjectAssembly(project)
+			var targetFramework = AssemblyUtility.GetTargetFramework(assembly);
+			var projectAssembly = new XunitProjectAssembly(project)
 			{
+				Assembly = assembly,
 				AssemblyFilename = assemblyFileName,
-				ConfigFilename = configFileName != null ? GetFullPath(configFileName) : null
+				ConfigFilename = configFileName != null ? GetFullPath(configFileName) : null,
+				TargetFramework = targetFramework
 			};
 
-			project.Add(assembly);
+			project.Add(projectAssembly);
 			return project;
 		}
 
@@ -122,19 +129,22 @@ namespace Xunit.Runner.InProc.SystemConsole
 		/// Parses the command line, and returns an instance of <see cref="CommandLine"/> that
 		/// has been populated based on the command line options that were passed.
 		/// </summary>
+		/// <param name="assembly">The assembly under test.</param>
 		/// <param name="assemblyFileName">The optional assembly filename.</param>
 		/// <param name="args">The command line arguments passed to the Main method.</param>
 		/// <returns>The instance of the <see cref="CommandLine"/> object.</returns>
 		public static CommandLine Parse(
-			string assemblyFileName,
+			Assembly assembly,
+			string? assemblyFileName,
 			params string[] args) =>
-				new CommandLine(assemblyFileName, args);
+				new CommandLine(assembly, assemblyFileName, args);
 
 		/// <summary>
 		/// For testing purposes only. Do not use.
 		/// </summary>
 		protected XunitProject Parse(
-			string assemblyFileName,
+			Assembly assembly,
+			string? assemblyFileName,
 			Predicate<string> fileExists)
 		{
 			var configFileName = default(string);
@@ -148,7 +158,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					throw new ArgumentException($"config file not found: {configFileName}");
 			}
 
-			var project = GetProjectFile(assemblyFileName, configFileName);
+			var project = GetProjectFile(assembly, assemblyFileName, configFileName);
 
 			while (arguments.Count > 0)
 			{
@@ -168,14 +178,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 				else if (optionName == "failskips")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.FailSkips = true;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.FailSkips = true;
 				}
 				else if (optionName == "stoponfail")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.StopOnFail = true;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.StopOnFail = true;
 				}
 				else if (optionName == "nocolor")
 				{
@@ -195,8 +205,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 				else if (optionName == "preenumeratetheories")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.PreEnumerateTheories = true;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.PreEnumerateTheories = true;
 				}
 				else if (optionName == "debug")
 				{
@@ -206,8 +216,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 				else if (optionName == "serialize")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.IncludeSerialization = true;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.IncludeSerialization = true;
 				}
 				else if (optionName == "wait")
 				{
@@ -217,14 +227,14 @@ namespace Xunit.Runner.InProc.SystemConsole
 				else if (optionName == "diagnostics")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.DiagnosticMessages = true;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.DiagnosticMessages = true;
 				}
 				else if (optionName == "internaldiagnostics")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.InternalDiagnosticMessages = true;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.InternalDiagnosticMessages = true;
 				}
 				else if (optionName == "maxthreads")
 				{
@@ -252,8 +262,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 							break;
 					}
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.MaxParallelThreads = maxParallelThreads;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.MaxParallelThreads = maxParallelThreads;
 				}
 				else if (optionName == "parallel")
 				{
@@ -269,8 +279,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 						_ => false,
 					};
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
 				}
 				else if (optionName == "trait")
 				{
@@ -284,8 +294,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 					var name = pieces[0];
 					var value = pieces[1];
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedTraits.Add(name, value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedTraits.Add(name, value);
 				}
 				else if (optionName == "notrait")
 				{
@@ -299,56 +309,56 @@ namespace Xunit.Runner.InProc.SystemConsole
 					var name = pieces[0];
 					var value = pieces[1];
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedTraits.Add(name, value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedTraits.Add(name, value);
 				}
 				else if (optionName == "class")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -class");
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedClasses.Add(option.Value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedClasses.Add(option.Value);
 				}
 				else if (optionName == "noclass")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -noclass");
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedClasses.Add(option.Value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedClasses.Add(option.Value);
 				}
 				else if (optionName == "method")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -method");
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedMethods.Add(option.Value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedMethods.Add(option.Value);
 				}
 				else if (optionName == "nomethod")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -nomethod");
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedMethods.Add(option.Value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedMethods.Add(option.Value);
 				}
 				else if (optionName == "namespace")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -namespace");
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedNamespaces.Add(option.Value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedNamespaces.Add(option.Value);
 				}
 				else if (optionName == "nonamespace")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -nonamespace");
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedNamespaces.Add(option.Value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedNamespaces.Add(option.Value);
 				}
 				else
 				{

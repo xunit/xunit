@@ -17,10 +17,11 @@ namespace Xunit.v3
 		public const int DefaultCountRun = 2112;
 		public const int DefaultCountSkipped = 6;
 		public static int[] DefaultExceptionParentIndices = new[] { -1 };
-		public static string?[] DefaultExceptionTypes = new[] { typeof(DivideByZeroException).FullName };
 		public static string[] DefaultExceptionMessages = new[] { "Attempted to divide by zero. Did you really think that was going to work?" };
-		public static string?[] DefaultStackTraces = new[] { $"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod" };
+		public static string?[] DefaultExceptionTypes = new[] { typeof(DivideByZeroException).FullName };
 		public const decimal DefaultExecutionTime = 123.4567m;
+		public static string?[] DefaultStackTraces = new[] { $"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod" };
+		public const string DefaultTargetFramework = ".NETMagic,Version=v98.76.54";
 		public const string DefaultTestCaseUniqueID = "test-case-id";
 		public const string DefaultTestClassUniqueID = "test-class-id";
 		public const string DefaultTestCollectionUniqueID = "test-collection-id";
@@ -72,7 +73,7 @@ namespace Xunit.v3
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			string? configFilePath = DefaultConfigFilePath,
 			DateTimeOffset? startTime = null,
-			string targetFramework = ".NETMagic,Version=v98.76.54",
+			string targetFramework = DefaultTargetFramework,
 			string testEnvironment = "test-environment",
 			string testFrameworkDisplayName = "test-framework") =>
 				new _TestAssemblyStarting
@@ -105,6 +106,7 @@ namespace Xunit.v3
 		public static TestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
 			string assemblyPath = DefaultAssemblyPath,
 			string configFilePath = DefaultConfigFilePath,
+			string targetFramework = DefaultTargetFramework,
 			bool diagnosticMessages = false,
 			bool internalDiagnosticMessages = false,
 			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
@@ -117,7 +119,8 @@ namespace Xunit.v3
 			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath
+				ConfigFilename = configFilePath,
+				TargetFramework = targetFramework
 			};
 			// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
@@ -142,6 +145,7 @@ namespace Xunit.v3
 			AppDomainOption appDomain = AppDomainOption.Disabled,
 			string assemblyPath = DefaultAssemblyPath,
 			string configFilePath = DefaultConfigFilePath,
+			string targetFramework = DefaultTargetFramework,
 			bool diagnosticMessages = false,
 			bool internalDiagnosticMessages = false,
 			TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
@@ -153,7 +157,8 @@ namespace Xunit.v3
 			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath
+				ConfigFilename = configFilePath,
+				TargetFramework = targetFramework
 			};
 			// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
@@ -177,6 +182,7 @@ namespace Xunit.v3
 		public static TestAssemblyExecutionFinished TestAssemblyExecutionFinished(
 			string assemblyPath = DefaultAssemblyPath,
 			string configFilePath = DefaultConfigFilePath,
+			string targetFramework = DefaultTargetFramework,
 			bool diagnosticMessages = false,
 			decimal executionTime = 123.4567m,
 			bool internalDiagnosticMessages = false,
@@ -191,7 +197,8 @@ namespace Xunit.v3
 			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath
+				ConfigFilename = configFilePath,
+				TargetFramework = targetFramework
 			};
 			// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 			var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
@@ -221,6 +228,7 @@ namespace Xunit.v3
 		public static TestAssemblyExecutionStarting TestAssemblyExecutionStarting(
 			string assemblyPath = DefaultAssemblyPath,
 			string configFilePath = DefaultConfigFilePath,
+			string targetFramework = DefaultTargetFramework,
 			bool diagnosticMessages = false,
 			bool internalDiagnosticMessages = false,
 			int maxParallelThreads = 2600,
@@ -230,7 +238,8 @@ namespace Xunit.v3
 			var assembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath
+				ConfigFilename = configFilePath,
+				TargetFramework = targetFramework
 			};
 			// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 			var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration

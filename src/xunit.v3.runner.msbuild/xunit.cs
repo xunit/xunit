@@ -190,7 +190,13 @@ namespace Xunit.Runner.MSBuild
 						if (configFileName != null && configFileName.Length == 0)
 							configFileName = null;
 
-						var projectAssembly = new XunitProjectAssembly(project) { AssemblyFilename = assemblyFileName, ConfigFilename = configFileName };
+						var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
+						var projectAssembly = new XunitProjectAssembly(project)
+						{
+							AssemblyFilename = assemblyFileName,
+							ConfigFilename = configFileName,
+							TargetFramework = targetFramework
+						};
 						projectAssembly.Configuration.IncludeSerialization = SerializeTestCases;
 						if (shadowCopy.HasValue)
 							projectAssembly.Configuration.ShadowCopy = shadowCopy;

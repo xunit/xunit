@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.InProc.SystemConsole;
@@ -521,7 +522,7 @@ public class CommandLineTests
 		private TestableCommandLine(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] arguments)
-				: base("assemblyName.dll", arguments, filename => !filename.StartsWith("badConfig.") && filename != "fileName")
+				: base(Assembly.GetExecutingAssembly(), "assemblyName.dll", arguments, filename => !filename.StartsWith("badConfig.") && filename != "fileName")
 		{
 			if (ParseFault == null)
 			{

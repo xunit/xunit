@@ -50,7 +50,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			this.testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", testAssembly ?? Assembly.GetEntryAssembly());
 			this.consoleLock = consoleLock ?? new object();
 
-			commandLine = CommandLine.Parse(this.testAssembly.Location, args);
+			commandLine = CommandLine.Parse(this.testAssembly, this.testAssembly.Location, args);
 
 			this.runnerReporters =
 				runnerReporters != null
