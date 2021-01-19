@@ -1,0 +1,634 @@
+---
+layout: default
+title: "Getting started: .NET Framework with command line"
+breadcrumb: Documentation
+---
+
+<h1>Getting Started with xUnit.net</h1>
+<h2>Using .NET Framework with the .NET SDK command line</h2>
+
+<p>
+  In this article, we will demonstrate getting started with xUnit.net and .NET Framework,
+  showing you how to write and run your first set of unit tests.
+</p>
+
+<ul>
+  <li><a href="#download-dotnet">Download the .NET SDK</a></li>
+  <li><a href="#download-mono">Download Mono (non-Windows machines)</a></li>
+  <li><a href="#create-project">Create the unit test project</a></li>
+  <li><a href="#test-target">Setting up a unit test MSBuild target</a></li>
+  <li><a href="#write-first-tests">Write your first tests</a></li>
+  <li><a href="#write-first-theory">Write your first theory</a></li>
+  <li><a href="#run-tests-visualstudio">Run tests with Visual Studio</a></li>
+</ul>
+
+<p><em>
+  Note: The examples were done with xUnit.net v2.4.1, .NET SDK 5.0.102, and
+  .NET Framework 4.8. The version numbers, paths, and generated templates may differ
+  for you, depending on which version you're using. Note that .NET Framework 4.5.2
+  and later is supported.
+</em></p>
+
+<h2 id="download-dotnet">Download the .NET SDK</h2>
+
+<p>
+  Although the .NET SDK was designed originally to support .NET Core, it can
+  also be used to allow cross-platform .NET Framework development. We will
+  use it to build our projects. You may also opt to use the command line tools
+  from Visual Studio, though that is outside the scope of this document.
+</p>
+<p>
+  As of this writing, the .NET SDK is available for
+  <a href="https://dotnet.microsoft.com/download">download</a> for Windows,
+  Linux, and macOS. Once you've downloaded and installed the SDK, open a fresh
+  command prompt of your choice (CMD, PowerShell, Bash, etc.) and make sure
+  that you can access the CLI by typing <code>dotnet --version</code>. You
+  should be rewarded with a single line, describing the version of the
+  .NET Core SDK you have installed:
+</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet --version</span>
+5.0.102
+</pre>
+
+<p><em>
+  Note: the first time you run the <code>dotnet</code> command, it may
+  perform some post-installation steps. Once these one-time actions are done,
+  it will execute your command.
+</em></p>
+
+<h2 id="download-mono">Download Mono (non-Windows machines)</h2>
+
+<p>
+  While you can use the .NET SDK to build .NET Framework apps on non-Windows machines,
+  you still need a way to <em>run</em> them. That means Mono. If you are using a
+  non-Windows machine, <a href="https://www.mono-project.com/download/stable/">download
+  and install Mono</a> on your machine.
+</p>
+
+<h2 id="create-project">Create the unit test project</h2>
+
+<p>
+  From the command line, create a folder for your test project, change into it,
+  and then create an empty solution file using <code>dotnet new</code>:
+</p>
+
+<pre>
+$ <span style="background-color: #ff0">mkdir MyFirstUnitTests</span>
+$ <span style="background-color: #ff0">cd MyFirstUnitTests</span>
+$ <span style="background-color: #ff0">dotnet new sln</span>
+The template "Solution File" was created successfully.
+</pre>
+
+<p>
+  Now we will create a unit test project, again with <code>dotnet new</code>,
+  and add it to our solution:
+</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet new xunit</span>
+The template "xUnit Test Project" was created successfully.
+
+Processing post-creation actions...
+Running 'dotnet restore' on ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj...
+  Determining projects to restore...
+  Restored ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj (in 217 ms).
+Restore succeeded.
+
+$ <span style="background-color: #ff0">dotnet sln add .</span>
+Project `MyFirstUnitTests.csproj` added to the solution.
+</pre>
+
+<p>
+  Because the .NET SDK command line tool is optimized around supporting .NET Core,
+  it created a unit test project that targets the incorrect framework. Open up your
+  text editor and change the contents of the <code>.csproj</code> file to match
+  the contents here:
+</p>
+
+{% highlight xml %}
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference
+        Include="Microsoft.NETFramework.ReferenceAssemblies"
+        Version="1.0.0"
+        Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.console" Version="2.4.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
+{% endhighlight %}
+
+<p>Let's quickly review what's in this project file:</p>
+
+<ul>
+  <li>
+    <code>TargetFramework</code> specifies the target framework for your test project. You will
+    use the target framework name that matches the version of .NET Framework that you intend
+    to target (our example uses <code>net48</code>, which is .NET Framework 4.8).
+  </li>
+  <li>
+    The <code>xunit</code> package brings in three child packages which include functionality
+    that most developers want: <code>xunit.core</code> (the testing framework itself),
+    <code>xunit.assert</code> (the library which contains the <code>Assert</code> class),
+    and <code>xunit.analyzers</code> (which enables Roslyn analyzers to detect common issues
+    with unit tests and xUnit.net extensibility).
+  </li>
+  <li>
+    The <code>xunit.runner.console</code> package includes a .NET Framework command line
+    application. This package brings a binary that you can run, rather than a library you
+    link against (as is the more common usage for NuGet packages). We will discuss different
+    ways you can run the unit tests later in this article.
+  </li>
+  <li>
+    Lastly, the <code>Microsoft.NETFramework.ReferenceAssemblies</code> package includes the
+    reference libraries used to build your .NET Framework application. This is useful both
+    for Windows users (so they don't have to install the .NET Framework SDK for the specific
+    version you're targeting) as well as non-Windows users (which don't have the option
+    to install the .NET Framework SDK, since it's only available for Windows).
+  </li>
+</ul>
+
+<p>A single empty unit test was also generated into <code>UnitTest1.cs</code>:</p>
+
+{% highlight C# %}
+using System;
+using Xunit;
+
+namespace MyFirstUnitTests
+{
+    public class UnitTest1
+    {
+        [Fact]
+        public void Test1()
+        {
+
+        }
+    }
+}
+{% endhighlight %}
+
+<p>Let's build everything and take a look at our output folder:</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet build</span>
+Microsoft (R) Build Engine version 16.8.3+39993bd9d for .NET
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Determining projects to restore...
+  Restored ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj (in 93 ms).
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.82
+
+$ <span style="background-color: #ff0">dir bin/Debug/net48</span>
+MyFirstUnitTests.dll
+MyFirstUnitTests.pdb
+xunit.abstractions.dll
+xunit.assert.dll
+xunit.core.dll
+xunit.execution.desktop.dll
+</pre>
+
+<p>
+  We see our binary there, along with the <code>xunit.*</code> dependency DLLs. What we
+  don't see, though, is the console runner. That's because the console runner reference
+  doesn't bring any libraries; it only brings binaries.
+</p>
+
+<p>We can see those binaries by peeking into our NuGet package cache:</p>
+
+<pre>
+$ <span style="background-color: #ff0">find ~/.nuget/packages/xunit.runner.console/2.4.1 -name "*.exe"</span>
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.x86.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net46/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net46/xunit.console.x86.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net461/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net461/xunit.console.x86.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net462/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net462/xunit.console.x86.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net47/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net47/xunit.console.x86.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net471/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net471/xunit.console.x86.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe
+~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.x86.exe
+</pre>
+
+<p>
+  At the time we shipped xUnit.net 2.4.1, we provided versions of <code>xunit.console.exe</code>
+  compiled against every supported version of .NET Framework that existed at the time (the only one
+  that's missing is .NET 4.8, since it's newer than xUnit.net 2.4.1, though of course the version
+  that's compiled against .NET 4.7.2 will work just fine for running 4.8 tests).
+</p>
+
+<p>
+  You'll also note that we ship versions that are compiled to run as 32-bit on 64-bit OSes, named
+  <code>xunit.console.x86.exe</code>. This feature, though, only works on Windows. When you install
+  .NET Framework on Windows, it installs both a 32-bit and 64-bit version that live side-by-side,
+  and the launcher on Windows will detect whether your program is compiled for 32-bit, 64-bit,
+  or agnostic, and use the appropriate version of .NET Framework. When running on non-Windows machines,
+  you'll be running using Mono, and that only ships a 64-bit versions for Linux and macOS.
+</p>
+
+<p>
+  Now let's verify that everything is working. Windows user can run the console runner directly,
+  whereas Linux and macOS users may need to invoke the console runner using the <code>mono</code>
+  application.
+</p>
+
+<h3>Windows</h3>
+
+<pre>
+$ <span style="background-color: #ff0">~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe bin/Debug/net48/MyFirstUnitTests.dll</span>
+xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
+  Discovering: MyFirstUnitTests
+  Discovered:  MyFirstUnitTests
+  Starting:    MyFirstUnitTests
+  Finished:    MyFirstUnitTests
+=== TEST EXECUTION SUMMARY ===
+   MyFirstUnitTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Time: 0.082s
+</pre>
+
+<h3>Non-Windows</h3>
+
+<pre>
+$ <span style="background-color: #ff0">mono ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe bin/Debug/net48/MyFirstUnitTests.dll</span>
+xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
+  Discovering: MyFirstUnitTests
+  Discovered:  MyFirstUnitTests
+  Starting:    MyFirstUnitTests
+  Finished:    MyFirstUnitTests
+=== TEST EXECUTION SUMMARY ===
+   MyFirstUnitTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Time: 0.082s
+</pre>
+
+<p>Excellent! Everything is running.</p>
+
+<h2 id="test-target">Setting up a unit test MSBuild target</h2>
+
+<p>
+  You may have noticed that it's kind of cumbersome running tests this way from the command
+  line. Luckily, we can take advantage of extensibility in MSBuild to do this for us
+  (and, conveniently, the <code>.csproj</code> file is an MSBuild project file).
+</p>
+
+<p>
+  If you dig around inside the <code>~/.nuget/packages/xunit.console/2.4.1/build</code> folder,
+  you'll notice that there is a <code>.props</code> file there. Among other things, it pre-defines
+  some MSBuild properties that we can use when writing our own custom tasks:
+</p>
+
+{% highlight xml %}
+[...]
+  <!-- Version specific -->
+  <XunitConsole452Path>$(MSBuildThisFileDirectory)../tools/net452/xunit.console.exe</XunitConsole452Path>
+  <XunitConsole452PathX86>$(MSBuildThisFileDirectory)../tools/net452/xunit.console.x86.exe</XunitConsole452PathX86>
+  <XunitConsole46Path>$(MSBuildThisFileDirectory)../tools/net46/xunit.console.exe</XunitConsole46Path>
+  <XunitConsole46PathX86>$(MSBuildThisFileDirectory)../tools/net46/xunit.console.x86.exe</XunitConsole46PathX86>
+  <XunitConsole461Path>$(MSBuildThisFileDirectory)../tools/net461/xunit.console.exe</XunitConsole461Path>
+  <XunitConsole461PathX86>$(MSBuildThisFileDirectory)../tools/net461/xunit.console.x86.exe</XunitConsole461PathX86>
+  <XunitConsole462Path>$(MSBuildThisFileDirectory)../tools/net462/xunit.console.exe</XunitConsole462Path>
+  <XunitConsole462PathX86>$(MSBuildThisFileDirectory)../tools/net462/xunit.console.x86.exe</XunitConsole462PathX86>
+  <XunitConsole47Path>$(MSBuildThisFileDirectory)../tools/net47/xunit.console.exe</XunitConsole47Path>
+  <XunitConsole47PathX86>$(MSBuildThisFileDirectory)../tools/net47/xunit.console.x86.exe</XunitConsole47PathX86>
+  <XunitConsole471Path>$(MSBuildThisFileDirectory)../tools/net471/xunit.console.exe</XunitConsole471Path>
+  <XunitConsole471PathX86>$(MSBuildThisFileDirectory)../tools/net471/xunit.console.x86.exe</XunitConsole471PathX86>
+  <XunitConsole472Path>$(MSBuildThisFileDirectory)../tools/net472/xunit.console.exe</XunitConsole472Path>
+  <XunitConsole472PathX86>$(MSBuildThisFileDirectory)../tools/net472/xunit.console.x86.exe</XunitConsole472PathX86>
+[...]
+{% endhighlight %}
+
+<p>
+  First, update the <code>PropertyGroup</code> to include a new conditional value. We'll define
+  an <code>XunitConsole</code> property which will point to our chosen console runner, and when
+  running on non-Windows OSes, will make sure we run it using Mono:
+</p>
+
+{% highlight xml %}
+<XunitConsole Condition=" '$(OS)' == 'Windows_NT' ">&quot;$(XunitConsole472Path)&quot;</XunitConsole>
+<XunitConsole Condition=" '$(OS)' != 'Windows_NT' ">mono &quot;$(XunitConsole472Path)&quot;</XunitConsole>
+{% endhighlight %}
+
+<p>
+  Second, let's add a new <code>Target</code> to our project file:
+</p>
+
+{% highlight xml %}
+<Target Name="Test" DependsOnTargets="Build">
+  <Exec
+      Command="$(XunitConsole) $(TargetFileName)"
+      WorkingDirectory="$(TargetDir)" />
+</Target>
+{% endhighlight %}
+
+<p>This is what our total <code>.csproj</code> file should look like now:</p>
+
+{% highlight xml %}
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <XunitConsole Condition=" '$(OS)' == 'Windows_NT' ">&quot;$(XunitConsole472Path)&quot;</XunitConsole>
+    <XunitConsole Condition=" '$(OS)' != 'Windows_NT' ">mono &quot;$(XunitConsole472Path)&quot;</XunitConsole>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference
+        Include="Microsoft.NETFramework.ReferenceAssemblies"
+        Version="1.0.0"
+        Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.console" Version="2.4.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="Test" DependsOnTargets="Build">
+    <Exec
+        Command="$(XunitConsole) $(TargetFileName)"
+        WorkingDirectory="$(TargetDir)" />
+  </Target>
+
+</Project>
+{% endhighlight %}
+
+<p>Now we can use <code>dotnet build</code> to run our tests:</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet build -t:Test</span>
+Microsoft (R) Build Engine version 16.8.3+39993bd9d for .NET
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MyFirstUnitTests -> /home/bradwilson/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll
+  xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
+    Discovering: MyFirstUnitTests
+    Discovered:  MyFirstUnitTests
+    Starting:    MyFirstUnitTests
+    Finished:    MyFirstUnitTests
+  === TEST EXECUTION SUMMARY ===
+     MyFirstUnitTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Time: 0.063s
+
+<span style="color: #080">Build succeeded.</span>
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.49
+</pre>
+
+<p>
+  This runs our <code>Test</code> target, which will first build our project (since the
+  target included <code>DependsOnTargets="Build"</code>).
+</p>
+
+<p>Let's go replace that empty unit test with our first real tests.</p>
+
+<h2 id="write-first-tests">Write your first tests</h2>
+
+<p>
+  Using your favorite text editor, open the <code>UnitTest1.cs</code> file and add a
+  couple tests:
+</p>
+
+{% highlight C# %}
+using Xunit;
+
+namespace MyFirstUnitTests
+{
+    public class UnitTest1
+    {
+        [Fact]
+        public void PassingTest()
+        {
+            Assert.Equal(4, Add(2, 2));
+        }
+
+        [Fact]
+        public void FailingTest()
+        {
+            Assert.Equal(5, Add(2, 2));
+        }
+
+        int Add(int x, int y)
+        {
+            return x + y;
+        }
+    }
+}
+{% endhighlight %}
+
+<p>Now let's go run the tests again and see what happens:</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet build -t:Test</span>
+Microsoft (R) Build Engine version 16.8.3+39993bd9d for .NET
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll
+  xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
+    Discovering: MyFirstUnitTests
+    Discovered:  MyFirstUnitTests
+    Starting:    MyFirstUnitTests
+      MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+        Assert.Equal() Failure
+        Expected: 5
+        Actual:   4
+        Stack Trace:
+          ~/dev/MyFirstUnitTests/UnitTest1.cs(16,0): at MyFirstUnitTests.UnitTest1.FailingTest()
+    Finished:    MyFirstUnitTests
+  === TEST EXECUTION SUMMARY ===
+     MyFirstUnitTests  Total: 2, Errors: 0, Failed: 1, Skipped: 0, Time: 0.150s
+<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+
+Build FAILED.
+
+<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+    0 Warning(s)
+<span style="color: #e03030">    1 Error(s)</span>
+
+Time Elapsed 00:00:01.60
+</pre>
+
+<p>
+  Now that we've gotten your first unit tests to run, let's introduce one more
+  way to write tests: using theories.
+</p>
+
+<h2 id="write-first-theory">Write your first theory</h2>
+
+<p>
+  You may have wondered why your first unit tests use an attribute named
+  <code>[Fact]</code> rather than one with a more traditional name like Test.
+  xUnit.net includes support for two different major types of unit tests:
+  facts and theories. When describing the difference between facts and theories,
+  we like to say:
+</p>
+
+<blockquote>
+  <p><em><strong>Facts</strong> are tests which are always true. They test invariant conditions.</em></p>
+  <p><em><strong>Theories</strong> are tests which are only true for a particular set of data.</em></p>
+</blockquote>
+
+<p>
+  A good example of this is testing numeric algorithms. Let's say you want to
+  test an algorithm which determines whether a number is odd or not. If you're
+  writing the positive-side tests (odd numbers), then feeding even numbers
+  into the test would cause it fail, and not because the test or algorithm
+  is wrong.
+</p>
+
+<p>
+  Let's add a theory to our existing facts (including a bit of bad data, so we
+  can see it fail):
+</p>
+
+{% highlight C# %}
+[Theory]
+[InlineData(3)]
+[InlineData(5)]
+[InlineData(6)]
+public void MyFirstTheory(int value)
+{
+    Assert.True(IsOdd(value));
+}
+
+bool IsOdd(int value)
+{
+    return value % 2 == 1;
+}
+{% endhighlight %}
+
+<p>This time when we run our tests, we see a second failure, for our theory that was given 6:</p>
+
+<pre>
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll
+  xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
+    Discovering: MyFirstUnitTests
+    Discovered:  MyFirstUnitTests
+    Starting:    MyFirstUnitTests
+      MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+        Assert.Equal() Failure
+        Expected: 5
+        Actual:   4
+        Stack Trace:
+          ~/dev/MyFirstUnitTests/UnitTest1.cs(16,0): at MyFirstUnitTests.UnitTest1.FailingTest()
+      MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+        Assert.True() Failure
+        Expected: True
+        Actual:   False
+        Stack Trace:
+          ~/dev/MyFirstUnitTests/UnitTest1.cs(30,0): at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value)
+    Finished:    MyFirstUnitTests
+  === TEST EXECUTION SUMMARY ===
+     MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Time: 0.171s
+<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+
+Build FAILED.
+
+<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+    0 Warning(s)
+<span style="color: #e03030">    1 Error(s)</span>
+
+Time Elapsed 00:00:01.14
+</pre>
+
+<p>
+  Although we've only written 3 test methods, the test runner actually ran
+  5 tests; that's because each theory with its data set is a separate test.
+  Note also that the runner tells you exactly which set of data failed, because
+  it includes the parameter values in the name of the test.
+</p>
+
+<h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
+
+<p class="important">
+  <strong>If you're having problems discovering or running tests,</strong> you may be a victim
+  of a corrupted runner cache inside Visual Studio. To clear this cache, shut down all instances
+  of Visual Studio, then delete the folder <code>%TEMP%/VisualStudioTestExplorerExtensions</code>.
+  Also make sure your solution is only linked against a single version of the Visual Studio runner
+  NuGet package (<code>xunit.runner.visualstudio</code>).
+</p>
+
+<p>
+  If you have Visual Studio Community (or a paid-for version of Visual Studio), you can run your
+  xUnit.net tests within Visual Studio's built-in test runner (named Test Explorer). Unfortunately,
+  this does not include Express editions of Visual Studio (you should upgrade to the free
+  <a href="https://visualstudio.microsoft.com/vs/community/">Community Edition</a> instead).
+</p>
+
+<p>
+  Edit your <code>.csproj</code> file and add two package references (<code>xunit.runner.visualstudio</code>
+  and <code>Microsoft.NET.Test.Sdk</code>). Your updated <code>ItemGroup</code> should look like this:
+</p>
+
+{% highlight xml %}
+<ItemGroup>
+  <PackageReference
+      Include="Microsoft.NETFramework.ReferenceAssemblies"
+      Version="1.0.0"
+      Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PrivateAssets>all</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+  <PackageReference Include="xunit" Version="2.4.1" />
+  <PackageReference Include="xunit.runner.console" Version="2.4.1" />
+  <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PrivateAssets>all</PrivateAssets>
+  </PackageReference>
+</ItemGroup>
+{% endhighlight %}
+
+<p>
+  Now open your solution with Visual Studio. (The screen shots and menu items here are
+  taken from Visual Studio 2019; your version may be slightly different.)
+</p>
+
+<p>
+  Make sure Test Explorer is visible (go to <code>Test &gt; Test Explorer</code>). Depending
+  on the version of Visual Studio you have, you may need to build your test assembly before tests
+  are discovered. After a moment of discovery, you should see the list of discovered tests:
+</p>
+
+<p><img class="border" src="/images/running-tests-in-vs/test-explorer-vs2019.png" width="390" /></p>
+
+<p>
+  Click the <code>Run All</code> link in the Test Explorer window, and you should see the results update
+  in the Test Explorer window as the tests are run:
+</p>
+
+<p><img class="border" src="/images/running-tests-in-vs/test-explorer-post-run-vs2019.png" width="818" /></p>
+
+<p>
+  You can click on a failed test to see the failure message, and the stack trace. You can click on the
+  stack trace lines to take you directly to the failing line of code.
+</p>
