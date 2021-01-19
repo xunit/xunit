@@ -13,8 +13,8 @@ redirect_from:
 <h2>Using .NET Core with the .NET SDK command line</h2>
 
 <p>
-  In this article, we will demonstrate getting started with xUnit.net and .NET Core,
-  showing you how to write and run your first set of unit tests.
+  In this article, we will demonstrate getting started with xUnit.net and .NET Core
+  (including .NET 5), showing you how to write and run your first set of unit tests.
 </p>
 
 <ul>
@@ -22,15 +22,15 @@ redirect_from:
   <li><a href="#create-project">Create the unit test project</a></li>
   <li><a href="#write-first-tests">Write your first tests</a></li>
   <li><a href="#write-first-theory">Write your first theory</a></li>
-  <li><a href="#multi-targeting">Running tests against multiple targets</a></li>
+  <li><a href="#multi-targeting">Running tests against multiple target frameworks</a></li>
   <li><a href="#run-tests-visualstudio">Run tests with Visual Studio</a></li>
 </ul>
 
 <p><em>
-  Note: The examples were done with xUnit.net v2.4.1, .NET Core SDK 2.2.103, and
-  .NET Core 2.1. The version numbers, paths, and generated templates may differ for
-  you, depending on which version you're using. Note that .NET Core 1.x and 2.x are
-  supported.
+  Note: The examples were done with xUnit.net v2.4.1, .NET SDK 5.0.102, and
+  .NET 5.0. The version numbers, paths, and generated templates may differ for
+  you, depending on which version you're using. Note that .NET Core 1.x-3.x and
+  .NET 5.0+ are supported.
 </em></p>
 
 <h2 id="download-dotnet">Download the .NET SDK</h2>
@@ -47,7 +47,7 @@ redirect_from:
 
 <pre>
 $ <span style="background-color: #ff0">dotnet --version</span>
-2.2.103
+5.0.102
 </pre>
 
 <p><em>
@@ -59,94 +59,127 @@ $ <span style="background-color: #ff0">dotnet --version</span>
 <h2 id="create-project">Create the unit test project</h2>
 
 <p>
-  An xUnit.net test project for .NET Core, just like other xUnit.net test projects
-  for .NET, starts with a class library. From the command line, create a folder
-  for your test project, change into it, and then create the project:
+  From the command line, create a folder for your test project, change into it,
+  and then create the project using <code>dotnet new</code>:
 </p>
 
 <pre>
 $ <span style="background-color: #ff0">mkdir MyFirstUnitTests</span>
 $ <span style="background-color: #ff0">cd MyFirstUnitTests</span>
-$ <span style="background-color: #ff0">dotnet new classlib</span>
-The template "Class library" was created successfully.
+$ <span style="background-color: #ff0">dotnet new xunit</span>
+The template "xUnit Test Project" was created successfully.
 
 Processing post-creation actions...
-Running 'dotnet restore' on ~/src/MyFirstUnitTests/MyFirstUnitTests.csproj...
-  Restoring packages for ~/src/MyFirstUnitTests/MyFirstUnitTests.csproj...
-  Generating MSBuild file ~/src/MyFirstUnitTests/obj/MyFirstUnitTests.csproj.nuget.g.props.
-  Generating MSBuild file ~/src/MyFirstUnitTests/obj/MyFirstUnitTests.csproj.nuget.g.targets.
-  Restore completed in 141.23 ms for ~/src/MyFirstUnitTests/MyFirstUnitTests.csproj.
-
+Running 'dotnet restore' on ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj...
+  Determining projects to restore...
+  Restored ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj (in 217 ms).
 Restore succeeded.
 </pre>
 
 <p>
-  The result of this project template creates a .NET Standard class library. We
-  actually want a .NET Core application (since we're writing .NET Core tests),
-  so open the generated <code>.csproj</code> file and edit it so that it looks
-  like this:
+  If you look at the generated <code>MyFirstUnitTests.csproj</code> project file,
+  you should see content that looks something like this:
 </p>
 
 {% highlight xml %}
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="1.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
 {% endhighlight %}
 
-<p>We've made two important changes here:</p>
+<p>Let's quickly review what's in this project file:</p>
 
-<ol>
+<ul>
   <li>
-    We changed the target framework to <code>netcoreapp2.1</code>, which means
-    that our tests will use .NET Core 2.1.x (whatever is the latest version
-    installed on our machine);
+    <code>TargetFramework</code> specifies the target framework for your test project. By default
+    this will be the latest version of .NET Core that your system supports (in this example,
+    .NET 5.0). Later in this article, we will discuss <a href="#multi-targeting">running tests
+    against multiple target frameworks</a>.
   </li>
   <li>
-    We added a new package references to <code>xunit</code> and
-    <code>xunit.runner.visualstudio</code>. The former is the unit testing framework,
-    and the latter is the library that enables support for both command line and
-    Visual Studio execution.
+    <code>IsPackable</code> is here, though it is redundant (unit test projects cannot be packed
+    by default). You can safely remove this line if you wish.
   </li>
-</ol>
+  <li>
+    The <code>xunit</code> package brings in three child packages which include functionality
+    that most developers want: <code>xunit.core</code> (the testing framework itself),
+    <code>xunit.assert</code> (the library which contains the <code>Assert</code> class),
+    and <code>xunit.analyzers</code> (which enables Roslyn analyzers to detect common issues
+    with unit tests and xUnit.net extensibility).
+  </li>
+  <li>
+    The packages <code>xunit.runner.visualstudio</code> and <code>Microsoft.NET.Test.Sdk</code>
+    are required for being able to run your test project inside Visual Studio as well as with
+    <code>dotnet test</code>.
+  </li>
+  <li>
+    The <code>coverlet.collector</code> package allows collecting code coverage. If you don't
+    intend to collect code coverage, you should remove this package reference.
+  </li>
+</ul>
+
+<p>A single empty unit test was also generated into <code>UnitTest1.cs</code>:</p>
+
+{% highlight C# %}
+using System;
+using Xunit;
+
+namespace MyFirstUnitTests
+{
+    public class UnitTest1
+    {
+        [Fact]
+        public void Test1()
+        {
+
+        }
+    }
+}
+{% endhighlight %}
 
 <p>Now let's verify that everything is working:</p>
 
 <pre>
 $ <span style="background-color: #ff0">dotnet test</span>
-Build started, please wait...
-Build completed.
-
-Test run for ~/src/MyFirstUnitTests/bin/Debug/netcoreapp2.1/MyFirstUnitTests.dll(.NETCoreApp,Version=v2.1)
-Microsoft (R) Test Execution Command Line Tool Version 15.9.0
-Copyright (c) Microsoft Corporation. All rights reserved.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll
+Test run for ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll (.NETCoreApp,Version=v5.0)
+Microsoft (R) Test Execution Command Line Tool Version 16.8.3
+Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
-<b>No test is available in ~/src/MyFirstUnitTests/bin/Debug/netcoreapp2.1/MyFirstUnitTests.dll. Make sure
-that test discoverer & executors are registered and platform & framework version settings are appropriate
-and try again.</b>
+A total of 1 test files matched the specified pattern.
+
+<span style="color: #080">Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 1 ms</span> - MyFirstUnitTests.dll (net5.0)
 </pre>
 
-<p>
-  Excellent! There were no unit tests to run, because we didn't write any
-  yet. Let's do that now.
-</p>
+<p>Excellent! Let's go replace that empty unit test with our first real tests.</p>
 
 <h2 id="write-first-tests">Write your first tests</h2>
 
 <p>
-  When you created the project, the project template automatically created a file
-  named <code>Class1.cs</code>. Using your favorite text editor, open this file
-  and add a couple tests:
+  Using your favorite text editor, open the <code>UnitTest1.cs</code> file and add a
+  couple tests:
 </p>
 
 {% highlight C# %}
@@ -154,7 +187,7 @@ using Xunit;
 
 namespace MyFirstUnitTests
 {
-    public class Class1
+    public class UnitTest1
     {
         [Fact]
         public void PassingTest()
@@ -180,26 +213,25 @@ namespace MyFirstUnitTests
 
 <pre>
 $ <span style="background-color: #ff0">dotnet test</span>
-Build started, please wait...
-Build completed.
-
-Test run for ~/src/MyFirstUnitTests/bin/Debug/netcoreapp2.1/MyFirstUnitTests.dll(.NETCoreApp,Version=v2.1)
-Microsoft (R) Test Execution Command Line Tool Version 15.9.0
-Copyright (c) Microsoft Corporation. All rights reserved.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll
+Test run for ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll (.NETCoreApp,Version=v5.0)
+Microsoft (R) Test Execution Command Line Tool Version 16.8.3
+Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
-<span style="color: #e03030">[xUnit.net 00:00:01.8833990]     MyFirstUnitTests.Class1.FailingTest [FAIL]
-Failed   MyFirstUnitTests.Class1.FailingTest
-Error Message:
- Assert.Equal() Failure
+A total of 1 test files matched the specified pattern.
+<span style="color: #e03030">[xUnit.net 00:00:00.33]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]</span>
+  <span style="color: #e03030">Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [1 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.Equal() Failure
 Expected: 5
 Actual:   4
-Stack Trace:
-   at MyFirstUnitTests.Class1.FailingTest() in ~/src/MyFirstUnitTests/Class1.cs:line 16</span>
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Total tests: 2. Passed: 1. Failed: 1. Skipped: 0.
-<span style="color: #e03030">Test Run Failed.</span>
-Test execution time: 3.9954 Seconds
+Failed! - Failed: 1, Passed: 1, Skipped: 0, Total: 2, Duration: 4 ms</span> - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <p>
@@ -254,30 +286,29 @@ bool IsOdd(int value)
 <p>This time when we run our tests, we see a second failure, for our theory that was given 6:</p>
 
 <pre>
-Microsoft (R) Test Execution Command Line Tool Version 15.9.0
+Microsoft (R) Test Execution Command Line Tool Version 16.8.3
 Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
-<span style="color: #e03030">[xUnit.net 00:00:00.5661695]     MyFirstUnitTests.Class1.MyFirstTheory(value: 6) [FAIL]
-[xUnit.net 00:00:00.5701272]     MyFirstUnitTests.Class1.FailingTest [FAIL]
-Failed   MyFirstUnitTests.Class1.MyFirstTheory(value: 6)
-Error Message:
- Assert.True() Failure
+A total of 1 test files matched the specified pattern.
+<span style="color: #e03030">[xUnit.net 00:00:00.35]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.35]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+  Failed</span> MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [1 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.True() Failure
 Expected: True
 Actual:   False
-Stack Trace:
-   at MyFirstUnitTests.Class1.MyFirstTheory(Int32 value) in ~/src/MyFirstUnitTests/Class1.cs:line 30
-Failed   MyFirstUnitTests.Class1.FailingTest
-Error Message:
- Assert.Equal() Failure
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 30
+  Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [< 1 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.Equal() Failure
 Expected: 5
 Actual:   4
-Stack Trace:
-   at MyFirstUnitTests.Class1.FailingTest() in ~/src/MyFirstUnitTests/Class1.cs:line 16</span>
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Total tests: 5. Passed: 3. Failed: 2. Skipped: 0.
-<span style="color: #e03030">Test Run Failed.</span>
-Test execution time: 4.0307 Seconds
+Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 4 ms</span> - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <p>
@@ -287,109 +318,112 @@ Test execution time: 4.0307 Seconds
   it includes the parameter values in the name of the test.
 </p>
 
-<h2 id="multi-targeting">Running tests against multiple targets</h2>
-
-<p><em>
-  These instructions below will work for Windows, but you must take additional steps to be able
-  to support multi-targeting on non-Windows OSes. For more information, please see
-  <a href="../multi-target/non-windows">Getting Started with Multi-Targeting for non-Windows</a>.
-</em></p>
+<h2 id="multi-targeting">Running tests against multiple target frameworks</h2>
 
 <p>
   Sometimes, you want to write tests and ensure they run against several target
   application platforms. The xUnit.net test runner that we've been using supports
-  .NET Core 1.0 or later, as well as Desktop .NET 4.5.2 or later. With a single
-  test project, we can have our tests run against multiple target frameworks.
-  Open the <code>.csproj</code> file and change this:
+  .NET Core 1.0 or later, .NET 5.0 or later, and .NET Framework 4.5.2 or later.
+  With a single test project, we can have our tests run against multiple target
+  frameworks. Open the <code>.csproj</code> file and make the following change.
 </p>
 
+<p>Change <code>TargetFramework</code>:</strong></p>
+
 {% highlight xml %}
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-  </PropertyGroup>
+<PropertyGroup>
+  <TargetFramework>net5.0</TargetFramework>
+</PropertyGroup>
 {% endhighlight %}
 
-<p>To this:</p>
+<p>To <code>TargetFrameworks</code>:</p>
 
 {% highlight xml %}
-  <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.1</TargetFrameworks>
-  </PropertyGroup>
+<PropertyGroup>
+  <TargetFrameworks>net48;net5.0</TargetFrameworks>
+</PropertyGroup>
 {% endhighlight %}
 
 <p>
-  Note that in addition to adding a new target framework, we also renamed the
-  element from <code>&lt;TargetFramework&gt;</code> (singular) to
-  <code>&lt;TargetFrameworks&gt;</code>(plural). You can run against any
-  combination of .NET 4.5.2+ and/or .NET Core 1.0+, including multiple
-  desktop or .NET Core frameworks (for example, it's legal to have something like
-  <code>&lt;TargetFrameworks&gt;net452;net461;net47;netcoreapp1.0;netcoreapp2.0;netcoreapp2.1&lt;/TargetFrameworks&gt;</code>).
+  <code>dotnet test</code> supports any combination of .NET Core (including .NET 5+)
+  and .NET Framework targets. You can even include multiple versions of the same
+  target framework (for example, it's legal to have something like
+  <code>&lt;TargetFrameworks&gt;net452;net461;net48;netcoreapp2.1;netcoreapp3.1;net5.0&lt;/TargetFrameworks&gt;</code>).
+  Application authors will typically only use a single target framework, related to
+  the target framework the application is intended to run on. Library authors are more
+  likely to use several target frameworks, to ensure their tests run successfully on
+  all supported target frameworks.
+</p>
+
+<p class="note">
+  <code>dotnet test</code> with xUnit.net does not currently support .NET Framework on non-Windows
+  environments (like Linux and macOS). You can run .NET Framework tests in these environments using
+  <code>xunit.console.exe</code>, as discussed in <a href="/docs/getting-started/netfx/cmdline">Getting
+  Started with xUnit.net Using .NET Framework with the command line</a>.<br />
+  <br />
+  <em><strong>Related content:</strong> <a href="/docs/why-no-netstandard">Why doesn't xUnit.net support netstandard?</a></em>
 </p>
 
 <p>
-  Since we changed the <code>.csproj</code> file, we need to remember to re-run
-  <code>dotnet restore</code> before trying to run our unit tests. Now when
-  we run the tests, you can see that it runs both target frameworks, one after
+  Now when we run the tests, you can see that it runs both target frameworks, one after
   another:
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet restore</span>
-  [...]
 $ <span style="background-color: #ff0">dotnet test</span>
-Build started, please wait...
-Build completed.
-
-Test run for ~/src/MyFirstUnitTests/bin/Debug/net452/MyFirstUnitTests.dll(.NETFramework,Version=v4.5.2)
-Microsoft (R) Test Execution Command Line Tool Version 15.9.0
+  Determining projects to restore...
+  Restored ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj (in 238 ms).
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll
+  MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll
+Test run for ~/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll (.NETFramework,Version=v4.8)
+Microsoft (R) Test Execution Command Line Tool Version 16.8.3
 Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
-<span style="color: #e03030">[xUnit.net 00:00:00.43]     MyFirstUnitTests.Class1.MyFirstTheory(value: 6) [FAIL]
-[xUnit.net 00:00:00.44]     MyFirstUnitTests.Class1.FailingTest [FAIL]
-Failed   MyFirstUnitTests.Class1.MyFirstTheory(value: 6)
-Error Message:
- Assert.True() Failure
+A total of 1 test files matched the specified pattern.
+<span style="color: #e03030">[xUnit.net 00:00:00.31]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.32]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+  Failed</span> MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [2 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.True() Failure
 Expected: True
 Actual:   False
-Stack Trace:
-  at MyFirstUnitTests.Class1.MyFirstTheory (System.Int32 value) [0x00008] in &lt;ea38f081094e407290795149a3e20d66&gt;:0
-Failed   MyFirstUnitTests.Class1.FailingTest
-Error Message:
- Assert.Equal() Failure
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 30
+  Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [3 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.Equal() Failure
 Expected: 5
 Actual:   4
-Stack Trace:
-  at MyFirstUnitTests.Class1.FailingTest () [0x0000a] in &lt;ea38f081094e407290795149a3e20d66&gt;:0</span>
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Total tests: 5. Passed: 3. Failed: 2. Skipped: 0.
-<span style="color: #e03030">Test Run Failed.</span>
-Test execution time: 0.9188 Seconds
-Test run for ~/src/MyFirstUnitTests/bin/Debug/netcoreapp2.1/MyFirstUnitTests.dll(.NETCoreApp,Version=v2.1)
-Microsoft (R) Test Execution Command Line Tool Version 15.9.0
+Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 16 ms</span> - MyFirstUnitTests.dll (net48)
+
+Test run for ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll (.NETCoreApp,Version=v5.0)
+Microsoft (R) Test Execution Command Line Tool Version 16.8.3
 Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
-<span style="color: #e03030">[xUnit.net 00:00:00.54]     MyFirstUnitTests.Class1.MyFirstTheory(value: 6) [FAIL]
-[xUnit.net 00:00:00.54]     MyFirstUnitTests.Class1.FailingTest [FAIL]
-Failed   MyFirstUnitTests.Class1.MyFirstTheory(value: 6)
-Error Message:
- Assert.True() Failure
+A total of 1 test files matched the specified pattern.
+<span style="color: #e03030">[xUnit.net 00:00:00.38]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.38]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+  Failed</span> MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [3 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.True() Failure
 Expected: True
 Actual:   False
-Stack Trace:
-   at MyFirstUnitTests.Class1.MyFirstTheory(Int32 value) in ~/src/MyFirstUnitTests/Class1.cs:line 30
-Failed   MyFirstUnitTests.Class1.FailingTest
-Error Message:
- Assert.Equal() Failure
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 30
+  Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [< 1 ms]
+<span style="color: #e03030">  Error Message:
+   Assert.Equal() Failure
 Expected: 5
 Actual:   4
-Stack Trace:
-   at MyFirstUnitTests.Class1.FailingTest() in ~/src/MyFirstUnitTests/Class1.cs:line 16</span>
+  Stack Trace:
+     at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Total tests: 5. Passed: 3. Failed: 2. Skipped: 0.
-<span style="color: #e03030">Test Run Failed.</span>
-Test execution time: 1.1002 Seconds
+Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 6 ms</span> - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
@@ -406,24 +440,41 @@ Test execution time: 1.1002 Seconds
   If you have Visual Studio Community (or a paid-for version of Visual Studio), you can run your
   xUnit.net tests within Visual Studio's built-in test runner (named Test Explorer). Unfortunately,
   this does not include Express editions of Visual Studio (you should upgrade to the free
-  <a href="http://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx">Community
-  Edition</a> instead).
+  <a href="https://visualstudio.microsoft.com/vs/community/">Community Edition</a> instead).
 </p>
 
 <p>
-  Make sure Test Explorer is visible (go to <code>Test &gt; Windows &gt; Test Explorer</code>). Depending
+  If your project doesn't have a solution file yet, you can use the <code>dotnet</code> command
+  line to create one. Run the following two commands from your project folder:
+</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet new sln</span>
+The template "Solution File" was created successfully.
+
+$ <span style="background-color: #ff0">dotnet sln add .</span>
+Project `MyFirstUnitTests.csproj` added to the solution.
+</pre>
+
+<p>
+  Now open your solution with Visual Studio. (The screen shots and menu items here are
+  taken from Visual Studio 2019; your version may be slightly different.)
+</p>
+
+<p>
+  Make sure Test Explorer is visible (go to <code>Test &gt; Test Explorer</code>). Depending
   on the version of Visual Studio you have, you may need to build your test assembly before tests
   are discovered. After a moment of discovery, you should see the list of discovered tests:
 </p>
 
-<p><img class="border" src="../../../images/running-tests-in-vs/test-explorer.png" width="314" /></p>
+<p><img class="border" src="/images/running-tests-in-vs/test-explorer-vs2019.png" width="390" /></p>
 
 <p>
   Click the <code>Run All</code> link in the Test Explorer window, and you should see the results update
   in the Test Explorer window as the tests are run:
 </p>
 
-<p><img class="border" src="../../../images/running-tests-in-vs/test-explorer-post-run.png" width="347" /></p>
+<p><img class="border" src="/images/running-tests-in-vs/test-explorer-post-run-vs2019.png" width="818" /></p>
 
 <p>
   You can click on a failed test to see the failure message, and the stack trace. You can click on the
