@@ -1,12 +1,9 @@
 ﻿#if NETFRAMEWORK
 
 using System.Linq;
-using System.Reflection;
-using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
+using Xunit.Runner.v2;
 using Xunit.v3;
 
 public class Xunit2Tests

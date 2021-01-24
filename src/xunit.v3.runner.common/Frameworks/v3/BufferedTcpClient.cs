@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.v3
+namespace Xunit.Runner.v3
 {
 	/// <summary>
 	/// Provides a line-oriented read/write wrapper over top of a TCP socket.

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.v3;
+using Xunit.Runner.v3;
 
 public class BufferedTcpClientTests
 {

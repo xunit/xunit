@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 using System.Xml;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v1;
 using Xunit.Sdk;
 using Xunit.v3;
 
-namespace Xunit
+namespace Xunit.Runner.v1
 {
 	/// <summary>
 	/// This class be used to do discovery and execution of xUnit.net v1 tests

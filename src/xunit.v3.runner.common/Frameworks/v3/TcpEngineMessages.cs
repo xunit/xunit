@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3
+﻿namespace Xunit.Runner.v3
 {
 	/// <summary>
 	/// Byte sequences which represent commands issued between the runner and execution engines.

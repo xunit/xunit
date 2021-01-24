@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Internal;
@@ -68,3 +70,5 @@ namespace Xunit.Runner.v1
 		_IMethodInfo _IMethodInfo.MakeGenericMethod(params _ITypeInfo[] typeArguments) => throw new NotImplementedException();
 	}
 }
+
+#endif

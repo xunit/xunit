@@ -4,11 +4,13 @@ using System.IO;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.v3;
+using Xunit.Runner.v2;
 using Xunit.Sdk;
+using Xunit.v3;
 
 #if NETFRAMEWORK
 using System.Linq;
+using Xunit.Runner.v1;
 #endif
 
 namespace Xunit
