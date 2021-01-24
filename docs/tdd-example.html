@@ -130,15 +130,20 @@ public class StackTests
 
 <p>The next thing to do is write the test.</p>
 
-{% highlight C# linenos %}
-[Fact]
-public void EmptyStackCountMustBeZero()
+{% highlight C# %}
+using Xunit;
+
+public class StackTests
 {
-    Stack stack = new Stack();
+    [Fact]
+    public void EmptyStackCountMustBeZero()
+    {
+        Stack stack = new Stack();
 
-    int count = stack.Count;
+        int count = stack.Count;
 
-    Assert.Equal(0, count);
+        Assert.Equal(0, count);
+    }
 }
 {% endhighlight %}
 
@@ -183,7 +188,7 @@ public void EmptyStackCountMustBeZero()
   came up with:
 </p>
 
-{% highlight C# linenos %}
+{% highlight C# %}
 public class Stack
 {
     public int Count { get; private set; }
@@ -273,16 +278,16 @@ public void Push(int element) { }
   them not just the new one. Here are the results:
 </p>
 
-{% highlight C# %}
+<pre>
 ------ Test started: Assembly: stack.dll ------
 
 Test 'StackTests.PushOneCountMustBeOne' failed: Assert.Equal() Failure
 Expected: 1
 Actual:   0
-	StackTests.cs(23,0): at StackTests.PushOneCountMustBeOne()
+    StackTests.cs(23,0): at StackTests.PushOneCountMustBeOne()
 
 1 passed, 1 failed, 0 skipped, took 0.62 seconds.
-{% endhighlight %}
+</pre>
 
 <p>
   The test failed because it was expecting the <i>Count</i> property of the

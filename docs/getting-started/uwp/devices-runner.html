@@ -18,12 +18,12 @@ redirect_from:
 <ol>
     <li><code>File -> New</code> Project and create a Blank UWP project:
         <br />
-        <img src="../../../images/getting-started-devices-uwp/CreateProject.png" width="944" height="590" class="border" />
+        <img src="/images/getting-started-devices-uwp/CreateProject.png" width="944" height="590" class="border" />
         <br />&nbsp;
     </li>
     <li>Add the <code>xunit.runner.devices</code> package. If you want unit tests in this project, also add <code>xunit</code>:
         <br />
-        <img src="../../../images/getting-started-devices-uwp/AddPackages.png" width="527" height="350" class="border" />
+        <img src="/images/getting-started-devices-uwp/AddPackages.png" width="527" height="350" class="border" />
         <br />&nbsp;
     </li>
     <li>Replace <code>App.xaml</code> and <code>App.xaml.cs</code> with the following (using your namespace in <code>x:Class</code>):
@@ -41,7 +41,7 @@ redirect_from:
 </ui:RunnerApplication>
 {% endhighlight %}
                 <br />
-                <img src="../../../images/getting-started-devices-uwp/App.xaml.png" width="601" height="171" class="border" />
+                <img src="/images/getting-started-devices-uwp/App.xaml.png" width="601" height="171" class="border" />
                 <br />&nbsp;
             </li>
             <li><strong>App.xaml.cs</strong>
@@ -65,23 +65,23 @@ namespace UwpTestRunner
 }
 {% endhighlight %}
                 <br />
-                <img src="../../../images/getting-started-devices-uwp/App.xaml.cs.png" width="670" height="354" class="border" />
+                <img src="/images/getting-started-devices-uwp/App.xaml.cs.png" width="670" height="354" class="border" />
                 <br />&nbsp;
             </li>
         </ul>
     </li>
     <li>Delete <code>MainPage.xaml</code> and <code>MainPage.xaml.cs</code>:
         <br />
-        <img src="../../../images/getting-started-devices-uwp/DeleteMainPage.png" width="308" height="269" class="border" />
+        <img src="/images/getting-started-devices-uwp/DeleteMainPage.png" width="308" height="269" class="border" />
         <br />&nbsp;
     </li>
     <li>Add your unit tests:
         <br />
-        <img src="../../../images/getting-started-devices-uwp/AddTests.png" width="543" height="439" class="border" />
+        <img src="/images/getting-started-devices-uwp/AddTests.png" width="543" height="439" class="border" />
         <br />&nbsp;
     </li>
     <li>(optional) If your tests are in other assemblies, add a project reference and modify the <code>App.xaml.cs</code> to include the assembly containing your tests
     </li>
-    <li>(optional) Add a <code>xunit.runner.json</code> file as <code>Content</code> to specify runner <a href="../../configuration-files">configuration</a>
+    <li>(optional) Add a <code>xunit.runner.json</code> file as <code>Content</code> to specify runner <a href="/docs/configuration-files">configuration</a>
     </li>
 </ol>

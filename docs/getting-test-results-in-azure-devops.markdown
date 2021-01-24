@@ -21,7 +21,7 @@ These instructions are written for `Version 2.*` of the `Visual Studio Test` tas
 
 ### Locate test assemblies
 
-* Under `Test selection/Test files`, point to your generated test assemblies, for example: 
+* Under `Test selection/Test files`, point to your generated test assemblies, for example:
 ```
 **\bin\$(BuildConfiguration)\**\*test*.dll
 !**\obj\**
@@ -41,7 +41,7 @@ Note: it is important to make sure the file matching pattern is valid.  `testVer
 
 After a successful build, the test results are available on the main view of the build. It should look something like this:
 
-![](../images/getting-test-results-in-vsts/test-results.png)
+![](/images/getting-test-results-in-vsts/test-results.png)
 
 ## Comments
 

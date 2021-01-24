@@ -9,6 +9,20 @@ p {
 p, pre, table {
   margin-left: 20px;
 }
+code table,
+pre pre {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+td.gutter {
+  padding-right: 10px;
+}
+pre.lineno {
+  padding-right: 10px;
+  border-radius: 0%;
+  border-right: solid 1px #ccc;
+}
 .note p {
   margin-left: 0;
 }
