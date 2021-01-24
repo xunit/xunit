@@ -3,10 +3,13 @@ layout: default
 title: "Getting Started: .NET Framework with Visual Studio"
 breadcrumb: Documentation
 redirect_from:
+  - /docs/getting-started
   - /docs/getting-started.html
   - /docs/getting-started-desktop
   - /docs/getting-started-desktop.html
+  - /docs/running-v1-tests-in-vs
   - /docs/running-v1-tests-in-vs.html
+  - /docs/running-tests-in-vs
   - /docs/running-tests-in-vs.html
 ---
 
@@ -19,88 +22,215 @@ redirect_from:
 </p>
 
 <ul>
-  <li><a href="#create-class-library">Create a class library project</a></li>
-  <li><a href="#add-xunit-ref">Add a reference to xUnit.net</a></li>
+  <li><a href="#create-project">Create a unit test project</a></li>
+  <li><a href="#test-explorer">Learning to use Test Explorer</a></li>
   <li><a href="#write-first-tests">Write your first tests</a></li>
-  <li><a href="#add-xunit-runner-ref">Add a reference to xUnit.net console runner</a></li>
-  <li><a href="#run-tests">Run tests with the xUnit.net console runner</a></li>
   <li><a href="#write-first-theory">Write your first theory</a></li>
-  <li><a href="#run-tests-visualstudio">Run tests with Visual Studio</a></li>
-  <li><a href="#console-return-codes">Console runner return codes</a></li>
+  <li><a href="#multi-targeting">Running tests against multiple target frameworks</a></li>
 </ul>
 
 <p><em>
-  Note: The examples were done with xUnit.net v2.2 and Visual Studio 2017. The version
+  Note: The examples were done with xUnit.net v2.4.1 and Visual Studio 2019. The version
   numbers, paths, and Visual Studio UI may differ for you, depending on which
   version you're using.
 </em></p>
 
-<h2 id="create-class-library">Create a class library project</h2>
+<h2 id="create-project">Create a unit test project</h2>
 
 <p>
-  Let's start by creating a class library project, targeting .NET 4.5.2 (or later).
-  Open Visual Studio, and choose <code>File &gt; New &gt; Project</code>:
+  Start Visual Studio, which will bring you to the start splash screen. Under "Get Started",
+  click "Create a new project". This will bring you to the first step of the new project
+  wizard, where you pick your project type:
 </p>
 
-<p><img class="border" src="../../../images/getting-started/new-project.png" width="835" /></p>
-
-<h2 id="add-xunit-ref">Add a reference to xUnit.net</h2>
+<p><img class="border" src="/images/getting-started/netcore/new-project-step1-vs2019.png" width="1024" /></p>
 
 <p>
-  In Solution Explorer, right click the new project, and choose
-  <code>Manage NuGet Packages</code>:
+  In the drop down boxes, chooses your language (C#), your platform (All platforms), and your
+  project type (Test). Scroll through the list if necessary until you find the item titled
+  "xUnit Test Project (.NET Core)". Select it, then click "Next".
 </p>
 
-<p><img class="border" src="../../../images/manage-nuget-packages.png" width="357" /></p>
-
-<p>Now in the NuGet package manager window, take the following steps:</p>
-
-<ol>
-  <li>Along the top edge, make sure <code>Browse</code> is selected.</li>
-  <li>On the upper right side, ensure <code>nuget.org</code> is selected under <code>Package source</code></li>
-  <li>In the search box, type <code>xunit</code></li>
-  <li>Select the <code>xUnit.net</code> package, and click <code>Install</code></li>
-</ol>
-
-<p><img class="border" src="../../../images/add-xunit.png" width="845" /></p>
+<p class="note">
+  We're picking .NET Core even though we're planning to make a .NET Framework test project,
+  because Visual Studio doesn't contain a test project template for xUnit.net for .NET
+  Framework. We'll fix that in just a moment.
+</p>
 
 <p>
-  This package (<code>xunit</code>) is what's called a <em>meta-package</em>;
-  that is, it's a package that exists just so you can get references to several
-  other packages. In particular, it brings packages that include the core unit
-  testing framework and the assertion framework. If you open
-  <code>packages.config</code>, you'll see all the packages that get
-  referenced:
+  This leads you to the second part of the new project wizard:
+</p>
+
+<p><img class="border" src="/images/getting-started/netcore/new-project-step2-vs2019.png" width="1024" /></p>
+
+<p>
+  Type a name into the "Project name" box (like "MyFirstUnitTests"). Click "Create".
+</p>
+
+<p>After a moment, Visual Studio will launch with your newly created project.</p>
+
+<p>
+  Find the project in the Solution Explorer (it will be titled "MyFirstUnitTests"), right click it,
+  then click "Edit Project File". This will launch the text editor for your project file. It should
+  look something like this:
 </p>
 
 {% highlight xml %}
-<?xml version="1.0" encoding="utf-8"?>
-<packages>
-  <package id="xunit" version="2.2.0" targetFramework="net452" />
-  <package id="xunit.abstractions" version="2.0.1" targetFramework="net452" />
-  <package id="xunit.assert" version="2.2.0" targetFramework="net452" />
-  <package id="xunit.core" version="2.2.0" targetFramework="net452" />
-  <package id="xunit.extensibility.core" version="2.2.0" targetFramework="net452" />
-  <package id="xunit.extensibility.execution" version="2.2.0" targetFramework="net452" />
-</packages>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="1.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
 {% endhighlight %}
 
-<p class="note">
-  When creating a new project with Visual Studio 2017, you may not end up with a <code>packages.config</code>
-  file. That's okay: newer versions of Visual Studio place the NuGet package references directly into your
-  <code>.csproj</code> file as <code>&lt;PackageReference&gt;</code> elements like you see here in our
-  <a href="https://github.com/xunit/xunit.integration/blob/d6897d6dfe9c4123c9d24f56ca21cba9d664461c/console/v2x_net452/v2x_net452.csproj#L32-L33">xunit.integration</a>
-  project. The advantage is that you not only have one fewer file, but you also only have packages
-  listed for which you've taken direct references. That makes it easier to differentiate between the
-  packages you've chosen to install and the dependencies they bring with them.
+<p>
+  We need to make one quick change: use a target framework that indicates .NET Framework
+  support. For example, if you want to support .NET Framework 4.8, change the
+  <code>TargetFramework</code> element like so:
 </p>
+
+{% highlight xml %}
+<TargetFramework>net48</TargetFramework>
+{% endhighlight %}
+
+<p>Let's quickly review what's in this project file:</p>
+
+<ul>
+  <li>
+    <code>TargetFramework</code> specifies the target framework for your test project. We've
+    already changed this to <code>net48</code> for .NET Framework 4.8. Later in this article,
+    we will discuss <a href="#multi-targeting">running tests against multiple target frameworks</a>.
+  </li>
+  <li>
+    <code>IsPackable</code> is here, though it is redundant (unit test projects cannot be packed
+    by default). You can safely remove this line if you wish.
+  </li>
+  <li>
+    The <code>xunit</code> package brings in three child packages which include functionality
+    that most developers want: <code>xunit.core</code> (the testing framework itself),
+    <code>xunit.assert</code> (the library which contains the <code>Assert</code> class),
+    and <code>xunit.analyzers</code> (which enables Roslyn analyzers to detect common issues
+    with unit tests and xUnit.net extensibility).
+  </li>
+  <li>
+    The packages <code>xunit.runner.visualstudio</code> and <code>Microsoft.NET.Test.Sdk</code>
+    are required for being able to run your test project inside Visual Studio as well as with
+    <code>dotnet test</code>.
+  </li>
+  <li>
+    The <code>coverlet.collector</code> package allows collecting code coverage. If you don't
+    intend to collect code coverage, you should remove this package reference.
+  </li>
+</ul>
+
+<p>A single empty unit test was also generated into <code>UnitTest1.cs</code>:</p>
+
+{% highlight C# %}
+using System;
+using Xunit;
+
+namespace MyFirstUnitTests
+{
+    public class UnitTest1
+    {
+        [Fact]
+        public void Test1()
+        {
+
+        }
+    }
+}
+{% endhighlight %}
+
+<p>
+  Let's make sure everything builds. Choose <code>Build &gt; Build Solution</code> from the
+  main menu. Your project should build without issue, as shown in the output window:
+</p>
+
+<pre>
+Build started...
+1>------ Build started: Project: MyFirstUnitTests, Configuration: Debug Any CPU ------
+1>MyFirstUnitTests -> C:\Dev\MyFirstUnitTests\bin\Debug\net48\MyFirstUnitTests.dll
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+</pre>
+
+<h2 id="test-explorer">Learning to use Test Explorer</h2>
+
+<p>
+  Test Explorer is the name of the window that lets you browse and run your tests from within
+  Visual Studio. Open it by choosing <code>Test &gt; Test Explorer</code> from the main menu.
+  You should be greeted with a window that contains a hierarchy of the tests in your project,
+  which should look something like this:
+</p>
+
+<p><img class="border" src="/images/getting-started/common/test-explorer-newproject-vs2019.png" width="390" /></p>
+
+<p>The toolbar of Test Explorer has buttons in several groups:</p>
+
+<ul>
+  <li>
+    The first group contains buttons that are used for running tests, including the ability
+    to run all tests, run selected tests, re-run the last tests, and re-run only the failed
+    tests.
+  </li>
+  <li>
+    The second group contains buttons which allow filtering the list of tests based on current
+    state (which includes "passed", "failed", and "not run").
+  </li>
+  <li>
+    The third group contains buttons which configure Test Explorer, including advanced options
+    like changing processor architecture (x86, x64, or Auto) and automatically running tests
+    after every successful build.
+  </li>
+</ul>
+
+<p>The main window of Test Explorer is split into two panes:</p>
+
+<ul>
+  <li>
+    The left pane contains a tree view of the tests in your project (grouping criteria can be
+    changed as you see fit). Columns can be configured to show details about the test,
+    including things like the current state, how long the test took to run, metadata (traits)
+    related to the test, and more.
+  </li>
+  <li>
+    As you select items in the tree view on the left pane, the right pane will provide information
+    about your current selection, including test counts, outcomes, links to the source of the test,
+    test output, and exception messages and stack traces for failed tests.
+  </li>
+</ul>
+
+<p>
+  Click the left-most button on the Test Explorer toolbar (it looks like a double green arrow,
+  titled "Run All Tests In View". This will run the single empty test, and the result should
+  be success:
+</p>
+
+<p><img class="border" src="/images/getting-started/common/test-explorer-success-vs2019.png" width="738" /></p>
+
+<p>Now that we've ensured everything is working, it's time to write our first real tests.</p>
 
 <h2 id="write-first-tests">Write your first tests</h2>
 
 <p>
-  When you created the project, Visual Studio automatically created a file
-  named <code>Class1.cs</code> and opened it for you. Inside this class, add a
-  couple tests:
+  Edit <code>UnitTest1.cs</code> and replace the default file contents with this:
 </p>
 
 {% highlight C# %}
@@ -108,7 +238,7 @@ using Xunit;
 
 namespace MyFirstUnitTests
 {
-    public class Class1
+    public class UnitTest1
     {
         [Fact]
         public void PassingTest()
@@ -130,70 +260,25 @@ namespace MyFirstUnitTests
 }
 {% endhighlight %}
 
-<p>
-  Build the solution to ensure that the code compiles. Now that you've written
-  the first test, we need a way to run it. Let's install the NuGet package with
-  the console runner.
-</p>
+<p>Now let's go run the tests again and see what happens:</p>
 
-<h2 id="add-xunit-runner-ref">Add a reference to xUnit.net console runner</h2>
+<p><img class="border" src="/images/getting-started/common/test-explorer-failure1-vs2019.png" width="780" /></p>
 
 <p>
-  Once again, right click on the project in Solution Explorer and choose
-  <code>Manage NuGet Packages</code>. This time, you're going to search for
-  (and install) a package named <code>xunit.runner.console</code>:
-</p>
-
-<p><img class="border" src="../../../images/getting-started/add-xunit-runner-console.png" width="845" /></p>
-
-<p>
-  Unlike the previous package (which added references to the unit testing
-  framework), this package is what's known as a <em>solution-level package</em>.
-  Instead of having assemblies to reference, it adds some tools in your solution
-  folder. We will use one of these tools&mdash;the console runner&mdash;to run
-  your unit tests.
-</p>
-
-<h2 id="run-tests">Run tests with the xUnit.net console runner</h2>
-
-<p>
-  Open a command prompt or PowerShell command window. In the window, navigate
-  to the root folder of your solution.
+  We purposefully wrote both a passing and failing test, and we can see that the results reflect that.
+  By clicking on the failed test, we can see a link both to the top of the unit test (at line 14),
+  but also the failure message (we expected 5 but got 4) as well as a link to the exact line where
+  the failure occurred (line 16).
 </p>
 
 <p>
-  To run the console runner, use a command like the one highlighted below. You
-  should see output similar to this:
+  When you edit the source file, also take note of the fact that CodeLens decorations show up which
+  indicate not only test status (passed/failed) on the test themselves, but also on functions that
+  are called by the code, indicating how often the code is called in tests, and a count of which of
+  those tests have passed or failed:
 </p>
 
-<pre>
-&gt; <span style="background-color: #ff0">packages\xunit.runner.console.2.2.0\tools\xunit.console MyFirstUnitTests\bin\Debug\MyFirstUnitTests.dll</span>
-xUnit.net Console Runner (64-bit .NET 4.0.30319.42000)
-  Discovering: MyFirstUnitTests
-  Discovered:  MyFirstUnitTests
-  Starting:    MyFirstUnitTests
-    <span style="color: #e03030">MyFirstUnitTests.Class1.FailingTest [FAIL]</span>
-      Assert.Equal() Failure
-      Expected: 5
-      Actual:   4
-      <span style="color: #a8a8a8">Stack Trace:</span>
-        MyFirstUnitTests\Class1.cs(16,0): at MyFirstUnitTests.Class1.FailingTest()
-  Finished:    MyFirstUnitTests
-=== TEST EXECUTION SUMMARY ===
-   MyFirstUnitTests  Total: 2, Errors: 0, Failed: 1, Skipped: 0, Time: 0.159s
-</pre>
-
-<p><em>
-  Note: your path names my vary, depending on what name you chose for your
-  project and which version of xUnit.net you installed.
-</em></p>
-
-<p><em>
-  The console runner has several command line options, which include options
-  for parallelization, test filtering, and result reporting. To learn more
-  about the console runner options, run the console runner with no command
-  line options.
-</em></p>
+<p><img class="border" src="/images/getting-started/common/codelens-status-vs2019.png" width="392" /></p>
 
 <p>
   Now that we've gotten your first unit tests to run, let's introduce one more
@@ -216,7 +301,7 @@ xUnit.net Console Runner (64-bit .NET 4.0.30319.42000)
 </blockquote>
 
 <p>
-  A good example of this testing numeric algorithms. Let's say you want to
+  A good example of this is testing numeric algorithms. Let's say you want to
   test an algorithm which determines whether a number is odd or not. If you're
   writing the positive-side tests (odd numbers), then feeding even numbers
   into the test would cause it fail, and not because the test or algorithm
@@ -244,139 +329,68 @@ bool IsOdd(int value)
 }
 {% endhighlight %}
 
-<p>
-  This time when we compile and run our tests, we see a second failure, for our
-  theory that was given 6:
-</p>
+<p>This time when we run our tests, we see a second failure, for our theory that was given 6:</p>
 
-<pre>
-xUnit.net Console Runner (64-bit .NET 4.0.30319.42000)
-  Discovering: MyFirstUnitTests
-  Discovered:  MyFirstUnitTests
-  Starting:    MyFirstUnitTests
-    <span style="color: #e03030">MyFirstUnitTests.Class1.MyFirstTheory(value: 6) [FAIL]</span>
-      Assert.True() Failure
-      Expected: True
-      Actual:   False
-      <span style="color: #a8a8a8">Stack Trace:</span>
-        MyFirstUnitTests\Class1.cs(30,0): at MyFirstUnitTests.Class1.MyFirstTheory(Int32 value)
-    <span style="color: #e03030">MyFirstUnitTests.Class1.FailingTest [FAIL]</span>
-      Assert.Equal() Failure
-      Expected: 5
-      Actual:   4
-      <span style="color: #a8a8a8">Stack Trace:</span>
-        MyFirstUnitTests\Class1.cs(16,0): at MyFirstUnitTests.Class1.FailingTest()
-  Finished:    MyFirstUnitTests
-=== TEST EXECUTION SUMMARY ===
-   MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Time: 0.171s
-</pre>
+<p><img class="border" src="/images/getting-started/common/test-explorer-failure2-vs2019.png" width="888" /></p>
 
 <p>
-  Although we've only written 3 test methods, the console runner actually ran
+  Although we've only written 3 test methods, the test runner actually ran
   5 tests; that's because each theory with its data set is a separate test.
   Note also that the runner tells you exactly which set of data failed, because
-  it includes the parameter values in the name of the test.
+  it includes the parameter values in the name of the test. The Test Explorer
+  UI even shows a new level in the tree, as each row of data becomes a test
+  result underneath its test method.
 </p>
 
-<h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
+<h2 id="multi-targeting">Running tests against multiple target frameworks</h2>
 
-<p class="important">
-  <strong>Important note</strong>: If you've previously installed the xUnit.net Visual Studio
-  Runner VSIX (Extension), you must uninstall it first. The Visual Studio runner is only distributed
-  via NuGet now. To remove it, to go <code>Tools</code> &gt; <code>Extensions and Updates</code>.
-  Scroll to the bottom of the list, and if xUnit.net is installed, uninstall it. This will force
-  you to restart Visual Studio.
+<p>
+  Sometimes, you want to write tests and ensure they run against several target
+  application platforms. The xUnit.net test runner that we've been using supports
+  .NET Core 1.0 or later, .NET 5.0 or later, and .NET Framework 4.5.2 or later.
+  With a single test project, we can have our tests run against multiple target
+  frameworks. Open the <code>.csproj</code> file and make the following change.
 </p>
 
-<p class="important">
-  <strong>If you're having problems discovering or running tests,</strong> you may be a victim
-  of a corrupted runner cache inside Visual Studio. To clear this cache, shut down all instances
-  of Visual Studio, then delete the folder <code>%TEMP%\VisualStudioTestExplorerExtensions</code>.
-  Also make sure your solution is only linked against a single version of the Visual Studio runner
-  NuGet package (<code>xunit.runner.visualstudio</code>).
+<p>Change <code>TargetFramework</code>:</strong></p>
+
+{% highlight xml %}
+<PropertyGroup>
+  <TargetFramework>net48</TargetFramework>
+</PropertyGroup>
+{% endhighlight %}
+
+<p>To <code>TargetFrameworks</code>:</p>
+
+{% highlight xml %}
+<PropertyGroup>
+  <TargetFrameworks>net48;net5.0</TargetFrameworks>
+</PropertyGroup>
+{% endhighlight %}
+
+<p class="note">
+  When you change a project file from <code>TargetFramework</code> to
+  <code>TargetFrameworks</code> (or back), Visual Studio might show you a yellow
+  "alert bar" which indicates that you have to reload the project for your changes
+  to take effect. It's best to make this kind of change from a clean environment
+  with no dirty text editors, to prevent the possibility of losing any changes.
 </p>
 
 <p>
-  If you have Visual Studio Community (or a paid-for version of Visual Studio), you can run your
-  xUnit.net tests within Visual Studio's built-in test runner (named Test Explorer). Unfortunately,
-  this does not include Express editions of Visual Studio (you should upgrade to the free
-  <a href="http://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx">Community
-  Edition</a> instead).
+  Test Explorer supports any combination of .NET Core (including .NET 5+)
+  and .NET Framework targets. You can even include multiple versions of the same
+  target framework (for example, it's legal to have something like
+  <code>&lt;TargetFrameworks&gt;net452;net461;net48;netcoreapp2.1;netcoreapp3.1;net5.0&lt;/TargetFrameworks&gt;</code>).
+  Application authors will typically only use a single target framework, related to
+  the target framework the application is intended to run on. Library authors are more
+  likely to use several target frameworks, to ensure their tests run successfully on
+  all supported target frameworks.
 </p>
 
 <p>
-  Right click on the project in Solution Explorer and choose <code>Manage NuGet Packages</code>.
-  Search for (and install) a package named <code>xunit.runner.visualstudio</code>:
+  The Test Explorer tree view will now show your test project multiple times, once for each
+  target framework. You can run individual tests from individual frameworks, or you can
+  simply run all tests for all frameworks.
 </p>
 
-<p><img class="border" src="../../../images/running-tests-in-vs/add-xunit-runner-visualstudio.png" width="981" /></p>
-
-<p>
-  Make sure Test Explorer is visible (go to <code>Test &gt; Windows &gt; Test Explorer</code>). Every
-  time you build your project, the runner will discover unit tests in your project. After a moment of
-  discovery, you should see the list of discovered tests:
-</p>
-
-<p><img class="border" src="../../../images/running-tests-in-vs/test-explorer.png" width="314" /></p>
-
-<p>
-  Click the <code>Run All</code> link in the Test Explorer window, and you should see the results update
-  in the Test Explorer window as the tests are run:
-</p>
-
-<p><img class="border" src="../../../images/running-tests-in-vs/test-explorer-post-run.png" width="347" /></p>
-
-<p>
-  You can click on a failed test to see the failure message, and the stack trace. You can click on the
-  stack trace lines to take you directly to the failing line of code.
-</p>
-
-<p><em>
-  Note: Only xUnit.net v2 supports pre-enumeration of theories; when discovering theories with v1,
-  it will only show a single test method for the theory.
-</em></p>
-
-<h2 id="console-return-codes">Console runner return codes</h2>
-
-<p>Starting with version 2.2, the following return codes are used by the console runner:</p>
-
-<table class="table">
-  <tr>
-    <th>Return code</th>
-    <th>Meaning</th>
-  </tr>
-  <tr>
-    <td><code>0</code></td>
-    <td class="wrapped-wide">The tests ran successfully.</td>
-  </tr>
-  <tr>
-    <td><code>1</code></td>
-    <td class="wrapped-wide">One or more of the tests failed.</td>
-  </tr>
-  <tr>
-    <td><code>2</code></td>
-    <td class="wrapped-wide">
-      The help page was shown, either because it was requested, or because the user did not provide any
-      command line arguments.
-    </td>
-  </tr>
-  <tr>
-    <td><code>3</code></td>
-    <td class="wrapped-wide">
-      There was a problem with one of the command line options passed to the runner.
-    </td>
-  </tr>
-  <tr>
-    <td><code>4</code></td>
-    <td class="wrapped-wide">
-      There was a problem loading one or more of the test assemblies (for example, if a 64-bit only assembly
-      is run with the 32-bit test runner).
-    </td>
-  </tr>
-  <tr>
-    <td><code>0xC000013A (-1073741510)</code></td>
-    <td class="wrapped-wide">
-      The user canceled the test execution by pressing Ctrl+C.
-    </td>
-  </tr>
-</table>
+<p><img class="border" src="/images/getting-started/common/test-explorer-multitarget-vs2019.png" width="404" /></p>
