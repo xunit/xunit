@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit.Internal;
 
 namespace Xunit.Sdk
 {
@@ -10,7 +11,8 @@ namespace Xunit.Sdk
 	/// the tracker. Supports both <see cref="IDisposable"/> and <see cref="IAsyncDisposable"/>.
 	/// You can either directly dispose this object (via <see cref="DisposeAsync"/>), or you
 	/// can enumerate the items contained inside of it (via <see cref="Disposables"/> and
-	/// <see cref="AsyncDisposables"/>).
+	/// <see cref="AsyncDisposables"/>). Also supports hand-registering disposal actions
+	/// via <see cref="AddAction"/> and <see cref="AddAsyncAction"/>.
 	/// </summary>
 	public class DisposalTracker : IAsyncDisposable
 	{
@@ -79,6 +81,20 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
+		/// Add an action to the list of things to be done during sync disposal.
+		/// </summary>
+		/// <param name="cleanupAction">The cleanup action.</param>
+		public void AddAction(Action cleanupAction) =>
+			Add(new DisposableWrapper(cleanupAction));
+
+		/// <summary>
+		/// Add an action to the list of things to be done during async disposal.
+		/// </summary>
+		/// <param name="cleanupAction">The cleanup action.</param>
+		public void AddAsyncAction(Func<ValueTask> cleanupAction) =>
+			Add(new AsyncDisposableWrapper(cleanupAction));
+
+		/// <summary>
 		/// Add a collection of objects to be disposed. They may optionally support <see cref="IDisposable"/>
 		/// and/or <see cref="IAsyncDisposable"/>.
 		/// </summary>
@@ -110,6 +126,28 @@ namespace Xunit.Sdk
 		{
 			if (disposed)
 				throw new ObjectDisposedException(GetType().FullName);
+		}
+
+		class AsyncDisposableWrapper : IAsyncDisposable
+		{
+			readonly Func<ValueTask> cleanupAction;
+
+			public AsyncDisposableWrapper(Func<ValueTask> cleanupAction) =>
+				this.cleanupAction = Guard.ArgumentNotNull(nameof(cleanupAction), cleanupAction);
+
+			public ValueTask DisposeAsync() =>
+				cleanupAction();
+		}
+
+		class DisposableWrapper : IDisposable
+		{
+			readonly Action cleanupAction;
+
+			public DisposableWrapper(Action cleanupAction) =>
+				this.cleanupAction = Guard.ArgumentNotNull(nameof(cleanupAction), cleanupAction);
+
+			public void Dispose() =>
+				cleanupAction();
 		}
 	}
 }
