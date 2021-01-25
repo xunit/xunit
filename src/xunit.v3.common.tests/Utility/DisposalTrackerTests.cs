@@ -38,6 +38,212 @@ public class DisposalTrackerTests
 		}
 	}
 
+	public class ExceptionHandling
+	{
+		[Fact]
+		public async ValueTask NoExceptions_DoesNotThrow()
+		{
+			var classUnderTest = new DisposalTracker();
+			var obj = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			classUnderTest.Add(obj);
+
+			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+
+			Assert.Null(ex);
+			obj.Received().Dispose();
+		}
+
+		[Fact]
+		public async ValueTask SingleException_CleansUpAllObjects_ThrowsTheSingleException()
+		{
+			var classUnderTest = new DisposalTracker();
+			var obj1 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			classUnderTest.Add(obj1);
+			var thrown = new DivideByZeroException();
+			var obj2 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			obj2.When(x => x.Dispose()).Throw(thrown);
+			classUnderTest.Add(obj2);
+			var obj3 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			classUnderTest.Add(obj3);
+
+			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+
+			Assert.Same(thrown, ex);
+			obj1.Received().Dispose();
+			obj2.Received().Dispose();
+			obj3.Received().Dispose();
+		}
+
+		[Fact]
+		public async ValueTask MultipleExceptions_ThrowsAggregateException()
+		{
+			var classUnderTest = new DisposalTracker();
+			var obj1 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			obj1.When(x => x.Dispose()).Throw<DivideByZeroException>();
+			classUnderTest.Add(obj1);
+			var obj2 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			obj2.When(x => x.Dispose()).Throw<InvalidOperationException>();
+			classUnderTest.Add(obj2);
+
+			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+
+			var aggEx = Assert.IsType<AggregateException>(ex);
+			Assert.Collection(
+				aggEx.InnerExceptions,
+				ex => Assert.IsType<InvalidOperationException>(ex),
+				ex => Assert.IsType<DivideByZeroException>(ex)
+			);
+		}
+	}
+
+	public class MultiObject
+	{
+		readonly DisposalTracker classUnderTest = new();
+
+		[Fact]
+		public async ValueTask FirstInLastAsyncDisposed()
+		{
+			var messages = new List<string>();
+			var obj1 = new TrackingAsyncDisposable("1", messages);
+			classUnderTest.Add(obj1);
+			var obj2 = new TrackingAsyncDisposable("2", messages);
+			classUnderTest.Add(obj2);
+
+			await classUnderTest.DisposeAsync();
+
+			Assert.Collection(
+				messages,
+				msg => Assert.Equal("2: DisposeAsync", msg),
+				msg => Assert.Equal("1: DisposeAsync", msg)
+			);
+		}
+
+		[Fact]
+		public async ValueTask FirstInLastDisposed()
+		{
+			var messages = new List<string>();
+			var obj1 = new TrackingDisposable("1", messages);
+			classUnderTest.Add(obj1);
+			var obj2 = new TrackingDisposable("2", messages);
+			classUnderTest.Add(obj2);
+
+			await classUnderTest.DisposeAsync();
+
+			Assert.Collection(
+				messages,
+				msg => Assert.Equal("2: Dispose", msg),
+				msg => Assert.Equal("1: Dispose", msg)
+			);
+		}
+
+		[Fact]
+		public async ValueTask MixedObjectTypes()
+		{
+			var messages = new List<string>();
+			var obj1 = new TrackingDisposable("1", messages);
+			classUnderTest.Add(obj1);
+			var obj2 = new TrackingAsyncDisposable("2", messages);
+			classUnderTest.Add(obj2);
+			var obj3 = new TrackingDisposable("3", messages);
+			classUnderTest.Add(obj3);
+			var obj4 = new TrackingAsyncDisposable("4", messages);
+			classUnderTest.Add(obj4);
+
+			await classUnderTest.DisposeAsync();
+
+			Assert.Collection(
+				messages,
+				msg => Assert.Equal("4: DisposeAsync", msg),
+				msg => Assert.Equal("3: Dispose", msg),
+				msg => Assert.Equal("2: DisposeAsync", msg),
+				msg => Assert.Equal("1: Dispose", msg)
+			);
+		}
+
+		[Fact]
+		public void TrackedObjectsReturnsReverseOrder()
+		{
+			var obj1 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			classUnderTest.Add(obj1);
+			var obj2 = Substitute.For<IAsyncDisposable, InterfaceProxy<IAsyncDisposable>>();
+			classUnderTest.Add(obj2);
+			var obj3 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			classUnderTest.Add(obj3);
+			var obj4 = Substitute.For<IAsyncDisposable, InterfaceProxy<IAsyncDisposable>>();
+			classUnderTest.Add(obj4);
+
+			var trackedObjects = classUnderTest.TrackedObjects;
+
+			Assert.Collection(
+				trackedObjects,
+				obj => Assert.Same(obj4, obj),
+				obj => Assert.Same(obj3, obj),
+				obj => Assert.Same(obj2, obj),
+				obj => Assert.Same(obj1, obj)
+			);
+		}
+
+		class TrackingDisposable : IDisposable
+		{
+			readonly string id;
+			readonly List<string> messages;
+
+			public TrackingDisposable(
+				string id,
+				List<string> messages)
+			{
+				this.id = id;
+				this.messages = messages;
+			}
+
+			public void Dispose() =>
+				messages.Add($"{id}: Dispose");
+		}
+
+		class TrackingAsyncDisposable : IAsyncDisposable
+		{
+			readonly string id;
+			readonly List<string> messages;
+
+			public TrackingAsyncDisposable(
+				string id,
+				List<string> messages)
+			{
+				this.id = id;
+				this.messages = messages;
+			}
+
+			public ValueTask DisposeAsync()
+			{
+				messages.Add($"{id}: DisposeAsync");
+				return default;
+			}
+		}
+
+		class TrackingMixedDisposable : IDisposable, IAsyncDisposable
+		{
+			readonly string id;
+			readonly List<string> messages;
+
+			public TrackingMixedDisposable(
+				string id,
+				List<string> messages)
+			{
+				this.id = id;
+				this.messages = messages;
+			}
+
+			public void Dispose() =>
+				messages.Add($"{id}: Dispose");
+
+			public ValueTask DisposeAsync()
+			{
+				messages.Add($"{id}: DisposeAsync");
+				return default;
+			}
+		}
+	}
+
 	public class WithAction
 	{
 		readonly DisposalTracker classUnderTest = new();
@@ -105,30 +311,13 @@ public class DisposalTrackerTests
 			classUnderTest.Add(expected);
 
 		[Fact]
-		public void AsyncDisposablesContainsObject()
+		public void ClearRemovesAllObjects()
 		{
-			var actuals = classUnderTest.AsyncDisposables;
+			Assert.NotEmpty(classUnderTest.TrackedObjects);
 
-			var actual = Assert.Single(actuals);
-			Assert.Same(expected, actual);
-		}
+			classUnderTest.Clear();
 
-		[Fact]
-		public void AsyncDisposablesEmptiesList()
-		{
-			_ = classUnderTest.AsyncDisposables;
-
-			var actuals = classUnderTest.AsyncDisposables;
-
-			Assert.Empty(actuals);
-		}
-
-		[Fact]
-		public void DisposablesIsEmpty()
-		{
-			var actuals = classUnderTest.Disposables;
-
-			Assert.Empty(actuals);
+			Assert.Empty(classUnderTest.TrackedObjects);
 		}
 
 		[Fact]
@@ -149,30 +338,13 @@ public class DisposalTrackerTests
 			classUnderTest.Add(expected);
 
 		[Fact]
-		public void AsyncDisposablesIsEmpty()
+		public void ClearRemovesAllObjects()
 		{
-			var actuals = classUnderTest.AsyncDisposables;
+			Assert.NotEmpty(classUnderTest.TrackedObjects);
 
-			Assert.Empty(actuals);
-		}
+			classUnderTest.Clear();
 
-		[Fact]
-		public void DisposablesContainsObject()
-		{
-			var actuals = classUnderTest.Disposables;
-
-			var actual = Assert.Single(actuals);
-			Assert.Same(expected, actual);
-		}
-
-		[Fact]
-		public void DisposablesEmptiesList()
-		{
-			_ = classUnderTest.Disposables;
-
-			var actuals = classUnderTest.Disposables;
-
-			Assert.Empty(actuals);
+			Assert.Empty(classUnderTest.TrackedObjects);
 		}
 
 		[Fact]
@@ -193,21 +365,13 @@ public class DisposalTrackerTests
 			classUnderTest.Add(expected);
 
 		[Fact]
-		public void AsyncDisposablesContainsObject()
+		public void ClearRemovesAllObjects()
 		{
-			var actuals = classUnderTest.AsyncDisposables;
+			Assert.NotEmpty(classUnderTest.TrackedObjects);
 
-			var actual = Assert.Single(actuals);
-			Assert.Same(expected, actual);
-		}
+			classUnderTest.Clear();
 
-		[Fact]
-		public void DisposablesContainsObject()
-		{
-			var actuals = classUnderTest.Disposables;
-
-			var actual = Assert.Single(actuals);
-			Assert.Same(expected, actual);
+			Assert.Empty(classUnderTest.TrackedObjects);
 		}
 
 		[Fact]
@@ -234,31 +398,6 @@ public class DisposalTrackerTests
 				Operations.Add("DisposeAsync");
 				return default(ValueTask);
 			}
-		}
-	}
-
-	public class WithNonDisposable
-	{
-		readonly DisposalTracker classUnderTest = new();
-		readonly object expected = new();
-
-		public WithNonDisposable() =>
-			classUnderTest.Add(expected);
-
-		[Fact]
-		public void AsyncDisposablesIsEmpty()
-		{
-			var actuals = classUnderTest.AsyncDisposables;
-
-			Assert.Empty(actuals);
-		}
-
-		[Fact]
-		public void DisposablesIsEmpty()
-		{
-			var actuals = classUnderTest.Disposables;
-
-			Assert.Empty(actuals);
 		}
 	}
 }

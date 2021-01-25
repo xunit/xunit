@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
@@ -10,55 +11,28 @@ namespace Xunit.Sdk
 	/// Tracks disposable objects, and disposes them in the reverse order they were added to
 	/// the tracker. Supports both <see cref="IDisposable"/> and <see cref="IAsyncDisposable"/>.
 	/// You can either directly dispose this object (via <see cref="DisposeAsync"/>), or you
-	/// can enumerate the items contained inside of it (via <see cref="Disposables"/> and
-	/// <see cref="AsyncDisposables"/>). Also supports hand-registering disposal actions
-	/// via <see cref="AddAction"/> and <see cref="AddAsyncAction"/>.
+	/// can enumerate the items contained inside of it (via <see cref="TrackedObjects"/>).
+	/// Also supports hand-registering disposal actions via <see cref="AddAction"/>
+	/// and <see cref="AddAsyncAction"/>.
 	/// </summary>
 	public class DisposalTracker : IAsyncDisposable
 	{
 		bool disposed;
-		readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
-		readonly Stack<IAsyncDisposable> toAsyncDispose = new Stack<IAsyncDisposable>();
+		readonly Stack<object> trackedObjects = new();
 
 		/// <summary>
-		/// Gets a list of the async disposable items (and then clears the list).
+		/// Gets a list of the items that are currently being tracked.
 		/// </summary>
-		public IEnumerable<IAsyncDisposable> AsyncDisposables
+		public IEnumerable<object> TrackedObjects
 		{
 			get
 			{
-				List<IAsyncDisposable> result;
-
-				lock (toDispose)
+				lock (trackedObjects)
 				{
 					GuardNotDisposed();
 
-					result = toAsyncDispose.ToList();
-					toAsyncDispose.Clear();
+					return trackedObjects.ToList();
 				}
-
-				return result;
-			}
-		}
-
-		/// <summary>
-		/// Gets a list of the disposable items (and then clears the list).
-		/// </summary>
-		public IEnumerable<IDisposable> Disposables
-		{
-			get
-			{
-				List<IDisposable> result;
-
-				lock (toDispose)
-				{
-					GuardNotDisposed();
-
-					result = toDispose.ToList();
-					toDispose.Clear();
-				}
-
-				return result;
 			}
 		}
 
@@ -69,14 +43,11 @@ namespace Xunit.Sdk
 		/// <param name="object">The object to be disposed.</param>
 		public void Add(object? @object)
 		{
-			lock (toDispose)
+			lock (trackedObjects)
 			{
 				GuardNotDisposed();
 
-				if (@object is IDisposable disposable)
-					toDispose.Push(disposable);
-				if (@object is IAsyncDisposable asyncDisposable)
-					toAsyncDispose.Push(asyncDisposable);
+				AddInternal(@object);
 			}
 		}
 
@@ -94,6 +65,12 @@ namespace Xunit.Sdk
 		public void AddAsyncAction(Func<ValueTask> cleanupAction) =>
 			Add(new AsyncDisposableWrapper(cleanupAction));
 
+		void AddInternal(object? @object)
+		{
+			if (@object != null)
+				trackedObjects.Push(@object);
+		}
+
 		/// <summary>
 		/// Add a collection of objects to be disposed. They may optionally support <see cref="IDisposable"/>
 		/// and/or <see cref="IAsyncDisposable"/>.
@@ -101,25 +78,68 @@ namespace Xunit.Sdk
 		/// <param name="objects">The objects to be disposed.</param>
 		public void AddRange(object?[]? objects)
 		{
-			if (objects != null)
-				foreach (var @object in objects)
-					Add(@object);
-		}
-
-		/// <inheritdoc/>
-		public async ValueTask DisposeAsync()
-		{
-			lock (toDispose)
+			lock (trackedObjects)
 			{
 				GuardNotDisposed();
+
+				if (objects != null)
+					foreach (var @object in objects)
+						AddInternal(@object);
+			}
+		}
+
+		/// <summary>
+		/// Removes all objects from the disposal tracker.
+		/// </summary>
+		public void Clear()
+		{
+			lock (trackedObjects)
+			{
+				GuardNotDisposed();
+
+				trackedObjects.Clear();
+			}
+		}
+
+		// Performs application-defined tasks associated with freeing, releasing, or resetting
+		//     unmanaged resources asynchronously.
+
+		/// <summary>
+		/// Disposes all the objects that were added to the disposal tracker, in the reverse order
+		/// of which they were added. For any object which implements both <see cref="IDisposable"/>
+		/// and <see cref="IAsyncDisposable"/> will have <see cref="IAsyncDisposable.DisposeAsync"/>
+		/// called first, and then <see cref="IDisposable.Dispose"/> called after.
+		/// </summary>
+		public async ValueTask DisposeAsync()
+		{
+			lock (trackedObjects)
+			{
+				GuardNotDisposed();
+
 				disposed = true;
 			}
 
-			foreach (var asyncDisposable in toAsyncDispose)
-				await asyncDisposable.DisposeAsync();
+			var exceptions = new List<Exception>();
 
-			foreach (var disposable in toDispose)
-				disposable.Dispose();
+			foreach (var trackedObject in trackedObjects)
+			{
+				try
+				{
+					if (trackedObject is IAsyncDisposable asyncDisposable)
+						await asyncDisposable.DisposeAsync();
+					if (trackedObject is IDisposable disposable)
+						disposable.Dispose();
+				}
+				catch (Exception ex)
+				{
+					exceptions.Add(ex);
+				}
+			}
+
+			if (exceptions.Count == 1)
+				ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+			if (exceptions.Count != 0)
+				throw new AggregateException(exceptions);
 		}
 
 		void GuardNotDisposed()

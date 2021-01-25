@@ -160,10 +160,15 @@ namespace Xunit.v3
 			// but save any exceptions so we can surface them during the cleanup phase,
 			// so they get properly reported as test case cleanup failures.
 			var timer = new ExecutionTimer();
-			foreach (var asyncDisposable in disposalTracker.AsyncDisposables)
-				await timer.AggregateAsync(() => cleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
-			foreach (var disposable in disposalTracker.Disposables)
-				timer.Aggregate(() => cleanupAggregator.Run(disposable.Dispose));
+			foreach (var trackedObject in disposalTracker.TrackedObjects)
+			{
+				if (trackedObject is IAsyncDisposable asyncDisposable)
+					await timer.AggregateAsync(() => cleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
+				if (trackedObject is IDisposable disposable)
+					timer.Aggregate(() => cleanupAggregator.Run(disposable.Dispose));
+			}
+
+			disposalTracker.Clear();
 
 			runSummary.Time += timer.Total;
 			return runSummary;
