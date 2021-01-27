@@ -4,7 +4,7 @@ using Xunit.v3;
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// Represents the configuration items set in the App.config file of a test assembly.
+	/// Represents the configuration items set in the configuration file of a test assembly.
 	/// Should be read with the <see cref="ConfigReader"/> class.
 	/// </summary>
 	public class TestAssemblyConfiguration
@@ -32,6 +32,23 @@ namespace Xunit.Runner.Common
 		/// value (<c>false</c>).
 		/// </summary>
 		public bool DiagnosticMessagesOrDefault => DiagnosticMessages ?? false;
+
+		/// <summary>
+		/// Gets or sets a flag indicating that skipped tests should be converted into
+		/// failed tests.
+		/// </summary>
+		public bool? FailSkips { get; set; }
+
+		/// <summary>
+		/// Gets a flag indicating that skipped tests should be converted into failed
+		/// tests. If the flag is not set, returns the default value (<c>false</c>).
+		/// </summary>
+		public bool FailSkipsOrDefault => FailSkips ?? false;
+
+		/// <summary>
+		/// Gets the list of filters used during test discovery.
+		/// </summary>
+		public XunitFilters Filters { get; } = new();
 
 		/// <summary>
 		/// Gets or sets a flag indicating that discovery should include serialization

@@ -5,14 +5,13 @@ using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 #if NETSTANDARD
 using System.IO;
 #endif
 
-namespace Xunit
+namespace Xunit.Runner.v2
 {
 	/// <summary>
 	/// This class be used to do discovery and execution of xUnit.net v2 tests

@@ -10,7 +10,8 @@ public class XunitProjectAssemblyTests
 		[InlineData("")]
 		public void WhenAssemblyFilenameIsNotSet_ReturnsDynamic(string? assemblyFileName)
 		{
-			var projectAssembly = new XunitProjectAssembly
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = assemblyFileName
 			};
@@ -23,7 +24,8 @@ public class XunitProjectAssemblyTests
 		[Fact]
 		public void WhenAssemblyFilenameIsSet_ReturnsFileNameWithoutExtension()
 		{
-			var projectAssembly = new XunitProjectAssembly
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project)
 			{
 				AssemblyFilename = "/foo/bar/baz.exe"
 			};

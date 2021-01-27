@@ -67,9 +67,10 @@ namespace Xunit.Runner.Common
 			if (configuration != null)
 			{
 				result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-				result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
 				result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
+				result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
 				result.SetMaxParallelThreads(configuration.MaxParallelThreads);
+				result.SetStopOnTestFail(configuration.StopOnFail);
 			}
 
 			return result;

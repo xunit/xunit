@@ -35,7 +35,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the target framework that the assembly was compiled against.
 		/// Examples: ".NETFramework,Version=v4.7.2", ".NETCoreApp,Version=v2.1". This information
-		/// is ready from <see cref="TargetFrameworkAttribute"/> on the test assembly, which
+		/// is read from <see cref="TargetFrameworkAttribute"/> on the test assembly, which
 		/// is normally auto-generated (but could be missing or empty).
 		/// </summary>
 		public string? TargetFramework { get; set; }
