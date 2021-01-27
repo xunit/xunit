@@ -88,11 +88,13 @@ public class ArgumentFormatterTests
 		}
 
 		[Theory]
+
 		// Printable
 		[InlineData(' ', "' '")]
 		[InlineData('a', "'a'")]
 		[InlineData('1', "'1'")]
 		[InlineData('!', "'!'")]
+
 		// Escape sequences
 		[InlineData('\t', @"'\t'")] // tab
 		[InlineData('\n', @"'\n'")] // newline
@@ -103,14 +105,16 @@ public class ArgumentFormatterTests
 		[InlineData('\b', @"'\b'")] // backspace
 		[InlineData('\r', @"'\r'")] // carriage return
 		[InlineData('\f', @"'\f'")] // formfeed
-									// Non-ASCII
+
+		// Non-ASCII
 		[InlineData('©', "'©'")]
 		[InlineData('╬', "'╬'")]
 		[InlineData('ئ', "'ئ'")]
+
 		// Unprintable
 		[InlineData(char.MinValue, @"'\0'")]
 		[InlineData(char.MaxValue, "0xffff")]
-		[MemberData(nameof(CharValue_TestData))]
+		[MemberData(nameof(CharValue_TestData), DisableDiscoveryEnumeration = true)]
 		public static void CharacterValue(char value, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
@@ -156,18 +160,23 @@ public class ArgumentFormatterTests
 			Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
 		}
 
+		public static TheoryData<Type, string> TypeValueData = new()
+		{
+			{ typeof(string), "typeof(string)" },
+			{ typeof(int[]), "typeof(int[])" },
+			{ typeof(DateTime[,]), "typeof(System.DateTime[,])" },
+			{ typeof(decimal[][,]), "typeof(decimal[][,])" },
+			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
+			{ typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)" },
+			{ typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)" },
+			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, System.DateTime>)" },
+			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)" },
+			{ typeof(bool?), "typeof(bool?)" },
+			{ typeof(bool?[]), "typeof(bool?[])" }
+		};
+
 		[Theory]
-		[InlineData(typeof(string), "typeof(string)")]
-		[InlineData(typeof(int[]), "typeof(int[])")]
-		[InlineData(typeof(DateTime[,]), "typeof(System.DateTime[,])")]
-		[InlineData(typeof(decimal[][,]), "typeof(decimal[][,])")]
-		[InlineData(typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)")]
-		[InlineData(typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)")]
-		[InlineData(typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)")]
-		[InlineData(typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, System.DateTime>)")]
-		[InlineData(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)")]
-		[InlineData(typeof(bool?), "typeof(bool?)")]
-		[InlineData(typeof(bool?[]), "typeof(bool?[])")]
+		[MemberData(nameof(TypeValueData), DisableDiscoveryEnumeration = true)]
 		public static void TypeValue(Type type, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(type));
@@ -360,14 +369,19 @@ public class ArgumentFormatterTests
 
 	public class TypeNames
 	{
+		public static TheoryData<Type, string> ArgumentFormatterFormatTypeNamesData = new()
+		{
+			{ typeof(int), "typeof(int)" },
+			{ typeof(long), "typeof(long)" },
+			{ typeof(string), "typeof(string)" },
+			{ typeof(List<int>), "typeof(System.Collections.Generic.List<int>)" },
+			{ typeof(Dictionary<int, string>), "typeof(System.Collections.Generic.Dictionary<int, string>)" },
+			{ typeof(List<>), "typeof(System.Collections.Generic.List<>)" },
+			{ typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)" }
+		};
+
 		[Theory]
-		[InlineData(typeof(int), "typeof(int)")]
-		[InlineData(typeof(long), "typeof(long)")]
-		[InlineData(typeof(string), "typeof(string)")]
-		[InlineData(typeof(List<int>), "typeof(System.Collections.Generic.List<int>)")]
-		[InlineData(typeof(Dictionary<int, string>), "typeof(System.Collections.Generic.Dictionary<int, string>)")]
-		[InlineData(typeof(List<>), "typeof(System.Collections.Generic.List<>)")]
-		[InlineData(typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)")]
+		[MemberData(nameof(ArgumentFormatterFormatTypeNamesData), DisableDiscoveryEnumeration = true)]
 		public void ArgumentFormatterFormatTypeNames(Type type, string expectedResult)
 		{
 			Assert.Equal(expectedResult, ArgumentFormatter.Format(type));

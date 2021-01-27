@@ -69,10 +69,12 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
-		public static void FileExists(string argName, [NotNull] string? fileName)
+		public static string FileExists(string argName, [NotNull] string? fileName)
 		{
 			ArgumentNotNullOrEmpty(argName, fileName);
 			ArgumentValid(argName, $"File not found: {fileName}", File.Exists(fileName));
+
+			return fileName;
 		}
 
 		/// <summary/>

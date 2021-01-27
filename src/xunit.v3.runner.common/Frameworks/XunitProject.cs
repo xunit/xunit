@@ -15,18 +15,15 @@ namespace Xunit.Runner.Common
 		public XunitProject()
 		{
 			assemblies = new List<XunitProjectAssembly>();
-			Filters = new XunitFilters();
-			Output = new Dictionary<string, string>();
 		}
 
 		/// <summary/>
 		public ICollection<XunitProjectAssembly> Assemblies => assemblies;
 
-		/// <summary/>
-		public XunitFilters Filters { get; }
-
-		/// <summary/>
-		public Dictionary<string, string> Output { get; set; }
+		/// <summary>
+		/// Gets the configuration values for the test project.
+		/// </summary>
+		public TestProjectConfiguration Configuration { get; } = new();
 
 		/// <summary/>
 		public void Add(XunitProjectAssembly assembly)

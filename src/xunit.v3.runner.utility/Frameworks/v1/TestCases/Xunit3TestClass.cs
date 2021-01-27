@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if NETFRAMEWORK
+
+using System.Collections.Generic;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -69,3 +71,5 @@ namespace Xunit.Runner.v1
 		IEnumerable<_IMethodInfo> _ITypeInfo.GetMethods(bool includePrivateMethods) => Enumerable.Empty<_IMethodInfo>();
 	}
 }
+
+#endif

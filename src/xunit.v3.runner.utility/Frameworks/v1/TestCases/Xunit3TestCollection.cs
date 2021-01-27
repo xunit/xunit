@@ -1,4 +1,6 @@
-﻿using Xunit.Internal;
+﻿#if NETFRAMEWORK
+
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -34,3 +36,5 @@ namespace Xunit.Runner.v1
 		_ITestAssembly _ITestCollection.TestAssembly => TestAssembly;
 	}
 }
+
+#endif
