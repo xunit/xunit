@@ -305,10 +305,8 @@ public class ExtensibilityPointFactoryTests
 
 			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
-			Assert.Collection(
-				DiagnosticMessages,
-				msg => Assert.StartsWith(expectedMessage, msg)
-			);
+			var msg = Assert.Single(DiagnosticMessages);
+			Assert.StartsWith(expectedMessage, msg);
 		}
 
 		class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory

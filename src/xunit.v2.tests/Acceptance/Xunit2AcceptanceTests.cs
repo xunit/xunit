@@ -233,9 +233,8 @@ public class Xunit2AcceptanceTests
 		{
 			var messages = Run<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
 
-			Assert.Collection(messages,
-				msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
-			);
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
 		}
 
 		[Fact]
@@ -243,9 +242,8 @@ public class Xunit2AcceptanceTests
 		{
 			var messages = Run<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
-			Assert.Collection(messages,
-				msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
-			);
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
 		}
 
 		[Fact]
@@ -474,9 +472,8 @@ public class Xunit2AcceptanceTests
 		{
 			var msgs = Run<ITestPassed>(typeof(ClassWithCustomFact));
 
-			Assert.Collection(msgs,
-				msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName)
-			);
+			var msg = Assert.Single(msgs);
+			Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName);
 		}
 
 		class MyCustomFact : FactAttribute { }
@@ -492,9 +489,8 @@ public class Xunit2AcceptanceTests
 		{
 			var msgs = Run<ITestPassed>(typeof(ClassWithCustomArrayFact));
 
-			Assert.Collection(msgs,
-				msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName)
-			);
+			var msg = Assert.Single(msgs);
+			Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName);
 		}
 
 		class MyCustomArrayFact : FactAttribute

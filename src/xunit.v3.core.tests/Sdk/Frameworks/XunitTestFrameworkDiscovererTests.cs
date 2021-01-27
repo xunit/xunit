@@ -226,10 +226,8 @@ public class XunitTestFrameworkDiscovererTests
 
 			framework.FindTestsForClass(testClass);
 
-			Assert.Collection(
-				framework.Sink.TestCases,
-				testCase => Assert.IsType<XunitTestCase>(testCase)
-			);
+			var testCase = Assert.Single(framework.Sink.TestCases);
+			Assert.IsType<XunitTestCase>(testCase);
 		}
 
 		class ClassWithMixOfFactsAndNonFacts

@@ -31,10 +31,8 @@ public class TdNetRunnerTests
 
 			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest));
 
-			Assert.Collection(
-				runner.Operations,
-				msg => Assert.Equal("RunClass(type: TdNetRunnerTests+RunMember+TypeUnderTest, initialRunState: NoTests)", msg)
-			);
+			var msg = Assert.Single(runner.Operations);
+			Assert.Equal("RunClass(type: TdNetRunnerTests+RunMember+TypeUnderTest, initialRunState: NoTests)", msg);
 		}
 
 		[Fact]
@@ -45,10 +43,8 @@ public class TdNetRunnerTests
 
 			runner.RunMember(listener, thisAssembly, typeof(TypeUnderTest).GetMethod(nameof(TypeUnderTest.Method))!);
 
-			Assert.Collection(
-				runner.Operations,
-				msg => Assert.Equal("RunMethod(method: TdNetRunnerTests+RunMember+TypeUnderTest.Method, initialRunState: NoTests)", msg)
-			);
+			var msg = Assert.Single(runner.Operations);
+			Assert.Equal("RunMethod(method: TdNetRunnerTests+RunMember+TypeUnderTest.Method, initialRunState: NoTests)", msg);
 		}
 
 		[Fact]
@@ -85,10 +81,9 @@ public class TdNetRunnerTests
 				msg => Assert.Equal("Discovery()", msg),
 				msg => Assert.Equal("Run(initialRunState: NoTests)", msg)
 			);
-			Assert.Collection(
-				runner.TestsRun,
-				testCase => Assert.Same(testCaseInNamespace, testCase)
-			);
+
+			var item = Assert.Single(runner.TestsRun);
+			Assert.Same(testCaseInNamespace, item);
 		}
 	}
 

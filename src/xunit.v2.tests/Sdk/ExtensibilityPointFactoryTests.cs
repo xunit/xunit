@@ -96,9 +96,8 @@ public class ExtensibilityPointFactoryTests
 			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
-			Assert.Collection(DiagnosticMessages,
-				msg => Assert.Equal(expectedMessage, msg)
-			);
+			var msg = Assert.Single(DiagnosticMessages);
+			Assert.Equal(expectedMessage, msg);
 		}
 
 		class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory
