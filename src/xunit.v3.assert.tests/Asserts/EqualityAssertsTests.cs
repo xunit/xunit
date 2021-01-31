@@ -898,7 +898,7 @@ public class EqualityAssertsTests
 			Assert.Equal("tolerance", ex.ParamName);
 		}
 	}
-	
+
 	public class Equal_Float
 	{
 		[Fact]
