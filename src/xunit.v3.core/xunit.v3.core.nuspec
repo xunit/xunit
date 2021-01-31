@@ -39,15 +39,13 @@
 
 		<file target="lib\net472\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll.tdnet" />
-		<file target="lib\net472\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
 		<file target="lib\net472\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\net472\xunit.v3.runner.common.net472.dll" />
 		<file target="lib\net472\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\net472\xunit.v3.runner.tdnet.dll" />
 		<file target="lib\net472\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\net472\xunit.v3.runner.utility.net472.dll" />
 
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll" />
-		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
 
-		<file target="ref\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll" />
+		<file target="ref\" src="bin\$Configuration$\netstandard2.0\ref\xunit.v3.core.dll" />
 		<file target="ref\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
 	</files>
 </package>
