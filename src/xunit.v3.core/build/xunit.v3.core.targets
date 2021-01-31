@@ -3,9 +3,9 @@
 
   <!-- Desktop CLR needs auto-generated binding redirects (and full PDBs for TPv1) -->
   <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects Condition=" '$(AutoGenerateBindingRedirects)' == '' ">true</AutoGenerateBindingRedirects>
     <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <GenerateBindingRedirectsOutputType Condition=" '$(GenerateBindingRedirectsOutputType)' == '' ">true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <!-- Everything else is TPv2, which wants portable PDBs -->

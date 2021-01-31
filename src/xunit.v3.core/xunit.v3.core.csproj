@@ -19,11 +19,9 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
   </ItemGroup>
 
-  <!-- <ItemGroup>
-    <Content Include="xunit.core.dll.tdnet">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup> -->
+  <ItemGroup>
+    <Content Include="xunit.v3.core.dll.tdnet" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\*.rd.xml" />
