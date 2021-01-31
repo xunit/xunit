@@ -127,7 +127,7 @@ namespace Xunit.Sdk
 				{
 					if (trackedObject is IAsyncDisposable asyncDisposable)
 						await asyncDisposable.DisposeAsync();
-					if (trackedObject is IDisposable disposable)
+					else if (trackedObject is IDisposable disposable)
 						disposable.Dispose();
 				}
 				catch (Exception ex)

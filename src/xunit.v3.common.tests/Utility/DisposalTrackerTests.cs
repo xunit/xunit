@@ -375,15 +375,12 @@ public class DisposalTrackerTests
 		}
 
 		[Fact]
-		public async ValueTask ObjectIsAsyncDisposedThenDisposed()
+		public async ValueTask OnlyDisposeAsyncIsCalled()
 		{
 			await classUnderTest.DisposeAsync();
 
-			Assert.Collection(
-				expected.Operations,
-				op => Assert.Equal("DisposeAsync", op),
-				op => Assert.Equal("Dispose", op)
-			);
+			var op = Assert.Single(expected.Operations);
+			Assert.Equal("DisposeAsync", op);
 		}
 
 		class MixedDisposableObject : IDisposable, IAsyncDisposable
