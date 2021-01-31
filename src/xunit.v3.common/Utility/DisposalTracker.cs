@@ -13,7 +13,9 @@ namespace Xunit.Sdk
 	/// You can either directly dispose this object (via <see cref="DisposeAsync"/>), or you
 	/// can enumerate the items contained inside of it (via <see cref="TrackedObjects"/>).
 	/// Also supports hand-registering disposal actions via <see cref="AddAction"/>
-	/// and <see cref="AddAsyncAction"/>.
+	/// and <see cref="AddAsyncAction"/>. Note that an object implements both interfaces,
+	/// this will *only* call <see cref="IAsyncDisposable.DisposeAsync"/> and will not
+	/// call <see cref="IDisposable.Dispose"/>.
 	/// </summary>
 	public class DisposalTracker : IAsyncDisposable
 	{
@@ -52,14 +54,14 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Add an action to the list of things to be done during sync disposal.
+		/// Add an action to the list of things to be done during disposal.
 		/// </summary>
 		/// <param name="cleanupAction">The cleanup action.</param>
 		public void AddAction(Action cleanupAction) =>
 			Add(new DisposableWrapper(cleanupAction));
 
 		/// <summary>
-		/// Add an action to the list of things to be done during async disposal.
+		/// Add an action to the list of things to be done during disposal.
 		/// </summary>
 		/// <param name="cleanupAction">The cleanup action.</param>
 		public void AddAsyncAction(Func<ValueTask> cleanupAction) =>
@@ -100,9 +102,6 @@ namespace Xunit.Sdk
 				trackedObjects.Clear();
 			}
 		}
-
-		// Performs application-defined tasks associated with freeing, releasing, or resetting
-		//     unmanaged resources asynchronously.
 
 		/// <summary>
 		/// Disposes all the objects that were added to the disposal tracker, in the reverse order
