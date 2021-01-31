@@ -44,8 +44,8 @@ namespace Xunit.Runner.Common
 			StackFrameInfo stackFrame,
 			string message)
 		{
-			using (SetColor(ConsoleColor.Red))
-				lock (LockObject)
+			lock (LockObject)
+				using (SetColor(ConsoleColor.Red))
 					Console.Error.WriteLine(message);
 		}
 
@@ -54,8 +54,8 @@ namespace Xunit.Runner.Common
 			StackFrameInfo stackFrame,
 			string message)
 		{
-			using (SetColor(ConsoleColor.Gray))
-				lock (LockObject)
+			lock (LockObject)
+				using (SetColor(ConsoleColor.Gray))
 					Console.WriteLine(message);
 		}
 
@@ -64,8 +64,8 @@ namespace Xunit.Runner.Common
 			StackFrameInfo stackFrame,
 			string message)
 		{
-			using (SetColor(ConsoleColor.DarkGray))
-				lock (LockObject)
+			lock (LockObject)
+				using (SetColor(ConsoleColor.DarkGray))
 					Console.WriteLine(message);
 		}
 
@@ -74,8 +74,8 @@ namespace Xunit.Runner.Common
 			StackFrameInfo stackFrame,
 			string message)
 		{
-			using (SetColor(ConsoleColor.Yellow))
-				lock (LockObject)
+			lock (LockObject)
+				using (SetColor(ConsoleColor.Yellow))
 					Console.WriteLine(message);
 		}
 
