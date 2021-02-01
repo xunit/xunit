@@ -83,7 +83,7 @@ namespace Xunit
 		/// </summary>
 		/// <param name="testMethod">The method that is being tested.</param>
 		/// <param name="item">An item yielded from the data member.</param>
-		/// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
+		/// <returns>An <see cref="object"/> array suitable for return from <see cref="GetData"/>.</returns>
 		protected abstract object?[] ConvertDataItem(
 			MethodInfo testMethod,
 			object? item

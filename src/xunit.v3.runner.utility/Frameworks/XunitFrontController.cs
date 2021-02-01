@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.Runner.v3;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -17,7 +18,7 @@ namespace Xunit
 {
 	/// <summary>
 	/// Default implementation of <see cref="IFrontController"/> which supports running tests from
-	/// both xUnit.net v1 and v2.
+	/// xUnit.net v1, v2, and v3.
 	/// </summary>
 	public class XunitFrontController : IFrontController, IAsyncDisposable
 	{
@@ -67,6 +68,9 @@ namespace Xunit
 			shadowCopyFolder = projectAssembly.Configuration.ShadowCopyFolder;
 			this.diagnosticMessageSink = diagnosticMessageSink ?? new _NullMessageSink();
 
+			if (configFileName != null)
+				Guard.FileExists($"{nameof(projectAssembly)}.{nameof(projectAssembly.ConfigFilename)}", configFileName);
+
 			if (sourceInformationProvider == null)
 			{
 #if NETSTANDARD
@@ -113,18 +117,22 @@ namespace Xunit
 		/// </summary>
 		protected virtual IFrontController CreateInnerController()
 		{
-#if NETFRAMEWORK
 			var assemblyFolder = Path.GetDirectoryName(assemblyFileName)!;
+
+			if (File.Exists(Path.Combine(assemblyFolder, "xunit.v3.core.dll")))
+				return new Xunit3(diagnosticMessageSink, projectAssembly, sourceInformationProvider);
+
 			if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
 				return new Xunit2(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
+#if NETFRAMEWORK
 			var xunitPath = Path.Combine(assemblyFolder, "xunit.dll");
 			if (File.Exists(xunitPath))
 				return new Xunit1(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
-			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder}");
+			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1), xunit.execution.*.dll (v2), or xunit.v3.core.dll (v3) in {assemblyFolder}");
 #else
-			return new Xunit2(diagnosticMessageSink, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+			throw new InvalidOperationException($"Unknown test framework: could not find xunit.execution.*.dll (v2) or xunit.v3.core.dll (v3) in {assemblyFolder}");
 #endif
 		}
 

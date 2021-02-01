@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
@@ -405,6 +406,8 @@ namespace Xunit.Runner.SystemConsole
 				await using (var controller = new XunitFrontController(assembly, diagnosticMessageSink: diagnosticMessageSink))
 				using (var discoverySink = new TestDiscoverySink(() => cancel))
 				{
+					//var discoverySink = new LoggerDiscoverySink();
+
 					// Discover & filter the tests
 					var appDomainOption = controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied ? AppDomainOption.Enabled : AppDomainOption.Disabled;
 					var discoveryStarting = new TestAssemblyDiscoveryStarting
@@ -508,5 +511,24 @@ namespace Xunit.Runner.SystemConsole
 
 			return false;
 		}
+	}
+}
+
+class LoggerDiscoverySink : _IMessageSink
+{
+	public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
+
+	public List<_ITestCase> TestCases { get; } = new List<_ITestCase>();
+
+	public bool OnMessage(_MessageSinkMessage message)
+	{
+		Guard.ArgumentNotNull(nameof(message), message);
+
+		if (message is _DiscoveryComplete)
+			Finished.Set();
+		else if (message is _TestCaseDiscovered discovered)
+			Console.WriteLine(discovered.TestCaseDisplayName);
+
+		return true;
 	}
 }

@@ -19,7 +19,7 @@ namespace Xunit.Runner.v2
 	/// </summary>
 	public class Xunit2 : Xunit2Discoverer, IFrontController
 	{
-		ITestCaseBulkDeserializer? defaultTestCaseBulkDeserializer;
+		ITestCaseBulkDeserializer? bulkDeserializer;
 		readonly ITestFrameworkExecutor remoteExecutor;
 
 		/// <summary>
@@ -63,7 +63,7 @@ namespace Xunit.Runner.v2
 			var callbackContainer = new DeserializeCallback();
 			Action<List<KeyValuePair<string?, ITestCase?>>> callback = callbackContainer.Callback;
 
-			if (defaultTestCaseBulkDeserializer == null)
+			if (bulkDeserializer == null)
 			{
 				if (AppDomain.HasAppDomain)
 				{
@@ -76,10 +76,10 @@ namespace Xunit.Runner.v2
 					catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseBulkDeserialize" doesn't exist
 				}
 
-				defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(remoteExecutor);
+				bulkDeserializer = new DefaultTestCaseBulkDeserializer(remoteExecutor);
 			}
 
-			return defaultTestCaseBulkDeserializer.BulkDeserialize(serializations);
+			return bulkDeserializer.BulkDeserialize(serializations);
 		}
 
 		/// <summary>

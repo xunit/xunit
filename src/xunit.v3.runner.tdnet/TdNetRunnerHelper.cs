@@ -13,12 +13,16 @@ using Xunit.v3;
 
 namespace Xunit.Runner.TdNet
 {
+	// This class does not use XunitFrontController, because the reference to xunit.runner.tdnet comes via
+	// the NuGet package for the specific version of xUnit.net your tests are written against. So this only
+	// needs to be written against the current version of xUnit.net.
 	public class TdNetRunnerHelper : IAsyncDisposable
 	{
 		readonly TestAssemblyConfiguration configuration = new();
 		bool disposed;
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly ITestListener? testListener;
+		// TODO: This needs to use Xunit3 instead of Xunit2.
 		readonly Xunit2? xunit;
 
 		/// <summary>

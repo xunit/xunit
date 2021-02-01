@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v3;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -51,6 +52,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 			this.consoleLock = consoleLock ?? new object();
 
 			commandLine = CommandLine.Parse(this.testAssembly, this.testAssembly.Location, args);
+
+			// TODO: Need to deal with ParseFault here, because we try to call commandLine.Project which might be null...?
 
 			this.runnerReporters =
 				runnerReporters != null
@@ -96,6 +99,21 @@ namespace Xunit.Runner.InProc.SystemConsole
 					}
 				};
 
+				// Validate options that aren't legal with -tcp (runners are validated in CommandLine.ChooseReporter)
+				if (commandLine.TcpPort.HasValue)
+				{
+					if (commandLine.Project.Configuration.Output.Count != 0)
+						throw new ArgumentException($"cannot specify -{commandLine.Project.Configuration.Output.Keys.First()} when using -tcp");
+					if (commandLine.Project.Configuration.DebugOrDefault)
+						throw new ArgumentException("cannot specify -debug when using -tcp");
+					if (commandLine.Project.Configuration.NoAutoReportersOrDefault)
+						throw new ArgumentException("cannot specify -noautoreporters when using -tcp");
+					if (commandLine.Project.Configuration.PauseOrDefault)
+						throw new ArgumentException("cannot specify -pause when using -tcp");
+					if (commandLine.Project.Configuration.WaitOrDefault)
+						throw new ArgumentException("cannot specify -wait when using -tcp");
+				}
+
 				await using var reporter = commandLine.ChooseReporter(runnerReporters);
 
 				if (commandLine.Project.Configuration.PauseOrDefault)
@@ -112,16 +130,30 @@ namespace Xunit.Runner.InProc.SystemConsole
 				globalInternalDiagnosticMessages = commandLine.Project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
 				noColor = commandLine.Project.Configuration.NoColorOrDefault;
 				logger = new ConsoleRunnerLogger(!noColor, consoleLock);
-				var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, globalInternalDiagnosticMessages, noColor);
-				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
+				var internalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, globalInternalDiagnosticMessages, noColor);
+				var shouldReturnFailErrorCode = false;
 
-				if (!reporter.ForceNoLogo && !commandLine.Project.Configuration.NoLogoOrDefault)
-					PrintHeader();
+				if (commandLine.TcpPort.HasValue)
+				{
+					var engineID = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly()?.Location) ?? "<unknown assembly>";
+					await using var engine = new TcpExecutionEngine(engineID, commandLine.TcpPort.Value, commandLine.Project, internalDiagnosticMessageSink);
+					await engine.Start();
+					await engine.WaitForQuit();
+				}
+				else
+				{
+					var reporterMessageHandler = await reporter.CreateMessageHandler(logger, internalDiagnosticMessageSink);
 
-				var failCount = await RunProject(
-					commandLine.Project,
-					reporterMessageHandler
-				);
+					if (!reporter.ForceNoLogo && !commandLine.Project.Configuration.NoLogoOrDefault)
+						PrintHeader();
+
+					var failCount = await RunProject(
+						commandLine.Project,
+						reporterMessageHandler
+					);
+
+					shouldReturnFailErrorCode = failCount > 0;
+				}
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -134,7 +166,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					Console.WriteLine();
 				}
 
-				return failCount > 0 ? 1 : 0;
+				return shouldReturnFailErrorCode ? 1 : 0;
 			}
 			catch (Exception ex)
 			{
@@ -237,7 +269,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine();
 			Console.WriteLine("General options");
 			Console.WriteLine();
-			Console.WriteLine("  -debug                : launch the debugger to debug the tests");
 			Console.WriteLine("  -diagnostics          : enable diagnostics messages for all test assemblies");
 			Console.WriteLine("  -failskips            : convert skipped tests into failures");
 			Console.WriteLine("  -internaldiagnostics  : enable internal diagnostics messages for all test assemblies");
@@ -245,17 +276,23 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine("                        :   default   - run with default (1 thread per CPU thread)");
 			Console.WriteLine("                        :   unlimited - run with unbounded thread count");
 			Console.WriteLine("                        :   (number)  - limit task thread pool size to 'count'");
-			Console.WriteLine("  -noautoreporters      : do not allow reporters to be auto-enabled by environment");
-			Console.WriteLine("                        : (for example, auto-detecting TeamCity or AppVeyor)");
 			Console.WriteLine("  -nocolor              : do not output results with colors");
 			Console.WriteLine("  -nologo               : do not show the copyright message");
-			Console.WriteLine("  -pause                : wait for input before running tests");
 			Console.WriteLine("  -parallel <option>    : set parallelization based on option");
 			Console.WriteLine("                        :   none        - turn off all parallelization");
 			Console.WriteLine("                        :   collections - only parallelize collections");
 			Console.WriteLine("  -preenumeratetheories : enable theory pre-enumeration (disabled by default)");
 			Console.WriteLine("  -stoponfail           : stop on first test failure");
-			Console.WriteLine("  -wait                 : wait for input after completion");
+			Console.WriteLine("  -tcp <port>           : launches in v3 child process mode, connecting to the given");
+			Console.WriteLine("                        : TCP port (on localhost) for IPC");
+			Console.WriteLine();
+			Console.WriteLine("Interactive options (not valid with -tcp)");
+			Console.WriteLine();
+			Console.WriteLine("  -debug           : launch the debugger to debug the tests");
+			Console.WriteLine("  -noautoreporters : do not allow reporters to be auto-enabled by environment");
+			Console.WriteLine("                   : (for example, auto-detecting TeamCity or AppVeyor)");
+			Console.WriteLine("  -pause           : wait for input before running tests");
+			Console.WriteLine("  -wait            : wait for input after completion");
 			Console.WriteLine();
 			// TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
 			Console.WriteLine("Filtering (optional, choose one or more)");
@@ -287,7 +324,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 			if (runnerReporters.Count > 0)
 			{
-				Console.WriteLine("Reporters (optional, choose only one)");
+				Console.WriteLine("Reporters (optional, choose only one; not valid with -tcp)");
 				Console.WriteLine();
 
 				var longestSwitch = runnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
@@ -303,7 +340,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 			if (TransformFactory.AvailableTransforms.Count != 0)
 			{
-				Console.WriteLine("Result formats (optional, choose one or more)");
+				Console.WriteLine("Result formats (optional, choose one or more; not valid with -tcp)");
 				Console.WriteLine();
 
 				var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);

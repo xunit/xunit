@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.v3;
+using Xunit.v3;
 
 public class BufferedTcpClientTests
 {
@@ -101,7 +102,12 @@ public class BufferedTcpClientTests
 			this.port = port;
 
 			socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-			bufferedClient = new BufferedTcpClient(socket, request => Requests.Add(Encoding.UTF8.GetString(request.ToArray())));
+			bufferedClient = new BufferedTcpClient(
+				"client",
+				socket,
+				request => Requests.Add(Encoding.UTF8.GetString(request.ToArray())),
+				new _NullMessageSink()
+			);
 		}
 
 		public List<string> Requests { get; } = new();
@@ -169,7 +175,12 @@ public class BufferedTcpClientTests
 					socket.Dispose();
 				});
 
-				bufferedClient = new BufferedTcpClient(socket, request => Requests.Add(Encoding.UTF8.GetString(request.ToArray())));
+				bufferedClient = new BufferedTcpClient(
+					"server",
+					socket,
+					request => Requests.Add(Encoding.UTF8.GetString(request.ToArray())),
+					new _NullMessageSink()
+				);
 				bufferedClient.Start();
 			});
 
