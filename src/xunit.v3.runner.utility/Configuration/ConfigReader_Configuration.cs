@@ -2,6 +2,7 @@
 
 using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using Xunit.v3;
 
@@ -15,17 +16,19 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Loads the test assembly configuration for the given test assembly.
 		/// </summary>
-		/// <param name="assemblyFileName">The test assembly.</param>
+		/// <param name="configuration">The configuration object to write the values to.</param>
+		/// <param name="assemblyFileName">The test assembly file name.</param>
 		/// <param name="configFileName">The test assembly configuration file.</param>
-		/// <returns>The test assembly configuration.</returns>
-		public static TestAssemblyConfiguration? Load(
-			string assemblyFileName,
+		/// <returns>A flag which indicates whether configuration values were read.</returns>
+		public static bool Load(
+			TestAssemblyConfiguration configuration,
+			string? assemblyFileName,
 			string? configFileName = null)
 		{
 			if (configFileName == null && !string.IsNullOrWhiteSpace(assemblyFileName))
 				configFileName = assemblyFileName + ".config";
 
-			if (configFileName?.EndsWith(".config", StringComparison.Ordinal) == true)
+			if (configFileName?.EndsWith(".config", StringComparison.Ordinal) == true && File.Exists(configFileName))
 			{
 				try
 				{
@@ -33,29 +36,28 @@ namespace Xunit.Runner.Common
 					var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
 					if (config != null && config.AppSettings != null)
 					{
-						var result = new TestAssemblyConfiguration();
 						var settings = config.AppSettings.Settings;
 
-						result.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? result.AppDomain;
-						result.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
-						result.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? result.InternalDiagnosticMessages;
-						result.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
-						result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? result.MethodDisplay;
-						result.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? result.MethodDisplayOptions;
-						result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
-						result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
-						result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
-						result.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? result.ShadowCopy;
-						result.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? result.StopOnFail;
-						result.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? result.LongRunningTestSeconds;
+						configuration.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? configuration.AppDomain;
+						configuration.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? configuration.DiagnosticMessages;
+						configuration.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? configuration.InternalDiagnosticMessages;
+						configuration.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? configuration.MaxParallelThreads;
+						configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
+						configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
+						configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
+						configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
+						configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
+						configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
+						configuration.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? configuration.StopOnFail;
+						configuration.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? configuration.LongRunningTestSeconds;
 
-						return result;
+						return true;
 					}
 				}
 				catch { }
 			}
 
-			return null;
+			return false;
 		}
 
 		static bool? GetBoolean(
@@ -74,8 +76,8 @@ namespace Xunit.Runner.Common
 				});
 		}
 
-		static TValue? GetEnum<TValue>
-			(KeyValueConfigurationCollection settings,
+		static TValue? GetEnum<TValue>(
+			KeyValueConfigurationCollection settings,
 			string key)
 				where TValue : struct
 		{

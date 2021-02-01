@@ -197,6 +197,9 @@ namespace Xunit.Runner.MSBuild
 							ConfigFilename = configFileName,
 							TargetFramework = targetFramework
 						};
+
+						ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+
 						projectAssembly.Configuration.IncludeSerialization = SerializeTestCases;
 						if (shadowCopy.HasValue)
 							projectAssembly.Configuration.ShadowCopy = shadowCopy;
@@ -306,7 +309,7 @@ namespace Xunit.Runner.MSBuild
 				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-				await using var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename!, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink);
+				await using var controller = new XunitFrontController(assembly, diagnosticMessageSink: diagnosticMessageSink);
 				using var discoverySink = new TestDiscoverySink(() => cancel);
 
 				// Discover & filter the tests

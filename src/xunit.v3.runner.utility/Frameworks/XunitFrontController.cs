@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -9,7 +10,6 @@ using Xunit.Sdk;
 using Xunit.v3;
 
 #if NETFRAMEWORK
-using System.Linq;
 using Xunit.Runner.v1;
 #endif
 
@@ -28,6 +28,7 @@ namespace Xunit
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		bool disposed;
 		IFrontController? innerController;
+		readonly XunitProjectAssembly projectAssembly;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
@@ -40,37 +41,31 @@ namespace Xunit
 			assemblyFileName = "<test value>";
 			diagnosticMessageSink = new _NullMessageSink();
 			sourceInformationProvider = _NullSourceInformationProvider.Instance;
+
+			// TODO: Where do these come from?
+			var project = new XunitProject();
+			projectAssembly = new(project);
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitFrontController"/> class.
 		/// </summary>
-		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
-		/// <param name="assemblyFileName">The test assembly.</param>
-		/// <param name="configFileName">The test assembly configuration file.</param>
-		/// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
-		/// tests to be discovered and run without locking assembly files on disk.</param>
-		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
-		/// will be automatically (randomly) generated</param>
+		/// <param name="projectAssembly">The project assembly to be run.</param>
 		/// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public XunitFrontController(
-			AppDomainSupport appDomainSupport,
-			string assemblyFileName,
-			string? configFileName = null,
-			bool shadowCopy = true,
-			string? shadowCopyFolder = null,
+			XunitProjectAssembly projectAssembly,
 			_ISourceInformationProvider? sourceInformationProvider = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			this.appDomainSupport = appDomainSupport;
-			this.assemblyFileName = assemblyFileName;
-			this.configFileName = configFileName;
-			this.shadowCopy = shadowCopy;
-			this.shadowCopyFolder = shadowCopyFolder;
-			this.diagnosticMessageSink = diagnosticMessageSink ?? new _NullMessageSink();
+			this.projectAssembly = Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
 
-			Guard.FileExists("assemblyFileName", assemblyFileName);
+			appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
+			assemblyFileName = Guard.FileExists($"{nameof(projectAssembly)}.{nameof(projectAssembly.AssemblyFilename)}", projectAssembly.AssemblyFilename);
+			configFileName = projectAssembly.ConfigFilename;
+			shadowCopy = projectAssembly.Configuration.ShadowCopyOrDefault;
+			shadowCopyFolder = projectAssembly.Configuration.ShadowCopyFolder;
+			this.diagnosticMessageSink = diagnosticMessageSink ?? new _NullMessageSink();
 
 			if (sourceInformationProvider == null)
 			{

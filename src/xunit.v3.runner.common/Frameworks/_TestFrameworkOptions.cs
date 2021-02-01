@@ -13,9 +13,7 @@ namespace Xunit.Runner.Common
 	/// Represents options passed to a test framework for discovery or execution.
 	/// </summary>
 	[DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
-#if NETFRAMEWORK
-	[System.Serializable]
-#endif
+	[Serializable]
 	public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFrameworkExecutionOptions
 	{
 		readonly Dictionary<string, string> properties = new Dictionary<string, string>();

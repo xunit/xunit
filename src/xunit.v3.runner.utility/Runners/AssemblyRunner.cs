@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -20,7 +19,7 @@ namespace Xunit.Runners
 
 		volatile bool cancelled;
 		bool disposed;
-		readonly TestAssemblyConfiguration configuration;
+		readonly TestAssemblyConfiguration configuration = new();
 		readonly IFrontController controller;
 		readonly ManualResetEvent discoveryCompleteEvent = new ManualResetEvent(true);
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
@@ -59,10 +58,24 @@ namespace Xunit.Runners
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null)
 		{
-			controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: this);
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project)
+			{
+				AssemblyFilename = assemblyFileName,
+				ConfigFilename = configFileName,
+			};
+
+			ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFilename, projectAssembly.ConfigFilename);
+			projectAssembly.Configuration.AppDomain = appDomainSupport;
+			projectAssembly.Configuration.ShadowCopy = shadowCopy;
+			projectAssembly.Configuration.ShadowCopyFolder = shadowCopyFolder;
+
+			project.Add(projectAssembly);
+
+			controller = new XunitFrontController(projectAssembly, diagnosticMessageSink: this);
 			disposalTracker.Add(controller);
 
-			configuration = ConfigReader.Load(assemblyFileName, configFileName);
+			ConfigReader.Load(configuration, assemblyFileName, configFileName);
 		}
 
 		/// <summary>

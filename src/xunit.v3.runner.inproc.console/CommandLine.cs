@@ -112,6 +112,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 				TargetFramework = targetFramework
 			};
 
+			ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFilename, projectAssembly.ConfigFilename);
+
 			project.Add(projectAssembly);
 			return project;
 		}

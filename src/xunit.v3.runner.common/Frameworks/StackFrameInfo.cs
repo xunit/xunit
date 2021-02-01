@@ -77,14 +77,16 @@ namespace Xunit.Runner.Common
 			var wordAt = default(string);
 			var wordsInLine = default(string);
 
-#if NETFRAMEWORK
-			var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
-			if (getResourceStringMethod != null)
+			try
 			{
-				wordAt = (string?)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
-				wordsInLine = (string?)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });
+				var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
+				if (getResourceStringMethod != null)
+				{
+					wordAt = (string?)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
+					wordsInLine = (string?)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });
+				}
 			}
-#endif
+			catch { }  // Ignore failures that might be related to non-public reflection
 
 			if (wordAt == default || wordAt == "Word_At")
 				wordAt = "at";

@@ -15,7 +15,7 @@ namespace Xunit.Runner.TdNet
 {
 	public class TdNetRunnerHelper : IAsyncDisposable
 	{
-		readonly TestAssemblyConfiguration? configuration;
+		readonly TestAssemblyConfiguration configuration = new();
 		bool disposed;
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly ITestListener? testListener;
@@ -34,7 +34,7 @@ namespace Xunit.Runner.TdNet
 			this.testListener = testListener;
 
 			var assemblyFileName = assembly.GetLocalCodeBase();
-			configuration = ConfigReader.Load(assemblyFileName);
+			ConfigReader.Load(configuration, assemblyFileName);
 			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
 			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, _NullSourceInformationProvider.Instance, assemblyFileName, shadowCopy: false);
 			disposalTracker.Add(xunit);

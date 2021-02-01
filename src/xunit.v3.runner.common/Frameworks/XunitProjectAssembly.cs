@@ -11,7 +11,6 @@ namespace Xunit.Runner.Common
 	public class XunitProjectAssembly
 	{
 		Assembly? assembly;
-		TestAssemblyConfiguration? configuration;
 		string? targetFramework;
 
 		/// <summary>
@@ -50,18 +49,9 @@ namespace Xunit.Runner.Common
 		public string? ConfigFilename { get; set; }
 
 		/// <summary>
-		/// Gets the configuration values read from the test assembly configuration file.
+		/// Gets the configuration values for the test assembly.
 		/// </summary>
-		public TestAssemblyConfiguration Configuration
-		{
-			get
-			{
-				if (configuration is null)
-					configuration = ConfigReader.Load(AssemblyFilename ?? string.Empty, ConfigFilename);
-
-				return configuration;
-			}
-		}
+		public TestAssemblyConfiguration Configuration { get; } = new();
 
 		/// <summary>
 		/// Gets the project that this project assembly belongs to.
@@ -69,7 +59,8 @@ namespace Xunit.Runner.Common
 		public XunitProject Project { get; }
 
 		/// <summary>
-		/// Gets the target framework that the test assembly was compiled against.
+		/// Gets the target framework that the test assembly was compiled against. If the value was not
+		/// set, returns <see cref="AssemblyUtility.UnknownTargetFramework"/>.
 		/// </summary>
 		public string TargetFramework
 		{
