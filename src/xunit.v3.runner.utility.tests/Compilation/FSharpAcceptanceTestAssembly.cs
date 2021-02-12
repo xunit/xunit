@@ -37,8 +37,9 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 			FSharpOption<int>.None,
 			FSharpOption<bool>.None,
 			FSharpOption<bool>.None,
-			FSharpOption<ReferenceResolver.Resolver>.None,
+			FSharpOption<LegacyReferenceResolver>.None,
 			FSharpOption<FSharpFunc<Tuple<string, DateTime>, FSharpOption<Tuple<object, IntPtr, int>>>>.None,
+			FSharpOption<bool>.None,
 			FSharpOption<bool>.None,
 			FSharpOption<bool>.None,
 			FSharpOption<bool>.None
