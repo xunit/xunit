@@ -36,7 +36,7 @@ jobs:
         run: dotnet --info
 
       - name: "Build target: PR"
-        run: dotnet run --project tools/builder --no-launch-profile -- PR
+        run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
 
       - name: "Upload artifact: test-${{ matrix.os }}"
         uses: actions/upload-artifact@v2
