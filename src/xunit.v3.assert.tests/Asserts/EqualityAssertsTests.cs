@@ -899,6 +899,73 @@ public class EqualityAssertsTests
 		}
 	}
 
+	public class Equal_Float
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.Equal(10.566f, 10.565f, 0.01f);
+		}
+
+		[Fact]
+		public void Success_Zero()
+		{
+			Assert.Equal(0.00f, 0.05f, 0.1f);
+		}
+
+		[Fact]
+		public void Success_NaN()
+		{
+			Assert.Equal(float.NaN, float.NaN, 1000.0f);
+		}
+
+		[Fact]
+		public void Success_Infinite()
+		{
+			Assert.Equal(float.MinValue, float.MaxValue, float.PositiveInfinity);
+		}
+
+		[CulturedFact]
+		public void Failure()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
+			Assert.Equal($"{0.11113f:G9}", ex.Expected);
+			Assert.Equal($"{0.11115f:G9}", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_NaN()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
+			Assert.Equal($"{20210102.2208f:G9}", ex.Expected);
+			Assert.Equal($"NaN", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_PositiveInfinity()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
+			Assert.Equal($"∞", ex.Expected);
+			Assert.Equal($"{77.7f:G9}", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_NegativeInfinity()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
+			Assert.Equal($"{0.0f:G9}", ex.Expected);
+			Assert.Equal($"-∞", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_InvalidTolerance()
+		{
+			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
+			Assert.Equal($"Tolerance must be greater than or equal to zero{Environment.NewLine}Parameter name: tolerance", ex.Message);
+			Assert.Equal("tolerance", ex.ParamName);
+		}
+	}
+
 	public class StrictEqual
 	{
 		[Fact]
