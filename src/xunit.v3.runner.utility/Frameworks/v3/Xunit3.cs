@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.v3.Extensions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -70,7 +71,7 @@ namespace Xunit.Runner.v3
 		}
 
 		/// <inheritdoc/>
-		public bool CanUseAppDomains => false;
+		public bool CanUseAppDomains => false; // since v3 - no app domains!
 
 		/// <inheritdoc/>
 		public string TargetFramework => projectAssembly.TargetFramework;
@@ -100,7 +101,7 @@ namespace Xunit.Runner.v3
 		{
 			await disposalTracker.DisposeAsync();
 
-			if (!process.WaitForExit(5000))
+			if (! await process.WaitForExitAsync(5000))
 				diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Child process {process.Id} did not exit within 5 seconds; may need to be manually stopped" });
 		}
 
@@ -181,7 +182,14 @@ namespace Xunit.Runner.v3
 					if (runnerEngine.State.HasReachedConnectedState())
 						return true;
 
-					await Task.Delay(50, cancellationTokenSource.Token);
+					try
+					{
+						await Task.Delay(50, cancellationTokenSource.Token);
+					}
+					catch (TaskCanceledException)
+					{
+						return false;
+					}
 				}
 			}).ConfigureAwait(false).GetAwaiter().GetResult();
 		}

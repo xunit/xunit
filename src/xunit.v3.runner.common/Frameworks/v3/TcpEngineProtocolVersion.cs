@@ -18,7 +18,7 @@
 		/// (3) Engine protocol commands:
 		///   <see cref="TcpEngineMessages.Execution.Info"/>,
 		///   <see cref="TcpEngineMessages.Execution.Message"/>;
-		/// (4) Engine protocol INFO meesage fields:
+		/// (4) Engine protocol INFO message fields:
 		///   <see cref="TcpExecutionEngineInfo.ProtocolVersion"/>,
 		///   <see cref="TcpExecutionEngineInfo.TestAssemblyUniqueID"/>,
 		///   <see cref="TcpExecutionEngineInfo.TestFrameworkDisplayName"/>.
