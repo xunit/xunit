@@ -72,8 +72,8 @@ public class TdNetRunnerTests
 		{
 			var listener = Substitute.For<ITestListener>();
 			var runner = new TestableTdNetRunner();
-			var testCaseInNamespace = Mocks.TestCase<DummyNamespace.ClassInNamespace>("TestMethod");
-			var testCaseOutsideOfNamespace = Mocks.TestCase<RunNamespace>("RunsOnlyTestMethodsInTheGivenNamespace");
+			var testCaseInNamespace = TestData.TestCaseDiscovered<DummyNamespace.ClassInNamespace>("TestMethod");
+			var testCaseOutsideOfNamespace = TestData.TestCaseDiscovered<RunNamespace>("RunsOnlyTestMethodsInTheGivenNamespace");
 			runner.TestsToDiscover.Clear();
 			runner.TestsToDiscover.Add(testCaseInNamespace);
 			runner.TestsToDiscover.Add(testCaseOutsideOfNamespace);
@@ -95,8 +95,8 @@ public class TdNetRunnerTests
 	class TestableTdNetRunner : TdNetRunner
 	{
 		public List<string> Operations = new List<string>();
-		public List<_ITestCase> TestsRun = new List<_ITestCase>();
-		public List<_ITestCase> TestsToDiscover = new List<_ITestCase> { Substitute.For<_ITestCase>() };
+		public List<_TestCaseDiscovered> TestsRun = new();
+		public List<_TestCaseDiscovered> TestsToDiscover = new() { Substitute.For<_TestCaseDiscovered>() };
 
 		public override TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly)
 		{
@@ -115,7 +115,7 @@ public class TdNetRunnerTests
 				.ReturnsForAnyArgs(callInfo =>
 				{
 					Operations.Add($"Run(initialRunState: {callInfo[1]})");
-					TestsRun.AddRange((IEnumerable<_ITestCase>)callInfo[0]);
+					TestsRun.AddRange((IEnumerable<_TestCaseDiscovered>)callInfo[0]);
 					return TestRunState.NoTests;
 				});
 

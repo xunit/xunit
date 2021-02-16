@@ -33,7 +33,7 @@ public class AcceptanceTestV3
 					discoverySink.Finished.Reset();
 				}
 
-				var testCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(msg => msg.TestCase).ToArray();
+				var testCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(msg => msg.Serialization).ToArray();
 
 				using var runSink = SpyMessageSink<_TestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(assemblyInfo);

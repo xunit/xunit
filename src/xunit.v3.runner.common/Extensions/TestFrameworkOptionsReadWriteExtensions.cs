@@ -31,29 +31,6 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag that determines whether discovered test cases should include serialization, which
-	/// allows them to be run cross-process.
-	/// </summary>
-	public static bool? GetIncludeSerialization(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-		return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.IncludeSerialization);
-	}
-
-	/// <summary>
-	/// Gets a flag that determines whether discovered test cases should include serialization, which
-	/// allows them to be run cross-process. If the flag is not present, returns the default
-	/// value (<c>false</c>).
-	/// </summary>
-	public static bool GetIncludeSerializationOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-		return discoveryOptions.GetIncludeSerialization() ?? false;
-	}
-
-	/// <summary>
 	/// Gets a flag that determines whether discovered test cases should include source information.
 	/// Note that not all runners have access to source information, so this flag does not guarantee
 	/// that source information will be provided.
@@ -199,19 +176,6 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
 		discoveryOptions.SetValue(TestOptionsNames.Discovery.DiagnosticMessages, value);
-	}
-
-	/// <summary>
-	/// Sets a flag that determines whether discovered test cases should include serialization, which
-	/// allows them to be run cross-process.
-	/// </summary>
-	public static void SetIncludeSerialization(
-		this _ITestFrameworkDiscoveryOptions discoveryOptions,
-		bool? value)
-	{
-		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-		discoveryOptions.SetValue(TestOptionsNames.Discovery.IncludeSerialization, value);
 	}
 
 	/// <summary>

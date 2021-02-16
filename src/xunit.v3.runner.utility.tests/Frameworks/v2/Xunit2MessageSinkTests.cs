@@ -198,24 +198,20 @@ public class Xunit2MessageSinkTests
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
 		}
 
-		[Theory]
-		[InlineData(default(string))]
-		[InlineData("abc123")]
-		public void TestCaseDiscoveryMessage(string? expectedSerialization)
+		[Fact]
+		public void TestCaseDiscoveryMessage()
 		{
 			var v2Message = Xunit2Mocks.TestCaseDiscoveryMessage(TestCase);
-			var v2Sink = TestableXunit2MessageSink.Create(expectedSerialization);
+			var v2Sink = TestableXunit2MessageSink.Create("abc123");
 
 			var adapted = v2Sink.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCaseDiscovered>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
-			Assert.Equal(expectedSerialization, v3Message.Serialization);
+			Assert.Equal("abc123", v3Message.Serialization);
 			Assert.Equal("skip-reason", v3Message.SkipReason);
 			Assert.Equal("source-file", v3Message.SourceFilePath);
 			Assert.Equal(2112, v3Message.SourceLineNumber);
-			var testCaseAdapter = Assert.IsType<Xunit3TestCase>(v3Message.TestCase);
-			Assert.Same(TestCase, testCaseAdapter.V2TestCase);
 			Assert.Equal("test-case-display-name", v3Message.TestCaseDisplayName);
 			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
 			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
@@ -790,21 +786,19 @@ public class Xunit2MessageSinkTests
 
 	class TestableXunit2MessageSink : Xunit2MessageSink
 	{
-		TestableXunit2MessageSink(
-			ITestFrameworkDiscoverer discoverer,
-			bool includeSerialization)
-				: base(TestAssemblyUniqueID, discoverer, includeSerialization, SpyMessageSink.Create())
+		TestableXunit2MessageSink(ITestFrameworkDiscoverer discoverer)
+			: base(SpyMessageSink.Create(), TestAssemblyUniqueID, discoverer)
 		{ }
 
 		public _MessageSinkMessage Adapt(IMessageSinkMessage message) =>
 			base.Adapt(message);
 
-		public static TestableXunit2MessageSink Create(string? testCaseSerializedValue = null)
+		public static TestableXunit2MessageSink Create(string testCaseSerializedValue = "test-case-serialization")
 		{
 			var discoverer = Substitute.For<ITestFrameworkDiscoverer, InterfaceProxy<ITestFrameworkDiscoverer>>();
 			discoverer.Serialize(null).ReturnsForAnyArgs(testCaseSerializedValue);
 
-			return new TestableXunit2MessageSink(discoverer, testCaseSerializedValue != null);
+			return new TestableXunit2MessageSink(discoverer);
 		}
 	}
 }

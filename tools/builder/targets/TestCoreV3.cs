@@ -25,7 +25,7 @@ public static class TestCore_V3
 			var folder = Path.GetDirectoryName(v3TestDll);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3TestDll) + "-" + Path.GetFileName(folder));
 
-			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-serialize -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
 		}
 	}
 }

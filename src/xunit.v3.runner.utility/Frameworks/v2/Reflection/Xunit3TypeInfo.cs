@@ -22,6 +22,20 @@ namespace Xunit.Runner.v2
 			Assembly = new Xunit3AssemblyInfo(V2TypeInfo.Assembly);
 			BaseType = V2TypeInfo.BaseType == null ? null : new Xunit3TypeInfo(v2TypeInfo.BaseType);
 			Interfaces = V2TypeInfo.Interfaces.Select(i => new Xunit3TypeInfo(i)).ToList();
+
+			var typeName = V2TypeInfo.Name;
+			var namespaceIdx = typeName.LastIndexOf('.');
+			if (namespaceIdx < 0)
+				SimpleName = typeName;
+			else
+			{
+				Namespace = typeName.Substring(0, namespaceIdx);
+				SimpleName = typeName.Substring(namespaceIdx + 1);
+
+				var innerClassIdx = SimpleName.LastIndexOf('+');
+				if (innerClassIdx >= 0)
+					SimpleName = SimpleName.Substring(innerClassIdx + 1);
+			}
 		}
 
 		/// <inheritdoc/>
@@ -50,6 +64,12 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public string Name => V2TypeInfo.Name;
+
+		/// <inheritdoc/>
+		public string? Namespace { get; }
+
+		/// <inheritdoc/>
+		public string SimpleName { get; }
 
 		/// <summary>
 		/// Gets the underlying xUnit.net v2 <see cref="ITypeInfo"/> that this class is wrapping.

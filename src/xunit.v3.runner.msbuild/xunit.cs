@@ -88,9 +88,6 @@ namespace Xunit.Runner.MSBuild
 
 		public string? Reporter { get; set; }
 
-		// To be used by the xUnit.net team for diagnostic purposes only
-		public bool SerializeTestCases { get; set; }
-
 		public bool ShadowCopy { set { shadowCopy = value; } }
 
 		public bool StopOnFail { set { stopOnFail = value; } }
@@ -200,7 +197,6 @@ namespace Xunit.Runner.MSBuild
 
 						ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
 
-						projectAssembly.Configuration.IncludeSerialization = SerializeTestCases;
 						if (shadowCopy.HasValue)
 							projectAssembly.Configuration.ShadowCopy = shadowCopy;
 
@@ -361,8 +357,7 @@ namespace Xunit.Runner.MSBuild
 						};
 						reporterMessageHandler!.OnMessage(executionStarting);
 
-						// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
-						controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+						controller.RunTests(filteredTestCases.Select(tc => tc.Serialization), resultsSink, executionOptions);
 						resultsSink.Finished.WaitOne();
 
 						var executionFinished = new TestAssemblyExecutionFinished

@@ -36,7 +36,6 @@ namespace Xunit.Runner.Common
 			if (configuration != null)
 			{
 				result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-				result.SetIncludeSerialization(configuration.IncludeSerialization);
 				result.SetIncludeSourceInformation(configuration.IncludeSourceInformation);
 				result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
 				result.SetMethodDisplay(configuration.MethodDisplay);

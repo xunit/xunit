@@ -51,18 +51,6 @@ namespace Xunit.Runner.Common
 		public XunitFilters Filters { get; } = new();
 
 		/// <summary>
-		/// Gets or sets a flag indicating that discovery should include serialization
-		/// of the test cases.
-		/// </summary>
-		public bool? IncludeSerialization { get; set; }
-
-		/// <summary>
-		/// Gets a flag indicating that discovery should include serialization of the
-		/// test cases. If the flag is not set, returns the default value (<c>false</c>).
-		/// </summary>
-		public bool IncludeSerializationOrDefault => IncludeSerialization ?? false;
-
-		/// <summary>
 		/// Gets or sets a flag indicating that discovery should include source information
 		/// for the test cases.
 		/// </summary>

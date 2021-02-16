@@ -101,22 +101,6 @@ namespace Xunit.Runner.v2
 		/// <summary>
 		/// Starts the process of running the selected xUnit.net v2 tests.
 		/// </summary>
-		/// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
-		/// <param name="messageSink">The message sink to report results back to.</param>
-		/// <param name="executionOptions">The options to be used during test execution.</param>
-		public void RunTests(
-			IEnumerable<_ITestCase> testCases,
-			_IMessageSink messageSink,
-			_ITestFrameworkExecutionOptions executionOptions) =>
-				remoteExecutor.RunTests(
-					testCases.Cast<Xunit3TestCase>().Select(tc => tc.V2TestCase).ToList(),
-					CreateOptimizedRemoteMessageSink(messageSink),
-					Xunit2OptionsAdapter.Adapt(executionOptions)
-				);
-
-		/// <summary>
-		/// Starts the process of running the selected xUnit.net v2 tests.
-		/// </summary>
 		/// <param name="serializedTestCases">The test cases to run; if null, all tests in the assembly are run.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>

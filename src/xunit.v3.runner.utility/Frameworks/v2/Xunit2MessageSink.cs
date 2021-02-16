@@ -18,31 +18,22 @@ namespace Xunit.Runner.v2
 	{
 		readonly string assemblyUniqueID;
 		readonly ITestFrameworkDiscoverer? discoverer;
-		readonly bool includeSerialization;
 		readonly Dictionary<ITestCase, Dictionary<ITest, string>> testUniqueIDsByTestCase = new Dictionary<ITestCase, Dictionary<ITest, string>>();
 		readonly _IMessageSink v3MessageSink;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2MessageSink"/> class.
 		/// </summary>
-		/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
-		/// <param name="discoverer">The discoverer used to serialize test cases (must not be <c>null</c>
-		/// if <paramref name="includeSerialization"/> is <c>true</c>)</param>
-		/// <param name="includeSerialization">A flag to indicate whether test case discovery metadata should
-		/// include the serialized version of the test case</param>
 		/// <param name="v3MessageSink">The v3 message sink to which to report the messages</param>
+		/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
+		/// <param name="discoverer">The discoverer used to serialize test cases</param>
 		protected internal Xunit2MessageSink(
-			string assemblyUniqueID,
-			ITestFrameworkDiscoverer? discoverer,
-			bool includeSerialization,
-			_IMessageSink v3MessageSink)
+			_IMessageSink v3MessageSink,
+			string? assemblyUniqueID = null,
+			ITestFrameworkDiscoverer? discoverer = null)
 		{
-			if (includeSerialization)
-				Guard.ArgumentValid(nameof(discoverer), $"{nameof(discoverer)} cannot be null when {nameof(includeSerialization)} is true", discoverer != null);
-
-			this.assemblyUniqueID = Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
+			this.assemblyUniqueID = assemblyUniqueID ?? "<no assembly>";
 			this.discoverer = discoverer;
-			this.includeSerialization = includeSerialization;
 			this.v3MessageSink = Guard.ArgumentNotNull(nameof(v3MessageSink), v3MessageSink);
 		}
 
@@ -256,6 +247,9 @@ namespace Xunit.Runner.v2
 
 		_TestCaseDiscovered AdaptTestCaseDiscoveryMessage(ITestCaseDiscoveryMessage message)
 		{
+			if (discoverer == null)
+				throw new InvalidOperationException($"This instance of {nameof(Xunit2MessageSink)} was not created to support test discovery");
+
 			var testCase = message.TestCase;
 
 			// Clean up the cache
@@ -267,19 +261,42 @@ namespace Xunit.Runner.v2
 			var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 			var testCaseUniqueID = testCase.UniqueID;
 
+			string? @namespace = null;
+			string? @class = null;
+
+			var typeName = testCase.TestMethod?.TestClass?.Class.Name;
+			if (typeName != null)
+			{
+				var namespaceIdx = typeName.LastIndexOf('.');
+				if (namespaceIdx < 0)
+					@class = typeName;
+				else
+				{
+					@namespace = typeName.Substring(0, namespaceIdx);
+					@class = typeName.Substring(namespaceIdx + 1);
+
+					var innerClassIdx = @class.LastIndexOf('+');
+					if (innerClassIdx >= 0)
+						@class = @class.Substring(innerClassIdx + 1);
+				}
+			}
+
 			return new _TestCaseDiscovered
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				Serialization = includeSerialization ? discoverer!.Serialize(testCase) : null,
+				Serialization = discoverer.Serialize(testCase),
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceInformation?.FileName,
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,
-				TestCase = new Xunit3TestCase(testCase),
 				TestCaseDisplayName = testCase.DisplayName,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
+				TestClass = @class,
 				TestClassUniqueID = testClassUniqueID,
+				TestClassWithNamespace = typeName,
+				TestMethod = testCase.TestMethod?.Method.Name,
 				TestMethodUniqueID = testMethodUniqueID,
+				TestNamespace = @namespace,
 				Traits = testCase.Traits
 			};
 		}

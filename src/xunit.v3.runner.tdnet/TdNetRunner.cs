@@ -50,7 +50,7 @@ namespace Xunit.Runner.TdNet
 			var helper = CreateHelper(testListener, assembly);
 			try
 			{
-				var testCases = helper.Discover().Where(tc => ns == null || tc.GetClass()?.Namespace == ns).ToList();
+				var testCases = helper.Discover().Where(tc => ns == null || tc.TestNamespace == ns).ToList();
 				return helper.Run(testCases);
 			}
 			finally

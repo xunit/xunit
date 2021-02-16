@@ -23,7 +23,7 @@ public static class TestFxV3
 			var folder = Path.GetDirectoryName(v3TestExe);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3TestExe) + "-" + Path.GetFileName(folder));
 
-			await context.Exec(v3TestExe, $"{context.TestFlagsParallel}-serialize -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+			await context.Exec(v3TestExe, $"{context.TestFlagsParallel}-xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
 		}
 	}
 }

@@ -26,7 +26,7 @@ namespace Xunit.Runners
 		readonly ManualResetEvent executionCompleteEvent = new ManualResetEvent(true);
 		readonly object statusLock = new object();
 		int testCasesDiscovered;
-		readonly List<_ITestCase> testCasesToRun = new List<_ITestCase>();
+		readonly List<_TestCaseDiscovered> testCasesToRun = new List<_TestCaseDiscovered>();
 
 		static AssemblyRunner()
 		{
@@ -150,7 +150,7 @@ namespace Xunit.Runners
 		/// Set to be able to filter the test cases to decide which ones to run. If this is not set,
 		/// then all test cases will be run.
 		/// </summary>
-		public Func<_ITestCase, bool>? TestCaseFilter { get; set; }
+		public Func<_TestCaseDiscovered, bool>? TestCaseFilter { get; set; }
 
 		static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName!);
 
@@ -288,7 +288,7 @@ namespace Xunit.Runners
 				}
 
 				var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
-				controller.RunTests(testCasesToRun, this, executionOptions);
+				controller.RunTests(testCasesToRun.Select(tc => tc.Serialization), this, executionOptions);
 				executionCompleteEvent.WaitOne();
 			});
 		}
@@ -345,8 +345,8 @@ namespace Xunit.Runners
 			if (DispatchMessage<_TestCaseDiscovered>(message, messageTypes, testDiscovered =>
 			{
 				++testCasesDiscovered;
-				if (TestCaseFilter == null || TestCaseFilter(testDiscovered.TestCase))
-					testCasesToRun.Add(testDiscovered.TestCase);
+				if (TestCaseFilter == null || TestCaseFilter(testDiscovered))
+					testCasesToRun.Add(testDiscovered);
 			}))
 				return !cancelled;
 

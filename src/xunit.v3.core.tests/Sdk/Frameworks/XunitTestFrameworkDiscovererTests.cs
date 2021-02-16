@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
@@ -219,17 +222,15 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
+		public static void AssemblyWithFact_ReturnsOneTestCase()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithOneFact)));
 
 			framework.FindTestsForClass(testClass);
 
-			Assert.Collection(
-				framework.Sink.TestCases,
-				testCase => Assert.IsType<XunitTestCase>(testCase)
-			);
+			var testCase = Assert.Single(framework.Sink.TestCases);
+			Assert.NotNull(testCase);
 		}
 
 		class ClassWithMixOfFactsAndNonFacts
@@ -252,8 +253,8 @@ public class XunitTestFrameworkDiscovererTests
 			framework.FindTestsForClass(testClass);
 
 			Assert.Equal(2, framework.Sink.TestCases.Count);
-			Assert.Single(framework.Sink.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
-			Assert.Single(framework.Sink.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
+			Assert.Single(framework.Sink.TestCases, t => t.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
+			Assert.Single(framework.Sink.TestCases, t => t.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
 		}
 
 		class TheoryWithInlineData
@@ -273,8 +274,8 @@ public class XunitTestFrameworkDiscovererTests
 			framework.FindTestsForClass(testClass);
 
 			Assert.Equal(2, framework.Sink.TestCases.Count);
-			Assert.Single(framework.Sink.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
-			Assert.Single(framework.Sink.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
+			Assert.Single(framework.Sink.TestCases, t => t.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
+			Assert.Single(framework.Sink.TestCases, t => t.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
 		}
 
 		class TheoryWithPropertyData
@@ -302,8 +303,8 @@ public class XunitTestFrameworkDiscovererTests
 			framework.FindTestsForClass(testClass);
 
 			Assert.Equal(2, framework.Sink.TestCases.Count);
-			Assert.Single(framework.Sink.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
-			Assert.Single(framework.Sink.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
+			Assert.Single(framework.Sink.TestCases, testCase => testCase.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
+			Assert.Single(framework.Sink.TestCases, testCase => testCase.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
 		}
 
 		[Fact]
@@ -315,7 +316,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.FindTestsForClass(testClass);
 
 			Assert.Equal(1, framework.Sink.TestCases.Count);
-			Assert.Equal("XunitTestFrameworkDiscovererTests+FindImpl+Child.FactOverridenInNonImmediateDerivedClass", framework.Sink.TestCases[0].DisplayName);
+			Assert.Equal("XunitTestFrameworkDiscovererTests+FindImpl+Child.FactOverridenInNonImmediateDerivedClass", framework.Sink.TestCases[0].TestCaseDisplayName);
 		}
 
 		public abstract class GrandParent
@@ -440,11 +441,10 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testCase = Mocks.TestCase<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod));
 
-			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization: false, includeSourceInformation: true, messageBus);
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
 
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
-			Assert.Same(testCase, discoveryMsg.TestCase);
 			Assert.Equal("Source File", testCase.SourceInformation?.FileName);
 			Assert.Equal(42, testCase.SourceInformation?.LineNumber);
 		}
@@ -454,34 +454,82 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testCase = Mocks.TestCase<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod), fileName: "Alt Source File", lineNumber: 2112);
 
-			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization: false, includeSourceInformation: true, messageBus);
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
 
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
-			Assert.Same(testCase, discoveryMsg.TestCase);
 			Assert.Equal("Alt Source File", testCase.SourceInformation?.FileName);
 			Assert.Equal(2112, testCase.SourceInformation?.LineNumber);
 		}
 
-		[Theory]
-		[InlineData(false, null)]
-		[InlineData(true, ":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0:0:(null)")]
-		public void SerializationTestsForXunitTestCase(
-			bool includeSerialization,
-			string? expectedSerializationStartingText)
+		[Fact]
+		public void SerializationTestsForXunitTestCase()
 		{
 			var messageSink = SpyMessageSink.Create();
 			var testMethod = Mocks.TestMethod<ClassWithSingleTest>(nameof(ClassWithSingleTest.TestMethod));
 			var testCase = new XunitTestCase(messageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
 
-			framework.ReportDiscoveredTestCase_Public(testCase, includeSerialization, includeSourceInformation: true, messageBus);
+			framework.ReportDiscoveredTestCase_Public(testCase, includeSourceInformation: true, messageBus);
 
 			var msg = Assert.Single(messageBus.Messages);
 			var discoveryMsg = Assert.IsAssignableFrom<_TestCaseDiscovered>(msg);
-			if (expectedSerializationStartingText != null)
-				Assert.Equal(expectedSerializationStartingText, discoveryMsg.Serialization);
-			else
-				Assert.Null(discoveryMsg.Serialization);
+			Assert.Equal(":F:XunitTestFrameworkDiscovererTests+ClassWithSingleTest:TestMethod:1:0:0:(null)", discoveryMsg.Serialization);
+		}
+	}
+
+	public class SerializationAcceptanceTests
+	{
+		[Fact]
+		public static void TheoriesWithSerializableData_ReturnAsIndividualTestCases()
+		{
+			var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
+			var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
+			var sink = new TestDiscoverySink();
+
+			discoverer.Find(typeof(ClassWithTheory).FullName!, sink, _TestFrameworkOptions.ForDiscovery());
+			sink.Finished.WaitOne();
+
+			Assert.Collection(
+				sink.TestCases.OrderBy(tc => tc.TestCaseDisplayName),
+				testCase => Assert.Equal("XunitTestFrameworkDiscovererTests+SerializationAcceptanceTests+ClassWithTheory.Test(x: \"hello\")", testCase.TestCaseDisplayName),
+				testCase => Assert.Equal("XunitTestFrameworkDiscovererTests+SerializationAcceptanceTests+ClassWithTheory.Test(x: 1)", testCase.TestCaseDisplayName)
+			);
+
+			var first = sink.TestCases[0];
+			var second = sink.TestCases[1];
+			Assert.NotEqual(first.TestCaseUniqueID, second.TestCaseUniqueID);
+		}
+
+		class ClassWithTheory
+		{
+			[Theory]
+			[InlineData(1)]
+			[InlineData("hello")]
+			public void Test(object x) { }
+		}
+
+		[Fact]
+		public static void TheoryWithNonSerializableData_ReturnsAsASingleTestCase()
+		{
+			var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
+			var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
+			var sink = new TestDiscoverySink();
+
+			discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName!, sink, _TestFrameworkOptions.ForDiscovery());
+			sink.Finished.WaitOne();
+
+			Assert.Single(sink.TestCases);
+		}
+
+		class NonSerializableData { }
+
+		class ClassWithNonSerializableTheoryData
+		{
+			public static IEnumerable<object[]> Data = new[] { new[] { new NonSerializableData() }, new[] { new object() } };
+
+			[Theory]
+			[MemberData("Data")]
+			public void Test(object x) { }
 		}
 	}
 
@@ -508,7 +556,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		public override sealed string TestAssemblyUniqueID => "asm-id";
 
-		public List<_ITestCase> TestCases
+		public List<_TestCaseDiscovered> TestCases
 		{
 			get
 			{
@@ -566,10 +614,22 @@ public class XunitTestFrameworkDiscovererTests
 
 		public bool ReportDiscoveredTestCase_Public(
 			_ITestCase testCase,
-			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus) =>
-				ReportDiscoveredTestCase(testCase, includeSerialization, includeSourceInformation, messageBus);
+				ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
+
+		protected override string Serialize(_ITestCase testCase)
+		{
+			try
+			{
+				return base.Serialize(testCase);
+			}
+			catch (SerializationException)
+			{
+				// Mocks can't be serialized, so fall back if anything in the chain isn't serializable
+				return $"Serialization of test case '{testCase.DisplayName}'";
+			}
+		}
 	}
 
 	internal class TestableTestDiscoverySink : TestDiscoverySink

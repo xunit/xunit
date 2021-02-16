@@ -429,7 +429,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 				reporterMessageHandler.OnMessage(discoveryFinished);
 
 				// Run the filtered tests
-				if (testCasesToRun != 0)
+				if (testCasesToRun == 0)
+					testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, new ExecutionSummary());
+				else
 				{
 					var executionStarting = new TestAssemblyExecutionStarting
 					{
@@ -450,7 +452,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 					{
 						var executor = testFramework.GetExecutor(assemblyInfo);
 
-						// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
 						executor.RunTests(filteredTestCases, resultsSink, executionOptions);
 						resultsSink.Finished.WaitOne();
 

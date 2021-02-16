@@ -57,6 +57,12 @@ namespace Xunit.Sdk
 		public string Name => Type.FullName ?? Type.Name;
 
 		/// <inheritdoc/>
+		public string? Namespace => Type.Namespace;
+
+		/// <inheritdoc/>
+		public string SimpleName => Type.Name;
+
+		/// <inheritdoc/>
 		public Type Type { get; }
 
 		/// <inheritdoc/>

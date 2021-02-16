@@ -24,7 +24,6 @@ public class _TestFrameworkOptionsTests
 				var result = _TestFrameworkOptions.ForDiscovery("{}");
 
 				Assert.Null(result.GetDiagnosticMessages());
-				Assert.Null(result.GetIncludeSerialization());
 				Assert.Null(result.GetIncludeSourceInformation());
 				Assert.Null(result.GetInternalDiagnosticMessages());
 				Assert.Null(result.GetMethodDisplay());

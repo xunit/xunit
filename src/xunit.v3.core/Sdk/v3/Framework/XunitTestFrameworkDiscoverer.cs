@@ -84,14 +84,13 @@ namespace Xunit.v3
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			var includeSerialization = discoveryOptions.IncludeSerializationOrDefault();
 			var includeSourceInformation = discoveryOptions.IncludeSourceInformationOrDefault();
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
 			{
 				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
 				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
-				return ReportDiscoveredTestCase(testCase, includeSerialization, includeSourceInformation, messageBus);
+				return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 			}
 
 			var factAttribute = factAttributes.FirstOrDefault();
@@ -119,7 +118,7 @@ namespace Xunit.v3
 				return true;
 
 			foreach (var testCase in discoverer.Discover(discoveryOptions, testMethod, factAttribute))
-				if (!ReportDiscoveredTestCase(testCase, includeSerialization, includeSourceInformation, messageBus))
+				if (!ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
 					return false;
 
 			return true;

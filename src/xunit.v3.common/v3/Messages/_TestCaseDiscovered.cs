@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -10,16 +10,19 @@ namespace Xunit.v3
 	/// </summary>
 	public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	{
-		_ITestCase? testCase;
+		string? serialization;
 		string? testCaseDisplayName;
 		Dictionary<string, List<string>> traits = new Dictionary<string, List<string>>();
 
 		/// <summary>
 		/// Gets the serialized value of the test case, which allows it to be transferred across
-		/// process boundaries. Will only be available if <see cref="TestOptionsNames.Discovery.IncludeSerialization"/>
-		/// is present inside the discovery options when the test case was discovered.
+		/// process boundaries.
 		/// </summary>
-		public string? Serialization { get; set; }
+		public string Serialization
+		{
+			get => serialization ?? throw new InvalidOperationException($"Attempted to get {nameof(Serialization)} on an uninitialized '{GetType().FullName}' object");
+			set => serialization = Guard.ArgumentNotNull(nameof(Serialization), value);
+		}
 
 		/// <inheritdoc/>
 		public string? SkipReason { get; set; }
@@ -30,26 +33,39 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public int? SourceLineNumber { get; set; }
 
-		/// <summary>
-		/// Gets the test case. This cannot cross process boundaries, so runners which
-		/// need long-term or cross-process test cases should instead request for serialization
-		/// during discovery (via <see cref="M:TestFrameworkOptionsReadWriteExtensions.SetIncludeSerialization"/>),
-		/// and stash the <see cref="Serialization"/> to later pass to
-		/// <see cref="_ITestFrameworkExecutor.RunTests(IEnumerable{string}, _IMessageSink, _ITestFrameworkExecutionOptions)"/>.
-		/// </summary>
-		[JsonIgnore]
-		public _ITestCase TestCase
-		{
-			get => testCase ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCase)} on an uninitialized '{GetType().FullName}' object");
-			set => testCase = Guard.ArgumentNotNull(nameof(TestCase), value);
-		}
-
 		/// <inheritdoc/>
 		public string TestCaseDisplayName
 		{
 			get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
 			set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(nameof(TestCaseDisplayName), value);
 		}
+
+		/// <summary>
+		/// Gets the name of the class where the test is defined. If the test did not originiate
+		/// in a class, will return <c>null</c>.
+		/// </summary>
+		[NotNullIfNotNull(nameof(TestMethod))]
+		public string? TestClass { get; set; }
+
+		/// <summary>
+		/// Gets the fully qualified type name (without assembly) of the class where the test is defined.
+		/// If the test did not originiate in a class, will return <c>null</c>.
+		/// </summary>
+		[NotNullIfNotNull(nameof(TestClass))]
+		public string? TestClassWithNamespace { get; set; }
+
+		/// <summary>
+		/// Gets the method name where the test is defined, in the <see cref="TestClass"/> class.
+		/// If the test did not originiate in a method, will return <c>null</c>.
+		/// </summary>
+		public string? TestMethod { get; set; }
+
+		/// <summary>
+		/// Gets the namespace of the class where the test is defined. If the test did not
+		/// originate in a class, or the class it originated in does not reside in a namespace,
+		/// will return <c>null</c>.
+		/// </summary>
+		public string? TestNamespace { get; set; }
 
 		/// <inheritdoc/>
 		public Dictionary<string, List<string>> Traits

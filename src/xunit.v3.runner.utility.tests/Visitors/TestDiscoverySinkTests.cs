@@ -9,13 +9,13 @@ public class TestDiscoverySinkTests
 	public void CollectsTestCases()
 	{
 		var visitor = new TestDiscoverySink();
-		var testCase1 = Substitute.For<_ITestCase>();
-		var testCase2 = Substitute.For<_ITestCase>();
-		var testCase3 = Substitute.For<_ITestCase>();
+		var testCase1 = new _TestCaseDiscovered();
+		var testCase2 = new _TestCaseDiscovered();
+		var testCase3 = new _TestCaseDiscovered();
 
-		visitor.OnMessage(new _TestCaseDiscovered { TestCase = testCase1 });
-		visitor.OnMessage(new _TestCaseDiscovered { TestCase = testCase2 });
-		visitor.OnMessage(new _TestCaseDiscovered { TestCase = testCase3 });
+		visitor.OnMessage(testCase1);
+		visitor.OnMessage(testCase2);
+		visitor.OnMessage(testCase3);
 		visitor.OnMessage(new _MessageSinkMessage()); // Ignored
 
 		Assert.Collection(

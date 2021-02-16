@@ -40,24 +40,24 @@ namespace Xunit.Runner.TdNet
 			disposalTracker.Add(xunit);
 		}
 
-		public virtual IReadOnlyList<_ITestCase> Discover()
+		public virtual IReadOnlyList<_TestCaseDiscovered> Discover()
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
 			return Discover(sink => xunit.Find(sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
-		IReadOnlyList<_ITestCase> Discover(Type? type)
+		IReadOnlyList<_TestCaseDiscovered> Discover(Type? type)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
 			if (type == null)
-				return new _ITestCase[0];
+				return new _TestCaseDiscovered[0];
 
 			return Discover(sink => xunit.Find(type.FullName!, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
 		}
 
-		IReadOnlyList<_ITestCase> Discover(Action<_IMessageSink> discoveryAction)
+		IReadOnlyList<_TestCaseDiscovered> Discover(Action<_IMessageSink> discoveryAction)
 		{
 			try
 			{
@@ -70,7 +70,7 @@ namespace Xunit.Runner.TdNet
 			catch (Exception ex)
 			{
 				testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
-				return new _ITestCase[0];
+				return new _TestCaseDiscovered[0];
 			}
 		}
 
@@ -85,7 +85,7 @@ namespace Xunit.Runner.TdNet
 		}
 
 		public virtual TestRunState Run(
-			IReadOnlyList<_ITestCase>? testCases = null,
+			IReadOnlyList<_TestCaseDiscovered>? testCases = null,
 			TestRunState initialRunState = TestRunState.NoTests)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);
@@ -100,7 +100,7 @@ namespace Xunit.Runner.TdNet
 				disposalTracker.Add(resultSink);
 
 				var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
-				xunit.RunTests(testCases, resultSink, executionOptions);
+				xunit.RunTests(testCases.Select(tc => tc.Serialization), resultSink, executionOptions);
 
 				resultSink.Finished.WaitOne();
 
@@ -135,7 +135,14 @@ namespace Xunit.Runner.TdNet
 		{
 			var testCases = Discover(method.ReflectedType).Where(tc =>
 			{
-				var methodInfo = tc.GetMethod();
+				if (tc.TestClassWithNamespace == null || tc.TestMethod == null)
+					return false;
+
+				var typeInfo = Type.GetType(tc.TestClassWithNamespace);
+				if (typeInfo == null)
+					return false;
+
+				var methodInfo = typeInfo.GetMethod(tc.TestMethod, BindingFlags.Public);
 				if (methodInfo == null)
 					return false;
 

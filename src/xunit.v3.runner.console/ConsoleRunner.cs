@@ -237,7 +237,6 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine("                         :   all         - parallelize assemblies & collections");
 			Console.WriteLine("  -pause                 : wait for input before running tests");
 			Console.WriteLine("  -preenumeratetheories  : enable theory pre-enumeration (disabled by default)");
-			Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
 			Console.WriteLine("  -stoponfail            : stop on first test failure");
 			Console.WriteLine("  -wait                  : wait for input after completion");
 			Console.WriteLine();
@@ -454,8 +453,7 @@ namespace Xunit.Runner.SystemConsole
 
 						using (resultsSink)
 						{
-							// TODO: Once we stop passing around ITestCase, this call to RunTests should be conditioned on serialization support
-							controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+							controller.RunTests(filteredTestCases.Select(tc => tc.Serialization), resultsSink, executionOptions);
 							resultsSink.Finished.WaitOne();
 
 							var executionFinished = new TestAssemblyExecutionFinished

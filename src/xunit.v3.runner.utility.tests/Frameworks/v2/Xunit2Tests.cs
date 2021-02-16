@@ -60,8 +60,8 @@ public class Foo
 
 			sink.Finished.WaitOne();
 
-			var testCase = sink.Messages.OfType<_TestCaseDiscovered>().Single().TestCase;
-			Assert.Equal("Foo.Bar", testCase.DisplayName);
+			var testCase = sink.Messages.OfType<_TestCaseDiscovered>().Single();
+			Assert.Equal("Foo.Bar", testCase.TestCaseDisplayName);
 		}
 	}
 
@@ -109,27 +109,32 @@ namespace Namespace2
 			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
-			var testCases = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase).ToArray();
+			var testCases = sink.Messages.OfType<_TestCaseDiscovered>().ToArray();
 
 			Assert.Equal(4, testCases.Length);
 
-			var traitTest = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Trait");
+			var innerClassTest = Assert.Single(testCases, tc => tc.TestCaseDisplayName == "Namespace2.OuterClass+Class2.TestMethod");
+			Assert.StartsWith(":F:Namespace2.OuterClass+Class2:TestMethod:1:0:", innerClassTest.Serialization);
+			Assert.Null(innerClassTest.SkipReason);
+			Assert.Equal("Class2", innerClassTest.TestClass);
+			Assert.Equal("Namespace2.OuterClass+Class2", innerClassTest.TestClassWithNamespace);
+			Assert.Equal("TestMethod", innerClassTest.TestMethod);
+			Assert.Equal("Namespace2", innerClassTest.TestNamespace);
+
+			var traitTest = Assert.Single(testCases, tc => tc.TestCaseDisplayName == "Namespace1.Class1.Trait");
 			var key = Assert.Single(traitTest.Traits.Keys);
 			Assert.Equal("Name!", key);
 			var value = Assert.Single(traitTest.Traits[key]);
 			Assert.Equal("Value!", value);
 
-			var skipped = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Skipped");
+			var skipped = Assert.Single(testCases, tc => tc.TestCaseDisplayName == "Namespace1.Class1.Skipped");
 			Assert.Equal("Skipping", skipped.SkipReason);
 
-			Assert.Single(testCases, tc => tc.DisplayName == "Custom Test Name");
-			Assert.Single(testCases, tc => tc.DisplayName == "Namespace2.OuterClass+Class2.TestMethod");
+			Assert.Single(testCases, tc => tc.TestCaseDisplayName == "Custom Test Name");
 		}
 
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public async void FactAcceptanceTest_Run(bool serializeTestCases)
+		[Fact]
+		public async void FactAcceptanceTest_Run()
 		{
 			var code = @"
 using System;
@@ -144,7 +149,6 @@ public class TestClass
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
-			discoveryOptions.SetIncludeSerialization(serializeTestCases);
 
 			using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 			controller.Find(messageSink: discoverySink, discoveryOptions);
@@ -152,17 +156,9 @@ public class TestClass
 
 			using var executionSink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
-			if (serializeTestCases)
-			{
-				var serializedTestCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
-				Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
-				controller.RunTests(serializedTestCases, executionSink, _TestFrameworkOptions.ForExecution());
-			}
-			else
-			{
-				var testCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase).ToArray();
-				controller.RunTests(testCases, executionSink, _TestFrameworkOptions.ForExecution());
-			}
+			var serializedTestCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
+			Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+			controller.RunTests(serializedTestCases, executionSink, _TestFrameworkOptions.ForExecution());
 
 			executionSink.Finished.WaitOne();
 
@@ -196,7 +192,7 @@ public class TestClass
 			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
 
 			sink.Finished.WaitOne();
-			var testCaseNames = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();
+			var testCaseNames = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCaseDisplayName).ToArray();
 
 			Assert.Equal(3, testCaseNames.Length);
 
@@ -238,16 +234,16 @@ let CustomName() =
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
-				sink.TestCases.OrderBy(tc => tc.DisplayName),
-				testCase => Assert.Equal("Custom Test Name", testCase.DisplayName),
+				sink.TestCases.OrderBy(tc => tc.TestCaseDisplayName),
+				testCase => Assert.Equal("Custom Test Name", testCase.TestCaseDisplayName),
 				testCase =>
 				{
-					Assert.Equal("FSharpTests.Skipped", testCase.DisplayName);
+					Assert.Equal("FSharpTests.Skipped", testCase.TestCaseDisplayName);
 					Assert.Equal("Skipping", testCase.SkipReason);
 				},
 				testCase =>
 				{
-					Assert.Equal("FSharpTests.Trait", testCase.DisplayName);
+					Assert.Equal("FSharpTests.Trait", testCase.TestCaseDisplayName);
 					Assert.Collection(testCase.Traits,
 						kvp =>
 						{
@@ -283,10 +279,10 @@ let TestMethod (x:int) =
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
-				sink.TestCases.OrderBy(tc => tc.DisplayName),
-				testCase => Assert.Equal("FSharpTests.TestMethod(x: ???)", testCase.DisplayName),
-				testCase => Assert.Equal("FSharpTests.TestMethod(x: 42)", testCase.DisplayName),
-				testCase => Assert.Equal("FSharpTests.TestMethod(x: 42, ???: 21.12)", testCase.DisplayName)
+				sink.TestCases.OrderBy(tc => tc.TestCaseDisplayName),
+				testCase => Assert.Equal("FSharpTests.TestMethod(x: ???)", testCase.TestCaseDisplayName),
+				testCase => Assert.Equal("FSharpTests.TestMethod(x: 42)", testCase.TestCaseDisplayName),
+				testCase => Assert.Equal("FSharpTests.TestMethod(x: 42, ???: 21.12)", testCase.TestCaseDisplayName)
 			);
 		}
 

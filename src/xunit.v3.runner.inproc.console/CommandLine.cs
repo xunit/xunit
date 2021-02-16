@@ -215,12 +215,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 					GuardNoOptionValue(option);
 					project.Configuration.Debug = true;
 				}
-				else if (optionName == "serialize")
-				{
-					GuardNoOptionValue(option);
-					foreach (var projectAssembly in project.Assemblies)
-						projectAssembly.Configuration.IncludeSerialization = true;
-				}
 				else if (optionName == "wait")
 				{
 					GuardNoOptionValue(option);

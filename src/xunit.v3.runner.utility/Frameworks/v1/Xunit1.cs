@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -30,8 +31,8 @@ namespace Xunit.Runner.v1
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
-		readonly Dictionary<string, Xunit3TestClass> testClassesByTypeName = new Dictionary<string, Xunit3TestClass>();
-		readonly Xunit3TestCollection testCollection;
+		readonly string testAssemblyName;
+		readonly string testAssemblyUniqueID;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -65,8 +66,8 @@ namespace Xunit.Runner.v1
 			this.shadowCopy = shadowCopy;
 			this.shadowCopyFolder = shadowCopyFolder;
 
-			var testAssembly = new Xunit3TestAssembly(assemblyFileName, configFileName);
-			testCollection = new Xunit3TestCollection(testAssembly);
+			testAssemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+			testAssemblyUniqueID = $":v1:assembly:{assemblyFileName}:{configFileName ?? "(null)"}";
 		}
 
 		/// <inheritdoc/>
@@ -89,7 +90,7 @@ namespace Xunit.Runner.v1
 		public string TargetFramework => string.Empty;
 
 		/// <inheritdoc/>
-		string _ITestFrameworkDiscoverer.TestAssemblyUniqueID => testCollection.TestAssembly.UniqueID;
+		string _ITestFrameworkDiscoverer.TestAssemblyUniqueID => testAssemblyUniqueID;
 
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
@@ -102,11 +103,11 @@ namespace Xunit.Runner.v1
 			new Xunit1Executor(diagnosticMessageSink, appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
 		/// <inheritdoc/>
-		public _ITestCase? Deserialize(string value)
+		public Xunit1TestCase? Deserialize(string value)
 		{
 			Guard.ArgumentNotNull(nameof(value), value);
 
-			return SerializationHelper.Deserialize<_ITestCase>(value);
+			return SerializationHelper.Deserialize<Xunit1TestCase>(value);
 		}
 
 		/// <inheritdoc/>
@@ -124,17 +125,15 @@ namespace Xunit.Runner.v1
 		/// <summary>
 		/// Starts the process of finding all xUnit.net v1 tests in an assembly.
 		/// </summary>
-		/// <param name="includeSerialization">Whether to include the serialization of the test case.</param>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Find(
-			bool includeSerialization,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
-			Find(msg => true, includeSerialization, includeSourceInformation, messageSink);
+			Find(msg => true, includeSourceInformation, messageSink);
 		}
 
 		/// <inheritdoc/>
@@ -147,7 +146,6 @@ namespace Xunit.Runner.v1
 
 			Find(
 				msg => true,
-				discoveryOptions.GetIncludeSerializationOrDefault(),
 				discoveryOptions.GetIncludeSourceInformationOrDefault(),
 				messageSink
 			);
@@ -157,12 +155,10 @@ namespace Xunit.Runner.v1
 		/// Starts the process of finding all xUnit.net v1 tests in a class.
 		/// </summary>
 		/// <param name="typeName">The fully qualified type name to find tests in.</param>
-		/// <param name="includeSerialization">Whether to include the serialization of the test case.</param>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Find(
 			string typeName,
-			bool includeSerialization,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
@@ -170,8 +166,7 @@ namespace Xunit.Runner.v1
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 
 			Find(
-				msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName,
-				includeSerialization,
+				msg => msg.TestClassWithNamespace == typeName,
 				includeSourceInformation,
 				messageSink
 			);
@@ -188,8 +183,7 @@ namespace Xunit.Runner.v1
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
 			Find(
-				msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName,
-				discoveryOptions.GetIncludeSerializationOrDefault(),
+				msg => msg.TestClassWithNamespace == typeName,
 				discoveryOptions.GetIncludeSourceInformationOrDefault(),
 				messageSink
 			);
@@ -197,15 +191,13 @@ namespace Xunit.Runner.v1
 
 		void Find(
 			Predicate<_TestCaseDiscovered> filter,
-			bool includeSerialization,
 			bool includeSourceInformation,
 			_IMessageSink messageSink)
 		{
-			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 			var discoveryStarting = new _DiscoveryStarting
 			{
-				AssemblyName = testCollection.TestAssembly.Assembly.Name,
-				AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
+				AssemblyName = testAssemblyName,
+				AssemblyPath = assemblyFileName,
 				AssemblyUniqueID = testAssemblyUniqueID,
 				ConfigFilePath = configFileName
 			};
@@ -230,12 +222,6 @@ namespace Xunit.Runner.v1
 							if (typeName == null || methodName == null)
 								continue;
 
-							var testClass = default(Xunit3TestClass);
-							lock (testClassesByTypeName)
-								testClass = testClassesByTypeName.GetOrAdd(typeName, () => new Xunit3TestClass(testCollection, typeName));
-
-							var testMethod = new Xunit3TestMethod(testClass, methodName);
-
 							string? displayName = null;
 							var displayNameAttribute = methodXml.Attributes?["name"];
 							if (displayNameAttribute != null)
@@ -258,26 +244,58 @@ namespace Xunit.Runner.v1
 										traits.Add(traitName, traitValue);
 								}
 
-							var testCase = new Xunit3TestCase(testMethod, displayName, traits, skipReason);
+							var sourceInformation = default(_ISourceInformation);
 							if (includeSourceInformation)
+								sourceInformation = sourceInformationProvider.GetSourceInformation(typeName, methodName);
+
+							string? @namespace = null;
+							string? @class = null;
+
+							var namespaceIdx = typeName.LastIndexOf('.');
+							if (namespaceIdx < 0)
+								@class = typeName;
+							else
 							{
-								var result = sourceInformationProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
-								testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
+								@namespace = typeName.Substring(0, namespaceIdx);
+								@class = typeName.Substring(namespaceIdx + 1);
+
+								var innerClassIdx = @class.LastIndexOf('+');
+								if (innerClassIdx >= 0)
+									@class = @class.Substring(innerClassIdx + 1);
 							}
+
+							var testCase = new Xunit1TestCase
+							{
+								AssemblyUniqueID = testAssemblyUniqueID,
+								SkipReason = skipReason,
+								SourceFilePath = sourceInformation?.FileName,
+								SourceLineNumber = sourceInformation?.LineNumber,
+								TestCaseDisplayName = displayName ?? $"{typeName}.{methodName}",
+								TestCaseUniqueID = $":v1:case:{typeName}.{methodName}:{assemblyFileName}:{configFileName ?? "(null)"}",
+								TestClass = typeName,
+								TestClassUniqueID = $":v1:class:{typeName}:{assemblyFileName}:{configFileName ?? "(null)"}",
+								TestCollectionUniqueID = $":v1:collection:{assemblyFileName}:{configFileName ?? "(null)"}",
+								TestMethod = methodName,
+								TestMethodUniqueID = $":v1:method:{typeName}.{methodName}:{assemblyFileName}:{configFileName ?? "(null)"}",
+								Traits = traits
+							};
 
 							var message = new _TestCaseDiscovered
 							{
-								AssemblyUniqueID = testAssemblyUniqueID,
-								Serialization = includeSerialization ? SerializationHelper.Serialize(testCase) : null,
+								AssemblyUniqueID = testCase.AssemblyUniqueID,
+								Serialization = SerializationHelper.Serialize(testCase),
 								SkipReason = testCase.SkipReason,
-								SourceFilePath = testCase.SourceInformation?.FileName,
-								SourceLineNumber = testCase.SourceInformation?.LineNumber,
-								TestCase = testCase,
-								TestCaseDisplayName = testCase.DisplayName,
-								TestCaseUniqueID = testCase.UniqueID,
-								TestClassUniqueID = testClass.UniqueID,
-								TestCollectionUniqueID = testCollection.UniqueID,
-								TestMethodUniqueID = testMethod.UniqueID,
+								SourceFilePath = testCase.SourceFilePath,
+								SourceLineNumber = testCase.SourceLineNumber,
+								TestCaseDisplayName = testCase.TestCaseDisplayName,
+								TestCaseUniqueID = testCase.TestCaseUniqueID,
+								TestClass = @class,
+								TestClassUniqueID = testCase.TestClassUniqueID,
+								TestClassWithNamespace = testCase.TestClass,
+								TestCollectionUniqueID = testCase.TestCollectionUniqueID,
+								TestMethod = testCase.TestMethod,
+								TestMethodUniqueID = testCase.TestMethodUniqueID,
+								TestNamespace = @namespace,
 								Traits = testCase.Traits
 							};
 
@@ -303,10 +321,10 @@ namespace Xunit.Runner.v1
 			var discoverySink = new TestDiscoverySink();
 			disposalTracker.Add(discoverySink);
 
-			Find(false, false, discoverySink);
+			Find(includeSourceInformation: false, discoverySink);
 			discoverySink.Finished.WaitOne();
 
-			Run(discoverySink.TestCases, messageSink);
+			Run(discoverySink.TestCases.Select(tc => tc.Serialization), messageSink);
 		}
 
 		void _ITestFrameworkExecutor.RunAll(
@@ -336,37 +354,31 @@ namespace Xunit.Runner.v1
 		/// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		public void Run(
-			IEnumerable<_ITestCase> testCases,
+			IEnumerable<Xunit1TestCase> testCases,
 			_IMessageSink messageSink)
 		{
 			var results = new Xunit1RunSummary();
 			var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
-			var firstTestCase = testCases.FirstOrDefault();
-			var testCollection = firstTestCase == null ? null : firstTestCase.TestMethod.TestClass.TestCollection;
 
-			if (testCollection != null)
+			var testCasesList = testCases.ToList();
+
+			if (testCasesList.Count != 0)
 			{
-				var assemblyUniqueID = UniqueIDGenerator.ForAssembly(
-					testCollection.TestAssembly.Assembly.Name,
-					testCollection.TestAssembly.Assembly.AssemblyPath,
-					testCollection.TestAssembly.ConfigFileName
-				);
+				var testAssemblyStartingMessage = new _TestAssemblyStarting
+				{
+					AssemblyName = testAssemblyName,
+					AssemblyPath = assemblyFileName,
+					AssemblyUniqueID = testCasesList[0].AssemblyUniqueID,
+					ConfigFilePath = configFileName,
+					StartTime = DateTimeOffset.Now,
+					TestEnvironment = environment,
+					TestFrameworkDisplayName = TestFrameworkDisplayName,
+				};
 
 				try
 				{
-					var testAssemblyStartingMessage = new _TestAssemblyStarting
-					{
-						AssemblyName = testCollection.TestAssembly.Assembly.Name,
-						AssemblyPath = testCollection.TestAssembly.Assembly.AssemblyPath,
-						AssemblyUniqueID = assemblyUniqueID,
-						ConfigFilePath = testCollection.TestAssembly.ConfigFileName,
-						StartTime = DateTimeOffset.Now,
-						TestEnvironment = environment,
-						TestFrameworkDisplayName = TestFrameworkDisplayName,
-					};
-
 					if (messageSink.OnMessage(testAssemblyStartingMessage))
-						results = RunTestCollection(assemblyUniqueID, testCollection, testCases, messageSink);
+						results = RunTestCollection(testCasesList, messageSink);
 				}
 				catch (Exception ex)
 				{
@@ -384,7 +396,7 @@ namespace Xunit.Runner.v1
 				{
 					var assemblyFinished = new _TestAssemblyFinished
 					{
-						AssemblyUniqueID = assemblyUniqueID,
+						AssemblyUniqueID = testAssemblyStartingMessage.AssemblyUniqueID,
 						ExecutionTime = results.Time,
 						TestsFailed = results.Failed,
 						TestsRun = results.Total,
@@ -397,35 +409,24 @@ namespace Xunit.Runner.v1
 		}
 
 		void _ITestFrameworkExecutor.RunTests(
-			IEnumerable<_ITestCase> testCases,
-			_IMessageSink messageSink,
-			_ITestFrameworkExecutionOptions executionOptions) =>
-				Run(testCases, messageSink);
-
-		void _ITestFrameworkExecutor.RunTests(
 			IEnumerable<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions) =>
 				Run(serializedTestCases, executionMessageSink);
 
 		Xunit1RunSummary RunTestCollection(
-			string assemblyUniqueID,
-			_ITestCollection testCollection,
-			IEnumerable<_ITestCase> testCases,
+			IList<Xunit1TestCase> testCases,
 			_IMessageSink messageSink)
 		{
+			Guard.ArgumentValid(nameof(testCases), "testCases must contain at least one test case", testCases.Count > 0);
+
 			var collectionStarting = new _TestCollectionStarting
 			{
-				AssemblyUniqueID = assemblyUniqueID,
-				TestCollectionClass = testCollection.CollectionDefinition?.Name,
-				TestCollectionDisplayName = testCollection.DisplayName,
-				TestCollectionUniqueID = testCollection.UniqueID
+				AssemblyUniqueID = testCases[0].AssemblyUniqueID,
+				TestCollectionClass = null,
+				TestCollectionDisplayName = $"xUnit.net v1 Tests for {assemblyFileName}",
+				TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
 			};
-			collectionStarting.TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
-				assemblyUniqueID,
-				collectionStarting.TestCollectionDisplayName,
-				collectionStarting.TestCollectionClass
-			);
 
 			var results = new Xunit1RunSummary
 			{
@@ -435,9 +436,9 @@ namespace Xunit.Runner.v1
 			try
 			{
 				if (results.Continue)
-					foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestMethod.TestClass, Comparer.Instance))
+					foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestClass))
 					{
-						var classResults = RunTestClass(assemblyUniqueID, collectionStarting.TestCollectionUniqueID, testClassGroup.Key, testClassGroup.ToList(), messageSink);
+						var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
 						results.Aggregate(classResults);
 						if (!classResults.Continue)
 							break;
@@ -447,7 +448,7 @@ namespace Xunit.Runner.v1
 			{
 				var collectionFinished = new _TestCollectionFinished
 				{
-					AssemblyUniqueID = assemblyUniqueID,
+					AssemblyUniqueID = collectionStarting.AssemblyUniqueID,
 					ExecutionTime = results.Time,
 					TestCollectionUniqueID = collectionStarting.TestCollectionUniqueID,
 					TestsFailed = results.Failed,
@@ -462,21 +463,21 @@ namespace Xunit.Runner.v1
 		}
 
 		Xunit1RunSummary RunTestClass(
-			string assemblyUniqueID,
-			string collectionUniqueID,
-			_ITestClass testClass,
-			IList<_ITestCase> testCases,
+			string typeName,
+			IList<Xunit1TestCase> testCases,
 			_IMessageSink messageSink)
 		{
+			Guard.ArgumentValid(nameof(testCases), "testCases must contain at least one test case", testCases.Count > 0);
+
 			var handler = new TestClassCallbackHandler(testCases, messageSink);
 			var results = handler.TestClassResults;
 			var testClassStarting = new _TestClassStarting
 			{
-				AssemblyUniqueID = assemblyUniqueID,
-				TestClass = testClass.Class.Name,
-				TestCollectionUniqueID = collectionUniqueID
+				AssemblyUniqueID = testCases[0].AssemblyUniqueID,
+				TestClass = typeName,
+				TestClassUniqueID = testCases[0].TestClassUniqueID,
+				TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
 			};
-			testClassStarting.TestClassUniqueID = UniqueIDGenerator.ForTestClass(collectionUniqueID, testClassStarting.TestClass);
 
 			results.Continue = messageSink.OnMessage(testClassStarting);
 
@@ -484,8 +485,8 @@ namespace Xunit.Runner.v1
 			{
 				if (results.Continue)
 				{
-					var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
-					Executor.RunTests(testClass.Class.Name, methodNames, handler);
+					var methodNames = testCases.Select(tc => tc.TestMethod).ToList();
+					Executor.RunTests(typeName, methodNames, handler);
 					handler.LastNodeArrived.WaitOne();
 				}
 			}
@@ -493,10 +494,10 @@ namespace Xunit.Runner.v1
 			{
 				var testClassFinished = new _TestClassFinished
 				{
-					AssemblyUniqueID = assemblyUniqueID,
+					AssemblyUniqueID = testClassStarting.AssemblyUniqueID,
 					ExecutionTime = results.Time,
 					TestClassUniqueID = testClassStarting.TestClassUniqueID,
-					TestCollectionUniqueID = collectionUniqueID,
+					TestCollectionUniqueID = testClassStarting.TestCollectionUniqueID,
 					TestsFailed = results.Failed,
 					TestsRun = results.Total,
 					TestsSkipped = results.Skipped
@@ -506,18 +507,6 @@ namespace Xunit.Runner.v1
 			}
 
 			return results;
-		}
-
-		/// <inheritdoc/>
-		public string Serialize(_ITestCase testCase) => SerializationHelper.Serialize(testCase);
-
-		class Comparer : IEqualityComparer<_ITestClass>
-		{
-			public static readonly Comparer Instance = new Comparer();
-
-			public bool Equals(_ITestClass? x, _ITestClass? y) => x?.Class.Name == y?.Class.Name;
-
-			public int GetHashCode(_ITestClass obj) => obj.Class.Name.GetHashCode();
 		}
 	}
 }

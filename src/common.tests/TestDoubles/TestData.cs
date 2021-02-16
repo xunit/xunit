@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -23,6 +24,7 @@ namespace Xunit.v3
 		public static string?[] DefaultStackTraces = new[] { $"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod" };
 		public const string DefaultTargetFramework = ".NETMagic,Version=v98.76.54";
 		public const string DefaultTestCaseUniqueID = "test-case-id";
+		public const string DefaultTestCaseSerialization = "test-case-serialization";
 		public const string DefaultTestClassUniqueID = "test-class-id";
 		public const string DefaultTestCollectionUniqueID = "test-collection-id";
 		public const string DefaultTestMethodUniqueID = "test-method-id";
@@ -40,6 +42,19 @@ namespace Xunit.v3
 					Messages = messages,
 					StackTraces = stackTraces
 				};
+
+		static Dictionary<string, List<string>> GetTraits(MethodInfo method)
+		{
+			var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+			foreach (var traitAttribute in method.GetCustomAttributesData().Where(cad => cad.AttributeType.IsAssignableFrom(typeof(TraitAttribute))))
+			{
+				var ctorArgs = traitAttribute.ConstructorArguments.ToList();
+				result.Add((string)ctorArgs[0].Value!, (string)ctorArgs[1].Value!);
+			}
+
+			return result;
+		}
 
 		public static TestAssembly TestAssembly(
 			Assembly assembly,
@@ -257,6 +272,73 @@ namespace Xunit.v3
 			};
 		}
 
+		public static _TestCaseDiscovered TestCaseDiscovered<TClass>(
+			string testMethod,
+			string? testCaseDisplayName = null)
+		{
+			var typeInfo = typeof(TClass);
+			var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{typeInfo.FullName}'", typeInfo.GetMethod(testMethod));
+			var skipReason = methodInfo.GetCustomAttribute<FactAttribute>()?.Skip;
+			var traits = GetTraits(methodInfo);
+
+			var testClassUniqueID = UniqueIDGenerator.ForTestClass(DefaultTestCollectionUniqueID, typeInfo.FullName);
+			var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, testMethod);
+			var testCaseUniqueID = UniqueIDGenerator.ForTestCase(testMethodUniqueID, null, null);
+
+			return TestCaseDiscovered(
+				DefaultAssemblyUniqueID,
+				DefaultTestCaseSerialization,
+				skipReason,
+				sourceFilePath: null,
+				sourceLineNumber: null,
+				testCaseDisplayName ?? $"{typeInfo.FullName}.{testMethod}",
+				testCaseUniqueID,
+				typeInfo.Name,
+				testClassUniqueID,
+				typeInfo.FullName,
+				DefaultTestCollectionUniqueID,
+				testMethod,
+				testMethodUniqueID,
+				typeInfo.Namespace,
+				traits
+			);
+		}
+
+		public static _TestCaseDiscovered TestCaseDiscovered(
+			string assemblyUniqueID = DefaultAssemblyUniqueID,
+			string serialization = DefaultTestCaseSerialization,
+			string? skipReason = null,
+			string? sourceFilePath = null,
+			int? sourceLineNumber = null,
+			string testCaseDisplayName = "test-case-display-name",
+			string testCaseUniqueID = DefaultTestCaseUniqueID,
+			string? testClass = null,
+			string? testClassUniqueID = DefaultTestClassUniqueID,
+			string? testClassWithNamespace = null,
+			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+			string? testMethod = null,
+			string? testMethodUniqueID = DefaultTestMethodUniqueID,
+			string? testNamespace = null,
+			Dictionary<string, List<string>>? traits = null) =>
+				new _TestCaseDiscovered
+				{
+					AssemblyUniqueID = assemblyUniqueID,
+					Serialization = serialization,
+					SkipReason = skipReason,
+					SourceFilePath = sourceFilePath,
+					SourceLineNumber = sourceLineNumber,
+					TestCaseDisplayName = testCaseDisplayName,
+					TestCaseUniqueID = testCaseUniqueID,
+					TestClass = testClass,
+					TestClassUniqueID = testClassUniqueID,
+					TestClassWithNamespace = testClassWithNamespace,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethod = testMethod,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestNamespace = testNamespace,
+					Traits = traits ?? new Dictionary<string, List<string>>()
+				};
+
 		public static _TestCaseFinished TestCaseFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,
 			decimal executionTime = 123.4567m,
@@ -304,14 +386,6 @@ namespace Xunit.v3
 					TestMethodUniqueID = testMethodUniqueID,
 					Traits = traits ?? new Dictionary<string, List<string>>()
 				};
-
-		public static TestClass TestClass<TClassUnderTest>(_ITestCollection collection) =>
-			new TestClass(collection, Reflector.Wrap(typeof(TClassUnderTest)));
-
-		public static TestClass TestClass(
-			_ITestCollection collection,
-			Type classType) =>
-				new TestClass(collection, Reflector.Wrap(classType));
 
 		public static _TestClassFinished TestClassFinished(
 			string assemblyUniqueID = DefaultAssemblyUniqueID,

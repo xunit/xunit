@@ -178,19 +178,6 @@ namespace Xunit
 
 		/// <inheritdoc/>
 		public virtual void RunTests(
-			IEnumerable<_ITestCase> testMethods,
-			_IMessageSink messageSink,
-			_ITestFrameworkExecutionOptions executionOptions)
-		{
-			Guard.ArgumentNotNull(nameof(testMethods), testMethods);
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
-
-			InnerController.RunTests(testMethods, messageSink, executionOptions);
-		}
-
-		/// <inheritdoc/>
-		public virtual void RunTests(
 			IEnumerable<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)

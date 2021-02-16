@@ -31,29 +31,6 @@ public static class TestFrameworkOptionsReadExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag that determines whether discovered test cases should include serialization, which
-	/// allows them to be run cross-process.
-	/// </summary>
-	public static bool? IncludeSerialization(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-		return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.IncludeSerialization);
-	}
-
-	/// <summary>
-	/// Gets a flag that determines whether discovered test cases should include serialization, which
-	/// allows them to be run cross-process. If the flag is not present, returns the default
-	/// value (<c>false</c>).
-	/// </summary>
-	public static bool IncludeSerializationOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-		return discoveryOptions.IncludeSerialization() ?? false;
-	}
-
-	/// <summary>
 	/// Gets a flag that determines whether discovered test cases should include source information.
 	/// Note that not all runners have access to source information, so this flag does not guarantee
 	/// that source information will be provided.

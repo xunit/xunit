@@ -124,21 +124,6 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public virtual void RunTests(
-			IEnumerable<_ITestCase> testCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions)
-		{
-			Guard.ArgumentNotNull(nameof(testCases), testCases);
-			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
-
-			// TODO: Should this be OfType? Or should we guard against non-TTestCase test cases? What about null test cases?
-
-			RunTestCases(testCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
-		}
-
-		/// <inheritdoc/>
-		public virtual void RunTests(
 			IEnumerable<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
