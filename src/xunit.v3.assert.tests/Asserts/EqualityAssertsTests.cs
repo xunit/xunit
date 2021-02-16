@@ -10,6 +10,8 @@ using Xunit.v3;
 
 public class EqualityAssertsTests
 {
+	static bool IsMono = Type.GetType("Mono.Runtime") != null;
+
 	public class Equal
 	{
 		[Fact]
@@ -877,6 +879,8 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure_PositiveInfinity()
 		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
 			Assert.Equal($"∞", ex.Expected);
 			Assert.Equal($"{77.7:G17}", ex.Actual);
@@ -885,6 +889,8 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure_NegativeInfinity()
 		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
 			Assert.Equal($"{0.0:G17}", ex.Expected);
 			Assert.Equal($"-∞", ex.Actual);
@@ -944,6 +950,8 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure_PositiveInfinity()
 		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
 			Assert.Equal($"∞", ex.Expected);
 			Assert.Equal($"{77.7f:G9}", ex.Actual);
@@ -952,6 +960,8 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure_NegativeInfinity()
 		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
 			Assert.Equal($"{0.0f:G9}", ex.Expected);
 			Assert.Equal($"-∞", ex.Actual);
