@@ -90,7 +90,7 @@ namespace Xunit.Runner.v1
 		public string TargetFramework => string.Empty;
 
 		/// <inheritdoc/>
-		string _ITestFrameworkDiscoverer.TestAssemblyUniqueID => testAssemblyUniqueID;
+		string IFrontController.TestAssemblyUniqueID => testAssemblyUniqueID;
 
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
@@ -137,7 +137,7 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		void _ITestFrameworkDiscoverer.Find(
+		void IFrontController.Find(
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
@@ -173,7 +173,7 @@ namespace Xunit.Runner.v1
 		}
 
 		/// <inheritdoc/>
-		void _ITestFrameworkDiscoverer.Find(
+		void IFrontController.Find(
 			string typeName,
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -327,7 +327,7 @@ namespace Xunit.Runner.v1
 			Run(discoverySink.TestCases.Select(tc => tc.Serialization), messageSink);
 		}
 
-		void _ITestFrameworkExecutor.RunAll(
+		void IFrontController.RunAll(
 			_IMessageSink messageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestFrameworkExecutionOptions executionOptions)
@@ -408,7 +408,7 @@ namespace Xunit.Runner.v1
 			}
 		}
 
-		void _ITestFrameworkExecutor.RunTests(
+		void IFrontController.RunTests(
 			IEnumerable<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions) =>
