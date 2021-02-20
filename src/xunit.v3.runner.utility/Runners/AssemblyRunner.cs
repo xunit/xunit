@@ -278,7 +278,7 @@ namespace Xunit.Runners
 				if (typeName != null)
 					filters.IncludedClasses.Add(typeName);
 
-				var settings = new FrontControllerDiscoverySettings(discoveryOptions, filters);
+				var settings = new FrontControllerFindSettings(discoveryOptions, filters);
 				controller.Find(this, settings);
 
 				discoveryCompleteEvent.WaitOne();

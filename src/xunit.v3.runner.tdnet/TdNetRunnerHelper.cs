@@ -44,7 +44,7 @@ namespace Xunit.Runner.TdNet
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery(configuration));
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(configuration));
 			return Discover(sink => xunit.Find(sink, settings));
 		}
 
@@ -55,7 +55,7 @@ namespace Xunit.Runner.TdNet
 			if (type == null || type.FullName == null)
 				return new _TestCaseDiscovered[0];
 
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery(configuration));
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(configuration));
 			settings.Filters.IncludedClasses.Add(type.FullName);
 
 			return Discover(sink => xunit.Find(sink, settings));

@@ -319,7 +319,7 @@ namespace Xunit.Runner.MSBuild
 				};
 				reporterMessageHandler!.OnMessage(discoveryStarting);
 
-				var settings = new FrontControllerDiscoverySettings(discoveryOptions, assembly.Configuration.Filters);
+				var settings = new FrontControllerFindSettings(discoveryOptions, assembly.Configuration.Filters);
 				controller.Find(discoverySink, settings);
 				discoverySink.Finished.WaitOne();
 

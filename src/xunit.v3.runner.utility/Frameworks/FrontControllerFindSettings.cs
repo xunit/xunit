@@ -5,18 +5,18 @@ using Xunit.v3;
 namespace Xunit
 {
 	/// <summary>
-	/// Contains the information used to run test discovery.
+	/// Contains the information by <see cref="IFrontController.Find"/>.
 	/// </summary>
 	// TODO: This is current ctor-based because everything else uses factories,
 	// are we comfortable with that design?
-	public class FrontControllerDiscoverySettings
+	public class FrontControllerFindSettings
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="FrontControllerDiscoverySettings"/> class.
+		/// Initializes a new instance of the <see cref="FrontControllerFindSettings"/> class.
 		/// </summary>
 		/// <param name="options">The discovery options</param>
 		/// <param name="filters">The optional filters (when not provided, finds all tests)</param>
-		public FrontControllerDiscoverySettings(
+		public FrontControllerFindSettings(
 			_ITestFrameworkDiscoveryOptions options,
 			XunitFilters? filters = null)
 		{

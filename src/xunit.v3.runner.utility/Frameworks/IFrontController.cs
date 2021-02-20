@@ -37,7 +37,7 @@ namespace Xunit
 		/// <param name="settings">The settings used during discovery.</param>
 		void Find(
 			_IMessageSink messageSink,
-			FrontControllerDiscoverySettings settings
+			FrontControllerFindSettings settings
 		);
 
 		/// <summary>

@@ -16,7 +16,7 @@ public class Xunit2Tests
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
 			controller.Find(sink, settings);
 
@@ -41,7 +41,7 @@ public class Foo
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
 			controller.Find(sink, settings);
 
@@ -92,7 +92,7 @@ namespace Namespace2
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
 			controller.Find(sink, settings);
 
@@ -137,7 +137,7 @@ public class TestClass
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
-			var settings = new FrontControllerDiscoverySettings(discoveryOptions);
+			var settings = new FrontControllerFindSettings(discoveryOptions);
 
 			using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 			controller.Find(discoverySink, settings);
@@ -177,7 +177,7 @@ public class TestClass
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
 			controller.Find(sink, settings);
 
@@ -219,7 +219,7 @@ let CustomName() =
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
 			controller.Find(sink, settings);
 
@@ -266,7 +266,7 @@ let TestMethod (x:int) =
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
-			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
 			controller.Find(sink, settings);
 			sink.Finished.WaitOne();

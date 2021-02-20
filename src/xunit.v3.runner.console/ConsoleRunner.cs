@@ -415,7 +415,7 @@ namespace Xunit.Runner.SystemConsole
 					};
 					reporterMessageHandler.OnMessage(discoveryStarting);
 
-					var settings = new FrontControllerDiscoverySettings(discoveryOptions, assembly.Configuration.Filters);
+					var settings = new FrontControllerFindSettings(discoveryOptions, assembly.Configuration.Filters);
 
 					controller.Find(discoverySink, settings);
 					discoverySink.Finished.WaitOne();

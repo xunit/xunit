@@ -164,7 +164,7 @@ namespace Xunit.Runner.v1
 		/// <inheritdoc/>
 		void IFrontController.Find(
 			_IMessageSink messageSink,
-			FrontControllerDiscoverySettings settings)
+			FrontControllerFindSettings settings)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(settings), settings);
