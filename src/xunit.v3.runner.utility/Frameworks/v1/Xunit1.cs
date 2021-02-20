@@ -127,28 +127,17 @@ namespace Xunit.Runner.v1
 		/// </summary>
 		/// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
 		/// <param name="messageSink">The message sink to report results back to.</param>
+		/// <param name="filters">The optional filters used to filter discovery messages.</param>
 		public void Find(
 			bool includeSourceInformation,
-			_IMessageSink messageSink)
-		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-
-			Find(msg => true, includeSourceInformation, messageSink);
-		}
-
-		/// <inheritdoc/>
-		void IFrontController.Find(
 			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			XunitFilters? filters = null)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			Find(
-				msg => true,
-				discoveryOptions.GetIncludeSourceInformationOrDefault(),
-				messageSink
-			);
+			Predicate<_TestCaseDiscovered> filter = filters != null ? filters.Filter : msg => true;
+
+			Find(filter, includeSourceInformation, messageSink);
 		}
 
 		/// <summary>
@@ -174,17 +163,15 @@ namespace Xunit.Runner.v1
 
 		/// <inheritdoc/>
 		void IFrontController.Find(
-			string typeName,
 			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			FrontControllerDiscoverySettings settings)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(nameof(settings), settings);
 
 			Find(
-				msg => msg.TestClassWithNamespace == typeName,
-				discoveryOptions.GetIncludeSourceInformationOrDefault(),
+				settings.Filters.Filter,
+				settings.Options.GetIncludeSourceInformationOrDefault(),
 				messageSink
 			);
 		}

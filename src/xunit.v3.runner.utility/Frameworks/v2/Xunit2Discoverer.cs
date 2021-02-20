@@ -18,7 +18,7 @@ namespace Xunit.Runner.v2
 	/// Resharper. Runner authors who are not using AST-based discovery are strongly
 	/// encouraged to use <see cref="XunitFrontController"/> instead.
 	/// </summary>
-	public class Xunit2Discoverer : _ITestFrameworkDiscoverer, IAsyncDisposable
+	public class Xunit2Discoverer : IAsyncDisposable
 	{
 #if NETFRAMEWORK
 		static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
@@ -235,50 +235,25 @@ namespace Xunit.Runner.v2
 			return DisposalTracker.DisposeAsync();
 		}
 
-		/// <summary>
-		/// Starts the process of finding all xUnit.net v2 tests in an assembly.
-		/// </summary>
-		/// <param name="messageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
+		/// <inheritdoc/>
 		public void Find(
 			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			FrontControllerDiscoverySettings settings)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(nameof(settings), settings);
 
-			var includeSourceInformation = discoveryOptions.GetIncludeSourceInformationOrDefault();
+			var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
+			var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
 
+			// TODO: We're missing a potential optimization where we could determine that the filter
+			// is exactly 1 (or maybe only?) "include class" filters, and then call the version of
+			// Find on the remote discoverer that takes a type name.
 			SendDiscoveryStartingMessage(messageSink);
 			RemoteDiscoverer.Find(
 				includeSourceInformation,
-				CreateOptimizedRemoteMessageSink(messageSink),
-				Xunit2OptionsAdapter.Adapt(discoveryOptions)
-			);
-		}
-
-		/// <summary>
-		/// Starts the process of finding all xUnit.net v2 tests in a class.
-		/// </summary>
-		/// <param name="typeName">The fully qualified type name to find tests in.</param>
-		/// <param name="messageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-		public void Find(
-			string typeName,
-			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
-		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-			var includeSourceInformation = discoveryOptions.GetIncludeSourceInformationOrDefault();
-
-			SendDiscoveryStartingMessage(messageSink);
-			RemoteDiscoverer.Find(
-				typeName,
-				includeSourceInformation,
-				CreateOptimizedRemoteMessageSink(messageSink),
-				Xunit2OptionsAdapter.Adapt(discoveryOptions)
+				CreateOptimizedRemoteMessageSink(filteringMessageSink),
+				Xunit2OptionsAdapter.Adapt(settings.Options)
 			);
 		}
 
@@ -370,6 +345,29 @@ namespace Xunit.Runner.v2
 			public List<string>? Results;
 
 			public void Callback(List<string> results) => Results = results;
+		}
+
+		class FilteringMessageSink : _IMessageSink
+		{
+			readonly Predicate<_TestCaseDiscovered> filter;
+			readonly _IMessageSink innerMessageSink;
+
+			public FilteringMessageSink(
+				_IMessageSink innerMessageSink,
+				Predicate<_TestCaseDiscovered> filter)
+			{
+				this.innerMessageSink = innerMessageSink;
+				this.filter = filter;
+			}
+
+			public bool OnMessage(_MessageSinkMessage message)
+			{
+				if (message is _TestCaseDiscovered discovered)
+					if (!filter(discovered))
+						return true;
+
+				return innerMessageSink.OnMessage(message);
+			}
 		}
 	}
 }

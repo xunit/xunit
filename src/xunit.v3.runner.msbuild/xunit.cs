@@ -319,7 +319,8 @@ namespace Xunit.Runner.MSBuild
 				};
 				reporterMessageHandler!.OnMessage(discoveryStarting);
 
-				controller.Find(discoverySink, discoveryOptions);
+				var settings = new FrontControllerDiscoverySettings(discoveryOptions, assembly.Configuration.Filters);
+				controller.Find(discoverySink, settings);
 				discoverySink.Finished.WaitOne();
 
 				var testCasesDiscovered = discoverySink.TestCases.Count;

@@ -11,28 +11,14 @@ public class Xunit2Tests
 	public class EnumerateTests
 	{
 		[Fact]
-		public async void NoTestMethods_ByAssembly()
+		public async void NoTestMethods()
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
 
-			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
-
-			sink.Finished.WaitOne();
-
-			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
-			Assert.False(sink.Messages.Any(msg => msg is _TestCaseDiscovered));
-		}
-
-		[Fact]
-		public async void NoTestMethods_ByType()
-		{
-			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
-			var controller = new TestableXunit2(assm.FileName, null, true);
-			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
-
-			controller.Find(typeName: "foo", messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(sink, settings);
 
 			sink.Finished.WaitOne();
 
@@ -55,8 +41,9 @@ public class Foo
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
 
-			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(sink, settings);
 
 			sink.Finished.WaitOne();
 
@@ -105,8 +92,9 @@ namespace Namespace2
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
 
-			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(sink, settings);
 
 			sink.Finished.WaitOne();
 			var testCases = sink.Messages.OfType<_TestCaseDiscovered>().ToArray();
@@ -149,9 +137,10 @@ public class TestClass
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
+			var settings = new FrontControllerDiscoverySettings(discoveryOptions);
 
 			using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
-			controller.Find(messageSink: discoverySink, discoveryOptions);
+			controller.Find(discoverySink, settings);
 			discoverySink.Finished.WaitOne();
 
 			using var executionSink = SpyMessageSink<_TestAssemblyFinished>.Create();
@@ -188,8 +177,9 @@ public class TestClass
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
 
-			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(sink, settings);
 
 			sink.Finished.WaitOne();
 			var testCaseNames = sink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.TestCaseDisplayName).ToArray();
@@ -229,8 +219,10 @@ let CustomName() =
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
 
-			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(sink, settings);
+
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -274,8 +266,9 @@ let TestMethod (x:int) =
 			using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code);
 			var controller = new TestableXunit2(assembly.FileName, null, true);
 			var sink = new TestDiscoverySink();
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery());
 
-			controller.Find(messageSink: sink, discoveryOptions: _TestFrameworkOptions.ForDiscovery());
+			controller.Find(sink, settings);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(

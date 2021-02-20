@@ -274,10 +274,12 @@ namespace Xunit.Runners
 			ThreadPool.QueueUserWorkItem(_ =>
 			{
 				var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
+				var filters = new XunitFilters();
 				if (typeName != null)
-					controller.Find(typeName, this, discoveryOptions);
-				else
-					controller.Find(this, discoveryOptions);
+					filters.IncludedClasses.Add(typeName);
+
+				var settings = new FrontControllerDiscoverySettings(discoveryOptions, filters);
+				controller.Find(this, settings);
 
 				discoveryCompleteEvent.WaitOne();
 				if (cancelled)

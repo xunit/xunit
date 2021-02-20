@@ -415,12 +415,13 @@ namespace Xunit.Runner.SystemConsole
 					};
 					reporterMessageHandler.OnMessage(discoveryStarting);
 
-					controller.Find(discoverySink, discoveryOptions);
+					var settings = new FrontControllerDiscoverySettings(discoveryOptions, assembly.Configuration.Filters);
+
+					controller.Find(discoverySink, settings);
 					discoverySink.Finished.WaitOne();
 
 					var testCasesDiscovered = discoverySink.TestCases.Count;
-					var filteredTestCases = discoverySink.TestCases.Where(assembly.Configuration.Filters.Filter).ToList();
-					var testCasesToRun = filteredTestCases.Count;
+					var testCasesToRun = testCasesDiscovered;  // TODO: Update _DiscoveryComplete to include metadata
 
 					var discoveryFinished = new TestAssemblyDiscoveryFinished
 					{
@@ -453,7 +454,7 @@ namespace Xunit.Runner.SystemConsole
 
 						using (resultsSink)
 						{
-							controller.RunTests(filteredTestCases.Select(tc => tc.Serialization), resultsSink, executionOptions);
+							controller.RunTests(discoverySink.TestCases.Select(tc => tc.Serialization), resultsSink, executionOptions);
 							resultsSink.Finished.WaitOne();
 
 							var executionFinished = new TestAssemblyExecutionFinished

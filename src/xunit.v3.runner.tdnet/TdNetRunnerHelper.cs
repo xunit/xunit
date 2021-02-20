@@ -44,17 +44,21 @@ namespace Xunit.Runner.TdNet
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-			return Discover(sink => xunit.Find(sink, _TestFrameworkOptions.ForDiscovery(configuration)));
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery(configuration));
+			return Discover(sink => xunit.Find(sink, settings));
 		}
 
 		IReadOnlyList<_TestCaseDiscovered> Discover(Type? type)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
 
-			if (type == null)
+			if (type == null || type.FullName == null)
 				return new _TestCaseDiscovered[0];
 
-			return Discover(sink => xunit.Find(type.FullName!, sink, _TestFrameworkOptions.ForDiscovery(configuration)));
+			var settings = new FrontControllerDiscoverySettings(_TestFrameworkOptions.ForDiscovery(configuration));
+			settings.Filters.IncludedClasses.Add(type.FullName);
+
+			return Discover(sink => xunit.Find(sink, settings));
 		}
 
 		IReadOnlyList<_TestCaseDiscovered> Discover(Action<_IMessageSink> discoveryAction)

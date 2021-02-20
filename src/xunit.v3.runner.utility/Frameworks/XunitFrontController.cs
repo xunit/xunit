@@ -142,25 +142,12 @@ namespace Xunit
 		/// <inheritdoc/>
 		public virtual void Find(
 			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			FrontControllerDiscoverySettings settings)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(nameof(settings), settings);
 
-			InnerController.Find(messageSink, discoveryOptions);
-		}
-
-		/// <inheritdoc/>
-		public virtual void Find(
-			string typeName,
-			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
-		{
-			Guard.ArgumentNotNull(nameof(typeName), typeName);
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-
-			InnerController.Find(typeName, messageSink, discoveryOptions);
+			InnerController.Find(messageSink, settings);
 		}
 
 		/// <inheritdoc/>

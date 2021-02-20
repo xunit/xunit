@@ -33,23 +33,11 @@ namespace Xunit
 		/// <summary>
 		/// Starts the process of finding all tests in an assembly.
 		/// </summary>
-		/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
+		/// <param name="messageSink">The message sink to report results back to.</param>
+		/// <param name="settings">The settings used during discovery.</param>
 		void Find(
-			_IMessageSink discoveryMessageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions
-		);
-
-		/// <summary>
-		/// Starts the process of finding all tests in a class.
-		/// </summary>
-		/// <param name="typeName">The fully qualified type name to find tests in.</param>
-		/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-		void Find(
-			string typeName,
-			_IMessageSink discoveryMessageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions
+			_IMessageSink messageSink,
+			FrontControllerDiscoverySettings settings
 		);
 
 		/// <summary>
