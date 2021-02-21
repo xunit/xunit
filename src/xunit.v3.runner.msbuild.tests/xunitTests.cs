@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 using NSubstitute;
 using Xunit;
@@ -57,7 +58,7 @@ public class xunitTests
 
 			var versionAttribute = typeof(xunit).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 			var eventArgs = Assert.IsType<BuildMessageEventArgs>(xunit.BuildEngine.Captured(x => x.LogMessageEvent(null)).Args().Single());
-			Assert.Equal($"xUnit.net v3 MSBuild Runner v{versionAttribute!.InformationalVersion} ({IntPtr.Size * 8}-bit Desktop .NET {Environment.Version})", eventArgs.Message);
+			Assert.Equal($"xUnit.net v3 MSBuild Runner v{versionAttribute!.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})", eventArgs.Message);
 			Assert.Equal(MessageImportance.High, eventArgs.Importance);
 		}
 

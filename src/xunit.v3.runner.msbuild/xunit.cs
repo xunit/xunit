@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
@@ -110,7 +111,6 @@ namespace Xunit.Runner.MSBuild
 			RemotingUtility.CleanUpRegisteredChannels();
 
 			XElement? assembliesElement = null;
-			var environment = $"{IntPtr.Size * 8}-bit {$"Desktop .NET {Environment.Version}"}";
 
 			if (NeedsXml)
 				assembliesElement = new XElement("assemblies");
@@ -177,7 +177,7 @@ namespace Xunit.Runner.MSBuild
 					reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
 
 					if (!NoLogo)
-						Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({environment})");
+						Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 
 					var project = new XunitProject();
 					foreach (var assembly in Assemblies)
