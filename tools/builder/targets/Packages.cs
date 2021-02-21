@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 [Target(
 	BuildTarget.Packages,
-	BuildTarget.Build, BuildTarget.Build32
+	BuildTarget.Build
 )]
 public static class Packages
 {

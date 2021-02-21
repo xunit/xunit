@@ -1,18 +1,19 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 [Target(
-	BuildTarget.TestCoreV3,
+	BuildTarget.TestCoreConsole,
 	BuildTarget.Build
 )]
-public static class TestCore_V3
+public static class TestCoreConsole
 {
 	public static async Task OnExecute(BuildContext context)
 	{
-		context.BuildStep("Running v3 .NET Core tests");
+		context.BuildStep("Running .NET Core tests (via Console runner)");
 
+		// v3
+		// TODO: Convert to console runner when it's available
 		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "netcoreapp");
 		var v3TestDlls = Directory.GetFiles(context.BaseFolder, "xunit.v3.*.tests.dll", SearchOption.AllDirectories)
 			.Where(x => x.Contains(netCoreSubpath))
