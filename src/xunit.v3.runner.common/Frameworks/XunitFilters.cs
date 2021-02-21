@@ -24,6 +24,19 @@ namespace Xunit.Runner.Common
 		readonly ChangeTrackingHashSet<string> excludedMethods = new(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
+		/// Gets a flag which indicates if the filter list is empty (no filters).
+		/// </summary>
+		public bool Empty =>
+			ExcludedClasses.Count == 0 &&
+			ExcludedMethods.Count == 0 &&
+			ExcludedNamespaces.Count == 0 &&
+			ExcludedTraits.Count == 0 &&
+			IncludedClasses.Count == 0 &&
+			IncludedMethods.Count == 0 &&
+			IncludedNamespaces.Count == 0 &&
+			IncludedTraits.Count == 0;
+
+		/// <summary>
 		/// Gets the set of class filters for test classes to exclude.
 		/// </summary>
 		public HashSet<string> ExcludedClasses { get; } = new(StringComparer.OrdinalIgnoreCase);
