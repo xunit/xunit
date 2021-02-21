@@ -157,8 +157,10 @@ public class BuildContext
 			// Let Bullseye run the target(s)
 			await targetCollection.RunAsync(targetNames, SkipDependencies, dryRun: false, parallel: false, new NullLogger(), _ => false);
 
+			WriteLineColor(ConsoleColor.Green, $"==> Build success! <=={Environment.NewLine}");
+
 			if (Timing)
-				WriteLineColor(ConsoleColor.Cyan, $"*** TIMING: Build took {swTotal.Elapsed} ***{Environment.NewLine}");
+				WriteLineColor(ConsoleColor.Cyan, $"TIMING: Build took {swTotal.Elapsed}{Environment.NewLine}");
 
 			return 0;
 		}
