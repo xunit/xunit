@@ -230,10 +230,8 @@ public static class Mocks
 		Assembly assembly = null,
 		string configFileName = null)
 	{
-#if NETFRAMEWORK
 		if (configFileName == null)
 			configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-#endif
 
 		return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).Assembly), configFileName);
 	}

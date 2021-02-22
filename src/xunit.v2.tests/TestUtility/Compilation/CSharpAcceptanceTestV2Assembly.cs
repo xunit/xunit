@@ -1,5 +1,3 @@
-#if NETFRAMEWORK
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,5 +24,3 @@ public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 		return assembly;
 	}
 }
-
-#endif

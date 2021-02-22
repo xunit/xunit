@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -1354,5 +1352,3 @@ public class Xunit2TheoryAcceptanceTests
 		}
 	}
 }
-
-#endif
