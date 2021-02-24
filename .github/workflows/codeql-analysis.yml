@@ -55,7 +55,7 @@ jobs:
         id: init_codeql
         uses: github/codeql-action/init@v1
         with:
-          queries: security-and-quality
+          queries: security-extended
 
       - name: "Build target: PR"
         id: build_project
