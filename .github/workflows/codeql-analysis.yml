@@ -1,20 +1,46 @@
 name: CodeQL Analysis
 
 on:
-  push:
   pull_request:
-  schedule:
-    - cron: '0 8 * * *'
 
 jobs:
   analyze:
     name: codeql-analysis
-    runs-on: windows-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-18.04, macOS-latest]
+    env:
+      DOTNET_NOLOGO: true
     steps:
+      - name: Install .NET Core SDK 2.1
+        id: install_dotnet_2
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '2.1.x'
+
+      - name: Install .NET Core SDK 3.1
+        id: install_dotnet_3
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+
+      - name: Install .NET SDK 5.0
+        id: install_dotnet_5
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+
+      - name: Get .NET information
+        id: get_dotnet_info
+        run: dotnet --info
+
       - name: Checkout repository
         id: checkout_repo
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Initialize CodeQL
         id: init_codeql
@@ -22,7 +48,10 @@ jobs:
         with:
           queries: security-and-quality
 
-      - name: Build project
+      - name: "Build target: PR"
+        id: build_project
+        shell: pwsh
+        run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
 
       - name: Perform CodeQL Analysis
         id: analyze_codeql
