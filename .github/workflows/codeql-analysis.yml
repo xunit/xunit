@@ -10,11 +10,7 @@ on:
 jobs:
   analyze:
     name: codeql-analysis
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ windows-latest, ubuntu-18.04, macOS-latest ]
+    runs-on: windows-latest
     env:
       DOTNET_NOLOGO: true
     steps:
@@ -60,11 +56,11 @@ jobs:
         id: init_codeql
         uses: github/codeql-action/init@v1
         with:
-          queries: security-extended
+          queries: security-and-quality
 
       - name: "Build target: PR"
         id: build_project
-        run: dotnet build tools/builder/build.csproj
+        run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
 
       - name: Perform CodeQL Analysis
         id: analyze_codeql
