@@ -10,12 +10,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-18.04, macOS-latest]
+        os: [ windows-latest, ubuntu-18.04, macOS-latest ]
     env:
       DOTNET_NOLOGO: true
     steps:
       # Due to the insufficient memory allocated by default, CodeQL sometimes requires more to be manually allocated
-      - name: Configure Pagefile
+      - if: matrix.os == 'windows-latest'
+        name: Configure Pagefile
         id: config_pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
         with:
