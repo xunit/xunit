@@ -15,8 +15,7 @@ jobs:
       DOTNET_NOLOGO: true
     steps:
       # Due to the insufficient memory allocated by default, CodeQL sometimes requires more to be manually allocated
-      - if: matrix.os == 'windows-latest'
-        name: Configure Pagefile
+      - name: Configure Pagefile
         id: config_pagefile
         uses: al-cheb/configure-pagefile-action@v1.2
         with:
