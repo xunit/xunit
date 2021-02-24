@@ -64,7 +64,6 @@ jobs:
 
       - name: "Build target: PR"
         id: build_project
-        shell: pwsh
         run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
 
       - name: Perform CodeQL Analysis
