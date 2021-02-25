@@ -57,7 +57,7 @@ jobs:
         with:
           queries: security-and-quality
 
-      - name: "Build target: PR"
+      - name: Build project
         id: build_project
         run: dotnet build tools/builder/build.csproj
 
