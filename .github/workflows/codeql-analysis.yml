@@ -55,11 +55,11 @@ jobs:
         id: init_codeql
         uses: github/codeql-action/init@v1
         with:
-          queries: security-extended
+          queries: security-and-quality
 
       - name: "Build target: PR"
         id: build_project
-        run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
+        run: dotnet build tools/builder/build.csproj
 
       - name: Perform CodeQL Analysis
         id: analyze_codeql
