@@ -3,7 +3,7 @@ using System;
 using System.Security;
 #endif
 
-namespace Xunit.Runner.v2
+namespace Xunit
 {
 #if NETFRAMEWORK
 	/// <summary>
