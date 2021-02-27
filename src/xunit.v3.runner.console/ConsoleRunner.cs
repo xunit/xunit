@@ -401,7 +401,7 @@ namespace Xunit.Runner.SystemConsole
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 				using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink);
-				await using var controller = new XunitFrontController(assembly, diagnosticMessageSink: diagnosticMessageSink);
+				await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
 
 				var executionStarting = new TestAssemblyExecutionStarting
 				{

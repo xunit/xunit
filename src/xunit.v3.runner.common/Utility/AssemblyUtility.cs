@@ -8,11 +8,12 @@ namespace Xunit
 	/// <summary>
 	/// This class provides utility functions related to assemblies.
 	/// </summary>
-	public class AssemblyUtility
+	public static class AssemblyUtility
 	{
 		/// <summary>
 		/// Gets the value for an unknown target framework.
 		/// </summary>
+		// Note: This value matches AssemblyUtility.UnknownTargetFramework from xunit.v3.core
 		public const string UnknownTargetFramework = "UnknownTargetFramework";
 
 		/// <summary>

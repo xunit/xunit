@@ -15,17 +15,21 @@ namespace Xunit.Runner.TdNet
 {
 	public class TdNetRunnerHelper : IAsyncDisposable
 	{
-		readonly TestAssemblyConfiguration configuration = new();
 		bool disposed;
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
+		readonly IFrontController? frontController;
+		readonly XunitProjectAssembly projectAssembly;
 		readonly ITestListener? testListener;
-		readonly Xunit2? xunit;
 
 		/// <summary>
 		/// This constructor is for unit testing purposes only.
 		/// </summary>
 		protected TdNetRunnerHelper()
-		{ }
+		{
+			// TODO: Where do these come from?
+			var project = new XunitProject();
+			projectAssembly = new(project);
+		}
 
 		public TdNetRunnerHelper(
 			Assembly assembly,
@@ -34,31 +38,40 @@ namespace Xunit.Runner.TdNet
 			this.testListener = testListener;
 
 			var assemblyFileName = assembly.GetLocalCodeBase();
-			ConfigReader.Load(configuration, assemblyFileName);
-			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-			xunit = new Xunit2(diagnosticMessageSink, configuration.AppDomainOrDefault, _NullSourceInformationProvider.Instance, assemblyFileName, shadowCopy: false);
-			disposalTracker.Add(xunit);
+			var project = new XunitProject();
+			projectAssembly = new XunitProjectAssembly(project)
+			{
+				Assembly = assembly,
+				AssemblyFilename = assemblyFileName,
+				TargetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName)
+			};
+			projectAssembly.Configuration.ShadowCopy = false;
+			ConfigReader.Load(projectAssembly.Configuration, assemblyFileName);
+
+			var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), projectAssembly.Configuration.DiagnosticMessagesOrDefault);
+			frontController = Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: diagnosticMessageSink);
+			disposalTracker.Add(frontController);
 		}
 
 		public virtual IReadOnlyList<_TestCaseDiscovered> Discover()
 		{
-			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", frontController);
 
-			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(configuration));
-			return Discover(sink => xunit.Find(sink, settings));
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
+			return Discover(sink => frontController.Find(sink, settings));
 		}
 
 		IReadOnlyList<_TestCaseDiscovered> Discover(Type? type)
 		{
-			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", frontController);
 
 			if (type == null || type.FullName == null)
 				return new _TestCaseDiscovered[0];
 
-			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(configuration));
+			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
 			settings.Filters.IncludedClasses.Add(type.FullName);
 
-			return Discover(sink => xunit.Find(sink, settings));
+			return Discover(sink => frontController.Find(sink, settings));
 		}
 
 		IReadOnlyList<_TestCaseDiscovered> Discover(Action<_IMessageSink> discoveryAction)
@@ -93,7 +106,7 @@ namespace Xunit.Runner.TdNet
 			TestRunState initialRunState = TestRunState.NoTests)
 		{
 			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);
-			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", xunit);
+			Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", frontController);
 
 			try
 			{
@@ -105,9 +118,9 @@ namespace Xunit.Runner.TdNet
 				var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
 				disposalTracker.Add(resultSink);
 
-				var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
+				var executionOptions = _TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
 				var settings = new FrontControllerRunSettings(executionOptions, testCases.Select(tc => tc.Serialization));
-				xunit.Run(resultSink, settings);
+				frontController.Run(resultSink, settings);
 
 				resultSink.Finished.WaitOne();
 

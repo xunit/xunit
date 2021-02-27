@@ -305,7 +305,7 @@ namespace Xunit.Runner.MSBuild
 				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-				await using var controller = new XunitFrontController(assembly, diagnosticMessageSink: diagnosticMessageSink);
+				await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
 
 				var executionStarting = new TestAssemblyExecutionStarting
 				{

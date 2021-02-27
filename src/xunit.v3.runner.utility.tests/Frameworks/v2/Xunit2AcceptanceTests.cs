@@ -15,7 +15,7 @@ public class Xunit2AcceptanceTests
 		public async ValueTask NoTestMethods()
 		{
 			using var assm = await CSharpAcceptanceTestV2Assembly.Create(code: "");
-			var controller = new TestableXunit2(assm.FileName, null, true);
+			var controller = TestableXunit2.Create(assm.FileName, null, true);
 			using var sink = SpyMessageSink<_DiscoveryComplete>.Create();
 			var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
@@ -64,7 +64,7 @@ namespace Namespace2
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var sink = new TestDiscoverySink();
 				var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
@@ -117,7 +117,7 @@ public class TestClass
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var sink = new TestDiscoverySink();
 				var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
@@ -158,7 +158,7 @@ let CustomName() =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var sink = new TestDiscoverySink();
 				var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
@@ -205,7 +205,7 @@ let TestMethod (x:int) =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var sink = new TestDiscoverySink();
 				var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 
@@ -228,7 +228,7 @@ let TestMethod (x:int) =
 		public async ValueTask NoTestMethods()
 		{
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code: "");
-			var controller = new TestableXunit2(assembly.FileName, null, true);
+			var controller = TestableXunit2.Create(assembly.FileName, null, true);
 			var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution());
 			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
@@ -256,7 +256,7 @@ public class TestClass
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution());
 				using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
@@ -286,7 +286,7 @@ public class TestClass
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution());
 				using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
@@ -328,7 +328,7 @@ public class TestClass
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
 				var executionOptions = _TestFrameworkOptions.ForExecution();
 				var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions);
@@ -367,7 +367,7 @@ let TestMethod() =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution());
 				using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
@@ -397,7 +397,7 @@ let TestMethod(x : int) =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution());
 				using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
@@ -430,7 +430,7 @@ let AsyncFailing() =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 				var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution());
 
@@ -451,7 +451,7 @@ let AsyncFailing() =
 		public async ValueTask NoTestMethods()
 		{
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code: "");
-			var controller = new TestableXunit2(assembly.FileName, null, true);
+			var controller = TestableXunit2.Create(assembly.FileName, null, true);
 			var settings = new FrontControllerRunSettings(_TestFrameworkOptions.ForExecution(), new string[0]);
 			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
@@ -479,7 +479,7 @@ public class TestClass
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var findSettings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 				using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 
@@ -517,7 +517,7 @@ public class TestClass
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var findSettings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 				using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 
@@ -558,7 +558,7 @@ let TestMethod() =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var findSettings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 				using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 
@@ -596,7 +596,7 @@ let TestMethod(x : int) =
 ";
 
 				using var assembly = await FSharpAcceptanceTestV2Assembly.Create(code.Replace("\t", "    "));
-				var controller = new TestableXunit2(assembly.FileName, null, true);
+				var controller = TestableXunit2.Create(assembly.FileName, null, true);
 				var findSettings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
 				using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
 
@@ -622,15 +622,25 @@ let TestMethod(x : int) =
 		}
 	}
 
-	class TestableXunit2 : Xunit2
+	class TestableXunit2
 	{
-		public TestableXunit2(
+		public static IFrontController Create(
 			string assemblyFileName,
 			string? configFileName = null,
 			bool shadowCopy = true,
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
-				: base(new _NullMessageSink(), appDomainSupport, _NullSourceInformationProvider.Instance, assemblyFileName, configFileName, shadowCopy)
-		{ }
+		{
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project)
+			{
+				AssemblyFilename = assemblyFileName,
+				ConfigFilename = configFileName,
+			};
+			projectAssembly.Configuration.AppDomain = appDomainSupport;
+			projectAssembly.Configuration.ShadowCopy = shadowCopy;
+
+			return Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: new _NullMessageSink());
+		}
 	}
 }
 

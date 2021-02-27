@@ -5,7 +5,7 @@ using Xunit.v3;
 namespace Xunit
 {
 	/// <summary>
-	/// Contains the information by <see cref="IFrontController.Find"/>.
+	/// Contains the information by <see cref="IFrontControllerDiscoverer.Find"/>.
 	/// </summary>
 	// TODO: This is current ctor-based because everything else uses factories,
 	// are we comfortable with that design?

@@ -19,7 +19,7 @@ namespace Xunit.Runner.v1
 	/// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
 	/// instead of using this class directly.
 	/// </summary>
-	public class Xunit1 : IFrontController, IAsyncDisposable
+	public class Xunit1 : IFrontController
 	{
 		readonly AppDomainSupport appDomainSupport;
 		readonly string assemblyFileName;
@@ -32,21 +32,11 @@ namespace Xunit.Runner.v1
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
 		readonly string testAssemblyName;
-		readonly string testAssemblyUniqueID;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit1"/> class.
+		/// This constructor is used by factory methods and unit tests only.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
-		/// <param name="sourceInformationProvider">Source code information provider.</param>
-		/// <param name="assemblyFileName">The test assembly.</param>
-		/// <param name="configFileName">The test assembly configuration file.</param>
-		/// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
-		/// tests to be discovered and run without locking assembly files on disk.</param>
-		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
-		/// will be automatically (randomly) generated</param>
-		public Xunit1(
+		protected Xunit1(
 			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
 			_ISourceInformationProvider sourceInformationProvider,
@@ -67,7 +57,7 @@ namespace Xunit.Runner.v1
 			this.shadowCopyFolder = shadowCopyFolder;
 
 			testAssemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
-			testAssemblyUniqueID = $":v1:assembly:{assemblyFileName}:{configFileName ?? "(null)"}";
+			TestAssemblyUniqueID = $":v1:assembly:{assemblyFileName}:{configFileName ?? "(null)"}";
 		}
 
 		/// <inheritdoc/>
@@ -90,7 +80,7 @@ namespace Xunit.Runner.v1
 		public string TargetFramework => string.Empty;
 
 		/// <inheritdoc/>
-		string IFrontController.TestAssemblyUniqueID => testAssemblyUniqueID;
+		public string TestAssemblyUniqueID { get; }
 
 		/// <inheritdoc/>
 		public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
@@ -134,7 +124,7 @@ namespace Xunit.Runner.v1
 			{
 				AssemblyName = testAssemblyName,
 				AssemblyPath = assemblyFileName,
-				AssemblyUniqueID = testAssemblyUniqueID,
+				AssemblyUniqueID = TestAssemblyUniqueID,
 				ConfigFilePath = configFileName
 			};
 			messageSink.OnMessage(discoveryStarting);
@@ -150,7 +140,7 @@ namespace Xunit.Runner.v1
 			}
 			finally
 			{
-				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = testAssemblyUniqueID };
+				var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
 				messageSink.OnMessage(discoveryComplete);
 			}
 		}
@@ -219,7 +209,7 @@ namespace Xunit.Runner.v1
 
 						var testCase = new Xunit1TestCase
 						{
-							AssemblyUniqueID = testAssemblyUniqueID,
+							AssemblyUniqueID = TestAssemblyUniqueID,
 							SkipReason = skipReason,
 							SourceFilePath = sourceInformation?.FileName,
 							SourceLineNumber = sourceInformation?.LineNumber,
@@ -299,7 +289,7 @@ namespace Xunit.Runner.v1
 			{
 				AssemblyName = testAssemblyName,
 				AssemblyPath = assemblyFileName,
-				AssemblyUniqueID = testAssemblyUniqueID,
+				AssemblyUniqueID = TestAssemblyUniqueID,
 				ConfigFilePath = configFileName,
 				StartTime = DateTimeOffset.Now,
 				TestEnvironment = environment,
@@ -452,6 +442,44 @@ namespace Xunit.Runner.v1
 		/// </summary>
 		protected string Serialize(Xunit1TestCase testCase) =>
 			SerializationHelper.Serialize(testCase);
+
+		// Factory methods
+
+		/// <summary>
+		/// Returns an implementation of <see cref="IFrontController"/> which can be used
+		/// for both discovery and execution of xUnit.net v1 tests.
+		/// </summary>
+		/// <param name="projectAssembly">The test project assembly.</param>
+		/// <param name="sourceInformationProvider">The optional source information provider.</param>
+		/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		public static IFrontController ForDiscoveryAndExecution(
+			XunitProjectAssembly projectAssembly,
+			_ISourceInformationProvider? sourceInformationProvider = null,
+			_IMessageSink? diagnosticMessageSink = null)
+		{
+			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
+
+			var assemblyFileName = projectAssembly.AssemblyFilename;
+
+			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFilename)}", assemblyFileName);
+
+			if (diagnosticMessageSink == null)
+				diagnosticMessageSink = new _NullMessageSink();
+
+			return new Xunit1(
+				diagnosticMessageSink,
+				projectAssembly.Configuration.AppDomainOrDefault,
+#if NETSTANDARD
+				sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
+#else
+				sourceInformationProvider ?? new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink),
+#endif
+				assemblyFileName,
+				projectAssembly.ConfigFilename,
+				projectAssembly.Configuration.ShadowCopyOrDefault,
+				projectAssembly.Configuration.ShadowCopyFolder
+			);
+		}
 	}
 }
 

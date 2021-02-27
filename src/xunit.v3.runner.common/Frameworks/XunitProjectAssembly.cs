@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using Xunit.Internal;
 
@@ -10,7 +9,6 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class XunitProjectAssembly
 	{
-		Assembly? assembly;
 		string? targetFramework;
 
 		/// <summary>
@@ -23,13 +21,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Gets or sets the assembly under test.
+		/// Gets or sets the assembly under test. May be <c>null</c> when the test assembly is not
+		/// loaded into the current app domain.
 		/// </summary>
-		public Assembly Assembly
-		{
-			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);
-		}
+		// TODO: Nobody is consuming this. Who should? Or should we delete it?
+		public Assembly? Assembly { get; set; }
 
 		/// <summary>
 		/// Gets the assembly display name. Will return the value "&lt;dynamic&gt;" if the

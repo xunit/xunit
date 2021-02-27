@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -40,16 +39,7 @@ namespace Xunit.v3
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			this.sourceProvider = Guard.ArgumentNotNull(nameof(sourceProvider), sourceProvider);
 
-			targetFramework = new Lazy<string>(() =>
-			{
-				string? result = null;
-
-				var attrib = AssemblyInfo.GetCustomAttributes(typeof(TargetFrameworkAttribute)).FirstOrDefault();
-				if (attrib != null)
-					result = attrib.GetConstructorArguments().Cast<string>().First();
-
-				return result ?? "";
-			});
+			targetFramework = new Lazy<string>(() => AssemblyUtility.GetTargetFramework(AssemblyInfo));
 		}
 
 		/// <summary>

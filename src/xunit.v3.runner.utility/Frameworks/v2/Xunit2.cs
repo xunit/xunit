@@ -34,93 +34,6 @@ namespace Xunit.Runner.v2
 		readonly ITestFrameworkExecutor? remoteExecutor;
 		readonly ITestFramework remoteFramework;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2"/> class, to be used for discovery only.
-		/// The <see cref="FindAndRun"/> and <see cref="Run"/> methods will throw if you attempt
-		/// to call them with a discovery-only instance. This will typically be used by runners which
-		/// need to perform source-based discovery.
-		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
-		/// <param name="sourceInformationProvider">The source code information provider.</param>
-		/// <param name="assemblyInfo">The assembly to use for discovery</param>
-		/// <param name="configFileName">The optional configuration filename</param>
-		/// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.*.dll; if <c>null</c>, then
-		/// the location of xunit.execution.*.dll is implied based on the location of the test assembly</param>
-		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
-		/// will be automatically (randomly) generated</param>
-		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
-		public Xunit2(
-			_IMessageSink diagnosticMessageSink,
-			AppDomainSupport appDomainSupport,
-			_ISourceInformationProvider sourceInformationProvider,
-			_IAssemblyInfo assemblyInfo,
-			string? configFileName,
-			string? xunitExecutionAssemblyPath = null,
-			string? shadowCopyFolder = null,
-			bool verifyAssembliesOnDisk = true) :
-				this(
-					diagnosticMessageSink,
-					appDomainSupport,
-					sourceInformationProvider,
-					assemblyInfo,
-					null,
-					xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
-					configFileName,
-					true,
-					shadowCopyFolder,
-					verifyAssembliesOnDisk
-				)
-		{ }
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2"/> class, to be used for discovery
-		/// and execution.
-		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
-		/// <param name="sourceInformationProvider">The source code information provider.</param>
-		/// <param name="assemblyFileName">The test assembly.</param>
-		/// <param name="configFileName">The test assembly configuration file.</param>
-		/// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
-		/// tests to be discovered and run without locking assembly files on disk.</param>
-		/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
-		/// will be automatically (randomly) generated</param>
-		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
-		public Xunit2(
-			_IMessageSink diagnosticMessageSink,
-			AppDomainSupport appDomainSupport,
-			_ISourceInformationProvider sourceInformationProvider,
-			string assemblyFileName,
-			string? configFileName = null,
-			bool shadowCopy = true,
-			string? shadowCopyFolder = null,
-			bool verifyAssembliesOnDisk = true) :
-				this(
-					diagnosticMessageSink,
-					appDomainSupport,
-					sourceInformationProvider,
-					null,
-					assemblyFileName,
-					GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk),
-					configFileName,
-					shadowCopy,
-					shadowCopyFolder,
-					verifyAssembliesOnDisk
-				)
-		{
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-
-#if NETFRAMEWORK
-			var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
-#else
-			var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
-			var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
-#endif
-			remoteExecutor = remoteFramework.GetExecutor(assemblyName);
-			DisposalTracker.Add(remoteExecutor);
-		}
-
 		Xunit2(
 			_IMessageSink diagnosticMessageSink,
 			AppDomainSupport appDomainSupport,
@@ -133,9 +46,6 @@ namespace Xunit.Runner.v2
 			string? shadowCopyFolder,
 			bool verifyAssembliesOnDisk)
 		{
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			Guard.ArgumentNotNull(nameof(assemblyInfo), (object?)assemblyInfo ?? assemblyFileName);
-
 #if NETFRAMEWORK
 			// Only safe to assume the execution reference is copied in a desktop project
 			if (verifyAssembliesOnDisk)
@@ -193,6 +103,19 @@ namespace Xunit.Runner.v2
 
 			remoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", remoteFramework.GetDiscoverer(remoteAssemblyInfo));
 			DisposalTracker.Add(remoteDiscoverer);
+
+			// If we got an assembly file name, that means we can do execution as well as discovery.
+			if (assemblyFileName != null)
+			{
+#if NETFRAMEWORK
+				var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
+#else
+				var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
+				var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
+#endif
+				remoteExecutor = remoteFramework.GetExecutor(assemblyName);
+				DisposalTracker.Add(remoteExecutor);
+			}
 		}
 
 		internal IAppDomainManager AppDomain { get; }
@@ -443,6 +366,86 @@ namespace Xunit.Runner.v2
 			};
 			messageSink.OnMessage(discoveryStarting);
 		}
+
+		// Factory methods
+
+		/// <summary>
+		/// Returns an implementation of <see cref="IFrontControllerDiscoverer"/> which can be used
+		/// to discover xUnit.net v2 tests, including source-based discovery.
+		/// </summary>
+		/// <param name="assemblyInfo">The assembly to use for discovery</param>
+		/// <param name="projectAssembly">The test project assembly.</param>
+		/// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.*.dll; if <c>null</c>, then
+		/// the location of xunit.execution.*.dll is implied based on the location of the test assembly</param>
+		/// <param name="sourceInformationProvider">The optional source information provider.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
+		public static IFrontControllerDiscoverer ForDiscovery(
+			_IAssemblyInfo assemblyInfo,
+			XunitProjectAssembly projectAssembly,
+			string? xunitExecutionAssemblyPath = null,
+			_ISourceInformationProvider? sourceInformationProvider = null,
+			_IMessageSink? diagnosticMessageSink = null,
+			bool verifyAssembliesOnDisk = true)
+		{
+			var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
+
+			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+
+			return new Xunit2(
+				diagnosticMessageSink,
+				appDomainSupport,
+				sourceInformationProvider ?? _NullSourceInformationProvider.Instance,  // TODO: Need to find a way to be able to use VisualStudioSourceInformationProvider
+				assemblyInfo,
+				assemblyFileName: null,
+				xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
+				projectAssembly.ConfigFilename,
+				projectAssembly.Configuration.ShadowCopyOrDefault,
+				projectAssembly.Configuration.ShadowCopyFolder,
+				verifyAssembliesOnDisk
+			);
+		}
+
+		/// <summary>
+		/// Returns an implementation of <see cref="IFrontController"/> which can be used
+		/// for both discovery and execution of xUnit.net v2 tests.
+		/// </summary>
+		/// <param name="projectAssembly">The test project assembly.</param>
+		/// <param name="sourceInformationProvider">The optional source information provider.</param>
+		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
+		public static IFrontController ForDiscoveryAndExecution(
+			XunitProjectAssembly projectAssembly,
+			_ISourceInformationProvider? sourceInformationProvider = null,
+			_IMessageSink? diagnosticMessageSink = null,
+			bool verifyAssembliesOnDisk = true)
+		{
+			var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
+			var assemblyFileName = projectAssembly.AssemblyFilename;
+
+			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFilename)}", assemblyFileName);
+
+			return new Xunit2(
+				diagnosticMessageSink,
+				appDomainSupport,
+#if NETSTANDARD
+				sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
+#else
+				sourceInformationProvider ?? new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink),
+#endif
+				assemblyInfo: null,
+				assemblyFileName,
+				GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk),
+				projectAssembly.ConfigFilename,
+				projectAssembly.Configuration.ShadowCopyOrDefault,
+				projectAssembly.Configuration.ShadowCopyFolder,
+				verifyAssembliesOnDisk
+			);
+		}
+
+		// Inner classes
 
 		class DescriptorCallback : LongLivedMarshalByRefObject
 		{

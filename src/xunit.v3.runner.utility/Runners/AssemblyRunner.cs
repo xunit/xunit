@@ -72,7 +72,7 @@ namespace Xunit.Runners
 
 			project.Add(projectAssembly);
 
-			controller = new XunitFrontController(projectAssembly, diagnosticMessageSink: this);
+			controller = XunitFrontController.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: this);
 			disposalTracker.Add(controller);
 
 			ConfigReader.Load(configuration, assemblyFileName, configFileName);

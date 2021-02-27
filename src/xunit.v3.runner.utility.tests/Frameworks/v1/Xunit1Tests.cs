@@ -940,7 +940,10 @@ public class AmbiguouslyNamedTestMethods
 }";
 
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
-			var xunit1 = new Xunit1(new _NullMessageSink(), AppDomainSupport.Required, _NullSourceInformationProvider.Instance, assembly.FileName);
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project) { AssemblyFilename = assembly.FileName };
+			projectAssembly.Configuration.AppDomain = AppDomainSupport.Required;
+			var xunit1 = Xunit1.ForDiscoveryAndExecution(projectAssembly);
 			using var spy = SpyMessageSink<_TestAssemblyFinished>.Create();
 			var settings = new FrontControllerFindAndRunSettings(
 				 _TestFrameworkOptions.ForDiscovery(),
