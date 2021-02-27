@@ -12,7 +12,7 @@ namespace Xunit.Runner.v2
 	/// sink which calls through to a runner-side implementation of <see cref="IMessageSinkMessageWithTypes"/>.
 	/// This allows higher performance type dispatching, since retrieving and passing along the remote-side
 	/// interface list is much faster than attempting to do cross-AppDomain casts. This class is created
-	/// remotely in <see cref="Xunit2Discoverer.CreateOptimizedRemoteMessageSink"/>.
+	/// remotely in <see cref="Xunit2.CreateOptimizedRemoteMessageSink"/>.
 	/// </summary>
 	class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink
 	{
