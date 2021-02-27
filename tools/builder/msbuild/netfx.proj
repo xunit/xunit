@@ -10,19 +10,18 @@
 		AssemblyFile="$(SolutionDir)src\xunit.v3.runner.msbuild\bin\$(Configuration)\net472\xunit.v3.runner.msbuild.dll"
 		TaskName="Xunit.Runner.MSBuild.xunit"/>
 
+	<ItemGroup>
+		<TestV1Assemblies Include="$(SolutionDir)src\xunit.v1.tests\bin\$(Configuration)\net4*\xunit.v1.tests.dll" />
+		<TestV2Assemblies Include="$(SolutionDir)src\xunit.v2.tests\bin\$(Configuration)\net4*\xunit.v2.tests.dll" />
+	</ItemGroup>
+
 	<Target Name="Default" />
 
 	<Target Name="TestV1">
-		<ItemGroup>
-			<TestV1Assemblies Include="$(SolutionDir)src\xunit.v1.tests\bin\$(Configuration)\net4*\xunit.v1.tests.dll" />
-		</ItemGroup>
 		<xunit Assemblies="@(TestV1Assemblies)" />
 	</Target>
 
 	<Target Name="TestV2">
-		<ItemGroup>
-			<TestV2Assemblies Include="$(SolutionDir)src\xunit.v2.tests\bin\$(Configuration)\net4*\xunit.v2.tests.dll" />
-		</ItemGroup>
 		<xunit Assemblies="@(TestV2Assemblies)" />
 	</Target>
 

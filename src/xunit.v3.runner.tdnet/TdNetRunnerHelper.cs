@@ -97,6 +97,8 @@ namespace Xunit.Runner.TdNet
 
 			try
 			{
+				// TODO: This should be able to be converted to FindAndRun, but we need test case
+				// count for the results sink...?
 				if (testCases == null)
 					testCases = Discover();
 
@@ -104,7 +106,8 @@ namespace Xunit.Runner.TdNet
 				disposalTracker.Add(resultSink);
 
 				var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
-				xunit.RunTests(testCases.Select(tc => tc.Serialization), resultSink, executionOptions);
+				var settings = new FrontControllerRunSettings(executionOptions, testCases.Select(tc => tc.Serialization));
+				xunit.Run(resultSink, settings);
 
 				resultSink.Finished.WaitOne();
 

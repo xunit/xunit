@@ -10,7 +10,7 @@ using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class Xunit2MessageSinkTests
+public class Xunit2MessageAdapterTests
 {
 	static readonly string BeforeAfterAttributeName = "MyNamespace.MyBeforeAfterAttribute";
 	static readonly ITest Test;
@@ -30,7 +30,7 @@ public class Xunit2MessageSinkTests
 	static readonly Exception ThrownException;
 	static readonly Dictionary<string, List<string>> Traits;
 
-	static Xunit2MessageSinkTests()
+	static Xunit2MessageAdapterTests()
 	{
 		try
 		{
@@ -89,9 +89,9 @@ public class Xunit2MessageSinkTests
 	{
 		var convertedMetadata = ExceptionUtility.ExtractMetadata(ex);
 		Assert.Equal(convertedMetadata.ExceptionParentIndices, metadata.ExceptionParentIndices);
-		Assert.Equal(convertedMetadata.ExceptionTypes, metadata.ExceptionTypes);
-		Assert.Equal(convertedMetadata.Messages, metadata.Messages);
-		Assert.Equal(convertedMetadata.StackTraces, metadata.StackTraces);
+		Assert.Equal(convertedMetadata.ExceptionTypes, metadata.ExceptionTypes, StringComparer.Ordinal);
+		Assert.Equal(convertedMetadata.Messages, metadata.Messages, StringComparer.Ordinal);
+		Assert.Equal(convertedMetadata.StackTraces, metadata.StackTraces, StringComparer.Ordinal);
 	}
 
 	public class BeforeAfterTestAttributeTests
@@ -100,9 +100,9 @@ public class Xunit2MessageSinkTests
 		public void AfterTestFinished()
 		{
 			var v2Message = Xunit2Mocks.AfterTestFinished(Test, BeforeAfterAttributeName);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_AfterTestFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -118,9 +118,9 @@ public class Xunit2MessageSinkTests
 		public void AfterTestStarting()
 		{
 			var v2Message = Xunit2Mocks.AfterTestStarting(Test, BeforeAfterAttributeName);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_AfterTestStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -136,9 +136,9 @@ public class Xunit2MessageSinkTests
 		public void BeforeTestFinished()
 		{
 			var v2Message = Xunit2Mocks.BeforeTestFinished(Test, BeforeAfterAttributeName);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_BeforeTestFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -154,9 +154,9 @@ public class Xunit2MessageSinkTests
 		public void BeforeTestStarting()
 		{
 			var v2Message = Xunit2Mocks.BeforeTestStarting(Test, BeforeAfterAttributeName);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_BeforeTestStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -175,9 +175,9 @@ public class Xunit2MessageSinkTests
 		public void DiagnosticMessage()
 		{
 			var v2Message = Xunit2Mocks.DiagnosticMessage("Hello, world!");
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_DiagnosticMessage>(adapted);
 			Assert.Equal("Hello, world!", v3Message.Message);
@@ -190,9 +190,9 @@ public class Xunit2MessageSinkTests
 		public void DiscoveryComplete()
 		{
 			var v2Message = Xunit2Mocks.DiscoveryCompleteMessage();
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_DiscoveryComplete>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -202,9 +202,11 @@ public class Xunit2MessageSinkTests
 		public void TestCaseDiscoveryMessage()
 		{
 			var v2Message = Xunit2Mocks.TestCaseDiscoveryMessage(TestCase);
-			var v2Sink = TestableXunit2MessageSink.Create("abc123");
+			var discoverer = Substitute.For<ITestFrameworkDiscoverer>();
+			discoverer.Serialize(TestCase).Returns("abc123");
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID, discoverer);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCaseDiscovered>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -244,9 +246,9 @@ public class Xunit2MessageSinkTests
 		public void ErrorMessage()
 		{
 			var v2Message = Xunit2Mocks.ErrorMessage(ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_ErrorMessage>(adapted);
 			AssertErrorMetadata(v3Message, ThrownException);
@@ -259,9 +261,9 @@ public class Xunit2MessageSinkTests
 		public void TestAssemblyCleanupFailure()
 		{
 			var v2Message = Xunit2Mocks.TestAssemblyCleanupFailure(TestAssembly, ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestAssemblyCleanupFailure>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -278,9 +280,9 @@ public class Xunit2MessageSinkTests
 				testsSkipped: 6,
 				executionTime: 123.4567m
 			);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestAssemblyFinished>(adapted);
 			Assert.NotEmpty(v3Message.AssemblyUniqueID);
@@ -309,9 +311,9 @@ public class Xunit2MessageSinkTests
 				"test-environment",
 				"test-framework"
 			);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestAssemblyStarting>(adapted);
 			Assert.Equal(Path.GetFileNameWithoutExtension(assemblyPath), v3Message.AssemblyName);
@@ -331,9 +333,9 @@ public class Xunit2MessageSinkTests
 		public void TestCaseCleanupFailure()
 		{
 			var v2Message = Xunit2Mocks.TestCaseCleanupFailure(TestCase, ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCaseCleanupFailure>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -354,9 +356,9 @@ public class Xunit2MessageSinkTests
 				testsSkipped: 404,
 				executionTime: 123.4567m
 			);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCaseFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -374,9 +376,9 @@ public class Xunit2MessageSinkTests
 		public void TestCaseStarting()
 		{
 			var v2Message = Xunit2Mocks.TestCaseStarting(TestCase);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCaseStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -415,9 +417,9 @@ public class Xunit2MessageSinkTests
 		public void TestClassCleanupFailure()
 		{
 			var v2Message = Xunit2Mocks.TestClassCleanupFailure(TestClass, ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassCleanupFailure>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -436,9 +438,9 @@ public class Xunit2MessageSinkTests
 				testsSkipped: 404,
 				executionTime: 123.4567m
 			);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -454,9 +456,9 @@ public class Xunit2MessageSinkTests
 		public void TestClassStarting()
 		{
 			var v2Message = Xunit2Mocks.TestClassStarting(TestClass);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -472,9 +474,9 @@ public class Xunit2MessageSinkTests
 		public void TestCollectionCleanupFailure()
 		{
 			var v2Message = Xunit2Mocks.TestCollectionCleanupFailure(TestCollection, ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCollectionCleanupFailure>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -492,9 +494,9 @@ public class Xunit2MessageSinkTests
 				testsSkipped: 404,
 				executionTime: 123.4567m
 			);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCollectionFinished>(adapted);
 			Assert.Equal(123.4567m, v3Message.ExecutionTime);
@@ -509,9 +511,9 @@ public class Xunit2MessageSinkTests
 		public void TestCollectionStarting()
 		{
 			var v2Message = Xunit2Mocks.TestCollectionStarting(TestCollection);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCollectionStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -527,9 +529,9 @@ public class Xunit2MessageSinkTests
 		public void TestMethodCleanupFailure()
 		{
 			var v2Message = Xunit2Mocks.TestMethodCleanupFailure(TestMethod, ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestMethodCleanupFailure>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -549,9 +551,9 @@ public class Xunit2MessageSinkTests
 				testsSkipped: 404,
 				executionTime: 123.4567m
 			);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestMethodFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -568,9 +570,9 @@ public class Xunit2MessageSinkTests
 		public void TestMethodStarting()
 		{
 			var v2Message = Xunit2Mocks.TestMethodStarting(TestMethod);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestMethodStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -587,9 +589,9 @@ public class Xunit2MessageSinkTests
 		public void TestClassConstructionFinished()
 		{
 			var v2Message = Xunit2Mocks.TestClassConstructionFinished(Test);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassConstructionFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -604,9 +606,9 @@ public class Xunit2MessageSinkTests
 		public void TestClassConstructionStarting()
 		{
 			var v2Message = Xunit2Mocks.TestClassConstructionStarting(Test);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassConstructionStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -621,9 +623,9 @@ public class Xunit2MessageSinkTests
 		public void TestClassDisposeFinished()
 		{
 			var v2Message = Xunit2Mocks.TestClassDisposeFinished(Test);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassDisposeFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -638,9 +640,9 @@ public class Xunit2MessageSinkTests
 		public void TestClassDisposeStarting()
 		{
 			var v2Message = Xunit2Mocks.TestClassDisposeStarting(Test);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestClassDisposeStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -655,9 +657,9 @@ public class Xunit2MessageSinkTests
 		public void TestCleanupFailure()
 		{
 			var v2Message = Xunit2Mocks.TestCleanupFailure(Test, ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestCleanupFailure>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -673,9 +675,9 @@ public class Xunit2MessageSinkTests
 		public void TestFinished()
 		{
 			var v2Message = Xunit2Mocks.TestFinished(Test, 123.4567m, "abc123");
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestFinished>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -692,9 +694,9 @@ public class Xunit2MessageSinkTests
 		public void TestFailed()
 		{
 			var v2Message = Xunit2Mocks.TestFailed(Test, 123.4567m, "abc123", ThrownException);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestFailed>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -712,9 +714,9 @@ public class Xunit2MessageSinkTests
 		public void TestOutput()
 		{
 			var v2Message = Xunit2Mocks.TestOutput(Test, "this is my test output");
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestOutput>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -730,9 +732,9 @@ public class Xunit2MessageSinkTests
 		public void TestPassed()
 		{
 			var v2Message = Xunit2Mocks.TestPassed(Test, 123.4567m, "abc123");
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestPassed>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -749,9 +751,9 @@ public class Xunit2MessageSinkTests
 		public void TestSkipped()
 		{
 			var v2Message = Xunit2Mocks.TestSkipped(Test, "I am not running");
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestSkipped>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -769,9 +771,9 @@ public class Xunit2MessageSinkTests
 		public void TestStarting()
 		{
 			var v2Message = Xunit2Mocks.TestStarting(Test);
-			var v2Sink = TestableXunit2MessageSink.Create();
+			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
-			var adapted = v2Sink.Adapt(v2Message);
+			var adapted = v2Adapter.Adapt(v2Message);
 
 			var v3Message = Assert.IsType<_TestStarting>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
@@ -781,24 +783,6 @@ public class Xunit2MessageSinkTests
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
 			Assert.Equal(TestUniqueID, v3Message.TestUniqueID);
-		}
-	}
-
-	class TestableXunit2MessageSink : Xunit2MessageSink
-	{
-		TestableXunit2MessageSink(ITestFrameworkDiscoverer discoverer)
-			: base(SpyMessageSink.Create(), TestAssemblyUniqueID, discoverer)
-		{ }
-
-		public _MessageSinkMessage Adapt(IMessageSinkMessage message) =>
-			base.Adapt(message);
-
-		public static TestableXunit2MessageSink Create(string testCaseSerializedValue = "test-case-serialization")
-		{
-			var discoverer = Substitute.For<ITestFrameworkDiscoverer, InterfaceProxy<ITestFrameworkDiscoverer>>();
-			discoverer.Serialize(null).ReturnsForAnyArgs(testCaseSerializedValue);
-
-			return new TestableXunit2MessageSink(discoverer);
 		}
 	}
 }

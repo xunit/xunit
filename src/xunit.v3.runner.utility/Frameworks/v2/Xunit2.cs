@@ -82,35 +82,53 @@ namespace Xunit.Runner.v2
 			return defaultTestCaseBulkDeserializer.BulkDeserialize(serializations);
 		}
 
-		/// <summary>
-		/// Starts the process of running all the xUnit.net v2 tests in the assembly.
-		/// </summary>
-		/// <param name="messageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
-		/// <param name="executionOptions">The options to be used during test execution.</param>
-		public void RunAll(
+		/// <inheritdoc/>
+		public void FindAndRun(
 			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestFrameworkExecutionOptions executionOptions) =>
+			FrontControllerFindAndRunSettings settings)
+		{
+			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(nameof(settings), settings);
+
+			if (settings.Filters.Empty)
+			{
 				remoteExecutor.RunAll(
 					CreateOptimizedRemoteMessageSink(messageSink),
-					Xunit2OptionsAdapter.Adapt(discoveryOptions),
-					Xunit2OptionsAdapter.Adapt(executionOptions)
+					Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions),
+					Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
 				);
 
-		/// <summary>
-		/// Starts the process of running the selected xUnit.net v2 tests.
-		/// </summary>
-		/// <param name="serializedTestCases">The test cases to run; if null, all tests in the assembly are run.</param>
-		/// <param name="messageSink">The message sink to report results back to.</param>
-		/// <param name="executionOptions">The options to be used during test execution.</param>
-		public void RunTests(
-			IEnumerable<string> serializedTestCases,
+				return;
+			}
+
+			using var discoverySink = new Xunit2DiscoverySink(settings.Filters);
+			RemoteDiscoverer.Find(
+				includeSourceInformation: false,
+				discoverySink,
+				Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions)
+			);
+			discoverySink.Finished.WaitOne();
+
+			remoteExecutor.RunTests(
+				discoverySink.TestCases,
+				CreateOptimizedRemoteMessageSink(messageSink),
+				Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
+			);
+		}
+
+		/// <inheritdoc/>
+		public void Run(
 			_IMessageSink messageSink,
-			_ITestFrameworkExecutionOptions executionOptions)
+			FrontControllerRunSettings settings)
 		{
-			var testCases = BulkDeserialize(serializedTestCases.ToList()).Select(kvp => kvp.Value).ToList();
-			remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), Xunit2OptionsAdapter.Adapt(executionOptions));
+			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(nameof(settings), settings);
+
+			remoteExecutor.RunTests(
+				BulkDeserialize(settings.SerializedTestCases.ToList()).Select(kvp => kvp.Value).ToList(),
+				CreateOptimizedRemoteMessageSink(messageSink),
+				Xunit2OptionsAdapter.Adapt(settings.Options)
+			);
 		}
 
 		class DeserializeCallback : LongLivedMarshalByRefObject

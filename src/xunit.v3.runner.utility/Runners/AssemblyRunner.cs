@@ -273,13 +273,14 @@ namespace Xunit.Runners
 
 			ThreadPool.QueueUserWorkItem(_ =>
 			{
+				// TODO: This should be restructured to use FindAndRun, which will require a new design for AssemblyRunner
 				var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
 				var filters = new XunitFilters();
 				if (typeName != null)
 					filters.IncludedClasses.Add(typeName);
 
-				var settings = new FrontControllerFindSettings(discoveryOptions, filters);
-				controller.Find(this, settings);
+				var findSettings = new FrontControllerFindSettings(discoveryOptions, filters);
+				controller.Find(this, findSettings);
 
 				discoveryCompleteEvent.WaitOne();
 				if (cancelled)
@@ -290,7 +291,8 @@ namespace Xunit.Runners
 				}
 
 				var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
-				controller.RunTests(testCasesToRun.Select(tc => tc.Serialization), this, executionOptions);
+				var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization));
+				controller.Run(this, runSettings);
 				executionCompleteEvent.WaitOne();
 			});
 		}

@@ -83,26 +83,6 @@ public class xunitTests
 		}
 	}
 
-	public class Testable_xunit : xunit
-	{
-		public readonly List<IRunnerReporter> AvailableReporters = new List<IRunnerReporter>();
-
-		public Testable_xunit()
-			: this(0)
-		{ }
-
-		public Testable_xunit(int exitCode)
-		{
-			BuildEngine = Substitute.For<IBuildEngine>();
-			Assemblies = new ITaskItem[0];
-			ExitCode = exitCode;
-		}
-
-		protected override List<IRunnerReporter> GetAvailableRunnerReporters() => AvailableReporters;
-
-		public new IRunnerReporter? GetReporter() => base.GetReporter();
-	}
-
 	public class GetReporter
 	{
 		[Fact]
@@ -202,5 +182,27 @@ public class xunitTests
 			var eventArgs = Assert.IsType<BuildErrorEventArgs>(xunit.BuildEngine.Captured(x => x.LogErrorEvent(null)).Args().Single());
 			Assert.Equal("Reporter value 'foo' is invalid. Available reporters: switch1, switch2", eventArgs.Message);
 		}
+	}
+
+	public class Testable_xunit : xunit
+	{
+		public readonly List<IRunnerReporter> AvailableReporters = new List<IRunnerReporter>();
+
+		public Testable_xunit()
+			: this(0)
+		{ }
+
+		public Testable_xunit(int exitCode)
+		{
+			BuildEngine = Substitute.For<IBuildEngine>();
+			Assemblies = new ITaskItem[0];
+			ExitCode = exitCode;
+		}
+
+		protected override List<IRunnerReporter> GetAvailableRunnerReporters() =>
+			AvailableReporters;
+
+		public new IRunnerReporter? GetReporter() =>
+			base.GetReporter();
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,7 +27,6 @@ namespace Xunit
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		bool disposed;
 		IFrontController? innerController;
-		readonly XunitProjectAssembly projectAssembly;
 		readonly bool shadowCopy;
 		readonly string? shadowCopyFolder;
 		readonly _ISourceInformationProvider sourceInformationProvider;
@@ -41,10 +39,6 @@ namespace Xunit
 			assemblyFileName = "<test value>";
 			diagnosticMessageSink = new _NullMessageSink();
 			sourceInformationProvider = _NullSourceInformationProvider.Instance;
-
-			// TODO: Where do these come from?
-			var project = new XunitProject();
-			projectAssembly = new(project);
 		}
 
 		/// <summary>
@@ -58,7 +52,7 @@ namespace Xunit
 			_ISourceInformationProvider? sourceInformationProvider = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			this.projectAssembly = Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
+			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
 
 			appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
 			assemblyFileName = Guard.FileExists($"{nameof(projectAssembly)}.{nameof(projectAssembly.AssemblyFilename)}", projectAssembly.AssemblyFilename);
@@ -151,29 +145,25 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public virtual void RunAll(
+		public void FindAndRun(
 			_IMessageSink messageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestFrameworkExecutionOptions executionOptions)
+			FrontControllerFindAndRunSettings settings)
 		{
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(nameof(settings), settings);
 
-			InnerController.RunAll(messageSink, discoveryOptions, executionOptions);
+			InnerController.FindAndRun(messageSink, settings);
 		}
 
 		/// <inheritdoc/>
-		public virtual void RunTests(
-			IEnumerable<string> serializedTestCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions)
+		public void Run(
+			_IMessageSink messageSink,
+			FrontControllerRunSettings settings)
 		{
-			Guard.ArgumentNotNull(nameof(serializedTestCases), serializedTestCases);
-			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(nameof(settings), settings);
 
-			InnerController.RunTests(serializedTestCases, executionMessageSink, executionOptions);
+			InnerController.Run(messageSink, settings);
 		}
 	}
 }

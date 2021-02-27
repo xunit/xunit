@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using System.Web.UI;
 using NSubstitute;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v1;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class Xunit1Tests
@@ -42,7 +42,7 @@ public class Xunit1Tests
 		}
 	}
 
-	public class Dispose
+	public class DisposeAsync
 	{
 		[Fact]
 		public async ValueTask DisposesExecutor()
@@ -73,7 +73,7 @@ public class Xunit1Tests
 	public class Find
 	{
 		[Fact]
-		public void FindByAssemblyReturnsAllTestMethodsFromExecutorXml()
+		public void FindWithoutFilterReturnsAllTestMethodsFromExecutorXml()
 		{
 			var xml = @"
 <assembly>
@@ -98,7 +98,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(includeSourceInformation: false, sink);
+			xunit1.Find(sink);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -173,16 +173,21 @@ public class Xunit1Tests
 		}
 
 		[Fact]
-		public void FindByTypesReturnsOnlyMethodsInTheGivenType()
+		public void FindWithFilterOnlyReturnsFilteredTestCases()
 		{
 			var xml = @"
 <assembly>
-	<class name='Type1'>
-		<method name='Method1 Display Name' type='Type1' method='Method1'/>
+	<class name='Namespace1.OuterType1+Type1'>
+		<method name='Method1 Display Name' type='Namespace1.OuterType1+Type1' method='Method1'/>
 	</class>
-	<class name='Type2'>
-		<method name='Type2.Method1' type='Type2' method='Method1'/>
-		<method name='Type2.Method2' type='Type2' method='Method2'/>
+	<class name='SpecialType'>
+		<method name='SpecialType.SkippedMethod' type='SpecialType' method='SkippedMethod' skip='I am not run'/>
+		<method name='SpecialType.MethodWithTraits' type='SpecialType' method='MethodWithTraits'>
+			<traits>
+				<trait name='Trait1' value='Value1'/>
+				<trait name='Trait2' value='Value2'/>
+			</traits>
+		</method>
 	</class>
 </assembly>";
 
@@ -193,14 +198,11 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find("Type2", includeSourceInformation: false, sink);
+			xunit1.Find(sink, filter: msg => msg.TestClassWithNamespace == "Namespace1.OuterType1+Type1");
 			sink.Finished.WaitOne();
 
-			Assert.Collection(
-				sink.TestCases,
-				testCase => Assert.Equal("Type2.Method1", testCase.TestCaseDisplayName),
-				testCase => Assert.Equal("Type2.Method2", testCase.TestCaseDisplayName)
-			);
+			var testCase = Assert.Single(sink.TestCases);
+			Assert.Equal("Method1 Display Name", testCase.TestCaseDisplayName);
 		}
 
 		[Fact]
@@ -219,12 +221,13 @@ public class Xunit1Tests
 				.Executor
 				.WhenForAnyArgs(x => x.EnumerateTests(null))
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
-			xunit1.SourceInformationProvider
+			xunit1
+				.SourceInformationProvider
 				.GetSourceInformation(null, null)
 				.ReturnsForAnyArgs(callInfo => new _SourceInformation { FileName = $"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}" });
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(includeSourceInformation: true, sink);
+			xunit1.Find(sink, includeSourceInformation: true);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(sink.TestCases,
@@ -251,7 +254,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(includeSourceInformation: false, sink);
+			xunit1.Find(sink);
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -273,7 +276,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(includeSourceInformation: true, sink);
+			xunit1.Find(sink);
 			sink.Finished.WaitOne();
 
 			Assert.True(sink.StartSeen);
@@ -326,9 +329,14 @@ public class Xunit1Tests
 			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
 			if (serializeTestCases)
-				xunit1.Run(testCases.Select(testCase => SerializationHelper.Serialize(testCase)).ToList(), sink);
-			else
-				xunit1.Run(testCases, sink);
+				testCases =
+					testCases
+						.Select(testCase => xunit1.Serialize(testCase))
+						.Select(serialized => xunit1.Deserialize(serialized))
+						.WhereNotNull()
+						.ToArray();
+
+			xunit1.Run(testCases, sink);
 
 			sink.Finished.WaitOne();
 
@@ -339,7 +347,7 @@ public class Xunit1Tests
 					var assemblyStarting = Assert.IsType<_TestAssemblyStarting>(message);
 					Assert.Equal("assembly", assemblyStarting.AssemblyName);
 					Assert.Equal("assembly.dll", assemblyStarting.AssemblyPath);
-					Assert.Equal("asm-id: assembly.dll:config", assemblyStarting.AssemblyUniqueID);
+					Assert.Equal(":v1:assembly:assembly.dll:config", assemblyStarting.AssemblyUniqueID);
 					Assert.Equal("config", assemblyStarting.ConfigFilePath);
 					Assert.Null(assemblyStarting.TargetFramework);  // Always null with v1
 					Assert.Contains("-bit .NET ", assemblyStarting.TestEnvironment);
@@ -625,7 +633,7 @@ public class Xunit1Tests
 				message =>
 				{
 					var assemblyFinished = Assert.IsType<_TestAssemblyFinished>(message);
-					Assert.Equal("asm-id: assembly.dll:config", assemblyFinished.AssemblyUniqueID);
+					Assert.Equal(":v1:assembly:assembly.dll:config", assemblyFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, assemblyFinished.ExecutionTime);
 					Assert.Equal(1, assemblyFinished.TestsFailed);
 					Assert.Equal(3, assemblyFinished.TestsRun);
@@ -934,7 +942,11 @@ public class AmbiguouslyNamedTestMethods
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
 			var xunit1 = new Xunit1(new _NullMessageSink(), AppDomainSupport.Required, _NullSourceInformationProvider.Instance, assembly.FileName);
 			using var spy = SpyMessageSink<_TestAssemblyFinished>.Create();
-			xunit1.Run(spy);
+			var settings = new FrontControllerFindAndRunSettings(
+				 _TestFrameworkOptions.ForDiscovery(),
+				 _TestFrameworkOptions.ForExecution()
+			);
+			xunit1.FindAndRun(spy, settings);
 			spy.Finished.WaitOne();
 
 			Assert.Collection(
@@ -991,6 +1003,29 @@ public class AmbiguouslyNamedTestMethods
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
 				: this(appDomainSupport, assemblyFileName ?? OsSpecificAssemblyPath, configFileName, shadowCopy, shadowCopyFolder, Substitute.For<_ISourceInformationProvider>())
 		{ }
+
+		public new Xunit1TestCase? Deserialize(string value) =>
+			base.Deserialize(value);
+
+		public new void Find(
+			_IMessageSink messageSink,
+			bool includeSourceInformation = false,
+			Predicate<_TestCaseDiscovered>? filter = null) =>
+				base.Find(messageSink, includeSourceInformation, filter);
+
+		public new void FindAndRun(
+			_IMessageSink messageSink,
+			bool includeSourceInformation = false,
+			Predicate<_TestCaseDiscovered>? filter = null) =>
+				base.FindAndRun(messageSink, includeSourceInformation, filter);
+
+		public new void Run(
+			IEnumerable<Xunit1TestCase> testCases,
+			_IMessageSink messageSink) =>
+				base.Run(testCases, messageSink);
+
+		public new string Serialize(Xunit1TestCase testCase) =>
+			base.Serialize(testCase);
 
 		TestableXunit1(
 			AppDomainSupport appDomainSupport,

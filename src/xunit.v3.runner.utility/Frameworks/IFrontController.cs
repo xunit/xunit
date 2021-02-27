@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Xunit.v3;
 
 namespace Xunit
@@ -31,7 +30,11 @@ namespace Xunit
 		string TestFrameworkDisplayName { get; }
 
 		/// <summary>
-		/// Starts the process of finding all tests in an assembly.
+		/// Starts the process of finding tests in an assembly. Typically only used by
+		/// runners which discover tests and present them into a UI for the user to interactively
+		/// choose for selective run (via <see cref="Run"/>). For runners which simply wish to
+		/// discover and immediately run tests, they should instead use <see cref="FindAndRun"/>,
+		/// which permits the same filtering logic as this method.
 		/// </summary>
 		/// <param name="messageSink">The message sink to report results back to.</param>
 		/// <param name="settings">The settings used during discovery.</param>
@@ -41,27 +44,27 @@ namespace Xunit
 		);
 
 		/// <summary>
-		/// Starts the process of running all the tests in the assembly.
+		/// Starts the process of finding and running tests in an assembly. Typically only used
+		/// by runner which do not present test discovery UIs to users that allow them to run
+		/// selected tests (those should instead use <see cref="Find"/> and <see cref="Run"/>
+		/// as separate operations).
 		/// </summary>
-		/// <param name="executionMessageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
-		/// <param name="executionOptions">The options to be used during test execution.</param>
-		void RunAll(
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestFrameworkExecutionOptions executionOptions
+		/// <param name="messageSink">The message sink to report results back to.</param>
+		/// <param name="settings">The settings used during discovery and execution.</param>
+		void FindAndRun(
+			_IMessageSink messageSink,
+			FrontControllerFindAndRunSettings settings
 		);
 
 		/// <summary>
-		/// Starts the process of running selected tests in the assembly.
+		/// Starts the process of running selected tests in the assembly. The serialized test
+		/// cases to run come from calling <see cref="Find"/>.
 		/// </summary>
-		/// <param name="serializedTestCases">The test cases to run.</param>
-		/// <param name="executionMessageSink">The message sink to report results back to.</param>
-		/// <param name="executionOptions">The options to be used during test execution.</param>
-		void RunTests(
-			IEnumerable<string> serializedTestCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions
+		/// <param name="messageSink">The message sink to report results back to.</param>
+		/// <param name="settings">The settings used during execution.</param>
+		void Run(
+			_IMessageSink messageSink,
+			FrontControllerRunSettings settings
 		);
 	}
 }

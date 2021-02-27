@@ -149,7 +149,7 @@ namespace Xunit.Runner.v2
 			TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.Name, this.assemblyInfo.AssemblyPath, configFileName);
 
 			var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
-			var v2DiagnosticMessageSink = Xunit2MessageSinkAdapter.AdaptDiagnosticMessageSink(DiagnosticMessageSink);
+			var v2DiagnosticMessageSink = new Xunit2MessageSink(DiagnosticMessageSink);
 			RemoteFramework = Guard.NotNull(
 				"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
 				AppDomain.CreateObject<ITestFramework>(
@@ -206,11 +206,14 @@ namespace Xunit.Runner.v2
 		/// which can be passed to <see cref="ITestFrameworkDiscoverer"/> and <see cref="ITestFrameworkExecutor"/>.
 		/// </summary>
 		/// <param name="sink">The local message sink to receive the messages.</param>
-		protected IMessageSink CreateOptimizedRemoteMessageSink(_IMessageSink sink)
+		/// <param name="serializeDiscoveredTestCases">A flag which indicates whether test case serialization is required</param>
+		protected IMessageSink CreateOptimizedRemoteMessageSink(
+			_IMessageSink sink,
+			bool serializeDiscoveredTestCases = true)
 		{
 			Guard.ArgumentNotNull(nameof(sink), sink);
 
-			var v2MessageSink = Xunit2MessageSinkAdapter.Adapt(TestAssemblyUniqueID, RemoteDiscoverer, sink);
+			var v2MessageSink = new Xunit2MessageSink(sink, TestAssemblyUniqueID, serializeDiscoveredTestCases ? RemoteDiscoverer : null);
 
 			try
 			{

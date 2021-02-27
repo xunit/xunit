@@ -306,77 +306,43 @@ namespace Xunit.Runner.MSBuild
 				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 				await using var controller = new XunitFrontController(assembly, diagnosticMessageSink: diagnosticMessageSink);
-				using var discoverySink = new TestDiscoverySink(() => cancel);
 
-				// Discover & filter the tests
-				var appDomainOption = controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied ? AppDomainOption.Enabled : AppDomainOption.Disabled;
-				var discoveryStarting = new TestAssemblyDiscoveryStarting
-				{
-					AppDomain = appDomainOption,
-					Assembly = assembly,
-					DiscoveryOptions = discoveryOptions,
-					ShadowCopy = shadowCopy
-				};
-				reporterMessageHandler!.OnMessage(discoveryStarting);
-
-				var settings = new FrontControllerFindSettings(discoveryOptions, assembly.Configuration.Filters);
-				controller.Find(discoverySink, settings);
-				discoverySink.Finished.WaitOne();
-
-				var testCasesDiscovered = discoverySink.TestCases.Count;
-				var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
-				var testCasesToRun = filteredTestCases.Count;
-
-				var discoveryFinished = new TestAssemblyDiscoveryFinished
+				var executionStarting = new TestAssemblyExecutionStarting
 				{
 					Assembly = assembly,
-					DiscoveryOptions = discoveryOptions,
-					TestCasesDiscovered = testCasesDiscovered,
-					TestCasesToRun = testCasesToRun
+					ExecutionOptions = executionOptions
 				};
-				reporterMessageHandler!.OnMessage(discoveryFinished);
+				reporterMessageHandler!.OnMessage(executionStarting);
 
-				// Run the filtered tests
-				if (testCasesToRun == 0)
-					completionMessages.TryAdd(controller.TestAssemblyUniqueID, new ExecutionSummary());
-				else
+				IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
+				if (assemblyElement != null)
+					resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+				if (longRunningSeconds > 0)
+					resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
+				if (FailSkips)
+					resultsSink = new DelegatingFailSkipSink(resultsSink);
+
+				using (resultsSink)
 				{
-					IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
-					if (assemblyElement != null)
-						resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-					if (longRunningSeconds > 0)
-						resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-					if (FailSkips)
-						resultsSink = new DelegatingFailSkipSink(resultsSink);
+					var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
+					controller.FindAndRun(resultsSink, settings);
+					resultsSink.Finished.WaitOne();
 
-					using (resultsSink)
+					var executionFinished = new TestAssemblyExecutionFinished
 					{
-						var executionStarting = new TestAssemblyExecutionStarting
-						{
-							Assembly = assembly,
-							ExecutionOptions = executionOptions
-						};
-						reporterMessageHandler!.OnMessage(executionStarting);
+						Assembly = assembly,
+						ExecutionOptions = executionOptions,
+						ExecutionSummary = resultsSink.ExecutionSummary
+					};
+					reporterMessageHandler!.OnMessage(executionFinished);
 
-						controller.RunTests(filteredTestCases.Select(tc => tc.Serialization), resultsSink, executionOptions);
-						resultsSink.Finished.WaitOne();
-
-						var executionFinished = new TestAssemblyExecutionFinished
+					if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
+					{
+						ExitCode = 1;
+						if (stopOnFail == true)
 						{
-							Assembly = assembly,
-							ExecutionOptions = executionOptions,
-							ExecutionSummary = resultsSink.ExecutionSummary
-						};
-						reporterMessageHandler!.OnMessage(executionFinished);
-
-						if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
-						{
-							ExitCode = 1;
-							if (stopOnFail == true)
-							{
-								Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
-								Cancel();
-							}
+							Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+							Cancel();
 						}
 					}
 				}

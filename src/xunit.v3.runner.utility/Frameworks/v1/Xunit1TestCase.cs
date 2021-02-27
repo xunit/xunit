@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit.Runner.v1
 {
@@ -171,6 +172,54 @@ namespace Xunit.Runner.v1
 			info.AddValue("TestMethod", TestMethod);
 			info.AddValue("TestMethodUniqueID", TestMethodUniqueID);
 			SerializationHelper.SerializeTraits(info, Traits);
+		}
+
+		/// <summary>
+		/// Converts the test case to <see cref="_TestCaseDiscovered"/>, with optional
+		/// serialization of the test case.
+		/// </summary>
+		/// <param name="includeSerialization">A flag to indicate whether serialization is needed.</param>
+		/// <returns>The converted test case</returns>
+		public _TestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
+		{
+			string? @namespace = null;
+			string? @class = null;
+
+			var namespaceIdx = TestClass.LastIndexOf('.');
+			if (namespaceIdx < 0)
+				@class = TestClass;
+			else
+			{
+				@namespace = TestClass.Substring(0, namespaceIdx);
+				@class = TestClass.Substring(namespaceIdx + 1);
+
+				var innerClassIdx = @class.LastIndexOf('+');
+				if (innerClassIdx >= 0)
+					@class = @class.Substring(innerClassIdx + 1);
+			}
+
+			var result = new _TestCaseDiscovered
+			{
+				AssemblyUniqueID = AssemblyUniqueID,
+				SkipReason = SkipReason,
+				SourceFilePath = SourceFilePath,
+				SourceLineNumber = SourceLineNumber,
+				TestCaseDisplayName = TestCaseDisplayName,
+				TestCaseUniqueID = TestCaseUniqueID,
+				TestClass = @class,
+				TestClassUniqueID = TestClassUniqueID,
+				TestClassWithNamespace = TestClass,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestMethod = TestMethod,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestNamespace = @namespace,
+				Traits = Traits
+			};
+
+			if (includeSerialization)
+				result.Serialization = SerializationHelper.Serialize(this);
+
+			return result;
 		}
 	}
 }
