@@ -13,13 +13,6 @@ public static class TestFxMSBuild
 	{
 		context.BuildStep("Running .NET Framework tests (via MSBuild runner)");
 
-		if (context.NeedMono)
-		{
-			context.WriteLineColor(ConsoleColor.Yellow, $"Skipping .NET Framework MSBuild tests on non-Windows machines.");
-			Console.WriteLine();
-			return;
-		}
-
 		try
 		{
 			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV1 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
