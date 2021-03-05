@@ -9,31 +9,6 @@ namespace Xunit1
 	public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTestInNewAppDomain
 	{
 		[Fact]
-		public void CurrentDirectoryWhenRunningTestsIsTestAssemblyPath()
-		{
-			string code = @"
-				using System.IO;
-				using Xunit;
-
-				public class ChangeDirectoryTests
-				{
-					[Fact]
-					public void ChangeDirectory()
-					{
-						string tempPath = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar);
-						string currentPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar);
-						Assert.Equal(tempPath, currentPath);
-					}
-				}
-			";
-
-			string assemblyName = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
-			XmlNode assemblyNode = ExecuteWithCustomAssemblyName(code, assemblyName);
-
-			ResultXmlUtility.AssertResult(assemblyNode, "Pass", "ChangeDirectoryTests.ChangeDirectory");
-		}
-
-		[Fact]
 		[PreserveWorkingDirectory]
 		public void CurrentDirectoryIsRestoredAfterExecution()
 		{

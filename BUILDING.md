@@ -16,7 +16,7 @@ You will need the following software installed (regardless of OS):
 
 Linux users will additionally need:
 
-* [Mono](https://www.mono-project.com/download/stable/) 6.12+
+* [Mono](https://www.mono-project.com/download/stable/) 6.12+ w/ MSBuild 16.6+
 * [bash](https://www.gnu.org/software/bash/)
 
 ## Windows Pre-Requisites
