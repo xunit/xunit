@@ -23,7 +23,7 @@ namespace Xunit.Runner.v2
 		}
 
 		/// <inheritdoc/>
-		public TValue GetValue<TValue>(string name) =>
+		public TValue? GetValue<TValue>(string name) =>
 			v3Options.GetValue<TValue>(name);
 
 		/// <inheritdoc/>

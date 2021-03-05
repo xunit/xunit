@@ -86,8 +86,7 @@ namespace Xunit.Runner.Common
 		/// <typeparam name="TValue">The type of the value.</typeparam>
 		/// <param name="name">The name of the value.</param>
 		/// <returns>Returns the value.</returns>
-		[return: MaybeNull]
-		public TValue GetValue<TValue>(string name)
+		public TValue? GetValue<TValue>(string name)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(name), name);
 

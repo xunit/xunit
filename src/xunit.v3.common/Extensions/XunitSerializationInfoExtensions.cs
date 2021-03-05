@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace System.Runtime.Serialization
+﻿namespace System.Runtime.Serialization
 {
 	/// <summary>
 	/// Extensions for <see cref="SerializationInfo"/>.
@@ -13,8 +11,7 @@ namespace System.Runtime.Serialization
 		/// <param name="info"/>
 		/// <param name="name">The name associated with the value to retrieve.</param>
 		/// <returns>The object of the specified type <typeparamref name="T"/> associated with <paramref name="name" />.</returns>
-		[return: MaybeNull]
-		public static T GetValue<T>(this SerializationInfo info, string name) =>
-			(T)info.GetValue(name, typeof(T));
+		public static T? GetValue<T>(this SerializationInfo info, string name) =>
+			(T?)info.GetValue(name, typeof(T));
 	}
 }
