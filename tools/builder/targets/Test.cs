@@ -1,5 +1,5 @@
 [Target(
 	BuildTarget.Test,
-	BuildTarget.TestFx
+	BuildTarget.TestCore, BuildTarget.TestFx
 )]
 public class Test { }
