@@ -1,15 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\xunit.v3.runner.tdnet\xunit.v3.runner.tdnet.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="TestDriven.Framework" Version="2.0.0" />
-  </ItemGroup>
 
 </Project>
