@@ -3,7 +3,7 @@
 	<metadata>
 		<id>xunit.v3.assert.source</id>
 		<version>$PackageVersion$</version>
-		<title>xUnit.net [Assertion Library, as source]</title>
+		<title>xUnit.net [Assertion Library, as C# source]</title>
 		<authors>jnewkirk,bradwilson</authors>
 		<owners>jnewkirk,bradwilson</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -14,11 +14,11 @@
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<contentFiles>
-			<files include="contentFiles/cs/netstandard2.0/Asserts/**/*.cs" buildAction="Compile" />
+			<files include="contentFiles/cs/netstandard1.1/Asserts/**/*.cs" buildAction="Compile" />
 		</contentFiles>
 	</metadata>
 	<files>
-		<file target="contentFiles\cs\netstandard2.0\Asserts" src="Asserts\**\*.cs" />
+		<file target="contentFiles\cs\netstandard1.1\Asserts" src="Asserts\**\*.cs" />
 
 		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
 	</files>
