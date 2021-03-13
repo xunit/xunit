@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>

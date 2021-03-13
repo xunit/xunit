@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Include="..\common.tests\Utility\EnvironmentHelper.cs" LinkBase="Common.Tests" />
     <Compile Include="..\xunit.v3.common\Internal\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Internal\Guard.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>

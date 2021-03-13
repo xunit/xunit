@@ -1,4 +1,4 @@
-﻿#nullable enable  // This file is temporarily shared with xunit.v2.tests, which is not nullable-enabled
+﻿#nullable enable  // This file is temporarily shared with xunit.v1.tests and xunit.v2.tests, which are not nullable-enabled
 
 using System;
 using System.Collections;

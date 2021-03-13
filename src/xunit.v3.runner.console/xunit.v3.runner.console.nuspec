@@ -5,7 +5,6 @@
 		<version>$PackageVersion$</version>
 		<title>xUnit.net [Runner: Console]</title>
 		<authors>jnewkirk,bradwilson</authors>
-		<owners>jnewkirk,bradwilson</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
@@ -16,15 +15,13 @@
 		<developmentDependency>true</developmentDependency>
 	</metadata>
 	<files>
-		<file target="build\" src="build\*.props" />
+		<file target="build\" src="Package\build\*" />
 
-		<file target="tools\net472\" src="bin\$Configuration$\net472\*.dll" />
-		<file target="tools\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.console.*" />
-		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\xunit.v3.runner.console.*" />
+		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\*" />
+		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\*" />
 
-		<file target="tools\net48\" src="bin\$Configuration$\net48\*.dll" />
-		<file target="tools\net48\" src="bin\$Configuration$\net48\xunit.v3.runner.console.*" />
-		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\xunit.v3.runner.console.*" />
+		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\*" />
+		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\*" />
 
 		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
 	</files>

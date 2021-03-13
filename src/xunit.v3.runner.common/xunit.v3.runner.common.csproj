@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Includes common runner code (xunit.v3.runner.common.dll). Supports .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <RootNamespace>Xunit.Runner.Common</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>xUnit.net [Runner Common Libraries]</Title>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
     <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>

@@ -5,7 +5,7 @@ using Xunit.Internal;
 namespace Xunit.v3
 {
 	/// <summary>
-	/// Extensions methods for <see cref="_ITestFrameworkExecutor"/>.
+	/// Extension methods for <see cref="_ITestFrameworkExecutor"/>.
 	/// </summary>
 	public static class TestFrameworkExecutorExtensions
 	{

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>xunit.v3.runner.utility</id>
+		<version>$PackageVersion$</version>
+		<title>xUnit.net [Runner Utility]</title>
+		<authors>jnewkirk,bradwilson</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+		<icon>content/logo-128-transparent.png</icon>
+		<description>Includes the version-independent runner for xUnit.net to run all of v1.9.2, v2.x, and v3.x tests (xunit.v3.runner.utility.*.dll). Supports .NET Framework 4.7.2 or later and .NET Standard 2.0 or later.</description>
+		<copyright>Copyright (C) .NET Foundation</copyright>
+		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
+		<dependencies>
+			<group targetFramework=".NETFramework4.7.2">
+				<dependency id="Mono.Cecil" version="0.11.3" />
+				<dependency id="System.IO.Pipelines" version="5.0.1" />
+				<dependency id="System.Net.Http" version="4.3.4" />
+				<dependency id="xunit.abstractions" version="2.0.3" />
+				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
+			</group>
+			<group targetFramework=".NETStandard2.0">
+				<dependency id="Mono.Cecil" version="0.11.3" />
+				<dependency id="System.IO.Pipelines" version="5.0.1" />
+				<dependency id="System.Net.Http" version="4.3.4" />
+				<dependency id="xunit.abstractions" version="2.0.3" />
+				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
+			</group>
+		</dependencies>
+		<frameworkAssemblies>
+			<frameworkAssembly targetFramework=".NETFramework4.7.2" assemblyName="System.Configuration" />
+			<frameworkAssembly targetFramework=".NETFramework4.7.2" assemblyName="System.Web" />
+		</frameworkAssemblies>
+	</metadata>
+	<files>
+		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
+
+		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.common.dll" />
+		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.common.xml" />
+		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.utility.net472.dll" />
+		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.utility.net472.xml" />
+
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.runner.common.dll" />
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.runner.common.xml" />
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.runner.utility.netstandard20.dll" />
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.runner.utility.netstandard20.xml" />
+	</files>
+</package>

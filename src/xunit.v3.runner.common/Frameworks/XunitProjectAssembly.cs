@@ -56,11 +56,11 @@ namespace Xunit.Runner.Common
 
 		/// <summary>
 		/// Gets the target framework that the test assembly was compiled against. If the value was not
-		/// set, returns <see cref="AssemblyUtility.UnknownTargetFramework"/>.
+		/// set, returns <see cref="AssemblyExtensions.UnknownTargetFramework"/>.
 		/// </summary>
 		public string TargetFramework
 		{
-			get => targetFramework ?? AssemblyUtility.UnknownTargetFramework;
+			get => targetFramework ?? AssemblyExtensions.UnknownTargetFramework;
 			set => targetFramework = Guard.ArgumentNotNull(nameof(TargetFramework), value);
 		}
 	}

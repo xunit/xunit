@@ -39,7 +39,7 @@ namespace Xunit.v3
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			this.sourceProvider = Guard.ArgumentNotNull(nameof(sourceProvider), sourceProvider);
 
-			targetFramework = new Lazy<string>(() => AssemblyUtility.GetTargetFramework(AssemblyInfo));
+			targetFramework = new Lazy<string>(() => AssemblyInfo.GetTargetFramework());
 		}
 
 		/// <summary>

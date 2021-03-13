@@ -134,7 +134,7 @@ namespace Xunit.v3
 		/// <see cref="_TestAssemblyStarting.TargetFramework"/>.
 		/// </summary>
 		protected virtual string? GetTargetFramework() =>
-			AssemblyUtility.GetTargetFramework(TestAssembly.Assembly);
+			TestAssembly.Assembly.GetTargetFramework();
 
 		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").

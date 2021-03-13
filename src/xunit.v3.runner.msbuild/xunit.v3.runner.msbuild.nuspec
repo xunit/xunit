@@ -5,7 +5,6 @@
 		<version>$PackageVersion$</version>
 		<title>xUnit.net [Runner: MSBuild]</title>
 		<authors>jnewkirk,bradwilson</authors>
-		<owners>jnewkirk,bradwilson</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
@@ -20,9 +19,8 @@
 	</metadata>
 
 	<files>
-		<file target="build\net472\" src="bin\$Configuration$\net472\*.dll" />
-		<file target="build\net472\" src="build\*.props" />
-		<file target="build\net472\" src="build\*.targets" />
+		<file target="build\net472\" src="bin\$Configuration$\net472\merged\*" />
+		<file target="build\net472\" src="Package\build\*" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 

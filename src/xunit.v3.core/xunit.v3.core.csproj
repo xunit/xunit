@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
-    <Description>Includes the core library for writing tests using xUnit.net (xunit.v3.core.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <NoWarn>NU5100;$(NoWarn)</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>xUnit.net [Core Unit Testing Framework]</Title>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Package\**\*" />
+    <None Include="Package\**\*" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\AssertEqualityComparer.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\DynamicSkipToken.cs" LinkBase="Common\Asserts" />

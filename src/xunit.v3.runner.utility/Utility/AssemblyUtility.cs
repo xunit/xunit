@@ -1,23 +1,18 @@
 ﻿using System.Linq;
-using System.Reflection;
 using System.Runtime.Versioning;
 using Mono.Cecil;
+using Xunit.Internal;
 
 namespace Xunit
 {
 	/// <summary>
-	/// This class provides utility functions related to assemblies.
+	/// Utility functions for assemblies.
 	/// </summary>
-	public static class AssemblyUtility
+	public class AssemblyUtility
 	{
 		/// <summary>
-		/// Gets the value for an unknown target framework.
-		/// </summary>
-		// Note: This value matches AssemblyUtility.UnknownTargetFramework from xunit.v3.core
-		public const string UnknownTargetFramework = "UnknownTargetFramework";
-
-		/// <summary>
-		/// Gets the target framework name for the given assembly (on disk).
+		/// Gets the target framework name for the given assembly (on disk). This uses Mono Cecil
+		/// to prevent loading the assembly into memory.
 		/// </summary>
 		/// <param name="assemblyFileName">The assembly filename.</param>
 		/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
@@ -46,23 +41,7 @@ namespace Xunit
 				catch { }  // Eat exceptions so we just return our unknown value
 			}
 
-			return UnknownTargetFramework;
-		}
-
-		/// <summary>
-		/// Gets the target framework name for the given assembly (in memory).
-		/// </summary>
-		/// <param name="assembly">The assembly.</param>
-		/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
-		/// or ".NETCoreApp,Version=v2.1"). If the target framework type is unknown (missing file,
-		/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
-		public static string GetTargetFramework(Assembly assembly)
-		{
-			var targetFrameworkAttribute = assembly.GetCustomAttribute<TargetFrameworkAttribute>();
-			if (targetFrameworkAttribute != null)
-				return targetFrameworkAttribute.FrameworkName;
-
-			return UnknownTargetFramework;
+			return AssemblyExtensions.UnknownTargetFramework;
 		}
 	}
 }
