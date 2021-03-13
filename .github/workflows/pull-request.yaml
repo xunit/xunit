@@ -19,6 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Add MSBuild to PATH (Windows)
+        uses: microsoft/setup-msbuild@v1.0.2
+        if: matrix.os == 'windows-latest'
+
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
         with:
