@@ -1,4 +1,4 @@
-name: xUnit.net Analyzers CI Build
+name: xUnit.net CI Build
 on:
   push:
     branches:
