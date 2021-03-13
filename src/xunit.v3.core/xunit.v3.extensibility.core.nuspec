@@ -21,7 +21,7 @@
 		</dependencies>
 	</metadata>
 	<files>
-		<file target="build\" src="package\build\xunit.v3.extensibility.core.*" />
+		<file target="build\" src="Package\build\xunit.v3.extensibility.core.*" />
 
 		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<!--
