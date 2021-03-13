@@ -21,9 +21,10 @@ public static class Packages
 		var srcFolder = Path.Join(context.BaseFolder, "src");
 		var projectFolders =
 			Directory.GetFiles(srcFolder, "xunit.v3.*.csproj", SearchOption.AllDirectories)
-				.Where(x => !x.EndsWith(".tests.csproj") && !x.EndsWith(".NonNullable.csproj") && !x.EndsWith(".tdnet.csproj"))
+				.Where(x => !x.EndsWith(".tests.csproj"))
 				.OrderBy(x => x)
-				.Select(x => Path.GetDirectoryName(x).Substring(context.BaseFolder.Length + 1));
+				.Select(x => Path.GetDirectoryName(x).Substring(context.BaseFolder.Length + 1))
+				.Where(x => !File.Exists(Path.Combine(x, ".no-package")));
 
 		foreach (var projectFolder in projectFolders)
 		{
