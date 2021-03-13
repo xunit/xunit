@@ -3,8 +3,13 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
+    <RunILRepack>true</RunILRepack>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\tools\builder\msbuild\netfx.proj" LinkBase="builder" />

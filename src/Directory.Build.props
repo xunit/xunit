@@ -9,6 +9,7 @@
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
+    <ILRepackVersion>2.0.13</ILRepackVersion>
     <LangVersion>9.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <RootNamespace>Xunit</RootNamespace>
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageDownload Include="ILRepack.MSBuild.Task" Version="[$(ILRepackVersion)]" />
     <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
   </ItemGroup>
 
@@ -89,9 +91,9 @@
       </PropertyGroup>
 
       <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
-        <Configuration>$(Configuration)_x86</Configuration>
         <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
         <OutputPath>bin\$(Configuration)_x86</OutputPath>
+        <Configuration>$(Configuration)_x86</Configuration>
         <PlatformTarget>x86</PlatformTarget>
       </PropertyGroup>
 

@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<UsingTask
-		AssemblyFile="$(SolutionDir)src\xunit.v3.runner.msbuild\bin\$(Configuration)\net472\xunit.v3.runner.msbuild.dll"
+		AssemblyFile="$(SolutionDir)src\xunit.v3.runner.msbuild\bin\$(Configuration)\net472\merged\xunit.v3.runner.msbuild.dll"
 		TaskName="Xunit.Runner.MSBuild.xunit"/>
 
 	<ItemGroup>

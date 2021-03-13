@@ -1,9 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RootNamespace>Xunit.Runner.TdNet</RootNamespace>
+    <RunILRepack>true</RunILRepack>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ILRepackExclusions Include="$(OutputPath)TestDriven.Framework.dll" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
