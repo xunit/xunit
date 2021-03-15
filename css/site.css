@@ -232,18 +232,17 @@ blockquote.padded {
   background-color: #cec;
   color: #363;
 }
-.version-selector {
+.radio-selector {
   color: #666;
   font-size: 95%;
   font-weight: normal;
   margin: 10px 0 10px 20px;
   vertical-align: middle;
 }
-.version-selector input {
+.radio-selector input {
   margin-left: 10px;
 }
-.version-pre,
-.version-ci {
+.hidden {
   display: none;
 }
 .release-more,
