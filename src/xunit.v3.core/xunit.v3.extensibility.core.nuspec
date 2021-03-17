@@ -8,7 +8,7 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
-		<icon>content/logo-128-transparent.png</icon>
+		<icon>_content/logo-128-transparent.png</icon>
 		<description>Includes the core library (xunit.v3.core.dll), to be used for extensibility; test authors should include xunit.v3.core instead. Supports .NET Standard 2.0.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
@@ -21,13 +21,13 @@
 		</dependencies>
 	</metadata>
 	<files>
-		<file target="build\" src="Package\build\xunit.v3.extensibility.core.*" />
-
-		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<!--
-		<file target="content\tdnet\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll.tdnet" />
-		<file target="content\tdnet\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\netstandard2.0\merged\xunit.v3.runner.tdnet.dll" />
+		<file target="_content\tdnet\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll.tdnet" />
+		<file target="_content\tdnet\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\netstandard2.0\merged\xunit.v3.runner.tdnet.dll" />
 		-->
+
+		<file target="build\" src="Package\build\xunit.v3.extensibility.core.*" />
 
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll" />
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />

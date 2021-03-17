@@ -8,7 +8,7 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
-		<icon>content/logo-128-transparent.png</icon>
+		<icon>_content/logo-128-transparent.png</icon>
 		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET Framework 4.7.2 or later and .NET Core 2.1 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
@@ -26,7 +26,7 @@
 		</dependencies>
 	</metadata>
 	<files>
-		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.common.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.common.xml" />

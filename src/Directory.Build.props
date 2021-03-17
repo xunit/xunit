@@ -48,7 +48,7 @@
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <Nullable>enable</Nullable>
-        <PackageIcon>content/logo-128-transparent.png</PackageIcon>
+        <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <Product>xUnit.net Testing Framework</Product>
@@ -57,7 +57,7 @@
       </PropertyGroup>
 
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="content" />
+        <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="_content" />
       </ItemGroup>
 
       <ItemGroup>
