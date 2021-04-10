@@ -30,7 +30,7 @@ namespace Xunit.v3
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		public XunitTestAssemblyRunner(
 			_ITestAssembly testAssembly,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
@@ -235,7 +235,7 @@ namespace Xunit.v3
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitTestCollectionRunner(
 					testCollection,

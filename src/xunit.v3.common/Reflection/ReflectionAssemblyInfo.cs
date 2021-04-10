@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
@@ -57,7 +57,7 @@ namespace Xunit.Sdk
 					.OrderBy(attr => attr.AttributeType.Name)
 					.Select(a => Reflector.Wrap(a))
 					.Cast<_IAttributeInfo>()
-					.ToList();
+					.CastOrToReadOnlyCollection();
 		}
 
 		/// <inheritdoc/>
@@ -69,17 +69,24 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> GetTypes(bool includePrivateTypes)
+		public IReadOnlyCollection<_ITypeInfo> GetTypes(bool includePrivateTypes)
 		{
 			var selector = includePrivateTypes ? Assembly.DefinedTypes.Select(t => t.AsType()) : Assembly.ExportedTypes;
 
 			try
 			{
-				return selector.Select(t => Reflector.Wrap(t)).Cast<_ITypeInfo>();
+				return selector
+					.Select(t => Reflector.Wrap(t))
+					.Cast<_ITypeInfo>()
+					.CastOrToReadOnlyCollection();
 			}
 			catch (ReflectionTypeLoadException ex)
 			{
-				return ex.Types.WhereNotNull().Select(t => Reflector.Wrap(t)).Cast<_ITypeInfo>();
+				return ex.Types
+					.WhereNotNull()
+					.Select(t => Reflector.Wrap(t))
+					.Cast<_ITypeInfo>()
+					.CastOrToReadOnlyCollection();
 			}
 		}
 

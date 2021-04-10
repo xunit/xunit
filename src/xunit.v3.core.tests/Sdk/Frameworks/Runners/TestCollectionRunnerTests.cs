@@ -217,7 +217,7 @@ public class TestCollectionRunnerTests
 		readonly bool cancelInRunTestClassAsync;
 		readonly RunSummary result;
 
-		public readonly List<Tuple<_IReflectionTypeInfo, IEnumerable<_ITestCase>>> ClassesRun = new();
+		public readonly List<Tuple<_IReflectionTypeInfo, IReadOnlyCollection<_ITestCase>>> ClassesRun = new();
 		public Action<ExceptionAggregator> AfterTestCollectionStarting_Callback = _ => { };
 		public bool AfterTestCollectionStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestCollectionFinished_Callback = _ => { };
@@ -227,7 +227,7 @@ public class TestCollectionRunnerTests
 
 		TestableTestCollectionRunner(
 			_ITestCollection testCollection,
-			IEnumerable<_ITestCase> testCases,
+			IReadOnlyCollection<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -285,7 +285,7 @@ public class TestCollectionRunnerTests
 		protected override Task<RunSummary> RunTestClassAsync(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<_ITestCase> testCases)
+			IReadOnlyCollection<_ITestCase> testCases)
 		{
 			if (cancelInRunTestClassAsync)
 				CancellationTokenSource.Cancel();

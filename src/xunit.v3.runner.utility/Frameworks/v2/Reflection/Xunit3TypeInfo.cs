@@ -21,7 +21,7 @@ namespace Xunit.Runner.v2
 
 			Assembly = new Xunit3AssemblyInfo(V2TypeInfo.Assembly);
 			BaseType = V2TypeInfo.BaseType == null ? null : new Xunit3TypeInfo(v2TypeInfo.BaseType);
-			Interfaces = V2TypeInfo.Interfaces.Select(i => new Xunit3TypeInfo(i)).ToList();
+			Interfaces = V2TypeInfo.Interfaces.Select(i => new Xunit3TypeInfo(i)).CastOrToReadOnlyCollection();
 
 			var typeName = V2TypeInfo.Name;
 			var namespaceIdx = typeName.LastIndexOf('.');
@@ -45,7 +45,7 @@ namespace Xunit.Runner.v2
 		public _ITypeInfo? BaseType { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> Interfaces { get; }
+		public IReadOnlyCollection<_ITypeInfo> Interfaces { get; }
 
 		/// <inheritdoc/>
 		public bool IsAbstract => V2TypeInfo.IsAbstract;
@@ -77,12 +77,12 @@ namespace Xunit.Runner.v2
 		public ITypeInfo V2TypeInfo { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V2TypeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).ToList();
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
+			V2TypeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> GetGenericArguments() =>
-			V2TypeInfo.GetGenericArguments().Select(t => new Xunit3TypeInfo(t));
+		public IReadOnlyCollection<_ITypeInfo> GetGenericArguments() =>
+			V2TypeInfo.GetGenericArguments().Select(t => new Xunit3TypeInfo(t)).CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public _IMethodInfo? GetMethod(string methodName, bool includePrivateMethod)
@@ -92,7 +92,7 @@ namespace Xunit.Runner.v2
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_IMethodInfo> GetMethods(bool includePrivateMethods) =>
-			V2TypeInfo.GetMethods(includePrivateMethods).Select(m => new Xunit3MethodInfo(m));
+		public IReadOnlyCollection<_IMethodInfo> GetMethods(bool includePrivateMethods) =>
+			V2TypeInfo.GetMethods(includePrivateMethods).Select(m => new Xunit3MethodInfo(m)).CastOrToReadOnlyCollection();
 	}
 }

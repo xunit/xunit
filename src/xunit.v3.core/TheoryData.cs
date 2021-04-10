@@ -8,9 +8,12 @@ namespace Xunit
 	/// <summary>
 	/// Provides data for theories based on collection initialization syntax.
 	/// </summary>
-	public abstract class TheoryData : IEnumerable<object?[]>
+	public abstract class TheoryData : IReadOnlyCollection<object?[]>
 	{
-		readonly List<object?[]> data = new List<object?[]>();
+		readonly List<object?[]> data = new();
+
+		/// <inheritdoc/>
+		public int Count => data.Count;
 
 		/// <summary>
 		/// Adds a row to the theory.

@@ -12,7 +12,7 @@ namespace Xunit.v3
 	public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 	{
 		/// <inheritdoc/>
-		public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections)
+		public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections)
 		{
 			Guard.ArgumentNotNull(nameof(testCollections), testCollections);
 

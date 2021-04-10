@@ -12,7 +12,7 @@ public class MockTestCaseOrderer : ITestCaseOrderer
 		this.reverse = reverse;
 	}
 
-	public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 		where TTestCase : _ITestCase
 	{
 		if (!reverse)

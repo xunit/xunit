@@ -143,10 +143,11 @@ public class TraitHelperTests
 
 	class CustomTraitDiscoverer : ITraitDiscoverer
 	{
-		public IEnumerable<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
-		{
-			yield return new KeyValuePair<string, string>("Foo", "Biff");
-			yield return new KeyValuePair<string, string>("Baz", "2112");
-		}
+		public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute) =>
+			new[]
+			{
+				new KeyValuePair<string, string>("Foo", "Biff"),
+				new KeyValuePair<string, string>("Baz", "2112")
+			};
 	}
 }

@@ -33,7 +33,10 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V3AssemblyInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit2AttributeInfo(a)).ToList();
+			V3AssemblyInfo
+				.GetCustomAttributes(assemblyQualifiedAttributeTypeName)
+				.Select(a => new Xunit2AttributeInfo(a))
+				.CastOrToArray();
 
 		/// <inheritdoc/>
 		public ITypeInfo? GetType(string typeName)
@@ -44,6 +47,9 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes) =>
-			V3AssemblyInfo.GetTypes(includePrivateTypes).Select(t => new Xunit2TypeInfo(t)).ToList();
+			V3AssemblyInfo
+				.GetTypes(includePrivateTypes)
+				.Select(t => new Xunit2TypeInfo(t))
+				.CastOrToArray();
 	}
 }

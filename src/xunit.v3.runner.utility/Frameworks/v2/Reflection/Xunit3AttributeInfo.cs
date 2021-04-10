@@ -26,12 +26,12 @@ namespace Xunit.Runner.v2
 		public IAttributeInfo V2AttributeInfo { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<object?> GetConstructorArguments() =>
-			V2AttributeInfo.GetConstructorArguments();
+		public IReadOnlyCollection<object?> GetConstructorArguments() =>
+			V2AttributeInfo.GetConstructorArguments().CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V2AttributeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).ToList();
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
+			V2AttributeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public TValue GetNamedArgument<TValue>(string argumentName) =>

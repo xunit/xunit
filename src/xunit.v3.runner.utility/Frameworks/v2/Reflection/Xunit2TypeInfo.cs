@@ -58,11 +58,17 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V3TypeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit2AttributeInfo(a)).ToList();
+			V3TypeInfo
+				.GetCustomAttributes(assemblyQualifiedAttributeTypeName)
+				.Select(a => new Xunit2AttributeInfo(a))
+				.CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public IEnumerable<ITypeInfo> GetGenericArguments() =>
-			V3TypeInfo.GetGenericArguments().Select(t => new Xunit2TypeInfo(t)).ToList();
+			V3TypeInfo
+				.GetGenericArguments()
+				.Select(t => new Xunit2TypeInfo(t))
+				.CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public IMethodInfo? GetMethod(string methodName, bool includePrivateMethod)
@@ -73,6 +79,9 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods) =>
-			V3TypeInfo.GetMethods(includePrivateMethods).Select(m => new Xunit2MethodInfo(m)).ToList();
+			V3TypeInfo
+				.GetMethods(includePrivateMethods)
+				.Select(m => new Xunit2MethodInfo(m))
+				.CastOrToReadOnlyCollection();
 	}
 }

@@ -10,8 +10,7 @@ namespace Xunit
 	/// 1. A static property
 	/// 2. A static field
 	/// 3. A static method (with parameters)
-	/// The member must return something compatible with IEnumerable&lt;object[]&gt; with the test data.
-	/// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
+	/// The member must return something compatible with IEnumerable&lt;object?[]&gt; with the test data.
 	/// </summary>
 	[DataDiscoverer(typeof(MemberDataDiscoverer))]
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
@@ -38,7 +37,7 @@ namespace Xunit
 			if (item == null)
 				return new object[0];
 
-			if (!(item is object?[] array))
+			if (item is not object?[] array)
 				throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
 
 			return array;

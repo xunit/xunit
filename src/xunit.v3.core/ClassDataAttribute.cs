@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit
 {
 	/// <summary>
 	/// Provides a data source for a data theory, with the data coming from a class
-	/// which must implement IEnumerable&lt;object[]&gt;.
-	/// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
+	/// which must implement IEnumerable&lt;object?[]&gt;.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 	public class ClassDataAttribute : DataAttribute
@@ -28,12 +28,12 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
-		public override IEnumerable<object?[]> GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod)
 		{
-			if (!(Activator.CreateInstance(Class) is IEnumerable<object?[]> data))
+			if (Activator.CreateInstance(Class) is not IEnumerable<object?[]> data)
 				throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object?[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType?.FullName}");
 
-			return data;
+			return data.CastOrToReadOnlyCollection();
 		}
 	}
 }

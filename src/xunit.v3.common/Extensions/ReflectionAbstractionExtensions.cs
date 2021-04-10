@@ -28,14 +28,16 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="type">The type</param>
 	/// <param name="methodInfo">The method</param>
 	/// <returns>The methods that have the same visibility as the supplied method.</returns>
-	public static IEnumerable<MethodInfo> GetMatchingMethods(this Type type, MethodInfo methodInfo)
+	public static IReadOnlyCollection<MethodInfo> GetMatchingMethods(this Type type, MethodInfo methodInfo)
 	{
 		Guard.ArgumentNotNull(nameof(type), type);
 		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
 
 		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();
 
-		return methods.Where(method => method.IsPublic == methodInfo.IsPublic && method.IsStatic == methodInfo.IsStatic);
+		return methods
+			.Where(method => method.IsPublic == methodInfo.IsPublic && method.IsStatic == methodInfo.IsStatic)
+			.CastOrToReadOnlyCollection();
 	}
 
 	/// <summary>
@@ -44,7 +46,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="assemblyInfo">The assembly</param>
 	/// <param name="attributeType">The type of the attribute</param>
 	/// <returns>The matching attributes that decorate the assembly</returns>
-	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _IAssemblyInfo assemblyInfo, Type attributeType)
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _IAssemblyInfo assemblyInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -59,7 +61,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="attributeInfo">The attribute</param>
 	/// <param name="attributeType">The type of the attribute to find</param>
 	/// <returns>The matching attributes that decorate the attribute</returns>
-	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _IAttributeInfo attributeInfo, Type attributeType)
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _IAttributeInfo attributeInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(attributeInfo), attributeInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -74,7 +76,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="methodInfo">The method</param>
 	/// <param name="attributeType">The type of the attribute</param>
 	/// <returns>The matching attributes that decorate the method</returns>
-	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _IMethodInfo methodInfo, Type attributeType)
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _IMethodInfo methodInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
@@ -89,7 +91,7 @@ public static class ReflectionAbstractionExtensions
 	/// <param name="typeInfo">The type</param>
 	/// <param name="attributeType">The type of the attribute</param>
 	/// <returns>The matching attributes that decorate the type</returns>
-	public static IEnumerable<_IAttributeInfo> GetCustomAttributes(this _ITypeInfo typeInfo, Type attributeType)
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _ITypeInfo typeInfo, Type attributeType)
 	{
 		Guard.ArgumentNotNull(nameof(typeInfo), typeInfo);
 		Guard.ArgumentNotNull(nameof(attributeType), attributeType);

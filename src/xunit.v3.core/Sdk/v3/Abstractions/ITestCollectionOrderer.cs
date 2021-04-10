@@ -15,6 +15,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testCollections">The test collections to be ordered.</param>
 		/// <returns>The test collections in the order to be run.</returns>
-		IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections);
+		IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections);
 	}
 }

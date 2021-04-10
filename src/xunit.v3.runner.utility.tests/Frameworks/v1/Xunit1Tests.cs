@@ -1022,10 +1022,10 @@ public class AmbiguouslyNamedTestMethods
 			Predicate<_TestCaseDiscovered>? filter = null) =>
 				base.FindAndRun(messageSink, includeSourceInformation, filter);
 
-		public new void Run(
+		public void Run(
 			IEnumerable<Xunit1TestCase> testCases,
 			_IMessageSink messageSink) =>
-				base.Run(testCases, messageSink);
+				base.Run(testCases.CastOrToReadOnlyCollection(), messageSink);
 
 		public new string Serialize(Xunit1TestCase testCase) =>
 			base.Serialize(testCase);

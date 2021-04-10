@@ -524,7 +524,7 @@ public class Xunit3AcceptanceTests
 
 		public class AlphabeticalOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 				where TTestCase : _ITestCase
 			{
 				var result = testCases.ToList();

@@ -16,7 +16,7 @@ namespace Xunit
 		/// <param name="serializedTestCases">The test cases to be run</param>
 		public FrontControllerRunSettings(
 			_ITestFrameworkExecutionOptions options,
-			IEnumerable<string> serializedTestCases)
+			IReadOnlyCollection<string> serializedTestCases)
 		{
 			Options = Guard.ArgumentNotNull(nameof(options), options);
 			SerializedTestCases = Guard.ArgumentNotNull(nameof(serializedTestCases), serializedTestCases);
@@ -30,6 +30,6 @@ namespace Xunit
 		/// <summary>
 		/// Get the list of test cases to be run.
 		/// </summary>
-		public IEnumerable<string> SerializedTestCases { get; }
+		public IReadOnlyCollection<string> SerializedTestCases { get; }
 	}
 }

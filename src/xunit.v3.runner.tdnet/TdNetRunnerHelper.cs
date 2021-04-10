@@ -119,7 +119,7 @@ namespace Xunit.Runner.TdNet
 				disposalTracker.Add(resultSink);
 
 				var executionOptions = _TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
-				var settings = new FrontControllerRunSettings(executionOptions, testCases.Select(tc => tc.Serialization));
+				var settings = new FrontControllerRunSettings(executionOptions, testCases.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
 				frontController.Run(resultSink, settings);
 
 				resultSink.Finished.WaitOne();

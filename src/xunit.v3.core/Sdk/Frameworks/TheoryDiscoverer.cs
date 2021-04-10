@@ -35,7 +35,7 @@ namespace Xunit.Sdk
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <returns>The test cases</returns>
-		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
+		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -61,7 +61,7 @@ namespace Xunit.Sdk
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
 		/// <returns>The test cases</returns>
-		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkip(
+		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkip(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -88,7 +88,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>The test case</returns>
-		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
+		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
@@ -115,7 +115,7 @@ namespace Xunit.Sdk
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <param name="skipReason">The reason this test case is to be skipped</param>
 		/// <returns>The test cases</returns>
-		protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(
+		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkippedDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -148,7 +148,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
-		public virtual IEnumerable<IXunitTestCase> Discover(
+		public virtual IReadOnlyCollection<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
@@ -265,11 +265,12 @@ namespace Xunit.Sdk
 
 							if (!resolvedData.All(d => SerializationHelper.IsSerializable(d)))
 							{
-								var typeNames = resolvedData
-									.Select(x => x?.GetType().FullName)
-									.WhereNotNull()
-									.Select(x => $"'{x}'")
-									.ToList();
+								var typeNames =
+									resolvedData
+										.Select(x => x?.GetType().FullName)
+										.WhereNotNull()
+										.Select(x => $"'{x}'")
+										.ToList();
 
 								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data (one or more of: {string.Join(", ", typeNames)}) found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
 								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);

@@ -20,7 +20,7 @@ namespace Xunit.v3
 		CancellationTokenSource cancellationTokenSource;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
-		IEnumerable<TTestCase> testCases;
+		IReadOnlyCollection<TTestCase> testCases;
 		_ITestCollection testCollection;
 
 		/// <summary>
@@ -34,7 +34,7 @@ namespace Xunit.v3
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestCollectionRunner(
 			_ITestCollection testCollection,
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -87,7 +87,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the test cases to be run.
 		/// </summary>
-		protected IEnumerable<TTestCase> TestCases
+		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
 			set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
@@ -182,7 +182,7 @@ namespace Xunit.v3
 
 			foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.TestMethod.TestClass, TestClassComparer.Instance))
 			{
-				summary.Aggregate(await RunTestClassAsync(testCasesByClass.Key, (_IReflectionTypeInfo)testCasesByClass.Key.Class, testCasesByClass));
+				summary.Aggregate(await RunTestClassAsync(testCasesByClass.Key, (_IReflectionTypeInfo)testCasesByClass.Key.Class, testCasesByClass.CastOrToReadOnlyCollection()));
 				if (CancellationTokenSource.IsCancellationRequested)
 					break;
 			}
@@ -200,7 +200,7 @@ namespace Xunit.v3
 		protected abstract Task<RunSummary> RunTestClassAsync(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<TTestCase> testCases
+			IReadOnlyCollection<TTestCase> testCases
 		);
 	}
 }

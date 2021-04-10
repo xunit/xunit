@@ -14,6 +14,6 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="traitAttribute">The trait attribute containing the trait values.</param>
 		/// <returns>The trait values.</returns>
-		IEnumerable<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute);
+		IReadOnlyCollection<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute);
 	}
 }
