@@ -1,27 +1,20 @@
-name: xUnit.net PR Build
+name: xUnit.net CI Build
 on:
-  - pull_request
-  - workflow_dispatch
+  push:
+    branches:
+      - main
 
 jobs:
   build:
-    name: "Build for PR"
-    runs-on: ${{ matrix.os }}
+    name: "CI Build"
+    runs-on: ubuntu-18.04
     env:
       DOTNET_NOLOGO: true
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-18.04, macOS-latest]
     steps:
       - name: Clone source
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: Add MSBuild to PATH (Windows)
-        uses: microsoft/setup-msbuild@v1.0.2
-        if: matrix.os == 'windows-latest'
 
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
@@ -41,8 +34,12 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: "Build target: PR"
-        run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
+      - name: "Build target: CI"
+        env:
+          PublishToken: ${{ secrets.PublishToken }}
+          SignClientUser: ${{ secrets.SignClientUser }}
+          SignClientSecret: ${{ secrets.SignClientSecret }}
+        run: dotnet run --project tools/builder --no-launch-profile -- CI --timing
 
       - name: "Upload artifact: test-${{ matrix.os }}"
         uses: actions/upload-artifact@v2

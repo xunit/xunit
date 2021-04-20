@@ -1,5 +1,62 @@
 <Project>
 
+  <!-- On Unix-like systems, mark .NET Framework binaries as executable -->
+  <Target
+      Name="MarkBinaryExecutable"
+      AfterTargets="Build"
+      Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' AND '$(OS)' != 'Windows_NT' AND $(TargetPath.EndsWith('.exe')) ">
+    <Exec Command="chmod +x '$(TargetPath)'" />
+  </Target>
+
+  <!-- Optional ILRepack targets for projects that want to opt-in -->
+  <Target
+      Name="ILRepack"
+      AfterTargets="Build"
+      Condition=" '$(TargetFramework)' != '' AND '$(RunILRepack)' == 'true' ">
+    <PropertyGroup>
+      <OutputAssembly>$([System.IO.Path]::Combine($(TargetDir), "merged", "$(TargetFileName)"))</OutputAssembly>
+    </PropertyGroup>
+
+    <Message Text="$(TargetName) -> $(OutputAssembly)" Importance="High" />
+    <CallTarget Targets="ILRepackConditional" />
+  </Target>
+
+  <Target
+      Name="ILRepackConditional"
+      Inputs="$(TargetPath)"
+      Outputs="$(TargetDir)merged\$(TargetFileName)">
+    <ItemGroup>
+      <Assemblies
+          Include="$(TargetDir)*.dll;$(TargetPath)"
+          Exclude="@(ILRepackExclusions)" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(TargetDir)premerge;$(TargetDir)merged" />
+    <!-- We copy assemblies into a 'premerge' folder and merge from there, because of this issue: https://github.com/gluck/il-repack/issues/283 -->
+    <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(TargetDir)premerge" />
+
+    <PropertyGroup>
+      <ILRepackExe>$([System.IO.Path]::Combine($(NuGetPackageRoot), "ilrepack.msbuild.task", $(ILRepackVersion), "tools", "ilrepack.exe"))</ILRepackExe>
+      <ILRepackExe Condition=" '$(OS)' != 'Windows_NT' ">mono $(ILRepackExe)</ILRepackExe>
+      <MainAssembly>$([System.IO.Path]::Combine($(TargetDir), "premerge", "$(TargetFileName)"))</MainAssembly>
+      <OutputAssembly>$([System.IO.Path]::Combine($(TargetDir), "merged", "$(TargetFileName)"))</OutputAssembly>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <OutputsToCopy Include="$(TargetDir)*.config;@(ILRepackExclusions)" />
+      <ILRepackDependencies
+          Include="$(TargetDir)premerge\*.dll"
+          Exclude="$(MainAssembly)"/>
+    </ItemGroup>
+
+    <Copy SourceFiles="@(OutputsToCopy)" DestinationFolder="$(TargetDir)merged" />
+    <Exec
+        StandardOutputImportance="low"
+        Command="$(ILRepackExe) -internalize -ndebug -lib:$(TargetDir) -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
+    <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' " />
+    <RemoveDir Directories="$(TargetDir)premerge" />
+  </Target>
+
   <!-- Support deterministic builds (via https://github.com/clairernovotny/DeterministicBuilds) -->
   <PropertyGroup>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>

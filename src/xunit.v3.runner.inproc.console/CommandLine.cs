@@ -103,7 +103,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			string? configFileName)
 		{
 			var project = new XunitProject();
-			var targetFramework = AssemblyUtility.GetTargetFramework(assembly);
+			var targetFramework = assembly.GetTargetFramework();
 			var projectAssembly = new XunitProjectAssembly(project)
 			{
 				Assembly = assembly,

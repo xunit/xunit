@@ -104,8 +104,8 @@ public class BuildContext
 					throw new InvalidOperationException("Could not locate a solution file in the directory hierarchy");
 			}
 
-			ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "xunit.v3.runner.console.exe");
-			ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "xunit.v3.runner.console.x86.exe");
+			ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
+			ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
 			// Dependent folders
 			PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");

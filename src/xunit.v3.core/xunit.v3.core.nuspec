@@ -5,48 +5,33 @@
 		<version>$PackageVersion$</version>
 		<title>xUnit.net [Core Unit Testing Framework]</title>
 		<authors>jnewkirk,bradwilson</authors>
-		<owners>jnewkirk,bradwilson</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
-		<icon>content/logo-128-transparent.png</icon>
-		<description>Includes the core library for writing tests using xUnit.net (xunit.v3.core.dll). Supports .NET Standard 2.0.</description>
+		<icon>_content/logo-128-transparent.png</icon>
+		<description>Includes the core library for writing tests using xUnit.net (xunit.v3.core.dll). Supports .NET Framework 4.7.2 or later and .NET Core 2.1 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
-			<group targetFramework=".NETFramework4.7.2">
-				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="5.0.0" exclude="Build,Analyzers" />
-				<dependency id="System.Threading.Tasks.Extensions" version="4.5.4" exclude="Build,Analyzers" />
-				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
+			<group targetFramework=".NETCoreApp2.1">
+				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.inproc.console" version="[$PackageVersion$]" />
 			</group>
-			<group targetFramework=".NETStandard2.0">
-				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="5.0.0" exclude="Build,Analyzers" />
-				<dependency id="System.Threading.Tasks.Extensions" version="4.5.4" exclude="Build,Analyzers" />
-				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
+			<group targetFramework=".NETFramework4.7.2">
+				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.inproc.console" version="[$PackageVersion$]" />
 			</group>
 		</dependencies>
-		<references>
-			<reference file="xunit.v3.core.dll" />
-			<reference file="xunit.v3.core.xml" />
-		</references>
 	</metadata>
 	<files>
-		<file target="build\" src="build\*" />
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\cs\" src="Package\content\*.cs" />
+		<file target="_content\fs\" src="Package\content\*.fs" />
+		<file target="_content\vb\" src="Package\content\*.vb" />
 
-		<file target="buildMultiTargeting\" src="build\*" />
+		<file target="build\" src="Package\build\xunit.v3.core.*" />
 
-		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
-
-		<file target="lib\net472\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll" />
-		<file target="lib\net472\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll.tdnet" />
-		<file target="lib\net472\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
-		<file target="lib\net472\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\net472\xunit.v3.runner.common.dll" />
-		<file target="lib\net472\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\net472\xunit.v3.runner.tdnet.dll" />
-		<file target="lib\net472\" src="..\xunit.v3.runner.tdnet\bin\$Configuration$\net472\xunit.v3.runner.utility.net472.dll" />
-
-		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.dll" />
-		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
-
-		<file target="ref\" src="bin\$Configuration$\netstandard2.0\ref\xunit.v3.core.dll" />
+		<file target="lib\net472\_._" src="..\build\_._" />
+		<file target="lib\netcoreapp2.1\_._" src="..\build\_._" />
 	</files>
 </package>
