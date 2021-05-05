@@ -35,7 +35,7 @@ breadcrumb: Documentation
 
 <a name="note3"></a>**Note 3:** xUnit.net provides a new way to think about per-fixture data with the use of the `IClassFixture<T>` and `ICollectionFixture<T>` interfaces. The runner will create a single instance of the fixture data and pass it through to your constructor before running each test. All the tests share the same instance of fixture data. After all the tests have run, the runner will dispose of the fixture data, if it implements `IDisposable`. For more information, see [Shared Context](shared-context.html).
 
-<a name="note4"></a>**Note 4:** xUnit.net ships with support for data-driven tests call Theories. Mark your test with the `[Theory]` attribute (instead of `[Fact]`), then decorate it with one or more `[XxxData]` attributes, including `[InlineData]` and `[MemberData]`. For more information, see [Getting Started](getting-started-desktop.html).
+<a name="note4"></a>**Note 4:** xUnit.net ships with support for data-driven tests called Theories. Mark your test with the `[Theory]` attribute (instead of `[Fact]`), then decorate it with one or more `[XxxData]` attributes, including `[InlineData]` and `[MemberData]`. For more information, see [Getting Started](getting-started-desktop.html).
 
 ## Assertions
 
