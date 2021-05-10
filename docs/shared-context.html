@@ -207,7 +207,7 @@ public class MyDatabaseTests : IClassFixture<DatabaseFixture>
 {% endhighlight %}
 
 <p>
-  Just before the first tests in <code>MyDatabaseTests</code> is run, xUnit.net
+  Just before the first test in <code>MyDatabaseTests</code> is run, xUnit.net
   will create an instance of <code>DatabaseFixture</code>. For each test, it
   will create a new instance of <code>MyDatabaseTests</code>, and pass the shared
   instance of <code>DatabaseFixture</code> to the constructor.
