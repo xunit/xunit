@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -47,6 +48,9 @@ public class BuildContext
 	[Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; common values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestV3')")]
 	public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
 
+	[Option("-t|--timing", Description = "Emit timing information for each target")]
+	public bool Timing { get; }
+
 	[Option("-v|--verbosity", Description = "Set verbosity level (default: 'minimal'; values: 'q[uiet]', 'm[inimal]', 'n[ormal]', 'd[etailed]', and 'diag[nostic]'")]
 	public BuildVerbosity Verbosity { get; } = BuildVerbosity.minimal;
 
@@ -84,7 +88,8 @@ public class BuildContext
 		try
 		{
 			NeedMono = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-			TestFlagsNonParallel = "-parallel none -maxthreads 1 -preenumeratetheories ";
+			TestFlagsNonParallel = "-parallel none -maxthreads 1 ";
+			// TestFlagsNonParallel = "-parallel none -maxthreads 1 -preenumeratetheories ";
 			TestFlagsParallel = "";
 
 			// Find the folder with the solution file
@@ -99,8 +104,8 @@ public class BuildContext
 					throw new InvalidOperationException("Could not locate a solution file in the directory hierarchy");
 			}
 
-			ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "xunit.v3.runner.console.exe");
-			ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "xunit.v3.runner.console.x86.exe");
+			ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
+			ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
 			// Dependent folders
 			PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");
@@ -131,11 +136,31 @@ public class BuildContext
 				if (method == null)
 					targetCollection.Add(new Target(target.attr.TargetName, target.attr.DependentTargets));
 				else
-					targetCollection.Add(new ActionTarget(target.attr.TargetName, target.attr.DependentTargets, () => (Task)method.Invoke(null, new[] { this })));
+					targetCollection.Add(new ActionTarget(target.attr.TargetName, target.attr.DependentTargets, async () =>
+					{
+						var sw = Stopwatch.StartNew();
+
+						try
+						{
+							await (Task)method.Invoke(null, new[] { this });
+						}
+						finally
+						{
+							if (Timing)
+								WriteLineColor(ConsoleColor.Cyan, $"TIMING: Target '{target.attr.TargetName}' took {sw.Elapsed}{Environment.NewLine}");
+						}
+					}));
 			}
+
+			var swTotal = Stopwatch.StartNew();
 
 			// Let Bullseye run the target(s)
 			await targetCollection.RunAsync(targetNames, SkipDependencies, dryRun: false, parallel: false, new NullLogger(), _ => false);
+
+			WriteLineColor(ConsoleColor.Green, $"==> Build success! <=={Environment.NewLine}");
+
+			if (Timing)
+				WriteLineColor(ConsoleColor.Cyan, $"TIMING: Build took {swTotal.Elapsed}{Environment.NewLine}");
 
 			return 0;
 		}

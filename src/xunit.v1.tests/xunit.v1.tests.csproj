@@ -7,10 +7,11 @@
   <ItemGroup>
     <Compile Include="..\common.tests\Utility\EnvironmentHelper.cs" LinkBase="Common.Tests" />
     <Compile Include="..\xunit.v3.common\Internal\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Internal\Guard.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.15.2" />
+    <PackageReference Include="Moq" Version="4.16.0" />
     <PackageReference Include="xunit.extensions" Version="1.9.2" />
   </ItemGroup>
 

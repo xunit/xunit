@@ -6,23 +6,65 @@ using Xunit.v3;
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// This class is used to read configuration information for a test assembly.
+	/// This class is used to read JSON-based configuration information for a test assembly.
 	/// </summary>
 	public static class ConfigReader_Json
 	{
 		/// <summary>
-		/// Loads the test assembly configuration for the given test assembly from JSON.
+		/// Loads the test assembly configuration for the given test assembly.
 		/// </summary>
-		/// <param name="json">The JSON text to read</param>
-		/// <returns>The test assembly configuration.</returns>
-		public static TestAssemblyConfiguration? Load(string json)
+		/// <param name="configuration">The configuration object to write the values to.</param>
+		/// <param name="assemblyFileName">The test assembly.</param>
+		/// <param name="configFileName">The test assembly configuration file.</param>
+		/// <returns>A flag which indicates whether configuration values were read.</returns>
+		public static bool Load(
+			TestAssemblyConfiguration configuration,
+			string? assemblyFileName,
+			string? configFileName = null)
+		{
+			// If they provide a configuration file, we only read that, success or failure
+			if (configFileName != null)
+				return configFileName.EndsWith(".json", StringComparison.Ordinal) && LoadFile(configuration, configFileName);
+
+			// If there's no assembly file, then we can't find co-located xunit.runner.json files
+			if (string.IsNullOrWhiteSpace(assemblyFileName))
+				return false;
+
+			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+			var directoryName = Path.GetDirectoryName(assemblyFileName)!;
+
+			// {assembly}.xunit.runner.json takes priority over xunit.runner.json
+			return
+				LoadFile(configuration, Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json")) ||
+				LoadFile(configuration, Path.Combine(directoryName, "xunit.runner.json"));
+		}
+
+		static bool LoadFile(
+			TestAssemblyConfiguration configuration,
+			string configFileName)
 		{
 			try
 			{
-				var result = new TestAssemblyConfiguration();
+				if (!File.Exists(configFileName))
+					return false;
+
+				var json = File.ReadAllText(configFileName);
+				return LoadJson(configuration, json);
+			}
+			catch { }
+
+			return false;
+		}
+
+		static bool LoadJson(
+			TestAssemblyConfiguration configuration,
+			string json)
+		{
+			try
+			{
 				var root = JsonSerializer.Deserialize<JsonElement>(json);
 				if (root.ValueKind != JsonValueKind.Object)
-					return null;
+					return false;
 
 				foreach (var property in root.EnumerateObject())
 				{
@@ -31,31 +73,31 @@ namespace Xunit.Runner.Common
 						var booleanValue = property.Value.GetBoolean();
 
 						if (string.Equals(property.Name, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
-							result.DiagnosticMessages = booleanValue;
+							configuration.DiagnosticMessages = booleanValue;
 						else if (string.Equals(property.Name, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
-							result.InternalDiagnosticMessages = booleanValue;
+							configuration.InternalDiagnosticMessages = booleanValue;
 						else if (string.Equals(property.Name, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
-							result.ParallelizeAssembly = booleanValue;
+							configuration.ParallelizeAssembly = booleanValue;
 						else if (string.Equals(property.Name, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
-							result.ParallelizeTestCollections = booleanValue;
+							configuration.ParallelizeTestCollections = booleanValue;
 						else if (string.Equals(property.Name, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
-							result.PreEnumerateTheories = booleanValue;
+							configuration.PreEnumerateTheories = booleanValue;
 						else if (string.Equals(property.Name, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
-							result.ShadowCopy = booleanValue;
+							configuration.ShadowCopy = booleanValue;
 						else if (string.Equals(property.Name, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
-							result.StopOnFail = booleanValue;
+							configuration.StopOnFail = booleanValue;
 					}
 					else if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetInt32(out var intValue))
 					{
 						if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 						{
 							if (intValue >= -1)
-								result.MaxParallelThreads = intValue;
+								configuration.MaxParallelThreads = intValue;
 						}
 						else if (string.Equals(property.Name, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
 						{
 							if (intValue > 0)
-								result.LongRunningTestSeconds = intValue;
+								configuration.LongRunningTestSeconds = intValue;
 						}
 					}
 					else if (property.Value.ValueKind == JsonValueKind.String)
@@ -65,65 +107,26 @@ namespace Xunit.Runner.Common
 						if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
 						{
 							if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
-								result.MethodDisplay = methodDisplay;
+								configuration.MethodDisplay = methodDisplay;
 						}
 						else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
 						{
 							if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
-								result.MethodDisplayOptions = methodDisplayOptions;
+								configuration.MethodDisplayOptions = methodDisplayOptions;
 						}
 						else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
 						{
 							if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
-								result.AppDomain = appDomain;
+								configuration.AppDomain = appDomain;
 						}
 					}
 				}
 
-				return result;
+				return true;
 			}
 			catch { }
 
-			return null;
-		}
-
-		/// <summary>
-		/// Loads the test assembly configuration for the given test assembly.
-		/// </summary>
-		/// <param name="assemblyFileName">The test assembly.</param>
-		/// <param name="configFileName">The test assembly configuration file.</param>
-		/// <returns>The test assembly configuration.</returns>
-		public static TestAssemblyConfiguration? Load(
-			string assemblyFileName,
-			string? configFileName = null)
-		{
-			if (configFileName != null)
-				return configFileName.EndsWith(".json", StringComparison.Ordinal) ? LoadFile(configFileName) : null;
-
-			if (string.IsNullOrWhiteSpace(assemblyFileName))
-				return null;
-
-			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
-			var directoryName = Path.GetDirectoryName(assemblyFileName)!;
-
-			return
-				LoadFile(Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json"))
-				?? LoadFile(Path.Combine(directoryName, "xunit.runner.json"));
-		}
-
-		static TestAssemblyConfiguration? LoadFile(string configFileName)
-		{
-			try
-			{
-				if (!File.Exists(configFileName))
-					return null;
-
-				var json = File.ReadAllText(configFileName);
-				return Load(json);
-			}
-			catch { }
-
-			return null;
+			return false;
 		}
 
 		static class Configuration

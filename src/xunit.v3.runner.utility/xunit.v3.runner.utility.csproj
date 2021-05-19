@@ -3,10 +3,8 @@
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.net472</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.utility.netstandard20</AssemblyName>
-    <Description>Includes the version-independent runner for xUnit.net to run all of v1.9.2, v2.x, and v3.x tests (xunit.v3.runner.utility.*.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
-    <Title>xUnit.net [Runner Utility]</Title>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
@@ -14,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 

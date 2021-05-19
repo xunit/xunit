@@ -103,7 +103,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			string? configFileName)
 		{
 			var project = new XunitProject();
-			var targetFramework = AssemblyUtility.GetTargetFramework(assembly);
+			var targetFramework = assembly.GetTargetFramework();
 			var projectAssembly = new XunitProjectAssembly(project)
 			{
 				Assembly = assembly,
@@ -111,6 +111,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 				ConfigFilename = configFileName != null ? GetFullPath(configFileName) : null,
 				TargetFramework = targetFramework
 			};
+
+			ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFilename, projectAssembly.ConfigFilename);
 
 			project.Add(projectAssembly);
 			return project;
@@ -212,12 +214,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 				{
 					GuardNoOptionValue(option);
 					project.Configuration.Debug = true;
-				}
-				else if (optionName == "serialize")
-				{
-					GuardNoOptionValue(option);
-					foreach (var projectAssembly in project.Assemblies)
-						projectAssembly.Configuration.IncludeSerialization = true;
 				}
 				else if (optionName == "wait")
 				{

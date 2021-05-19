@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using Xunit.Internal;
 
@@ -10,8 +9,6 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class XunitProjectAssembly
 	{
-		Assembly? assembly;
-		TestAssemblyConfiguration? configuration;
 		string? targetFramework;
 
 		/// <summary>
@@ -24,13 +21,11 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
-		/// Gets or sets the assembly under test.
+		/// Gets or sets the assembly under test. May be <c>null</c> when the test assembly is not
+		/// loaded into the current app domain.
 		/// </summary>
-		public Assembly Assembly
-		{
-			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);
-		}
+		// TODO: Nobody is consuming this. Who should? Or should we delete it?
+		public Assembly? Assembly { get; set; }
 
 		/// <summary>
 		/// Gets the assembly display name. Will return the value "&lt;dynamic&gt;" if the
@@ -50,18 +45,9 @@ namespace Xunit.Runner.Common
 		public string? ConfigFilename { get; set; }
 
 		/// <summary>
-		/// Gets the configuration values read from the test assembly configuration file.
+		/// Gets the configuration values for the test assembly.
 		/// </summary>
-		public TestAssemblyConfiguration Configuration
-		{
-			get
-			{
-				if (configuration is null)
-					configuration = ConfigReader.Load(AssemblyFilename ?? string.Empty, ConfigFilename);
-
-				return configuration;
-			}
-		}
+		public TestAssemblyConfiguration Configuration { get; } = new();
 
 		/// <summary>
 		/// Gets the project that this project assembly belongs to.
@@ -69,11 +55,12 @@ namespace Xunit.Runner.Common
 		public XunitProject Project { get; }
 
 		/// <summary>
-		/// Gets the target framework that the test assembly was compiled against.
+		/// Gets the target framework that the test assembly was compiled against. If the value was not
+		/// set, returns <see cref="AssemblyExtensions.UnknownTargetFramework"/>.
 		/// </summary>
 		public string TargetFramework
 		{
-			get => targetFramework ?? AssemblyUtility.UnknownTargetFramework;
+			get => targetFramework ?? AssemblyExtensions.UnknownTargetFramework;
 			set => targetFramework = Guard.ArgumentNotNull(nameof(TargetFramework), value);
 		}
 	}

@@ -1,0 +1,49 @@
+name: xUnit.net CI Build
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: "CI Build"
+    runs-on: ubuntu-18.04
+    env:
+      DOTNET_NOLOGO: true
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET Core SDK 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '2.1.x'
+
+      - name: Install .NET Core SDK 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+
+      - name: Install .NET SDK 5.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+
+      - name: Get .NET information
+        run: dotnet --info
+
+      - name: "Build target: CI"
+        env:
+          PublishToken: ${{ secrets.PublishToken }}
+          SignClientUser: ${{ secrets.SignClientUser }}
+          SignClientSecret: ${{ secrets.SignClientSecret }}
+        run: dotnet run --project tools/builder --no-launch-profile -- CI --timing
+
+      - name: "Upload artifact: test-${{ matrix.os }}"
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-${{ matrix.os }}
+          path: artifacts/test
+        if: always()

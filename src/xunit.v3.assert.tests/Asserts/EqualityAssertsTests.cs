@@ -10,6 +10,8 @@ using Xunit.v3;
 
 public class EqualityAssertsTests
 {
+	static bool IsMono = Type.GetType("Mono.Runtime") != null;
+
 	public class Equal
 	{
 		[Fact]
@@ -829,6 +831,148 @@ public class EqualityAssertsTests
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
 			Assert.Equal($"{0.1111} (rounded from {0.11113})", ex.Expected);
 			Assert.Equal($"{0.1112} (rounded from {0.11115})", ex.Actual);
+		}
+	}
+
+	public class Equal_Double_Tolerance
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.Equal(10.566, 10.565, 0.01);
+		}
+
+		[Fact]
+		public void Success_Zero()
+		{
+			Assert.Equal(0.00, 0.05, 0.1);
+		}
+
+		[Fact]
+		public void Success_NaN()
+		{
+			Assert.Equal(double.NaN, double.NaN, 1000.0);
+		}
+
+		[Fact]
+		public void Success_Infinite()
+		{
+			Assert.Equal(double.MinValue, double.MaxValue, double.PositiveInfinity);
+		}
+
+		[CulturedFact]
+		public void Failure()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 0.00001));
+			Assert.Equal($"{0.11113:G17}", ex.Expected);
+			Assert.Equal($"{0.11115:G17}", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_NaN()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208, double.NaN, 20000000.0));
+			Assert.Equal($"{20210102.2208:G17}", ex.Expected);
+			Assert.Equal($"NaN", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_PositiveInfinity()
+		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
+			Assert.Equal($"∞", ex.Expected);
+			Assert.Equal($"{77.7:G17}", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_NegativeInfinity()
+		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
+			Assert.Equal($"{0.0:G17}", ex.Expected);
+			Assert.Equal($"-∞", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_InvalidTolerance()
+		{
+			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0, 1.0, double.NegativeInfinity));
+			Assert.Equal($"Tolerance must be greater than or equal to zero{Environment.NewLine}Parameter name: tolerance", ex.Message);
+			Assert.Equal("tolerance", ex.ParamName);
+		}
+	}
+
+	public class Equal_Float
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.Equal(10.566f, 10.565f, 0.01f);
+		}
+
+		[Fact]
+		public void Success_Zero()
+		{
+			Assert.Equal(0.00f, 0.05f, 0.1f);
+		}
+
+		[Fact]
+		public void Success_NaN()
+		{
+			Assert.Equal(float.NaN, float.NaN, 1000.0f);
+		}
+
+		[Fact]
+		public void Success_Infinite()
+		{
+			Assert.Equal(float.MinValue, float.MaxValue, float.PositiveInfinity);
+		}
+
+		[CulturedFact]
+		public void Failure()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
+			Assert.Equal($"{0.11113f:G9}", ex.Expected);
+			Assert.Equal($"{0.11115f:G9}", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_NaN()
+		{
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
+			Assert.Equal($"{20210102.2208f:G9}", ex.Expected);
+			Assert.Equal($"NaN", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_PositiveInfinity()
+		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
+			Assert.Equal($"∞", ex.Expected);
+			Assert.Equal($"{77.7f:G9}", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_NegativeInfinity()
+		{
+			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
+
+			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
+			Assert.Equal($"{0.0f:G9}", ex.Expected);
+			Assert.Equal($"-∞", ex.Actual);
+		}
+
+		[CulturedFact]
+		public void Failure_InvalidTolerance()
+		{
+			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
+			Assert.Equal($"Tolerance must be greater than or equal to zero{Environment.NewLine}Parameter name: tolerance", ex.Message);
+			Assert.Equal("tolerance", ex.ParamName);
 		}
 	}
 

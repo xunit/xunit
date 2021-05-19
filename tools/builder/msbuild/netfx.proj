@@ -1,0 +1,32 @@
+<Project
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+		<SolutionDir Condition=" '$(SolutionDir)' == '' ">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..\..'))\</SolutionDir>
+	</PropertyGroup>
+
+	<UsingTask
+		AssemblyFile="$(SolutionDir)src\xunit.v3.runner.msbuild\bin\$(Configuration)\net472\merged\xunit.v3.runner.msbuild.dll"
+		TaskName="Xunit.Runner.MSBuild.xunit"/>
+
+	<ItemGroup>
+		<TestV1Assemblies Include="$(SolutionDir)src\xunit.v1.tests\bin\$(Configuration)\net4*\xunit.v1.tests.dll" />
+		<TestV2Assemblies Include="$(SolutionDir)src\xunit.v2.tests\bin\$(Configuration)\net4*\xunit.v2.tests.dll" />
+	</ItemGroup>
+
+	<Target Name="Default" />
+
+	<Target Name="TestV1">
+		<xunit Assemblies="@(TestV1Assemblies)" />
+	</Target>
+
+	<Target Name="TestV2">
+		<xunit Assemblies="@(TestV2Assemblies)" />
+	</Target>
+
+	<Target Name="TestV3">
+		<Warning Text="xUnit.net v3 tests are not supported by the MSBuild runner yet" />
+	</Target>
+
+</Project>

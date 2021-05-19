@@ -1,17 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RootNamespace>Xunit.Runner.TdNet</RootNamespace>
-    <TargetFramework>net472</TargetFramework>
-    <Title>xUnit.net [TestDriven.NET Runner]</Title>
+    <RunILRepack>true</RunILRepack>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ILRepackExclusions Include="$(OutputPath)TestDriven.Framework.dll" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="TestDriven.Framework" Version="2.0.0" />
+    <PackageReference Include="TestDriven.Framework" Version="2.0.0-alpha2" />
   </ItemGroup>
 
 </Project>

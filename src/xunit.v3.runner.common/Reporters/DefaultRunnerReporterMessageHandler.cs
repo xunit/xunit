@@ -26,9 +26,7 @@ namespace Xunit.Runner.Common
 		{
 			Guard.ArgumentNotNull(nameof(logger), logger);
 
-#if NETFRAMEWORK
 			defaultDirectory = Directory.GetCurrentDirectory();
-#endif
 
 			Logger = logger;
 

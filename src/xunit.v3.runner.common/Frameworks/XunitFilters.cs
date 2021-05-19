@@ -13,50 +13,33 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class XunitFilters
 	{
-		DateTimeOffset includeCacheDataDate;
-		readonly ChangeTrackingHashSet<string> includedMethods;
-		List<Regex>? includeMethodRegexFilters;
-		HashSet<string>? includeMethodStandardFilters;
+		DateTimeOffset includedMethodCacheLastUpdated;
+		List<Regex> includedMethodRegexFilters = new();
+		HashSet<string> includedMethodStandardFilters = new();
+		readonly ChangeTrackingHashSet<string> includedMethods = new(StringComparer.OrdinalIgnoreCase);
 
-		DateTimeOffset excludeCacheDataDate;
-		readonly ChangeTrackingHashSet<string> excludedMethods;
-		List<Regex>? excludeMethodRegexFilters;
-		HashSet<string>? excludeMethodStandardFilters;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitFilters"/> class.
-		/// </summary>
-		public XunitFilters()
-		{
-			ExcludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-			IncludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-			ExcludedClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			IncludedClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			excludedMethods = new ChangeTrackingHashSet<string>(StringComparer.OrdinalIgnoreCase);
-			includedMethods = new ChangeTrackingHashSet<string>(StringComparer.OrdinalIgnoreCase);
-			ExcludedNamespaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			IncludedNamespaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-		}
+		DateTimeOffset excludedMethodCacheLastUpdated;
+		List<Regex> excludedMethodRegexFilters = new();
+		HashSet<string> excludedMethodStandardFilters = new();
+		readonly ChangeTrackingHashSet<string> excludedMethods = new(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
-		/// Gets the set of trait filters for tests to exclude.
+		/// Gets a flag which indicates if the filter list is empty (no filters).
 		/// </summary>
-		public Dictionary<string, List<string>> ExcludedTraits { get; }
-
-		/// <summary>
-		/// Gets the set of trait filters for tests to include.
-		/// </summary>
-		public Dictionary<string, List<string>> IncludedTraits { get; }
+		public bool Empty =>
+			ExcludedClasses.Count == 0 &&
+			ExcludedMethods.Count == 0 &&
+			ExcludedNamespaces.Count == 0 &&
+			ExcludedTraits.Count == 0 &&
+			IncludedClasses.Count == 0 &&
+			IncludedMethods.Count == 0 &&
+			IncludedNamespaces.Count == 0 &&
+			IncludedTraits.Count == 0;
 
 		/// <summary>
 		/// Gets the set of class filters for test classes to exclude.
 		/// </summary>
-		public HashSet<string> ExcludedClasses { get; }
-
-		/// <summary>
-		/// Gets the set of class filters for test classes to include.
-		/// </summary>
-		public HashSet<string> IncludedClasses { get; }
+		public HashSet<string> ExcludedClasses { get; } = new(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Gets the set of method filters for tests to exclude.
@@ -64,203 +47,245 @@ namespace Xunit.Runner.Common
 		public ICollection<string> ExcludedMethods => excludedMethods;
 
 		/// <summary>
+		/// Gets the set of assembly filters for tests to exclude.
+		/// </summary>
+		public HashSet<string> ExcludedNamespaces { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
+		/// Gets the set of trait filters for tests to exclude.
+		/// </summary>
+		public Dictionary<string, List<string>> ExcludedTraits { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
+		/// Gets the set of class filters for test classes to include.
+		/// </summary>
+		public HashSet<string> IncludedClasses { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
 		/// Gets the set of method filters for tests to include.
 		/// </summary>
 		public ICollection<string> IncludedMethods => includedMethods;
 
 		/// <summary>
-		/// Gets the set of assembly filters for tests to exclude.
-		/// </summary>
-		public HashSet<string> ExcludedNamespaces { get; }
-
-		/// <summary>
 		/// Gets the set of assembly filters for tests to include.
 		/// </summary>
-		public HashSet<string> IncludedNamespaces { get; }
+		public HashSet<string> IncludedNamespaces { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
+		/// Gets the set of trait filters for tests to include.
+		/// </summary>
+		public Dictionary<string, List<string>> IncludedTraits { get; } = new(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Filters the given method using the defined filter values.
 		/// </summary>
 		/// <param name="testCase">The test case to filter.</param>
 		/// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
-		public bool Filter(_ITestCase testCase)
+		public bool Filter(_TestCaseDiscovered testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 
-			SplitMethodFilters();
+			SplitFilters();
 
-			if (!FilterIncludedMethodsAndClasses(testCase))
+			if (!FilterIncludedNamespaces(testCase))
 				return false;
-			if (!FilterExcludedMethodsAndClasses(testCase))
+			if (!FilterExcludedNamespaces(testCase))
+				return false;
+			if (!FilterIncludedClasses(testCase))
+				return false;
+			if (!FilterExcludedClasses(testCase))
+				return false;
+			if (!FilterIncludedMethods(testCase))
+				return false;
+			if (!FilterExcludedMethods(testCase))
 				return false;
 			if (!FilterIncludedTraits(testCase))
 				return false;
 			if (!FilterExcludedTraits(testCase))
 				return false;
-			if (!FilterIncludedNamespaces(testCase))
-				return false;
-			if (!FilterExcludedNamespaces(testCase))
-				return false;
 			return true;
 		}
 
-		bool FilterExcludedNamespaces(_ITestCase testCase)
+		bool FilterExcludedClasses(_TestCaseDiscovered testCase)
 		{
-			// No assemblies in the filter == everything is okay
+			// No filters == pass
+			if (ExcludedClasses.Count == 0)
+				return true;
+
+			// No class == pass
+			if (testCase.TestClassWithNamespace == null)
+				return true;
+
+			// Exact match == do not pass
+			if (ExcludedClasses.Contains(testCase.TestClassWithNamespace))
+				return false;
+
+			return true;
+		}
+
+		bool FilterExcludedMethods(_TestCaseDiscovered testCase)
+		{
+			// No filters == pass
+			if (excludedMethodRegexFilters.Count == 0 && excludedMethodStandardFilters.Count == 0)
+				return true;
+
+			// No method == pass
+			if (testCase.TestMethod == null)
+				return true;
+
+			var methodName = $"{testCase.TestClassWithNamespace}.{testCase.TestMethod}";
+
+			// Standard exact match == do not pass
+			if (excludedMethodStandardFilters.Contains(methodName) == true)
+				return false;
+
+			// Regex match == do not pass
+			foreach (var regex in excludedMethodRegexFilters)
+				if (regex.IsMatch(methodName))
+					return false;
+
+			return true;
+		}
+
+		bool FilterExcludedNamespaces(_TestCaseDiscovered testCase)
+		{
+			// No filters == pass
 			if (ExcludedNamespaces.Count == 0)
 				return true;
 
-			if (ExcludedNamespaces.Count != 0 && ExcludedNamespaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
-				return false;
-			return true;
-		}
-
-		bool FilterIncludedNamespaces(_ITestCase testCase)
-		{
-			// No assemblies in the filter == everything is okay
-			if (IncludedNamespaces.Count == 0)
+			// No namespace == pass
+			if (testCase.TestNamespace == null)
 				return true;
 
-			if (IncludedNamespaces.Count != 0 && IncludedNamespaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
-				return true;
-
-			return false;
-		}
-
-		bool FilterExcludedMethodsAndClasses(_ITestCase testCase)
-		{
-			// No methods or classes in the filter == everything is okay
-			if (excludeMethodStandardFilters?.Count == 0 && excludeMethodRegexFilters?.Count == 0 && ExcludedClasses.Count == 0)
-				return true;
-
-			if (ExcludedClasses.Count != 0 && ExcludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
+			// Exact match or starts-with match == do not pass
+			if (ExcludedNamespaces.Any(ns => testCase.TestNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
 				return false;
-
-			var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
-
-			if (excludeMethodStandardFilters?.Count != 0 && excludeMethodStandardFilters?.Contains(methodName) == true)
-				return false;
-
-			if (excludeMethodRegexFilters != null && excludeMethodRegexFilters.Count != 0)
-				foreach (var regex in excludeMethodRegexFilters)
-					if (regex.IsMatch(methodName))
-						return false;
 
 			return true;
 		}
 
-		bool FilterIncludedMethodsAndClasses(_ITestCase testCase)
+		bool FilterExcludedTraits(_TestCaseDiscovered testCase)
 		{
-			// No methods or classes in the filter == everything is okay
-			if (includeMethodStandardFilters?.Count == 0 && includeMethodRegexFilters?.Count == 0 && IncludedClasses.Count == 0)
-				return true;
-
-			if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
-				return true;
-
-			var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
-
-			if (includeMethodStandardFilters?.Count != 0 && includeMethodStandardFilters?.Contains(methodName) == true)
-				return true;
-
-			if (includeMethodRegexFilters != null && includeMethodRegexFilters.Count != 0)
-				foreach (var regex in includeMethodRegexFilters)
-					if (regex.IsMatch(methodName))
-						return true;
-
-			return false;
-		}
-
-		bool FilterExcludedTraits(_ITestCase testCase)
-		{
-			// No traits in the filter == everything is okay
+			// No filters == pass
 			if (ExcludedTraits.Count == 0)
 				return true;
 
-			// No traits in the method == it's never excluded
+			// No traits in the test case == pass
 			if (testCase.Traits.Count == 0)
 				return true;
 
-			foreach (var key in ExcludedTraits.Keys)
-				foreach (var value in ExcludedTraits[key])
-					if (testCase.Traits.Contains(key, value, StringComparer.OrdinalIgnoreCase))
+			foreach (var kvp in ExcludedTraits)
+				foreach (var value in kvp.Value)
+					if (testCase.Traits.Contains(kvp.Key, value, StringComparer.OrdinalIgnoreCase))
 						return false;
 
 			return true;
 		}
 
-		bool FilterIncludedTraits(_ITestCase testCase)
+		bool FilterIncludedClasses(_TestCaseDiscovered testCase)
 		{
-			// No traits in the filter == everything is okay
+			// No filters == pass
+			if (IncludedClasses.Count == 0)
+				return true;
+
+			// No class == do not pass
+			if (testCase.TestClassWithNamespace == null)
+				return false;
+
+			// Exact match == pass
+			if (IncludedClasses.Contains(testCase.TestClassWithNamespace))
+				return true;
+
+			return false;
+		}
+
+		bool FilterIncludedMethods(_TestCaseDiscovered testCase)
+		{
+			// No filters == pass
+			if (includedMethodRegexFilters.Count == 0 && includedMethodStandardFilters.Count == 0)
+				return true;
+
+			// No method == do not pass
+			if (testCase.TestMethod == null)
+				return false;
+
+			var methodName = $"{testCase.TestClassWithNamespace}.{testCase.TestMethod}";
+
+			// Standard exact match == pass
+			if (includedMethodStandardFilters.Contains(methodName))
+				return true;
+
+			// Regex match == pass
+			foreach (var regex in includedMethodRegexFilters)
+				if (regex.IsMatch(methodName))
+					return true;
+
+			return false;
+		}
+
+		bool FilterIncludedNamespaces(_TestCaseDiscovered testCase)
+		{
+			// No filters == pass
+			if (IncludedNamespaces.Count == 0)
+				return true;
+
+			// No namespace == do not pass
+			if (testCase.TestNamespace == null)
+				return false;
+
+			// Exact match or starts-with match == pass
+			if (IncludedNamespaces.Any(ns => testCase.TestNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
+				return true;
+
+			return false;
+		}
+
+		bool FilterIncludedTraits(_TestCaseDiscovered testCase)
+		{
+			// No filters == pass
 			if (IncludedTraits.Count == 0)
 				return true;
 
-			// No traits in the method == it'll never match anything, don't try
+			// No traits in the test case == do not pass
 			if (testCase.Traits.Count == 0)
 				return false;
 
-			foreach (var key in IncludedTraits.Keys)
-				foreach (var value in IncludedTraits[key])
-					if (testCase.Traits.Contains(key, value, StringComparer.OrdinalIgnoreCase))
+			foreach (var kvp in IncludedTraits)
+				foreach (var value in kvp.Value)
+					if (testCase.Traits.Contains(kvp.Key, value, StringComparer.OrdinalIgnoreCase))
 						return true;
 
 			return false;
 		}
 
-		void SplitMethodFilters()
+		void SplitFilters()
 		{
-			SplitIncludeMethodFilters();
-			SplitExcludeMethodFilters();
-		}
-
-		void SplitIncludeMethodFilters()
-		{
-			if (includeCacheDataDate >= includedMethods.LastMutation)
-				return;
-
 			lock (includedMethods)
-			{
-				if (includeCacheDataDate >= includedMethods.LastMutation)
-					return;
-
-				var standardFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-				var regexFilters = new List<Regex>();
-
-				foreach (var filter in IncludedMethods)
-					if (filter.Contains("*") || filter.Contains("?"))
-						regexFilters.Add(new Regex(WildcardToRegex(filter)));
-					else
-						standardFilters.Add(filter);
-
-				includeMethodStandardFilters = standardFilters;
-				includeMethodRegexFilters = regexFilters;
-				includeCacheDataDate = includedMethods.LastMutation;
-			}
-		}
-
-		void SplitExcludeMethodFilters()
-		{
-			if (excludeCacheDataDate >= excludedMethods.LastMutation)
-				return;
+				SplitFilters(includedMethods, ref includedMethodCacheLastUpdated, ref includedMethodStandardFilters, ref includedMethodRegexFilters);
 
 			lock (excludedMethods)
-			{
-				if (excludeCacheDataDate >= excludedMethods.LastMutation)
-					return;
+				SplitFilters(excludedMethods, ref excludedMethodCacheLastUpdated, ref excludedMethodStandardFilters, ref excludedMethodRegexFilters);
+		}
 
-				var standardFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-				var regexFilters = new List<Regex>();
+		void SplitFilters(
+			ChangeTrackingHashSet<string> toSplit,
+			ref DateTimeOffset lastCacheUpdate,
+			ref HashSet<string> standardFilters,
+			ref List<Regex> regexFilters)
+		{
+			if (lastCacheUpdate >= toSplit.LastMutation)
+				return;
 
-				foreach (var filter in ExcludedMethods)
-					if (filter.Contains("*") || filter.Contains("?"))
-						regexFilters.Add(new Regex(WildcardToRegex(filter)));
-					else
-						standardFilters.Add(filter);
+			standardFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			regexFilters = new List<Regex>();
 
-				excludeMethodStandardFilters = standardFilters;
-				excludeMethodRegexFilters = regexFilters;
-				excludeCacheDataDate = excludedMethods.LastMutation;
-			}
+			foreach (var filter in toSplit)
+				if (filter.Contains("*") || filter.Contains("?"))
+					regexFilters.Add(new Regex(WildcardToRegex(filter), RegexOptions.IgnoreCase));
+				else
+					standardFilters.Add(filter);
+
+			lastCacheUpdate = includedMethods.LastMutation;
 		}
 
 		string WildcardToRegex(string pattern) =>

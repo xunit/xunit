@@ -8,8 +8,12 @@ public static class Build
 {
 	public static async Task OnExecute(BuildContext context)
 	{
-		context.BuildStep("Compiling binaries");
+		context.BuildStep("Compiling binaries (AnyCPU)");
 
-		await context.Exec("dotnet", $"msbuild -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
+		await context.Exec("dotnet", $"msbuild -maxCpuCount -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
+
+		context.BuildStep("Compiling binaries (32-bit)");
+
+		await context.Exec("dotnet", $"msbuild -maxCpuCount -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText} -p:BuildX86=true");
 	}
 }

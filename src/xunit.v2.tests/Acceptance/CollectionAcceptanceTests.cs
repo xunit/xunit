@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -55,5 +53,3 @@ public class CollectionAcceptanceTests : AcceptanceTestV2
 		public void Passing() { }
 	}
 }
-
-#endif

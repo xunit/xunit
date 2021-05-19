@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -20,14 +19,14 @@ namespace Xunit.Runners
 
 		volatile bool cancelled;
 		bool disposed;
-		readonly TestAssemblyConfiguration configuration;
+		readonly TestAssemblyConfiguration configuration = new();
 		readonly IFrontController controller;
 		readonly ManualResetEvent discoveryCompleteEvent = new ManualResetEvent(true);
 		readonly DisposalTracker disposalTracker = new DisposalTracker();
 		readonly ManualResetEvent executionCompleteEvent = new ManualResetEvent(true);
 		readonly object statusLock = new object();
 		int testCasesDiscovered;
-		readonly List<_ITestCase> testCasesToRun = new List<_ITestCase>();
+		readonly List<_TestCaseDiscovered> testCasesToRun = new List<_TestCaseDiscovered>();
 
 		static AssemblyRunner()
 		{
@@ -59,10 +58,24 @@ namespace Xunit.Runners
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null)
 		{
-			controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: this);
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project)
+			{
+				AssemblyFilename = assemblyFileName,
+				ConfigFilename = configFileName,
+			};
+
+			ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFilename, projectAssembly.ConfigFilename);
+			projectAssembly.Configuration.AppDomain = appDomainSupport;
+			projectAssembly.Configuration.ShadowCopy = shadowCopy;
+			projectAssembly.Configuration.ShadowCopyFolder = shadowCopyFolder;
+
+			project.Add(projectAssembly);
+
+			controller = XunitFrontController.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: this);
 			disposalTracker.Add(controller);
 
-			configuration = ConfigReader.Load(assemblyFileName, configFileName);
+			ConfigReader.Load(configuration, assemblyFileName, configFileName);
 		}
 
 		/// <summary>
@@ -137,7 +150,7 @@ namespace Xunit.Runners
 		/// Set to be able to filter the test cases to decide which ones to run. If this is not set,
 		/// then all test cases will be run.
 		/// </summary>
-		public Func<_ITestCase, bool>? TestCaseFilter { get; set; }
+		public Func<_TestCaseDiscovered, bool>? TestCaseFilter { get; set; }
 
 		static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName!);
 
@@ -260,11 +273,14 @@ namespace Xunit.Runners
 
 			ThreadPool.QueueUserWorkItem(_ =>
 			{
+				// TODO: This should be restructured to use FindAndRun, which will require a new design for AssemblyRunner
 				var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
+				var filters = new XunitFilters();
 				if (typeName != null)
-					controller.Find(typeName, this, discoveryOptions);
-				else
-					controller.Find(this, discoveryOptions);
+					filters.IncludedClasses.Add(typeName);
+
+				var findSettings = new FrontControllerFindSettings(discoveryOptions, filters);
+				controller.Find(this, findSettings);
 
 				discoveryCompleteEvent.WaitOne();
 				if (cancelled)
@@ -275,7 +291,8 @@ namespace Xunit.Runners
 				}
 
 				var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
-				controller.RunTests(testCasesToRun, this, executionOptions);
+				var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization));
+				controller.Run(this, runSettings);
 				executionCompleteEvent.WaitOne();
 			});
 		}
@@ -332,8 +349,8 @@ namespace Xunit.Runners
 			if (DispatchMessage<_TestCaseDiscovered>(message, messageTypes, testDiscovered =>
 			{
 				++testCasesDiscovered;
-				if (TestCaseFilter == null || TestCaseFilter(testDiscovered.TestCase))
-					testCasesToRun.Add(testDiscovered.TestCase);
+				if (TestCaseFilter == null || TestCaseFilter(testDiscovered))
+					testCasesToRun.Add(testDiscovered);
 			}))
 				return !cancelled;
 

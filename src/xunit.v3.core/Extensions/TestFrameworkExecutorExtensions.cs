@@ -5,7 +5,7 @@ using Xunit.Internal;
 namespace Xunit.v3
 {
 	/// <summary>
-	/// Extensions methods for <see cref="_ITestFrameworkExecutor"/>.
+	/// Extension methods for <see cref="_ITestFrameworkExecutor"/>.
 	/// </summary>
 	public static class TestFrameworkExecutorExtensions
 	{
@@ -27,7 +27,7 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
-			executor.RunTests(testCases.Select(tc => tc.TestCase), executionMessageSink, executionOptions);
+			executor.RunTests(testCases.Select(tc => tc.Serialization), executionMessageSink, executionOptions);
 		}
 	}
 }

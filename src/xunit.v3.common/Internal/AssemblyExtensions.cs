@@ -4,14 +4,20 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace Xunit.Internal
 {
 	/// <summary>
-	/// INTERNAL CLASS. DO NOT USE.
+	/// Internal extension methods for <see cref="Assembly"/>.
 	/// </summary>
 	public static class AssemblyExtensions
 	{
+		/// <summary>
+		/// Gets the value for an unknown target framework.
+		/// </summary>
+		public const string UnknownTargetFramework = "UnknownTargetFramework";
+
 		/// <summary/>
 		[return: NotNullIfNotNull("assembly")]
 		public static string? GetLocalCodeBase(this Assembly? assembly) =>
@@ -53,6 +59,24 @@ namespace Xunit.Internal
 			}
 
 			throw new ArgumentException($"Unknown directory separator '{directorySeparator}'; must be one of '/' or '\\'.", nameof(directorySeparator));
+		}
+
+		/// <summary>
+		/// Gets the target framework name for the given assembly.
+		/// </summary>
+		/// <param name="assembly">The assembly.</param>
+		/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
+		/// or ".NETCoreApp,Version=v2.1"). If the target framework type is unknown (missing file,
+		/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
+		public static string GetTargetFramework(this Assembly assembly)
+		{
+			Guard.ArgumentNotNull(nameof(assembly), assembly);
+
+			var targetFrameworkAttribute = assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+			if (targetFrameworkAttribute != null)
+				return targetFrameworkAttribute.FrameworkName;
+
+			return UnknownTargetFramework;
 		}
 	}
 }

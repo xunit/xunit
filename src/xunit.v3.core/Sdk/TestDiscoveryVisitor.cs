@@ -12,12 +12,12 @@ namespace Xunit.Sdk
 		public TestDiscoveryVisitor()
 		{
 			Finished = new ManualResetEvent(initialState: false);
-			TestCases = new List<_ITestCase>();
+			TestCases = new List<_TestCaseDiscovered>();
 		}
 
 		public ManualResetEvent Finished { get; }
 
-		public List<_ITestCase> TestCases { get; }
+		public List<_TestCaseDiscovered> TestCases { get; }
 
 		/// <inheritdoc/>
 		public void Dispose()
@@ -34,7 +34,7 @@ namespace Xunit.Sdk
 		public bool OnMessage(_MessageSinkMessage message)
 		{
 			if (message is _TestCaseDiscovered discoveryMessage)
-				TestCases.Add(discoveryMessage.TestCase);
+				TestCases.Add(discoveryMessage);
 
 			if (message is _DiscoveryComplete)
 				Finished.Set();

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Xunit.v3
 {
@@ -52,9 +54,22 @@ namespace Xunit.v3
 
 		/// <summary>
 		/// Gets the fully qualified type name (for non-generic parameters), or the
-		/// simple type name (for generic parameters).
+		/// simple type name (for generic parameters). This maps to
+		/// <see cref="Type"/>.<see cref="Type.FullName"/>, except that it will
+		/// return <see cref="Type"/>.<see cref="MemberInfo.Name"/> rather <c>null</c>.
 		/// </summary>
 		string Name { get; }
+
+		/// <summary>
+		/// Gets the namepace of the type; will return <c>null</c> if the type does
+		/// not have a namespace.
+		/// </summary>
+		string? Namespace { get; }
+
+		/// <summary>
+		/// Gets the simple type name. This maps to <see cref="Type"/>.<see cref="MemberInfo.Name"/>.
+		/// </summary>
+		string SimpleName { get; }
 
 		/// <summary>
 		/// Gets all the custom attributes for the given type.

@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -56,5 +54,3 @@ public abstract class AcceptanceTestAssembly : IDisposable
 		return File.Exists(localFilename) ? localFilename : reference;
 	}
 }
-
-#endif

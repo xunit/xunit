@@ -13,7 +13,7 @@ namespace Xunit.v3
 		/// <typeparam name="TValue">The type of the value.</typeparam>
 		/// <param name="name">The name of the value.</param>
 		/// <returns>The value.</returns>
-		TValue GetValue<TValue>(string name);
+		TValue? GetValue<TValue>(string name);
 
 		/// <summary>
 		/// Sets an option value.

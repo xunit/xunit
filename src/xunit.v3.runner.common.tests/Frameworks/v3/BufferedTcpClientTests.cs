@@ -9,7 +9,7 @@ using Xunit.Runner.v3;
 
 public class BufferedTcpClientTests
 {
-	[Fact]
+	[Fact(Skip = "Flaky")]
 	public async ValueTask MessageSentByClientIsReceivedByServer()
 	{
 		var server = new Server();
@@ -34,7 +34,7 @@ public class BufferedTcpClientTests
 		Assert.Equal("Test123", msg);
 	}
 
-	[Fact]
+	[Fact(Skip = "Flaky")]
 	public async ValueTask MessageSentByServerIsReceivedByClient()
 	{
 		var server = new Server();
@@ -59,7 +59,7 @@ public class BufferedTcpClientTests
 		Assert.Equal("Test123", msg);
 	}
 
-	[Fact]
+	[Fact(Skip = "Flaky")]
 	public async ValueTask MessagesAreRetrievedInOrder()
 	{
 		var server = new Server();

@@ -5,7 +5,7 @@ namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Represents the configuration items set in the configuration file of a test assembly.
-	/// Should be read with the <see cref="ConfigReader"/> class.
+	/// Should be read with the <see cref="T:Xunit.ConfigReader"/> class.
 	/// </summary>
 	public class TestAssemblyConfiguration
 	{
@@ -49,18 +49,6 @@ namespace Xunit.Runner.Common
 		/// Gets the list of filters used during test discovery.
 		/// </summary>
 		public XunitFilters Filters { get; } = new();
-
-		/// <summary>
-		/// Gets or sets a flag indicating that discovery should include serialization
-		/// of the test cases.
-		/// </summary>
-		public bool? IncludeSerialization { get; set; }
-
-		/// <summary>
-		/// Gets a flag indicating that discovery should include serialization of the
-		/// test cases. If the flag is not set, returns the default value (<c>false</c>).
-		/// </summary>
-		public bool IncludeSerializationOrDefault => IncludeSerialization ?? false;
 
 		/// <summary>
 		/// Gets or sets a flag indicating that discovery should include source information
@@ -179,6 +167,12 @@ namespace Xunit.Runner.Common
 		/// returns the default value (<c>true</c>).
 		/// </summary>
 		public bool ShadowCopyOrDefault => ShadowCopy ?? true;
+
+		/// <summary>
+		/// Gets or sets the folder to be used for shadow copy files. If the value is not set,
+		/// the system defaults for shadow copying are used.
+		/// </summary>
+		public string? ShadowCopyFolder { get; set; }
 
 		/// <summary>
 		/// Gets or sets a flag indicating whether testing should stop on a failure.

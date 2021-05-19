@@ -27,7 +27,7 @@ namespace Xunit.Runner.Common
 			{
 				Guard.ArgumentNotNull(nameof(args), args);
 
-				TestCases.Add(args.Message.TestCase);
+				TestCases.Add(args.Message);
 			};
 
 			DiscoverySink.DiscoveryCompleteEvent += args => Finished.Set();
@@ -46,7 +46,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// The list of discovered test cases.
 		/// </summary>
-		public List<_ITestCase> TestCases { get; } = new List<_ITestCase>();
+		public List<_TestCaseDiscovered> TestCases { get; } = new List<_TestCaseDiscovered>();
 
 		/// <inheritdoc/>
 		public void Dispose()

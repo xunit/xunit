@@ -25,18 +25,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Starts the process of running selected tests in the assembly.
 		/// </summary>
-		/// <param name="testCases">The test cases to run.</param>
-		/// <param name="executionMessageSink">The message sink to report results back to.</param>
-		/// <param name="executionOptions">The options to be used during test execution.</param>
-		void RunTests(
-			IEnumerable<_ITestCase> testCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions
-		);
-
-		/// <summary>
-		/// Starts the process of running selected tests in the assembly.
-		/// </summary>
 		/// <param name="serializedTestCases">The test cases to run.</param>
 		/// <param name="executionMessageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>

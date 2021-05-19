@@ -5,23 +5,33 @@
 		<version>$PackageVersion$</version>
 		<title>xUnit.net</title>
 		<authors>jnewkirk,bradwilson</authors>
-		<owners>jnewkirk,bradwilson</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
-		<icon>content/logo-128-transparent.png</icon>
-		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.
+		<icon>_content/logo-128-transparent.png</icon>
+		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET Core 2.1 or later.
 
 Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analyzers.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
-			<dependency id="xunit.v3.core" version="[$PackageVersion$]" />
-			<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
-			<dependency id="xunit.analyzers" version="0.10.0" />
+			<group targetFramework=".NETCoreApp2.1">
+				<dependency id="xunit.v3.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
+				<dependency id="xunit.analyzers" version="0.10.0" />
+			</group>
+			<group targetFramework=".NETFramework4.7.2">
+				<dependency id="xunit.v3.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
+				<dependency id="xunit.analyzers" version="0.10.0" />
+			</group>
 		</dependencies>
 	</metadata>
 	<files>
-		<file target="content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+
+		<file target="lib\net472\_._" src="..\build\_._" />
+
+		<file target="lib\netcoreapp2.1\_._" src="..\build\_._" />
 	</files>
 </package>

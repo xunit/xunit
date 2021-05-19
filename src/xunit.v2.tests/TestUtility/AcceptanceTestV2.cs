@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -55,5 +53,3 @@ public class AcceptanceTestV2 : IDisposable
 		return Run(types).OfType<TMessageType>().ToList();
 	}
 }
-
-#endif

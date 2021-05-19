@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- LangVersion 6 aligns with C# as it existed in VS 2015. -->
     <LangVersion>6</LangVersion>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

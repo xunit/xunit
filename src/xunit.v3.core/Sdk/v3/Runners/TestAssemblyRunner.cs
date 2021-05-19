@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -134,11 +133,8 @@ namespace Xunit.v3
 		/// (f.e., ".NETFramework,Version=v4.7.2"). This value is placed into
 		/// <see cref="_TestAssemblyStarting.TargetFramework"/>.
 		/// </summary>
-		protected virtual string? GetTargetFramework()
-		{
-			var attrib = TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName!).FirstOrDefault();
-			return attrib?.GetConstructorArguments().FirstOrDefault() as string;
-		}
+		protected virtual string? GetTargetFramework() =>
+			TestAssembly.Assembly.GetTargetFramework();
 
 		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").

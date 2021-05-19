@@ -9,6 +9,7 @@
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
+    <ILRepackVersion>2.0.13</ILRepackVersion>
     <LangVersion>9.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <RootNamespace>Xunit</RootNamespace>
@@ -20,7 +21,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.40">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.165-alpha">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageDownload Include="ILRepack.MSBuild.Task" Version="[$(ILRepackVersion)]" />
     <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
   </ItemGroup>
 
@@ -46,7 +48,7 @@
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <Nullable>enable</Nullable>
-        <PackageIcon>content/logo-128-transparent.png</PackageIcon>
+        <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <Product>xUnit.net Testing Framework</Product>
@@ -55,7 +57,7 @@
       </PropertyGroup>
 
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="content" />
+        <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="_content" />
       </ItemGroup>
 
       <ItemGroup>
@@ -89,9 +91,9 @@
       </PropertyGroup>
 
       <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
-        <Configuration>$(Configuration)_x86</Configuration>
         <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
         <OutputPath>bin\$(Configuration)_x86</OutputPath>
+        <Configuration>$(Configuration)_x86</Configuration>
         <PlatformTarget>x86</PlatformTarget>
       </PropertyGroup>
 
@@ -109,7 +111,9 @@
         <ProjectReference Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
         <ProjectReference Include="..\xunit.v3.core\xunit.v3.core.csproj" />
         <ProjectReference Include="..\xunit.v3.runner.inproc.console\xunit.v3.runner.inproc.console.csproj" />
+        <ProjectReference Include="..\xunit.v3.runner.tdnet\xunit.v3.runner.tdnet.csproj" />
       </ItemGroup>
+
     </When>
   </Choose>
 

@@ -3,13 +3,13 @@
   "isRoot": true,
   "tools": {
     "dotnet-format": {
-      "version": "4.0.130203",
+      "version": "4.1.131201",
       "commands": [
         "dotnet-format"
       ]
     },
     "signclient": {
-      "version": "1.2.33",
+      "version": "1.2.109",
       "commands": [
         "SignClient"
       ]

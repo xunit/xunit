@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <Choose>
+
+    <When Condition=" '$(TargetFramworkIdentifier)' == '.NETFramework' ">
+
+      <!-- .NET Framework needs auto-generated binding redirects (and full PDBs for TPv1) -->
+      <PropertyGroup>
+        <AutoGenerateBindingRedirects Condition=" '$(AutoGenerateBindingRedirects)' == '' ">true</AutoGenerateBindingRedirects>
+        <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
+        <GenerateBindingRedirectsOutputType Condition=" '$(GenerateBindingRedirectsOutputType)' == '' ">true</GenerateBindingRedirectsOutputType>
+      </PropertyGroup>
+    </When>
+
+    <Otherwise>
+      <!-- Everything else is TPv2, which wants portable PDBs -->
+      <PropertyGroup>
+        <DebugType Condition=" '$(DebugType)' == '' ">portable</DebugType>
+      </PropertyGroup>
+    </Otherwise>
+
+  </Choose>
+
+</Project>

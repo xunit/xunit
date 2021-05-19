@@ -69,12 +69,15 @@ namespace Xunit.Runner.SystemConsole
 			foreach (var assembly in assemblies)
 			{
 				var targetFramework = AssemblyUtility.GetTargetFramework(assembly.assemblyFileName);
-				result.Add(new XunitProjectAssembly(result)
+				var projectAssembly = new XunitProjectAssembly(result)
 				{
 					AssemblyFilename = GetFullPath(assembly.assemblyFileName),
 					ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.configFileName) : null,
 					TargetFramework = targetFramework
-				});
+				};
+
+				ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFilename, projectAssembly.ConfigFilename);
+				result.Add(projectAssembly);
 			}
 
 			return result;
@@ -185,12 +188,6 @@ namespace Xunit.Runner.SystemConsole
 				{
 					GuardNoOptionValue(option);
 					project.Configuration.Debug = true;
-				}
-				else if (optionName == "serialize")
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.IncludeSerialization = true;
 				}
 				else if (optionName == "wait")
 				{

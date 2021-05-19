@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -93,5 +91,3 @@ public class TestCaseBulkDeserializerTests
 		public void TheoryMethod(int x) { }
 	}
 }
-
-#endif

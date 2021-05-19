@@ -53,6 +53,7 @@ public class _MessageSinkMessageTests
 		var msg = new _TestCaseDiscovered
 		{
 			AssemblyUniqueID = "asm-id",
+			Serialization = "serialized-value",
 			TestCaseDisplayName = "test-case-display-name",
 			TestCaseUniqueID = "test-case-id",
 			TestCollectionUniqueID = "test-collection-id",
@@ -72,6 +73,7 @@ public class _MessageSinkMessageTests
 			@"{" +
 				@"""$type"":""_TestCaseDiscovered""," +
 				@"""AssemblyUniqueID"":""asm-id""," +
+				@"""Serialization"":""serialized-value""," +
 				@"""TestCaseDisplayName"":""test-case-display-name""," +
 				@"""TestCaseUniqueID"":""test-case-id""," +
 				@"""TestCollectionUniqueID"":""test-collection-id""," +

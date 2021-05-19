@@ -10,6 +10,6 @@ public static class AnalyzeSource
 	{
 		context.BuildStep("Analyzing source");
 
-		await context.Exec("dotnet", $"format --check --exclude src/xunit.v3.assert/Asserts --verbosity {context.Verbosity}");
+		await context.Exec("dotnet", $"format -f --check --exclude src/xunit.v3.assert/Asserts --verbosity {context.Verbosity}");
 	}
 }

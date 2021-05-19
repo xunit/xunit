@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -40,16 +39,7 @@ namespace Xunit.v3
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			this.sourceProvider = Guard.ArgumentNotNull(nameof(sourceProvider), sourceProvider);
 
-			targetFramework = new Lazy<string>(() =>
-			{
-				string? result = null;
-
-				var attrib = AssemblyInfo.GetCustomAttributes(typeof(TargetFrameworkAttribute)).FirstOrDefault();
-				if (attrib != null)
-					result = attrib.GetConstructorArguments().Cast<string>().First();
-
-				return result ?? "";
-			});
+			targetFramework = new Lazy<string>(() => AssemblyInfo.GetTargetFramework());
 		}
 
 		/// <summary>
@@ -245,13 +235,11 @@ namespace Xunit.v3
 		/// (if desired and not already provided).
 		/// </summary>
 		/// <param name="testCase">The test case to report</param>
-		/// <param name="includeSerialization">A flag to indicate whether the test case reported should include serialization</param>
 		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
 		/// <param name="messageBus">The message bus to report to the test case to</param>
 		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(_MessageSinkMessage)"/>.</returns>
 		protected bool ReportDiscoveredTestCase(
 			_ITestCase testCase,
-			bool includeSerialization,
 			bool includeSourceInformation,
 			IMessageBus messageBus)
 		{
@@ -267,16 +255,19 @@ namespace Xunit.v3
 			var testCaseDiscovered = new _TestCaseDiscovered
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
-				Serialization = includeSerialization ? Serialize(testCase) : null,
+				Serialization = Serialize(testCase),
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceInformation?.FileName,
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,
-				TestCase = testCase,
 				TestCaseDisplayName = testCase.DisplayName,
 				TestCaseUniqueID = testCase.UniqueID,
+				TestClass = testCase.TestMethod.TestClass.Class.SimpleName,
 				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
+				TestClassWithNamespace = testCase.TestMethod.TestClass.Class.Name,
 				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
+				TestMethod = testCase.TestMethod.Method.Name,
 				TestMethodUniqueID = testCase.TestMethod.UniqueID,
+				TestNamespace = testCase.TestMethod.TestClass.Class.Namespace,
 				Traits = testCase.Traits
 			};
 

@@ -82,24 +82,14 @@ namespace TestUtility
 
 		static CultureInfo CurrentCulture
 		{
-#if NETFRAMEWORK
 			get => Thread.CurrentThread.CurrentCulture;
 			set => Thread.CurrentThread.CurrentCulture = value;
-#else
-			get => CultureInfo.CurrentCulture;
-			set => CultureInfo.CurrentCulture = value;
-#endif
 		}
 
 		static CultureInfo CurrentUICulture
 		{
-#if NETFRAMEWORK
 			get => Thread.CurrentThread.CurrentUICulture;
 			set => Thread.CurrentThread.CurrentUICulture = value;
-#else
-			get => CultureInfo.CurrentUICulture;
-			set => CultureInfo.CurrentUICulture = value;
-#endif
 		}
 	}
 }

@@ -13,9 +13,7 @@ namespace Xunit.Runner.Common
 	/// Represents options passed to a test framework for discovery or execution.
 	/// </summary>
 	[DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
-#if NETFRAMEWORK
-	[System.Serializable]
-#endif
+	[Serializable]
 	public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFrameworkExecutionOptions
 	{
 		readonly Dictionary<string, string> properties = new Dictionary<string, string>();
@@ -38,7 +36,6 @@ namespace Xunit.Runner.Common
 			if (configuration != null)
 			{
 				result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-				result.SetIncludeSerialization(configuration.IncludeSerialization);
 				result.SetIncludeSourceInformation(configuration.IncludeSourceInformation);
 				result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
 				result.SetMethodDisplay(configuration.MethodDisplay);
@@ -89,8 +86,7 @@ namespace Xunit.Runner.Common
 		/// <typeparam name="TValue">The type of the value.</typeparam>
 		/// <param name="name">The name of the value.</param>
 		/// <returns>Returns the value.</returns>
-		[return: MaybeNull]
-		public TValue GetValue<TValue>(string name)
+		public TValue? GetValue<TValue>(string name)
 		{
 			Guard.ArgumentNotNullOrEmpty(nameof(name), name);
 
