@@ -14,7 +14,8 @@ public class SynchronousMessageBusTests
 		using (var bus = new SynchronousMessageBus(SpyMessageSink.Create(messages: dispatchedMessages)))
 			Assert.True(bus.QueueMessage(msg1));
 
-		Assert.Collection(dispatchedMessages, message => Assert.Same(msg1, message));
+		var message = Assert.Single(dispatchedMessages);
+		Assert.Same(msg1, message);
 	}
 
 	[Fact]

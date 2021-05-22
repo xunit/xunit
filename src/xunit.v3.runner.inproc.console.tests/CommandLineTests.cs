@@ -275,9 +275,8 @@ public class CommandLineTests
 
 			var results = accessor.Compile().Invoke(commandLine);
 
-			Assert.Collection(results.OrderBy(x => x),
-				item => Assert.Equal("value1", item)
-			);
+			var item = Assert.Single(results.OrderBy(x => x));
+			Assert.Equal("value1", item);
 		}
 
 		[Theory]

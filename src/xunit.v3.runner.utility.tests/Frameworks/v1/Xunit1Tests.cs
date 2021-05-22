@@ -154,18 +154,14 @@ public class Xunit1Tests
 						key =>
 						{
 							Assert.Equal("Trait1", key);
-							Assert.Collection(
-								testCase.Traits[key],
-								value => Assert.Equal("Value1", value)
-							);
+							var item = Assert.Single(testCase.Traits[key]);
+							Assert.Equal("Value1", item);
 						},
 						key =>
 						{
 							Assert.Equal("Trait2", key);
-							Assert.Collection(
-								testCase.Traits[key],
-								value => Assert.Equal("Value2", value)
-							);
+							var item = Assert.Single(testCase.Traits[key]);
+							Assert.Equal("Value2", item);
 						}
 					);
 				}

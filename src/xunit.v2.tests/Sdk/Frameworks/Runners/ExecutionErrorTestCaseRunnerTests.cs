@@ -46,8 +46,10 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 				Assert.Same(testCase, failed.TestCase);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
-				Assert.Collection(failed.ExceptionTypes, type => Assert.Equal("System.InvalidOperationException", type));
-				Assert.Collection(failed.Messages, type => Assert.Equal("This is my error message", type));
+				var exceptionType = Assert.Single(failed.ExceptionTypes);
+				Assert.Equal("System.InvalidOperationException", exceptionType);
+				var type = Assert.Single(failed.Messages);
+				Assert.Equal("This is my error message", type);
 			},
 			msg =>
 			{
