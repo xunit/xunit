@@ -207,7 +207,7 @@ public class MyDatabaseTests : IClassFixture<DatabaseFixture>
 {% endhighlight %}
 
 <p>
-  Just before the first tests in <code>MyDatabaseTests</code> is run, xUnit.net
+  Just before the first test in <code>MyDatabaseTests</code> is run, xUnit.net
   will create an instance of <code>DatabaseFixture</code>. For each test, it
   will create a new instance of <code>MyDatabaseTests</code>, and pass the shared
   instance of <code>DatabaseFixture</code> to the constructor.
@@ -251,7 +251,7 @@ public class MyDatabaseTests : IClassFixture<DatabaseFixture>
   to initialize a database with a set of test data, and then leave that test
   data in place for use by multiple test classes. You can use the <em>collection
   fixture</em> feature of xUnit.net to share a single object instance among
-  tests in several test class.
+  tests in several test classes.
 </p>
 
 <p>To use collection fixtures, you need to take the following steps:</p>
