@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -16,8 +17,23 @@ namespace Xunit.Sdk
 		internal readonly static object?[] EmptyArgs = new object?[0];
 		internal readonly static Type[] EmptyTypes = new Type[0];
 
-		readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "Cast");
-		readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "ToArray");
+		readonly static MethodInfo EnumerableCast =
+			typeof(Enumerable)
+				.GetRuntimeMethods()
+				.First(
+					m => m.Name == "Cast"
+					&& m.GetParameters().Length == 1
+					&& m.GetParameters()[0].ParameterType == typeof(IEnumerable)
+				);
+		readonly static MethodInfo EnumerableToArray =
+			typeof(Enumerable)
+				.GetRuntimeMethods()
+				.First(
+					m => m.Name == "ToArray"
+					&& m.GetParameters().Length == 1
+					&& m.GetParameters()[0].ParameterType.IsGenericType
+					&& m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+				);
 
 		/// <summary>
 		/// Converts arguments into their target types. Can be particularly useful when pulling attribute
