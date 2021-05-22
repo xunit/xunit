@@ -230,7 +230,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.FindTestsForClass(testClass);
 
 			var testCase = Assert.Single(framework.Sink.TestCases);
-      Assert.NotNull(testCase);
+			Assert.NotNull(testCase);
 		}
 
 		class ClassWithMixOfFactsAndNonFacts
