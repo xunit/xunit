@@ -19,7 +19,7 @@ namespace Xunit.v3
 		_IReflectionTypeInfo @class;
 		IMessageBus messageBus;
 		_IReflectionMethodInfo method;
-		IEnumerable<TTestCase> testCases;
+		IReadOnlyCollection<TTestCase> testCases;
 		_ITestMethod testMethod;
 
 		/// <summary>
@@ -36,7 +36,7 @@ namespace Xunit.v3
 			_ITestMethod testMethod,
 			_IReflectionTypeInfo @class,
 			_IReflectionMethodInfo method,
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
@@ -98,7 +98,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the test cases to be run.
 		/// </summary>
-		protected IEnumerable<TTestCase> TestCases
+		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
 			set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);

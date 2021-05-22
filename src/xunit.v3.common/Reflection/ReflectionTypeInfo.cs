@@ -14,7 +14,7 @@ namespace Xunit.Sdk
 	{
 		readonly Lazy<_IAssemblyInfo> assembly;
 		readonly Lazy<_ITypeInfo?> baseType;
-		readonly Lazy<IEnumerable<_ITypeInfo>> interfaces;
+		readonly Lazy<IReadOnlyCollection<_ITypeInfo>> interfaces;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionTypeInfo"/> class.
@@ -26,7 +26,7 @@ namespace Xunit.Sdk
 
 			assembly = new(() => Reflector.Wrap(Type.Assembly));
 			baseType = new(() => Type.BaseType == null ? null : Reflector.Wrap(Type.BaseType!));
-			interfaces = new(() => Type.GetInterfaces().Select(i => Reflector.Wrap(i)).ToList());
+			interfaces = new(() => Type.GetInterfaces().Select(i => Reflector.Wrap(i)).CastOrToReadOnlyCollection());
 		}
 
 		/// <inheritdoc/>
@@ -36,7 +36,7 @@ namespace Xunit.Sdk
 		public _ITypeInfo? BaseType => baseType.Value;
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> Interfaces => interfaces.Value;
+		public IReadOnlyCollection<_ITypeInfo> Interfaces => interfaces.Value;
 
 		/// <inheritdoc/>
 		public bool IsAbstract => Type.IsAbstract;
@@ -66,7 +66,7 @@ namespace Xunit.Sdk
 		public Type Type { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
 
@@ -74,11 +74,11 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> GetGenericArguments() =>
+		public IReadOnlyCollection<_ITypeInfo> GetGenericArguments() =>
 			Type
 				.GenericTypeArguments
 				.Select(t => Reflector.Wrap(t))
-				.ToList();
+				.CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public _IMethodInfo? GetMethod(
@@ -99,14 +99,14 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_IMethodInfo> GetMethods(bool includePrivateMethods)
+		public IReadOnlyCollection<_IMethodInfo> GetMethods(bool includePrivateMethods)
 		{
 			var methodInfos = Type.GetRuntimeMethods();
 
 			if (!includePrivateMethods)
 				methodInfos = methodInfos.Where(m => m.IsPublic);
 
-			return methodInfos.Select(m => Reflector.Wrap(m)).ToList();
+			return methodInfos.Select(m => Reflector.Wrap(m)).CastOrToReadOnlyCollection();
 		}
 
 		/// <inheritdoc/>

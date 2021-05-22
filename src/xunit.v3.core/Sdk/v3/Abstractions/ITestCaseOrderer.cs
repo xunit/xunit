@@ -16,7 +16,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="testCases">The test cases to be ordered.</param>
 		/// <returns>The test cases in the order to be run.</returns>
-		IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+		IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 			where TTestCase : _ITestCase;
 	}
 }

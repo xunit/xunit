@@ -29,7 +29,7 @@ namespace Xunit.v3
 		/// <param name="executionMessageSink">The message sink to report results back to.</param>
 		/// <param name="executionOptions">The options to be used during test execution.</param>
 		void RunTests(
-			IEnumerable<string> serializedTestCases,
+			IReadOnlyCollection<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);

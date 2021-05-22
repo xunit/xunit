@@ -35,7 +35,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly-qualified form</param>
 		/// <returns>The matching attributes that decorate the assembly</returns>
-		IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+		IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
 		/// <summary>
 		/// Gets a <see cref="_ITypeInfo"/> for the given type.
@@ -50,6 +50,6 @@ namespace Xunit.v3
 		/// <param name="includePrivateTypes">Set to <c>true</c> to return all types in the assembly,
 		/// or <c>false</c> to return only public types.</param>
 		/// <returns>The types in the assembly.</returns>
-		IEnumerable<_ITypeInfo> GetTypes(bool includePrivateTypes);
+		IReadOnlyCollection<_ITypeInfo> GetTypes(bool includePrivateTypes);
 	}
 }

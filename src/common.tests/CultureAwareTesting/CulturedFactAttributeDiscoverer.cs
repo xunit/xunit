@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -13,7 +14,7 @@ namespace Xunit.v3
 			this.diagnosticMessageSink = diagnosticMessageSink;
 		}
 
-		public IEnumerable<IXunitTestCase> Discover(
+		public IReadOnlyCollection<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo factAttribute)
@@ -30,7 +31,7 @@ namespace Xunit.v3
 			return
 				cultures
 					.Select(culture => CreateTestCase(testMethod, culture, methodDisplay, methodDisplayOptions))
-					.ToList();
+					.CastOrToReadOnlyCollection();
 		}
 
 		CulturedXunitTestCase CreateTestCase(

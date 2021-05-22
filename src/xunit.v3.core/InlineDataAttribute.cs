@@ -24,6 +24,6 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public override IEnumerable<object?[]> GetData(MethodInfo testMethod) => new[] { data };
+		public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod) => new[] { data };
 	}
 }

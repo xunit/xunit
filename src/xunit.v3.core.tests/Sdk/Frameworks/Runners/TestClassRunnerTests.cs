@@ -274,7 +274,7 @@ public class TestClassRunnerTests
 
 		class ThrowingOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases) where TTestCase : _ITestCase
 			{
 				throw new DivideByZeroException();
 			}
@@ -351,7 +351,7 @@ public class TestClassRunnerTests
 		readonly ConstructorInfo? constructor;
 		readonly RunSummary result;
 
-		public List<Tuple<_IReflectionMethodInfo, IEnumerable<_ITestCase>, object?[]>> MethodsRun = new();
+		public List<Tuple<_IReflectionMethodInfo, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
 		public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
 		public bool AfterTestClassStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
@@ -363,7 +363,7 @@ public class TestClassRunnerTests
 		TestableTestClassRunner(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<_ITestCase> testCases,
+			IReadOnlyCollection<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -438,7 +438,7 @@ public class TestClassRunnerTests
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
 			_IReflectionMethodInfo method,
-			IEnumerable<_ITestCase> testCases,
+			IReadOnlyCollection<_ITestCase> testCases,
 			object?[] constructorArguments)
 		{
 			if (cancelInRunTestMethodAsync)

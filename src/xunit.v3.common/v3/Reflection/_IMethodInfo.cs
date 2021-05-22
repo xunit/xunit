@@ -50,19 +50,19 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
 		/// <returns>The matching attributes that decorate the method</returns>
-		IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+		IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
 		/// <summary>
 		/// Gets the types of the generic arguments for generic methods.
 		/// </summary>
 		/// <returns>The argument types.</returns>
-		IEnumerable<_ITypeInfo> GetGenericArguments();
+		IReadOnlyCollection<_ITypeInfo> GetGenericArguments();
 
 		/// <summary>
 		/// Gets information about the parameters to the method.
 		/// </summary>
 		/// <returns>The method's parameters.</returns>
-		IEnumerable<_IParameterInfo> GetParameters();
+		IReadOnlyCollection<_IParameterInfo> GetParameters();
 
 		/// <summary>
 		/// Converts an open generic method into a closed generic method, using the provided type arguments.

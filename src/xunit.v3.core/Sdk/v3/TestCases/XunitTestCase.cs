@@ -20,8 +20,8 @@ namespace Xunit.v3
 	[DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
 	public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	{
-		static readonly ConcurrentDictionary<string, IEnumerable<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
-		static readonly ConcurrentDictionary<string, IEnumerable<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
+		static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
+		static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 
 		/// <inheritdoc/>
 		protected XunitTestCase(
@@ -120,28 +120,29 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public int Timeout { get; protected set; }
 
-		static IEnumerable<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
+		static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
 		{
 			Guard.ArgumentNotNull(nameof(assembly), assembly);
 
 			return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
-		static IEnumerable<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
+		static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
 		{
 			Guard.ArgumentNotNull(nameof(type), type);
 
 			return typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
-		static IEnumerable<_IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
+		static IReadOnlyCollection<_IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
 		{
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 
 			return
 				GetCachedTraitAttributes(testMethod.TestClass.Class.Assembly)
 					.Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
-					.Concat(GetCachedTraitAttributes(testMethod.TestClass.Class));
+					.Concat(GetCachedTraitAttributes(testMethod.TestClass.Class))
+					.CastOrToReadOnlyCollection();
 		}
 
 		/// <inheritdoc/>

@@ -116,7 +116,7 @@ namespace Xunit
 		public static IFrontControllerDiscoverer ForDiscovery(
 			_IAssemblyInfo assemblyInfo,
 			XunitProjectAssembly projectAssembly,
-			IEnumerable<string> referenceList,
+			IReadOnlyCollection<string> referenceList,
 			_ISourceInformationProvider? sourceInformationProvider = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{

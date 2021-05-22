@@ -78,7 +78,7 @@ namespace Xunit.v3
 		{
 			var dataAttribute = Substitute.For<DataAttribute>();
 			dataAttribute.Skip.Returns(skip);
-			dataAttribute.GetData(null!).ReturnsForAnyArgs(data);
+			dataAttribute.GetData(null!).ReturnsForAnyArgs(data.CastOrToReadOnlyCollection());
 
 			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(dataAttribute);
@@ -99,7 +99,7 @@ namespace Xunit.v3
 			return result;
 		}
 
-		static IEnumerable<_IReflectionAttributeInfo> LookupAttribute(
+		static IReadOnlyCollection<_IReflectionAttributeInfo> LookupAttribute(
 			string fullyQualifiedTypeName,
 			_IReflectionAttributeInfo[]? attributes)
 		{
@@ -113,16 +113,16 @@ namespace Xunit.v3
 			return
 				attributes
 					.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType()))
-					.ToList();
+					.CastOrToReadOnlyCollection();
 		}
 
-		static IEnumerable<_IReflectionAttributeInfo> LookupAttribute<TLookupType, TAttributeType>()
+		static IReadOnlyCollection<_IReflectionAttributeInfo> LookupAttribute<TLookupType, TAttributeType>()
 			where TAttributeType : Attribute =>
 				typeof(TLookupType)
 					.GetCustomAttributesData()
 					.Where(cad => typeof(TAttributeType).IsAssignableFrom(cad.AttributeType))
 					.Select(cad => Reflector.Wrap(cad))
-					.ToList();
+					.CastOrToReadOnlyCollection();
 
 		public static _IReflectionAttributeInfo TestCaseOrdererAttribute(
 			string typeName,

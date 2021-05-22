@@ -20,17 +20,17 @@ namespace Xunit.Sdk
 		/// discovery, at which point the <paramref name="testMethod"/> may or may not
 		/// be backed by reflection (i.e., implementing <see cref="_IReflectionMethodInfo"/>).
 		/// If the data is not available because reflection is required, then you may return
-		/// null to inform xUnit that the quantity of data is unknown at this point.
-		/// When the tests are run, if you returned back null during discovery, then this method
-		/// will be called again to retrieve the data, this time guaranteed to provide
+		/// <c>null</c> to inform xUnit that the quantity of data is unknown at this point.
+		/// When the tests are run, if you returned back <c>null</c> during discovery, then this
+		/// method will be called again to retrieve the data, this time guaranteed to provide
 		/// an implementation of <see cref="_IReflectionMethodInfo"/>. At this time, you
-		/// must return the actual data, and returning null is not legal.
+		/// must return the actual data, and returning <c>null</c> is not legal.
 		/// </remarks>
 		/// <param name="dataAttribute">The data attribute being discovered</param>
 		/// <param name="testMethod">The method that is being tested/discovered</param>
 		/// <returns>The theory data (or null during discovery, if not enough
 		/// information is available to enumerate the data)</returns>
-		IEnumerable<object?[]>? GetData(
+		IReadOnlyCollection<object?[]>? GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod
 		);

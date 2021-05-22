@@ -28,7 +28,7 @@ namespace Xunit.v3
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestCollectionRunner(
 			_ITestCollection testCollection,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -63,7 +63,12 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override async Task BeforeTestCollectionFinishedAsync()
 		{
-			var disposeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncDisposable>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask()).ToList();
+			var disposeAsyncTasks =
+				CollectionFixtureMappings
+					.Values
+					.OfType<IAsyncDisposable>()
+					.Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask())
+					.ToList();
 
 			await Task.WhenAll(disposeAsyncTasks);
 
@@ -123,7 +128,13 @@ namespace Xunit.v3
 				CreateCollectionFixture(fixtureType);
 			}
 
-			var initializeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask()).ToList();
+			var initializeAsyncTasks =
+				CollectionFixtureMappings
+					.Values
+					.OfType<IAsyncLifetime>()
+					.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask())
+					.ToList();
+
 			return Task.WhenAll(initializeAsyncTasks);
 		}
 
@@ -164,7 +175,7 @@ namespace Xunit.v3
 		protected override Task<RunSummary> RunTestClassAsync(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<IXunitTestCase> testCases) =>
+			IReadOnlyCollection<IXunitTestCase> testCases) =>
 				new XunitTestClassRunner(
 					testClass,
 					@class,

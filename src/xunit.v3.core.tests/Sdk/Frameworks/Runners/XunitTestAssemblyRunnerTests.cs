@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -212,7 +213,8 @@ public class XunitTestAssemblyRunnerTests
 
 		class MyTestCaseOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : _ITestCase
 			{
 				throw new NotImplementedException();
 			}
@@ -253,9 +255,10 @@ public class XunitTestAssemblyRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : _ITestCase
 			{
-				return Enumerable.Empty<TTestCase>();
+				return Array.Empty<TTestCase>();
 			}
 		}
 	}
@@ -276,10 +279,10 @@ public class XunitTestAssemblyRunnerTests
 
 		class MyTestCollectionOrderer : ITestCollectionOrderer
 		{
-			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> TestCollections)
-			{
-				return TestCollections.OrderByDescending(c => c.DisplayName);
-			}
+			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> TestCollections) =>
+				TestCollections
+					.OrderByDescending(c => c.DisplayName)
+					.CastOrToReadOnlyCollection();
 		}
 
 		[Fact]
@@ -317,10 +320,8 @@ public class XunitTestAssemblyRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections)
-			{
-				return Enumerable.Empty<_ITestCollection>();
-			}
+			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections) =>
+				Array.Empty<_ITestCollection>();
 		}
 	}
 
@@ -337,11 +338,11 @@ public class XunitTestAssemblyRunnerTests
 	{
 		public List<_MessageSinkMessage> DiagnosticMessages;
 
-		public ConcurrentBag<Tuple<int, IXunitTestCase>> TestCasesRun = new ConcurrentBag<Tuple<int, IXunitTestCase>>();
+		public ConcurrentBag<Tuple<int, IXunitTestCase>> TestCasesRun = new();
 
 		TestableXunitTestAssemblyRunner(
 			_ITestAssembly testAssembly,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
@@ -396,7 +397,7 @@ public class XunitTestAssemblyRunnerTests
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource)
 		{
 			foreach (var testCase in testCases)

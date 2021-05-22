@@ -30,7 +30,7 @@ namespace Xunit.v3
 			_ITestMethod testMethod,
 			_IReflectionTypeInfo @class,
 			_IReflectionMethodInfo method,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,

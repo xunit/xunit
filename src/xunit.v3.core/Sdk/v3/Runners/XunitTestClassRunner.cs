@@ -35,7 +35,7 @@ namespace Xunit.v3
 		public XunitTestClassRunner(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -77,7 +77,7 @@ namespace Xunit.v3
 				fixtureType
 					.GetConstructors()
 					.Where(ci => !ci.IsStatic && ci.IsPublic)
-					.ToList();
+					.CastOrToReadOnlyList();
 
 			if (ctors.Count != 1)
 			{
@@ -174,7 +174,12 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override async Task BeforeTestClassFinishedAsync()
 		{
-			var disposeAsyncTasks = ClassFixtureMappings.Values.OfType<IAsyncDisposable>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask()).ToList();
+			var disposeAsyncTasks =
+				ClassFixtureMappings
+					.Values
+					.OfType<IAsyncDisposable>()
+					.Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask())
+					.ToList();
 
 			await Task.WhenAll(disposeAsyncTasks);
 
@@ -186,7 +191,7 @@ namespace Xunit.v3
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
 			_IReflectionMethodInfo method,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
 				new XunitTestMethodRunner(
 					testMethod,

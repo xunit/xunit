@@ -1261,8 +1261,12 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override IEnumerable<object?[]> GetData(MethodInfo testMethod)
-				=> new[] { new object?[] { 42 }, new object?[] { 2112 } };
+			public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod) =>
+				new[]
+				{
+					new object?[] { 42 },
+					new object?[] { 2112 }
+				};
 		}
 
 		class ClassWithCustomDataWithInternalDataCtor
@@ -1302,10 +1306,8 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-			{
-				return new[] { new[] { new object() } };
-			}
+			public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
+				new[] { new[] { new object() } };
 		}
 
 		[Fact]
