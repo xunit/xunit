@@ -11,7 +11,7 @@ namespace Xunit.Sdk
 	public class InlineDataDiscoverer : IDataDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IEnumerable<object?[]> GetData(
+		public virtual IReadOnlyCollection<object?[]> GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
@@ -23,13 +23,14 @@ namespace Xunit.Sdk
 			// value in it, which is why the null coalesce operator is required (this is covered by the acceptance test
 			// in Xunit2TheoryAcceptanceTests.InlineDataTests.SingleNullValuesWork).
 
-			var args = (IEnumerable<object?>?)dataAttribute.GetConstructorArguments().Single() ?? new object?[] { null };
+			var args = dataAttribute.GetConstructorArguments().Single() as IEnumerable<object?> ?? new object?[] { null };
 			return new[] { args.ToArray() };
 		}
 
 		/// <inheritdoc/>
 		public virtual bool SupportsDiscoveryEnumeration(
 			_IAttributeInfo dataAttribute,
-			_IMethodInfo testMethod) => true;
+			_IMethodInfo testMethod)
+				=> true;
 	}
 }

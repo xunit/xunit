@@ -15,7 +15,7 @@ namespace Xunit.Sdk
 	{
 		static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
 
-		IEnumerable<_IParameterInfo>? cachedParameters = null;
+		IReadOnlyCollection<_IParameterInfo>? cachedParameters = null;
 		readonly Lazy<_ITypeInfo> returnType;
 		readonly Lazy<_ITypeInfo> type;
 
@@ -56,14 +56,14 @@ namespace Xunit.Sdk
 		public _ITypeInfo Type => type.Value;
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
 		}
 
-		static IEnumerable<_IAttributeInfo> GetCustomAttributes(
+		static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 			MethodInfo method,
 			string assemblyQualifiedAttributeTypeName)
 		{
@@ -77,7 +77,7 @@ namespace Xunit.Sdk
 			return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 		}
 
-		static IEnumerable<_IAttributeInfo> GetCustomAttributes(
+		static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 			MethodInfo method,
 			Type attributeType,
 			AttributeUsageAttribute attributeUsage)
@@ -108,11 +108,11 @@ namespace Xunit.Sdk
 					results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage));
 			}
 
-			return results;
+			return results.CastOrToReadOnlyCollection();
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> GetGenericArguments() =>
+		public IReadOnlyCollection<_ITypeInfo> GetGenericArguments() =>
 			MethodInfo.GetGenericArguments().Select(t => Reflector.Wrap(t)).ToArray();
 
 		static MethodInfo? GetParent(MethodInfo method)
@@ -171,7 +171,7 @@ namespace Xunit.Sdk
 		public override string? ToString() => MethodInfo.ToString();
 
 		/// <inheritdoc/>
-		public IEnumerable<_IParameterInfo> GetParameters()
+		public IReadOnlyCollection<_IParameterInfo> GetParameters()
 		{
 			if (cachedParameters == null)
 			{

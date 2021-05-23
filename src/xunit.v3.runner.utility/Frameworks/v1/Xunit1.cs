@@ -278,7 +278,7 @@ namespace Xunit.Runner.v1
 		/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
 		/// </summary>
 		protected void Run(
-			IEnumerable<Xunit1TestCase> testCases,
+			IReadOnlyCollection<Xunit1TestCase> testCases,
 			_IMessageSink messageSink)
 		{
 			var results = new Xunit1RunSummary();
@@ -339,7 +339,14 @@ namespace Xunit.Runner.v1
 			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
 			Guard.ArgumentNotNull(nameof(settings), settings);
 
-			Run(settings.SerializedTestCases.Select(tc => Deserialize(tc)).WhereNotNull(), messageSink);
+			var testCases =
+				settings
+					.SerializedTestCases
+					.Select(tc => Deserialize(tc))
+					.WhereNotNull()
+					.CastOrToReadOnlyCollection();
+
+			Run(testCases, messageSink);
 		}
 
 		Xunit1RunSummary RunTestCollection(

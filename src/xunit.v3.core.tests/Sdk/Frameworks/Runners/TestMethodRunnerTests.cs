@@ -191,7 +191,7 @@ public class TestMethodRunnerTests
 			_ITestMethod testMethod,
 			_IReflectionTypeInfo @class,
 			_IReflectionMethodInfo method,
-			IEnumerable<_ITestCase> testCases,
+			IReadOnlyCollection<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,

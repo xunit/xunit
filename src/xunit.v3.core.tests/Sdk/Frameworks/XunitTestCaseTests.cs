@@ -93,29 +93,27 @@ public class XunitTestCaseTests
 			var messages = await RunAsync(typeof(ClassWithCustomTraitTest));
 			var passingTests = messages.OfType<_TestPassed>();
 
+			var passingTest = Assert.Single(passingTests);
+			var passingTestCaseStarting = messages.OfType<_TestCaseStarting>().Single(tcs => tcs.TestCaseUniqueID == passingTest.TestCaseUniqueID);
 			Assert.Collection(
-				passingTests,
-				passingTest =>
+				passingTestCaseStarting.Traits.OrderBy(x => x.Key),
+				namedTrait =>
 				{
-					var passingTestCaseStarting = messages.OfType<_TestCaseStarting>().Where(tcs => tcs.TestCaseUniqueID == passingTest.TestCaseUniqueID).Single();
-					Assert.Collection(
-						passingTestCaseStarting.Traits.OrderBy(x => x.Key),
-						namedTrait =>
-						{
-							Assert.Equal("Assembly", namedTrait.Key);
-							Assert.Collection(namedTrait.Value, value => Assert.Equal("Trait", value));
-						},
-						namedTrait =>
-						{
-							Assert.Equal("Author", namedTrait.Key);
-							Assert.Collection(namedTrait.Value, value => Assert.Equal("Some Schmoe", value));
-						},
-						namedTrait =>
-						{
-							Assert.Equal("Bug", namedTrait.Key);
-							Assert.Collection(namedTrait.Value, value => Assert.Equal("2112", value));
-						}
-					);
+					Assert.Equal("Assembly", namedTrait.Key);
+					var value = Assert.Single(namedTrait.Value);
+					Assert.Equal("Trait", value);
+				},
+				namedTrait =>
+				{
+					Assert.Equal("Author", namedTrait.Key);
+					var value = Assert.Single(namedTrait.Value);
+					Assert.Equal("Some Schmoe", value);
+				},
+				namedTrait =>
+				{
+					Assert.Equal("Bug", namedTrait.Key);
+					var value = Assert.Single(namedTrait.Value);
+					Assert.Equal("2112", value);
 				}
 			);
 		}
@@ -148,10 +146,10 @@ public class XunitTestCaseTests
 
 		public class BugDiscoverer : ITraitDiscoverer
 		{
-			public IEnumerable<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
+			public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
 			{
 				var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
-				yield return new KeyValuePair<string, string>("Bug", ctorArgs[0]!.ToString()!);
+				return new[] { new KeyValuePair<string, string>("Bug", ctorArgs[0]!.ToString()!) };
 			}
 		}
 
@@ -162,19 +160,19 @@ public class XunitTestCaseTests
 		}
 
 		public static TheoryData<Type, IEnumerable<string>> CustomAttributeTestCases() =>
-			new TheoryData<Type, IEnumerable<string>>
-			{
-				{ typeof(ClassWithSingleTrait), new[] { "One" } },
-				{ typeof(ClassWithMultipleTraits), new[] { "One", "Two" } },
-				{ typeof(InheritedClassWithOnlyOwnTrait), new[] { "One" } },
-				{ typeof(InheritedClassWithOnlyOwnMultipleTraits), new[] { "One", "Two" } },
-				{ typeof(InheritedClassWithSingleBaseClassTrait), new[] { "BaseOne" } },
-				{ typeof(InheritedClassWithMultipleBaseClassTraits), new[] { "BaseOne", "BaseTwo" } },
-				{ typeof(InheritedClassWithOwnSingleTraitAndSingleBaseClassTrait), new[] { "One", "BaseOne" } },
-				{ typeof(InheritedClassWithOwnSingleTraitAndMultipleBaseClassTrait), new[] { "One", "BaseOne", "BaseTwo" } },
-				{ typeof(InheritedClassWithOwnMultipleTraitsAndSingleBaseClassTrait), new[] { "One", "Two", "BaseOne" } },
-				{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
-			};
+			new()
+		{
+			{ typeof(ClassWithSingleTrait), new[] { "One" } },
+			{ typeof(ClassWithMultipleTraits), new[] { "One", "Two" } },
+			{ typeof(InheritedClassWithOnlyOwnTrait), new[] { "One" } },
+			{ typeof(InheritedClassWithOnlyOwnMultipleTraits), new[] { "One", "Two" } },
+			{ typeof(InheritedClassWithSingleBaseClassTrait), new[] { "BaseOne" } },
+			{ typeof(InheritedClassWithMultipleBaseClassTraits), new[] { "BaseOne", "BaseTwo" } },
+			{ typeof(InheritedClassWithOwnSingleTraitAndSingleBaseClassTrait), new[] { "One", "BaseOne" } },
+			{ typeof(InheritedClassWithOwnSingleTraitAndMultipleBaseClassTrait), new[] { "One", "BaseOne", "BaseTwo" } },
+			{ typeof(InheritedClassWithOwnMultipleTraitsAndSingleBaseClassTrait), new[] { "One", "Two", "BaseOne" } },
+			{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
+		};
 
 		[Theory]
 		[MemberData(nameof(CustomAttributeTestCases))]

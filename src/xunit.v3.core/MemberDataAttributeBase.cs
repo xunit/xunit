@@ -11,7 +11,6 @@ namespace Xunit
 	/// <summary>
 	/// Provides a base class for attributes that will provide member data. The member data must return
 	/// something compatible with <see cref="IEnumerable"/>.
-	/// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 	public abstract class MemberDataAttributeBase : DataAttribute
@@ -53,7 +52,7 @@ namespace Xunit
 		public object?[] Parameters { get; }
 
 		/// <inheritdoc/>
-		public override IEnumerable<object?[]>? GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<object?[]>? GetData(MethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull("testMethod", testMethod);
 
@@ -75,7 +74,11 @@ namespace Xunit
 			if (!(obj is IEnumerable dataItems))
 				throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
 
-			return dataItems.Cast<object?>().Select(item => ConvertDataItem(testMethod, item));
+			return
+				dataItems
+					.Cast<object?>()
+					.Select(item => ConvertDataItem(testMethod, item))
+					.CastOrToReadOnlyCollection();
 		}
 
 		/// <summary>

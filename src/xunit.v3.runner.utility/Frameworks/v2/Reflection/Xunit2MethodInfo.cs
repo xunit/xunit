@@ -51,18 +51,27 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V3MethodInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit2AttributeInfo(a)).ToList();
+			V3MethodInfo
+				.GetCustomAttributes(assemblyQualifiedAttributeTypeName)
+				.Select(a => new Xunit2AttributeInfo(a))
+				.CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public IEnumerable<ITypeInfo> GetGenericArguments() =>
-			V3MethodInfo.GetGenericArguments().Select(t => new Xunit2TypeInfo(t)).ToList();
+			V3MethodInfo
+				.GetGenericArguments()
+				.Select(t => new Xunit2TypeInfo(t))
+				.CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public IEnumerable<IParameterInfo> GetParameters() =>
-			V3MethodInfo.GetParameters().Select(p => new Xunit2ParameterInfo(p)).ToList();
+			V3MethodInfo
+				.GetParameters()
+				.Select(p => new Xunit2ParameterInfo(p))
+				.CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments) =>
-			new Xunit2MethodInfo(V3MethodInfo.MakeGenericMethod(typeArguments.Select(t => new Xunit3TypeInfo(t)).ToArray()));
+			new Xunit2MethodInfo(V3MethodInfo.MakeGenericMethod(typeArguments.Select(t => new Xunit3TypeInfo(t)).CastOrToArray()));
 	}
 }

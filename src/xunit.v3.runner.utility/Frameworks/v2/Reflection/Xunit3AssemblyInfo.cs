@@ -32,8 +32,8 @@ namespace Xunit.Runner.v2
 		public IAssemblyInfo V2AssemblyInfo { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V2AssemblyInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).ToList();
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
+			V2AssemblyInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
 		public _ITypeInfo? GetType(string typeName)
@@ -43,7 +43,7 @@ namespace Xunit.Runner.v2
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<_ITypeInfo> GetTypes(bool includePrivateTypes) =>
-			V2AssemblyInfo.GetTypes(includePrivateTypes).Select(t => new Xunit3TypeInfo(t)).ToList();
+		public IReadOnlyCollection<_ITypeInfo> GetTypes(bool includePrivateTypes) =>
+			V2AssemblyInfo.GetTypes(includePrivateTypes).Select(t => new Xunit3TypeInfo(t)).CastOrToReadOnlyCollection();
 	}
 }

@@ -283,10 +283,10 @@ public class TestAssemblyRunnerTests
 
 		class MyTestCollectionOrderer : ITestCollectionOrderer
 		{
-			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> TestCollections)
-			{
-				return TestCollections.OrderByDescending(c => c.DisplayName);
-			}
+			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> TestCollections) =>
+				TestCollections
+					.OrderByDescending(c => c.DisplayName)
+					.CastOrToReadOnlyCollection();
 		}
 
 		[CulturedFact("en-US")]
@@ -316,7 +316,7 @@ public class TestAssemblyRunnerTests
 
 		class ThrowingOrderer : ITestCollectionOrderer
 		{
-			public IEnumerable<_ITestCollection> OrderTestCollections(IEnumerable<_ITestCollection> testCollections)
+			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections)
 			{
 				throw new DivideByZeroException();
 			}
@@ -328,7 +328,7 @@ public class TestAssemblyRunnerTests
 		readonly bool cancelInRunTestCollectionAsync;
 		readonly RunSummary result;
 
-		public List<Tuple<_ITestCollection, IEnumerable<_ITestCase>>> CollectionsRun = new List<Tuple<_ITestCollection, IEnumerable<_ITestCase>>>();
+		public List<Tuple<_ITestCollection, IReadOnlyCollection<_ITestCase>>> CollectionsRun = new();
 		public Action<ExceptionAggregator> AfterTestAssemblyStarting_Callback = _ => { };
 		public bool AfterTestAssemblyStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
@@ -338,7 +338,7 @@ public class TestAssemblyRunnerTests
 
 		TestableTestAssemblyRunner(
 			_ITestAssembly testAssembly,
-			IEnumerable<_ITestCase> testCases,
+			IReadOnlyCollection<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions,
@@ -409,7 +409,7 @@ public class TestAssemblyRunnerTests
 		protected override Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
-			IEnumerable<_ITestCase> testCases,
+			IReadOnlyCollection<_ITestCase> testCases,
 			CancellationTokenSource cancellationTokenSource)
 		{
 			if (cancelInRunTestCollectionAsync)

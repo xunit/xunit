@@ -336,8 +336,9 @@ public class XunitTestClassRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
-				=> Enumerable.Empty<TTestCase>();
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : _ITestCase
+					=> Array.Empty<TTestCase>();
 		}
 	}
 
@@ -381,8 +382,9 @@ public class XunitTestClassRunnerTests
 
 	class CustomTestCaseOrderer : ITestCaseOrderer
 	{
-		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
-			=> testCases;
+		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+			where TTestCase : _ITestCase
+				=> testCases;
 	}
 
 	class TestableXunitTestClassRunner : XunitTestClassRunner
@@ -394,7 +396,7 @@ public class XunitTestClassRunnerTests
 		TestableXunitTestClassRunner(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -428,7 +430,7 @@ public class XunitTestClassRunnerTests
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
 			_IReflectionMethodInfo method,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			object?[] constructorArguments)
 		{
 			ConstructorArguments.Add(constructorArguments);

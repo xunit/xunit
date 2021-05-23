@@ -66,10 +66,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class EmptyTheoryDataAttribute : DataAttribute
 	{
-		public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-		{
-			return new object[0][];
-		}
+		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
+			Array.Empty<object[]>();
 	}
 
 	class EmptyTheoryDataClass
@@ -110,11 +108,12 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class MultipleDataAttribute : DataAttribute
 	{
-		public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-		{
-			yield return new object[] { 42 };
-			yield return new object[] { 2112 };
-		}
+		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
+			new[]
+			{
+				new object[] { 42 },
+				new object[] { 2112 }
+			};
 	}
 
 	class MultipleDataClass
@@ -164,7 +163,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class ThrowingDataAttribute : DataAttribute
 	{
-		public override IEnumerable<object[]> GetData(MethodInfo method)
+		public override IReadOnlyCollection<object[]> GetData(MethodInfo method)
 		{
 			throw new DivideByZeroException();
 		}
@@ -210,11 +209,12 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class NonSerializableDataAttribute : DataAttribute
 	{
-		public override IEnumerable<object[]> GetData(MethodInfo method)
-		{
-			yield return new object[] { 42 };
-			yield return new object[] { new NonSerializableDataAttribute() };
-		}
+		public override IReadOnlyCollection<object[]> GetData(MethodInfo method) =>
+			new[]
+			{
+				new object[] { 42 },
+				new object[] { new NonSerializableDataAttribute() }
+			};
 	}
 
 	class NonSerializableDataClass
@@ -243,7 +243,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
 	public class NoSuchDataDiscovererAttribute : DataAttribute
 	{
-		public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod)
 		{
 			throw new NotImplementedException();
 		}
@@ -269,7 +269,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer(typeof(TheoryDiscovererTests))]
 	public class NotADataDiscovererAttribute : DataAttribute
 	{
-		public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod)
 		{
 			throw new NotImplementedException();
 		}

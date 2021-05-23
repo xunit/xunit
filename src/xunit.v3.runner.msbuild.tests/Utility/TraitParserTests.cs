@@ -139,10 +139,8 @@ public class TraitParserTests
 
 			parser.Parse("One1", traits);
 
-			Assert.Collection(
-				messages,
-				msg => Assert.Equal("Invalid trait 'One1'. The format should be 'name=value'. This trait will be ignored.", msg)
-			);
+			var msg = Assert.Single(messages);
+			Assert.Equal("Invalid trait 'One1'. The format should be 'name=value'. This trait will be ignored.", msg);
 		}
 	}
 }

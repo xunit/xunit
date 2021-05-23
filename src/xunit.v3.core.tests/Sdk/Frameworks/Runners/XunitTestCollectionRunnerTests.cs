@@ -69,7 +69,7 @@ public class XunitTestCollectionRunnerTests
 
 		public bool DisposeAsyncCalled;
 
-		public TaskCompletionSource<bool> DisposeAsyncSignaler = new TaskCompletionSource<bool>();
+		public TaskCompletionSource<bool> DisposeAsyncSignaler = new();
 
 		public void Dispose()
 		{
@@ -229,9 +229,10 @@ public class XunitTestCollectionRunnerTests
 				throw new DivideByZeroException();
 			}
 
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : _ITestCase
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : _ITestCase
 			{
-				return Enumerable.Empty<TTestCase>();
+				return Array.Empty<TTestCase>();
 			}
 		}
 	}
@@ -251,7 +252,7 @@ public class XunitTestCollectionRunnerTests
 
 	class CustomTestCaseOrderer : ITestCaseOrderer
 	{
-		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 			where TTestCase : _ITestCase
 		{
 			return testCases;
@@ -265,7 +266,7 @@ public class XunitTestCollectionRunnerTests
 
 		TestableXunitTestCollectionRunner(
 			_ITestCollection testCollection,
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -277,7 +278,7 @@ public class XunitTestCollectionRunnerTests
 		}
 
 		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
-			new TestableXunitTestCollectionRunner(
+			new(
 				testCase.TestMethod.TestClass.TestCollection,
 				new[] { testCase },
 				new List<_MessageSinkMessage>(),
@@ -293,7 +294,10 @@ public class XunitTestCollectionRunnerTests
 
 		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
-		protected override Task<RunSummary> RunTestClassAsync(_ITestClass testClass, _IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
+		protected override Task<RunSummary> RunTestClassAsync(
+			_ITestClass testClass,
+			_IReflectionTypeInfo @class,
+			IReadOnlyCollection<IXunitTestCase> testCases)
 		{
 			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
 

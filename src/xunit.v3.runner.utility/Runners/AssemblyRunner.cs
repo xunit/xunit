@@ -291,7 +291,7 @@ namespace Xunit.Runners
 				}
 
 				var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
-				var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization));
+				var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
 				controller.Run(this, runSettings);
 				executionCompleteEvent.WaitOne();
 			});

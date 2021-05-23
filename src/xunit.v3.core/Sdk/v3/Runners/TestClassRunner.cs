@@ -25,7 +25,7 @@ namespace Xunit.v3
 		_IMessageSink diagnosticMessageSink;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
-		IEnumerable<TTestCase> testCases;
+		IReadOnlyCollection<TTestCase> testCases;
 		_ITestClass testClass;
 
 		/// <summary>
@@ -42,7 +42,7 @@ namespace Xunit.v3
 		protected TestClassRunner(
 			_ITestClass testClass,
 			_IReflectionTypeInfo @class,
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -116,7 +116,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the test cases to be run.
 		/// </summary>
-		protected IEnumerable<TTestCase> TestCases
+		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
 			set => testCases = Guard.ArgumentNotNull(nameof(TestCaseOrderer), value);
@@ -262,7 +262,7 @@ namespace Xunit.v3
 		protected virtual async Task<RunSummary> RunTestMethodsAsync()
 		{
 			var summary = new RunSummary();
-			IEnumerable<TTestCase> orderedTestCases;
+			IReadOnlyCollection<TTestCase> orderedTestCases;
 
 			try
 			{
@@ -272,14 +272,14 @@ namespace Xunit.v3
 			{
 				var innerEx = ex.Unwrap();
 				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test case orderer '{TestCaseOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
-				orderedTestCases = TestCases.ToList();
+				orderedTestCases = TestCases.CastOrToReadOnlyCollection();
 			}
 
 			var constructorArguments = CreateTestClassConstructorArguments();
 
 			foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
 			{
-				summary.Aggregate(await RunTestMethodAsync(method.Key, (_IReflectionMethodInfo)method.Key.Method, method, constructorArguments));
+				summary.Aggregate(await RunTestMethodAsync(method.Key, (_IReflectionMethodInfo)method.Key.Method, method.CastOrToReadOnlyCollection(), constructorArguments));
 				if (CancellationTokenSource.IsCancellationRequested)
 					break;
 			}
@@ -298,7 +298,7 @@ namespace Xunit.v3
 		protected abstract Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod testMethod,
 			_IReflectionMethodInfo method,
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			object?[] constructorArguments
 		);
 

@@ -340,10 +340,8 @@ public class Xunit3AcceptanceTests
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_CtorFailure));
 
-			Assert.Collection(
-				messages,
-				msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
-			);
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
 		}
 
 		[Fact]
@@ -351,10 +349,8 @@ public class Xunit3AcceptanceTests
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
-			Assert.Collection(
-				messages,
-				msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
-			);
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
 		}
 
 		[Fact]
@@ -524,7 +520,7 @@ public class Xunit3AcceptanceTests
 
 		public class AlphabeticalOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 				where TTestCase : _ITestCase
 			{
 				var result = testCases.ToList();
@@ -589,10 +585,9 @@ public class Xunit3AcceptanceTests
 		{
 			var msgs = await RunAsync(typeof(ClassWithCustomFact));
 
-			Assert.Collection(
-				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestDisplayName),
-				displayName => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", displayName)
-			);
+			var displayName = Assert.Single(
+				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID).TestDisplayName));
+			Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", displayName);
 		}
 
 		class MyCustomFact : FactAttribute { }
@@ -608,10 +603,11 @@ public class Xunit3AcceptanceTests
 		{
 			var msgs = await RunAsync(typeof(ClassWithCustomArrayFact));
 
-			Assert.Collection(
-				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestDisplayName),
-				displayName => Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", displayName)
-			);
+			var displayName = Assert.Single(
+				msgs.OfType<_TestPassed>().Select(
+					p => msgs.OfType<_TestStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID)
+						.TestDisplayName));
+			Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", displayName);
 		}
 
 		class MyCustomArrayFact : FactAttribute

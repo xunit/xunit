@@ -32,7 +32,10 @@ namespace Xunit.Runner.v2
 
 		/// <inheritdoc/>
 		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-			V3AttributeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit2AttributeInfo(a)).ToList();
+			V3AttributeInfo
+				.GetCustomAttributes(assemblyQualifiedAttributeTypeName)
+				.Select(a => new Xunit2AttributeInfo(a))
+				.CastOrToArray();
 
 		/// <inheritdoc/>
 		[return: MaybeNull]

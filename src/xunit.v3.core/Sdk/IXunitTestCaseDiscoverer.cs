@@ -16,7 +16,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="factAttribute">The fact attribute attached to the test method.</param>
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
-		IEnumerable<IXunitTestCase> Discover(
+		IReadOnlyCollection<IXunitTestCase> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo factAttribute

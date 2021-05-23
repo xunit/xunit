@@ -16,7 +16,8 @@ public class SynchronousMessageBusTests
 			Assert.True(bus.QueueMessage(msg1));
 		}
 
-		Assert.Collection(dispatchedMessages, message => Assert.Same(msg1, message));
+		var message = Assert.Single(dispatchedMessages);
+		Assert.Same(msg1, message);
 	}
 
 	[Fact]

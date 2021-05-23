@@ -24,9 +24,8 @@ public class TraitHelperTests
 
 		var traits = TraitHelper.GetTraits(method);
 
-		Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
-			value => Assert.Equal("foo = bar", value)
-		);
+		var value = Assert.Single(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase));
+		Assert.Equal("foo = bar", value);
 	}
 
 	[Fact]

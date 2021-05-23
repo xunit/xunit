@@ -61,24 +61,23 @@ namespace Xunit.Sdk
 
 			return attributeUsageCache.GetOrAdd(
 				attributeType,
-				at => (AttributeUsageAttribute?)at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
-					?? defaultAttributeUsageAttribute
+				at => at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault() as AttributeUsageAttribute ?? defaultAttributeUsageAttribute
 			);
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<object?> GetConstructorArguments() =>
-			Convert(AttributeData.ConstructorArguments).ToList();
+		public IReadOnlyCollection<object?> GetConstructorArguments() =>
+			Convert(AttributeData.ConstructorArguments).CastOrToReadOnlyCollection();
 
 		/// <inheritdoc/>
-		public IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
 
-			return GetCustomAttributes(Attribute.GetType(), assemblyQualifiedAttributeTypeName).ToList();
+			return GetCustomAttributes(Attribute.GetType(), assemblyQualifiedAttributeTypeName);
 		}
 
-		internal static IEnumerable<_IAttributeInfo> GetCustomAttributes(
+		internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 			Type type,
 			string assemblyQualifiedAttributeTypeName)
 		{
@@ -89,7 +88,7 @@ namespace Xunit.Sdk
 			return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
 		}
 
-		internal static IEnumerable<_IAttributeInfo> GetCustomAttributes(
+		internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 			Type? type,
 			Type attributeType,
 			AttributeUsageAttribute attributeUsage)
@@ -119,7 +118,7 @@ namespace Xunit.Sdk
 					results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage));
 			}
 
-			return results;
+			return results.CastOrToReadOnlyCollection();
 		}
 
 		/// <inheritdoc/>

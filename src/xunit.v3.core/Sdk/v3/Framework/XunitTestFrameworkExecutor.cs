@@ -105,7 +105,7 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		protected override async void RunTestCases(
-			IEnumerable<IXunitTestCase> testCases,
+			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{

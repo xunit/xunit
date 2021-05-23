@@ -456,10 +456,8 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var results = await RunAsync(typeof(GenericWithNonSerializableData));
 
-			Assert.Collection(
-				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", displayName)
-			);
+			var displayName = Assert.Single(results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x));
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", displayName);
 		}
 
 		class GenericWithNonSerializableData
@@ -1263,8 +1261,12 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override IEnumerable<object?[]> GetData(MethodInfo testMethod)
-				=> new[] { new object?[] { 42 }, new object?[] { 2112 } };
+			public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod) =>
+				new[]
+				{
+					new object?[] { 42 },
+					new object?[] { 2112 }
+				};
 		}
 
 		class ClassWithCustomDataWithInternalDataCtor
@@ -1304,10 +1306,8 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-			{
-				return new[] { new[] { new object() } };
-			}
+			public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
+				new[] { new[] { new object() } };
 		}
 
 		[Fact]

@@ -363,7 +363,7 @@ namespace Xunit.Sdk
 			if (collectionBehaviorAttribute == null)
 				return typeof(CollectionPerClassTestCollectionFactory);
 
-			var ctorArgs = collectionBehaviorAttribute.GetConstructorArguments().ToList();
+			var ctorArgs = collectionBehaviorAttribute.GetConstructorArguments().CastOrToReadOnlyList();
 			if (ctorArgs.Count == 0)
 				return typeof(CollectionPerClassTestCollectionFactory);
 

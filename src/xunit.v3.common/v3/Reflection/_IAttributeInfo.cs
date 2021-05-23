@@ -14,14 +14,14 @@ namespace Xunit.v3
 		/// Gets the arguments passed to the constructor.
 		/// </summary>
 		/// <returns>The constructor arguments, in order</returns>
-		IEnumerable<object?> GetConstructorArguments();
+		IReadOnlyCollection<object?> GetConstructorArguments();
 
 		/// <summary>
 		/// Gets all the custom attributes for the given attribute.
 		/// </summary>
 		/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute to find, in assembly-qualified form</param>
 		/// <returns>The matching attributes that decorate the attribute</returns>
-		IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+		IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
 		/// <summary>
 		/// Gets a named-argument initialized value of the attribute. If there is no named argument for the given name

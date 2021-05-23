@@ -25,7 +25,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the interfaces implemented by the given type.
 		/// </summary>
-		IEnumerable<_ITypeInfo> Interfaces { get; }
+		IReadOnlyCollection<_ITypeInfo> Interfaces { get; }
 
 		/// <summary>
 		/// Gets a value indicating whether the type is abstract.
@@ -76,13 +76,13 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
 		/// <returns>The matching attributes that decorate the type</returns>
-		IEnumerable<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+		IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
 		/// <summary>
 		/// Gets the generic type arguments for a generic type.
 		/// </summary>
 		/// <returns>The list of generic types.</returns>
-		IEnumerable<_ITypeInfo> GetGenericArguments();
+		IReadOnlyCollection<_ITypeInfo> GetGenericArguments();
 
 		/// <summary>
 		/// Gets a specific method.
@@ -97,6 +97,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="includePrivateMethods">Set to <c>true</c> to return all methods in the type,
 		/// or <c>false</c> to return only public methods.</param>
-		IEnumerable<_IMethodInfo> GetMethods(bool includePrivateMethods);
+		IReadOnlyCollection<_IMethodInfo> GetMethods(bool includePrivateMethods);
 	}
 }

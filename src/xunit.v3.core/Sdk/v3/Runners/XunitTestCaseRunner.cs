@@ -167,12 +167,13 @@ namespace Xunit.v3
 			else
 				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
 
-			return beforeAfterTestCollectionAttributes
-				.Concat(TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-				.Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-				.Concat(TestClass.Assembly.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-				.Cast<BeforeAfterTestAttribute>()
-				.ToList();
+			return
+				beforeAfterTestCollectionAttributes
+					.Concat(TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+					.Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+					.Concat(TestClass.Assembly.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+					.Cast<BeforeAfterTestAttribute>()
+					.CastOrToList();
 		}
 
 		/// <inheritdoc/>

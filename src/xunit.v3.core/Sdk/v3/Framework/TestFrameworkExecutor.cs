@@ -119,12 +119,18 @@ namespace Xunit.v3
 			discoverer.Find(discoverySink, discoveryOptions);
 			discoverySink.Finished.WaitOne();
 
-			RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
+			var testCases =
+				discoverySink
+					.TestCases
+					.Cast<TTestCase>()
+					.CastOrToReadOnlyCollection();
+
+			RunTestCases(testCases, executionMessageSink, executionOptions);
 		}
 
 		/// <inheritdoc/>
 		public virtual void RunTests(
-			IEnumerable<string> serializedTestCases,
+			IReadOnlyCollection<string> serializedTestCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
@@ -132,7 +138,13 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
-			RunTestCases(serializedTestCases.Select(x => Deserialize(x)).Cast<TTestCase>(), executionMessageSink, executionOptions);
+			var testCases =
+				serializedTestCases
+					.Select(x => Deserialize(x))
+					.Cast<TTestCase>()
+					.CastOrToReadOnlyCollection();
+
+			RunTestCases(testCases, executionMessageSink, executionOptions);
 		}
 
 		/// <summary>
@@ -142,7 +154,7 @@ namespace Xunit.v3
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected abstract void RunTestCases(
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);

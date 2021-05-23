@@ -448,9 +448,8 @@ public class Xunit2TheoryAcceptanceTests
 		{
 			var results = Run<ITestResultMessage>(typeof(GenericWithNonSerializableData));
 
-			Assert.Collection(results.Cast<ITestPassed>(),
-				result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.Test.DisplayName)
-			);
+			var result = Assert.Single(results.Cast<ITestPassed>());
+			Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.Test.DisplayName);
 		}
 
 		public class GenericWithNonSerializableData
@@ -1210,9 +1209,9 @@ public class Xunit2TheoryAcceptanceTests
 
 			var types = testMessages.Select(t => t.GetType()).ToList();
 
-			Assert.Collection(testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName),
-				failed => Assert.Equal("Constructor on type 'Xunit2TheoryAcceptanceTests+CustomDataTests+MyCustomData' not found.", failed.Messages[0])
-			);
+			var failed = Assert.Single(testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName));
+			Assert.Equal("Constructor on type 'Xunit2TheoryAcceptanceTests+CustomDataTests+MyCustomData' not found.", failed.Messages[0]);
+
 			Assert.Empty(testMessages.OfType<ITestPassed>());
 			Assert.Empty(testMessages.OfType<ITestSkipped>());
 		}

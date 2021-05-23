@@ -82,7 +82,7 @@ namespace Xunit.Internal
 			Func<TValue, TKey> keySelector,
 			IEqualityComparer<TKey>? comparer = null)
 				where TKey : notnull
-			=> ToDictionaryIgnoringDuplicateKeys(values, keySelector, x => x, comparer);
+					=> ToDictionaryIgnoringDuplicateKeys(values, keySelector, x => x, comparer);
 
 		/// <summary/>
 		public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TInput, TKey, TValue>(

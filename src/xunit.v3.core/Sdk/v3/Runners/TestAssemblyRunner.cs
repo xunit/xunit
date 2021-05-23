@@ -26,7 +26,7 @@ namespace Xunit.v3
 		_ITestFrameworkExecutionOptions executionOptions;
 		_ITestAssembly testAssembly;
 		ITestCaseOrderer testCaseOrderer;
-		IEnumerable<TTestCase> testCases;
+		IReadOnlyCollection<TTestCase> testCases;
 		ITestCollectionOrderer testCollectionOrderer = new DefaultTestCollectionOrderer();
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace Xunit.v3
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected TestAssemblyRunner(
 			_ITestAssembly testAssembly,
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
@@ -119,7 +119,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the test cases to be run.
 		/// </summary>
-		protected IEnumerable<TTestCase> TestCases
+		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
 			set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
@@ -186,7 +186,7 @@ namespace Xunit.v3
 					.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
 					.ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
-			IEnumerable<_ITestCollection> orderedTestCollections;
+			IReadOnlyCollection<_ITestCollection> orderedTestCollections;
 
 			try
 			{
@@ -196,7 +196,7 @@ namespace Xunit.v3
 			{
 				var innerEx = ex.Unwrap();
 				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test collection orderer '{TestCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
-				orderedTestCollections = testCasesByCollection.Keys.ToList();
+				orderedTestCollections = testCasesByCollection.Keys.CastOrToReadOnlyCollection();
 			}
 
 			return
@@ -318,7 +318,7 @@ namespace Xunit.v3
 		protected abstract Task<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
-			IEnumerable<TTestCase> testCases,
+			IReadOnlyCollection<TTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource
 		);
 	}

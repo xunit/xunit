@@ -25,7 +25,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets a list of the items that are currently being tracked.
 		/// </summary>
-		public IEnumerable<object> TrackedObjects
+		public IReadOnlyCollection<object> TrackedObjects
 		{
 			get
 			{

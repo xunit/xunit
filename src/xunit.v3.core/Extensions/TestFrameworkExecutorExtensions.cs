@@ -27,7 +27,12 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
-			executor.RunTests(testCases.Select(tc => tc.Serialization), executionMessageSink, executionOptions);
+			var serializedTestCases =
+				testCases
+					.Select(tc => tc.Serialization)
+					.CastOrToReadOnlyCollection();
+
+			executor.RunTests(serializedTestCases, executionMessageSink, executionOptions);
 		}
 	}
 }

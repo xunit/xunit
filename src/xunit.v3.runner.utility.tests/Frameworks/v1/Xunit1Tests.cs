@@ -154,18 +154,14 @@ public class Xunit1Tests
 						key =>
 						{
 							Assert.Equal("Trait1", key);
-							Assert.Collection(
-								testCase.Traits[key],
-								value => Assert.Equal("Value1", value)
-							);
+							var item = Assert.Single(testCase.Traits[key]);
+							Assert.Equal("Value1", item);
 						},
 						key =>
 						{
 							Assert.Equal("Trait2", key);
-							Assert.Collection(
-								testCase.Traits[key],
-								value => Assert.Equal("Value2", value)
-							);
+							var item = Assert.Single(testCase.Traits[key]);
+							Assert.Equal("Value2", item);
 						}
 					);
 				}
@@ -1022,10 +1018,10 @@ public class AmbiguouslyNamedTestMethods
 			Predicate<_TestCaseDiscovered>? filter = null) =>
 				base.FindAndRun(messageSink, includeSourceInformation, filter);
 
-		public new void Run(
+		public void Run(
 			IEnumerable<Xunit1TestCase> testCases,
 			_IMessageSink messageSink) =>
-				base.Run(testCases, messageSink);
+				base.Run(testCases.CastOrToReadOnlyCollection(), messageSink);
 
 		public new string Serialize(Xunit1TestCase testCase) =>
 			base.Serialize(testCase);

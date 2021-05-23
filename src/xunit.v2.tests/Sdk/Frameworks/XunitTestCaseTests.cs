@@ -75,25 +75,28 @@ public class XunitTestCaseTests
 		{
 			var passingTests = Run<ITestPassed>(typeof(ClassWithCustomTraitTest));
 
-			Assert.Collection(passingTests,
-				passingTest => Assert.Collection(passingTest.TestCase.Traits.OrderBy(x => x.Key),
+			var passingTest = Assert.Single(passingTests);
+			if (passingTest != null)
+				Assert.Collection(
+					passingTest.TestCase.Traits.OrderBy(x => x.Key),
 					namedTrait =>
 					{
 						Assert.Equal("Assembly", namedTrait.Key);
-						Assert.Collection(namedTrait.Value, value => Assert.Equal("Trait", value));
+						var value = Assert.Single(namedTrait.Value);
+						Assert.Equal("Trait", value);
 					},
 					namedTrait =>
 					{
 						Assert.Equal("Author", namedTrait.Key);
-						Assert.Collection(namedTrait.Value, value => Assert.Equal("Some Schmoe", value));
+						var value = Assert.Single(namedTrait.Value);
+						Assert.Equal("Some Schmoe", value);
 					},
 					namedTrait =>
 					{
 						Assert.Equal("Bug", namedTrait.Key);
-						Assert.Collection(namedTrait.Value, value => Assert.Equal("2112", value));
-					}
-				)
-			);
+						var value = Assert.Single(namedTrait.Value);
+						Assert.Equal("2112", value);
+					});
 		}
 
 		[Fact]

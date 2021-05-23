@@ -140,10 +140,8 @@ public class XunitTestInvokerTests
 
 			await invoker.RunAsync();
 
-			Assert.Collection(messages,
-				msg => Assert.Equal("Before #1", msg)
-			// No cleanup for anything, so we had nothing run successfully
-			);
+			var msg = Assert.Single(messages);
+			Assert.Equal("Before #1", msg);
 		}
 
 		[Fact]

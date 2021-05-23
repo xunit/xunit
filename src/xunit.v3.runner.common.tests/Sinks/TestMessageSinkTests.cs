@@ -64,9 +64,7 @@ public class TestMessageSinkTests
 
 		sink.OnMessage(typedMessage);
 
-		Assert.Collection(
-			sink.Calls,
-			msg => Assert.Equal(type.Name, msg)
-		);
+		var msg = Assert.Single(sink.Calls);
+		Assert.Equal(type.Name, msg);
 	}
 }
