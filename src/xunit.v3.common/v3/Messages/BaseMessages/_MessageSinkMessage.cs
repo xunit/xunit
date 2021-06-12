@@ -17,7 +17,7 @@ namespace Xunit.v3
 		delegate void PropertyWriter(Utf8JsonWriter writer, object? value, JsonSerializerOptions options);
 
 		static string assemblyQualifiedNameTemplate;
-		static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions();
+		static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
 		static Dictionary<Type, PropertyWriter> propertyWriters = new Dictionary<Type, PropertyWriter>();
 
 		static _MessageSinkMessage()
