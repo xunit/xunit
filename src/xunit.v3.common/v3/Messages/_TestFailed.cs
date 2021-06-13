@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -9,10 +10,24 @@ namespace Xunit.v3
 	/// </summary>
 	public class _TestFailed : _TestResultMessage, _IErrorMetadata
 	{
+		FailureCause cause = FailureCause.Exception;
 		int[]? exceptionParentIndices;
 		string?[]? exceptionTypes;
 		string[]? messages;
 		string?[]? stackTraces;
+
+		/// <summary>
+		/// Gets or sets the cause of the test failure.
+		/// </summary>
+		public FailureCause Cause
+		{
+			get => cause;
+			set
+			{
+				Guard.ArgumentValid(nameof(Cause), $"Cause is not a valid value from {typeof(FailureCause).FullName}", Enum.IsDefined(typeof(FailureCause), value));
+				cause = value;
+			}
+		}
 
 		/// <inheritdoc/>
 		public int[] ExceptionParentIndices
@@ -72,11 +87,21 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
 			Guard.ArgumentNotNull(nameof(executionTime), executionTime);
 
+			var interfaces = ex.GetType().GetInterfaces();
+
+			var cause =
+				interfaces.Any(i => i.Name == "ITestTimeoutException")
+					? FailureCause.Timeout
+					: interfaces.Any(i => i.Name == "IAssertionException")
+						? FailureCause.Assertion
+						: FailureCause.Exception;
+
 			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			return new _TestFailed
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Cause = cause,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,

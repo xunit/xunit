@@ -5,7 +5,7 @@ namespace Xunit.Sdk
 	/// <summary>
 	/// Thrown if a test exceeds the specified timeout.
 	/// </summary>
-	public class TestTimeoutException : Exception
+	public class TestTimeoutException : Exception, ITestTimeoutException
 	{
 		/// <summary>
 		/// Initializes a new instance of <see cref="TestTimeoutException"/>.

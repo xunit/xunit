@@ -48,6 +48,27 @@ public class _MessageSinkMessageTests
 	}
 
 	[Fact]
+	public void SerializesEnumsAsStrings()
+	{
+		var msg = new TestMessageWithEnum { Cause = FailureCause.Assertion };
+
+		var result = Encoding.UTF8.GetString(msg.ToJson());
+
+		Assert.Equal<object>(
+			@"{" +
+				@"""$type"":""TestMessageWithEnum""," +
+				@"""Cause"":""Assertion""" +
+			@"}",
+			result
+		);
+	}
+
+	class TestMessageWithEnum : _MessageSinkMessage
+	{
+		public FailureCause Cause { get; set; }
+	}
+
+	[Fact]
 	public void CanRoundTripTraits()
 	{
 		var msg = new _TestCaseDiscovered
