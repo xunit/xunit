@@ -148,15 +148,22 @@ namespace Xunit.Runner.MSBuild
 			{
 				case null:
 				case "default":
+				case "0":
 					break;
 
 				case "unlimited":
+				case "-1":
 					maxThreadCount = -1;
 					break;
 
 				default:
 					int threadValue;
-					if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 1)
+					var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
+					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+					{
+						threadValue = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+					}
+					else if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 1)
 					{
 						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', or a positive number", MaxParallelThreads);
 						return false;

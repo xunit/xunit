@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -11,8 +10,6 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public static class ConfigReader_Json
 	{
-		static Regex maxParallelThreadsRegex = new Regex("^(\\d+(\\.\\d+)?)(x|X)$");
-
 		/// <summary>
 		/// Loads the test assembly configuration for the given test assembly.
 		/// </summary>
@@ -112,7 +109,7 @@ namespace Xunit.Runner.Common
 						{
 							if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 							{
-								var match = maxParallelThreadsRegex.Match(stringValue);
+								var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
 								if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
 									configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
 							}
