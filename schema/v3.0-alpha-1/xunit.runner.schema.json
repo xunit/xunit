@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "id": "https://xunit.net/schema/current/xunit.runner.schema.json",
+  "id": "https://xunit.net/schema/v3.0-alpha-1/xunit.runner.schema.json",
   "title": "xUnit.net Runner Configuration",
   "description": "Configuration file for unit test projects using xUnit.net",
   "type": "object",
   "properties": {
     "$schema": {
       "description": "The document schema",
-      "default": "https://xunit.net/schema/current/xunit.runner.schema.json",
+      "default": "https://xunit.net/schema/v3.0-alpha-1/xunit.runner.schema.json",
       "type": "string"
     },
     "appDomain": {
@@ -24,6 +24,11 @@
       "default": false,
       "type": "boolean"
     },
+    "failSkips": {
+      "description": "Enables or disables converting skipped tests into failed tests.",
+      "default": false,
+      "type": "boolean"
+    },
     "internalDiagnosticMessages": {
       "description": "Enables or disables internal diagnostic information during test discovery and execution.",
       "default": false,
@@ -31,16 +36,18 @@
     },
     "longRunningTestSeconds": {
       "description": "Enables reporting of tests which take longer than the configured time to complete (set to 0 to disable).",
+      "default": 0,
       "type": "integer",
       "minimum": 0
     },
     "maxParallelThreads": {
-      "description": "Configures the maximum number of threads to be used when parallelizing tests within this assembly. Use a value of 0 to indicate that you would like the default behavior; use a value of -1 to indicate that you do not wish to limit the number of threads used for parallelization. Positive integer values indicate an exact number of threads; a string value formatted as a positive integer or decimal followed by 'x' indicates a thread count which is a multiple of the CPU cores available (example: '1x' would give 4 threads on a 4 core CPU, or '1.5x' would give 6 threads on a 4 core CPU).",
+      "description": "Configures the maximum number of threads to be used when parallelizing tests within this assembly. Use a value of 'default' or 0 to indicate that you would like the default behavior; use a value of 'unlimited' or -1 to indicate that you do not wish to limit the number of threads used for parallelization. Positive integer values indicate an exact number of threads; a string value formatted as a positive integer or decimal followed by 'x' indicates a thread count which is a multiple of the CPU cores available (example: '1x' would give 4 threads on a 4 core CPU, or '1.5x' would give 6 threads on a 4 core CPU).",
       "type": [
         "integer",
         "string"
       ],
-      "pattern": "^\\d+(\\.\\d+)?(x|X)$",
+      "default": "default",
+      "pattern": "^(\\d+(\\.\\d+)?(x|X)|default|unlimited)$",
       "minimum": -1
     },
     "methodDisplay": {
@@ -74,6 +81,11 @@
     "shadowCopy": {
       "description": "Enables or disables use of shadow copying when using app domains. Has no effect if app domains are not used.",
       "default": true,
+      "type": "boolean"
+    },
+    "stopOnFail": {
+      "description": "Enables or disables stopping all running tests when the first failing test is encountered. Defaults to 'false'.",
+      "default": false,
       "type": "boolean"
     }
   },
