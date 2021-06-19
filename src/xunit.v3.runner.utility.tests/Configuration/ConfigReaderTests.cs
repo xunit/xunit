@@ -109,4 +109,16 @@ public class ConfigReaderTests
 		Assert.True(result);
 		Assert.Equal(-1, configuration.MaxParallelThreadsOrDefault);
 	}
+
+	[Theory]
+	[InlineData("ConfigReader_MaxThreadMultiple.json")]
+	public static void ConfigurationFileWithMaxThreadsAsMultiple_ReturnsMultipliedValue(string configFileName)
+	{
+		var configuration = new TestAssemblyConfiguration();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
+
+		Assert.True(result);
+		Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+	}
 }

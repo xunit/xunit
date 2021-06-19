@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -10,6 +11,8 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public static class ConfigReader_Json
 	{
+		static Regex maxParallelThreadsRegex = new Regex("^(\\d+(\\.\\d+)?)(x|X)$");
+
 		/// <summary>
 		/// Loads the test assembly configuration for the given test assembly.
 		/// </summary>
@@ -103,21 +106,29 @@ namespace Xunit.Runner.Common
 					else if (property.Value.ValueKind == JsonValueKind.String)
 					{
 						var stringValue = property.Value.GetString();
-
-						if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
+						if (stringValue != null)
 						{
-							if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
-								configuration.MethodDisplay = methodDisplay;
-						}
-						else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
-								configuration.MethodDisplayOptions = methodDisplayOptions;
-						}
-						else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
-								configuration.AppDomain = appDomain;
+							if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+							{
+								var match = maxParallelThreadsRegex.Match(stringValue);
+								if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+									configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+							}
+							else if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
+							{
+								if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
+									configuration.MethodDisplay = methodDisplay;
+							}
+							else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
+							{
+								if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
+									configuration.MethodDisplayOptions = methodDisplayOptions;
+							}
+							else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
+							{
+								if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
+									configuration.AppDomain = appDomain;
+							}
 						}
 					}
 				}
