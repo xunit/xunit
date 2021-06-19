@@ -29,7 +29,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		bool executed = false;
 		bool failed;
 		IRunnerLogger? logger;
-		IReadOnlyList<IRunnerReporter> runnerReporters;
+		IReadOnlyList<IRunnerReporter>? runnerReporters;
 		Assembly testAssembly;
 		TestExecutionSummaries testExecutionSummaries = new TestExecutionSummaries();
 
@@ -49,13 +49,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 			this.args = Guard.ArgumentNotNull(nameof(args), args);
 			this.testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", testAssembly ?? Assembly.GetEntryAssembly());
 			this.consoleLock = consoleLock ?? new object();
+			this.runnerReporters = runnerReporters.CastOrToReadOnlyList();
 
 			commandLine = CommandLine.Parse(this.testAssembly, this.testAssembly.Location, args);
-
-			this.runnerReporters =
-				runnerReporters != null
-					? runnerReporters.ToList()
-					: GetAvailableRunnerReporters(this.testAssembly.Location, commandLine.Project.Configuration.NoColorOrDefault);
 		}
 
 		/// <summary>
@@ -74,15 +70,18 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 			try
 			{
+				if (commandLine.ParseFault != null)
+					ExceptionDispatchInfo.Capture(commandLine.ParseFault).Throw();
+
+				if (runnerReporters == null)
+					runnerReporters = GetAvailableRunnerReporters(testAssembly.Location, commandLine.Project.Configuration.NoColorOrDefault);
+
 				if (args.Length > 0 && (args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help"))
 				{
 					PrintHeader();
 					PrintUsage();
 					return 2;
 				}
-
-				if (commandLine.ParseFault != null)
-					ExceptionDispatchInfo.Capture(commandLine.ParseFault).Throw();
 
 				AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
@@ -285,7 +284,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine("                        : if specified more than once, acts as an AND operation");
 			Console.WriteLine();
 
-			if (runnerReporters.Count > 0)
+			if (runnerReporters?.Count > 0)
 			{
 				Console.WriteLine("Reporters (optional, choose only one)");
 				Console.WriteLine();
