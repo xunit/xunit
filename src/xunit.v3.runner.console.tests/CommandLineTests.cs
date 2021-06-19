@@ -212,7 +212,7 @@ public class CommandLineTests
 				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-appdomains", "foo");
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
-				Assert.Equal("incorrect argument value for -appdomains (must be 'required' or 'denied')", commandLine.ParseFault.Message);
+				Assert.Equal("incorrect argument value for -appdomains (must be 'denied' or 'required')", commandLine.ParseFault.Message);
 			}
 
 			[Theory]

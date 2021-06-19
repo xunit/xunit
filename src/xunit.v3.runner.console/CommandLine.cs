@@ -140,86 +140,51 @@ namespace Xunit.Runner.SystemConsole
 
 				optionName = optionName.Substring(1);
 
-				if (optionName == "nologo")
-				{
-					GuardNoOptionValue(option);
-					project.Configuration.NoLogo = true;
-				}
-				else if (optionName == "failskips")
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.FailSkips = true;
-				}
-				else if (optionName == "stoponfail")
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.StopOnFail = true;
-				}
-				else if (optionName == "nocolor")
-				{
-					GuardNoOptionValue(option);
-					project.Configuration.NoColor = true;
-				}
-				else if (optionName == "noappdomain")    // Here for historical reasons
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.AppDomain = AppDomainSupport.Denied;
-				}
-				else if (optionName == "noautoreporters")
-				{
-					GuardNoOptionValue(option);
-					project.Configuration.NoAutoReporters = true;
-				}
-				else if (optionName == "pause")
-				{
-					GuardNoOptionValue(option);
-					project.Configuration.Pause = true;
-				}
-				else if (optionName == "preenumeratetheories")
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.PreEnumerateTheories = true;
-				}
-				else if (optionName == "debug")
-				{
-					GuardNoOptionValue(option);
-					project.Configuration.Debug = true;
-				}
-				else if (optionName == "wait")
-				{
-					GuardNoOptionValue(option);
-					project.Configuration.Wait = true;
-				}
-				else if (optionName == "diagnostics")
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.DiagnosticMessages = true;
-				}
-				else if (optionName == "internaldiagnostics")
-				{
-					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.InternalDiagnosticMessages = true;
-				}
-				else if (optionName == "appdomains")
+				if (optionName == "appdomains")
 				{
 					if (option.Value == null)
 						throw new ArgumentException("missing argument for -appdomains");
 
 					var appDomainSupport = option.Value switch
 					{
-						"required" => AppDomainSupport.Required,
 						"denied" => AppDomainSupport.Denied,
-						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'required' or 'denied')"),
+						"required" => AppDomainSupport.Required,
+						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'denied' or 'required')"),
 					};
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.AppDomain = appDomainSupport;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.AppDomain = appDomainSupport;
+				}
+				else if (optionName == "class")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -class");
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedClasses.Add(option.Value);
+				}
+				else if (optionName == "debug")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.Debug = true;
+				}
+				else if (optionName == "diagnostics")
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.DiagnosticMessages = true;
+				}
+				else if (optionName == "failskips")
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.FailSkips = true;
+				}
+				else if (optionName == "internaldiagnostics")
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.InternalDiagnosticMessages = true;
 				}
 				else if (optionName == "maxthreads")
 				{
@@ -247,8 +212,90 @@ namespace Xunit.Runner.SystemConsole
 							break;
 					}
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.MaxParallelThreads = maxParallelThreads;
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.MaxParallelThreads = maxParallelThreads;
+				}
+				else if (optionName == "method")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -method");
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedMethods.Add(option.Value);
+				}
+				else if (optionName == "namespace")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -namespace");
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedNamespaces.Add(option.Value);
+				}
+				else if (optionName == "noappdomain")    // Here for historical reasons
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.AppDomain = AppDomainSupport.Denied;
+				}
+				else if (optionName == "noautoreporters")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.NoAutoReporters = true;
+				}
+				else if (optionName == "noclass")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -noclass");
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedClasses.Add(option.Value);
+				}
+				else if (optionName == "nocolor")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.NoColor = true;
+				}
+				else if (optionName == "nologo")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.NoLogo = true;
+				}
+				else if (optionName == "nomethod")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -nomethod");
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedMethods.Add(option.Value);
+				}
+				else if (optionName == "nonamespace")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -nonamespace");
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedNamespaces.Add(option.Value);
+				}
+				else if (optionName == "noshadow")
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.ShadowCopy = false;
+				}
+				else if (optionName == "notrait")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -notrait");
+
+					var pieces = option.Value.Split('=');
+					if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
+						throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
+
+					var name = pieces[0];
+					var value = pieces[1];
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.ExcludedTraits.Add(name, value);
 				}
 				else if (optionName == "parallel")
 				{
@@ -266,17 +313,28 @@ namespace Xunit.Runner.SystemConsole
 						_ => (false, false)
 					};
 
-					foreach (var assembly in project.Assemblies)
+					foreach (var projectAssembly in project.Assemblies)
 					{
-						assembly.Configuration.ParallelizeAssembly = parallelizeAssemblies;
-						assembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+						projectAssembly.Configuration.ParallelizeAssembly = parallelizeAssemblies;
+						projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
 					}
 				}
-				else if (optionName == "noshadow")
+				else if (optionName == "pause")
 				{
 					GuardNoOptionValue(option);
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.ShadowCopy = false;
+					project.Configuration.Pause = true;
+				}
+				else if (optionName == "preenumeratetheories")
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.PreEnumerateTheories = true;
+				}
+				else if (optionName == "stoponfail")
+				{
+					GuardNoOptionValue(option);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.StopOnFail = true;
 				}
 				else if (optionName == "trait")
 				{
@@ -290,71 +348,13 @@ namespace Xunit.Runner.SystemConsole
 					var name = pieces[0];
 					var value = pieces[1];
 
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedTraits.Add(name, value);
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Filters.IncludedTraits.Add(name, value);
 				}
-				else if (optionName == "notrait")
+				else if (optionName == "wait")
 				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -notrait");
-
-					var pieces = option.Value.Split('=');
-					if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
-						throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
-
-					var name = pieces[0];
-					var value = pieces[1];
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedTraits.Add(name, value);
-				}
-				else if (optionName == "class")
-				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -class");
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedClasses.Add(option.Value);
-				}
-				else if (optionName == "noclass")
-				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -noclass");
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedClasses.Add(option.Value);
-				}
-				else if (optionName == "method")
-				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -method");
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedMethods.Add(option.Value);
-				}
-				else if (optionName == "nomethod")
-				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -nomethod");
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedMethods.Add(option.Value);
-				}
-				else if (optionName == "namespace")
-				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -namespace");
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.IncludedNamespaces.Add(option.Value);
-				}
-				else if (optionName == "nonamespace")
-				{
-					if (option.Value == null)
-						throw new ArgumentException("missing argument for -nonamespace");
-
-					foreach (var assembly in project.Assemblies)
-						assembly.Configuration.Filters.ExcludedNamespaces.Add(option.Value);
+					GuardNoOptionValue(option);
+					project.Configuration.Wait = true;
 				}
 				else
 				{
