@@ -47,6 +47,9 @@ public class ConfigReaderTests
 		Assert.False(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.True(configuration.PreEnumerateTheoriesOrDefault);
+
+		if (configFileName.EndsWith(".json"))
+			Assert.False(configuration.FailSkipsOrDefault);
 	}
 
 	[Theory]
@@ -70,6 +73,9 @@ public class ConfigReaderTests
 		Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.False(configuration.PreEnumerateTheoriesOrDefault);
 		Assert.Equal(5, configuration.LongRunningTestSecondsOrDefault);
+
+		if (configFileName.EndsWith(".json"))
+			Assert.True(configuration.FailSkipsOrDefault);
 	}
 
 	[Theory]
@@ -93,6 +99,9 @@ public class ConfigReaderTests
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.True(configuration.PreEnumerateTheoriesOrDefault);
+
+		if (configFileName.EndsWith(".json"))
+			Assert.False(configuration.FailSkipsOrDefault);
 	}
 
 	[Theory]

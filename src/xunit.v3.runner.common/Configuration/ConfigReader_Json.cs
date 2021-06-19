@@ -77,6 +77,8 @@ namespace Xunit.Runner.Common
 
 						if (string.Equals(property.Name, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 							configuration.DiagnosticMessages = booleanValue;
+						else if (string.Equals(property.Name, Configuration.FailSkips, StringComparison.OrdinalIgnoreCase))
+							configuration.FailSkips = booleanValue;
 						else if (string.Equals(property.Name, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 							configuration.InternalDiagnosticMessages = booleanValue;
 						else if (string.Equals(property.Name, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
@@ -144,7 +146,9 @@ namespace Xunit.Runner.Common
 		{
 			public const string AppDomain = "appDomain";
 			public const string DiagnosticMessages = "diagnosticMessages";
+			public const string FailSkips = "failSkips";
 			public const string InternalDiagnosticMessages = "internalDiagnosticMessages";
+			public const string LongRunningTestSeconds = "longRunningTestSeconds";
 			public const string MaxParallelThreads = "maxParallelThreads";
 			public const string MethodDisplay = "methodDisplay";
 			public const string MethodDisplayOptions = "methodDisplayOptions";
@@ -153,7 +157,6 @@ namespace Xunit.Runner.Common
 			public const string PreEnumerateTheories = "preEnumerateTheories";
 			public const string ShadowCopy = "shadowCopy";
 			public const string StopOnFail = "stopOnFail";
-			public const string LongRunningTestSeconds = "longRunningTestSeconds";
 		}
 	}
 }
