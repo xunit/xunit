@@ -105,9 +105,9 @@ public class ConfigReaderTests
 	}
 
 	[Theory]
-	[InlineData("ConfigReader_NegativeThreads.json")]
+	[InlineData("ConfigReader_MaxThreadsNegativeOne.json")]
 #if NETFRAMEWORK
-	[InlineData("ConfigReader_NegativeThreads.config")]
+	[InlineData("ConfigReader_MaxThreadsNegativeOne.config")]
 #endif
 	public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue(string configFileName)
 	{
@@ -120,14 +120,50 @@ public class ConfigReaderTests
 	}
 
 	[Theory]
-	[InlineData("ConfigReader_MaxThreadMultiple.json")]
-	public static void ConfigurationFileWithMaxThreadsAsMultiple_ReturnsMultipliedValue(string configFileName)
+	[InlineData("ConfigReader_MaxThreadsZero.json")]
+#if NETFRAMEWORK
+	[InlineData("ConfigReader_MaxThreadsZero.config")]
+#endif
+	public static void ConfigurationFileWithZeroThreads_ReturnsProcessorCount(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
 
 		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
 
 		Assert.True(result);
+		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
+	}
+
+	[Fact]
+	public static void ConfigurationFileWithMaxThreadsAsMultiplier_ReturnsMultipliedValue()
+	{
+		var configuration = new TestAssemblyConfiguration();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplier.json"));
+
+		Assert.True(result);
 		Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+	}
+
+	[Fact]
+	public static void ConfigurationFileWithMaxThreadsExplicitDefault_ReturnsProcessorCount()
+	{
+		var configuration = new TestAssemblyConfiguration { MaxParallelThreads = 2112 };
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsDefault.json"));
+
+		Assert.True(result);
+		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
+	}
+
+	[Fact]
+	public static void ConfigurationFileWithMaxThreadsExplicitUnlimited_ReturnsUnlimited()
+	{
+		var configuration = new TestAssemblyConfiguration();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsUnlimited.json"));
+
+		Assert.True(result);
+		Assert.Equal(-1, configuration.MaxParallelThreadsOrDefault);
 	}
 }

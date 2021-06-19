@@ -88,7 +88,9 @@ namespace Xunit.Runner.Common
 		public int LongRunningTestSecondsOrDefault => LongRunningTestSeconds ?? -1;
 
 		/// <summary>
-		/// Gets or sets the maximum number of thread to use when parallelizing this assembly.
+		/// Gets or sets the maximum number of thread to use when parallelizing this assembly. A value of <c>null</c>
+		/// or 0 indicates that the default should be used (<see cref="Environment.ProcessorCount"/>); a value of
+		/// -1 indicates that tests should run with an unlimited-sized thread pool.
 		/// </summary>
 		public int? MaxParallelThreads { get; set; }
 
@@ -96,7 +98,10 @@ namespace Xunit.Runner.Common
 		/// Gets the maximum number of thread to use when parallelizing this assembly.
 		/// If the value is not set, returns the default value (<see cref="Environment.ProcessorCount"/>).
 		/// </summary>
-		public int MaxParallelThreadsOrDefault => MaxParallelThreads ?? Environment.ProcessorCount;
+		public int MaxParallelThreadsOrDefault =>
+			MaxParallelThreads == null || MaxParallelThreads == 0
+				? Environment.ProcessorCount
+				: MaxParallelThreads.Value;
 
 		/// <summary>
 		/// Gets or sets the default display name for test methods.

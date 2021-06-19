@@ -109,9 +109,16 @@ namespace Xunit.Runner.Common
 						{
 							if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 							{
-								var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
-								if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
-									configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+								if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
+									configuration.MaxParallelThreads = null;
+								else if (string.Equals("unlimited", stringValue, StringComparison.OrdinalIgnoreCase))
+									configuration.MaxParallelThreads = -1;
+								else
+								{
+									var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
+									if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+										configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+								}
 							}
 							else if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
 							{
