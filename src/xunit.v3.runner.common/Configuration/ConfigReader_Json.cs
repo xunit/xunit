@@ -74,6 +74,8 @@ namespace Xunit.Runner.Common
 
 						if (string.Equals(property.Name, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 							configuration.DiagnosticMessages = booleanValue;
+						else if (string.Equals(property.Name, Configuration.FailSkips, StringComparison.OrdinalIgnoreCase))
+							configuration.FailSkips = booleanValue;
 						else if (string.Equals(property.Name, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 							configuration.InternalDiagnosticMessages = booleanValue;
 						else if (string.Equals(property.Name, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
@@ -103,21 +105,36 @@ namespace Xunit.Runner.Common
 					else if (property.Value.ValueKind == JsonValueKind.String)
 					{
 						var stringValue = property.Value.GetString();
-
-						if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
+						if (stringValue != null)
 						{
-							if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
-								configuration.MethodDisplay = methodDisplay;
-						}
-						else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
-								configuration.MethodDisplayOptions = methodDisplayOptions;
-						}
-						else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
-								configuration.AppDomain = appDomain;
+							if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+							{
+								if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
+									configuration.MaxParallelThreads = null;
+								else if (string.Equals("unlimited", stringValue, StringComparison.OrdinalIgnoreCase))
+									configuration.MaxParallelThreads = -1;
+								else
+								{
+									var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
+									if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+										configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+								}
+							}
+							else if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
+							{
+								if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
+									configuration.MethodDisplay = methodDisplay;
+							}
+							else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
+							{
+								if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
+									configuration.MethodDisplayOptions = methodDisplayOptions;
+							}
+							else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
+							{
+								if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
+									configuration.AppDomain = appDomain;
+							}
 						}
 					}
 				}
@@ -133,7 +150,9 @@ namespace Xunit.Runner.Common
 		{
 			public const string AppDomain = "appDomain";
 			public const string DiagnosticMessages = "diagnosticMessages";
+			public const string FailSkips = "failSkips";
 			public const string InternalDiagnosticMessages = "internalDiagnosticMessages";
+			public const string LongRunningTestSeconds = "longRunningTestSeconds";
 			public const string MaxParallelThreads = "maxParallelThreads";
 			public const string MethodDisplay = "methodDisplay";
 			public const string MethodDisplayOptions = "methodDisplayOptions";
@@ -142,7 +161,6 @@ namespace Xunit.Runner.Common
 			public const string PreEnumerateTheories = "preEnumerateTheories";
 			public const string ShadowCopy = "shadowCopy";
 			public const string StopOnFail = "stopOnFail";
-			public const string LongRunningTestSeconds = "longRunningTestSeconds";
 		}
 	}
 }

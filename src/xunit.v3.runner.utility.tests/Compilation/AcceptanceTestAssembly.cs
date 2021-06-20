@@ -34,11 +34,19 @@ public abstract class AcceptanceTestAssembly : IDisposable
 
 	public virtual void Dispose()
 	{
-		if (File.Exists(FileName))
-			File.Delete(FileName);
+		try
+		{
+			if (File.Exists(FileName))
+				File.Delete(FileName);
+		}
+		catch { }
 
-		if (File.Exists(PdbName))
-			File.Delete(PdbName);
+		try
+		{
+			if (File.Exists(PdbName))
+				File.Delete(PdbName);
+		}
+		catch { }
 	}
 
 	protected abstract Task Compile(string code, string[] references);

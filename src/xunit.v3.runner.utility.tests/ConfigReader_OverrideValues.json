@@ -1,5 +1,6 @@
 ﻿{
   "diagnosticMessages": true,
+  "failSkips":  true,
   "internalDiagnosticMessages": true,
   "maxParallelThreads": 2112,
   "methodDisplay": "method",

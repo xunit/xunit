@@ -43,6 +43,9 @@ namespace Xunit.Runner.SystemConsole
 
 			try
 			{
+				if (commandLine.ParseFault != null)
+					ExceptionDispatchInfo.Capture(commandLine.ParseFault).Throw();
+
 				var reporters = GetAvailableRunnerReporters();
 
 				if (args.Length == 0 || args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help")
@@ -51,9 +54,6 @@ namespace Xunit.Runner.SystemConsole
 					PrintUsage(reporters);
 					return 2;
 				}
-
-				if (commandLine.ParseFault != null)
-					ExceptionDispatchInfo.Capture(commandLine.ParseFault).Throw();
 
 				if (commandLine.Project.Assemblies.Count == 0)
 					throw new ArgumentException("must specify at least one assembly");

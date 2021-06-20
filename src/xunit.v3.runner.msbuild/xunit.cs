@@ -21,11 +21,15 @@ namespace Xunit.Runner.MSBuild
 	{
 		volatile bool cancel;
 		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+		bool? diagnosticMessages;
+		bool? failSkips;
 		XunitFilters? filters;
+		bool? internalDiagnosticMessages;
 		IRunnerLogger? logger;
 		int? maxThreadCount;
 		bool? parallelizeAssemblies;
 		bool? parallelizeTestCollections;
+		bool? preEnumerateTheories;
 		_IMessageSink? reporterMessageHandler;
 		bool? shadowCopy;
 		bool? stopOnFail;
@@ -35,14 +39,14 @@ namespace Xunit.Runner.MSBuild
 		[Required]
 		public ITaskItem[]? Assemblies { get; set; }
 
-		public bool DiagnosticMessages { get; set; }
+		public bool DiagnosticMessages { set { diagnosticMessages = value; } }
 
 		public string? ExcludeTraits { get; set; }
 
 		[Output]
 		public int ExitCode { get; protected set; }
 
-		public bool FailSkips { get; set; }
+		public bool FailSkips { set { failSkips = value; } }
 
 		protected XunitFilters Filters
 		{
@@ -66,7 +70,7 @@ namespace Xunit.Runner.MSBuild
 
 		public string? IncludeTraits { get; set; }
 
-		public bool InternalDiagnosticMessages { get; set; }
+		public bool InternalDiagnosticMessages { set { internalDiagnosticMessages = value; } }
 
 		public ITaskItem? JUnit { get; set; }
 
@@ -85,7 +89,7 @@ namespace Xunit.Runner.MSBuild
 
 		public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
 
-		public bool PreEnumerateTheories { get; set; }
+		public bool PreEnumerateTheories { set { preEnumerateTheories = value; } }
 
 		public string? Reporter { get; set; }
 
@@ -144,15 +148,22 @@ namespace Xunit.Runner.MSBuild
 			{
 				case null:
 				case "default":
+				case "0":
 					break;
 
 				case "unlimited":
+				case "-1":
 					maxThreadCount = -1;
 					break;
 
 				default:
 					int threadValue;
-					if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 1)
+					var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
+					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+					{
+						threadValue = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+					}
+					else if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 1)
 					{
 						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', or a positive number", MaxParallelThreads);
 						return false;
@@ -163,7 +174,7 @@ namespace Xunit.Runner.MSBuild
 			}
 
 			var originalWorkingFolder = Directory.GetCurrentDirectory();
-			var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, InternalDiagnosticMessages);
+			var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, internalDiagnosticMessages ?? false);
 
 			using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), internalDiagnosticsMessageSink))
 			{
@@ -282,9 +293,14 @@ namespace Xunit.Runner.MSBuild
 
 			try
 			{
-				assembly.Configuration.PreEnumerateTheories = PreEnumerateTheories;
-				assembly.Configuration.DiagnosticMessages |= DiagnosticMessages;
-				assembly.Configuration.InternalDiagnosticMessages |= InternalDiagnosticMessages;
+				if (preEnumerateTheories.HasValue)
+					assembly.Configuration.PreEnumerateTheories = preEnumerateTheories.Value;
+				if (diagnosticMessages.HasValue)
+					assembly.Configuration.DiagnosticMessages = diagnosticMessages.Value;
+				if (internalDiagnosticMessages.HasValue)
+					assembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages.Value;
+				if (failSkips.HasValue)
+					assembly.Configuration.FailSkips = failSkips.Value;
 
 				if (appDomains.HasValue)
 					assembly.Configuration.AppDomain = appDomains;
@@ -319,7 +335,7 @@ namespace Xunit.Runner.MSBuild
 					resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 				if (longRunningSeconds > 0)
 					resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-				if (FailSkips)
+				if (assembly.Configuration.FailSkipsOrDefault)
 					resultsSink = new DelegatingFailSkipSink(resultsSink);
 
 				using (resultsSink)

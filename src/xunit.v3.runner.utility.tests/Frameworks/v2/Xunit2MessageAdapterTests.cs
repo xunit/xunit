@@ -91,7 +91,6 @@ public class Xunit2MessageAdapterTests
 		Assert.Equal(convertedMetadata.ExceptionParentIndices, metadata.ExceptionParentIndices);
 		Assert.Equal(convertedMetadata.ExceptionTypes, metadata.ExceptionTypes, StringComparer.Ordinal);
 		Assert.Equal(convertedMetadata.Messages, metadata.Messages, StringComparer.Ordinal);
-		Assert.Equal(convertedMetadata.StackTraces, metadata.StackTraces, StringComparer.Ordinal);
 	}
 
 	public class BeforeAfterTestAttributeTests
