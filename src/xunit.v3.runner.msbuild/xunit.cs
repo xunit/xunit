@@ -20,7 +20,7 @@ namespace Xunit.Runner.MSBuild
 	public class xunit : MSBuildTask, ICancelableTask
 	{
 		volatile bool cancel;
-		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
 		bool? diagnosticMessages;
 		bool? failSkips;
 		XunitFilters? filters;
@@ -157,19 +157,17 @@ namespace Xunit.Runner.MSBuild
 					break;
 
 				default:
-					int threadValue;
 					var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
 					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+						maxThreadCount = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+					else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
+						maxThreadCount = threadValue;
+					else
 					{
-						threadValue = (int)(maxThreadMultiplier * Environment.ProcessorCount);
-					}
-					else if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 1)
-					{
-						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', or a positive number", MaxParallelThreads);
+						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
 						return false;
 					}
 
-					maxThreadCount = threadValue;
 					break;
 			}
 
