@@ -149,8 +149,9 @@ namespace Xunit.Runner.SystemConsole
 					var appDomainSupport = option.Value switch
 					{
 						"denied" => AppDomainSupport.Denied,
+						"ifavailable" => AppDomainSupport.IfAvailable,
 						"required" => AppDomainSupport.Required,
-						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'denied' or 'required')"),
+						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'denied', 'required', or 'ifavailable')"),
 					};
 
 					foreach (var projectAssembly in project.Assemblies)

@@ -244,8 +244,9 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine("Options for .NET Framework projects");
 			Console.WriteLine();
 			Console.WriteLine("  -appdomains <option> : choose an app domain mode");
-			Console.WriteLine("                       :   required - force app domains on");
-			Console.WriteLine("                       :   denied   - force app domains off");
+			Console.WriteLine("                       :   required    - force app domains on");
+			Console.WriteLine("                       :   denied      - force app domains off");
+			Console.WriteLine("                       :   ifavailable - use app domains if they're available");
 			Console.WriteLine("  -noshadow            : do not shadow copy assemblies");
 			Console.WriteLine();
 			// TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
