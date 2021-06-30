@@ -9,9 +9,9 @@ namespace Xunit.Runner.SystemConsole
 {
 	public class CommandLine
 	{
-		readonly Stack<string> arguments = new Stack<string>();
+		readonly Stack<string> arguments = new();
 		XunitProject? project;
-		readonly List<string> unknownOptions = new List<string>();
+		readonly List<string> unknownOptions = new();
 
 		protected CommandLine(
 			string[] args,
@@ -60,19 +60,20 @@ namespace Xunit.Runner.SystemConsole
 			return result ?? new DefaultRunnerReporter();
 		}
 
-		protected virtual string GetFullPath(string fileName) => Path.GetFullPath(fileName);
+		protected virtual string GetFullPath(string fileName) =>
+			Path.GetFullPath(fileName);
 
 		XunitProject GetProjectFile(List<(string assemblyFileName, string? configFileName)> assemblies)
 		{
 			var result = new XunitProject();
 
-			foreach (var assembly in assemblies)
+			foreach (var (assemblyFileName, configFileName) in assemblies)
 			{
-				var targetFramework = AssemblyUtility.GetTargetFramework(assembly.assemblyFileName);
+				var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
 				var projectAssembly = new XunitProjectAssembly(result)
 				{
-					AssemblyFilename = GetFullPath(assembly.assemblyFileName),
-					ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.configFileName) : null,
+					AssemblyFilename = GetFullPath(assemblyFileName),
+					ConfigFilename = configFileName != null ? GetFullPath(configFileName) : null,
 					TargetFramework = targetFramework
 				};
 
@@ -95,8 +96,8 @@ namespace Xunit.Runner.SystemConsole
 				|| fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 		}
 
-		public static CommandLine Parse(params string[] args)
-			=> new CommandLine(args);
+		public static CommandLine Parse(params string[] args) =>
+			new(args);
 
 		protected XunitProject Parse(Predicate<string> fileExists)
 		{
@@ -148,8 +149,9 @@ namespace Xunit.Runner.SystemConsole
 					var appDomainSupport = option.Value switch
 					{
 						"denied" => AppDomainSupport.Denied,
+						"ifavailable" => AppDomainSupport.IfAvailable,
 						"required" => AppDomainSupport.Required,
-						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'denied' or 'required')"),
+						_ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'denied', 'required', or 'ifavailable')"),
 					};
 
 					foreach (var projectAssembly in project.Assemblies)
@@ -180,6 +182,11 @@ namespace Xunit.Runner.SystemConsole
 					foreach (var projectAssembly in project.Assemblies)
 						projectAssembly.Configuration.FailSkips = true;
 				}
+				else if (optionName == "ignorefailures")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.IgnoreFailures = true;
+				}
 				else if (optionName == "internaldiagnostics")
 				{
 					GuardNoOptionValue(option);
@@ -195,20 +202,24 @@ namespace Xunit.Runner.SystemConsole
 
 					switch (option.Value)
 					{
+						case "0":
 						case "default":
-							maxParallelThreads = 0;
 							break;
 
+						// Can't support "-1" here because it's interpreted as a new command line switch
 						case "unlimited":
 							maxParallelThreads = -1;
 							break;
 
 						default:
-							int threadValue;
-							if (!int.TryParse(option.Value, out threadValue) || threadValue < 1)
-								throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
+							var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(option.Value);
+							if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+								maxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+							else if (int.TryParse(option.Value, out var threadValue) && threadValue > 0)
+								maxParallelThreads = threadValue;
+							else
+								throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x')");
 
-							maxParallelThreads = threadValue;
 							break;
 					}
 

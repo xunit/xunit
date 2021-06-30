@@ -13,9 +13,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 	/// </summary>
 	public class CommandLine
 	{
-		readonly Stack<string> arguments = new Stack<string>();
+		readonly Stack<string> arguments = new();
 		XunitProject? project;
-		readonly List<string> unknownOptions = new List<string>();
+		readonly List<string> unknownOptions = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CommandLine"/> class.
@@ -139,7 +139,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Assembly assembly,
 			string? assemblyFileName,
 			params string[] args) =>
-				new CommandLine(assembly, assemblyFileName, args);
+				new(assembly, assemblyFileName, args);
 
 		/// <summary>
 		/// For testing purposes only. Do not use.
@@ -197,6 +197,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 					foreach (var projectAssembly in project.Assemblies)
 						projectAssembly.Configuration.FailSkips = true;
 				}
+				else if (optionName == "ignorefailures")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.IgnoreFailures = true;
+				}
 				else if (optionName == "internaldiagnostics")
 				{
 					GuardNoOptionValue(option);
@@ -212,20 +217,24 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 					switch (option.Value)
 					{
+						case "0":
 						case "default":
-							maxParallelThreads = 0;
 							break;
 
+						// Can't support "-1" here because it's interpreted as a new command line switch
 						case "unlimited":
 							maxParallelThreads = -1;
 							break;
 
 						default:
-							int threadValue;
-							if (!int.TryParse(option.Value, out threadValue) || threadValue < 1)
-								throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
+							var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(option.Value);
+							if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+								maxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+							else if (int.TryParse(option.Value, out var threadValue) && threadValue > 0)
+								maxParallelThreads = threadValue;
+							else
+								throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x')");
 
-							maxParallelThreads = threadValue;
 							break;
 					}
 
