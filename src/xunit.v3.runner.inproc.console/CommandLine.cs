@@ -197,6 +197,11 @@ namespace Xunit.Runner.InProc.SystemConsole
 					foreach (var projectAssembly in project.Assemblies)
 						projectAssembly.Configuration.FailSkips = true;
 				}
+				else if (optionName == "ignorefailures")
+				{
+					GuardNoOptionValue(option);
+					project.Configuration.IgnoreFailures = true;
+				}
 				else if (optionName == "internaldiagnostics")
 				{
 					GuardNoOptionValue(option);

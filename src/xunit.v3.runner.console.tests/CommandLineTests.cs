@@ -134,6 +134,7 @@ public class CommandLineTests
 			("-debug", cmd => cmd.Project.Configuration.DebugOrDefault),
 			("-diagnostics", cmd => cmd.Project.Assemblies.All(a => a.Configuration.DiagnosticMessagesOrDefault)),
 			("-failskips", cmd => cmd.Project.Assemblies.All(a => a.Configuration.FailSkipsOrDefault)),
+			("-ignorefailures", cmd => cmd.Project.Configuration.IgnoreFailuresOrDefault),
 			("-internaldiagnostics", cmd => cmd.Project.Assemblies.All(a => a.Configuration.InternalDiagnosticMessagesOrDefault)),
 			("-noautoreporters", cmd => cmd.Project.Configuration.NoAutoReportersOrDefault),
 			("-nocolor", cmd => cmd.Project.Configuration.NoColorOrDefault),

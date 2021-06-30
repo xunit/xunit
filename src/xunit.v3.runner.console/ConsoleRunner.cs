@@ -108,7 +108,7 @@ namespace Xunit.Runner.SystemConsole
 					Console.WriteLine();
 				}
 
-				return failCount > 0 ? 1 : 0;
+				return commandLine.Project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
 			}
 			catch (Exception ex)
 			{
@@ -221,6 +221,7 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
 			Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
 			Console.WriteLine("  -failskips             : convert skipped tests into failures");
+			Console.WriteLine("  -ignorefailures        : if tests fail, do not return a failure exit code");
 			Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
 			Console.WriteLine("  -maxthreads <option>   : maximum thread count for collection parallelization");
 			Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
