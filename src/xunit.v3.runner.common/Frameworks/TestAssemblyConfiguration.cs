@@ -157,12 +157,6 @@ namespace Xunit.Runner.Common
 		public bool? PreEnumerateTheories { get; set; }
 
 		/// <summary>
-		/// Gets a flag indicating whether theory data should be pre-enumerated during
-		/// test discovery. If the flag is not set, returns the default value (<c>true</c>).
-		/// </summary>
-		public bool PreEnumerateTheoriesOrDefault => PreEnumerateTheories ?? true;
-
-		/// <summary>
 		/// Gets or sets a flag indicating whether shadow copies should be used.
 		/// </summary>
 		public bool? ShadowCopy { get; set; }

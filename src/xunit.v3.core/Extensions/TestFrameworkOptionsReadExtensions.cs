@@ -116,13 +116,13 @@ namespace Xunit.v3
 		/// Gets a flag that determines whether theories are pre-enumerated. If enabled, then the
 		/// discovery system will return a test case for each row of test data; if disabled, then the
 		/// discovery system will return a single test case for the theory. If the flag is not present,
-		/// returns the default value (<c>true</c>).
+		/// returns the default value (<c>false</c>).
 		/// </summary>
 		public static bool PreEnumerateTheoriesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-			return discoveryOptions.PreEnumerateTheories() ?? true;
+			return discoveryOptions.PreEnumerateTheories() ?? false;
 		}
 
 		/// <summary>
@@ -227,7 +227,7 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets a flag to stop testing on test failure. If the flag is not present, returns the 
+		/// Gets a flag to stop testing on test failure. If the flag is not present, returns the
 		/// default value (<c>false</c>).
 		/// </summary>
 		public static bool StopOnTestFailOrDefault(this _ITestFrameworkExecutionOptions executionOptions)

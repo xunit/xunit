@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using Xunit.Internal;
@@ -28,23 +27,45 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
 		/// </summary>
-		/// <param name="configuration">The optional configuration to copy values from.</param>
-		public static _ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration? configuration = null)
+		/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
+		/// <param name="includeSourceInformation">Optional flag to include source information</param>
+		/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
+		/// <param name="methodDisplay">Optional flags for creating the display name of test methods</param>
+		/// <param name="methodDisplayOptions">Optional flags for formatting the display name of test methods</param>
+		/// <param name="preEnumerateTheories">Optional flag to enable pre-enumerating theories</param>
+		public static _ITestFrameworkDiscoveryOptions ForDiscovery(
+			bool? diagnosticMessages = null,
+			bool? includeSourceInformation = null,
+			bool? internalDiagnosticMessages = null,
+			TestMethodDisplay? methodDisplay = null,
+			TestMethodDisplayOptions? methodDisplayOptions = null,
+			bool? preEnumerateTheories = null)
 		{
 			_ITestFrameworkDiscoveryOptions result = new _TestFrameworkOptions();
 
-			if (configuration != null)
-			{
-				result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-				result.SetIncludeSourceInformation(configuration.IncludeSourceInformation);
-				result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
-				result.SetMethodDisplay(configuration.MethodDisplay);
-				result.SetMethodDisplayOptions(configuration.MethodDisplayOptions);
-				result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
-			}
+			result.SetDiagnosticMessages(diagnosticMessages);
+			result.SetIncludeSourceInformation(includeSourceInformation);
+			result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
+			result.SetMethodDisplay(methodDisplay);
+			result.SetMethodDisplayOptions(methodDisplayOptions);
+			result.SetPreEnumerateTheories(preEnumerateTheories);
 
 			return result;
 		}
+
+		/// <summary>
+		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
+		/// </summary>
+		/// <param name="configuration">The configuration to copy values from.</param>
+		public static _ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration) =>
+			ForDiscovery(
+				configuration.DiagnosticMessages,
+				configuration.IncludeSourceInformation,
+				configuration.InternalDiagnosticMessages,
+				configuration.MethodDisplay,
+				configuration.MethodDisplayOptions,
+				configuration.PreEnumerateTheories
+			);
 
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
@@ -56,22 +77,42 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 		/// </summary>
-		/// <param name="configuration">The optional configuration to copy values from.</param>
-		public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration? configuration = null)
+		/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
+		/// <param name="diableParallelization">Optional flag to disable test parallelization</param>
+		/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
+		/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
+		/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
+		/// <returns></returns>
+		public static _ITestFrameworkExecutionOptions ForExecution(
+			bool? diagnosticMessages = null,
+			bool? diableParallelization = null,
+			bool? internalDiagnosticMessages = null,
+			int? maxParallelThreads = null,
+			bool? stopOnFail = null)
 		{
 			_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
 
-			if (configuration != null)
-			{
-				result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-				result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
-				result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
-				result.SetMaxParallelThreads(configuration.MaxParallelThreads);
-				result.SetStopOnTestFail(configuration.StopOnFail);
-			}
+			result.SetDiagnosticMessages(diagnosticMessages);
+			result.SetDisableParallelization(diableParallelization);
+			result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
+			result.SetMaxParallelThreads(maxParallelThreads);
+			result.SetStopOnTestFail(stopOnFail);
 
 			return result;
 		}
+
+		/// <summary>
+		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
+		/// </summary>
+		/// <param name="configuration">The configuration to copy values from.</param>
+		public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration) =>
+			ForExecution(
+				configuration.DiagnosticMessages,
+				!configuration.ParallelizeTestCollections,
+				configuration.InternalDiagnosticMessages,
+				configuration.MaxParallelThreads,
+				configuration.StopOnFail
+			);
 
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
