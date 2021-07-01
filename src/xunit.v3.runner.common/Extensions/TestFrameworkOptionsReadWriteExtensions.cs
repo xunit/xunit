@@ -136,13 +136,13 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	/// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
 	/// discovery system will return a test case for each row of test data; they are disabled, then the
 	/// discovery system will return a single test case for the theory. If the flag is not present,
-	/// returns the default value (<c>true</c>).
+	/// returns the default value (<c>false</c>).
 	/// </summary>
 	public static bool GetPreEnumerateTheoriesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 	{
 		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
 
-		return discoveryOptions.GetPreEnumerateTheories() ?? true;
+		return discoveryOptions.GetPreEnumerateTheories() ?? false;
 	}
 
 	/// <summary>

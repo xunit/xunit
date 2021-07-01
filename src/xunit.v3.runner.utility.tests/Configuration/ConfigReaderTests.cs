@@ -46,7 +46,7 @@ public class ConfigReaderTests
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
 		Assert.False(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
-		Assert.True(configuration.PreEnumerateTheoriesOrDefault);
+		Assert.Null(configuration.PreEnumerateTheories);
 
 		if (configFileName.EndsWith(".json"))
 			Assert.False(configuration.FailSkipsOrDefault);
@@ -71,7 +71,7 @@ public class ConfigReaderTests
 		Assert.Equal(TestMethodDisplayOptions.All, configuration.MethodDisplayOptionsOrDefault);
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
-		Assert.False(configuration.PreEnumerateTheoriesOrDefault);
+		Assert.False(configuration.PreEnumerateTheories);
 		Assert.Equal(5, configuration.LongRunningTestSecondsOrDefault);
 
 		if (configFileName.EndsWith(".json"))
@@ -98,7 +98,7 @@ public class ConfigReaderTests
 		// This value was valid as a sentinel to make sure we were trying to read values from the config file
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
-		Assert.True(configuration.PreEnumerateTheoriesOrDefault);
+		Assert.Null(configuration.PreEnumerateTheories);
 
 		if (configFileName.EndsWith(".json"))
 			Assert.False(configuration.FailSkipsOrDefault);

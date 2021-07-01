@@ -1,6 +1,6 @@
-## About xUnit.net
+# About xUnit.net
 
-[<img align="right" width="100px" src="https://dotnetfoundation.org/img/logo_big.svg" />](https://dotnetfoundation.org/projects?searchquery=xunit&type=project)
+[<img align="right" width="100px" src="https://dotnetfoundation.org/img/logo_v4.svg" />](https://dotnetfoundation.org/projects/xunit)
 
 xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
 
@@ -16,7 +16,7 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 
 |     | Stable package | Latest CI package | Latest CI build |
 | --- | -------------- | ----------------- | --------------- |
-| v3 core framework | *TBD* | *TBD* | *TBD* |
+| v3 core framework | *TBD* | <a href="https://myget.org/feed/xunit/package/nuget/xunit.v3"><img src="https://img.shields.io/myget/xunit/vpre/xunit.v3.svg?style=flat&label=myget&logo=nuget"></a> | <a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dmain&style=flat&label=build"></a> |
 | v2 core framework | <a href="https://www.nuget.org/packages/xunit"><img src="https://img.shields.io/nuget/v/xunit.svg?style=flat&logo=nuget"></a> | *N/A* | *N/A* |
 | xunit.analyzers | <a href="https://www.nuget.org/packages/xunit.analyzers"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat&logo=nuget"></a> | <a href="https://myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat&label=myget&logo=nuget"></a> | <a href="https://actions-badge.atrox.dev/xunit/xunit.analyzers/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit.analyzers%2Fbadge%3Fref%3Dmain&style=flat&label=build"></a> |
 | xunit.runner.devices | <a href="https://www.nuget.org/packages/xunit.runner.devices"><img src="https://img.shields.io/nuget/v/xunit.runner.devices.svg?style=flat&logo=nuget"></a> | <a href="https://dev.azure.com/dotnet/xUnit/_packaging?_a=package&feed=fe8eb338-07fd-45a0-b2ac-c80b58ca8c34&package=a4366a02-ff04-4fa0-97b2-564e2f56ea7c&preferRelease=true"><img src="https://azpkgsshield.azurevoodoo.net/dotnet/xUnit/xUnit/xunit.runner.devices"></a> | <a href="https://dev.azure.com/dotnet/xUnit/_build?definitionId=23&_a=summary"><img src="https://img.shields.io/azure-devops/build/dotnet/xUnit/23?style=flat&logo=azure-devops"></a> |

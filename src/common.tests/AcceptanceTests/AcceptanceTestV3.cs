@@ -10,9 +10,14 @@ using Xunit.v3;
 
 public class AcceptanceTestV3
 {
-	public Task<List<_MessageSinkMessage>> RunAsync(Type type) => RunAsync(new[] { type });
+	public Task<List<_MessageSinkMessage>> RunAsync(
+		Type type,
+		bool preEnumerateTheories = true) =>
+			RunAsync(new[] { type }, preEnumerateTheories);
 
-	public Task<List<_MessageSinkMessage>> RunAsync(Type[] types)
+	public Task<List<_MessageSinkMessage>> RunAsync(
+		Type[] types,
+		bool preEnumerateTheories = true)
 	{
 		var tcs = new TaskCompletionSource<List<_MessageSinkMessage>>();
 
@@ -28,7 +33,7 @@ public class AcceptanceTestV3
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				foreach (var type in types)
 				{
-					discoverer.Find(type.FullName!, discoverySink, _TestFrameworkOptions.ForDiscovery());
+					discoverer.Find(type.FullName!, discoverySink, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: preEnumerateTheories));
 					discoverySink.Finished.WaitOne();
 					discoverySink.Finished.Reset();
 				}
@@ -51,17 +56,21 @@ public class AcceptanceTestV3
 		return tcs.Task;
 	}
 
-	public async Task<List<TMessageType>> RunAsync<TMessageType>(Type type)
-		where TMessageType : _MessageSinkMessage
+	public async Task<List<TMessageType>> RunAsync<TMessageType>(
+		Type type,
+		bool preEnumerateTheories = true)
+			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(type);
+		var results = await RunAsync(type, preEnumerateTheories);
 		return results.OfType<TMessageType>().ToList();
 	}
 
-	public async Task<List<TMessageType>> RunAsync<TMessageType>(Type[] types)
-		where TMessageType : _MessageSinkMessage
+	public async Task<List<TMessageType>> RunAsync<TMessageType>(
+		Type[] types,
+		bool preEnumerateTheories = true)
+			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(types);
+		var results = await RunAsync(types, preEnumerateTheories);
 		return results.OfType<TMessageType>().ToList();
 	}
 }

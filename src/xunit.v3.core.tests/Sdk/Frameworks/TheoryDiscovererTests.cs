@@ -9,7 +9,7 @@ using Xunit.v3;
 
 public class TheoryDiscovererTests : AcceptanceTestV3
 {
-	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
+	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true);
 
 	[Fact]
 	public async void NoDataAttributes()
