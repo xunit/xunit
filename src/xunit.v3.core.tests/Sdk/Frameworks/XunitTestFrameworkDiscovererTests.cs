@@ -486,7 +486,7 @@ public class XunitTestFrameworkDiscovererTests
 			var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, configFileName: null, _NullSourceInformationProvider.Instance, SpyMessageSink.Create());
 			var sink = new TestDiscoverySink();
 
-			discoverer.Find(typeof(ClassWithTheory).FullName!, sink, _TestFrameworkOptions.ForDiscovery());
+			discoverer.Find(typeof(ClassWithTheory).FullName!, sink, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
 			sink.Finished.WaitOne();
 
 			Assert.Collection(
@@ -583,20 +583,20 @@ public class XunitTestFrameworkDiscovererTests
 
 		public void Find()
 		{
-			base.Find(Sink, _TestFrameworkOptions.ForDiscovery());
+			base.Find(Sink, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
 			Sink.Finished.WaitOne();
 		}
 
 		public void Find(string typeName)
 		{
-			Find(typeName, Sink, _TestFrameworkOptions.ForDiscovery());
+			Find(typeName, Sink, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
 			Sink.Finished.WaitOne();
 		}
 
 		public virtual bool FindTestsForClass(_ITestClass testClass)
 		{
 			using var messageBus = new MessageBus(Sink);
-			return base.FindTestsForType(testClass, messageBus, _TestFrameworkOptions.ForDiscovery());
+			return base.FindTestsForType(testClass, messageBus, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
 		}
 
 		protected sealed override bool FindTestsForType(

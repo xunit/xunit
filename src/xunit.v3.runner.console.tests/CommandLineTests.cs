@@ -134,6 +134,7 @@ public class CommandLineTests
 			("-debug", cmd => cmd.Project.Configuration.DebugOrDefault),
 			("-diagnostics", cmd => cmd.Project.Assemblies.All(a => a.Configuration.DiagnosticMessagesOrDefault)),
 			("-failskips", cmd => cmd.Project.Assemblies.All(a => a.Configuration.FailSkipsOrDefault)),
+			("-ignorefailures", cmd => cmd.Project.Configuration.IgnoreFailuresOrDefault),
 			("-internaldiagnostics", cmd => cmd.Project.Assemblies.All(a => a.Configuration.InternalDiagnosticMessagesOrDefault)),
 			("-noautoreporters", cmd => cmd.Project.Configuration.NoAutoReportersOrDefault),
 			("-nocolor", cmd => cmd.Project.Configuration.NoColorOrDefault),
@@ -212,12 +213,13 @@ public class CommandLineTests
 				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-appdomains", "foo");
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
-				Assert.Equal("incorrect argument value for -appdomains (must be 'denied' or 'required')", commandLine.ParseFault.Message);
+				Assert.Equal("incorrect argument value for -appdomains (must be 'denied', 'required', or 'ifavailable')", commandLine.ParseFault.Message);
 			}
 
 			[Theory]
 			[InlineData("required", AppDomainSupport.Required)]
 			[InlineData("denied", AppDomainSupport.Denied)]
+			[InlineData("ifavailable", AppDomainSupport.IfAvailable)]
 			public static void ValidValues(
 				string value,
 				AppDomainSupport expected)
@@ -250,24 +252,39 @@ public class CommandLineTests
 			}
 
 			[Theory]
-			[InlineData("0")]
 			[InlineData("abc")]
+			[InlineData("0.ax")]  // Non-digit
+			[InlineData(".0x")]   // Missing leading digit
 			public static void InvalidValues(string value)
 			{
 				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-maxthreads", value);
 
 				Assert.IsType<ArgumentException>(commandLine.ParseFault);
-				Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", commandLine.ParseFault.Message);
+				Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x')", commandLine.ParseFault.Message);
 			}
 
 			[Theory]
-			[InlineData("default", 0)]
+			[InlineData("default", null)]
+			[InlineData("0", null)]
 			[InlineData("unlimited", -1)]
 			[InlineData("16", 16)]
 			public static void ValidValues(
 				string value,
-				int expected)
+				int? expected)
 			{
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-maxthreads", value);
+
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Equal(expected, assembly.Configuration.MaxParallelThreads);
+			}
+
+			[Theory]
+			[InlineData("2x")]
+			[InlineData("2.0x")]
+			public static void MultiplierValue(string value)
+			{
+				var expected = Environment.ProcessorCount * 2;
+
 				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-maxthreads", value);
 
 				foreach (var assembly in commandLine.Project.Assemblies)

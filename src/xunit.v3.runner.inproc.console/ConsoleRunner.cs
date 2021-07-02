@@ -133,7 +133,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					Console.WriteLine();
 				}
 
-				return failCount > 0 ? 1 : 0;
+				return commandLine.Project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
 			}
 			catch (Exception ex)
 			{
@@ -239,11 +239,13 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine("  -debug                : launch the debugger to debug the tests");
 			Console.WriteLine("  -diagnostics          : enable diagnostics messages for all test assemblies");
 			Console.WriteLine("  -failskips            : convert skipped tests into failures");
+			Console.WriteLine("  -ignorefailures       : if tests fail, do not return a failure exit code");
 			Console.WriteLine("  -internaldiagnostics  : enable internal diagnostics messages for all test assemblies");
 			Console.WriteLine("  -maxthreads <option>  : maximum thread count for collection parallelization");
 			Console.WriteLine("                        :   default   - run with default (1 thread per CPU thread)");
 			Console.WriteLine("                        :   unlimited - run with unbounded thread count");
-			Console.WriteLine("                        :   (number)  - limit task thread pool size to 'count'");
+			Console.WriteLine("                        :   (integer) - use exactly this many threads (f.e., '2' = 2 threads)");
+			Console.WriteLine("                        :   (float)x  - use a multiple of CPU threads (f.e., '2.0x' = 2.0 * the number of CPU threads)");
 			Console.WriteLine("  -noautoreporters      : do not allow reporters to be auto-enabled by environment");
 			Console.WriteLine("                        : (for example, auto-detecting TeamCity or AppVeyor)");
 			Console.WriteLine("  -nocolor              : do not output results with colors");

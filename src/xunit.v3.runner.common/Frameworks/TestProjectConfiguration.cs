@@ -24,6 +24,17 @@ namespace Xunit.Runner.Common
 		public bool DebugOrDefault => Debug ?? false;
 
 		/// <summary>
+		/// Gets or sets a flag which indicates whether the runner should ignore test failures.
+		/// </summary>
+		public bool? IgnoreFailures { get; set; }
+
+		/// <summary>
+		/// Gets a flag which indicates whether the runner should ignore test failures. If the
+		/// flag is not specified, returns the default value (<c>false</c>).
+		/// </summary>
+		public bool IgnoreFailuresOrDefault => IgnoreFailures ?? false;
+
+		/// <summary>
 		/// The output files that should be generated from the test run. The key is
 		/// the output type, and the value is the output filename. The output type matches
 		/// the <see cref="Transform.ID"/> property on the transforms available in
