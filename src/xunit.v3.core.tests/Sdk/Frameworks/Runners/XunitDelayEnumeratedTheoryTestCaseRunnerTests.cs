@@ -23,7 +23,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
-		Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passedStarting.TestDisplayName);
+		Assert.Equal($"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")", passedStarting.TestDisplayName);
 		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
 		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failedStarting.TestDisplayName);
@@ -74,12 +74,12 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
-		Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passedStarting.TestDisplayName);
+		Assert.Equal($"Display Name(x: 1, y: {2.1:G17}, z: \"not skipped\")", passedStarting.TestDisplayName);
 		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
 		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failedStarting.TestDisplayName);
 
-		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
+		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == $"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")");
 		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
 	}
 
