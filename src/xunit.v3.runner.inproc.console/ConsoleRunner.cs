@@ -236,6 +236,10 @@ namespace Xunit.Runner.InProc.SystemConsole
 			Console.WriteLine();
 			Console.WriteLine("General options");
 			Console.WriteLine();
+			Console.WriteLine("  -culture <option>     : run tests under the given culture");
+			Console.WriteLine("                        :   default   - run with default operating system culture");
+			Console.WriteLine("                        :   invariant - run with the invariant culture");
+			Console.WriteLine("                        :   (string)  - run with the given culture (f.e., 'en-US')");
 			Console.WriteLine("  -debug                : launch the debugger to debug the tests");
 			Console.WriteLine("  -diagnostics          : enable diagnostics messages for all test assemblies");
 			Console.WriteLine("  -failskips            : convert skipped tests into failures");

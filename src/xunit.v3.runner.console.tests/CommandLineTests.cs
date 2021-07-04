@@ -231,6 +231,45 @@ public class CommandLineTests
 			}
 		}
 
+		public class Culture
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json");
+
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Null(assembly.Configuration.Culture);
+			}
+
+			[Fact]
+			public static void ExplicitDefaultValueIsNull()
+			{
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-culture", "default");
+
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Null(assembly.Configuration.Culture);
+			}
+
+			[Fact]
+			public static void InvariantCultureIsEmptyString()
+			{
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-culture", "invariant");
+
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Equal(string.Empty, assembly.Configuration.Culture);
+			}
+
+			[Fact]
+			public static void ValueIsPreserved()
+			{
+				var commandLine = TestableCommandLine.Parse("assemblyName.dll", "no-config.json", "-culture", "foo");
+
+				foreach (var assembly in commandLine.Project.Assemblies)
+					Assert.Equal("foo", assembly.Configuration.Culture);
+			}
+		}
+
 		public class MaxThreads
 		{
 			[Fact]
