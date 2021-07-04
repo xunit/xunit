@@ -17,6 +17,7 @@ redirect_from:
   <li><a href="#items">Supported configuration items</a></li>
   <ul>
     <li><a href="#appDomain"><code>appDomain</code></a></li>
+    <li><a href="#culture"><code>culture</code></a></li>
     <li><a href="#diagnosticMessages"><code>diagnosticMessages</code></a></li>
     <li><a href="#internalDiagnosticMessages"><code>internalDiagnosticMessages</code></a></li>
     <li><a href="#longRunningTestSeconds"><code>longRunningTestSeconds</code></a></li>
@@ -111,6 +112,25 @@ redirect_from:
         <em>JSON schema type: <strong>enum</strong><br />
         Valid values: <code>required</code>, <code>ifAvailable</code>, <code>denied</code><br />
         Default value: <code>ifAvailable</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="culture"><code>culture</code><br />[Runners v3.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to override the default culture used to run all unit tests in
+        the assembly. You can pass <code>default</code> to use the default behavior
+        (use the default culture of the operating system); you can pass <code>invariant</code>
+        to use the invariant culture; or you can pass any string which describes a
+        valid culture on the target operating system (see <a href="https://www.rfc-editor.org/info/bcp47">BCP
+        47</a> for a description of how culture names are formatted; note that the list
+        of supported cultures will vary by target operating system). <em>Note that culture
+        values are only supported for v3.0 or later test projects.</em>
+      </p>
+      <p>
+        <em>JSON schema type: <strong>string</strong><br />
+        Default value: <code>default</code></em>
       </p>
     </td>
   </tr>

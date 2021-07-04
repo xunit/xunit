@@ -19,6 +19,11 @@
         "denied"
       ]
     },
+    "culture": {
+      "description": "Sets the culture used when running tests. It should be one of: a BCP 47-compatible culture name (https://www.rfc-editor.org/info/bcp47); 'invariant' for the system invariant culture; or 'default' for the current system culture.",
+      "default": "default",
+      "type": "string"
+    },
     "diagnosticMessages": {
       "description": "Enables or disables diagnostic information during test discovery and execution.",
       "default": false,
