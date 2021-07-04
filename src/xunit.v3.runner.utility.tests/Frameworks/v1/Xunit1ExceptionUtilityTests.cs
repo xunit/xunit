@@ -7,7 +7,7 @@ using Xunit.v3;
 
 public class Xunit1ExceptionUtilityTests
 {
-	[CulturedFact("en-US")]
+	[Fact]
 	public static void CanParseEmbeddedExceptions()
 	{
 		try

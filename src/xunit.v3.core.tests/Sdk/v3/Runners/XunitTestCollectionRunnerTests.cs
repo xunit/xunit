@@ -205,7 +205,7 @@ public class XunitTestCollectionRunnerTests
 		[TestCaseOrderer("UnknownType", "UnknownAssembly")]
 		class CollectionWithUnknownTestCaseOrderer { }
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCtorThrowingTestCaseOrderer)), "TestCollectionDisplayName");
