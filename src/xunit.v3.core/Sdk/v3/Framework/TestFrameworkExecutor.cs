@@ -128,7 +128,8 @@ namespace Xunit.v3
 						.Cast<TTestCase>()
 						.CastOrToReadOnlyCollection();
 
-				await RunTestCases(testCases, executionMessageSink, executionOptions);
+				using (new CultureOverride(executionOptions.Culture()))
+					await RunTestCases(testCases, executionMessageSink, executionOptions);
 			});
 		}
 
@@ -150,7 +151,8 @@ namespace Xunit.v3
 				foreach (var testCaseTask in testCaseTasks)
 					testCases.Add((TTestCase)await testCaseTask);
 
-				await RunTestCases(testCases, executionMessageSink, executionOptions);
+				using (new CultureOverride(executionOptions.Culture()))
+					await RunTestCases(testCases, executionMessageSink, executionOptions);
 			});
 		}
 

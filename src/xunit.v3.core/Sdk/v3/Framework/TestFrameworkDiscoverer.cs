@@ -115,6 +115,7 @@ namespace Xunit.v3
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
+				using (new CultureOverride(discoveryOptions.Culture()))
 				{
 					var discoveryStarting = new _DiscoveryStarting
 					{
@@ -162,6 +163,7 @@ namespace Xunit.v3
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
+				using (new CultureOverride(discoveryOptions.Culture()))
 				{
 					var discoveryStarting = new _DiscoveryStarting
 					{
