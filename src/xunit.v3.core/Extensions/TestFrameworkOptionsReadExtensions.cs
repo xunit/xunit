@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3
@@ -9,6 +10,20 @@ namespace Xunit.v3
 	public static class TestFrameworkOptionsReadExtensions
 	{
 		// Read methods for discovery options
+
+		/// <summary>
+		/// Gets the culture to use for discovering tests. <c>null</c> uses the default OS culture;
+		/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
+		/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
+		/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
+		/// <see cref="CultureInfo.DefaultThreadCurrentUICulture"/>.
+		/// </summary>
+		public static string? Culture(this _ITestFrameworkDiscoveryOptions discoveryOptions)
+		{
+			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+			return discoveryOptions.GetValue<string?>(TestOptionsNames.Discovery.Culture);
+		}
 
 		/// <summary>
 		/// Gets a flag that determines whether diagnostic messages will be emitted.
@@ -147,6 +162,20 @@ namespace Xunit.v3
 		}
 
 		// Read methods for execution options
+
+		/// <summary>
+		/// Gets the culture to use for running tests. <c>null</c> uses the default OS culture;
+		/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
+		/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
+		/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
+		/// <see cref="CultureInfo.DefaultThreadCurrentUICulture"/>.
+		/// </summary>
+		public static string? Culture(this _ITestFrameworkExecutionOptions executionOptions)
+		{
+			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+			return executionOptions.GetValue<string?>(TestOptionsNames.Execution.Culture);
+		}
 
 		/// <summary>
 		/// Gets a flag that determines whether diagnostic messages will be emitted.

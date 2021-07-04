@@ -9,6 +9,8 @@ namespace Xunit.Internal
 		public static class Discovery
 		{
 			/// <summary/>
+			public static readonly string Culture = "xunit.discovery.Culture";
+			/// <summary/>
 			public static readonly string DiagnosticMessages = "xunit.discovery.DiagnosticMessages";
 			/// <summary/>
 			public static readonly string IncludeSourceInformation = "xunit.discovery.IncludeSourceInformation";
@@ -27,6 +29,8 @@ namespace Xunit.Internal
 		/// <summary/>
 		public static class Execution
 		{
+			/// <summary/>
+			public static readonly string Culture = "xunit.execution.Culture";
 			/// <summary/>
 			public static readonly string DiagnosticMessages = "xunit.execution.DiagnosticMessages";
 			/// <summary/>
