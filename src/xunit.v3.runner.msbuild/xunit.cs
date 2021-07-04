@@ -39,6 +39,8 @@ namespace Xunit.Runner.MSBuild
 		[Required]
 		public ITaskItem[]? Assemblies { get; set; }
 
+		public string? Culture { get; set; }
+
 		public bool DiagnosticMessages { set { diagnosticMessages = value; } }
 
 		public string? ExcludeTraits { get; set; }
@@ -205,6 +207,14 @@ namespace Xunit.Runner.MSBuild
 						};
 
 						ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+
+						if (Culture != null)
+							projectAssembly.Configuration.Culture = Culture switch
+							{
+								"default" => null,
+								"invariant" => string.Empty,
+								_ => Culture,
+							};
 
 						if (shadowCopy.HasValue)
 							projectAssembly.Configuration.ShadowCopy = shadowCopy;
