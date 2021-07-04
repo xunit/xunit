@@ -11,7 +11,9 @@ namespace Xunit.v3
 	public interface _ITestFrameworkExecutor
 	{
 		/// <summary>
-		/// Starts the process of running all the tests in the assembly.
+		/// Starts the process of running all the tests in the assembly. It is expected that this
+		/// method spawns a worker thread to do work, and returns immediately, while reporting
+		/// status back through the <paramref name="executionMessageSink"/>.
 		/// </summary>
 		/// <param name="executionMessageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options to be used during test discovery.</param>
@@ -23,7 +25,9 @@ namespace Xunit.v3
 		);
 
 		/// <summary>
-		/// Starts the process of running selected tests in the assembly.
+		/// Starts the process of running selected tests in the assembly. It is expected that this
+		/// method spawns a worker thread to do work, and returns immediately, while reporting
+		/// status back through the <paramref name="executionMessageSink"/>.
 		/// </summary>
 		/// <param name="serializedTestCases">The test cases to run.</param>
 		/// <param name="executionMessageSink">The message sink to report results back to.</param>

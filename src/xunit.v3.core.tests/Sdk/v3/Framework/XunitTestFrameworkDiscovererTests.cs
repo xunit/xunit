@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
@@ -69,7 +70,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(0).FindTestsForClass(Arg.Any<_ITestClass>());
+			_ = framework.Received(0).FindTestsForClass(Arg.Any<_ITestClass>());
 		}
 
 		[Fact]
@@ -84,8 +85,8 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find();
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == objectTypeInfo));
-			framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == intTypeInfo));
+			_ = framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == objectTypeInfo));
+			_ = framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == intTypeInfo));
 		}
 
 		[Fact]
@@ -155,7 +156,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == type));
+			_ = framework.Received(1).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == type));
 		}
 
 		[Fact]
@@ -169,7 +170,7 @@ public class XunitTestFrameworkDiscovererTests
 			framework.Find("abc");
 			framework.Sink.Finished.WaitOne();
 
-			framework.Received(0).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == type));
+			_ = framework.Received(0).FindTestsForClass(Arg.Is<_ITestClass>(testClass => testClass.Class == type));
 		}
 
 		[Fact]
@@ -205,12 +206,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void ClassWithNoTests_ReturnsNoTestCases()
+		public static async void ClassWithNoTests_ReturnsNoTestCases()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithNoTests)));
 
-			framework.FindTestsForClass(testClass);
+			await framework.FindTestsForClass(testClass);
 
 			Assert.False(framework.Sink.Finished.WaitOne(0));
 		}
@@ -222,12 +223,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void AssemblyWithFact_ReturnsOneTestCase()
+		public static async void AssemblyWithFact_ReturnsOneTestCase()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithOneFact)));
 
-			framework.FindTestsForClass(testClass);
+			await framework.FindTestsForClass(testClass);
 
 			var testCase = Assert.Single(framework.Sink.TestCases);
 			Assert.NotNull(testCase);
@@ -245,12 +246,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
+		public static async void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts)));
 
-			framework.FindTestsForClass(testClass);
+			await framework.FindTestsForClass(testClass);
 
 			Assert.Equal(2, framework.Sink.TestCases.Count);
 			Assert.Single(framework.Sink.TestCases, t => t.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
@@ -266,12 +267,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
+		public static async void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 
-			framework.FindTestsForClass(testClass);
+			await framework.FindTestsForClass(testClass);
 
 			Assert.Equal(2, framework.Sink.TestCases.Count);
 			Assert.Single(framework.Sink.TestCases, t => t.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
@@ -295,12 +296,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
+		public static async void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = Mocks.TestClass<TheoryWithPropertyData>();
 
-			framework.FindTestsForClass(testClass);
+			await framework.FindTestsForClass(testClass);
 
 			Assert.Equal(2, framework.Sink.TestCases.Count);
 			Assert.Single(framework.Sink.TestCases, testCase => testCase.TestCaseDisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
@@ -308,12 +309,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void AssemblyWithMultiLevelHierarchyWithFactOverridenInNonImmediateDerivedClass_ReturnsOneTestCase()
+		public static async void AssemblyWithMultiLevelHierarchyWithFactOverridenInNonImmediateDerivedClass_ReturnsOneTestCase()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var testClass = Mocks.TestClass<Child>();
 
-			framework.FindTestsForClass(testClass);
+			await framework.FindTestsForClass(testClass);
 
 			Assert.Equal(1, framework.Sink.TestCases.Count);
 			Assert.Equal("XunitTestFrameworkDiscovererTests+FindImpl+Child.FactOverridenInNonImmediateDerivedClass", framework.Sink.TestCases[0].TestCaseDisplayName);
@@ -350,12 +351,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void DefaultTestCollection()
+		public static async void DefaultTestCollection()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var type = Reflector.Wrap(typeof(ClassWithNoCollection));
 
-			var testClass = framework.CreateTestClass(type);
+			var testClass = await framework.CreateTestClass(type);
 
 			Assert.NotNull(testClass.TestCollection);
 			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection", testClass.TestCollection.DisplayName);
@@ -370,12 +371,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void UndeclaredTestCollection()
+		public static async void UndeclaredTestCollection()
 		{
 			var framework = TestableXunitTestFrameworkDiscoverer.Create();
 			var type = Reflector.Wrap(typeof(ClassWithUndeclaredCollection));
 
-			var testClass = framework.CreateTestClass(type);
+			var testClass = await framework.CreateTestClass(type);
 
 			Assert.NotNull(testClass.TestCollection);
 			Assert.Equal("This a collection without declaration", testClass.TestCollection.DisplayName);
@@ -393,12 +394,12 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static void DefinedTestCollection()
+		public static async void DefinedTestCollection()
 		{
 			var type = Reflector.Wrap(typeof(ClassWithDefinedCollection));
 			var framework = TestableXunitTestFrameworkDiscoverer.Create(type.Assembly);
 
-			var testClass = framework.CreateTestClass(type);
+			var testClass = await framework.CreateTestClass(type);
 
 			Assert.NotNull(testClass.TestCollection);
 			Assert.Equal("This a defined collection", testClass.TestCollection.DisplayName);
@@ -576,14 +577,12 @@ public class XunitTestFrameworkDiscovererTests
 			return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, diagnosticMessageSink, collectionFactory);
 		}
 
-		public new _ITestClass CreateTestClass(_ITypeInfo @class)
-		{
-			return base.CreateTestClass(@class);
-		}
+		public new ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>
+			base.CreateTestClass(@class);
 
 		public void Find()
 		{
-			base.Find(Sink, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
+			Find(Sink, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
 			Sink.Finished.WaitOne();
 		}
 
@@ -593,13 +592,13 @@ public class XunitTestFrameworkDiscovererTests
 			Sink.Finished.WaitOne();
 		}
 
-		public virtual bool FindTestsForClass(_ITestClass testClass)
+		public virtual async ValueTask<bool> FindTestsForClass(_ITestClass testClass)
 		{
 			using var messageBus = new MessageBus(Sink);
-			return base.FindTestsForType(testClass, messageBus, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
+			return await base.FindTestsForType(testClass, messageBus, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true));
 		}
 
-		protected sealed override bool FindTestsForType(
+		protected sealed override ValueTask<bool> FindTestsForType(
 			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -612,13 +611,13 @@ public class XunitTestFrameworkDiscovererTests
 			return base.IsValidTestClass(type);
 		}
 
-		public bool ReportDiscoveredTestCase_Public(
+		public ValueTask<bool> ReportDiscoveredTestCase_Public(
 			_ITestCase testCase,
 			bool includeSourceInformation,
 			IMessageBus messageBus) =>
 				ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 
-		protected override string Serialize(_ITestCase testCase)
+		protected override ValueTask<string> Serialize(_ITestCase testCase)
 		{
 			try
 			{
@@ -627,7 +626,7 @@ public class XunitTestFrameworkDiscovererTests
 			catch (SerializationException)
 			{
 				// Mocks can't be serialized, so fall back if anything in the chain isn't serializable
-				return $"Serialization of test case '{testCase.DisplayName}'";
+				return new ValueTask<string>($"Serialization of test case '{testCase.DisplayName}'");
 			}
 		}
 	}
