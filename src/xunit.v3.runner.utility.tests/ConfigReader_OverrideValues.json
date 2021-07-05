@@ -1,6 +1,7 @@
 ﻿{
+  "culture": "en-GB",
   "diagnosticMessages": true,
-  "failSkips":  true,
+  "failSkips": true,
   "internalDiagnosticMessages": true,
   "maxParallelThreads": 2112,
   "methodDisplay": "method",

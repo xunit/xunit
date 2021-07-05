@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -8,6 +9,20 @@ using Xunit.v3;
 public static class TestFrameworkOptionsReadWriteExtensions
 {
 	// Read/write methods for discovery options
+
+	/// <summary>
+	/// Gets the culture to use for discovering tests. <c>null</c> uses the default OS culture;
+	/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
+	/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
+	/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
+	/// <see cref="CultureInfo.DefaultThreadCurrentUICulture"/>.
+	/// </summary>
+	public static string? GetCulture(this _ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+		return discoveryOptions.GetValue<string?>(TestOptionsNames.Discovery.Culture);
+	}
 
 	/// <summary>
 	/// Gets a flag that determines whether diagnostic messages will be emitted.
@@ -167,6 +182,22 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
+	/// Sets the culture to use for discovering tests. <c>null</c> uses the default OS culture;
+	/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
+	/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
+	/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
+	/// <see cref="CultureInfo.DefaultThreadCurrentUICulture"/>.
+	/// </summary>
+	public static void SetCulture(
+		this _ITestFrameworkDiscoveryOptions discoveryOptions,
+		string? culture)
+	{
+		Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
+		discoveryOptions.SetValue(TestOptionsNames.Discovery.Culture, culture);
+	}
+
+	/// <summary>
 	/// Sets a flag that determines whether diagnostic messages will be emitted.
 	/// </summary>
 	public static void SetDiagnosticMessages(
@@ -255,6 +286,20 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	// Read/write methods for execution options
+
+	/// <summary>
+	/// Gets the culture to use for running tests. <c>null</c> uses the default OS culture;
+	/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
+	/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
+	/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
+	/// <see cref="CultureInfo.DefaultThreadCurrentUICulture"/>.
+	/// </summary>
+	public static string? GetCulture(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+		return executionOptions.GetValue<string?>(TestOptionsNames.Execution.Culture);
+	}
 
 	/// <summary>
 	/// Gets a flag that determines whether diagnostic messages will be emitted.
@@ -364,6 +409,22 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
 		return executionOptions.GetSynchronousMessageReporting() ?? false;
+	}
+
+	/// <summary>
+	/// Sets the culture to use for running tests. <c>null</c> uses the default OS culture;
+	/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
+	/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
+	/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
+	/// <see cref="CultureInfo.DefaultThreadCurrentUICulture"/>.
+	/// </summary>
+	public static void SetCulture(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		string? culture)
+	{
+		Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.Culture, culture);
 	}
 
 	/// <summary>

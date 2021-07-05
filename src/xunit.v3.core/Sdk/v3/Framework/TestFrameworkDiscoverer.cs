@@ -90,7 +90,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="class">The CLR type.</param>
 		/// <returns>The test class.</returns>
-		protected internal abstract _ITestClass CreateTestClass(_ITypeInfo @class);
+		protected internal abstract ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class);
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()
@@ -111,10 +111,11 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-			ThreadPool.QueueUserWorkItem(_ =>
+			ThreadPool.QueueUserWorkItem(async _ =>
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
+				using (new CultureOverride(discoveryOptions.Culture()))
 				{
 					var discoveryStarting = new _DiscoveryStarting
 					{
@@ -127,8 +128,8 @@ namespace Xunit.v3
 
 					foreach (var type in AssemblyInfo.GetTypes(false).Where(IsValidTestClass))
 					{
-						var testClass = CreateTestClass(type);
-						if (!FindTestsForTypeAndWrapExceptions(testClass, messageBus, discoveryOptions))
+						var testClass = await CreateTestClass(type);
+						if (!await FindTestsForTypeAndWrapExceptions(testClass, messageBus, discoveryOptions))
 							break;
 					}
 
@@ -158,10 +159,11 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-			ThreadPool.QueueUserWorkItem(_ =>
+			ThreadPool.QueueUserWorkItem(async _ =>
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
+				using (new CultureOverride(discoveryOptions.Culture()))
 				{
 					var discoveryStarting = new _DiscoveryStarting
 					{
@@ -175,8 +177,8 @@ namespace Xunit.v3
 					var typeInfo = AssemblyInfo.GetType(typeName);
 					if (typeInfo != null && IsValidTestClass(typeInfo))
 					{
-						var testClass = CreateTestClass(typeInfo);
-						FindTestsForTypeAndWrapExceptions(testClass, messageBus, discoveryOptions);
+						var testClass = await CreateTestClass(typeInfo);
+						await FindTestsForTypeAndWrapExceptions(testClass, messageBus, discoveryOptions);
 					}
 
 					var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
@@ -192,20 +194,20 @@ namespace Xunit.v3
 		/// <param name="messageBus">The message sink to send discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-		protected abstract bool FindTestsForType(
+		protected abstract ValueTask<bool> FindTestsForType(
 			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions
 		);
 
-		bool FindTestsForTypeAndWrapExceptions(
+		async ValueTask<bool> FindTestsForTypeAndWrapExceptions(
 			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
 			try
 			{
-				return FindTestsForType(testClass, messageBus, discoveryOptions);
+				return await FindTestsForType(testClass, messageBus, discoveryOptions);
 			}
 			catch (Exception ex)
 			{
@@ -238,7 +240,7 @@ namespace Xunit.v3
 		/// <param name="includeSourceInformation">A flag to indicate whether source information is desired</param>
 		/// <param name="messageBus">The message bus to report to the test case to</param>
 		/// <returns>Returns the result from calling <see cref="IMessageBus.QueueMessage(_MessageSinkMessage)"/>.</returns>
-		protected bool ReportDiscoveredTestCase(
+		protected async ValueTask<bool> ReportDiscoveredTestCase(
 			_ITestCase testCase,
 			bool includeSourceInformation,
 			IMessageBus messageBus)
@@ -255,7 +257,7 @@ namespace Xunit.v3
 			var testCaseDiscovered = new _TestCaseDiscovered
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
-				Serialization = Serialize(testCase),
+				Serialization = await Serialize(testCase),
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceInformation?.FileName,
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,
@@ -280,11 +282,11 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testCase">The test case to serialize</param>
 		/// <returns>The serialized test case</returns>
-		protected virtual string Serialize(_ITestCase testCase)
+		protected virtual ValueTask<string> Serialize(_ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 
-			return SerializationHelper.Serialize(testCase);
+			return new ValueTask<string>(SerializationHelper.Serialize(testCase));
 		}
 
 		class PreserveWorkingFolder : IDisposable

@@ -39,6 +39,7 @@ public class ConfigReaderTests
 		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
 
 		Assert.True(result);
+		Assert.Null(configuration.Culture);
 		Assert.False(configuration.DiagnosticMessagesOrDefault);
 		Assert.False(configuration.InternalDiagnosticMessagesOrDefault);
 		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
@@ -75,7 +76,10 @@ public class ConfigReaderTests
 		Assert.Equal(5, configuration.LongRunningTestSecondsOrDefault);
 
 		if (configFileName.EndsWith(".json"))
+		{
+			Assert.Equal("en-GB", configuration.Culture);
 			Assert.True(configuration.FailSkipsOrDefault);
+		}
 	}
 
 	[Theory]
@@ -102,6 +106,28 @@ public class ConfigReaderTests
 
 		if (configFileName.EndsWith(".json"))
 			Assert.False(configuration.FailSkipsOrDefault);
+	}
+
+	[Fact]
+	public static void SupportDefaultCulture()
+	{
+		var configuration = new TestAssemblyConfiguration { Culture = "override-me" };
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_CultureDefault.json"));
+
+		Assert.True(result);
+		Assert.Null(configuration.Culture);
+	}
+
+	[Fact]
+	public static void SupportInvariantCulture()
+	{
+		var configuration = new TestAssemblyConfiguration();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_CultureInvariant.json"));
+
+		Assert.True(result);
+		Assert.Equal(string.Empty, configuration.Culture);
 	}
 
 	[Theory]

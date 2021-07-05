@@ -165,6 +165,21 @@ namespace Xunit.Runner.SystemConsole
 					foreach (var projectAssembly in project.Assemblies)
 						projectAssembly.Configuration.Filters.IncludedClasses.Add(option.Value);
 				}
+				else if (optionName == "culture")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -culture");
+
+					var culture = option.Value switch
+					{
+						"default" => null,
+						"invariant" => "",
+						_ => option.Value
+					};
+
+					foreach (var projectAssembly in project.Assemblies)
+						projectAssembly.Configuration.Culture = culture;
+				}
 				else if (optionName == "debug")
 				{
 					GuardNoOptionValue(option);

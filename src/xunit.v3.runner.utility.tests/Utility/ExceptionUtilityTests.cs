@@ -108,7 +108,7 @@ public class ExceptionUtilityTests
 			);
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public void AggregateException()
 		{
 			var errorMetadata = new ErrorMetadata {
@@ -155,7 +155,7 @@ public class ExceptionUtilityTests
 
 	public class CombineStackTraces
 	{
-		[CulturedFact("en-US")]
+		[Fact]
 		public void XunitException()
 		{
 #if DEBUG
@@ -176,7 +176,7 @@ public class ExceptionUtilityTests
 #endif
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public void NonXunitException()
 		{
 #if DEBUG
@@ -197,7 +197,7 @@ public class ExceptionUtilityTests
 #endif
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public void NonXunitExceptionWithInnerExceptions()
 		{
 #if DEBUG
@@ -227,7 +227,7 @@ public class ExceptionUtilityTests
 #endif
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public void HandlesAggregateException()
 		{
 #if DEBUG

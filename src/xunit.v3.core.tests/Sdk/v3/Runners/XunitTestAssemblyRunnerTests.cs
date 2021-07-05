@@ -234,7 +234,7 @@ public class XunitTestAssemblyRunnerTests
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test case orderer", diagnosticMessage.Message);
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
@@ -299,7 +299,7 @@ public class XunitTestAssemblyRunnerTests
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test collection orderer", diagnosticMessage.Message);
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public static async ValueTask SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyCtorThrowingTestCollectionOrderer>();

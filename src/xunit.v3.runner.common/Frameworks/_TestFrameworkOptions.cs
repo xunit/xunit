@@ -27,6 +27,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
 		/// </summary>
+		/// <param name="culture">Optional value to indicate the culture used for test discovery</param>
 		/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
 		/// <param name="includeSourceInformation">Optional flag to include source information</param>
 		/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
@@ -34,6 +35,7 @@ namespace Xunit.Runner.Common
 		/// <param name="methodDisplayOptions">Optional flags for formatting the display name of test methods</param>
 		/// <param name="preEnumerateTheories">Optional flag to enable pre-enumerating theories</param>
 		public static _ITestFrameworkDiscoveryOptions ForDiscovery(
+			string? culture = null,
 			bool? diagnosticMessages = null,
 			bool? includeSourceInformation = null,
 			bool? internalDiagnosticMessages = null,
@@ -43,6 +45,7 @@ namespace Xunit.Runner.Common
 		{
 			_ITestFrameworkDiscoveryOptions result = new _TestFrameworkOptions();
 
+			result.SetCulture(culture);
 			result.SetDiagnosticMessages(diagnosticMessages);
 			result.SetIncludeSourceInformation(includeSourceInformation);
 			result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
@@ -59,6 +62,7 @@ namespace Xunit.Runner.Common
 		/// <param name="configuration">The configuration to copy values from.</param>
 		public static _ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration) =>
 			ForDiscovery(
+				configuration.Culture,
 				configuration.DiagnosticMessages,
 				configuration.IncludeSourceInformation,
 				configuration.InternalDiagnosticMessages,
@@ -77,6 +81,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 		/// </summary>
+		/// <param name="culture">Optional value to indicate the culture used for test execution</param>
 		/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
 		/// <param name="diableParallelization">Optional flag to disable test parallelization</param>
 		/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
@@ -84,6 +89,7 @@ namespace Xunit.Runner.Common
 		/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
 		/// <returns></returns>
 		public static _ITestFrameworkExecutionOptions ForExecution(
+			string? culture = null,
 			bool? diagnosticMessages = null,
 			bool? diableParallelization = null,
 			bool? internalDiagnosticMessages = null,
@@ -92,6 +98,7 @@ namespace Xunit.Runner.Common
 		{
 			_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
 
+			result.SetCulture(culture);
 			result.SetDiagnosticMessages(diagnosticMessages);
 			result.SetDisableParallelization(diableParallelization);
 			result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
@@ -107,6 +114,7 @@ namespace Xunit.Runner.Common
 		/// <param name="configuration">The configuration to copy values from.</param>
 		public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration) =>
 			ForExecution(
+				configuration.Culture,
 				configuration.DiagnosticMessages,
 				!configuration.ParallelizeTestCollections,
 				configuration.InternalDiagnosticMessages,

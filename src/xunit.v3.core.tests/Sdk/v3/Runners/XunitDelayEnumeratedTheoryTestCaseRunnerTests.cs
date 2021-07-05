@@ -29,7 +29,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failedStarting.TestDisplayName);
 	}
 
-	[CulturedFact("en-US")]
+	[Fact]
 	public static async void DiscovererWhichThrowsReturnsASingleFailedTest()
 	{
 		var messageBus = new SpyMessageBus();

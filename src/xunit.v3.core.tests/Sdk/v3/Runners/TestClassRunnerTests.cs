@@ -238,7 +238,7 @@ public class TestClassRunnerTests
 			);
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
