@@ -900,7 +900,7 @@ public class EqualityAssertsTests
 		public void Failure_InvalidTolerance()
 		{
 			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0, 1.0, double.NegativeInfinity));
-			Assert.Equal($"Tolerance must be greater than or equal to zero{Environment.NewLine}Parameter name: tolerance", ex.Message);
+			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
 			Assert.Equal("tolerance", ex.ParamName);
 		}
 	}
@@ -971,7 +971,7 @@ public class EqualityAssertsTests
 		public void Failure_InvalidTolerance()
 		{
 			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
-			Assert.Equal($"Tolerance must be greater than or equal to zero{Environment.NewLine}Parameter name: tolerance", ex.Message);
+			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
 			Assert.Equal("tolerance", ex.ParamName);
 		}
 	}
