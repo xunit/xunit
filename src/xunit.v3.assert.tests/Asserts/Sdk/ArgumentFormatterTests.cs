@@ -121,6 +121,18 @@ public class ArgumentFormatterTests
 		}
 
 		[CulturedFact]
+		public static void FloatValue()
+		{
+			Assert.Equal(Math.PI.ToString("G7"), ArgumentFormatter.Format((float)Math.PI));
+		}
+
+		[CulturedFact]
+		public static void DoubleValue()
+		{
+			Assert.Equal(Math.PI.ToString("G19"), ArgumentFormatter.Format(Math.PI));
+		}
+
+		[CulturedFact]
 		public static void DecimalValue()
 		{
 			Assert.Equal(123.45M.ToString(), ArgumentFormatter.Format(123.45M));
