@@ -289,7 +289,7 @@ public class TestAssemblyRunnerTests
 					.CastOrToReadOnlyCollection();
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
 			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");

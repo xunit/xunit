@@ -638,7 +638,7 @@ public class Xunit1Tests
 			);
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public void ExceptionThrownDuringRunTests_ResultsInErrorMessage()
 		{
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");

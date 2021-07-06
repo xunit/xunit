@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit.Internal;
 
 // TODO: Need to acceptance test this via Xunit3, once it comes into existence. See Xunit2Tests.cs for examples.
@@ -47,7 +48,7 @@ namespace Xunit.v3
 		protected override _ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
 
 		/// <inheritdoc/>
-		protected override _ITestCase Deserialize(string value)
+		protected override async ValueTask<_ITestCase> Deserialize(string value)
 		{
 			if (value.Length > 3 && value.StartsWith(":F:"))
 			{
@@ -84,7 +85,7 @@ namespace Xunit.v3
 						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type {parts[0]} during test case deserialization" });
 					else
 					{
-						var testClass = discoverer.Value.CreateTestClass(typeInfo);
+						var testClass = await discoverer.Value.CreateTestClass(typeInfo);
 						var methodInfo = testClass.Class.GetMethod(parts[1], true);
 						if (methodInfo != null)
 						{
@@ -100,11 +101,11 @@ namespace Xunit.v3
 				}
 			}
 
-			return base.Deserialize(value);
+			return await base.Deserialize(value);
 		}
 
 		/// <inheritdoc/>
-		protected override async void RunTestCases(
+		protected override async ValueTask RunTestCases(
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -69,8 +70,8 @@ namespace Xunit.v3
 		public override string TestFrameworkDisplayName { get; }
 
 		/// <inheritdoc/>
-		protected internal override _ITestClass CreateTestClass(_ITypeInfo @class) =>
-			new TestClass(TestCollectionFactory.Get(@class), @class);
+		protected internal override ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>
+			new ValueTask<_ITestClass>(new TestClass(TestCollectionFactory.Get(@class), @class));
 
 		/// <summary>
 		/// Finds the tests on a test method.
@@ -79,7 +80,7 @@ namespace Xunit.v3
 		/// <param name="messageBus">The message bus to report discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
-		protected internal virtual bool FindTestsForMethod(
+		protected internal virtual async ValueTask<bool> FindTestsForMethod(
 			_ITestMethod testMethod,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -90,7 +91,7 @@ namespace Xunit.v3
 			{
 				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
 				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
-				return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
+				return await ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 			}
 
 			var factAttribute = factAttributes.FirstOrDefault();
@@ -118,14 +119,14 @@ namespace Xunit.v3
 				return true;
 
 			foreach (var testCase in discoverer.Discover(discoveryOptions, testMethod, factAttribute))
-				if (!ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
+				if (!await ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
 					return false;
 
 			return true;
 		}
 
 		/// <inheritdoc/>
-		protected override bool FindTestsForType(
+		protected override async ValueTask<bool> FindTestsForType(
 			_ITestClass testClass,
 			IMessageBus messageBus,
 			_ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -133,7 +134,7 @@ namespace Xunit.v3
 			foreach (var method in testClass.Class.GetMethods(true))
 			{
 				var testMethod = new TestMethod(testClass, method);
-				if (!FindTestsForMethod(testMethod, messageBus, discoveryOptions))
+				if (!await FindTestsForMethod(testMethod, messageBus, discoveryOptions))
 					return false;
 			}
 
@@ -161,7 +162,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override string Serialize(_ITestCase testCase)
+		protected override ValueTask<string> Serialize(_ITestCase testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 
@@ -174,7 +175,7 @@ namespace Xunit.v3
 				var methodDisplay = (int)xunitTestCase.DefaultMethodDisplay;
 				var methodDisplayOptions = (int)xunitTestCase.DefaultMethodDisplayOptions;
 				var skipReason = testCase.SkipReason == null ? "(null)" : Convert.ToBase64String(Encoding.UTF8.GetBytes(testCase.SkipReason));
-				return $":F:{className}:{methodName}:{methodDisplay}:{methodDisplayOptions}:{timeout}:{skipReason}";
+				return new ValueTask<string>($":F:{className}:{methodName}:{methodDisplay}:{methodDisplayOptions}:{timeout}:{skipReason}");
 			}
 
 			return base.Serialize(testCase);

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common
@@ -19,6 +20,14 @@ namespace Xunit.Runner.Common
 		/// If the flag is not set, returns the default value (<see cref="AppDomainSupport.IfAvailable"/>).
 		/// </summary>
 		public AppDomainSupport AppDomainOrDefault => AppDomain ?? AppDomainSupport.IfAvailable;
+
+		/// <summary>
+		/// Gets or sets the desired culture to run the tests under. Use <c>null</c> (default) to
+		/// indicate that we should use the default OS culture; use an empty string to indicate that
+		/// we should use the invariant culture; or use any culture value that is valid for
+		/// calling <see cref="CultureInfo(string)"/>.
+		/// </summary>
+		public string? Culture { get; set; }
 
 		/// <summary>
 		/// Gets or sets a flag indicating that the end user wants diagnostic messages

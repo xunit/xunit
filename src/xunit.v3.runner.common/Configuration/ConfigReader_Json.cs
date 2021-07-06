@@ -135,6 +135,15 @@ namespace Xunit.Runner.Common
 								if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
 									configuration.AppDomain = appDomain;
 							}
+							else if (string.Equals(property.Name, Configuration.Culture, StringComparison.OrdinalIgnoreCase))
+							{
+								if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
+									configuration.Culture = null;
+								else if (string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase))
+									configuration.Culture = string.Empty;
+								else
+									configuration.Culture = stringValue;
+							}
 						}
 					}
 				}
@@ -149,6 +158,7 @@ namespace Xunit.Runner.Common
 		static class Configuration
 		{
 			public const string AppDomain = "appDomain";
+			public const string Culture = "culture";
 			public const string DiagnosticMessages = "diagnosticMessages";
 			public const string FailSkips = "failSkips";
 			public const string InternalDiagnosticMessages = "internalDiagnosticMessages";

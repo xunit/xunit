@@ -25,7 +25,9 @@ namespace Xunit.v3
 		string TestFrameworkDisplayName { get; }
 
 		/// <summary>
-		/// Starts the process of finding all tests in an assembly.
+		/// Starts the process of finding all tests in an assembly. It is expected that this
+		/// method spawns a worker thread to do work, and returns immediately, while reporting
+		/// status back through the <paramref name="discoveryMessageSink"/>.
 		/// </summary>
 		/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
@@ -35,7 +37,9 @@ namespace Xunit.v3
 		);
 
 		/// <summary>
-		/// Starts the process of finding all tests in a class.
+		/// Starts the process of finding all tests in a class. It is expected that this
+		/// method spawns a worker thread to do work, and returns immediately, while reporting
+		/// status back through the <paramref name="discoveryMessageSink"/>.
 		/// </summary>
 		/// <param name="typeName">The fully qualified type name to find tests in.</param>
 		/// <param name="discoveryMessageSink">The message sink to report results back to.</param>

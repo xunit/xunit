@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class DefaultRunnerReporterMessageHandlerTests
@@ -315,7 +314,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_ITestExecutionSummary
 	{
-		[CulturedFact("en-US")]
+		[Fact]
 		public void SingleAssembly()
 		{
 			var clockTime = TimeSpan.FromSeconds(12.3456);
@@ -333,7 +332,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 			);
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public void MultipleAssemblies()
 		{
 			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;

@@ -309,7 +309,7 @@ public class XunitTestClassRunnerTests
 			public void Passing() { }
 		}
 
-		[CulturedFact("en-US")]
+		[Fact]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>("Passing");

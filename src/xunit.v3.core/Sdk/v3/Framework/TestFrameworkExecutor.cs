@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -82,11 +83,11 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="serializedTestCase">The serialized test case value</param>
 		/// <returns>The deserialized test case</returns>
-		protected virtual _ITestCase Deserialize(string serializedTestCase)
+		protected virtual ValueTask<_ITestCase> Deserialize(string serializedTestCase)
 		{
 			Guard.ArgumentNotNull(nameof(serializedTestCase), serializedTestCase);
 
-			return SerializationHelper.Deserialize<_ITestCase>(serializedTestCase) ?? throw new ArgumentException($"Could not deserialize test case: {serializedTestCase}", nameof(serializedTestCase));
+			return new ValueTask<_ITestCase>(SerializationHelper.Deserialize<_ITestCase>(serializedTestCase) ?? throw new ArgumentException($"Could not deserialize test case: {serializedTestCase}", nameof(serializedTestCase)));
 		}
 
 		/// <inheritdoc/>
@@ -101,7 +102,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public virtual async void RunAll(
+		public virtual void RunAll(
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestFrameworkExecutionOptions executionOptions)
@@ -110,22 +111,26 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 			Guard.ArgumentNotNull("executionOptions", executionOptions);
 
-			var discoverySink = new TestDiscoveryVisitor();
+			ThreadPool.QueueUserWorkItem(async _ =>
+			{
+				var discoverySink = new TestDiscoveryVisitor();
 
-			await using var tracker = new DisposalTracker();
-			var discoverer = CreateDiscoverer();
-			tracker.Add(discoverer);
+				await using var tracker = new DisposalTracker();
+				var discoverer = CreateDiscoverer();
+				tracker.Add(discoverer);
 
-			discoverer.Find(discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
+				discoverer.Find(discoverySink, discoveryOptions);
+				discoverySink.Finished.WaitOne();
 
-			var testCases =
-				discoverySink
-					.TestCases
-					.Cast<TTestCase>()
-					.CastOrToReadOnlyCollection();
+				var testCases =
+					discoverySink
+						.TestCases
+						.Cast<TTestCase>()
+						.CastOrToReadOnlyCollection();
 
-			RunTestCases(testCases, executionMessageSink, executionOptions);
+				using (new CultureOverride(executionOptions.Culture()))
+					await RunTestCases(testCases, executionMessageSink, executionOptions);
+			});
 		}
 
 		/// <inheritdoc/>
@@ -138,13 +143,17 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
 			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
 
-			var testCases =
-				serializedTestCases
-					.Select(x => Deserialize(x))
-					.Cast<TTestCase>()
-					.CastOrToReadOnlyCollection();
+			ThreadPool.QueueUserWorkItem(async _ =>
+			{
+				var testCaseTasks = serializedTestCases.Select(x => Deserialize(x));
 
-			RunTestCases(testCases, executionMessageSink, executionOptions);
+				var testCases = new List<TTestCase>(serializedTestCases.Count);
+				foreach (var testCaseTask in testCaseTasks)
+					testCases.Add((TTestCase)await testCaseTask);
+
+				using (new CultureOverride(executionOptions.Culture()))
+					await RunTestCases(testCases, executionMessageSink, executionOptions);
+			});
 		}
 
 		/// <summary>
@@ -153,7 +162,7 @@ namespace Xunit.v3
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
-		protected abstract void RunTestCases(
+		protected abstract ValueTask RunTestCases(
 			IReadOnlyCollection<TTestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
