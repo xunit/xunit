@@ -58,7 +58,7 @@ public class TestMethodTestCaseTests
 				"test-case-custom-id"
 			);
 
-			Assert.Equal("Mock Method(???: 42, ???: 21.12, ???: \"Hello world!\")", testCase.DisplayName);
+			Assert.Equal($"Mock Method(???: 42, ???: {21.12:G17}, ???: \"Hello world!\")", testCase.DisplayName);
 			Assert.Equal("Skip me!", testCase.SkipReason);
 			Assert.Same(arguments, testCase.TestMethodArguments);
 			Assert.Collection(

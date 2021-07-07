@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -10,6 +13,8 @@ namespace Xunit.Sdk
 	/// </summary>
 	public static class ExceptionUtility
 	{
+		static ConcurrentDictionary<Type, MethodInfo?> innerExceptionsPropertyByType = new();
+
 		/// <summary>
 		/// Combines multiple levels of messages into a single message.
 		/// </summary>
@@ -65,11 +70,26 @@ namespace Xunit.Sdk
 			stackTraces.Add(ex.StackTrace);
 			indices.Add(parentIndex);
 
-			if (ex is AggregateException aggEx)
-				foreach (var innerException in aggEx.InnerExceptions)
+			var innerExceptions = GetInnerExceptions(ex);
+
+			if (innerExceptions != null)
+				foreach (var innerException in innerExceptions)
 					ExtractMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
 			else if (ex.InnerException != null)
 				ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+		}
+
+		static IEnumerable<Exception>? GetInnerExceptions(Exception ex)
+		{
+			if (ex is AggregateException aggEx)
+				return aggEx.InnerExceptions;
+
+			var prop = innerExceptionsPropertyByType.GetOrAdd(
+				ex.GetType(),
+				t => t.GetProperties().FirstOrDefault(p => p.Name == "InnerExceptions" && p.CanRead)?.GetGetMethod()
+			);
+
+			return prop?.Invoke(ex, null) as IEnumerable<Exception>;
 		}
 
 		static bool FilterStackFrame(string stackFrame)
