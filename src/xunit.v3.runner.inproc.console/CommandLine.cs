@@ -223,6 +223,25 @@ namespace Xunit.Runner.InProc.SystemConsole
 					foreach (var projectAssembly in project.Assemblies)
 						projectAssembly.Configuration.InternalDiagnosticMessages = true;
 				}
+				else if (optionName == "list")
+				{
+					if (option.Value == null)
+						throw new ArgumentException("missing argument for -list");
+
+					var pieces = option.Value.Split('/');
+					var list = default((ListOption Option, ListFormat Format)?);
+
+					if (pieces.Length < 3 && Enum.TryParse<ListOption>(pieces[0], ignoreCase: true, out var listOption))
+					{
+						if (pieces.Length == 1)
+							list = (listOption, ListFormat.Text);
+						else if (Enum.TryParse<ListFormat>(pieces[1], ignoreCase: true, out var listFormat))
+							list = (listOption, listFormat);
+					}
+
+					project.Configuration.List = list ?? throw new ArgumentException("invalid argument for -list");
+					project.Configuration.NoLogo = true;
+				}
 				else if (optionName == "maxthreads")
 				{
 					if (option.Value == null)
