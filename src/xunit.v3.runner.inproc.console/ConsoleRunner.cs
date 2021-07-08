@@ -384,13 +384,12 @@ namespace Xunit.Runner.InProc.SystemConsole
 
 			try
 			{
+				// Default to false for console runners
+				assembly.Configuration.PreEnumerateTheories ??= false;
+
 				// Setup discovery and execution options with command-line overrides
 				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
-
-				// The normal default is true here, but we want it to be false for us by default
-				if (!assembly.Configuration.PreEnumerateTheories.HasValue)
-					discoveryOptions.SetPreEnumerateTheories(false);
 
 				var assemblyDisplayName = assembly.AssemblyDisplayName;
 				var noColor = assembly.Project.Configuration.NoColorOrDefault;
