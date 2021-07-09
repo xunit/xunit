@@ -6,8 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FSharp.Compiler;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
 using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
 
@@ -37,7 +36,9 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 			FSharpOption<int>.None,
 			FSharpOption<bool>.None,
 			FSharpOption<bool>.None,
+#pragma warning disable CS0618
 			FSharpOption<LegacyReferenceResolver>.None,
+#pragma warning restore CS0618
 			FSharpOption<FSharpFunc<Tuple<string, DateTime>, FSharpOption<Tuple<object, IntPtr, int>>>>.None,
 			FSharpOption<bool>.None,
 			FSharpOption<bool>.None,
@@ -49,12 +50,10 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		var result = await FSharpAsync.StartAsTask(resultFSharpAsync, FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
 		if (result.Item2 != 0)
 		{
-#pragma warning disable CS0618
 			var errors =
 				result
 					.Item1
-					.Select(e => $"{e.FileName}({e.StartLineAlternate},{e.StartColumn}): {(e.Severity.IsError ? "error" : "warning")} {e.ErrorNumber}: {e.Message}");
-#pragma warning restore CS0618
+					.Select(e => $"{e.FileName}({e.StartLine},{e.StartColumn}): {(e.Severity.IsError ? "error" : "warning")} {e.ErrorNumber}: {e.Message}");
 
 			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
 		}
