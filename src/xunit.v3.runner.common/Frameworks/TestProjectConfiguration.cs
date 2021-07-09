@@ -35,6 +35,12 @@ namespace Xunit.Runner.Common
 		public bool IgnoreFailuresOrDefault => IgnoreFailures ?? false;
 
 		/// <summary>
+		/// Gets or sets a flag to indicate that we should list things instead of run them
+		/// (and what we're listing, and in what format).
+		/// </summary>
+		public (ListOption Option, ListFormat Format)? List { get; set; }
+
+		/// <summary>
 		/// The output files that should be generated from the test run. The key is
 		/// the output type, and the value is the output filename. The output type matches
 		/// the <see cref="Transform.ID"/> property on the transforms available in

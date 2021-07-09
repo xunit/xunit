@@ -92,10 +92,12 @@ namespace Xunit.Runner.SystemConsole
 				if (!reporter.ForceNoLogo && !commandLine.Project.Configuration.NoLogoOrDefault)
 					PrintHeader();
 
-				var failCount = await RunProject(
-					commandLine.Project,
-					reporterMessageHandler
-				);
+				var failCount = 0;
+
+				if (commandLine.Project.Configuration.List != null)
+					await ListProject(commandLine.Project);
+				else
+					failCount = await RunProject(commandLine.Project, reporterMessageHandler);
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -227,6 +229,13 @@ namespace Xunit.Runner.SystemConsole
 			Console.WriteLine("  -failskips             : convert skipped tests into failures");
 			Console.WriteLine("  -ignorefailures        : if tests fail, do not return a failure exit code");
 			Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
+			Console.WriteLine("  -list <option>         : list information about the test assemblies rather than running tests (implies -nologo)");
+			Console.WriteLine("                         : note: you can add '/json' to the end of any option to get the listing in JSON format");
+			Console.WriteLine("                         :   classes - list class names of every class which contains tests");
+			Console.WriteLine("                         :   full    - list complete discovery data");
+			Console.WriteLine("                         :   methods - list class+method names of every method which is a test");
+			Console.WriteLine("                         :   tests   - list just the display name of all tests");
+			Console.WriteLine("                         :   traits  - list the set of trait name/value pairs used in the test assemblies");
 			Console.WriteLine("  -maxthreads <option>   : maximum thread count for collection parallelization");
 			Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
 			Console.WriteLine("                         :   unlimited - run with unbounded thread count");
@@ -307,6 +316,41 @@ namespace Xunit.Runner.SystemConsole
 				foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
 					Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
 			}
+		}
+
+		async ValueTask ListProject(XunitProject project)
+		{
+			var (listOption, listFormat) = project.Configuration.List!.Value;
+			var testCasesByAssembly = new Dictionary<string, List<_TestCaseDiscovered>>();
+
+			foreach (var assembly in project.Assemblies)
+			{
+				var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
+
+				// Default to false for console runners
+				assembly.Configuration.PreEnumerateTheories ??= false;
+
+				// Setup discovery and execution options with command-line overrides
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+
+				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+				var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
+				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
+				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+
+				using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName);
+				await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly);
+
+				var discoverySink = new TestDiscoverySink(() => cancel);
+
+				var settings = new FrontControllerFindSettings(discoveryOptions, assembly.Configuration.Filters);
+				controller.Find(discoverySink, settings);
+				discoverySink.Finished.WaitOne();
+
+				testCasesByAssembly.Add(assemblyFileName, discoverySink.TestCases);
+			}
+
+			ConsoleProjectLister.List(testCasesByAssembly, listOption, listFormat);
 		}
 
 		async ValueTask<int> RunProject(
@@ -391,13 +435,12 @@ namespace Xunit.Runner.SystemConsole
 			{
 				var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
 
+				// Default to false for console runners
+				assembly.Configuration.PreEnumerateTheories ??= false;
+
 				// Setup discovery and execution options with command-line overrides
 				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
-
-				// The normal default is true here, but we want it to be false for us by default
-				if (!assembly.Configuration.PreEnumerateTheories.HasValue)
-					discoveryOptions.SetPreEnumerateTheories(false);
 
 				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
 				var noColor = assembly.Project.Configuration.NoColorOrDefault;
