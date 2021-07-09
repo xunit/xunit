@@ -123,13 +123,15 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void FloatValue()
 		{
-			Assert.Equal(Math.PI.ToString("G7"), ArgumentFormatter.Format((float)Math.PI));
+			var floatPI = (float)Math.PI;
+
+			Assert.Equal(floatPI.ToString("G9"), ArgumentFormatter.Format(floatPI));
 		}
 
 		[CulturedFact]
 		public static void DoubleValue()
 		{
-			Assert.Equal(Math.PI.ToString("G19"), ArgumentFormatter.Format(Math.PI));
+			Assert.Equal(Math.PI.ToString("G17"), ArgumentFormatter.Format(Math.PI));
 		}
 
 		[CulturedFact]
