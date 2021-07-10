@@ -113,6 +113,151 @@
         "focus": true
       },
       "problemMatcher": "$msCompile"
-    }
+    },
+    // Helper build tasks used by launch.json
+    {
+      "label": "Build_AssertTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.assert.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_CommonTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.common.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_CoreTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.core.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_RunnerCommonTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.runner.common.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_RunnerConsoleTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.runner.console.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_RunnerInprocConsoleTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.runner.inproc.console.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_RunnerMsbuildTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.runner.msbuild.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_RunnerTdnetTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.runner.tdnet.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build_RunnerUtilityTests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/xunit.v3.runner.utility.tests"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
   ]
 }
