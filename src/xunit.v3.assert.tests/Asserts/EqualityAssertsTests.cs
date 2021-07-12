@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -758,7 +757,7 @@ public class EqualityAssertsTests
 				this.result = result;
 			}
 
-			public bool Equals([AllowNull] T x, [AllowNull] T y) => result;
+			public bool Equals(T? x, T? y) => result;
 
 			public int GetHashCode(T obj) => throw new NotImplementedException();
 		}
