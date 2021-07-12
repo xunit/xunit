@@ -161,18 +161,18 @@ public class XunitTestCaseTests
 
 		public static TheoryData<Type, IEnumerable<string>> CustomAttributeTestCases() =>
 			new()
-		{
-			{ typeof(ClassWithSingleTrait), new[] { "One" } },
-			{ typeof(ClassWithMultipleTraits), new[] { "One", "Two" } },
-			{ typeof(InheritedClassWithOnlyOwnTrait), new[] { "One" } },
-			{ typeof(InheritedClassWithOnlyOwnMultipleTraits), new[] { "One", "Two" } },
-			{ typeof(InheritedClassWithSingleBaseClassTrait), new[] { "BaseOne" } },
-			{ typeof(InheritedClassWithMultipleBaseClassTraits), new[] { "BaseOne", "BaseTwo" } },
-			{ typeof(InheritedClassWithOwnSingleTraitAndSingleBaseClassTrait), new[] { "One", "BaseOne" } },
-			{ typeof(InheritedClassWithOwnSingleTraitAndMultipleBaseClassTrait), new[] { "One", "BaseOne", "BaseTwo" } },
-			{ typeof(InheritedClassWithOwnMultipleTraitsAndSingleBaseClassTrait), new[] { "One", "Two", "BaseOne" } },
-			{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
-		};
+			{
+				{ typeof(ClassWithSingleTrait), new[] { "One" } },
+				{ typeof(ClassWithMultipleTraits), new[] { "One", "Two" } },
+				{ typeof(InheritedClassWithOnlyOwnTrait), new[] { "One" } },
+				{ typeof(InheritedClassWithOnlyOwnMultipleTraits), new[] { "One", "Two" } },
+				{ typeof(InheritedClassWithSingleBaseClassTrait), new[] { "BaseOne" } },
+				{ typeof(InheritedClassWithMultipleBaseClassTraits), new[] { "BaseOne", "BaseTwo" } },
+				{ typeof(InheritedClassWithOwnSingleTraitAndSingleBaseClassTrait), new[] { "One", "BaseOne" } },
+				{ typeof(InheritedClassWithOwnSingleTraitAndMultipleBaseClassTrait), new[] { "One", "BaseOne", "BaseTwo" } },
+				{ typeof(InheritedClassWithOwnMultipleTraitsAndSingleBaseClassTrait), new[] { "One", "Two", "BaseOne" } },
+				{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
+			};
 
 		[Theory]
 		[MemberData(nameof(CustomAttributeTestCases))]

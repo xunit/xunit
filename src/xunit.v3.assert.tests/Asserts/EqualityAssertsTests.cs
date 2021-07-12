@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -758,7 +757,7 @@ public class EqualityAssertsTests
 				this.result = result;
 			}
 
-			public bool Equals([AllowNull] T x, [AllowNull] T y) => result;
+			public bool Equals(T? x, T? y) => result;
 
 			public int GetHashCode(T obj) => throw new NotImplementedException();
 		}
@@ -879,21 +878,17 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure_PositiveInfinity()
 		{
-			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
-
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
-			Assert.Equal($"∞", ex.Expected);
+			Assert.Equal(double.PositiveInfinity.ToString(), ex.Expected);
 			Assert.Equal($"{77.7:G17}", ex.Actual);
 		}
 
 		[CulturedFact]
 		public void Failure_NegativeInfinity()
 		{
-			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
-
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
 			Assert.Equal($"{0.0:G17}", ex.Expected);
-			Assert.Equal($"-∞", ex.Actual);
+			Assert.Equal(double.NegativeInfinity.ToString(), ex.Actual);
 		}
 
 		[CulturedFact]
@@ -950,21 +945,17 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure_PositiveInfinity()
 		{
-			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
-
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
-			Assert.Equal($"∞", ex.Expected);
+			Assert.Equal(float.PositiveInfinity.ToString(), ex.Expected);
 			Assert.Equal($"{77.7f:G9}", ex.Actual);
 		}
 
 		[CulturedFact]
 		public void Failure_NegativeInfinity()
 		{
-			Assert.SkipWhen(IsMono, "Mono's printing of infinity differs from .NET Framework/.NET Core");
-
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
 			Assert.Equal($"{0.0f:G9}", ex.Expected);
-			Assert.Equal($"-∞", ex.Actual);
+			Assert.Equal(float.NegativeInfinity.ToString(), ex.Actual);
 		}
 
 		[CulturedFact]

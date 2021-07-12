@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 

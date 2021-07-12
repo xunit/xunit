@@ -41,6 +41,22 @@ public class AssertActualExpectedExceptionTests
 	}
 
 	[Fact]
+	public void MultiLineValuesAreIndented()
+	{
+		var expectedMessage =
+			"Message" + Environment.NewLine +
+			"Multi-Line" + Environment.NewLine +
+			"Expected: Expected" + Environment.NewLine +
+			"          Multi-Line" + Environment.NewLine +
+			"Actual:   Actual" + Environment.NewLine +
+			"          Multi-Line";
+
+		var ex = new AssertActualExpectedException($"Expected{Environment.NewLine}Multi-Line", $"Actual{Environment.NewLine}Multi-Line", $"Message{Environment.NewLine}Multi-Line");
+
+		Assert.Equal(expectedMessage, ex.Message);
+	}
+
+	[Fact]
 	public void PreservesExpectedAndActual()
 	{
 		var ex = new AssertActualExpectedException(2, 1, null);
