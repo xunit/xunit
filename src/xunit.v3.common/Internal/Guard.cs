@@ -13,15 +13,19 @@ namespace Xunit.Internal
 	public static class Guard
 	{
 		/// <summary/>
-		public static void ArgumentNotNull(string argName, [NotNull] object? argValue)
+		public static void ArgumentNotNull(
+			string argName,
+			[NotNull] object? argValue)
 		{
 			if (argValue == null)
 				throw new ArgumentNullException(argName);
 		}
 
 		/// <summary/>
-		public static T ArgumentNotNull<T>(string argName, [NotNull] T? argValue)
-			where T : class
+		public static T ArgumentNotNull<T>(
+			string argName,
+			[NotNull] T? argValue)
+				where T : class
 		{
 			if (argValue == null)
 				throw new ArgumentNullException(argName);
@@ -30,8 +34,10 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
-		public static T ArgumentNotNullOrEmpty<T>(string argName, [NotNull] T? argValue)
-			where T : class, IEnumerable
+		public static T ArgumentNotNullOrEmpty<T>(
+			string argName,
+			[NotNull] T? argValue)
+				where T : class, IEnumerable
 		{
 			ArgumentNotNull(argName, argValue);
 
@@ -42,15 +48,21 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
-		public static void ArgumentValid(string argName, string message, bool test)
+		public static void ArgumentValid(
+			string argName,
+			string message,
+			bool test)
 		{
 			if (!test)
 				throw new ArgumentException(message, argName);
 		}
 
 		/// <summary/>
-		public static T ArgumentValidNotNull<T>(string argName, string message, [NotNull] T? testValue)
-			where T : class
+		public static T ArgumentValidNotNull<T>(
+			string argName,
+			string message,
+			[NotNull] T? testValue)
+				where T : class
 		{
 			if (testValue == null)
 				throw new ArgumentException(message, argName);
@@ -59,8 +71,11 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
-		public static T ArgumentValidNotNullOrEmpty<T>(string argName, string message, [NotNull] T? testValue)
-			where T : class, IEnumerable
+		public static T ArgumentValidNotNullOrEmpty<T>(
+			string argName,
+			string message,
+			[NotNull] T? testValue)
+				where T : class, IEnumerable
 		{
 			if (testValue == null || !testValue.GetEnumerator().MoveNext())
 				throw new ArgumentException(message, argName);
@@ -69,7 +84,9 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
-		public static string FileExists(string argName, [NotNull] string? fileName)
+		public static string FileExists(
+			string argName,
+			[NotNull] string? fileName)
 		{
 			ArgumentNotNullOrEmpty(argName, fileName);
 			ArgumentValid(argName, $"File not found: {fileName}", File.Exists(fileName));
@@ -78,8 +95,10 @@ namespace Xunit.Internal
 		}
 
 		/// <summary/>
-		public static T NotNull<T>(string message, [NotNull] T? value)
-			where T : class
+		public static T NotNull<T>(
+			string message,
+			[NotNull] T? value)
+				where T : class
 		{
 			if (value == null)
 				throw new InvalidOperationException(message);
