@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3
+﻿namespace Xunit
 {
 	/// <summary>
 	/// Indicates the cause of the test failure.
