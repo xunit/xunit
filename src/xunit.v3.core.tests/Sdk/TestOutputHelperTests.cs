@@ -32,10 +32,10 @@ public class TestOutputHelperTests
 		var test = Substitute.For<_ITest>();
 		test.UniqueID.Returns("test-id");
 		test.TestCase.UniqueID.Returns("case-id");
-		test.TestCase.TestMethod.UniqueID.Returns("method-id");
-		test.TestCase.TestMethod.TestClass.UniqueID.Returns("class-id");
-		test.TestCase.TestMethod.TestClass.TestCollection.UniqueID.Returns("coll-id");
-		test.TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID.Returns("asm-id");
+		test.TestCase.TestMethod!.UniqueID.Returns("method-id");
+		test.TestCase.TestMethod!.TestClass.UniqueID.Returns("class-id");
+		test.TestCase.TestCollection.UniqueID.Returns("coll-id");
+		test.TestCase.TestCollection.TestAssembly.UniqueID.Returns("asm-id");
 		output.Initialize(messageBus, test);
 
 		output.WriteLine(outputText);

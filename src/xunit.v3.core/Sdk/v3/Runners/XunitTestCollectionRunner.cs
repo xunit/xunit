@@ -173,8 +173,8 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestClassAsync(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases) =>
 				new XunitTestClassRunner(
 					testClass,

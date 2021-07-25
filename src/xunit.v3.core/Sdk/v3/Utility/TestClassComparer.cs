@@ -6,7 +6,7 @@ namespace Xunit.v3
 	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestClass"/>.
 	/// Compares the fully qualified names of the types.
 	/// </summary>
-	public class TestClassComparer : IEqualityComparer<_ITestClass>
+	public class TestClassComparer : IEqualityComparer<_ITestClass?>
 	{
 		/// <summary>
 		/// The singleton instance of the comparer.
@@ -25,7 +25,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public int GetHashCode(_ITestClass obj) =>
-			obj.Class.Name.GetHashCode();
+		public int GetHashCode(_ITestClass? obj) =>
+			obj == null ? 0 : obj.Class.Name.GetHashCode();
 	}
 }

@@ -524,7 +524,7 @@ public class Xunit3AcceptanceTests
 				where TTestCase : _ITestCase
 			{
 				var result = testCases.ToList();
-				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
+				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.Method.Name, y.TestMethod?.Method.Name));
 				return result;
 			}
 		}

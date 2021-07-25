@@ -23,9 +23,11 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
 		/// </summary>
-		/// <param name="testClass">The test class to be run.</param>
-		/// <param name="class">The test class that contains the tests to be run.</param>
-		/// <param name="testCases">The test cases to be run.</param>
+		/// <param name="testClass">The test class to be run. May be <c>null</c> for test cases that do not support classes
+		/// and methods.</param>
+		/// <param name="class">The test class that contains the tests to be run. May be <c>null</c> for test cases that do not
+		/// support classes and methods.</param>
+		/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
@@ -33,8 +35,8 @@ namespace Xunit.v3
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 		public XunitTestClassRunner(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
@@ -131,6 +133,9 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override async Task AfterTestClassStartingAsync()
 		{
+			if (TestClass == null || Class == null)
+				return;
+
 			var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
 			if (ordererAttribute != null)
 			{
@@ -189,8 +194,8 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestMethodAsync(
-			_ITestMethod testMethod,
-			_IReflectionMethodInfo method,
+			_ITestMethod? testMethod,
+			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
 				new XunitTestMethodRunner(
@@ -206,10 +211,10 @@ namespace Xunit.v3
 				).RunAsync();
 
 		/// <inheritdoc/>
-		protected override ConstructorInfo? SelectTestClassConstructor()
+		protected override ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)
 		{
 			var ctors =
-				Class
+				@class
 					.Type
 					.GetConstructors()
 					.Where(ci => !ci.IsStatic && ci.IsPublic)

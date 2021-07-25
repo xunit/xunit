@@ -12,8 +12,8 @@ using Xunit.Sdk;
 namespace Xunit.v3
 {
 	/// <summary>
-	/// Default implementation of <see cref="IXunitTestCase"/> for xUnit v3 that supports tests decorated with
-	/// <see cref="FactAttribute"/>. Tests decorated with derived attributes may use this as a base class
+	/// Default implementation of <see cref="IXunitTestCase"/> for xUnit v3 that supports test methods decorated with
+	/// <see cref="FactAttribute"/>. Test methods decorated with derived attributes may use this as a base class
 	/// to build from.
 	/// </summary>
 	[Serializable]

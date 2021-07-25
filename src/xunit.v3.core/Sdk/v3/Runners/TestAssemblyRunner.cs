@@ -183,7 +183,7 @@ namespace Xunit.v3
 		{
 			var testCasesByCollection =
 				TestCases
-					.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+					.GroupBy(tc => tc.TestCollection, TestCollectionComparer.Instance)
 					.ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
 			IReadOnlyCollection<_ITestCollection> orderedTestCollections;

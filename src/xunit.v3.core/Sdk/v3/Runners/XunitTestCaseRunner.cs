@@ -47,7 +47,7 @@ namespace Xunit.v3
 
 			SkipReason = skipReason;
 
-			testClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestMethod.TestClass.Class does not map to a Type object", nameof(testCase));
+			testClass = TestCase.TestMethod?.TestClass.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestMethod.TestClass.Class does not map to a Type object", nameof(testCase));
 			testMethod = TestCase.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod does not map to a MethodInfo object", nameof(testCase));
 
 			var parameters = TestMethod.GetParameters();
@@ -162,7 +162,7 @@ namespace Xunit.v3
 		{
 			IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
 
-			if (TestCase.TestMethod.TestClass.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
+			if (TestCase.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
 				beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetCustomAttributes(typeof(BeforeAfterTestAttribute));
 			else
 				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();

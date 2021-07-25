@@ -174,7 +174,7 @@ public class TestClassRunnerTests
 			runner.MethodsRun,
 			tuple =>
 			{
-				Assert.Equal("Passing", tuple.Item1.Name);
+				Assert.Equal("Passing", tuple.Item1?.Name);
 				Assert.Collection(tuple.Item2,
 					testCase => Assert.Same(passing1, testCase),
 					testCase => Assert.Same(passing2, testCase)
@@ -182,7 +182,7 @@ public class TestClassRunnerTests
 			},
 			tuple =>
 			{
-				Assert.Equal("Other", tuple.Item1.Name);
+				Assert.Equal("Other", tuple.Item1?.Name);
 				Assert.Collection(tuple.Item2,
 					testCase => Assert.Same(other1, testCase),
 					testCase => Assert.Same(other2, testCase)
@@ -201,7 +201,7 @@ public class TestClassRunnerTests
 		await runner.RunAsync();
 
 		var tuple = Assert.Single(runner.MethodsRun);
-		Assert.Equal("Passing", tuple.Item1.Name);
+		Assert.Equal("Passing", tuple.Item1?.Name);
 	}
 
 	public class TestCaseOrderer
@@ -221,7 +221,7 @@ public class TestClassRunnerTests
 				runner.MethodsRun,
 				tuple =>
 				{
-					Assert.Equal("Other", tuple.Item1.Name);
+					Assert.Equal("Other", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(other2, testCase),
 						testCase => Assert.Same(other1, testCase)
@@ -229,7 +229,7 @@ public class TestClassRunnerTests
 				},
 				tuple =>
 				{
-					Assert.Equal("Passing", tuple.Item1.Name);
+					Assert.Equal("Passing", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(passing2, testCase),
 						testCase => Assert.Same(passing1, testCase)
@@ -253,7 +253,7 @@ public class TestClassRunnerTests
 				runner.MethodsRun,
 				tuple =>
 				{
-					Assert.Equal("Passing", tuple.Item1.Name);
+					Assert.Equal("Passing", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(passing1, testCase),
 						testCase => Assert.Same(passing2, testCase)
@@ -261,7 +261,7 @@ public class TestClassRunnerTests
 				},
 				tuple =>
 				{
-					Assert.Equal("Other", tuple.Item1.Name);
+					Assert.Equal("Other", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(other1, testCase),
 						testCase => Assert.Same(other2, testCase)
@@ -351,7 +351,7 @@ public class TestClassRunnerTests
 		readonly ConstructorInfo? constructor;
 		readonly RunSummary result;
 
-		public List<Tuple<_IReflectionMethodInfo, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
+		public List<Tuple<_IReflectionMethodInfo?, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
 		public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
 		public bool AfterTestClassStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
@@ -361,8 +361,8 @@ public class TestClassRunnerTests
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestClassRunner(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
@@ -406,8 +406,8 @@ public class TestClassRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
-				firstTest.TestMethod.TestClass,
-				(_IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
+				firstTest.TestMethod?.TestClass,
+				(_IReflectionTypeInfo?)firstTest.TestMethod?.TestClass.Class,
 				testCases,
 				new List<_MessageSinkMessage>(),
 				messageBus ?? new SpyMessageBus(),
@@ -436,8 +436,8 @@ public class TestClassRunnerTests
 		}
 
 		protected override Task<RunSummary> RunTestMethodAsync(
-			_ITestMethod testMethod,
-			_IReflectionMethodInfo method,
+			_ITestMethod? testMethod,
+			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<_ITestCase> testCases,
 			object?[] constructorArguments)
 		{
@@ -449,9 +449,9 @@ public class TestClassRunnerTests
 			return Task.FromResult(result);
 		}
 
-		protected override ConstructorInfo? SelectTestClassConstructor()
+		protected override ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)
 		{
-			return constructor ?? base.SelectTestClassConstructor();
+			return constructor ?? base.SelectTestClassConstructor(@class);
 		}
 
 		protected override bool TryGetConstructorArgument(

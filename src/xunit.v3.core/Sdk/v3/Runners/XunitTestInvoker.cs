@@ -59,10 +59,10 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override Task BeforeTestMethodInvokedAsync()
 		{
-			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
-			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod?.UniqueID;
 			var testCaseUniqueID = TestCase.UniqueID;
 			var testUniqueID = Test.UniqueID;
 
@@ -120,10 +120,10 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override Task AfterTestMethodInvokedAsync()
 		{
-			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
-			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod?.UniqueID;
 			var testCaseUniqueID = TestCase.UniqueID;
 			var testUniqueID = Test.UniqueID;
 

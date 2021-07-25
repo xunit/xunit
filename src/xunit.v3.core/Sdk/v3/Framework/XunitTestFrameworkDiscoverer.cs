@@ -166,7 +166,7 @@ namespace Xunit.v3
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 
-			if (testCase.GetType() == XunitTestCaseType)
+			if (testCase.GetType() == XunitTestCaseType && testCase.TestMethod != null)
 			{
 				var xunitTestCase = (XunitTestCase)testCase;
 				var className = testCase.TestMethod.TestClass.Class.Name.Replace(":", "::");

@@ -26,9 +26,17 @@ namespace Xunit.v3
 		_ISourceInformation? SourceInformation { get; set; }
 
 		/// <summary>
-		/// Gets the test method this test case belongs to.
+		/// Gets the test collection this test case belongs to. When <see cref="TestMethod"/> is not <c>null</c>,
+		/// this value must point to the same object as
+		/// <see cref="TestMethod"/>.<see cref="_ITestMethod.TestClass"/>.<see cref="_ITestClass.TestCollection"/>.
 		/// </summary>
-		_ITestMethod TestMethod { get; }
+		_ITestCollection TestCollection { get; }
+
+		/// <summary>
+		/// Gets the test method this test case belongs to; may be <c>null</c> if the test isn't backed by
+		/// a method.
+		/// </summary>
+		_ITestMethod? TestMethod { get; }
 
 		/// <summary>
 		/// Gets the arguments that will be passed to the test method.

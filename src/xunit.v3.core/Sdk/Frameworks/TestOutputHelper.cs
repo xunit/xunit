@@ -87,10 +87,10 @@ namespace Xunit.Sdk
 
 				this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 
-				testAssemblyUniqueID = test.TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-				testCollectionUniqueID = test.TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-				testClassUniqueID = test.TestCase.TestMethod.TestClass.UniqueID;
-				testMethodUniqueID = test.TestCase.TestMethod.UniqueID;
+				testAssemblyUniqueID = test.TestCase.TestCollection.TestAssembly.UniqueID;
+				testCollectionUniqueID = test.TestCase.TestCollection.UniqueID;
+				testClassUniqueID = test.TestCase.TestMethod?.TestClass.UniqueID;
+				testMethodUniqueID = test.TestCase.TestMethod?.UniqueID;
 				testCaseUniqueID = test.TestCase.UniqueID;
 				testUniqueID = test.UniqueID;
 			}

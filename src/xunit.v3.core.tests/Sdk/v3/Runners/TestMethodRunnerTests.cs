@@ -188,9 +188,9 @@ public class TestMethodRunnerTests
 		public List<_ITestCase> TestCasesRun = new List<_ITestCase>();
 
 		TestableTestMethodRunner(
-			_ITestMethod testMethod,
-			_IReflectionTypeInfo @class,
-			_IReflectionMethodInfo method,
+			_ITestMethod? testMethod,
+			_IReflectionTypeInfo? @class,
+			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
@@ -223,8 +223,8 @@ public class TestMethodRunnerTests
 
 			return new TestableTestMethodRunner(
 				firstTestCase.TestMethod,
-				(_IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
-				(_IReflectionMethodInfo)firstTestCase.TestMethod.Method,
+				(_IReflectionTypeInfo?)firstTestCase.TestMethod?.TestClass.Class,
+				(_IReflectionMethodInfo?)firstTestCase.TestMethod?.Method,
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				aggregator,

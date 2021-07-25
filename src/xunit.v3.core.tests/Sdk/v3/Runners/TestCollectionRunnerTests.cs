@@ -171,7 +171,7 @@ public class TestCollectionRunnerTests
 			runner.ClassesRun,
 			tuple =>
 			{
-				Assert.Equal("TestCollectionRunnerTests+ClassUnderTest", tuple.Item1.Name);
+				Assert.Equal("TestCollectionRunnerTests+ClassUnderTest", tuple.Item1?.Name);
 				Assert.Collection(tuple.Item2,
 					testCase => Assert.Same(passing1, testCase),
 					testCase => Assert.Same(other1, testCase)
@@ -179,7 +179,7 @@ public class TestCollectionRunnerTests
 			},
 			tuple =>
 			{
-				Assert.Equal("TestCollectionRunnerTests+ClassUnderTest2", tuple.Item1.Name);
+				Assert.Equal("TestCollectionRunnerTests+ClassUnderTest2", tuple.Item1?.Name);
 				Assert.Collection(tuple.Item2,
 					testCase => Assert.Same(passing2, testCase),
 					testCase => Assert.Same(other2, testCase)
@@ -198,7 +198,7 @@ public class TestCollectionRunnerTests
 		await runner.RunAsync();
 
 		var tuple = Assert.Single(runner.ClassesRun);
-		Assert.Equal("TestCollectionRunnerTests+ClassUnderTest", tuple.Item1.Name);
+		Assert.Equal("TestCollectionRunnerTests+ClassUnderTest", tuple.Item1?.Name);
 	}
 
 	class ClassUnderTest
@@ -217,7 +217,7 @@ public class TestCollectionRunnerTests
 		readonly bool cancelInRunTestClassAsync;
 		readonly RunSummary result;
 
-		public readonly List<Tuple<_IReflectionTypeInfo, IReadOnlyCollection<_ITestCase>>> ClassesRun = new();
+		public readonly List<Tuple<_IReflectionTypeInfo?, IReadOnlyCollection<_ITestCase>>> ClassesRun = new();
 		public Action<ExceptionAggregator> AfterTestCollectionStarting_Callback = _ => { };
 		public bool AfterTestCollectionStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestCollectionFinished_Callback = _ => { };
@@ -257,7 +257,7 @@ public class TestCollectionRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestCollectionRunner(
-				testCases.First().TestMethod.TestClass.TestCollection,
+				testCases.First().TestCollection,
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				new MockTestCaseOrderer(),
@@ -283,8 +283,8 @@ public class TestCollectionRunnerTests
 		}
 
 		protected override Task<RunSummary> RunTestClassAsync(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<_ITestCase> testCases)
 		{
 			if (cancelInRunTestClassAsync)

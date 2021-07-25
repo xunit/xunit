@@ -168,10 +168,10 @@ namespace Xunit.v3
 			var runSummary = new RunSummary { Total = 1 };
 			var output = string.Empty;
 
-			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
-			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod?.UniqueID;
 			var testCaseUniqueID = TestCase.UniqueID;
 			var testUniqueID = Test.UniqueID;
 

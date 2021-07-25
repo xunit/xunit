@@ -426,7 +426,7 @@ public class TestAssemblyRunnerTests
 		collection ??= Mocks.TestCollection();
 
 		var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
-		result.TestMethod.TestClass.TestCollection.Returns(collection);
+		result.TestCollection.Returns(collection);
 		return result;
 	}
 }

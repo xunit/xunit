@@ -95,15 +95,15 @@ namespace Xunit.v3
 
 			var testCaseStarting = new _TestCaseStarting
 			{
-				AssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+				AssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID,
 				SkipReason = TestCase.SkipReason,
 				SourceFilePath = TestCase.SourceInformation?.FileName,
 				SourceLineNumber = TestCase.SourceInformation?.LineNumber,
 				TestCaseDisplayName = TestCase.DisplayName,
 				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestCase.TestMethod.TestClass.UniqueID,
-				TestCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID,
-				TestMethodUniqueID = TestCase.TestMethod.UniqueID,
+				TestClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID,
+				TestCollectionUniqueID = TestCase.TestCollection.UniqueID,
+				TestMethodUniqueID = TestCase.TestMethod?.UniqueID,
 				Traits = TestCase.Traits
 			};
 
@@ -123,10 +123,10 @@ namespace Xunit.v3
 					{
 						var testCaseCleanupFailure = _TestCaseCleanupFailure.FromException(
 							Aggregator.ToException()!,
-							TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
-							TestCase.TestMethod.TestClass.TestCollection.UniqueID,
-							TestCase.TestMethod.TestClass.UniqueID,
-							TestCase.TestMethod.UniqueID,
+							TestCase.TestCollection.TestAssembly.UniqueID,
+							TestCase.TestCollection.UniqueID,
+							TestCase.TestMethod?.TestClass.UniqueID,
+							TestCase.TestMethod?.UniqueID,
 							TestCase.UniqueID
 						);
 
@@ -138,12 +138,12 @@ namespace Xunit.v3
 				{
 					var testCaseFinished = new _TestCaseFinished
 					{
-						AssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+						AssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID,
 						ExecutionTime = summary.Time,
 						TestCaseUniqueID = TestCase.UniqueID,
-						TestClassUniqueID = TestCase.TestMethod.TestClass.UniqueID,
-						TestCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID,
-						TestMethodUniqueID = TestCase.TestMethod.UniqueID,
+						TestClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID,
+						TestCollectionUniqueID = TestCase.TestCollection.UniqueID,
+						TestMethodUniqueID = TestCase.TestMethod?.UniqueID,
 						TestsFailed = summary.Failed,
 						TestsRun = summary.Total,
 						TestsSkipped = summary.Skipped

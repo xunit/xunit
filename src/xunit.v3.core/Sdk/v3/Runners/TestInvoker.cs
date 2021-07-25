@@ -166,10 +166,10 @@ namespace Xunit.v3
 
 			if (!TestMethod.IsStatic && !Aggregator.HasExceptions)
 			{
-				var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-				var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-				var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
-				var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+				var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
+				var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
+				var testClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID;
+				var testMethodUniqueID = TestCase.TestMethod?.UniqueID;
 				var testCaseUniqueID = TestCase.UniqueID;
 				var testUniqueID = Test.UniqueID;
 
@@ -307,10 +307,10 @@ namespace Xunit.v3
 					var asyncDisposable = testClassInstance as IAsyncDisposable;
 					var disposable = testClassInstance as IDisposable;
 
-					var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-					var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-					var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
-					var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+					var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
+					var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
+					var testClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID;
+					var testMethodUniqueID = TestCase.TestMethod?.UniqueID;
 					var testCaseUniqueID = TestCase.UniqueID;
 					var testUniqueID = Test.UniqueID;
 

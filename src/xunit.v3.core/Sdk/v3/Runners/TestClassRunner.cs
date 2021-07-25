@@ -21,27 +21,27 @@ namespace Xunit.v3
 	{
 		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
-		_IReflectionTypeInfo @class;
 		_IMessageSink diagnosticMessageSink;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
 		IReadOnlyCollection<TTestCase> testCases;
-		_ITestClass testClass;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
 		/// </summary>
-		/// <param name="testClass">The test class to be run.</param>
-		/// <param name="class">The test class that contains the tests to be run.</param>
-		/// <param name="testCases">The test cases to be run.</param>
+		/// <param name="testClass">The test class to be run. May be <c>null</c> for test cases that do not support classes
+		/// and methods.</param>
+		/// <param name="class">The test class that contains the tests to be run. May be <c>null</c> for test cases that do not
+		/// support classes and methods.</param>
+		/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		protected TestClassRunner(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<TTestCase> testCases,
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
@@ -49,9 +49,9 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
-			this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
-			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
+			TestClass = testClass;
+			Class = @class;
+			this.testCases = Guard.ArgumentNotNullOrEmpty(nameof(testCases), testCases);
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
 			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
@@ -80,11 +80,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the CLR class that contains the tests to be run.
 		/// </summary>
-		protected _IReflectionTypeInfo Class
-		{
-			get => @class;
-			set => @class = Guard.ArgumentNotNull(nameof(Class), value);
-		}
+		protected _IReflectionTypeInfo? Class { get; set; }
 
 		/// <summary>
 		/// Gets the message sink used to send diagnostic messages.
@@ -125,11 +121,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the test class to be run.
 		/// </summary>
-		protected _ITestClass TestClass
-		{
-			get => testClass;
-			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
-		}
+		protected _ITestClass? TestClass { get; set; }
 
 		/// <summary>
 		/// Creates the arguments for the test class constructor. Attempts to resolve each parameter
@@ -139,10 +131,10 @@ namespace Xunit.v3
 		/// <returns>The test class constructor arguments.</returns>
 		protected virtual object?[] CreateTestClassConstructorArguments()
 		{
-			var isStaticClass = Class.Type.IsAbstract && Class.Type.IsSealed;
-			if (!isStaticClass)
+			var isStaticClass = Class == null || (Class.Type.IsAbstract && Class.Type.IsSealed);
+			if (Class != null && !isStaticClass)
 			{
-				var ctor = SelectTestClassConstructor();
+				var ctor = SelectTestClassConstructor(Class);
 				if (ctor != null)
 				{
 					var unusedArguments = new List<Tuple<int, ParameterInfo>>();
@@ -203,38 +195,48 @@ namespace Xunit.v3
 		{
 			var classSummary = new RunSummary();
 
-			var testAssemblyUniqueID = TestClass.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = TestClass.TestCollection.UniqueID;
-			var testClassUniqueID = TestClass.UniqueID;
+			var testCollection = TestCases.First().TestCollection;
+			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = testCollection.UniqueID;
+			var testClassUniqueID = TestClass?.UniqueID;
 
-			var classStarting = new _TestClassStarting
+			if (TestClass != null)
 			{
-				AssemblyUniqueID = testAssemblyUniqueID,
-				TestClass = TestClass.Class.Name,
-				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID
-			};
-
-			if (!MessageBus.QueueMessage(classStarting))
-				CancellationTokenSource.Cancel();
-			else
-			{
-				try
+				var classStarting = new _TestClassStarting
 				{
-					await AfterTestClassStartingAsync();
-					classSummary = await RunTestMethodsAsync();
+					AssemblyUniqueID = testAssemblyUniqueID,
+					TestClass = TestClass.Class.Name,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID
+				};
 
-					Aggregator.Clear();
-					await BeforeTestClassFinishedAsync();
-
-					if (Aggregator.HasExceptions)
-					{
-						var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
-						if (!MessageBus.QueueMessage(classCleanupFailure))
-							CancellationTokenSource.Cancel();
-					}
+				if (!MessageBus.QueueMessage(classStarting))
+				{
+					CancellationTokenSource.Cancel();
+					return classSummary;
 				}
-				finally
+			}
+
+			try
+			{
+				await AfterTestClassStartingAsync();
+				classSummary = await RunTestMethodsAsync();
+
+				Aggregator.Clear();
+				await BeforeTestClassFinishedAsync();
+
+				if (Aggregator.HasExceptions)
+				{
+					var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
+					if (!MessageBus.QueueMessage(classCleanupFailure))
+						CancellationTokenSource.Cancel();
+				}
+
+				return classSummary;
+			}
+			finally
+			{
+				if (TestClass != null)
 				{
 					var classFinished = new _TestClassFinished
 					{
@@ -251,8 +253,6 @@ namespace Xunit.v3
 						CancellationTokenSource.Cancel();
 				}
 			}
-
-			return classSummary;
 		}
 
 		/// <summary>
@@ -279,7 +279,16 @@ namespace Xunit.v3
 
 			foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
 			{
-				summary.Aggregate(await RunTestMethodAsync(method.Key, (_IReflectionMethodInfo)method.Key.Method, method.CastOrToReadOnlyCollection(), constructorArguments));
+				summary.Aggregate(
+					await RunTestMethodAsync(
+						method.Key,
+						// TODO: This will throw for non-reflection-based type info. Should it raise a warning instead?
+						(_IReflectionMethodInfo?)method.Key?.Method,
+						method.CastOrToReadOnlyCollection(),
+						constructorArguments
+					)
+				);
+
 				if (CancellationTokenSource.IsCancellationRequested)
 					break;
 			}
@@ -290,14 +299,16 @@ namespace Xunit.v3
 		/// <summary>
 		/// Override this method to run the tests in an individual test method.
 		/// </summary>
-		/// <param name="testMethod">The test method that contains the test cases.</param>
-		/// <param name="method">The CLR method that contains the tests to be run.</param>
+		/// <param name="testMethod">The test method that contains the test cases. May be <c>null</c> for test cases that do not
+		/// support classes and methods.</param>
+		/// <param name="method">The CLR method that contains the tests to be run. May be <c>null</c> for test cases that do not
+		/// support classes and methods.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestMethodAsync(
-			_ITestMethod testMethod,
-			_IReflectionMethodInfo method,
+			_ITestMethod? testMethod,
+			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<TTestCase> testCases,
 			object?[] constructorArguments
 		);
@@ -306,10 +317,11 @@ namespace Xunit.v3
 		/// Selects the constructor to be used for the test class. By default, chooses the parameterless
 		/// constructor. Override to change the constructor selection logic.
 		/// </summary>
+		/// <param name="class">The test class to get the constructor for.</param>
 		/// <returns>The constructor to be used for creating the test class.</returns>
-		protected virtual ConstructorInfo? SelectTestClassConstructor()
+		protected virtual ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)
 		{
-			var result = Class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
+			var result = @class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
 			if (result == null)
 				Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
 
