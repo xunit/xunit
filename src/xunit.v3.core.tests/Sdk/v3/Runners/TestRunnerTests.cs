@@ -55,6 +55,31 @@ public class TestRunnerTests
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		Assert.Equal(21.12m, passed.ExecutionTime);
 		Assert.Empty(passed.Output);
+		// Statuses
+		Assert.NotNull(runner.AfterTestStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCaseStatus);
+		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestStarting_Context.TestStatus);
+		Assert.NotNull(runner.BeforeTestFinished_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCaseStatus);
+		Assert.Equal(TestEngineStatus.CleaningUp, runner.BeforeTestFinished_Context.TestStatus);
+		Assert.NotNull(runner.BeforeTestFinished_Context.TestState);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionMessages);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionParentIndices);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionStackTraces);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionTypes);
+		Assert.Equal(21.12m, runner.BeforeTestFinished_Context.TestState.ExecutionTime);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.FailureCause);
+		Assert.Equal(TestResult.Passed, runner.BeforeTestFinished_Context.TestState.Result);
+		Assert.NotNull(runner.BeforeTestFinished_Context.TestOutputHelper);
+		Assert.Equal(string.Empty, runner.BeforeTestFinished_Context.TestOutputHelper.Output);
 	}
 
 	[Fact]
@@ -77,6 +102,31 @@ public class TestRunnerTests
 		Assert.Equal(21.12m, failed.ExecutionTime);
 		Assert.Empty(failed.Output);
 		Assert.Equal("Xunit.Sdk.TrueException", failed.ExceptionTypes.Single());
+		// Statuses
+		Assert.NotNull(runner.AfterTestStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCaseStatus);
+		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestStarting_Context.TestStatus);
+		Assert.NotNull(runner.BeforeTestFinished_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCaseStatus);
+		Assert.Equal(TestEngineStatus.CleaningUp, runner.BeforeTestFinished_Context.TestStatus);
+		Assert.NotNull(runner.BeforeTestFinished_Context.TestState);
+		Assert.Equal(failed.Messages, runner.BeforeTestFinished_Context.TestState.ExceptionMessages);
+		Assert.Equal(failed.ExceptionParentIndices, runner.BeforeTestFinished_Context.TestState.ExceptionParentIndices);
+		Assert.Equal(failed.StackTraces, runner.BeforeTestFinished_Context.TestState.ExceptionStackTraces);
+		Assert.Equal(failed.ExceptionTypes, runner.BeforeTestFinished_Context.TestState.ExceptionTypes);
+		Assert.Equal(21.12m, runner.BeforeTestFinished_Context.TestState.ExecutionTime);
+		Assert.Equal(FailureCause.Assertion, runner.BeforeTestFinished_Context.TestState.FailureCause);
+		Assert.Equal(TestResult.Failed, runner.BeforeTestFinished_Context.TestState.Result);
+		Assert.NotNull(runner.BeforeTestFinished_Context.TestOutputHelper);
+		Assert.Equal(string.Empty, runner.BeforeTestFinished_Context.TestOutputHelper.Output);
 	}
 
 	[Fact]
@@ -99,6 +149,31 @@ public class TestRunnerTests
 		Assert.Equal(0m, skipped.ExecutionTime);
 		Assert.Empty(skipped.Output);
 		Assert.Equal("Please don't run me", skipped.Reason);
+		// Statuses
+		Assert.NotNull(runner.AfterTestStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCaseStatus);
+		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestStarting_Context.TestStatus);
+		Assert.NotNull(runner.BeforeTestFinished_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCaseStatus);
+		Assert.Equal(TestEngineStatus.CleaningUp, runner.BeforeTestFinished_Context.TestStatus);
+		Assert.NotNull(runner.BeforeTestFinished_Context.TestState);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionMessages);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionParentIndices);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionStackTraces);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.ExceptionTypes);
+		Assert.Equal(0m, runner.BeforeTestFinished_Context.TestState.ExecutionTime);
+		Assert.Null(runner.BeforeTestFinished_Context.TestState.FailureCause);
+		Assert.Equal(TestResult.Skipped, runner.BeforeTestFinished_Context.TestState.Result);
+		Assert.NotNull(runner.BeforeTestFinished_Context.TestOutputHelper);
+		Assert.Equal(string.Empty, runner.BeforeTestFinished_Context.TestOutputHelper.Output);
 	}
 
 	[Fact]
@@ -238,10 +313,11 @@ public class TestRunnerTests
 
 		public bool InvokeTestAsync_Called;
 		public Action<ExceptionAggregator> AfterTestStarting_Callback = _ => { };
+		public TestContext? AfterTestStarting_Context;
 		public bool AfterTestStarting_Called;
 		public Action<ExceptionAggregator> BeforeTestFinished_Callback = _ => { };
 		public bool BeforeTestFinished_Called;
-		public readonly new _ITestCase TestCase;
+		public TestContext? BeforeTestFinished_Context;
 		public CancellationTokenSource TokenSource;
 
 		TestableTestRunner(
@@ -259,7 +335,6 @@ public class TestRunnerTests
 			Action? lambda) :
 				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
 		{
-			TestCase = test.TestCase;
 			TokenSource = cancellationTokenSource;
 
 			this.runTime = runTime;
@@ -303,12 +378,14 @@ public class TestRunnerTests
 		protected override void AfterTestStarting()
 		{
 			AfterTestStarting_Called = true;
+			AfterTestStarting_Context = TestContext.Current;
 			AfterTestStarting_Callback(Aggregator);
 		}
 
 		protected override void BeforeTestFinished()
 		{
 			BeforeTestFinished_Called = true;
+			BeforeTestFinished_Context = TestContext.Current;
 			BeforeTestFinished_Callback(Aggregator);
 		}
 

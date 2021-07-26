@@ -250,7 +250,7 @@ namespace Xunit.v3
 
 			if (includeSourceInformation && SourceProvider != null && IsEmpty(testCase.SourceInformation))
 			{
-				var result = SourceProvider.GetSourceInformation(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+				var result = SourceProvider.GetSourceInformation(testCase.TestMethod?.TestClass.Class.Name, testCase.TestMethod?.Method.Name);
 				testCase.SourceInformation = new _SourceInformation { FileName = result.FileName, LineNumber = result.LineNumber };
 			}
 
@@ -263,13 +263,13 @@ namespace Xunit.v3
 				SourceLineNumber = testCase.SourceInformation?.LineNumber,
 				TestCaseDisplayName = testCase.DisplayName,
 				TestCaseUniqueID = testCase.UniqueID,
-				TestClass = testCase.TestMethod.TestClass.Class.SimpleName,
-				TestClassUniqueID = testCase.TestMethod.TestClass.UniqueID,
-				TestClassWithNamespace = testCase.TestMethod.TestClass.Class.Name,
-				TestCollectionUniqueID = testCase.TestMethod.TestClass.TestCollection.UniqueID,
-				TestMethod = testCase.TestMethod.Method.Name,
-				TestMethodUniqueID = testCase.TestMethod.UniqueID,
-				TestNamespace = testCase.TestMethod.TestClass.Class.Namespace,
+				TestClass = testCase.TestMethod?.TestClass.Class.SimpleName,
+				TestClassUniqueID = testCase.TestMethod?.TestClass.UniqueID,
+				TestClassWithNamespace = testCase.TestMethod?.TestClass.Class.Name,
+				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
+				TestMethod = testCase.TestMethod?.Method.Name,
+				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
+				TestNamespace = testCase.TestMethod?.TestClass.Class.Namespace,
 				Traits = testCase.Traits
 			};
 

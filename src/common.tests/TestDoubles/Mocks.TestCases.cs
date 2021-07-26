@@ -94,6 +94,7 @@ namespace Xunit.v3
 			displayName ??= $"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}";
 			traits ??= GetTraits(testMethod.Method);
 			uniqueID ??= "case-id";
+			var testCollection = testMethod.TestClass.TestCollection;
 
 			var sourceInfo = new _SourceInformation { FileName = fileName, LineNumber = lineNumber };
 
@@ -101,6 +102,7 @@ namespace Xunit.v3
 			result.DisplayName.Returns(displayName);
 			result.SkipReason.Returns(skipReason);
 			result.SourceInformation.Returns(sourceInfo);
+			result.TestCollection.Returns(testCollection);
 			result.TestMethod.Returns(testMethod);
 			result.Traits.Returns(traits);
 			result.UniqueID.Returns(uniqueID);

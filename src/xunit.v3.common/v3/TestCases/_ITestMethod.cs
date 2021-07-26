@@ -6,7 +6,7 @@ namespace Xunit.v3
 	public interface _ITestMethod
 	{
 		/// <summary>
-		/// Gets the method associated with this test method.
+		/// Gets method information for the underlying test method.
 		/// </summary>
 		_IMethodInfo Method { get; }
 

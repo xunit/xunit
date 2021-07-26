@@ -360,7 +360,7 @@ public class XunitTestAssemblyRunnerTests
 				testCases = new[] { TestData.XunitTestCase<ClassUnderTest>("Passing") };
 
 			return new TestableXunitTestAssemblyRunner(
-				assembly ?? testCases.First().TestMethod.TestClass.TestCollection.TestAssembly,
+				assembly ?? testCases.First().TestCollection.TestAssembly,
 				testCases ?? new IXunitTestCase[0],
 				new List<_MessageSinkMessage>(),
 				SpyMessageSink.Create(),

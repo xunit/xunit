@@ -33,13 +33,13 @@ public class TestCaseSerializerTests
 			var result = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
 
 			Assert.NotNull(result);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName, result.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
-			Assert.Null(result.TestMethod.TestClass.TestCollection.CollectionDefinition);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.DisplayName, result.TestMethod.TestClass.TestCollection.DisplayName);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.UniqueID, result.TestMethod.TestClass.TestCollection.UniqueID);
-			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod.TestClass.Class.Name);
-			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod.Method.Name);
+			Assert.Equal(testCase.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestCollection.TestAssembly.Assembly.AssemblyPath);
+			Assert.Equal(testCase.TestCollection.TestAssembly.ConfigFileName, result.TestCollection.TestAssembly.ConfigFileName);
+			Assert.Null(result.TestCollection.CollectionDefinition);
+			Assert.Equal(testCase.TestCollection.DisplayName, result.TestCollection.DisplayName);
+			Assert.Equal(testCase.TestCollection.UniqueID, result.TestCollection.UniqueID);
+			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod?.TestClass.Class.Name);
+			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod?.Method.Name);
 			Assert.Equal(testCase.DisplayName, result.DisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);
@@ -101,13 +101,13 @@ public class TestCaseSerializerTests
 			var result = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
 
 			Assert.NotNull(result);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName, result.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
-			Assert.Null(result.TestMethod.TestClass.TestCollection.CollectionDefinition);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.DisplayName, result.TestMethod.TestClass.TestCollection.DisplayName);
-			Assert.Equal(testCase.TestMethod.TestClass.TestCollection.UniqueID, result.TestMethod.TestClass.TestCollection.UniqueID);
-			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod.TestClass.Class.Name);
-			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod.Method.Name);
+			Assert.Equal(testCase.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestCollection.TestAssembly.Assembly.AssemblyPath);
+			Assert.Equal(testCase.TestCollection.TestAssembly.ConfigFileName, result.TestCollection.TestAssembly.ConfigFileName);
+			Assert.Null(result.TestCollection.CollectionDefinition);
+			Assert.Equal(testCase.TestCollection.DisplayName, result.TestCollection.DisplayName);
+			Assert.Equal(testCase.TestCollection.UniqueID, result.TestCollection.UniqueID);
+			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod?.TestClass.Class.Name);
+			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod?.Method.Name);
 			Assert.Equal<object>(testCase.DisplayName, result.DisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);

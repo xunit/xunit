@@ -120,8 +120,9 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
-			var collectionSummary = new RunSummary();
+			SetTestContext(TestEngineStatus.Initializing);
 
+			var collectionSummary = new RunSummary();
 			var testAssemblyUniqueID = TestCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = TestCollection.UniqueID;
 
@@ -140,7 +141,12 @@ namespace Xunit.v3
 				try
 				{
 					await AfterTestCollectionStartingAsync();
+
+					SetTestContext(TestEngineStatus.Running);
+
 					collectionSummary = await RunTestClassesAsync();
+
+					SetTestContext(TestEngineStatus.CleaningUp);
 
 					Aggregator.Clear();
 					await BeforeTestCollectionFinishedAsync();
@@ -180,9 +186,17 @@ namespace Xunit.v3
 		{
 			var summary = new RunSummary();
 
-			foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.TestMethod.TestClass, TestClassComparer.Instance))
+			foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.TestMethod?.TestClass, TestClassComparer.Instance))
 			{
-				summary.Aggregate(await RunTestClassAsync(testCasesByClass.Key, (_IReflectionTypeInfo)testCasesByClass.Key.Class, testCasesByClass.CastOrToReadOnlyCollection()));
+				summary.Aggregate(
+					await RunTestClassAsync(
+						testCasesByClass.Key,
+						// TODO: This will throw for non-reflection-based type info. Should it raise a warning instead?
+						(_IReflectionTypeInfo?)testCasesByClass.Key?.Class,
+						testCasesByClass.CastOrToReadOnlyCollection()
+					)
+				);
+
 				if (CancellationTokenSource.IsCancellationRequested)
 					break;
 			}
@@ -193,14 +207,23 @@ namespace Xunit.v3
 		/// <summary>
 		/// Override this method to run the tests in an individual test class.
 		/// </summary>
-		/// <param name="testClass">The test class to be run.</param>
-		/// <param name="class">The CLR class that contains the tests to be run.</param>
+		/// <param name="testClass">The test class to be run. May be <c>null</c> for test cases that do not
+		/// support classes and methods.</param>
+		/// <param name="class">The CLR class that contains the tests to be run. May be <c>null</c> for test
+		/// cases that do not support classes and methods.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestClassAsync(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<TTestCase> testCases
 		);
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test collection and the given test collection status.
+		/// </summary>
+		/// <param name="testCollectionStatus">The current test collection status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testCollectionStatus) =>
+			TestContext.SetForTestCollection(TestCollection, testCollectionStatus);
 	}
 }

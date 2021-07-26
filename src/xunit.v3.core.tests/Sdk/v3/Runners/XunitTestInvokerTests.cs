@@ -295,7 +295,7 @@ public class XunitTestInvokerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			Action? lambda) :
-				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
+				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, null, cancellationTokenSource)
 		{
 			this.lambda = lambda;
 
@@ -327,13 +327,13 @@ public class XunitTestInvokerTests
 			);
 		}
 
-		protected override Task<decimal> InvokeTestMethodAsync(object? testClassInstance)
+		protected override Task InvokeTestMethodAsync(object? testClassInstance)
 		{
 			if (lambda == null)
 				return base.InvokeTestMethodAsync(testClassInstance);
 
 			Aggregator.Run(lambda);
-			return Task.FromResult(0M);
+			return Task.CompletedTask;
 		}
 
 		class ClassUnderTest

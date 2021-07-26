@@ -524,7 +524,7 @@ public class Xunit3AcceptanceTests
 				where TTestCase : _ITestCase
 			{
 				var result = testCases.ToList();
-				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
+				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.Method.Name, y.TestMethod?.Method.Name));
 				return result;
 			}
 		}
@@ -636,6 +636,36 @@ public class Xunit3AcceptanceTests
 			[Fact]
 			[MyCustomFact]
 			public void Passing() { }
+		}
+	}
+
+	public class TestContextAccessor : AcceptanceTestV3
+	{
+		[Fact]
+		public async void CanInjectTestContextAccessor()
+		{
+			var msgs = await RunAsync(typeof(ClassUnderTest));
+
+			var displayName = Assert.Single(
+				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID).TestDisplayName));
+			Assert.Equal("Xunit3AcceptanceTests+TestContextAccessor+ClassUnderTest.Passing", displayName);
+		}
+
+		class ClassUnderTest
+		{
+			ITestContextAccessor accessor;
+
+			public ClassUnderTest(ITestContextAccessor accessor)
+			{
+				this.accessor = accessor;
+			}
+
+			[Fact]
+			public void Passing()
+			{
+				Assert.NotNull(accessor);
+				Assert.Same(TestContext.Current, accessor.Current);
+			}
 		}
 	}
 

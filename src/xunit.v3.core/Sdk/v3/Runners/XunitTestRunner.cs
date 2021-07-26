@@ -61,19 +61,12 @@ namespace Xunit.v3
 		protected override async Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
 		{
 			var output = string.Empty;
-
-			TestOutputHelper? testOutputHelper = null;
-			foreach (var obj in ConstructorArguments)
-			{
-				testOutputHelper = obj as TestOutputHelper;
-				if (testOutputHelper != null)
-					break;
-			}
+			var testOutputHelper = TestContext.Current?.TestOutputHelper as TestOutputHelper;
 
 			if (testOutputHelper != null)
 				testOutputHelper.Initialize(MessageBus, Test);
 
-			var executionTime = await InvokeTestMethodAsync(aggregator);
+			var executionTime = await InvokeTestMethodAsync(aggregator, testOutputHelper);
 
 			if (testOutputHelper != null)
 			{
@@ -88,18 +81,33 @@ namespace Xunit.v3
 		/// Override this method to invoke the test method.
 		/// </summary>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
+		/// <param name="testOutputHelper"></param>
 		/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-		protected virtual Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator) =>
-			new XunitTestInvoker(
-				Test,
-				MessageBus,
-				TestClass,
-				ConstructorArguments,
-				TestMethod,
-				TestMethodArguments,
-				BeforeAfterAttributes,
-				aggregator,
-				CancellationTokenSource
-			).RunAsync();
+		protected virtual Task<decimal> InvokeTestMethodAsync(
+			ExceptionAggregator aggregator,
+			_ITestOutputHelper? testOutputHelper) =>
+				new XunitTestInvoker(
+					Test,
+					MessageBus,
+					TestClass,
+					ConstructorArguments,
+					TestMethod,
+					TestMethodArguments,
+					BeforeAfterAttributes,
+					aggregator,
+					testOutputHelper,
+					CancellationTokenSource
+				).RunAsync();
+
+		/// <inheritdoc/>
+		protected override void SetTestContext(
+			TestEngineStatus testStatus,
+			TestState? testState = null) =>
+				TestContext.SetForTest(
+					Test,
+					testStatus,
+					testState,
+					testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current?.TestOutputHelper
+				);
 	}
 }

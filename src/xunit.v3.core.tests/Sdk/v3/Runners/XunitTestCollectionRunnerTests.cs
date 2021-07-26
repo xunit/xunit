@@ -279,7 +279,7 @@ public class XunitTestCollectionRunnerTests
 
 		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
 			new(
-				testCase.TestMethod.TestClass.TestCollection,
+				testCase.TestCollection,
 				new[] { testCase },
 				new List<_MessageSinkMessage>(),
 				new SpyMessageBus(),
@@ -295,8 +295,8 @@ public class XunitTestCollectionRunnerTests
 		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
 		protected override Task<RunSummary> RunTestClassAsync(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases)
 		{
 			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
