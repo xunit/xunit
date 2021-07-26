@@ -234,9 +234,18 @@ namespace Xunit.v3
 			ParameterInfo parameter,
 			[MaybeNullWhen(false)] out object argumentValue)
 		{
+			if (parameter.ParameterType == typeof(ITestContextAccessor))
+			{
+				argumentValue = TestContextAccessor.Instance;
+				return true;
+			}
+
 			if (parameter.ParameterType == typeof(_ITestOutputHelper))
 			{
-				argumentValue = new TestOutputHelper();
+				// Logic to support passing Func<T> instead of T lives in XunitTestInvoker.CreateTestClassInstance
+				// The actual TestOutputHelper instance is created in XunitTestRunner.SetTestContext when creating
+				// test test context object.
+				argumentValue = (Func<_ITestOutputHelper?>)(() => TestContext.Current?.TestOutputHelper);
 				return true;
 			}
 

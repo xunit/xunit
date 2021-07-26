@@ -160,11 +160,21 @@ namespace Xunit.v3
 		{ }
 
 		/// <summary>
+		/// Override this method to invoke the test.
+		/// </summary>
+		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
+		/// <returns>Returns a tuple which includes the execution time (in seconds) spent running the
+		/// test method, and any output that was returned by the test.</returns>
+		protected abstract Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator);
+
+		/// <summary>
 		/// Runs the test.
 		/// </summary>
 		/// <returns>Returns summary information about the test that was run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
+			SetTestContext(TestEngineStatus.Initializing);
+
 			var runSummary = new RunSummary { Total = 1 };
 			var output = string.Empty;
 
@@ -192,11 +202,13 @@ namespace Xunit.v3
 			{
 				AfterTestStarting();
 
+				_TestResultMessage testResult;
+
 				if (!string.IsNullOrEmpty(SkipReason))
 				{
 					runSummary.Skipped++;
 
-					var testSkipped = new _TestSkipped
+					testResult = new _TestSkipped
 					{
 						AssemblyUniqueID = testAssemblyUniqueID,
 						ExecutionTime = 0m,
@@ -208,9 +220,6 @@ namespace Xunit.v3
 						TestMethodUniqueID = testMethodUniqueID,
 						TestUniqueID = testUniqueID
 					};
-
-					if (!MessageBus.QueueMessage(testSkipped))
-						CancellationTokenSource.Cancel();
 				}
 				else
 				{
@@ -227,7 +236,6 @@ namespace Xunit.v3
 					}
 
 					var exception = aggregator.ToException();
-					_TestResultMessage testResult;
 
 					if (exception == null)
 					{
@@ -263,29 +271,26 @@ namespace Xunit.v3
 					}
 					else
 					{
-						var errorMetadata = ExceptionUtility.ExtractMetadata(exception);
-						testResult = new _TestFailed
-						{
-							AssemblyUniqueID = testAssemblyUniqueID,
-							ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
-							ExceptionTypes = errorMetadata.ExceptionTypes,
-							ExecutionTime = runSummary.Time,
-							Messages = errorMetadata.Messages,
-							Output = output,
-							StackTraces = errorMetadata.StackTraces,
-							TestCaseUniqueID = testCaseUniqueID,
-							TestClassUniqueID = testClassUniqueID,
-							TestCollectionUniqueID = testCollectionUniqueID,
-							TestMethodUniqueID = testMethodUniqueID,
-							TestUniqueID = testUniqueID
-						};
+						testResult = _TestFailed.FromException(
+							exception,
+							testAssemblyUniqueID,
+							testCollectionUniqueID,
+							testClassUniqueID,
+							testMethodUniqueID,
+							testCaseUniqueID,
+							testUniqueID,
+							runSummary.Time,
+							output
+						);
 						runSummary.Failed++;
 					}
-
-					if (!CancellationTokenSource.IsCancellationRequested)
-						if (!MessageBus.QueueMessage(testResult))
-							CancellationTokenSource.Cancel();
 				}
+
+				SetTestContext(TestEngineStatus.CleaningUp, TestState.FromTestResult(testResult));
+
+				if (!CancellationTokenSource.IsCancellationRequested)
+					if (!MessageBus.QueueMessage(testResult))
+						CancellationTokenSource.Cancel();
 
 				Aggregator.Clear();
 				BeforeTestFinished();
@@ -326,11 +331,13 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Override this method to invoke the test.
+		/// Sets the test context for the given test state and engine status.
 		/// </summary>
-		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-		/// <returns>Returns a tuple which includes the execution time (in seconds) spent running the
-		/// test method, and any output that was returned by the test.</returns>
-		protected abstract Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator);
+		/// <param name="testStatus">The current engine status for the test</param>
+		/// <param name="testState">The current test state</param>
+		protected virtual void SetTestContext(
+			TestEngineStatus testStatus,
+			TestState? testState = null) =>
+				TestContext.SetForTest(test, testStatus, testState);
 	}
 }

@@ -155,9 +155,11 @@ namespace Xunit.v3
 		/// <summary>
 		/// Creates the test class, unless the test method is static or there have already been errors. Note that
 		/// this method times the creation of the test class (using <see cref="Timer"/>). It is also responsible for
-		/// sending the <see cref="_TestClassConstructionStarting"/>and <see cref="_TestClassConstructionFinished"/>
+		/// sending the <see cref="_TestClassConstructionStarting"/> and <see cref="_TestClassConstructionFinished"/>
 		/// messages, so if you override this method without calling the base, you are responsible for all of this behavior.
-		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
+		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>. To override
+		/// just the behavior of creating the instance of the test class, override <see cref="CreateTestClassInstance"/>
+		/// instead.
 		/// </summary>
 		/// <returns>The class instance, if appropriate; <c>null</c>, otherwise</returns>
 		protected virtual object? CreateTestClass()
@@ -190,7 +192,7 @@ namespace Xunit.v3
 					try
 					{
 						if (!cancellationTokenSource.IsCancellationRequested)
-							timer.Aggregate(() => testClass = Activator.CreateInstance(TestClass, ConstructorArguments));
+							Timer.Aggregate(() => testClass = CreateTestClassInstance());
 					}
 					finally
 					{
@@ -211,6 +213,15 @@ namespace Xunit.v3
 
 			return testClass;
 		}
+
+		/// <summary>
+		/// Creates the instance of the test class. By default, uses <see cref="Activator"/>.<see cref="Activator.CreateInstance(Type, object[])"/>
+		/// with the values from <see cref="TestClass"/> and <see cref="ConstructorArguments"/>. You should override this in order to
+		/// change the input values and/or use a factory method other than Activator.CreateInstance.
+		/// </summary>
+		/// <returns></returns>
+		protected virtual object? CreateTestClassInstance() =>
+			Activator.CreateInstance(TestClass, ConstructorArguments);
 
 		/// <summary>
 		/// This method is called just after the test method has finished executing.
@@ -268,11 +279,12 @@ namespace Xunit.v3
 			{
 				if (fSharpStartAsTaskOpenGenericMethod == null)
 				{
-					fSharpStartAsTaskOpenGenericMethod = type
-						.Assembly
-						.GetType("Microsoft.FSharp.Control.FSharpAsync")?
-						.GetRuntimeMethods()
-						.FirstOrDefault(m => m.Name == "StartAsTask");
+					fSharpStartAsTaskOpenGenericMethod =
+						type
+							.Assembly
+							.GetType("Microsoft.FSharp.Control.FSharpAsync")?
+							.GetRuntimeMethods()
+							.FirstOrDefault(m => m.Name == "StartAsTask");
 
 					if (fSharpStartAsTaskOpenGenericMethod == null)
 						throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
@@ -301,8 +313,10 @@ namespace Xunit.v3
 			{
 				if (!CancellationTokenSource.IsCancellationRequested)
 				{
+					SetTestContext(TestEngineStatus.Initializing);
+
 					object? testClassInstance = null;
-					timer.Aggregate(() => testClassInstance = CreateTestClass());
+					Timer.Aggregate(() => testClassInstance = CreateTestClass());
 
 					var asyncDisposable = testClassInstance as IAsyncDisposable;
 					var disposable = testClassInstance as IDisposable;
@@ -317,7 +331,7 @@ namespace Xunit.v3
 					try
 					{
 						if (testClassInstance is IAsyncLifetime asyncLifetime)
-							await timer.AggregateAsync(asyncLifetime.InitializeAsync);
+							await Timer.AggregateAsync(asyncLifetime.InitializeAsync);
 
 						try
 						{
@@ -325,8 +339,12 @@ namespace Xunit.v3
 							{
 								await BeforeTestMethodInvokedAsync();
 
+								SetTestContext(TestEngineStatus.Running);
+
 								if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
 									await InvokeTestMethodAsync(testClassInstance);
+
+								SetTestContext(TestEngineStatus.CleaningUp, TestState.FromException(Timer.Total, Aggregator.ToException()));
 
 								await AfterTestMethodInvokedAsync();
 							}
@@ -350,13 +368,13 @@ namespace Xunit.v3
 							}
 
 							if (asyncDisposable != null)
-								await Aggregator.RunAsync(() => timer.AggregateAsync(asyncDisposable.DisposeAsync));
+								await Aggregator.RunAsync(() => Timer.AggregateAsync(asyncDisposable.DisposeAsync));
 						}
 					}
 					finally
 					{
 						if (disposable != null)
-							Aggregator.Run(() => timer.Aggregate(disposable.Dispose));
+							Aggregator.Run(() => Timer.Aggregate(disposable.Dispose));
 
 						if (asyncDisposable != null || disposable != null)
 						{
@@ -385,11 +403,11 @@ namespace Xunit.v3
 		/// test methods, ensures that the test method has the correct number of arguments, then calls <see cref="CallTestMethod"/>
 		/// to do the actual method invocation. It ensure that any async test method is fully completed before returning, and
 		/// returns the measured clock time that the invocation took. This method should NEVER throw; any exceptions should be
-		/// placed into the <see cref="Aggregator"/>.
+		/// placed into the <see cref="Aggregator"/>. Time spent executing user code should be measured with one of the
+		/// Aggregate methods on <see cref="Timer"/>.
 		/// </summary>
 		/// <param name="testClassInstance">The test class instance</param>
-		/// <returns>Returns the time taken to invoke the test method</returns>
-		protected virtual async Task<decimal> InvokeTestMethodAsync(object? testClassInstance)
+		protected virtual async Task InvokeTestMethodAsync(object? testClassInstance)
 		{
 			var oldSyncContext = SynchronizationContext.Current;
 
@@ -433,12 +451,20 @@ namespace Xunit.v3
 			{
 				SetSynchronizationContext(oldSyncContext);
 			}
-
-			return Timer.Total;
 		}
 
 		[SecuritySafeCritical]
 		static void SetSynchronizationContext(SynchronizationContext? context) =>
 			SynchronizationContext.SetSynchronizationContext(context);
+
+		/// <summary>
+		/// Sets the test context for the given test state and engine status.
+		/// </summary>
+		/// <param name="testStatus">The current engine status for the test</param>
+		/// <param name="testState">The current test state</param>
+		protected virtual void SetTestContext(
+			TestEngineStatus testStatus,
+			TestState? testState = null) =>
+				TestContext.SetForTest(Test, testStatus, testState);
 	}
 }

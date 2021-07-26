@@ -154,17 +154,54 @@ public class TestCaseRunnerTests
 		Assert.True(runner.TokenSource.IsCancellationRequested);
 	}
 
+	[Fact]
+	public static async void TestContextInspection()
+	{
+		var runner = TestableTestCaseRunner.Create();
+
+		await runner.RunAsync();
+
+		Assert.NotNull(runner.AfterTestCaseStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCaseStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCaseStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCaseStarting_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCaseStarting_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestCaseStarting_Context.TestCaseStatus);
+		Assert.Null(runner.AfterTestCaseStarting_Context.TestStatus);
+		Assert.Same(runner.TestCase, runner.AfterTestCaseStarting_Context.TestCase);
+
+		Assert.NotNull(runner.RunTestAsync_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestCaseStatus);
+		Assert.Null(runner.RunTestAsync_Context.TestStatus);
+		Assert.Same(runner.TestCase, runner.RunTestAsync_Context.TestCase);
+
+		Assert.NotNull(runner.BeforeTestCaseStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestCaseStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestCaseStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestCaseStarting_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestCaseStarting_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.CleaningUp, runner.BeforeTestCaseStarting_Context.TestCaseStatus);
+		Assert.Null(runner.BeforeTestCaseStarting_Context.TestStatus);
+		Assert.Same(runner.TestCase, runner.BeforeTestCaseStarting_Context.TestCase);
+	}
+
 	class TestableTestCaseRunner : TestCaseRunner<_ITestCase>
 	{
 		readonly RunSummary result;
 
 		public Action<ExceptionAggregator> AfterTestCaseStarting_Callback = _ => { };
 		public bool AfterTestCaseStarting_Called;
+		public TestContext? AfterTestCaseStarting_Context;
 		public Action<ExceptionAggregator> BeforeTestCaseFinished_Callback = _ => { };
 		public bool BeforeTestCaseFinished_Called;
+		public TestContext? BeforeTestCaseStarting_Context;
 		public Exception? RunTestAsync_AggregatorResult;
 		public bool RunTestAsync_Called;
-		public readonly new _ITestCase TestCase;
+		public TestContext? RunTestAsync_Context;
 		public CancellationTokenSource TokenSource;
 
 		TestableTestCaseRunner(
@@ -177,12 +214,13 @@ public class TestCaseRunnerTests
 		{
 			this.result = result;
 
-			TestCase = testCase;
 			TokenSource = tokenSource;
 		}
 
+		public new _ITestCase? TestCase => base.TestCase;
+
 		public static TestableTestCaseRunner Create(
-			IMessageBus messageBus,
+			IMessageBus? messageBus = null,
 			_ITestCase? testCase = null,
 			RunSummary? result = null,
 			Exception? aggregatorSeedException = null)
@@ -193,7 +231,7 @@ public class TestCaseRunnerTests
 
 			return new TestableTestCaseRunner(
 				testCase ?? Mocks.TestCase<object>("ToString"),
-				messageBus,
+				messageBus ?? new SpyMessageBus(),
 				aggregator,
 				new CancellationTokenSource(),
 				result ?? new RunSummary()
@@ -203,6 +241,7 @@ public class TestCaseRunnerTests
 		protected override Task AfterTestCaseStartingAsync()
 		{
 			AfterTestCaseStarting_Called = true;
+			AfterTestCaseStarting_Context = TestContext.Current;
 			AfterTestCaseStarting_Callback(Aggregator);
 			return Task.CompletedTask;
 		}
@@ -210,6 +249,7 @@ public class TestCaseRunnerTests
 		protected override Task BeforeTestCaseFinishedAsync()
 		{
 			BeforeTestCaseFinished_Called = true;
+			BeforeTestCaseStarting_Context = TestContext.Current;
 			BeforeTestCaseFinished_Callback(Aggregator);
 			return Task.CompletedTask;
 		}
@@ -218,6 +258,7 @@ public class TestCaseRunnerTests
 		{
 			RunTestAsync_AggregatorResult = Aggregator.ToException();
 			RunTestAsync_Called = true;
+			RunTestAsync_Context = TestContext.Current;
 			return Task.FromResult(result);
 		}
 	}

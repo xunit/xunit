@@ -639,6 +639,36 @@ public class Xunit3AcceptanceTests
 		}
 	}
 
+	public class TestContextAccessor : AcceptanceTestV3
+	{
+		[Fact]
+		public async void CanInjectTestContextAccessor()
+		{
+			var msgs = await RunAsync(typeof(ClassUnderTest));
+
+			var displayName = Assert.Single(
+				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID).TestDisplayName));
+			Assert.Equal("Xunit3AcceptanceTests+TestContextAccessor+ClassUnderTest.Passing", displayName);
+		}
+
+		class ClassUnderTest
+		{
+			ITestContextAccessor accessor;
+
+			public ClassUnderTest(ITestContextAccessor accessor)
+			{
+				this.accessor = accessor;
+			}
+
+			[Fact]
+			public void Passing()
+			{
+				Assert.NotNull(accessor);
+				Assert.Same(TestContext.Current, accessor.Current);
+			}
+		}
+	}
+
 	public class TestOutput : AcceptanceTestV3
 	{
 		[Fact]

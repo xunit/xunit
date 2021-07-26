@@ -91,6 +91,8 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
+			SetTestContext(TestEngineStatus.Initializing);
+
 			var summary = new RunSummary();
 
 			var testCaseStarting = new _TestCaseStarting
@@ -114,7 +116,12 @@ namespace Xunit.v3
 				try
 				{
 					await AfterTestCaseStartingAsync();
+
+					SetTestContext(TestEngineStatus.Running);
+
 					summary = await RunTestAsync();
+
+					SetTestContext(TestEngineStatus.CleaningUp);
 
 					Aggregator.Clear();
 					await BeforeTestCaseFinishedAsync();
@@ -162,5 +169,12 @@ namespace Xunit.v3
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestAsync();
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test case and the given test case status.
+		/// </summary>
+		/// <param name="testCaseStatus">The current test case status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testCaseStatus) =>
+			TestContext.SetForTestCase(TestCase, testCaseStatus);
 	}
 }

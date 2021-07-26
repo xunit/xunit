@@ -121,8 +121,9 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
-			var methodSummary = new RunSummary();
+			SetTestContext(TestEngineStatus.Initializing);
 
+			var methodSummary = new RunSummary();
 			var testCollection = TestCases.First().TestCollection;
 			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = testCollection.UniqueID;
@@ -150,7 +151,12 @@ namespace Xunit.v3
 			try
 			{
 				AfterTestMethodStarting();
+
+				SetTestContext(TestEngineStatus.Running);
+
 				methodSummary = await RunTestCasesAsync();
+
+				SetTestContext(TestEngineStatus.CleaningUp);
 
 				Aggregator.Clear();
 				BeforeTestMethodFinished();
@@ -210,5 +216,16 @@ namespace Xunit.v3
 		/// <param name="testCase">The test case to be run.</param>
 		/// <returns>Returns summary information about the test case run.</returns>
 		protected abstract Task<RunSummary> RunTestCaseAsync(TTestCase testCase);
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test method and the given test method status.
+		/// Does nothing when <see cref="TestMethod"/> is <c>null</c>.
+		/// </summary>
+		/// <param name="testMethodStatus">The current test method status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testMethodStatus)
+		{
+			if (TestMethod != null)
+				TestContext.SetForTestMethod(TestMethod, testMethodStatus);
+		}
 	}
 }

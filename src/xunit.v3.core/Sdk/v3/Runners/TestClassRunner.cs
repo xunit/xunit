@@ -193,8 +193,9 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
-			var classSummary = new RunSummary();
+			SetTestContext(TestEngineStatus.Initializing);
 
+			var classSummary = new RunSummary();
 			var testCollection = TestCases.First().TestCollection;
 			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = testCollection.UniqueID;
@@ -220,7 +221,12 @@ namespace Xunit.v3
 			try
 			{
 				await AfterTestClassStartingAsync();
+
+				SetTestContext(TestEngineStatus.Running);
+
 				classSummary = await RunTestMethodsAsync();
+
+				SetTestContext(TestEngineStatus.CleaningUp);
 
 				Aggregator.Clear();
 				await BeforeTestClassFinishedAsync();
@@ -326,6 +332,17 @@ namespace Xunit.v3
 				Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
 
 			return result;
+		}
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test class and the given test class status.
+		/// Does nothing when <see cref="TestClass"/> is <c>null</c>.
+		/// </summary>
+		/// <param name="testClassStatus">The current test class status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testClassStatus)
+		{
+			if (TestClass != null)
+				TestContext.SetForTestClass(TestClass, testClassStatus);
 		}
 
 		/// <summary>

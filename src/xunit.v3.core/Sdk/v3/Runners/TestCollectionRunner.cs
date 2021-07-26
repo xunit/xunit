@@ -120,8 +120,9 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
-			var collectionSummary = new RunSummary();
+			SetTestContext(TestEngineStatus.Initializing);
 
+			var collectionSummary = new RunSummary();
 			var testAssemblyUniqueID = TestCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = TestCollection.UniqueID;
 
@@ -140,7 +141,12 @@ namespace Xunit.v3
 				try
 				{
 					await AfterTestCollectionStartingAsync();
+
+					SetTestContext(TestEngineStatus.Running);
+
 					collectionSummary = await RunTestClassesAsync();
+
+					SetTestContext(TestEngineStatus.CleaningUp);
 
 					Aggregator.Clear();
 					await BeforeTestCollectionFinishedAsync();
@@ -212,5 +218,12 @@ namespace Xunit.v3
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<TTestCase> testCases
 		);
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test collection and the given test collection status.
+		/// </summary>
+		/// <param name="testCollectionStatus">The current test collection status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testCollectionStatus) =>
+			TestContext.SetForTestCollection(TestCollection, testCollectionStatus);
 	}
 }

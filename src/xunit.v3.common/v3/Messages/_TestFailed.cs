@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -87,21 +86,12 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
 			Guard.ArgumentNotNull(nameof(executionTime), executionTime);
 
-			var interfaces = ex.GetType().GetInterfaces();
-
-			var cause =
-				interfaces.Any(i => i.Name == "ITestTimeoutException")
-					? FailureCause.Timeout
-					: interfaces.Any(i => i.Name == "IAssertionException")
-						? FailureCause.Assertion
-						: FailureCause.Exception;
-
 			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 
 			return new _TestFailed
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				Cause = cause,
+				Cause = errorMetadata.Cause,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,

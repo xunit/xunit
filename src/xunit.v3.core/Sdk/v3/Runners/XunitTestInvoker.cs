@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Xunit.v3
 	public class XunitTestInvoker : TestInvoker<IXunitTestCase>
 	{
 		readonly Stack<BeforeAfterTestAttribute> beforeAfterAttributesRun = new Stack<BeforeAfterTestAttribute>();
+		readonly _ITestOutputHelper? testOutputHelper;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestInvoker"/> class.
@@ -26,6 +28,7 @@ namespace Xunit.v3
 		/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
 		/// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test invocation.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
+		/// <param name="testOutputHelper">The output helper that was given to the test; <c>null</c> if one was not created</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestInvoker(
 			_ITest test,
@@ -36,6 +39,7 @@ namespace Xunit.v3
 			object?[]? testMethodArguments,
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
+			_ITestOutputHelper? testOutputHelper,
 			CancellationTokenSource cancellationTokenSource) :
 				base(
 					test,
@@ -49,6 +53,7 @@ namespace Xunit.v3
 				)
 		{
 			BeforeAfterAttributes = Guard.ArgumentNotNull(nameof(beforeAfterAttributes), beforeAfterAttributes);
+			this.testOutputHelper = testOutputHelper;
 		}
 
 		/// <summary>
@@ -163,7 +168,48 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task<decimal> InvokeTestMethodAsync(object? testClassInstance)
+		protected override object? CreateTestClassInstance()
+		{
+			// We allow for Func<T> when the argument is T, such that we should be able to get the value just before
+			// invoking the test. So we need to do a transform on the arguments.
+			object?[]? actualCtorArguments = null;
+
+			if (ConstructorArguments != null)
+			{
+				// TODO: Don't like redoing the logic from XunitTestClassRunner here
+				var ctorParams =
+					TestClass
+						.GetConstructors()
+						.Where(ci => !ci.IsStatic && ci.IsPublic)
+						.Single()
+						.GetParameters();
+
+				actualCtorArguments = new object?[ConstructorArguments.Length];
+
+				for (var idx = 0; idx < ConstructorArguments.Length; ++idx)
+				{
+					actualCtorArguments[idx] = ConstructorArguments[idx];
+
+					var ctorArgumentValueType = ConstructorArguments[idx]?.GetType();
+					if (ctorArgumentValueType != null)
+					{
+						var ctorArgumentParamType = ctorParams[idx].ParameterType;
+						if (ctorArgumentParamType != ctorArgumentValueType &&
+							ctorArgumentValueType == typeof(Func<>).MakeGenericType(ctorArgumentParamType))
+						{
+							var invokeMethod = ctorArgumentValueType.GetMethod("Invoke", new Type[0]);
+							if (invokeMethod != null)
+								actualCtorArguments[idx] = invokeMethod.Invoke(ConstructorArguments[idx], new object?[0]);
+						}
+					}
+				}
+			}
+
+			return Activator.CreateInstance(TestClass, actualCtorArguments);
+		}
+
+		/// <inheritdoc/>
+		protected override Task InvokeTestMethodAsync(object? testClassInstance)
 		{
 			if (TestCase.InitializationException != null)
 			{
@@ -177,15 +223,13 @@ namespace Xunit.v3
 				: base.InvokeTestMethodAsync(testClassInstance);
 		}
 
-		async Task<decimal> InvokeTimeoutTestMethodAsync(object? testClassInstance)
+		async Task InvokeTimeoutTestMethodAsync(object? testClassInstance)
 		{
 			var baseTask = base.InvokeTestMethodAsync(testClassInstance);
 			var resultTask = await Task.WhenAny(baseTask, Task.Delay(TestCase.Timeout));
 
 			if (resultTask != baseTask)
 				throw new TestTimeoutException(TestCase.Timeout);
-
-			return baseTask.Result;
 		}
 	}
 }

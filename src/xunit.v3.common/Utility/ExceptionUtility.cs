@@ -36,7 +36,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="ex">The exception to be converted.</param>
 		/// <returns>The error metadata.</returns>
-		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ExtractMetadata(Exception ex)
+		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices, FailureCause Cause) ExtractMetadata(Exception ex)
 		{
 			Guard.ArgumentNotNull(nameof(ex), ex);
 
@@ -47,11 +47,21 @@ namespace Xunit.Sdk
 
 			ExtractMetadata(ex, -1, exceptionTypes, messages, stackTraces, indices);
 
+			var interfaces = ex.GetType().GetInterfaces();
+
+			var cause =
+				interfaces.Any(i => i.Name == "ITestTimeoutException")
+					? FailureCause.Timeout
+					: interfaces.Any(i => i.Name == "IAssertionException")
+						? FailureCause.Assertion
+						: FailureCause.Exception;
+
 			return (
 				exceptionTypes.ToArray(),
 				messages.ToArray(),
 				stackTraces.ToArray(),
-				indices.ToArray()
+				indices.ToArray(),
+				cause
 			);
 		}
 

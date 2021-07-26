@@ -211,6 +211,8 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
+			SetTestContext(TestEngineStatus.Initializing);
+
 			var cancellationTokenSource = new CancellationTokenSource();
 			var totalSummary = new RunSummary();
 			var currentDirectory = Directory.GetCurrentDirectory();
@@ -246,10 +248,14 @@ namespace Xunit.v3
 					{
 						await AfterTestAssemblyStartingAsync();
 
+						SetTestContext(TestEngineStatus.Running);
+
 						var masterStopwatch = Stopwatch.StartNew();
 						totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
 						// Want clock time, not aggregated run time
 						totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
+
+						SetTestContext(TestEngineStatus.CleaningUp);
 
 						Aggregator.Clear();
 						await BeforeTestAssemblyFinishedAsync();
@@ -321,5 +327,12 @@ namespace Xunit.v3
 			IReadOnlyCollection<TTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource
 		);
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test assembly and the given test assembly status.
+		/// </summary>
+		/// <param name="testAssemblyStatus">The current test assembly status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testAssemblyStatus) =>
+			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus);
 	}
 }

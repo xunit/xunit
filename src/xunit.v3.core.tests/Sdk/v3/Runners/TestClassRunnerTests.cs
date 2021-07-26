@@ -204,6 +204,41 @@ public class TestClassRunnerTests
 		Assert.Equal("Passing", tuple.Item1?.Name);
 	}
 
+	[Fact]
+	public static async void TestContextInspection()
+	{
+		var runner = TestableTestClassRunner.Create();
+
+		await runner.RunAsync();
+
+		Assert.NotNull(runner.AfterTestClassStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestClassStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestClassStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestClassStarting_Context.TestClassStatus);
+		Assert.Null(runner.AfterTestClassStarting_Context.TestMethodStatus);
+		Assert.Null(runner.AfterTestClassStarting_Context.TestCaseStatus);
+		Assert.Null(runner.AfterTestClassStarting_Context.TestStatus);
+		Assert.Same(runner.TestClass, runner.AfterTestClassStarting_Context.TestClass);
+
+		Assert.NotNull(runner.RunTestMethodAsync_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestMethodAsync_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestMethodAsync_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestMethodAsync_Context.TestClassStatus);
+		Assert.Null(runner.RunTestMethodAsync_Context.TestMethodStatus);
+		Assert.Null(runner.RunTestMethodAsync_Context.TestCaseStatus);
+		Assert.Null(runner.RunTestMethodAsync_Context.TestStatus);
+		Assert.Same(runner.TestClass, runner.RunTestMethodAsync_Context.TestClass);
+
+		Assert.NotNull(runner.BeforeTestClassFinished_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestClassFinished_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestClassFinished_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.CleaningUp, runner.BeforeTestClassFinished_Context.TestClassStatus);
+		Assert.Null(runner.BeforeTestClassFinished_Context.TestMethodStatus);
+		Assert.Null(runner.BeforeTestClassFinished_Context.TestCaseStatus);
+		Assert.Null(runner.BeforeTestClassFinished_Context.TestStatus);
+		Assert.Same(runner.TestClass, runner.BeforeTestClassFinished_Context.TestClass);
+	}
+
 	public class TestCaseOrderer
 	{
 		[Fact]
@@ -354,10 +389,13 @@ public class TestClassRunnerTests
 		public List<Tuple<_IReflectionMethodInfo?, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
 		public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
 		public bool AfterTestClassStarting_Called;
+		public TestContext? AfterTestClassStarting_Context;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
 		public bool BeforeTestClassFinished_Called;
+		public TestContext? BeforeTestClassFinished_Context;
 		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
+		public TestContext? RunTestMethodAsync_Context;
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestClassRunner(
@@ -383,6 +421,8 @@ public class TestClassRunnerTests
 			this.result = result;
 			this.cancelInRunTestMethodAsync = cancelInRunTestMethodAsync;
 		}
+
+		public new _ITestClass? TestClass => base.TestClass;
 
 		public static TestableTestClassRunner Create(
 			IMessageBus? messageBus = null,
@@ -424,6 +464,7 @@ public class TestClassRunnerTests
 		protected override Task AfterTestClassStartingAsync()
 		{
 			AfterTestClassStarting_Called = true;
+			AfterTestClassStarting_Context = TestContext.Current;
 			AfterTestClassStarting_Callback(Aggregator);
 			return Task.CompletedTask;
 		}
@@ -431,6 +472,7 @@ public class TestClassRunnerTests
 		protected override Task BeforeTestClassFinishedAsync()
 		{
 			BeforeTestClassFinished_Called = true;
+			BeforeTestClassFinished_Context = TestContext.Current;
 			BeforeTestClassFinished_Callback(Aggregator);
 			return Task.CompletedTask;
 		}
@@ -445,6 +487,7 @@ public class TestClassRunnerTests
 				CancellationTokenSource.Cancel();
 
 			RunTestMethodAsync_AggregatorResult = Aggregator.ToException();
+			RunTestMethodAsync_Context = TestContext.Current;
 			MethodsRun.Add(Tuple.Create(method, testCases, constructorArguments));
 			return Task.FromResult(result);
 		}

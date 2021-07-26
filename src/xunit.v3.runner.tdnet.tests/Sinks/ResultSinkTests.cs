@@ -6,6 +6,8 @@ using Xunit;
 using Xunit.Runner.TdNet;
 using Xunit.Sdk;
 using Xunit.v3;
+using TestResult = TestDriven.Framework.TestResult;
+using TestState = TestDriven.Framework.TestState;
 
 public class ResultSinkTests
 {
@@ -367,7 +369,7 @@ public class ResultSinkTests
 		[Fact]
 		public static async void ConvertsTestFailed()
 		{
-			(string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) errorMetadata;
+			(string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices, FailureCause _) errorMetadata;
 
 			try
 			{
