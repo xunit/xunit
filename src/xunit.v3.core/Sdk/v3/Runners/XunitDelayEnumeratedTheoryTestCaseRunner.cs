@@ -56,6 +56,9 @@ namespace Xunit.v3
 		{
 			await base.AfterTestCaseStartingAsync();
 
+			if (TestCase.TestMethod == null)
+				return;
+
 			try
 			{
 				var dataAttributes = TestCase.TestMethod.Method.GetCustomAttributes(typeof(DataAttribute));
@@ -179,10 +182,10 @@ namespace Xunit.v3
 			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
 			var test = new XunitTest(TestCase, DisplayName, testIndex: -1);
 
-			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID;
-			var testClassUniqueID = TestCase.TestMethod.TestClass.UniqueID;
-			var testMethodUniqueID = TestCase.TestMethod.UniqueID;
+			var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
+			var testClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID;
+			var testMethodUniqueID = TestCase.TestMethod?.UniqueID;
 			var testCaseUniqueID = TestCase.UniqueID;
 
 			var testStarting = new _TestStarting

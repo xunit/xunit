@@ -174,7 +174,7 @@ public class TestClassRunnerTests
 			runner.MethodsRun,
 			tuple =>
 			{
-				Assert.Equal("Passing", tuple.Item1.Name);
+				Assert.Equal("Passing", tuple.Item1?.Name);
 				Assert.Collection(tuple.Item2,
 					testCase => Assert.Same(passing1, testCase),
 					testCase => Assert.Same(passing2, testCase)
@@ -182,7 +182,7 @@ public class TestClassRunnerTests
 			},
 			tuple =>
 			{
-				Assert.Equal("Other", tuple.Item1.Name);
+				Assert.Equal("Other", tuple.Item1?.Name);
 				Assert.Collection(tuple.Item2,
 					testCase => Assert.Same(other1, testCase),
 					testCase => Assert.Same(other2, testCase)
@@ -201,7 +201,42 @@ public class TestClassRunnerTests
 		await runner.RunAsync();
 
 		var tuple = Assert.Single(runner.MethodsRun);
-		Assert.Equal("Passing", tuple.Item1.Name);
+		Assert.Equal("Passing", tuple.Item1?.Name);
+	}
+
+	[Fact]
+	public static async void TestContextInspection()
+	{
+		var runner = TestableTestClassRunner.Create();
+
+		await runner.RunAsync();
+
+		Assert.NotNull(runner.AfterTestClassStarting_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestClassStarting_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.AfterTestClassStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestClassStarting_Context.TestClassStatus);
+		Assert.Null(runner.AfterTestClassStarting_Context.TestMethodStatus);
+		Assert.Null(runner.AfterTestClassStarting_Context.TestCaseStatus);
+		Assert.Null(runner.AfterTestClassStarting_Context.TestStatus);
+		Assert.Same(runner.TestClass, runner.AfterTestClassStarting_Context.TestClass);
+
+		Assert.NotNull(runner.RunTestMethodAsync_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestMethodAsync_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestMethodAsync_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestMethodAsync_Context.TestClassStatus);
+		Assert.Null(runner.RunTestMethodAsync_Context.TestMethodStatus);
+		Assert.Null(runner.RunTestMethodAsync_Context.TestCaseStatus);
+		Assert.Null(runner.RunTestMethodAsync_Context.TestStatus);
+		Assert.Same(runner.TestClass, runner.RunTestMethodAsync_Context.TestClass);
+
+		Assert.NotNull(runner.BeforeTestClassFinished_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestClassFinished_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestClassFinished_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.CleaningUp, runner.BeforeTestClassFinished_Context.TestClassStatus);
+		Assert.Null(runner.BeforeTestClassFinished_Context.TestMethodStatus);
+		Assert.Null(runner.BeforeTestClassFinished_Context.TestCaseStatus);
+		Assert.Null(runner.BeforeTestClassFinished_Context.TestStatus);
+		Assert.Same(runner.TestClass, runner.BeforeTestClassFinished_Context.TestClass);
 	}
 
 	public class TestCaseOrderer
@@ -221,7 +256,7 @@ public class TestClassRunnerTests
 				runner.MethodsRun,
 				tuple =>
 				{
-					Assert.Equal("Other", tuple.Item1.Name);
+					Assert.Equal("Other", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(other2, testCase),
 						testCase => Assert.Same(other1, testCase)
@@ -229,7 +264,7 @@ public class TestClassRunnerTests
 				},
 				tuple =>
 				{
-					Assert.Equal("Passing", tuple.Item1.Name);
+					Assert.Equal("Passing", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(passing2, testCase),
 						testCase => Assert.Same(passing1, testCase)
@@ -253,7 +288,7 @@ public class TestClassRunnerTests
 				runner.MethodsRun,
 				tuple =>
 				{
-					Assert.Equal("Passing", tuple.Item1.Name);
+					Assert.Equal("Passing", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(passing1, testCase),
 						testCase => Assert.Same(passing2, testCase)
@@ -261,7 +296,7 @@ public class TestClassRunnerTests
 				},
 				tuple =>
 				{
-					Assert.Equal("Other", tuple.Item1.Name);
+					Assert.Equal("Other", tuple.Item1?.Name);
 					Assert.Collection(tuple.Item2,
 						testCase => Assert.Same(other1, testCase),
 						testCase => Assert.Same(other2, testCase)
@@ -351,18 +386,21 @@ public class TestClassRunnerTests
 		readonly ConstructorInfo? constructor;
 		readonly RunSummary result;
 
-		public List<Tuple<_IReflectionMethodInfo, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
+		public List<Tuple<_IReflectionMethodInfo?, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
 		public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
 		public bool AfterTestClassStarting_Called;
+		public TestContext? AfterTestClassStarting_Context;
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
 		public bool BeforeTestClassFinished_Called;
+		public TestContext? BeforeTestClassFinished_Context;
 		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
+		public TestContext? RunTestMethodAsync_Context;
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestClassRunner(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<_ITestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
@@ -383,6 +421,8 @@ public class TestClassRunnerTests
 			this.result = result;
 			this.cancelInRunTestMethodAsync = cancelInRunTestMethodAsync;
 		}
+
+		public new _ITestClass? TestClass => base.TestClass;
 
 		public static TestableTestClassRunner Create(
 			IMessageBus? messageBus = null,
@@ -406,8 +446,8 @@ public class TestClassRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
-				firstTest.TestMethod.TestClass,
-				(_IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
+				firstTest.TestMethod?.TestClass,
+				(_IReflectionTypeInfo?)firstTest.TestMethod?.TestClass.Class,
 				testCases,
 				new List<_MessageSinkMessage>(),
 				messageBus ?? new SpyMessageBus(),
@@ -424,6 +464,7 @@ public class TestClassRunnerTests
 		protected override Task AfterTestClassStartingAsync()
 		{
 			AfterTestClassStarting_Called = true;
+			AfterTestClassStarting_Context = TestContext.Current;
 			AfterTestClassStarting_Callback(Aggregator);
 			return Task.CompletedTask;
 		}
@@ -431,13 +472,14 @@ public class TestClassRunnerTests
 		protected override Task BeforeTestClassFinishedAsync()
 		{
 			BeforeTestClassFinished_Called = true;
+			BeforeTestClassFinished_Context = TestContext.Current;
 			BeforeTestClassFinished_Callback(Aggregator);
 			return Task.CompletedTask;
 		}
 
 		protected override Task<RunSummary> RunTestMethodAsync(
-			_ITestMethod testMethod,
-			_IReflectionMethodInfo method,
+			_ITestMethod? testMethod,
+			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<_ITestCase> testCases,
 			object?[] constructorArguments)
 		{
@@ -445,13 +487,14 @@ public class TestClassRunnerTests
 				CancellationTokenSource.Cancel();
 
 			RunTestMethodAsync_AggregatorResult = Aggregator.ToException();
+			RunTestMethodAsync_Context = TestContext.Current;
 			MethodsRun.Add(Tuple.Create(method, testCases, constructorArguments));
 			return Task.FromResult(result);
 		}
 
-		protected override ConstructorInfo? SelectTestClassConstructor()
+		protected override ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)
 		{
-			return constructor ?? base.SelectTestClassConstructor();
+			return constructor ?? base.SelectTestClassConstructor(@class);
 		}
 
 		protected override bool TryGetConstructorArgument(

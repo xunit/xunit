@@ -6,7 +6,7 @@ namespace Xunit.v3
 	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestMethod"/>.
 	/// Compares the names of the methods.
 	/// </summary>
-	public class TestMethodComparer : IEqualityComparer<_ITestMethod>
+	public class TestMethodComparer : IEqualityComparer<_ITestMethod?>
 	{
 		/// <summary>
 		/// The singleton instance of the comparer.
@@ -25,7 +25,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public int GetHashCode(_ITestMethod obj) =>
-			obj.Method.Name.GetHashCode();
+		public int GetHashCode(_ITestMethod? obj) =>
+			obj == null ? 0 : obj.Method.Name.GetHashCode();
 	}
 }

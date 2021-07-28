@@ -6,12 +6,12 @@ namespace Xunit.v3
 	public interface _ITestClass
 	{
 		/// <summary>
-		/// Gets the class that this test case is attached to.
+		/// Gets type information for the underlying test class.
 		/// </summary>
 		_ITypeInfo Class { get; }
 
 		/// <summary>
-		/// Gets the test collection this test case belongs to.
+		/// Gets the test collection this test class belongs to.
 		/// </summary>
 		_ITestCollection TestCollection { get; }
 

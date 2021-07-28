@@ -184,6 +184,9 @@ namespace Xunit.v3
 		public _ISourceInformation? SourceInformation { get; set; }
 
 		/// <inheritdoc/>
+		public _ITestCollection TestCollection => TestMethod.TestClass.TestCollection;
+
+		/// <inheritdoc/>
 		public _ITestMethod TestMethod { get; }
 
 		/// <inheritdoc/>

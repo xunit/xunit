@@ -91,19 +91,21 @@ namespace Xunit.v3
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		public async Task<RunSummary> RunAsync()
 		{
+			SetTestContext(TestEngineStatus.Initializing);
+
 			var summary = new RunSummary();
 
 			var testCaseStarting = new _TestCaseStarting
 			{
-				AssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+				AssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID,
 				SkipReason = TestCase.SkipReason,
 				SourceFilePath = TestCase.SourceInformation?.FileName,
 				SourceLineNumber = TestCase.SourceInformation?.LineNumber,
 				TestCaseDisplayName = TestCase.DisplayName,
 				TestCaseUniqueID = TestCase.UniqueID,
-				TestClassUniqueID = TestCase.TestMethod.TestClass.UniqueID,
-				TestCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID,
-				TestMethodUniqueID = TestCase.TestMethod.UniqueID,
+				TestClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID,
+				TestCollectionUniqueID = TestCase.TestCollection.UniqueID,
+				TestMethodUniqueID = TestCase.TestMethod?.UniqueID,
 				Traits = TestCase.Traits
 			};
 
@@ -114,7 +116,12 @@ namespace Xunit.v3
 				try
 				{
 					await AfterTestCaseStartingAsync();
+
+					SetTestContext(TestEngineStatus.Running);
+
 					summary = await RunTestAsync();
+
+					SetTestContext(TestEngineStatus.CleaningUp);
 
 					Aggregator.Clear();
 					await BeforeTestCaseFinishedAsync();
@@ -123,10 +130,10 @@ namespace Xunit.v3
 					{
 						var testCaseCleanupFailure = _TestCaseCleanupFailure.FromException(
 							Aggregator.ToException()!,
-							TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
-							TestCase.TestMethod.TestClass.TestCollection.UniqueID,
-							TestCase.TestMethod.TestClass.UniqueID,
-							TestCase.TestMethod.UniqueID,
+							TestCase.TestCollection.TestAssembly.UniqueID,
+							TestCase.TestCollection.UniqueID,
+							TestCase.TestMethod?.TestClass.UniqueID,
+							TestCase.TestMethod?.UniqueID,
 							TestCase.UniqueID
 						);
 
@@ -138,12 +145,12 @@ namespace Xunit.v3
 				{
 					var testCaseFinished = new _TestCaseFinished
 					{
-						AssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+						AssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID,
 						ExecutionTime = summary.Time,
 						TestCaseUniqueID = TestCase.UniqueID,
-						TestClassUniqueID = TestCase.TestMethod.TestClass.UniqueID,
-						TestCollectionUniqueID = TestCase.TestMethod.TestClass.TestCollection.UniqueID,
-						TestMethodUniqueID = TestCase.TestMethod.UniqueID,
+						TestClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID,
+						TestCollectionUniqueID = TestCase.TestCollection.UniqueID,
+						TestMethodUniqueID = TestCase.TestMethod?.UniqueID,
 						TestsFailed = summary.Failed,
 						TestsRun = summary.Total,
 						TestsSkipped = summary.Skipped
@@ -162,5 +169,12 @@ namespace Xunit.v3
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract Task<RunSummary> RunTestAsync();
+
+		/// <summary>
+		/// Sets the current <see cref="TestContext"/> for the current test case and the given test case status.
+		/// </summary>
+		/// <param name="testCaseStatus">The current test case status.</param>
+		protected virtual void SetTestContext(TestEngineStatus testCaseStatus) =>
+			TestContext.SetForTestCase(TestCase, testCaseStatus);
 	}
 }

@@ -394,8 +394,8 @@ public class XunitTestClassRunnerTests
 		public Exception? RunTestMethodAsync_AggregatorResult;
 
 		TestableXunitTestClassRunner(
-			_ITestClass testClass,
-			_IReflectionTypeInfo @class,
+			_ITestClass? testClass,
+			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
@@ -416,8 +416,8 @@ public class XunitTestClassRunnerTests
 
 		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
 			new TestableXunitTestClassRunner(
-				testCase.TestMethod.TestClass,
-				(_IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
+				testCase.TestMethod?.TestClass,
+				(_IReflectionTypeInfo?)testCase.TestMethod?.TestClass.Class,
 				new[] { testCase },
 				new List<_MessageSinkMessage>(),
 				new SpyMessageBus(),
@@ -428,8 +428,8 @@ public class XunitTestClassRunnerTests
 			);
 
 		protected override Task<RunSummary> RunTestMethodAsync(
-			_ITestMethod testMethod,
-			_IReflectionMethodInfo method,
+			_ITestMethod? testMethod,
+			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			object?[] constructorArguments)
 		{

@@ -6,6 +6,11 @@ namespace Xunit.v3
 	public interface _ITestOutputHelper
 	{
 		/// <summary>
+		/// Gets the output provided by the test.
+		/// </summary>
+		string Output { get; }
+
+		/// <summary>
 		/// Adds a line of text to the output.
 		/// </summary>
 		/// <param name="message">The message</param>
