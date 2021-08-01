@@ -127,9 +127,9 @@ namespace Xunit.Sdk
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod,
-				dataRow
-,
-				skipReason);
+				dataRow,
+				skipReason
+			);
 
 			return new[] { testCase };
 		}
@@ -264,6 +264,7 @@ namespace Xunit.Sdk
 							// the incoming data might be serializable but the actual parameter value that it gets converted
 							// to might not be, and serialization uses the resolved argument and not the input argument.
 							var resolvedData = dataRow.GetData();
+							var dataRowSkipReason = skipReason ?? dataRow.Skip;
 							if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
 								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(resolvedData);
 
@@ -283,8 +284,8 @@ namespace Xunit.Sdk
 							try
 							{
 								var testCases =
-									skipReason != null
-										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData, skipReason)
+									dataRowSkipReason != null
+										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData, dataRowSkipReason)
 										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData);
 
 								results.AddRange(testCases);

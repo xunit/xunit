@@ -135,7 +135,6 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal(2, testCases.Count);
 		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 42)" && testCase.SkipReason == "Skip this attribute");
 		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 2112)" && testCase.SkipReason == "Skip this attribute");
-
 	}
 
 	class MultipleDataClassSkipped
@@ -424,6 +423,49 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 				return e.Value;
 			}
 		}
+	}
+
+	class ClassWithSkippedTheoryDataRows
+	{
+		public static IEnumerable<ITheoryDataRow> Data =>
+			new[]
+			{
+				new TheoryDataRow(42) { Skip = "Do not run this test" },
+				new TheoryDataRow(2112),
+			};
+
+		[Theory]
+		[MemberData(nameof(Data))]
+		public void TestWithSomeSkippedTheoryRows(int x)
+		{
+			Assert.Equal(96, x);
+		}
+	}
+
+	[Fact]
+	public void CanSkipFromTheoryDataRow_Preenumerated()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>("TestWithSomeSkippedTheoryRows");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.DisplayName),
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows(x: 2112)", testCase.DisplayName);
+				Assert.Null(testCase.SkipReason);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows(x: 42)", testCase.DisplayName);
+				Assert.Equal("Do not run this test", testCase.SkipReason);
+			}
+		);
 	}
 
 	class TestableTheoryDiscoverer : TheoryDiscoverer

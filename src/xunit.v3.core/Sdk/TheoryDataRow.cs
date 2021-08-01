@@ -20,6 +20,9 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
+		public string? Skip { get; set; }
+
+		/// <inheritdoc/>
 		public object?[] GetData() => data;
 	}
 }

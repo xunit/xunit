@@ -37,10 +37,13 @@ namespace Xunit
 			if (item == null)
 				return new TheoryDataRow();
 
-			if (item is not object?[] array)
-				throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
+			if (item is ITheoryDataRow dataRow)
+				return dataRow;
 
-			return new TheoryDataRow(array);
+			if (item is object?[] array)
+				return new TheoryDataRow(array);
+
+			throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
 		}
 	}
 }

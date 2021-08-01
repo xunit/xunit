@@ -130,7 +130,7 @@ namespace Xunit.v3
 
 						var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
 						var test = CreateTest(TestCase, theoryDisplayName, testIndex++);
-						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
+						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip") ?? dataRow.Skip;
 						testRunners.Add(CreateTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
 					}
 				}
