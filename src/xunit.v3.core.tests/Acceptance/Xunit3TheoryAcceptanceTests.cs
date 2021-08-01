@@ -1261,11 +1261,11 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod) =>
+			public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
 				new[]
 				{
-					new object?[] { 42 },
-					new object?[] { 2112 }
+					new TheoryDataRow(42),
+					new TheoryDataRow(2112)
 				};
 		}
 
@@ -1306,8 +1306,8 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
-				new[] { new[] { new object() } };
+			public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
+				new[] { new TheoryDataRow(new object()) };
 		}
 
 		[Fact]
@@ -1328,9 +1328,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			public SingleMemberDataAttribute(string memberName, params object?[] parameters) : base(memberName, parameters) { }
 
-			protected override object?[] ConvertDataItem(MethodInfo testMethod, object? item)
+			protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item)
 			{
-				return new object?[] { item };
+				return new TheoryDataRow(item);
 			}
 		}
 

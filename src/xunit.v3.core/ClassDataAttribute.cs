@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -28,12 +29,13 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
 		{
+			// TODO: Allow classes to also return IEnumerable<ITheoryDataRow>
 			if (Activator.CreateInstance(Class) is not IEnumerable<object?[]> data)
 				throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object?[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType?.FullName}");
 
-			return data.CastOrToReadOnlyCollection();
+			return data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection();
 		}
 	}
 }

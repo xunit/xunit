@@ -263,9 +263,9 @@ namespace Xunit.Sdk
 							// Also, if we can, we should attempt to resolve it to its parameter type right now, because
 							// the incoming data might be serializable but the actual parameter value that it gets converted
 							// to might not be, and serialization uses the resolved argument and not the input argument.
-							var resolvedData = dataRow;
+							var resolvedData = dataRow.GetData();
 							if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
-								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(dataRow);
+								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(resolvedData);
 
 							if (!resolvedData.All(d => SerializationHelper.IsSerializable(d)))
 							{
