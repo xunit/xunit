@@ -324,4 +324,25 @@ public class ExtensibilityPointFactoryTests
 			{ }
 		}
 	}
+
+	public class Caching
+	{
+		[Fact]
+		public void NullMessageSinkGivesCacheHit()
+		{
+			var first = ExtensibilityPointFactory.Get<List<string>>(new _NullMessageSink(), typeof(List<string>), null);
+			var second = ExtensibilityPointFactory.Get<List<string>>(new _NullMessageSink(), typeof(List<string>), null);
+
+			Assert.Same(first, second);
+		}
+
+		[Fact]
+		public void DifferentMessageSinksDoNotGiveCacheHit()
+		{
+			var first = ExtensibilityPointFactory.Get<List<string>>(new _NullMessageSink(), typeof(List<string>), null);
+			var second = ExtensibilityPointFactory.Get<List<string>>(SpyMessageSink.Create(), typeof(List<string>), null);
+
+			Assert.NotSame(first, second);
+		}
+	}
 }
