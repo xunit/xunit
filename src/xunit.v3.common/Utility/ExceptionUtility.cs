@@ -85,7 +85,7 @@ namespace Xunit.Sdk
 			if (innerExceptions != null)
 				foreach (var innerException in innerExceptions)
 					ExtractMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
-			else if (ex.InnerException != null)
+			else if (ex.InnerException != null && ex.StackTrace != ex.InnerException.StackTrace)
 				ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
 		}
 
