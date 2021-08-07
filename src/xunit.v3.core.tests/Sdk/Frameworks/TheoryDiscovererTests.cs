@@ -468,6 +468,103 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		);
 	}
 
+	[Trait("Class", "ClassWithTraitsOnTheoryDataRows")]
+	class ClassWithTraitsOnTheoryDataRows
+	{
+		public static IEnumerable<ITheoryDataRow> Data =>
+			new[]
+			{
+				new TheoryDataRow(42).WithTrait("Number", "42"),
+				new TheoryDataRow(2112) { Skip = "I am skipped" }.WithTrait("Number", "2112"),
+			};
+
+		[Theory]
+		[Trait("Theory", "TestWithTraits")]
+		[MemberData(nameof(Data))]
+		public void TestWithTraits(int x)
+		{
+			Assert.Equal(96, x);
+		}
+	}
+
+	[Fact]
+	public void CanAddTraitsFromTheoryDataRow_Preenumerated()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>("TestWithTraits");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.DisplayName),
+			testCase =>
+			{
+				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithTraitsOnTheoryDataRows.TestWithTraits(x: 2112)", testCase.DisplayName);
+				Assert.Collection(
+					testCase.Traits.OrderBy(kvp => kvp.Key),
+					kvp =>  // Assembly level trait
+					{
+						Assert.Equal("Assembly", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("Trait", traitValue);
+					},
+					kvp =>  // Class level trait
+					{
+						Assert.Equal("Class", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("ClassWithTraitsOnTheoryDataRows", traitValue);
+					},
+					kvp =>  // Row level trait
+					{
+						Assert.Equal("Number", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("2112", traitValue);
+					},
+					kvp =>  // Theory level trait
+					{
+						Assert.Equal("Theory", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("TestWithTraits", traitValue);
+					}
+				);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithTraitsOnTheoryDataRows.TestWithTraits(x: 42)", testCase.DisplayName);
+				Assert.Collection(
+					testCase.Traits.OrderBy(kvp => kvp.Key),
+					kvp =>  // Assembly level trait
+					{
+						Assert.Equal("Assembly", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("Trait", traitValue);
+					},
+					kvp =>  // Class level trait
+					{
+						Assert.Equal("Class", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("ClassWithTraitsOnTheoryDataRows", traitValue);
+					},
+					kvp =>  // Row level trait
+					{
+						Assert.Equal("Number", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("42", traitValue);
+					},
+					kvp =>  // Theory level trait
+					{
+						Assert.Equal("Theory", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("TestWithTraits", traitValue);
+					}
+				);
+			}
+		);
+	}
+
 	class TestableTheoryDiscoverer : TheoryDiscoverer
 	{
 		public List<_MessageSinkMessage> DiagnosticMessages;

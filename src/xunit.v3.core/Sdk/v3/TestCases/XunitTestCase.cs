@@ -94,21 +94,18 @@ namespace Xunit.v3
 			SkipReason ??= factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
 			Timeout = timeout ?? factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
 
-			if (traits == null)
+			foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
 			{
-				foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
+				var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
+				if (discovererAttribute != null)
 				{
-					var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
-					if (discovererAttribute != null)
-					{
-						var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
-						if (discoverer != null)
-							foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
-								Traits.Add(keyValuePair.Key, keyValuePair.Value);
-					}
-					else
-						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]" });
+					var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
+					if (discoverer != null)
+						foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+							Traits.Add(keyValuePair.Key, keyValuePair.Value);
 				}
+				else
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]" });
 			}
 		}
 

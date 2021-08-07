@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -26,8 +27,9 @@ namespace Xunit.v3
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
 			string culture,
-			object?[]? testMethodArguments = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, null, null, null)
+			object?[]? testMethodArguments = null,
+			Dictionary<string, List<string>>? traits = null)
+				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null)
 		{
 			Culture = Guard.ArgumentNotNull(nameof(culture), culture);
 

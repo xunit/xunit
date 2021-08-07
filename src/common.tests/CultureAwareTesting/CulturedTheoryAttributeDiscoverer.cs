@@ -14,6 +14,7 @@ namespace Xunit.v3
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
+			Dictionary<string, List<string>>? traits,
 			object?[] dataRow)
 		{
 			var cultures = GetCultures(theoryAttribute);
@@ -26,7 +27,8 @@ namespace Xunit.v3
 					testMethod,
 					culture,
 					dataRow
-				)
+,
+					traits)
 			).CastOrToReadOnlyCollection();
 		}
 

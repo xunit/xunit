@@ -1,4 +1,5 @@
-﻿using Xunit.Internal;
+﻿using System.Collections.Generic;
+using Xunit.Internal;
 
 namespace Xunit.Sdk
 {
@@ -21,6 +22,23 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		public string? Skip { get; set; }
+
+		/// <summary>
+		/// Gets or sets the traits for the theory data row.
+		/// </summary>
+		public Dictionary<string, List<string>> Traits { get; set; } = new();
+
+		/// <summary>
+		/// Adds a single trait name/value pair to the theory data row.
+		/// </summary>
+		/// <param name="name">The name of the trait</param>
+		/// <param name="value">The value of the trait</param>
+		public TheoryDataRow WithTrait(string name, string value)
+		{
+			var list = Traits.GetOrAdd(name, () => new());
+			list.Add(value);
+			return this;
+		}
 
 		/// <inheritdoc/>
 		public object?[] GetData() => data;
