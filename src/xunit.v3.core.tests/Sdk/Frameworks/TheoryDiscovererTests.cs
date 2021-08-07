@@ -565,6 +565,53 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		);
 	}
 
+	class ClassWithDisplayNameOnTheoryDataRows
+	{
+		public static IEnumerable<ITheoryDataRow> Data =>
+			new[]
+			{
+				new TheoryDataRow(42) { TestDisplayName = "I am a special test" },
+				new TheoryDataRow(2112),
+				new TheoryDataRow(2600) { Skip = "I am skipped", TestDisplayName = "I am a skipped test" }
+			};
+
+		[Theory]
+		[MemberData(nameof(Data))]
+		public void TestWithDisplayName(int x)
+		{
+			Assert.Equal(96, x);
+		}
+	}
+
+	[Fact]
+	public void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>("TestWithDisplayName");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.DisplayName),
+			testCase =>
+			{
+				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.Equal("I am a skipped test(x: 2600)", testCase.DisplayName);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("I am a special test(x: 42)", testCase.DisplayName);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName(x: 2112)", testCase.DisplayName);
+			}
+		);
+	}
+
 	class TestableTheoryDiscoverer : TheoryDiscoverer
 	{
 		public List<_MessageSinkMessage> DiagnosticMessages;

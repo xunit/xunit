@@ -14,6 +14,12 @@ namespace Xunit
 		string? Skip { get; }
 
 		/// <summary>
+		/// Gets the display name for the test (replacing the default behavior, which would be to use the DisplayName
+		/// from <see cref="FactAttribute"/>, or falling back to the class &amp; method name).
+		/// </summary>
+		string? TestDisplayName { get; }
+
+		/// <summary>
 		/// Gets the trait values associated with this theory data row. If there are none, you may either
 		/// return a <c>null</c> or empty dictionary.
 		/// </summary>

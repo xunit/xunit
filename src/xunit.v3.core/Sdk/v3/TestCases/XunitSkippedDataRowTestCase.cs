@@ -33,6 +33,7 @@ namespace Xunit.v3
 		/// <param name="skipReason">The reason that this test case will be skipped.</param>
 		/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		/// <param name="displayName">The optional display name for the test</param>
 		public XunitSkippedDataRowTestCase(
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
@@ -41,7 +42,8 @@ namespace Xunit.v3
 			object?[] testMethodArguments,
 			string skipReason,
 			Dictionary<string, List<string>>? traits = null,
-			string? uniqueID = null) :
+			string? uniqueID = null,
+			string? displayName = null) :
 				base(
 					diagnosticMessageSink,
 					defaultMethodDisplay,
@@ -51,7 +53,8 @@ namespace Xunit.v3
 					Guard.ArgumentNotNull(nameof(skipReason), skipReason),
 					traits,
 					timeout: null,
-					uniqueID
+					uniqueID,
+					displayName
 				)
 		{ }
 	}

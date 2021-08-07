@@ -23,6 +23,9 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public string? Skip { get; set; }
 
+		/// <inheritdoc/>
+		public string? TestDisplayName { get; set; }
+
 		/// <summary>
 		/// Gets or sets the traits for the theory data row.
 		/// </summary>

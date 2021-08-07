@@ -33,6 +33,7 @@ namespace Xunit.Sdk
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+		/// <param name="displayName">The optional display name for the test</param>
 		/// <param name="traits">The traits associated with the test case.</param>
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <returns>The test cases</returns>
@@ -40,6 +41,7 @@ namespace Xunit.Sdk
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
+			string? displayName,
 			Dictionary<string, List<string>>? traits,
 			object?[] dataRow)
 		{
@@ -49,7 +51,8 @@ namespace Xunit.Sdk
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod,
 				dataRow,
-				traits: traits
+				traits: traits,
+				displayName: displayName
 			);
 
 			return new[] { testCase };
@@ -64,6 +67,7 @@ namespace Xunit.Sdk
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+		/// <param name="displayName">The optional display name for the test</param>
 		/// <param name="traits">The traits associated with the test case.</param>
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <param name="skipReason">The reason this test case is to be skipped</param>
@@ -72,6 +76,7 @@ namespace Xunit.Sdk
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
+			string? displayName,
 			Dictionary<string, List<string>>? traits,
 			object?[] dataRow,
 			string skipReason)
@@ -83,7 +88,8 @@ namespace Xunit.Sdk
 				testMethod,
 				dataRow,
 				skipReason,
-				traits
+				traits,
+				displayName: displayName
 			);
 
 			return new[] { testCase };
@@ -291,8 +297,8 @@ namespace Xunit.Sdk
 							{
 								var testCases =
 									dataRowSkipReason != null
-										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.Traits, resolvedData, dataRowSkipReason)
-										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.Traits, resolvedData);
+										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData, dataRowSkipReason)
+										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData);
 
 								results.AddRange(testCases);
 							}

@@ -28,8 +28,9 @@ namespace Xunit.v3
 			_ITestMethod testMethod,
 			string culture,
 			object?[]? testMethodArguments = null,
-			Dictionary<string, List<string>>? traits = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null)
+			Dictionary<string, List<string>>? traits = null,
+			string? displayName = null)
+				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null, displayName)
 		{
 			Culture = Guard.ArgumentNotNull(nameof(culture), culture);
 

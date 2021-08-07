@@ -50,6 +50,7 @@ namespace Xunit.v3
 		/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 		/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		/// <param name="displayName">The optional display name for the test</param>
 		public XunitTestCase(
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
@@ -57,8 +58,9 @@ namespace Xunit.v3
 			_ITestMethod testMethod,
 			string? skipReason = null,
 			int? timeout = null,
-			string? uniqueID = null)
-				: this(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, null, timeout, uniqueID)
+			string? uniqueID = null,
+			string? displayName = null)
+				: this(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, null, timeout, uniqueID, displayName)
 		{ }
 
 		/// <summary>
@@ -73,6 +75,7 @@ namespace Xunit.v3
 		/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
 		/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		/// <param name="displayName">The optional display name for the test</param>
 		protected XunitTestCase(
 			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
@@ -82,13 +85,14 @@ namespace Xunit.v3
 			string? skipReason,
 			Dictionary<string, List<string>>? traits,
 			int? timeout,
-			string? uniqueID)
-				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID)
+			string? uniqueID,
+			string? displayName)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID, displayName)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 
 			var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
-			var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
+			var baseDisplayName = displayName ?? factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
 			DisplayName = TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
 			SkipReason ??= factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));

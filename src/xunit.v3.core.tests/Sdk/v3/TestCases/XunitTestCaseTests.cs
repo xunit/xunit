@@ -305,6 +305,7 @@ public class XunitTestCaseTests
 					null,
 					null,
 					null,
+					null,
 					null
 				)
 		{ }

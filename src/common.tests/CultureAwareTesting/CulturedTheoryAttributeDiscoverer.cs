@@ -14,6 +14,7 @@ namespace Xunit.v3
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
+			string? displayName,
 			Dictionary<string, List<string>>? traits,
 			object?[] dataRow)
 		{
@@ -26,9 +27,9 @@ namespace Xunit.v3
 					discoveryOptions.MethodDisplayOptionsOrDefault(),
 					testMethod,
 					culture,
-					dataRow
-,
-					traits)
+					dataRow,
+					traits,
+					displayName)
 			).CastOrToReadOnlyCollection();
 		}
 

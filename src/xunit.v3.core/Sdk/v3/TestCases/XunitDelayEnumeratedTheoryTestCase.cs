@@ -41,7 +41,7 @@ namespace Xunit.v3
 			Dictionary<string, List<string>>? traits = null,
 			int? timeout = null,
 			string? uniqueID = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, traits, timeout, uniqueID)
+				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, traits, timeout, uniqueID, null)
 		{ }
 
 		/// <inheritdoc/>
