@@ -23,7 +23,7 @@ public class TestOutputHelperTests
 		yield return new object[] { "\uDC00\uD800", "\\xdc00\\xd800" };
 	}
 
-	[Theory]
+	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(InvalidStrings_TestData))]
 	public void WriteLine(string outputText, string expected)
 	{

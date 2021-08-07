@@ -123,7 +123,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoverOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
+	public void DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
@@ -276,7 +276,32 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
+	public void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>("TheoryMethod");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		var testCase = Assert.Single(testCases);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+NonDiscoveryOnTheoryAttribute.TheoryMethod", testCase.DisplayName);
+	}
+
+	class NonDiscoveryOnTheoryAttribute
+	{
+		public static IEnumerable<object[]> foo { get { return Enumerable.Empty<object[]>(); } }
+		public static IEnumerable<object[]> bar { get { return Enumerable.Empty<object[]>(); } }
+
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(foo))]
+		[MemberData(nameof(bar))]
+		public static void TheoryMethod(int x) { }
+	}
+
+	[Fact]
+	public void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>("TheoryMethod");
@@ -301,7 +326,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void MixedDiscoveryEnumerationDataYieldSingleTheoryTestCase()
+	public void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>("TheoryMethod");

@@ -163,7 +163,11 @@ namespace Xunit.Sdk
 			if (skipReason != null)
 				return CreateTestCasesForSkip(discoveryOptions, testMethod, theoryAttribute, skipReason);
 
-			if (discoveryOptions.PreEnumerateTheoriesOrDefault())
+			var preEnumerate =
+				discoveryOptions.PreEnumerateTheoriesOrDefault()
+				&& !theoryAttribute.GetNamedArgument<bool>(nameof(TheoryAttribute.DisableDiscoveryEnumeration));
+
+			if (preEnumerate)
 			{
 				try
 				{

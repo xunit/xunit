@@ -14,5 +14,12 @@ namespace Xunit
 	[XunitTestCaseDiscoverer(typeof(TheoryDiscoverer))]
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class TheoryAttribute : FactAttribute
-	{ }
+	{
+		/// <summary>
+		/// Returns <c>true</c> if the data attribute wants to skip enumerating data during discovery.
+		/// This will cause the theory to yield a single test case for all data, and the data discovery
+		/// will be during test execution instead of discovery.
+		/// </summary>
+		public bool DisableDiscoveryEnumeration { get; set; }
+	}
 }

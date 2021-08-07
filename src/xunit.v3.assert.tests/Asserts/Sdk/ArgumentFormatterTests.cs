@@ -55,7 +55,7 @@ public class ArgumentFormatterTests
 			yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
 		}
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[InlineData("Hello, world!", "\"Hello, world!\"")]
 		[InlineData(@"""", @"""\""""")] // quotes should be escaped
 		[InlineData("\uD800\uDFFF", "\"\uD800\uDFFF\"")] // valid surrogates should print normally
@@ -87,7 +87,7 @@ public class ArgumentFormatterTests
 			yield return new object[] { '\uFFFE', "0xfffe" };
 		}
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]  // Disabled because of unprintable characters
 
 		// Printable
 		[InlineData(' ', "' '")]
@@ -114,7 +114,7 @@ public class ArgumentFormatterTests
 		// Unprintable
 		[InlineData(char.MinValue, @"'\0'")]
 		[InlineData(char.MaxValue, "0xffff")]
-		[MemberData(nameof(CharValue_TestData), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(CharValue_TestData))]
 		public static void CharacterValue(char value, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
@@ -189,8 +189,8 @@ public class ArgumentFormatterTests
 			{ typeof(bool?[]), "typeof(bool?[])" }
 		};
 
-		[Theory]
-		[MemberData(nameof(TypeValueData), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(TypeValueData))]
 		public static void TypeValue(Type type, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(type));
@@ -394,8 +394,8 @@ public class ArgumentFormatterTests
 			{ typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)" }
 		};
 
-		[Theory]
-		[MemberData(nameof(ArgumentFormatterFormatTypeNamesData), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(ArgumentFormatterFormatTypeNamesData))]
 		public void ArgumentFormatterFormatTypeNames(Type type, string expectedResult)
 		{
 			Assert.Equal(expectedResult, ArgumentFormatter.Format(type));

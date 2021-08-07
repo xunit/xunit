@@ -166,7 +166,7 @@ public class TestMethodTestCaseTests
 
 	public class Method : AcceptanceTestV3
 	{
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[InlineData(42, typeof(int))]
 		[InlineData("Hello world", typeof(string))]
 		[InlineData(null, typeof(object))]

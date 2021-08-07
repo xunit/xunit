@@ -6,7 +6,7 @@ using Xunit.v3;
 
 public class AsyncAcceptanceTests : AcceptanceTestV3
 {
-	[Theory]
+	[Theory(DisableDiscoveryEnumeration = true)]
 	[InlineData(typeof(ClassWithAsyncValueTask))]
 	[InlineData(typeof(ClassWithAsyncTask))]
 	[InlineData(typeof(ClassWithAsyncVoid))]
