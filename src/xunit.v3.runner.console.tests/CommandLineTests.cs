@@ -156,9 +156,9 @@ public class CommandLineTests
 				SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor))
 			);
 
-		[Theory]
-		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesLowerCase))]
+		[MemberData(nameof(SwitchesUpperCase))]
 		public static void SwitchDefault(
 			string _,
 			Expression<Func<CommandLine, bool>> accessor)
@@ -170,9 +170,9 @@ public class CommandLineTests
 			Assert.False(result);
 		}
 
-		[Theory]
-		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesLowerCase))]
+		[MemberData(nameof(SwitchesUpperCase))]
 		public static void SwitchOverride(
 			string @switch,
 			Expression<Func<CommandLine, bool>> accessor)
@@ -417,9 +417,9 @@ public class CommandLineTests
 				SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor))
 			);
 
-		[Theory]
-		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesLowerCase))]
+		[MemberData(nameof(SwitchesUpperCase))]
 		public static void MissingOptionValue(
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> _)
@@ -430,9 +430,9 @@ public class CommandLineTests
 			Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", commandLine.ParseFault.Message);
 		}
 
-		[Theory]
-		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesLowerCase))]
+		[MemberData(nameof(SwitchesUpperCase))]
 		public static void SingleValidArgument(
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> accessor)
@@ -445,9 +445,9 @@ public class CommandLineTests
 			Assert.Equal("value1", item);
 		}
 
-		[Theory]
-		[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(SwitchesLowerCase))]
+		[MemberData(nameof(SwitchesUpperCase))]
 		public static void MultipleValidArguments(
 			string @switch,
 			Expression<Func<CommandLine, ICollection<string>>> accessor)
@@ -508,9 +508,9 @@ public class CommandLineTests
 					)
 				);
 
-			[Theory]
-			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+			[Theory(DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesLowerCase))]
+			[MemberData(nameof(SwitchesUpperCase))]
 			public static void SingleValidTraitArgument(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
@@ -523,9 +523,9 @@ public class CommandLineTests
 				Assert.Contains("bar", traits["foo"]);
 			}
 
-			[Theory]
-			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+			[Theory(DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesLowerCase))]
+			[MemberData(nameof(SwitchesUpperCase))]
 			public static void MultipleValidTraitArguments_SameName(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
@@ -539,9 +539,9 @@ public class CommandLineTests
 				Assert.Contains("baz", traits["foo"]);
 			}
 
-			[Theory]
-			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+			[Theory(DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesLowerCase))]
+			[MemberData(nameof(SwitchesUpperCase))]
 			public static void MultipleValidTraitArguments_DifferentName(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> accessor)
@@ -556,9 +556,9 @@ public class CommandLineTests
 				Assert.Contains("biff", traits["baz"]);
 			}
 
-			[Theory]
-			[MemberData(nameof(SwitchesLowerCase), DisableDiscoveryEnumeration = true)]
-			[MemberData(nameof(SwitchesUpperCase), DisableDiscoveryEnumeration = true)]
+			[Theory(DisableDiscoveryEnumeration = true)]
+			[MemberData(nameof(SwitchesLowerCase))]
+			[MemberData(nameof(SwitchesUpperCase))]
 			public static void MissingOptionValue(
 				string @switch,
 				Expression<Func<CommandLine, Dictionary<string, List<string>>>> _)

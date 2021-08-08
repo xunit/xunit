@@ -28,19 +28,22 @@ namespace Xunit
 		{ }
 
 		/// <inheritdoc/>
-		protected override object?[] ConvertDataItem(
+		protected override ITheoryDataRow ConvertDataItem(
 			MethodInfo testMethod,
 			object? item)
 		{
 			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 
 			if (item == null)
-				return new object[0];
+				return new TheoryDataRow();
 
-			if (item is not object?[] array)
-				throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
+			if (item is ITheoryDataRow dataRow)
+				return dataRow;
 
-			return array;
+			if (item is object?[] array)
+				return new TheoryDataRow(array);
+
+			throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
 		}
 	}
 }

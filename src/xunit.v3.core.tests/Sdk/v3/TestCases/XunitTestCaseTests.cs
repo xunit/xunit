@@ -174,7 +174,7 @@ public class XunitTestCaseTests
 				{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
 			};
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(CustomAttributeTestCases))]
 		public void ReturnsCorrectCustomAttributes(Type classType, IEnumerable<string> expectedTraits)
 		{
@@ -302,6 +302,7 @@ public class XunitTestCaseTests
 					TestMethodDisplayOptions.None,
 					testMethod,
 					testMethodArguments,
+					null,
 					null,
 					null,
 					null,

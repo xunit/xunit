@@ -66,8 +66,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class EmptyTheoryDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
-			Array.Empty<object[]>();
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
+			Array.Empty<ITheoryDataRow>();
 	}
 
 	class EmptyTheoryDataClass
@@ -108,11 +108,11 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class MultipleDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
 			new[]
 			{
-				new object[] { 42 },
-				new object[] { 2112 }
+				new TheoryDataRow(42),
+				new TheoryDataRow(2112)
 			};
 	}
 
@@ -123,7 +123,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoverOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
+	public void DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
@@ -135,7 +135,6 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal(2, testCases.Count);
 		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 42)" && testCase.SkipReason == "Skip this attribute");
 		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 2112)" && testCase.SkipReason == "Skip this attribute");
-
 	}
 
 	class MultipleDataClassSkipped
@@ -163,7 +162,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class ThrowingDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<object[]> GetData(MethodInfo method)
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo method)
 		{
 			throw new DivideByZeroException();
 		}
@@ -209,11 +208,11 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class NonSerializableDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<object[]> GetData(MethodInfo method) =>
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo method) =>
 			new[]
 			{
-				new object[] { 42 },
-				new object[] { new NonSerializableDataAttribute() }
+				new TheoryDataRow(42),
+				new TheoryDataRow(new NonSerializableDataAttribute())
 			};
 	}
 
@@ -243,7 +242,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
 	public class NoSuchDataDiscovererAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
 		{
 			throw new NotImplementedException();
 		}
@@ -269,14 +268,39 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer(typeof(TheoryDiscovererTests))]
 	public class NotADataDiscovererAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
 		{
 			throw new NotImplementedException();
 		}
 	}
 
 	[Fact]
-	public void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
+	public void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>("TheoryMethod");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		var testCase = Assert.Single(testCases);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		Assert.Equal("TheoryDiscovererTests+NonDiscoveryOnTheoryAttribute.TheoryMethod", testCase.DisplayName);
+	}
+
+	class NonDiscoveryOnTheoryAttribute
+	{
+		public static IEnumerable<object[]> foo { get { return Enumerable.Empty<object[]>(); } }
+		public static IEnumerable<object[]> bar { get { return Enumerable.Empty<object[]>(); } }
+
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(foo))]
+		[MemberData(nameof(bar))]
+		public static void TheoryMethod(int x) { }
+	}
+
+	[Fact]
+	public void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>("TheoryMethod");
@@ -301,7 +325,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void MixedDiscoveryEnumerationDataYieldSingleTheoryTestCase()
+	public void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>("TheoryMethod");
@@ -399,6 +423,193 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 				return e.Value;
 			}
 		}
+	}
+
+	class ClassWithSkippedTheoryDataRows
+	{
+		public static IEnumerable<ITheoryDataRow> Data =>
+			new[]
+			{
+				new TheoryDataRow(42) { Skip = "Do not run this test" },
+				new TheoryDataRow(2112),
+			};
+
+		[Theory]
+		[MemberData(nameof(Data))]
+		public void TestWithSomeSkippedTheoryRows(int x)
+		{
+			Assert.Equal(96, x);
+		}
+	}
+
+	[Fact]
+	public void CanSkipFromTheoryDataRow_Preenumerated()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>("TestWithSomeSkippedTheoryRows");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.DisplayName),
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows(x: 2112)", testCase.DisplayName);
+				Assert.Null(testCase.SkipReason);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows(x: 42)", testCase.DisplayName);
+				Assert.Equal("Do not run this test", testCase.SkipReason);
+			}
+		);
+	}
+
+	[Trait("Class", "ClassWithTraitsOnTheoryDataRows")]
+	class ClassWithTraitsOnTheoryDataRows
+	{
+		public static IEnumerable<ITheoryDataRow> Data =>
+			new[]
+			{
+				new TheoryDataRow(42).WithTrait("Number", "42"),
+				new TheoryDataRow(2112) { Skip = "I am skipped" }.WithTrait("Number", "2112"),
+			};
+
+		[Theory]
+		[Trait("Theory", "TestWithTraits")]
+		[MemberData(nameof(Data))]
+		public void TestWithTraits(int x)
+		{
+			Assert.Equal(96, x);
+		}
+	}
+
+	[Fact]
+	public void CanAddTraitsFromTheoryDataRow_Preenumerated()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>("TestWithTraits");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.DisplayName),
+			testCase =>
+			{
+				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithTraitsOnTheoryDataRows.TestWithTraits(x: 2112)", testCase.DisplayName);
+				Assert.Collection(
+					testCase.Traits.OrderBy(kvp => kvp.Key),
+					kvp =>  // Assembly level trait
+					{
+						Assert.Equal("Assembly", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("Trait", traitValue);
+					},
+					kvp =>  // Class level trait
+					{
+						Assert.Equal("Class", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("ClassWithTraitsOnTheoryDataRows", traitValue);
+					},
+					kvp =>  // Row level trait
+					{
+						Assert.Equal("Number", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("2112", traitValue);
+					},
+					kvp =>  // Theory level trait
+					{
+						Assert.Equal("Theory", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("TestWithTraits", traitValue);
+					}
+				);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithTraitsOnTheoryDataRows.TestWithTraits(x: 42)", testCase.DisplayName);
+				Assert.Collection(
+					testCase.Traits.OrderBy(kvp => kvp.Key),
+					kvp =>  // Assembly level trait
+					{
+						Assert.Equal("Assembly", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("Trait", traitValue);
+					},
+					kvp =>  // Class level trait
+					{
+						Assert.Equal("Class", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("ClassWithTraitsOnTheoryDataRows", traitValue);
+					},
+					kvp =>  // Row level trait
+					{
+						Assert.Equal("Number", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("42", traitValue);
+					},
+					kvp =>  // Theory level trait
+					{
+						Assert.Equal("Theory", kvp.Key);
+						var traitValue = Assert.Single(kvp.Value);
+						Assert.Equal("TestWithTraits", traitValue);
+					}
+				);
+			}
+		);
+	}
+
+	class ClassWithDisplayNameOnTheoryDataRows
+	{
+		public static IEnumerable<ITheoryDataRow> Data =>
+			new[]
+			{
+				new TheoryDataRow(42) { TestDisplayName = "I am a special test" },
+				new TheoryDataRow(2112),
+				new TheoryDataRow(2600) { Skip = "I am skipped", TestDisplayName = "I am a skipped test" }
+			};
+
+		[Theory]
+		[MemberData(nameof(Data))]
+		public void TestWithDisplayName(int x)
+		{
+			Assert.Equal(96, x);
+		}
+	}
+
+	[Fact]
+	public void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
+	{
+		var discoverer = TestableTheoryDiscoverer.Create();
+		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>("TestWithDisplayName");
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.DisplayName),
+			testCase =>
+			{
+				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.Equal("I am a skipped test(x: 2600)", testCase.DisplayName);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("I am a special test(x: 42)", testCase.DisplayName);
+			},
+			testCase =>
+			{
+				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.Equal("TheoryDiscovererTests+ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName(x: 2112)", testCase.DisplayName);
+			}
+		);
 	}
 
 	class TestableTheoryDiscoverer : TheoryDiscoverer

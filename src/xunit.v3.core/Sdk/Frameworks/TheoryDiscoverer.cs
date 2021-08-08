@@ -33,12 +33,16 @@ namespace Xunit.Sdk
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+		/// <param name="displayName">The optional display name for the test</param>
+		/// <param name="traits">The traits associated with the test case.</param>
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <returns>The test cases</returns>
 		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
+			string? displayName,
+			Dictionary<string, List<string>>? traits,
 			object?[] dataRow)
 		{
 			var testCase = new XunitPreEnumeratedTheoryTestCase(
@@ -46,7 +50,46 @@ namespace Xunit.Sdk
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod,
-				dataRow
+				dataRow,
+				traits: traits,
+				displayName: displayName
+			);
+
+			return new[] { testCase };
+		}
+
+		/// <summary>
+		/// Creates test cases for a single row of skipped data. By default, returns a single instance of <see cref="XunitSkippedDataRowTestCase"/>
+		/// with the data row inside of it.
+		/// </summary>
+		/// <remarks>If this method is overridden, the implementation will have to override <see cref="TestMethodTestCase.SkipReason"/> otherwise
+		/// the default behavior will look at the <see cref="TheoryAttribute"/> and the test case will not be skipped.</remarks>
+		/// <param name="discoveryOptions">The discovery options to be used.</param>
+		/// <param name="testMethod">The test method the test cases belong to.</param>
+		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+		/// <param name="displayName">The optional display name for the test</param>
+		/// <param name="traits">The traits associated with the test case.</param>
+		/// <param name="dataRow">The row of data for this test case.</param>
+		/// <param name="skipReason">The reason this test case is to be skipped</param>
+		/// <returns>The test cases</returns>
+		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkippedDataRow(
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			_ITestMethod testMethod,
+			_IAttributeInfo theoryAttribute,
+			string? displayName,
+			Dictionary<string, List<string>>? traits,
+			object?[] dataRow,
+			string skipReason)
+		{
+			var testCase = new XunitSkippedDataRowTestCase(
+				DiagnosticMessageSink,
+				discoveryOptions.MethodDisplayOrDefault(),
+				discoveryOptions.MethodDisplayOptionsOrDefault(),
+				testMethod,
+				dataRow,
+				skipReason,
+				traits,
+				displayName: displayName
 			);
 
 			return new[] { testCase };
@@ -61,7 +104,7 @@ namespace Xunit.Sdk
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
 		/// <returns>The test cases</returns>
-		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkip(
+		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkippedTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -104,42 +147,11 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Creates test cases for a single row of skipped data. By default, returns a single instance of <see cref="XunitSkippedDataRowTestCase"/>
-		/// with the data row inside of it.
-		/// </summary>
-		/// <remarks>If this method is overridden, the implementation will have to override <see cref="TestMethodTestCase.SkipReason"/> otherwise
-		/// the default behavior will look at the <see cref="TheoryAttribute"/> and the test case will not be skipped.</remarks>
-		/// <param name="discoveryOptions">The discovery options to be used.</param>
-		/// <param name="testMethod">The test method the test cases belong to.</param>
-		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
-		/// <param name="dataRow">The row of data for this test case.</param>
-		/// <param name="skipReason">The reason this test case is to be skipped</param>
-		/// <returns>The test cases</returns>
-		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkippedDataRow(
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestMethod testMethod,
-			_IAttributeInfo theoryAttribute,
-			object?[] dataRow,
-			string skipReason)
-		{
-			var testCase = new XunitSkippedDataRowTestCase(
-				DiagnosticMessageSink,
-				discoveryOptions.MethodDisplayOrDefault(),
-				discoveryOptions.MethodDisplayOptionsOrDefault(),
-				testMethod,
-				dataRow
-,
-				skipReason);
-
-			return new[] { testCase };
-		}
-
-		/// <summary>
 		/// Discover test cases from a test method.
 		/// </summary>
 		/// <remarks>
 		/// This method performs the following steps:
-		/// - If the theory attribute is marked with Skip, returns the single test case from <see cref="CreateTestCasesForSkip"/>;
+		/// - If the theory attribute is marked with Skip, returns the single test case from <see cref="CreateTestCasesForSkippedTheory"/>;
 		/// - If pre-enumeration is off, or any of the test data is non serializable, returns the single test case from <see cref="CreateTestCasesForTheory"/>;
 		/// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;
 		/// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow"/> or <see cref="CreateTestCasesForSkippedDataRow"/> if the data attribute has a skip reason.
@@ -161,9 +173,13 @@ namespace Xunit.Sdk
 			// not actually have any data (which is quasi-legal, since it's skipped).
 			var skipReason = theoryAttribute.GetNamedArgument<string>("Skip");
 			if (skipReason != null)
-				return CreateTestCasesForSkip(discoveryOptions, testMethod, theoryAttribute, skipReason);
+				return CreateTestCasesForSkippedTheory(discoveryOptions, testMethod, theoryAttribute, skipReason);
 
-			if (discoveryOptions.PreEnumerateTheoriesOrDefault())
+			var preEnumerate =
+				discoveryOptions.PreEnumerateTheoriesOrDefault()
+				&& !theoryAttribute.GetNamedArgument<bool>(nameof(TheoryAttribute.DisableDiscoveryEnumeration));
+
+			if (preEnumerate)
 			{
 				try
 				{
@@ -259,9 +275,10 @@ namespace Xunit.Sdk
 							// Also, if we can, we should attempt to resolve it to its parameter type right now, because
 							// the incoming data might be serializable but the actual parameter value that it gets converted
 							// to might not be, and serialization uses the resolved argument and not the input argument.
-							var resolvedData = dataRow;
+							var resolvedData = dataRow.GetData();
+							var dataRowSkipReason = skipReason ?? dataRow.Skip;
 							if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
-								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(dataRow);
+								resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(resolvedData);
 
 							if (!resolvedData.All(d => SerializationHelper.IsSerializable(d)))
 							{
@@ -279,9 +296,9 @@ namespace Xunit.Sdk
 							try
 							{
 								var testCases =
-									skipReason != null
-										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData, skipReason)
-										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, resolvedData);
+									dataRowSkipReason != null
+										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData, dataRowSkipReason)
+										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData);
 
 								results.AddRange(testCases);
 							}

@@ -56,6 +56,7 @@ namespace Xunit.v3
 		/// <param name="skipReason">The optional reason for skipping the test.</param>
 		/// <param name="traits">The optional traits list.</param>
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+		/// <param name="displayName">The optional display name for the test</param>
 		protected TestMethodTestCase(
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
@@ -63,7 +64,8 @@ namespace Xunit.v3
 			object?[]? testMethodArguments = null,
 			string? skipReason = null,
 			Dictionary<string, List<string>>? traits = null,
-			string? uniqueID = null)
+			string? uniqueID = null,
+			string? displayName = null)
 		{
 			DefaultMethodDisplay = defaultMethodDisplay;
 			DefaultMethodDisplayOptions = defaultMethodDisplayOptions;
@@ -78,9 +80,10 @@ namespace Xunit.v3
 
 			formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
 
-			var initResults = Initialize(BaseDisplayName, testMethod, TestMethodArguments);
+			var baseDisplayName = displayName ?? BaseDisplayName;
+			var initResults = Initialize(baseDisplayName, testMethod, TestMethodArguments);
 
-			displayName = initResults.displayName;
+			this.displayName = initResults.displayName;
 			InitializationException = initResults.initException;
 			Method = initResults.method;
 			MethodGenericTypes = initResults.methodGenericTypes;

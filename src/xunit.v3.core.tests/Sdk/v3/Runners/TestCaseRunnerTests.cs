@@ -141,7 +141,7 @@ public class TestCaseRunnerTests
 		Assert.True(runner.TokenSource.IsCancellationRequested);
 	}
 
-	[Theory]
+	[Theory(DisableDiscoveryEnumeration = true)]
 	[InlineData(typeof(_TestCaseStarting))]
 	[InlineData(typeof(_TestCaseFinished))]
 	public static async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)

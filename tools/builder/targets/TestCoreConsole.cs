@@ -26,7 +26,7 @@ public static class TestCoreConsole
 			var folder = Path.GetDirectoryName(v3TestDll);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3TestDll) + "-" + Path.GetFileName(folder));
 
-			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
 		}
 	}
 }

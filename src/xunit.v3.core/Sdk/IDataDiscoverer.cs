@@ -30,7 +30,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The method that is being tested/discovered</param>
 		/// <returns>The theory data (or null during discovery, if not enough
 		/// information is available to enumerate the data)</returns>
-		IReadOnlyCollection<object?[]>? GetData(
+		IReadOnlyCollection<ITheoryDataRow>? GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod
 		);

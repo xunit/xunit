@@ -61,7 +61,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	}
 
 	[Fact]
-	public static async void OnlySkipsDataRowsWithSkipReason()
+	public static async void SkipsDataAttributesWithSkipReason()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithSomeDataSkipped", messageBus, "Display Name");
@@ -69,18 +69,24 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		var summary = await runner.RunAsync();
 
 		Assert.NotEqual(0m, summary.Time);
-		Assert.Equal(4, summary.Total);
-		Assert.Equal(2, summary.Skipped);
-		Assert.Equal(1, summary.Failed);
-		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
-		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
-		Assert.Equal($"Display Name(x: 1, y: {2.1:G17}, z: \"not skipped\")", passedStarting.TestDisplayName);
-		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
-		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
-		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failedStarting.TestDisplayName);
-
-		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == $"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")");
-		Assert.Contains(messageBus.Messages.OfType<_TestSkipped>(), skipped => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID).TestDisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
+		Assert.Equal(6, summary.Total);
+		Assert.Equal(3, summary.Skipped);
+		Assert.Equal(2, summary.Failed);
+		Assert.Collection(
+			messageBus.Messages.OfType<_TestPassed>().Select(p => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			displayName => Assert.Equal($"Display Name(x: 1, y: {2.1:G17}, z: \"not skipped\")", displayName)
+		);
+		Assert.Collection(
+			messageBus.Messages.OfType<_TestFailed>().Select(p => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			displayName => Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", displayName),
+			displayName => Assert.Equal("Display Name(x: 0, y: 0, z: \"SomeData2 not skipped\")", displayName)
+		);
+		Assert.Collection(
+			messageBus.Messages.OfType<_TestSkipped>().Select(p => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			displayName => Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", displayName),
+			displayName => Assert.Equal($"Display Name(x: 18, y: {36.48:G17}, z: \"SomeData2 skipped\")", displayName),
+			displayName => Assert.Equal($"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")", displayName)
+		);
 	}
 
 	[Fact]
@@ -169,6 +175,15 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 			}
 		}
 
+		public static IEnumerable<ITheoryDataRow> SomeData2
+		{
+			get
+			{
+				yield return new TheoryDataRow(0, 0.0, "SomeData2 not skipped");
+				yield return new TheoryDataRow(18, 36.48, "SomeData2 skipped") { Skip = "Skip this one row" };
+			}
+		}
+
 		[Theory]
 		[MemberData("SomeData")]
 		public void TestWithData(int x, double y, string z)
@@ -186,6 +201,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		[Theory]
 		[InlineData(1, 2.1, "not skipped")]
 		[MemberData("SomeData", Skip = "Skipped")]
+		[MemberData("SomeData2")]
 		[InlineData(0, 0.0, "also not skipped")]
 		public void TestWithSomeDataSkipped(int x, double y, string z)
 		{

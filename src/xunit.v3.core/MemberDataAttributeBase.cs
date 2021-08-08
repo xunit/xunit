@@ -52,7 +52,7 @@ namespace Xunit
 		public object?[] Parameters { get; }
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<object?[]>? GetData(MethodInfo testMethod)
+		public override IReadOnlyCollection<ITheoryDataRow>? GetData(MethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull("testMethod", testMethod);
 
@@ -87,7 +87,7 @@ namespace Xunit
 		/// <param name="testMethod">The method that is being tested.</param>
 		/// <param name="item">An item yielded from the data member.</param>
 		/// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
-		protected abstract object?[] ConvertDataItem(
+		protected abstract ITheoryDataRow ConvertDataItem(
 			MethodInfo testMethod,
 			object? item
 		);

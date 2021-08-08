@@ -11,7 +11,7 @@ namespace Xunit.Sdk
 	public class InlineDataDiscoverer : IDataDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IReadOnlyCollection<object?[]> GetData(
+		public virtual IReadOnlyCollection<ITheoryDataRow> GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
@@ -24,7 +24,7 @@ namespace Xunit.Sdk
 			// in Xunit2TheoryAcceptanceTests.InlineDataTests.SingleNullValuesWork).
 
 			var args = dataAttribute.GetConstructorArguments().Single() as IEnumerable<object?> ?? new object?[] { null };
-			return new[] { args.ToArray() };
+			return new[] { new TheoryDataRow(args.ToArray()) };
 		}
 
 		/// <inheritdoc/>

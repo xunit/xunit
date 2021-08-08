@@ -111,12 +111,13 @@ namespace Xunit.v3
 
 					foreach (var dataRow in data)
 					{
-						foreach (var dataRowItem in dataRow)
+						var dataRowData = dataRow.GetData();
+						foreach (var dataRowItem in dataRowData)
 							disposalTracker.Add(dataRowItem);
 
 						_ITypeInfo[]? resolvedTypes = null;
 						var methodToRun = TestMethod;
-						var convertedDataRow = methodToRun.ResolveMethodArguments(dataRow);
+						var convertedDataRow = methodToRun.ResolveMethodArguments(dataRowData);
 
 						if (methodToRun.IsGenericMethodDefinition)
 						{
@@ -129,7 +130,7 @@ namespace Xunit.v3
 
 						var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
 						var test = CreateTest(TestCase, theoryDisplayName, testIndex++);
-						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
+						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip") ?? dataRow.Skip;
 						testRunners.Add(CreateTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
 					}
 				}

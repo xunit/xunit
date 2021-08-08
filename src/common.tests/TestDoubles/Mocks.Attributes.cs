@@ -72,13 +72,14 @@ namespace Xunit.v3
 			return result;
 		}
 
+		// TODO: Need a version which also accepts ITheoryDataRow
 		public static _IReflectionAttributeInfo DataAttribute(
 			IEnumerable<object[]>? data = null,
 			string? skip = null)
 		{
 			var dataAttribute = Substitute.For<DataAttribute>();
 			dataAttribute.Skip.Returns(skip);
-			dataAttribute.GetData(null!).ReturnsForAnyArgs(data.CastOrToReadOnlyCollection());
+			dataAttribute.GetData(null!).ReturnsForAnyArgs((data ?? Array.Empty<object[]>()).Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection());
 
 			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 			result.Attribute.Returns(dataAttribute);

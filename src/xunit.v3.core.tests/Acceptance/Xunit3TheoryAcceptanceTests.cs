@@ -590,33 +590,72 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void RunsForEachDataElement()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest));
+			var testMessages = await RunAsync(typeof(ClassUnderTestForObjectArray));
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForObjectArray.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForObjectArray.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
-		class ClassUnderTest
+		class ClassUnderTestForObjectArray
 		{
 			[Theory]
-			[ClassData(typeof(ClassDataSource))]
+			[ClassData(typeof(ObjectArrayDataSource))]
 			public void TestViaClassData(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
 		}
 
-		class ClassDataSource : IEnumerable<object?[]>
+		class ObjectArrayDataSource : IEnumerable<object?[]>
 		{
 			public IEnumerator<object?[]> GetEnumerator()
 			{
 				yield return new object?[] { 42, 21.12, "Hello, world!" };
 				yield return new object?[] { 0, 0.0, null };
+			}
+
+			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		}
+
+		[Fact]
+		public async void CanReturnTheoryRowData()
+		{
+			var testMessages = await RunAsync(typeof(ClassUnderTestForTheoryDataRow));
+
+			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
+			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForTheoryDataRow.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForTheoryDataRow.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
+			var skippedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForTheoryDataRow.TestViaClassData(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
+			Assert.Equal("Do not run this", skipped.Reason);
+		}
+
+		class ClassUnderTestForTheoryDataRow
+		{
+			[Theory]
+			[ClassData(typeof(TheoryDataRowDataSource))]
+			public void TestViaClassData(int x, double y, string z)
+			{
+				Assert.NotNull(z);
+			}
+		}
+
+		class TheoryDataRowDataSource : IEnumerable<ITheoryDataRow>
+		{
+			public IEnumerator<ITheoryDataRow> GetEnumerator()
+			{
+				yield return new TheoryDataRow(42, 21.12, "Hello, world!");
+				yield return new TheoryDataRow(0, 0.0, null);
+				yield return new TheoryDataRow(16, 32.64, "skip") { Skip = "Do not run this" };
 			}
 
 			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -1261,11 +1300,11 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override IReadOnlyCollection<object?[]> GetData(MethodInfo testMethod) =>
+			public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
 				new[]
 				{
-					new object?[] { 42 },
-					new object?[] { 2112 }
+					new TheoryDataRow(42),
+					new TheoryDataRow(2112)
 				};
 		}
 
@@ -1306,8 +1345,8 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override IReadOnlyCollection<object[]> GetData(MethodInfo testMethod) =>
-				new[] { new[] { new object() } };
+			public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
+				new[] { new TheoryDataRow(new object()) };
 		}
 
 		[Fact]
@@ -1328,9 +1367,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			public SingleMemberDataAttribute(string memberName, params object?[] parameters) : base(memberName, parameters) { }
 
-			protected override object?[] ConvertDataItem(MethodInfo testMethod, object? item)
+			protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item)
 			{
-				return new object?[] { item };
+				return new TheoryDataRow(item);
 			}
 		}
 

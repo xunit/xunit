@@ -89,7 +89,6 @@ public class BuildContext
 		{
 			NeedMono = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 			TestFlagsNonParallel = "-parallel none -maxthreads 1 ";
-			// TestFlagsNonParallel = "-parallel none -maxthreads 1 -preenumeratetheories ";
 			TestFlagsParallel = "";
 
 			// Find the folder with the solution file

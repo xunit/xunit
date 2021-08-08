@@ -13,7 +13,7 @@ namespace Xunit.Sdk
 	public class DataDiscoverer : IDataDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IReadOnlyCollection<object?[]>? GetData(
+		public virtual IReadOnlyCollection<ITheoryDataRow>? GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{

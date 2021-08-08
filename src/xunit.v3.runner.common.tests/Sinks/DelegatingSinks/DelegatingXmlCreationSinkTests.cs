@@ -400,7 +400,7 @@ public class DelegatingXmlCreationSinkTests
 		};
 	}
 
-	[Theory]
+	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(IllegalXmlTestData))]
 	public void IllegalXmlAcceptanceTest(
 		string inputName,
