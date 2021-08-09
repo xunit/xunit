@@ -87,7 +87,7 @@ namespace Xunit.v3
 		{
 			Guard.ArgumentNotNull(nameof(serializedTestCase), serializedTestCase);
 
-			return new ValueTask<_ITestCase>(SerializationHelper.Deserialize<_ITestCase>(serializedTestCase) ?? throw new ArgumentException($"Could not deserialize test case: {serializedTestCase}", nameof(serializedTestCase)));
+			return new ValueTask<_ITestCase>(SerializationHelper.Deserialize<_ITestCase>(serializedTestCase));
 		}
 
 		/// <inheritdoc/>
@@ -149,7 +149,14 @@ namespace Xunit.v3
 
 				var testCases = new List<TTestCase>(serializedTestCases.Count);
 				foreach (var testCaseTask in testCaseTasks)
-					testCases.Add((TTestCase)await testCaseTask);
+					try
+					{
+						testCases.Add((TTestCase)await testCaseTask);
+					}
+					catch (Exception ex)
+					{
+						executionMessageSink.OnMessage(_ErrorMessage.FromException(ex));
+					}
 
 				using (new CultureOverride(executionOptions.Culture()))
 					await RunTestCases(testCases, executionMessageSink, executionOptions);

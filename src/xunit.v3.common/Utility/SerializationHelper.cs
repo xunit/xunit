@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +15,6 @@ namespace Xunit.Sdk
 	public static class SerializationHelper
 	{
 		static readonly BinaryFormatter formatter = new BinaryFormatter();
-		static readonly ConcurrentDictionary<Type, string> typeToTypeNameMap = new ConcurrentDictionary<Type, string>();
 
 		/// <summary>
 		/// De-serializes an object.
@@ -24,13 +22,20 @@ namespace Xunit.Sdk
 		/// <typeparam name="T">The type of the object</typeparam>
 		/// <param name="serializedValue">The object's serialized value</param>
 		/// <returns>The de-serialized object</returns>
-		public static T? Deserialize<T>(string serializedValue)
+		public static T Deserialize<T>(string serializedValue)
 			where T : class
 		{
 			Guard.ArgumentNotNull(nameof(serializedValue), serializedValue);
 
-			using var stream = new MemoryStream(Convert.FromBase64String(serializedValue));
-			return (T?)formatter.Deserialize(stream);
+			try
+			{
+				using var stream = new MemoryStream(Convert.FromBase64String(serializedValue));
+				return (T)formatter.Deserialize(stream);
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException($"Could not deserialize value: {serializedValue}", nameof(serializedValue), ex);
+			}
 		}
 
 		/// <summary>
