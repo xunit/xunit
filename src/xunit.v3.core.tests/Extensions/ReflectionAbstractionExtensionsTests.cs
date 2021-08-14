@@ -19,7 +19,11 @@ public class ReflectionAbstractionExtensionsTests
 		[Fact]
 		public static void WhenUsingNonReflectionMethodInfo_MethodExists_ReturnsMethodInfo()
 		{
-			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.core.tests.dll");
+#if BUILD_X86
+			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.core.tests.x86.exe");
+#else
+			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.core.tests.exe");
+#endif
 			var methodInfo = Mocks.MethodInfo("WhenUsingNonReflectionMethodInfo_MethodExists_ReturnsMethodInfo", isStatic: true, type: typeInfo);
 
 			var result = methodInfo.ToRuntimeMethod();
@@ -31,7 +35,7 @@ public class ReflectionAbstractionExtensionsTests
 		[Fact]
 		public static void WhenUsingNonReflectionMethodInfo_MethodDoesNotExist_ReturnsNull()
 		{
-			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.core.tests.dll");
+			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.core.tests.exe");
 			var methodInfo = Mocks.MethodInfo("UnknownMethod", isStatic: true, type: typeInfo);
 
 			var result = methodInfo.ToRuntimeMethod();
@@ -56,7 +60,11 @@ public class ReflectionAbstractionExtensionsTests
 		[Fact]
 		public static void WhenUsingNonReflectionTypeInfo_TypeExists_ReturnsType()
 		{
-			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeType", assemblyFileName: "xunit.v3.core.tests.dll");
+#if BUILD_X86
+			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeType", assemblyFileName: "xunit.v3.core.tests.x86.exe");
+#else
+			var typeInfo = Mocks.TypeInfo("ReflectionAbstractionExtensionsTests+ToRuntimeType", assemblyFileName: "xunit.v3.core.tests.exe");
+#endif
 
 			var result = typeInfo.ToRuntimeType();
 
@@ -67,7 +75,7 @@ public class ReflectionAbstractionExtensionsTests
 		[Fact]
 		public static void WhenUsingNonReflectionTypeInfo_TypeDoesNotExist_ReturnsNull()
 		{
-			var typeInfo = Mocks.TypeInfo("UnknownType", assemblyFileName: "xunit.v3.core.tests.dll");
+			var typeInfo = Mocks.TypeInfo("UnknownType", assemblyFileName: "xunit.v3.core.tests.exe");
 
 			var result = typeInfo.ToRuntimeType();
 
