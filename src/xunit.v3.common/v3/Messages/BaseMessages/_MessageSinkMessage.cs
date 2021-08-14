@@ -64,7 +64,7 @@ namespace Xunit.v3
 			if (type == null)
 				throw new ArgumentException($"Could not load type '{typeName}' for deserialization", nameof(serialization));
 
-			var result = JsonSerializer.Deserialize(byteSpan, type);
+			var result = JsonSerializer.Deserialize(byteSpan, type, jsonSerializerOptions);
 			if (result == null)
 				throw new ArgumentException($"Deserialization of type '{typeName}' unexpectedly returned null", nameof(serialization));
 

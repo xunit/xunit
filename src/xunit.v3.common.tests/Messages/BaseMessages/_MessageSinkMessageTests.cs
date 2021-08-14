@@ -69,6 +69,21 @@ public class _MessageSinkMessageTests
 	}
 
 	[Fact]
+	public void CanDeserializeStringEnum()
+	{
+		var msg =
+			@"{" +
+				@"""$type"":""_TestFailed""," +
+				@"""Cause"":""Assertion""" +
+			@"}";
+
+		var result = _MessageSinkMessage.ParseJson(Encoding.UTF8.GetBytes(msg));
+
+		var testFailed = Assert.IsType<_TestFailed>(result);
+		Assert.Equal(FailureCause.Assertion, testFailed.Cause);
+	}
+
+	[Fact]
 	public void CanRoundTripTraits()
 	{
 		var msg = new _TestCaseDiscovered
