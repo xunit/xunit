@@ -619,33 +619,36 @@ namespace Xunit.Runner.Common
 
 			logger.LogImportantMessage("=== TEST EXECUTION SUMMARY ===");
 
-			var assemblyDisplayNames =
+			var summariesWithDisplayName =
 				summaries
 					.SummariesByAssemblyUniqueID
-					.ToDictionary(
-						kvp => kvp.AssemblyUniqueID,
-						kvp => Path.GetFileNameWithoutExtension(MetadataCache.TryGetAssemblyMetadata(kvp.AssemblyUniqueID)?.AssemblyPath) ?? "<unknown assembly>"
-					);
+					.Select(
+						summary => (
+							summary.Summary,
+							summary.AssemblyUniqueID,
+							AssemblyDisplayName: Path.GetFileNameWithoutExtension(MetadataCache.TryGetAssemblyMetadata(summary.AssemblyUniqueID)?.AssemblyPath) ?? "<unknown assembly>"
+						)
+					).OrderBy(summary => summary.AssemblyDisplayName)
+					.ToList();
 
 			var totalTestsRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Total);
 			var totalTestsFailed = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Failed);
 			var totalTestsSkipped = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Skipped);
 			var totalTime = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Time).ToString("0.000s");
 			var totalErrors = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Errors);
-			var longestAssemblyName = assemblyDisplayNames.Max(summary => summary.Value.Length);
+			var longestAssemblyName = summariesWithDisplayName.Max(summary => summary.AssemblyDisplayName.Length);
 			var longestTotal = totalTestsRun.ToString().Length;
 			var longestFailed = totalTestsFailed.ToString().Length;
 			var longestSkipped = totalTestsSkipped.ToString().Length;
 			var longestTime = totalTime.Length;
 			var longestErrors = totalErrors.ToString().Length;
 
-			foreach (var summary in summaries.SummariesByAssemblyUniqueID)
+			foreach (var (summary, assemblyUniqueID, assemblyDisplayName) in summariesWithDisplayName)
 			{
-				var assemblyDisplayName = assemblyDisplayNames[summary.AssemblyUniqueID];
-				if (summary.Summary.Total == 0)
+				if (summary.Total == 0)
 					logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(longestTotal)}");
 				else
-					logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {summary.Summary.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Summary.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Summary.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Summary.Skipped.ToString().PadLeft(longestSkipped)}, Time: {summary.Summary.Time.ToString("0.000s").PadLeft(longestTime)}");
+					logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {summary.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Skipped.ToString().PadLeft(longestSkipped)}, Time: {summary.Time.ToString("0.000s").PadLeft(longestTime)}");
 			}
 
 			if (summaries.SummariesByAssemblyUniqueID.Count > 1)

@@ -300,7 +300,12 @@ public class ExtensibilityPointFactoryTests
 			"Unable to create test collection factory type 'xunit.v3.core.tests, ThisIsNotARealType'")]
 		public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName, string expectedMessage)
 		{
+#if BUILD_X86
+			expectedMessage = expectedMessage.Replace("xunit.v3.core.tests", "xunit.v3.core.tests.x86");
+			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests.x86");
+#else
 			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests");
+#endif
 			var assembly = Mocks.TestAssembly();
 
 			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);

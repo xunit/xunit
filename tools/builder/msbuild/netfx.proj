@@ -22,7 +22,7 @@
 	</Target>
 
 	<Target Name="TestV2">
-		<xunit Assemblies="@(TestV2Assemblies)" />
+		<xunit Assemblies="@(TestV2Assemblies)" PreEnumerateTheories="false" />
 	</Target>
 
 	<Target Name="TestV3">

@@ -91,6 +91,8 @@
       </PropertyGroup>
 
       <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
+        <AssemblyName>$(AssemblyName).x86</AssemblyName>
+        <DefineConstants>$(DefineConstants);BUILD_X86</DefineConstants>
         <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
         <OutputPath>bin\$(Configuration)_x86</OutputPath>
         <Configuration>$(Configuration)_x86</Configuration>
