@@ -75,6 +75,10 @@
   <!-- All test projects -->
   <Choose>
     <When Condition=" $(MSBuildProjectName.EndsWith('.tests')) ">
+      <PropertyGroup>
+        <Configurations>Debug;Debug_x86;Release;Release_x86</Configurations>
+      </PropertyGroup>
+
       <ItemGroup>
         <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
       </ItemGroup>
@@ -88,15 +92,6 @@
         <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
-      </PropertyGroup>
-
-      <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
-        <AssemblyName>$(AssemblyName).x86</AssemblyName>
-        <DefineConstants>$(DefineConstants);BUILD_X86</DefineConstants>
-        <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
-        <OutputPath>bin\$(Configuration)_x86</OutputPath>
-        <Configuration>$(Configuration)_x86</Configuration>
-        <PlatformTarget>x86</PlatformTarget>
       </PropertyGroup>
 
       <ItemGroup>
@@ -115,8 +110,16 @@
         <ProjectReference Include="..\xunit.v3.runner.inproc.console\xunit.v3.runner.inproc.console.csproj" />
         <ProjectReference Include="..\xunit.v3.runner.tdnet\xunit.v3.runner.tdnet.csproj" />
       </ItemGroup>
-
     </When>
   </Choose>
+
+  <!-- ============= -->
+  <!-- 32-bit builds -->
+
+  <PropertyGroup Condition="$(Configuration.EndsWith('_x86'))">
+    <AssemblyName>$(AssemblyName).x86</AssemblyName>
+    <DefineConstants>$(DefineConstants);BUILD_X86</DefineConstants>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
 
 </Project>

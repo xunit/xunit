@@ -20,9 +20,9 @@
 		<file target="build\" src="Package\build\*" />
 
 		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\*" />
-		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\*" />
+		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\*.x86.*" />
 
 		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\*" />
-		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\*" />
+		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\*.x86.*" />
 	</files>
 </package>

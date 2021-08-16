@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Configurations>Debug;Debug_x86;Release;Release_x86</Configurations>
     <OutputType>Exe</OutputType>
     <RunILRepack>true</RunILRepack>
     <TargetFrameworks>net472;net48</TargetFrameworks>
@@ -10,14 +11,6 @@
   <ItemGroup>
     <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
-    <AssemblyName>xunit.v3.runner.console.x86</AssemblyName>
-    <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
-    <OutputPath>bin\$(Configuration)_x86</OutputPath>
-    <Configuration>$(Configuration)_x86</Configuration>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />

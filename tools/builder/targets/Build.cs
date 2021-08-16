@@ -14,6 +14,6 @@ public static class Build
 
 		context.BuildStep("Compiling binaries (32-bit)");
 
-		await context.Exec("dotnet", $"msbuild -maxCpuCount -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText} -p:BuildX86=true");
+		await context.Exec("dotnet", $"msbuild -maxCpuCount -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}_x86");
 	}
 }
