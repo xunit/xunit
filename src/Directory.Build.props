@@ -120,6 +120,7 @@
     <AssemblyName>$(AssemblyName).x86</AssemblyName>
     <DefineConstants>$(DefineConstants);BUILD_X86</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
+    <RunCommand Condition=" '$(OS)' == 'Windows_NT' ">$(MSBuildProgramFiles32)\dotnet\dotnet</RunCommand>
   </PropertyGroup>
 
 </Project>

@@ -196,14 +196,20 @@ namespace Xunit.Runner.SystemConsole
 		void PrintHeader()
 		{
 #if NET472
-			var platformSuffix = $"net472";
+			var buildTarget = $"net472";
 #elif NET48
-			var platformSuffix = $"net48";
+			var buildTarget = $"net48";
 #else
 #error Unknown target framework
 #endif
 
-			Console.WriteLine($"xUnit.net v3 Console Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription} [{platformSuffix}])");
+#if BUILD_X86
+			buildTarget += "/x86";
+#else
+			buildTarget += "/AnyCPU";
+#endif
+
+			Console.WriteLine($"xUnit.net v3 Console Runner v{ThisAssembly.AssemblyInformationalVersion} [{buildTarget}] ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 		}
 
 		void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
