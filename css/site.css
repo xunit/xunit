@@ -84,6 +84,10 @@ table, .table {
 .table>tfoot>tr>td {
   font-size: 12px;
 }
+.table th.left,
+.table td.left {
+  text-align: left
+}
 .table>tbody>tr>td.wrapped {
   max-width: 500px;
   text-align: left;
