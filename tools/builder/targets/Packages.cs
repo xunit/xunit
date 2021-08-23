@@ -20,17 +20,20 @@ public static class Packages
 		// Enumerate the project folders to find what to pack
 		var srcFolder = Path.Join(context.BaseFolder, "src");
 		var projectFolders =
-			Directory.GetFiles(srcFolder, "xunit.v3.*.csproj", SearchOption.AllDirectories)
+			Directory
+				.GetFiles(srcFolder, "xunit.v3.*.csproj", SearchOption.AllDirectories)
 				.Where(x => !x.EndsWith(".tests.csproj"))
 				.OrderBy(x => x)
-				.Select(x => Path.GetDirectoryName(x).Substring(context.BaseFolder.Length + 1))
+				.Select(x => Path.GetDirectoryName(x)?.Substring(context.BaseFolder.Length + 1))
+				.WhereNotNull()
 				.Where(x => !File.Exists(Path.Combine(x, ".no-package")));
 
 		foreach (var projectFolder in projectFolders)
 		{
 			var packArgs = $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} {projectFolder}";
 			var nuspecFiles =
-				Directory.GetFiles(projectFolder, "*.nuspec")
+				Directory
+					.GetFiles(projectFolder, "*.nuspec")
 					.OrderBy(x => x)
 					.Select(x => Path.GetFileName(x));
 

@@ -37,7 +37,11 @@ public static class TestCoreConsole
 			return;
 
 		// Only run 32-bit .NET Core tests if 32-bit .NET Core is installed
-		var x86Dotnet = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "dotnet", "dotnet.exe");
+		var programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+		if (programFilesX86 == null)
+			return;
+
+		var x86Dotnet = Path.Combine(programFilesX86, "dotnet", "dotnet.exe");
 		if (!File.Exists(x86Dotnet))
 			return;
 
