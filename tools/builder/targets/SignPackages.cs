@@ -22,7 +22,8 @@ public static class SignPackages
 		}
 
 		var packageFiles =
-			Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
+			Directory
+				.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
 				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
