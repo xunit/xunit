@@ -147,8 +147,24 @@ namespace Xunit.Runner.Common
 				foreach (var messageLine in ExceptionUtility.CombineMessages(errorMetadata).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 					Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
 
-				LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(errorMetadata));
+				LogDetails(frameInfo, errorMetadata.Details);
 			}
+		}
+
+		/// <summary>
+		/// Logs the exception details to the logger.
+		/// </summary>
+		protected virtual void LogDetails(
+			StackFrameInfo frameInfo,
+			string? details)
+		{
+			if (string.IsNullOrEmpty(details))
+				return;
+
+			Logger.LogMessage(frameInfo, "      Details:");
+
+			foreach (var messageLine in details.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+				Logger.LogImportantMessage(frameInfo, $"        {messageLine}");
 		}
 
 		/// <summary>
@@ -492,7 +508,7 @@ namespace Xunit.Runner.Common
 				foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 					Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
 
-				LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));
+				LogDetails(frameInfo, testFailed.Details);
 				LogOutput(frameInfo, testFailed.Output);
 			}
 		}
