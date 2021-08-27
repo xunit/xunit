@@ -960,6 +960,55 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestViaFieldData(int x, double y, string z) { }
 		}
 
+		[Fact]
+		public async void IncompatibleField()
+		{
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleField));
+
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleField.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			Assert.Equal(
+				"Member 'IncompatibleField' on 'Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleField' must return data in one of the following formats:" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>",
+				failed.Messages.Single()
+			);
+		}
+
+		class ClassWithIncompatibleField
+		{
+			public static int IncompatibleField = 42;
+
+			[Theory]
+			[MemberData(nameof(IncompatibleField))]
+			public void TestMethod(int x) { }
+		}
+
+		[Fact]
+		public async void IncompatibleFieldData()
+		{
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleFieldData));
+
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleFieldData.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			Assert.Equal("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleFieldData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", failed.Messages.Single());
+		}
+
+		class ClassWithIncompatibleFieldData
+		{
+			public static IEnumerable<int> IncompatibleFieldData = new[] { 42 };
+
+			[Theory]
+			[MemberData(nameof(IncompatibleFieldData))]
+			public void TestMethod(int x) { }
+		}
+
 		public class IEnumerableObjectArray : AcceptanceTestV3
 		{
 			[Fact]
@@ -1302,6 +1351,55 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[MemberData("DataSource")]
 			public void TestViaMethodData(int x, double y, string z) { }
+		}
+
+		[Fact]
+		public async void IncompatibleMethod()
+		{
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleMethod));
+
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethod.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			Assert.Equal(
+				"Member 'IncompatibleMethod' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethod' must return data in one of the following formats:" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>",
+				failed.Messages.Single()
+			);
+		}
+
+		class ClassWithIncompatibleMethod
+		{
+			public static int IncompatibleMethod() => 42;
+
+			[Theory]
+			[MemberData(nameof(IncompatibleMethod))]
+			public void TestMethod(int x) { }
+		}
+
+		[Fact]
+		public async void IncompatibleMethodData()
+		{
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleMethodData));
+
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethodData.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			Assert.Equal("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethodData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", failed.Messages.Single());
+		}
+
+		class ClassWithIncompatibleMethodData
+		{
+			public static IEnumerable<int> IncompatibleMethodData() => new[] { 42 };
+
+			[Theory]
+			[MemberData(nameof(IncompatibleMethodData))]
+			public void TestMethod(int x) { }
 		}
 
 		[Fact]
@@ -1767,6 +1865,55 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failedStarting.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Messages.Single());
+		}
+
+		[Fact]
+		public async void IncompatibleProperty()
+		{
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleProperty));
+
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatibleProperty.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			Assert.Equal(
+				"Member 'IncompatibleProperty' on 'Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatibleProperty' must return data in one of the following formats:" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>",
+				failed.Messages.Single()
+			);
+		}
+
+		class ClassWithIncompatibleProperty
+		{
+			public static int IncompatibleProperty => 42;
+
+			[Theory]
+			[MemberData(nameof(IncompatibleProperty))]
+			public void TestMethod(int x) { }
+		}
+
+		[Fact]
+		public async void IncompatiblePropertyData()
+		{
+			var testMessages = await RunAsync(typeof(ClassWithIncompatiblePropertyData));
+
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatiblePropertyData.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			Assert.Equal("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatiblePropertyData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", failed.Messages.Single());
+		}
+
+		class ClassWithIncompatiblePropertyData
+		{
+			public static IEnumerable<int> IncompatiblePropertyData => new[] { 42 };
+
+			[Theory]
+			[MemberData(nameof(IncompatiblePropertyData))]
+			public void TestMethod(int x) { }
 		}
 
 		class ClassWithNonStaticPropertyData

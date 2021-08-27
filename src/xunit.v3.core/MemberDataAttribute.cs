@@ -1,6 +1,4 @@
 using System;
-using System.Reflection;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -26,24 +24,5 @@ namespace Xunit
 			params object?[] parameters)
 				: base(memberName, parameters)
 		{ }
-
-		/// <inheritdoc/>
-		protected override ITheoryDataRow ConvertDataItem(
-			MethodInfo testMethod,
-			object? item)
-		{
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
-
-			if (item == null)
-				return new TheoryDataRow();
-
-			if (item is ITheoryDataRow dataRow)
-				return dataRow;
-
-			if (item is object?[] array)
-				return new TheoryDataRow(array);
-
-			throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
-		}
 	}
 }

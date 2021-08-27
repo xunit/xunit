@@ -96,19 +96,41 @@ namespace Xunit
 				return result.CastOrToReadOnlyCollection();
 			}
 
-			throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
+			throw new ArgumentException(
+				$"Member '{MemberName}' on '{type.FullName}' must return data in one of the following formats:" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>"
+			);
 		}
 
 		/// <summary>
 		/// Converts an item yielded by the data member to an object array, for return from <see cref="GetData"/>.
+		/// Items yielded will typically be <see cref="T:object[]"/> or <see cref="ITheoryDataRow"/>, but this
+		/// override will allow derived types to support additional data items. Also will return an empty
+		/// theory data row when <paramref name="item"/> is <c>null</c>.
 		/// </summary>
 		/// <param name="testMethod">The method that is being tested.</param>
 		/// <param name="item">An item yielded from the data member.</param>
-		/// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
-		protected abstract ITheoryDataRow ConvertDataItem(
+		/// <returns>An <see cref="ITheoryDataRow"/> suitable for return from <see cref="GetData"/>.</returns>
+		protected virtual ITheoryDataRow ConvertDataItem(
 			MethodInfo testMethod,
-			object? item
-		);
+			object? item)
+		{
+			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+
+			if (item == null)
+				return new TheoryDataRow();
+
+			if (item is ITheoryDataRow dataRow)
+				return dataRow;
+
+			if (item is object?[] array)
+				return new TheoryDataRow(array);
+
+			throw new ArgumentException($"Member '{MemberName}' on '{MemberType ?? testMethod.DeclaringType}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
+		}
 
 		Func<object?>? GetFieldAccessor(Type? type)
 		{
