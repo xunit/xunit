@@ -88,7 +88,7 @@ namespace Xunit
 			MethodInfo testMethod,
 			Type type)
 		{
-			if (returnValue is IAsyncEnumerable<object?[]> dataItems)
+			if (returnValue is IAsyncEnumerable<object?> dataItems)
 			{
 				var result = new List<ITheoryDataRow>();
 				await foreach (var dataItem in dataItems)
