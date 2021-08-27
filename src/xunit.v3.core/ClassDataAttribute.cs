@@ -30,15 +30,23 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
+		public async override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			var classInstance = Activator.CreateInstance(Class);
 
 			if (classInstance is IEnumerable<ITheoryDataRow> dataRows)
-				return new(dataRows.CastOrToReadOnlyCollection());
+				return dataRows.CastOrToReadOnlyCollection();
 
 			if (classInstance is IEnumerable<object?[]> data)
-				return new(data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection());
+				return data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection();
+
+			if (classInstance is IAsyncEnumerable<object?[]> asyncData)
+			{
+				var result = new List<ITheoryDataRow>();
+				await foreach (var asyncDataItem in asyncData)
+					result.Add(new TheoryDataRow(asyncDataItem));
+				return result.CastOrToReadOnlyCollection();
+			}
 
 			throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object?[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType?.FullName}");
 		}

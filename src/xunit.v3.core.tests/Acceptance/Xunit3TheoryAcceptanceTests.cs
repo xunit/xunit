@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
@@ -588,30 +589,30 @@ public class Xunit3TheoryAcceptanceTests
 	public class ClassDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void RunsForEachDataElement()
+		public async void IEnumerableObjectArray()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTestForObjectArray));
+			var testMessages = await RunAsync(typeof(ClassUnderTest_IEnumerableObjectArray));
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForObjectArray.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTestForObjectArray.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
-		class ClassUnderTestForObjectArray
+		class ClassUnderTest_IEnumerableObjectArray
 		{
 			[Theory]
-			[ClassData(typeof(ObjectArrayDataSource))]
+			[ClassData(typeof(DataSource_IEnumerableObjectArray))]
 			public void TestViaClassData(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
 		}
 
-		class ObjectArrayDataSource : IEnumerable<object?[]>
+		class DataSource_IEnumerableObjectArray : IEnumerable<object?[]>
 		{
 			public IEnumerator<object?[]> GetEnumerator()
 			{
@@ -620,6 +621,41 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		}
+
+		[Fact]
+		public async void IAsyncEnumerableObjectArray()
+		{
+			var testMessages = await RunAsync(typeof(ClassUnderTest_IAsyncEnumerableObjectArray));
+
+			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
+			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
+		}
+
+		class ClassUnderTest_IAsyncEnumerableObjectArray
+		{
+			[Theory]
+			[ClassData(typeof(DataSource_IAsyncEnumerableObjectArray))]
+			public void TestViaClassData(int x, double y, string z)
+			{
+				Assert.NotNull(z);
+			}
+		}
+
+		class DataSource_IAsyncEnumerableObjectArray : IAsyncEnumerable<object?[]>
+		{
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+			public async IAsyncEnumerator<object?[]> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+			{
+				yield return new object?[] { 42, 21.12, "Hello, world!" };
+				yield return new object?[] { 0, 0.0, null };
+			}
+#pragma warning restore CS1998
 		}
 
 		[Fact]
