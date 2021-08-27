@@ -90,6 +90,9 @@ public class BuildContext
 	[Option("-v|--verbosity", Description = "Set verbosity level (default: 'minimal'; values: 'q[uiet]', 'm[inimal]', 'n[ormal]', 'd[etailed]', and 'diag[nostic]'")]
 	public BuildVerbosity Verbosity { get; } = BuildVerbosity.minimal;
 
+	[Option("-3|--v3only", Description = "Only run tests for v3 projects (skip tests for v1 and v2)")]
+	public bool V3Only { get; }
+
 	// Helper methods for build target consumption
 
 	public void BuildStep(string message)

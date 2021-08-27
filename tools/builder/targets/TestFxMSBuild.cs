@@ -17,11 +17,15 @@ public static class TestFxMSBuild
 		{
 			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV3 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
 
-			if (!context.NeedMono)
-			{
-				await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV2 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
-				await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV1 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
-			}
+			// Mono is only supported for v3
+			if (context.NeedMono)
+				return;
+
+			if (context.V3Only)
+				return;
+
+			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV2 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV1 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
 		}
 		catch (Win32Exception ex)
 		{

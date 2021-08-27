@@ -9,9 +9,11 @@ public enum BuildTarget
 	Restore,
 	SignPackages,
 	Test,
+	TestConsole,
 	TestCore,
 	TestCoreConsole,
 	TestFx,
 	TestFxConsole,
 	TestFxMSBuild,
+	TestMSBuild,
 }
