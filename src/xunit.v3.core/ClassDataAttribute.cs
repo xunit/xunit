@@ -30,21 +30,37 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
-		public async override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			var classInstance = Activator.CreateInstance(Class);
 
 			if (classInstance is IEnumerable<ITheoryDataRow> dataRows)
-				return dataRows.CastOrToReadOnlyCollection();
+				return new(dataRows.CastOrToReadOnlyCollection());
 
 			if (classInstance is IEnumerable<object?[]> data)
-				return data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection();
+				return new(data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection());
 
-			if (classInstance is IAsyncEnumerable<object?[]> asyncData)
+			return GetDataAsync(classInstance, testMethod);
+		}
+
+		// Split into a separate method to avoid the async machinery when we don't have async results
+		async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
+			object? classInstance,
+			MethodInfo testMethod)
+		{
+			if (classInstance is IAsyncEnumerable<ITheoryDataRow> dataRows)
 			{
 				var result = new List<ITheoryDataRow>();
-				await foreach (var asyncDataItem in asyncData)
-					result.Add(new TheoryDataRow(asyncDataItem));
+				await foreach (var dataItem in dataRows)
+					result.Add(dataItem);
+				return result.CastOrToReadOnlyCollection();
+			}
+
+			if (classInstance is IAsyncEnumerable<object?[]> data)
+			{
+				var result = new List<ITheoryDataRow>();
+				await foreach (var dataItem in data)
+					result.Add(new TheoryDataRow(dataItem));
 				return result.CastOrToReadOnlyCollection();
 			}
 
