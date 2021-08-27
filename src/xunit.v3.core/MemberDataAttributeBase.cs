@@ -88,10 +88,23 @@ namespace Xunit
 			MethodInfo testMethod,
 			Type type)
 		{
-			if (returnValue is IAsyncEnumerable<object?> dataItems)
+			if (returnValue is Task<IEnumerable<object[]>> returnValueTaskObjectArray)
+				returnValue = await returnValueTaskObjectArray;
+
+			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
 			{
 				var result = new List<ITheoryDataRow>();
-				await foreach (var dataItem in dataItems)
+				await foreach (var dataItem in asyncDataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return result.CastOrToReadOnlyCollection();
+			}
+
+			// Duplicate from GetData(), but it's hard to avoid since we need to support Task/ValueTask
+			// of IEnumerable (and not just IAsyncEnumerable).
+			if (returnValue is IEnumerable dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				foreach (var dataItem in dataItems)
 					result.Add(ConvertDataItem(testMethod, dataItem));
 				return result.CastOrToReadOnlyCollection();
 			}
@@ -100,6 +113,7 @@ namespace Xunit
 				$"Member '{MemberName}' on '{type.FullName}' must return data in one of the following formats:" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IAsyncEnumerable<object[]>"
 			);
