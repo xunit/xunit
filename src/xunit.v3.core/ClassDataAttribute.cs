@@ -64,7 +64,13 @@ namespace Xunit
 				return result.CastOrToReadOnlyCollection();
 			}
 
-			throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object?[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType?.FullName}");
+			throw new ArgumentException(
+				$"'{Class.FullName}' must implement one of the following interfaces to be used as ClassData for the test method named '{testMethod.Name}' on '{testMethod.DeclaringType?.FullName}':" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>"
+			);
 		}
 	}
 }

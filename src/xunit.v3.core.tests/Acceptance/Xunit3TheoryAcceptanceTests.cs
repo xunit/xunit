@@ -737,7 +737,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void NoDefaultConstructor_Fails()
+		public async void IncompatibleClass()
 		{
 			var testMessages = await RunAsync(typeof(ClassNotImplementingIEnumerable));
 
@@ -745,7 +745,14 @@ public class Xunit3TheoryAcceptanceTests
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
 			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable.TestMethod", failedStarting.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable must implement IEnumerable<object?[]> to be used as ClassData for the test method named 'TestMethod' on Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable", failed.Messages.Single());
+			Assert.Equal(
+				"'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable' must implement one of the following interfaces to be used as ClassData for the test method named 'TestMethod' on 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable':" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>",
+				failed.Messages.Single()
+			);
 		}
 
 		class ClassNotImplementingIEnumerable
