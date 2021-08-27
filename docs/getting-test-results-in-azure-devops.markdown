@@ -25,6 +25,7 @@ These instructions are written for `Version 2.*` of the `Visual Studio Test` tas
 ```
 **\bin\$(BuildConfiguration)\**\*test*.dll
 !**\obj\**
+!**\ref\**
 !**\xunit.runner.visualstudio.testadapter.dll
 !**\xunit.runner.visualstudio.dotnetcore.testadapter.dll
 ```
