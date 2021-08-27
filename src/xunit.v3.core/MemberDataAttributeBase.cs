@@ -94,6 +94,8 @@ namespace Xunit
 				returnValue = await returnValueTaskTheoryDataRow;
 			else if (returnValue is Task<IAsyncEnumerable<object[]>> returnValueTaskAsyncObjectArray)
 				returnValue = await returnValueTaskAsyncObjectArray;
+			else if (returnValue is Task<IAsyncEnumerable<ITheoryDataRow>> returnValueTaskAsyncTheoryDataRow)
+				returnValue = await returnValueTaskAsyncTheoryDataRow;
 
 			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
 			{
@@ -120,6 +122,7 @@ namespace Xunit
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IAsyncEnumerable<object[]>>"
 			);
