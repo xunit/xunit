@@ -68,20 +68,35 @@ namespace Xunit
 				throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}{parameterText}");
 			}
 
-			var obj = accessor();
-			if (obj is null)
+			var returnValue = accessor();
+			if (returnValue is null)
 				return new(default(IReadOnlyCollection<ITheoryDataRow>));
 
-			if (obj is not IEnumerable dataItems)
-				throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
+			if (returnValue is IEnumerable dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				foreach (var dataItem in dataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return new(result.CastOrToReadOnlyCollection());
+			}
 
-			var result =
-				dataItems
-					.Cast<object?>()
-					.Select(item => ConvertDataItem(testMethod, item))
-					.CastOrToReadOnlyCollection();
+			return GetDataAsync(returnValue, testMethod, type);
+		}
 
-			return new(result);
+		async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
+			object? returnValue,
+			MethodInfo testMethod,
+			Type type)
+		{
+			if (returnValue is IAsyncEnumerable<object?[]> dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				await foreach (var dataItem in dataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return result.CastOrToReadOnlyCollection();
+			}
+
+			throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
 		}
 
 		/// <summary>
