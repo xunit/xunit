@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -10,7 +11,7 @@ namespace Xunit.v3
 		public CulturedTheoryAttributeDiscoverer(_IMessageSink diagnosticMessageSink)
 			: base(diagnosticMessageSink) { }
 
-		protected override IReadOnlyCollection<IXunitTestCase> CreateTestCasesForDataRow(
+		protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -19,8 +20,7 @@ namespace Xunit.v3
 			object?[] dataRow)
 		{
 			var cultures = GetCultures(theoryAttribute);
-
-			return cultures.Select(
+			var result = cultures.Select(
 				culture => new CulturedXunitTestCase(
 					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
@@ -31,15 +31,17 @@ namespace Xunit.v3
 					traits,
 					displayName)
 			).CastOrToReadOnlyCollection();
+
+			return new(result);
 		}
 
-		protected override IReadOnlyCollection<IXunitTestCase> CreateTestCasesForTheory(
+		protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
 		{
 			var cultures = GetCultures(theoryAttribute);
-			return cultures.Select(
+			var result = cultures.Select(
 				culture => new CulturedXunitTheoryTestCase(
 					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
@@ -48,6 +50,8 @@ namespace Xunit.v3
 					culture
 				)
 			).CastOrToReadOnlyCollection();
+
+			return new(result);
 		}
 
 		static string[] GetCultures(_IAttributeInfo culturedTheoryAttribute)

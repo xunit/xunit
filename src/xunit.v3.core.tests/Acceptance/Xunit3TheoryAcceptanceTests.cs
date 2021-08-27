@@ -1539,12 +1539,14 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
-				new[]
-				{
-					new TheoryDataRow(42),
-					new TheoryDataRow(2112)
-				};
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+				new(
+					new[]
+					{
+						new TheoryDataRow(42),
+						new TheoryDataRow(2112)
+					}
+				);
 		}
 
 		class ClassWithCustomDataWithInternalDataCtor
@@ -1584,8 +1586,8 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
-				new[] { new TheoryDataRow(new object()) };
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+				new(new[] { new TheoryDataRow(new object()) });
 		}
 
 		[Fact]

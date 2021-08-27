@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -66,8 +67,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class EmptyTheoryDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
-			Array.Empty<ITheoryDataRow>();
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+			new(Array.Empty<ITheoryDataRow>());
 	}
 
 	class EmptyTheoryDataClass
@@ -77,14 +78,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
+	public async void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<MultipleDataClass>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute).ToList();
+		var testCases = (await discoverer.Discover(discoveryOptions, testMethod, factAttribute)).ToList();
 
 		Assert.Equal(2, testCases.Count);
 		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 42)");
@@ -92,14 +93,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTestCase()
+	public async void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTestCase()
 	{
 		discoveryOptions.SetPreEnumerateTheories(false);
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<MultipleDataClass>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -108,12 +109,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class MultipleDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) =>
-			new[]
-			{
-				new TheoryDataRow(42),
-				new TheoryDataRow(2112)
-			};
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+			new(
+				new[]
+				{
+					new TheoryDataRow(42),
+					new TheoryDataRow(2112)
+				}
+			);
 	}
 
 	class MultipleDataClass
@@ -123,14 +126,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
+	public async void DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<MultipleDataClassSkipped>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute).ToList();
+		var testCases = (await discoverer.Discover(discoveryOptions, testMethod, factAttribute)).ToList();
 
 		Assert.Equal(2, testCases.Count);
 		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 42)" && testCase.SkipReason == "Skip this attribute");
@@ -144,13 +147,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void ThrowingData()
+	public async void ThrowingData()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ThrowingDataClass>("TheoryWithMisbehavingData");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -162,7 +165,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class ThrowingDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo method)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo method)
 		{
 			throw new DivideByZeroException();
 		}
@@ -175,14 +178,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DataDiscovererReturningNullYieldsSingleTheoryTestCase()
+	public async void DataDiscovererReturningNullYieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var theoryAttribute = Mocks.TheoryAttribute();
 		var dataAttribute = Mocks.DataAttribute();
 		var testMethod = Mocks.TestMethod("MockTheoryType", "MockTheoryMethod", methodAttributes: new[] { theoryAttribute, dataAttribute });
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, theoryAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, theoryAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -190,13 +193,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void NonSerializableDataYieldsSingleTheoryTestCase()
+	public async void NonSerializableDataYieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<NonSerializableDataClass>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -208,12 +211,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class NonSerializableDataAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo method) =>
-			new[]
-			{
-				new TheoryDataRow(42),
-				new TheoryDataRow(new NonSerializableDataAttribute())
-			};
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo method) =>
+			new(
+				new[]
+				{
+					new TheoryDataRow(42),
+					new TheoryDataRow(new NonSerializableDataAttribute())
+				}
+			);
 	}
 
 	class NonSerializableDataClass
@@ -242,7 +247,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
 	public class NoSuchDataDiscovererAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			throw new NotImplementedException();
 		}
@@ -268,20 +273,20 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer(typeof(TheoryDiscovererTests))]
 	public class NotADataDiscovererAttribute : DataAttribute
 	{
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			throw new NotImplementedException();
 		}
 	}
 
 	[Fact]
-	public void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
+	public async void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -300,13 +305,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
+	public async void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -325,13 +330,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
+	public async void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>("TheoryMethod");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -386,13 +391,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
+	public async void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassWithExplicitConvertedData>("ParameterDeclaredExplicitConversion");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
@@ -443,13 +448,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void CanSkipFromTheoryDataRow_Preenumerated()
+	public async void CanSkipFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>("TestWithSomeSkippedTheoryRows");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		Assert.Collection(
 			testCases.OrderBy(tc => tc.DisplayName),
@@ -488,13 +493,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void CanAddTraitsFromTheoryDataRow_Preenumerated()
+	public async void CanAddTraitsFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>("TestWithTraits");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		Assert.Collection(
 			testCases.OrderBy(tc => tc.DisplayName),
@@ -584,13 +589,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
+	public async void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>("TestWithDisplayName");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-		var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		Assert.Collection(
 			testCases.OrderBy(tc => tc.DisplayName),

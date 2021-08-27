@@ -29,7 +29,7 @@ public class FactDiscovererTests
 		var discoverer = TestableFactDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithNoParameters");
 
-		var testCases = discoverer.Discover(options, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
@@ -42,7 +42,7 @@ public class FactDiscovererTests
 		var discoverer = TestableFactDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithParameters");
 
-		var testCases = discoverer.Discover(options, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
@@ -57,7 +57,7 @@ public class FactDiscovererTests
 		var discoverer = TestableFactDiscoverer.Create();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("GenericFact");
 
-		var testCases = discoverer.Discover(options, testMethod, factAttribute);
+		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);

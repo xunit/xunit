@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -16,9 +17,8 @@ namespace Xunit.Sdk
 		/// Returns the data to be used to test the theory.
 		/// </summary>
 		/// <remarks>
-		/// This will be called during
-		/// discovery, at which point the <paramref name="testMethod"/> may or may not
-		/// be backed by reflection (i.e., implementing <see cref="_IReflectionMethodInfo"/>).
+		/// This will be called during discovery, at which point the <paramref name="testMethod"/> may or
+		/// may not be backed by reflection (i.e., implementing <see cref="_IReflectionMethodInfo"/>).
 		/// If the data is not available because reflection is required, then you may return
 		/// <c>null</c> to inform xUnit that the quantity of data is unknown at this point.
 		/// When the tests are run, if you returned back <c>null</c> during discovery, then this
@@ -30,7 +30,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The method that is being tested/discovered</param>
 		/// <returns>The theory data (or null during discovery, if not enough
 		/// information is available to enumerate the data)</returns>
-		IReadOnlyCollection<ITheoryDataRow>? GetData(
+		ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod
 		);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -29,15 +30,15 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			var classInstance = Activator.CreateInstance(Class);
 
 			if (classInstance is IEnumerable<ITheoryDataRow> dataRows)
-				return dataRows.CastOrToReadOnlyCollection();
+				return new(dataRows.CastOrToReadOnlyCollection());
 
 			if (classInstance is IEnumerable<object?[]> data)
-				return data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection();
+				return new(data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection());
 
 			throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object?[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType?.FullName}");
 		}

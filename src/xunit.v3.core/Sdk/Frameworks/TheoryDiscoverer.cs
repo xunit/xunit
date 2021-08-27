@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -37,7 +38,7 @@ namespace Xunit.Sdk
 		/// <param name="traits">The traits associated with the test case.</param>
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <returns>The test cases</returns>
-		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForDataRow(
+		protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -55,7 +56,7 @@ namespace Xunit.Sdk
 				displayName: displayName
 			);
 
-			return new[] { testCase };
+			return new(new[] { testCase });
 		}
 
 		/// <summary>
@@ -72,7 +73,7 @@ namespace Xunit.Sdk
 		/// <param name="dataRow">The row of data for this test case.</param>
 		/// <param name="skipReason">The reason this test case is to be skipped</param>
 		/// <returns>The test cases</returns>
-		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkippedDataRow(
+		protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForSkippedDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -92,7 +93,7 @@ namespace Xunit.Sdk
 				displayName: displayName
 			);
 
-			return new[] { testCase };
+			return new(new[] { testCase });
 		}
 
 		/// <summary>
@@ -104,7 +105,7 @@ namespace Xunit.Sdk
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
 		/// <returns>The test cases</returns>
-		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForSkippedTheory(
+		protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForSkippedTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute,
@@ -118,7 +119,7 @@ namespace Xunit.Sdk
 				testMethod
 			);
 
-			return new[] { testCase };
+			return new(new[] { testCase });
 		}
 
 		/// <summary>
@@ -131,7 +132,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>The test case</returns>
-		protected virtual IReadOnlyCollection<IXunitTestCase> CreateTestCasesForTheory(
+		protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
@@ -143,7 +144,7 @@ namespace Xunit.Sdk
 				testMethod
 			);
 
-			return new[] { testCase };
+			return new(new[] { testCase });
 		}
 
 		/// <summary>
@@ -160,7 +161,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
-		public virtual IReadOnlyCollection<IXunitTestCase> Discover(
+		public virtual async ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
@@ -173,7 +174,7 @@ namespace Xunit.Sdk
 			// not actually have any data (which is quasi-legal, since it's skipped).
 			var skipReason = theoryAttribute.GetNamedArgument<string>("Skip");
 			if (skipReason != null)
-				return CreateTestCasesForSkippedTheory(discoveryOptions, testMethod, theoryAttribute, skipReason);
+				return await CreateTestCasesForSkippedTheory(discoveryOptions, testMethod, theoryAttribute, skipReason);
 
 			var preEnumerate =
 				discoveryOptions.PreEnumerateTheoriesOrDefault()
@@ -249,9 +250,9 @@ namespace Xunit.Sdk
 						skipReason = dataAttribute.GetNamedArgument<string>("Skip");
 
 						if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
-							return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+							return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 
-						var data = discoverer.GetData(dataAttribute, testMethod.Method);
+						var data = await discoverer.GetData(dataAttribute, testMethod.Method);
 						if (data == null)
 						{
 							results.Add(
@@ -290,7 +291,7 @@ namespace Xunit.Sdk
 										.ToList();
 
 								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data (one or more of: {string.Join(", ", typeNames)}) found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
-								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+								return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 
 							try
@@ -300,12 +301,12 @@ namespace Xunit.Sdk
 										? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData, dataRowSkipReason)
 										: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData);
 
-								results.AddRange(testCases);
+								results.AddRange(await testCases);
 							}
 							catch (Exception ex)
 							{
 								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Error creating theory test case for for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case. Exception message: '{ex.Message}'" });
-								return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+								return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 						}
 					}
@@ -329,7 +330,7 @@ namespace Xunit.Sdk
 				}
 			}
 
-			return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+			return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 		}
 	}
 }

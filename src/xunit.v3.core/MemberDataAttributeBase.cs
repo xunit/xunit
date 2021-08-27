@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -52,13 +53,13 @@ namespace Xunit
 		public object?[] Parameters { get; }
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<ITheoryDataRow>? GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull("testMethod", testMethod);
 
 			var type = MemberType ?? testMethod.DeclaringType;
 			if (type == null)
-				return null;
+				return new(default(IReadOnlyCollection<ITheoryDataRow>));
 
 			var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
 			if (accessor == null)
@@ -68,17 +69,19 @@ namespace Xunit
 			}
 
 			var obj = accessor();
-			if (obj == null)
-				return null;
+			if (obj is null)
+				return new(default(IReadOnlyCollection<ITheoryDataRow>));
 
-			if (!(obj is IEnumerable dataItems))
+			if (obj is not IEnumerable dataItems)
 				throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
 
-			return
+			var result =
 				dataItems
 					.Cast<object?>()
 					.Select(item => ConvertDataItem(testMethod, item))
 					.CastOrToReadOnlyCollection();
+
+			return new(result);
 		}
 
 		/// <summary>
