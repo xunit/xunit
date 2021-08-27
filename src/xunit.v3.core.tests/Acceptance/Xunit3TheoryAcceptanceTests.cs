@@ -858,55 +858,6 @@ public class Xunit3TheoryAcceptanceTests
 	public class FieldDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void RunsForEachDataElement()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithSelfFieldData));
-
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
-		}
-
-		class ClassWithSelfFieldData
-		{
-			public static IEnumerable<object?[]> DataSource = new[] {
-				new object?[] { 42, 21.12, "Hello, world!" },
-				new object?[] { 0, 0.0, null }
-			};
-
-			[Theory]
-			[MemberData("DataSource")]
-			public void TestViaFieldData(int x, double y, string z)
-			{
-				Assert.NotNull(z);
-			}
-		}
-
-		[Fact]
-		public async void CanUseFieldDataFromOtherClass()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithImportedFieldData));
-
-			Assert.Single(testMessages.OfType<_TestPassed>());
-			Assert.Single(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
-		}
-
-		class ClassWithImportedFieldData
-		{
-			[Theory]
-			[MemberData("DataSource", MemberType = typeof(ClassWithSelfFieldData))]
-			public void TestViaFieldData(int x, double y, string z)
-			{
-				Assert.NotNull(z);
-			}
-		}
-
-		[Fact]
 		public async void NonStaticFieldDataThrows()
 		{
 			var testMessages = await RunAsync(typeof(ClassWithNonStaticFieldData));
@@ -927,26 +878,152 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestViaFieldData(int x, double y, string z) { }
 		}
 
-		[Fact]
-		public async void CanUseFieldDataFromBaseType()
+		public class IEnumerableObjectArray : AcceptanceTestV3
 		{
-			var testMessages = await RunAsync(typeof(ClassWithBaseClassData));
+			[Fact]
+			public async void DataOnSelf()
+			{
+				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
 
-			var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithBaseClassData.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
+				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			}
+
+			class ClassUnderTest_DataOnSelf
+			{
+				public static IEnumerable<object?[]> DataSource = new[] {
+					new object?[] { 42, 21.12, "Hello, world!" },
+					new object?[] { 0, 0.0, null }
+				};
+
+				[Theory]
+				[MemberData("DataSource")]
+				public void TestViaFieldData(int x, double y, string z)
+				{
+					Assert.NotNull(z);
+				}
+			}
+
+			[Fact]
+			public async void DataOnOtherClass()
+			{
+				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
+
+				Assert.Single(testMessages.OfType<_TestPassed>());
+				Assert.Single(testMessages.OfType<_TestFailed>());
+				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			}
+
+			class ClassUnderTest_DataOnOtherClass
+			{
+				[Theory]
+				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
+				public void TestViaFieldData(int x, double y, string z)
+				{
+					Assert.NotNull(z);
+				}
+			}
+
+			[Fact]
+			public async void DataOnBaseClass()
+			{
+				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
+
+				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
+				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+			}
+
+			class BaseClass
+			{
+				public static IEnumerable<object?[]> DataSource = new[] { new object?[] { 42 } };
+			}
+
+			class ClassUnderTest_DataOnBaseClass : BaseClass
+			{
+				[Theory]
+				[MemberData("DataSource")]
+				public void TestViaFieldData(int x) { }
+			}
 		}
 
-		class BaseClass
+		public class IEnumerableITheoryDataRow : AcceptanceTestV3
 		{
-			public static IEnumerable<object?[]> DataSource = new[] { new object?[] { 42 } };
-		}
+			[Fact]
+			public async void DataOnSelf()
+			{
+				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
 
-		class ClassWithBaseClassData : BaseClass
-		{
-			[Theory]
-			[MemberData("DataSource")]
-			public void TestViaFieldData(int x) { }
+				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
+				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			}
+
+			class ClassUnderTest_DataOnSelf
+			{
+				public static IEnumerable<ITheoryDataRow> DataSource = new[] {
+					new TheoryDataRow(42, 21.12, "Hello, world!"),
+					new TheoryDataRow(0, 0.0, null)
+				};
+
+				[Theory]
+				[MemberData("DataSource")]
+				public void TestViaFieldData(int x, double y, string z)
+				{
+					Assert.NotNull(z);
+				}
+			}
+
+			[Fact]
+			public async void DataOnOtherClass()
+			{
+				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
+
+				Assert.Single(testMessages.OfType<_TestPassed>());
+				Assert.Single(testMessages.OfType<_TestFailed>());
+				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			}
+
+			class ClassUnderTest_DataOnOtherClass
+			{
+				[Theory]
+				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
+				public void TestViaFieldData(int x, double y, string z)
+				{
+					Assert.NotNull(z);
+				}
+			}
+
+			[Fact]
+			public async void DataOnBaseClass()
+			{
+				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
+
+				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
+				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+			}
+
+			class BaseClass
+			{
+				public static IEnumerable<ITheoryDataRow> DataSource = new[] { new TheoryDataRow(42) };
+			}
+
+			class ClassUnderTest_DataOnBaseClass : BaseClass
+			{
+				[Theory]
+				[MemberData("DataSource")]
+				public void TestViaFieldData(int x) { }
+			}
 		}
 	}
 
