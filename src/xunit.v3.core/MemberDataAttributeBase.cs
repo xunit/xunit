@@ -90,6 +90,8 @@ namespace Xunit
 		{
 			if (returnValue is Task<IEnumerable<object[]>> returnValueTaskObjectArray)
 				returnValue = await returnValueTaskObjectArray;
+			else if (returnValue is Task<IEnumerable<ITheoryDataRow>> returnValueTaskTheoryDataRow)
+				returnValue = await returnValueTaskTheoryDataRow;
 
 			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
 			{
@@ -112,6 +114,7 @@ namespace Xunit
 			throw new ArgumentException(
 				$"Member '{MemberName}' on '{type.FullName}' must return data in one of the following formats:" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
