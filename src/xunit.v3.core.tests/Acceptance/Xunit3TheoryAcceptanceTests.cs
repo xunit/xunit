@@ -649,7 +649,7 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(int z) { }
 		}
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable))]
 		[InlineData(typeof(ClassUnderTest_IEnumerable))]
 		public async ValueTask AcceptanceTest(Type classUnderTest)
@@ -1076,7 +1076,7 @@ public class Xunit3TheoryAcceptanceTests
 			public void PropertyTestMethod(int x) { }
 		}
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable))]
 		[InlineData(typeof(ClassUnderTest_IEnumerable))]
 		[InlineData(typeof(ClassUnderTest_TaskOfIAsyncEnumerable))]
