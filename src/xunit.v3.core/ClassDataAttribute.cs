@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -30,15 +30,22 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
+		protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item) =>
+			base.ConvertDataItem(testMethod, item)
+				?? throw new ArgumentException($"Class '{Class.FullName}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
+
+		/// <inheritdoc/>
 		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			var classInstance = Activator.CreateInstance(Class);
 
-			if (classInstance is IEnumerable<ITheoryDataRow> dataRows)
-				return new(dataRows.CastOrToReadOnlyCollection());
-
-			if (classInstance is IEnumerable<object?[]> data)
-				return new(data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection());
+			if (classInstance is IEnumerable dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				foreach (var dataItem in dataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return new(result.CastOrToReadOnlyCollection());
+			}
 
 			return GetDataAsync(classInstance, testMethod);
 		}
@@ -48,19 +55,11 @@ namespace Xunit
 			object? classInstance,
 			MethodInfo testMethod)
 		{
-			if (classInstance is IAsyncEnumerable<ITheoryDataRow> dataRows)
+			if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
 			{
 				var result = new List<ITheoryDataRow>();
-				await foreach (var dataItem in dataRows)
-					result.Add(dataItem);
-				return result.CastOrToReadOnlyCollection();
-			}
-
-			if (classInstance is IAsyncEnumerable<object?[]> data)
-			{
-				var result = new List<ITheoryDataRow>();
-				await foreach (var dataItem in data)
-					result.Add(new TheoryDataRow(dataItem));
+				await foreach (var dataItem in asyncDataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
 				return result.CastOrToReadOnlyCollection();
 			}
 

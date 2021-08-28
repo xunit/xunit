@@ -589,177 +589,141 @@ public class Xunit3TheoryAcceptanceTests
 	public class ClassDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void IEnumerableObjectArray()
+		public async ValueTask IncompatibleDataReturnType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest_IEnumerableObjectArray));
+			var testMessages = await RunAsync(typeof(ClassUnderTest_IncompatibleReturnType));
 
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
-		}
-
-		class ClassUnderTest_IEnumerableObjectArray
-		{
-			[Theory]
-			[ClassData(typeof(DataSource_IEnumerableObjectArray))]
-			public void TestMethod(int x, double y, string z)
-			{
-				Assert.NotNull(z);
-			}
-		}
-
-		class DataSource_IEnumerableObjectArray : IEnumerable<object?[]>
-		{
-			public IEnumerator<object?[]> GetEnumerator()
-			{
-				yield return new object?[] { 42, 21.12, "Hello, world!" };
-				yield return new object?[] { 0, 0.0, null };
-			}
-
-			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-		}
-
-		[Fact]
-		public async void IAsyncEnumerableObjectArray()
-		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest_IAsyncEnumerableObjectArray));
-
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
-		}
-
-		class ClassUnderTest_IAsyncEnumerableObjectArray
-		{
-			[Theory]
-			[ClassData(typeof(DataSource_IAsyncEnumerableObjectArray))]
-			public void TestMethod(int x, double y, string z)
-			{
-				Assert.NotNull(z);
-			}
-		}
-
-		class DataSource_IAsyncEnumerableObjectArray : IAsyncEnumerable<object?[]>
-		{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-			public async IAsyncEnumerator<object?[]> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-			{
-				yield return new object?[] { 42, 21.12, "Hello, world!" };
-				yield return new object?[] { 0, 0.0, null };
-			}
-#pragma warning restore CS1998
-		}
-
-		[Fact]
-		public async void IEnumerableITheoryRowData()
-		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest_IEnumerableITheoryRowData));
-
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
-			var skippedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestMethod(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
-			Assert.Equal("Do not run this", skipped.Reason);
-		}
-
-		class ClassUnderTest_IEnumerableITheoryRowData
-		{
-			[Theory]
-			[ClassData(typeof(DataSource_IEnumerableITheoryRowData))]
-			public void TestMethod(int x, double y, string z)
-			{
-				Assert.NotNull(z);
-			}
-		}
-
-		class DataSource_IEnumerableITheoryRowData : IEnumerable<ITheoryDataRow>
-		{
-			public IEnumerator<ITheoryDataRow> GetEnumerator()
-			{
-				yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-				yield return new TheoryDataRow(0, 0.0, null);
-				yield return new TheoryDataRow(16, 32.64, "skip") { Skip = "Do not run this" };
-			}
-
-			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-		}
-
-		[Fact]
-		public async void IAsyncEnumerableITheoryRowData()
-		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest_IAsyncEnumerableITheoryRowData));
-
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
-			var skippedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestMethod(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
-			Assert.Equal("Do not run this", skipped.Reason);
-		}
-
-		class ClassUnderTest_IAsyncEnumerableITheoryRowData
-		{
-			[Theory]
-			[ClassData(typeof(DataSource_IAsyncEnumerableITheoryRowData))]
-			public void TestMethod(int x, double y, string z)
-			{
-				Assert.NotNull(z);
-			}
-		}
-
-		class DataSource_IAsyncEnumerableITheoryRowData : IAsyncEnumerable<ITheoryDataRow>
-		{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-			public async IAsyncEnumerator<ITheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-			{
-				yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-				yield return new TheoryDataRow(0, 0.0, null);
-				yield return new TheoryDataRow(16, 32.64, "skip") { Skip = "Do not run this" };
-			}
-#pragma warning restore CS1998
-		}
-
-		[Fact]
-		public async void IncompatibleClass()
-		{
-			var testMessages = await RunAsync(typeof(ClassNotImplementingIEnumerable));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+			var result = Assert.Single(
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
+			);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType.TestMethod", result.DisplayName);
+			Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
 			Assert.Equal(
-				"'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable' must implement one of the following interfaces to be used as ClassData for the test method named 'TestMethod' on 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable':" + Environment.NewLine +
+				"'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleReturnType' must implement one of the following interfaces to be used as ClassData for the test method named 'TestMethod' on 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType':" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IAsyncEnumerable<object[]>",
-				failed.Messages.Single()
+				result.Failed.Messages.Single()
 			);
 		}
 
-		class ClassNotImplementingIEnumerable
+		class ClassWithIncompatibleReturnType { }
+
+		class ClassUnderTest_IncompatibleReturnType
 		{
 			[Theory]
-			[ClassData(typeof(ClassNotImplementingIEnumerable))]
-			public void TestMethod() { }
+			[ClassData(typeof(ClassWithIncompatibleReturnType))]
+			public void TestMethod(int z) { }
+		}
+
+		[Fact]
+		public async ValueTask IncompatibleDataValueType_Throws()
+		{
+			var testMessages = await RunAsync(typeof(ClassUnderTest_IncomptableValueData));
+
+			var results =
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName));
+			var result = Assert.Single(results);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncomptableValueData.TestMethod", result.DisplayName);
+			Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+			Assert.Equal("Class 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+		}
+
+		class ClassWithIncompatibleValueData : IEnumerable
+		{
+			public IEnumerator GetEnumerator()
+			{
+				yield return 42;
+			}
+		}
+
+		class ClassUnderTest_IncomptableValueData
+		{
+			[Theory]
+			[ClassData(typeof(ClassWithIncompatibleValueData))]
+			public void TestMethod(int z) { }
+		}
+
+		[Theory]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable))]
+		[InlineData(typeof(ClassUnderTest_IEnumerable))]
+		public async ValueTask AcceptanceTest(Type classUnderTest)
+		{
+			var testMessages = await RunAsync(classUnderTest);
+
+			var passed = Assert.Single(
+				testMessages
+					.OfType<_TestPassed>()
+					.Select(tp => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tp.TestUniqueID).TestDisplayName)
+			);
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\")", passed);
+
+			var failed = Assert.Single(
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName)
+			);
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\")", failed);
+
+			var skipped = Assert.Single(
+				testMessages
+					.OfType<_TestSkipped>()
+					.Select(ts => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == ts.TestUniqueID).TestDisplayName)
+			);
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\")", skipped);
+		}
+
+		class ClassDataSource
+		{
+			public static readonly object[] Data =
+				new object[]
+				{
+					new object?[] { "Hello from class source" },
+					new TheoryDataRow("Class source will fail"),
+					new TheoryDataRow("Class source would fail if I ran") { Skip = "Do not run" },
+				};
+		}
+
+		class DataSource_Enumerable : IEnumerable
+		{
+			public IEnumerator GetEnumerator() =>
+				ClassDataSource.Data.GetEnumerator();
+		}
+
+		class DataSource_AsyncEnumerable : IAsyncEnumerable<object?>
+		{
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+			public async IAsyncEnumerator<object?> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+			{
+				foreach (var dataValue in ClassDataSource.Data)
+					yield return dataValue;
+			}
+#pragma warning restore CS1998
+		}
+
+		class ClassUnderTest_IAsyncEnumerable
+		{
+			[Theory]
+			[ClassData(typeof(DataSource_AsyncEnumerable))]
+			public void TestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
+			}
+		}
+
+		class ClassUnderTest_IEnumerable
+		{
+			[Theory]
+			[ClassData(typeof(DataSource_Enumerable))]
+			public void TestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
+			}
 		}
 	}
 
