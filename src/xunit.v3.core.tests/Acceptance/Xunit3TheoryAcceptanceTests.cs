@@ -408,7 +408,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
 			var skippedStarting = Assert.Single(testMessages.OfType<_TestStarting>().Where(s => s.TestUniqueID == skipped.TestUniqueID));
-			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestViaInlineData", skippedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestMethod", skippedStarting.TestDisplayName);
 			Assert.Equal("Don't run this!", skipped.Reason);
 		}
 
@@ -417,7 +417,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory(Skip = "Don't run this!")]
 			[InlineData(42, 21.12, "Hello, world!")]
 			[InlineData(0, 0.0, null)]
-			public void TestViaInlineData(int x, double y, string z)
+			public void TestMethod(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -485,10 +485,10 @@ public class Xunit3TheoryAcceptanceTests
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -497,7 +497,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, 21.12, "Hello, world!")]
 			[InlineData(0, 0.0, null)]
-			public void TestViaInlineData(int x, double y, string z)
+			public void TestMethod(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -595,10 +595,10 @@ public class Xunit3TheoryAcceptanceTests
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableObjectArray.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -606,7 +606,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[ClassData(typeof(DataSource_IEnumerableObjectArray))]
-			public void TestViaClassData(int x, double y, string z)
+			public void TestMethod(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -630,10 +630,10 @@ public class Xunit3TheoryAcceptanceTests
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableObjectArray.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -641,7 +641,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[ClassData(typeof(DataSource_IAsyncEnumerableObjectArray))]
-			public void TestViaClassData(int x, double y, string z)
+			public void TestMethod(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -665,13 +665,13 @@ public class Xunit3TheoryAcceptanceTests
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
 			var skippedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestViaClassData(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IEnumerableITheoryRowData.TestMethod(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
 			Assert.Equal("Do not run this", skipped.Reason);
 		}
 
@@ -679,7 +679,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[ClassData(typeof(DataSource_IEnumerableITheoryRowData))]
-			public void TestViaClassData(int x, double y, string z)
+			public void TestMethod(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -704,13 +704,13 @@ public class Xunit3TheoryAcceptanceTests
 
 			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestViaClassData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
 			var skippedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == skipped.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestViaClassData(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IAsyncEnumerableITheoryRowData.TestMethod(x: 16, y: {32.64:G17}, z: \"skip\")", skippedStarting.TestDisplayName);
 			Assert.Equal("Do not run this", skipped.Reason);
 		}
 
@@ -718,7 +718,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[ClassData(typeof(DataSource_IAsyncEnumerableITheoryRowData))]
-			public void TestViaClassData(int x, double y, string z)
+			public void TestMethod(int x, double y, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -946,7 +946,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestViaFieldData", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestMethod", failedStarting.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData", failed.Messages.Single());
 		}
@@ -957,7 +957,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData("DataSource")]
-			public void TestViaFieldData(int x, double y, string z) { }
+			public void TestMethod(int x, double y, string z) { }
 		}
 
 		[Fact]
@@ -1026,10 +1026,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1042,7 +1042,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1062,7 +1062,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1075,7 +1075,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1087,7 +1087,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1100,10 +1100,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1116,7 +1116,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1136,7 +1136,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1149,7 +1149,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1161,7 +1161,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1174,10 +1174,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1195,7 +1195,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1215,7 +1215,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1228,7 +1228,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1247,7 +1247,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1260,10 +1260,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1281,7 +1281,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1301,7 +1301,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1314,7 +1314,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1333,7 +1333,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1346,10 +1346,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1362,7 +1362,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1382,7 +1382,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1395,7 +1395,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1407,7 +1407,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1420,10 +1420,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1436,7 +1436,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1456,7 +1456,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1469,7 +1469,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1481,7 +1481,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1494,10 +1494,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1515,7 +1515,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1535,7 +1535,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1548,7 +1548,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1567,7 +1567,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1580,10 +1580,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1601,7 +1601,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1621,7 +1621,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1634,7 +1634,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1653,7 +1653,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1666,10 +1666,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1682,7 +1682,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1702,7 +1702,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1715,7 +1715,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1727,7 +1727,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1740,10 +1740,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1756,7 +1756,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1776,7 +1776,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1789,7 +1789,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1801,7 +1801,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1814,10 +1814,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1835,7 +1835,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1855,7 +1855,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1868,7 +1868,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1887,7 +1887,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -1900,10 +1900,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -1921,7 +1921,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1941,7 +1941,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -1954,7 +1954,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -1973,7 +1973,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 	}
@@ -2853,10 +2853,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -2869,7 +2869,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -2889,7 +2889,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -2902,7 +2902,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -2914,7 +2914,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -2927,10 +2927,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -2943,7 +2943,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -2963,7 +2963,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -2976,7 +2976,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -2988,7 +2988,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3001,10 +3001,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3022,7 +3022,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3042,7 +3042,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3055,7 +3055,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3074,7 +3074,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3087,10 +3087,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3108,7 +3108,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3128,7 +3128,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3141,7 +3141,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3160,7 +3160,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 	}
@@ -3174,7 +3174,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestMethod", failedStarting.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Messages.Single());
 		}
@@ -3242,7 +3242,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData("DataSource")]
-			public void TestViaPropertyData(int x, double y, string z) { }
+			public void TestMethod(int x, double y, string z) { }
 		}
 
 		public class IEnumerableObjectArray : AcceptanceTestV3
@@ -3254,10 +3254,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3274,7 +3274,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3294,7 +3294,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3307,7 +3307,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3319,7 +3319,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3332,10 +3332,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3352,7 +3352,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3372,7 +3372,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3385,7 +3385,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3397,7 +3397,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3410,10 +3410,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3431,7 +3431,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3451,7 +3451,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3464,7 +3464,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3483,7 +3483,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3496,10 +3496,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3517,7 +3517,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3537,7 +3537,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3550,7 +3550,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3569,7 +3569,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3582,10 +3582,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3606,7 +3606,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3626,7 +3626,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3639,7 +3639,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3651,7 +3651,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3664,10 +3664,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3688,7 +3688,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3708,7 +3708,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3721,7 +3721,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3733,7 +3733,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3746,10 +3746,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3767,7 +3767,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3787,7 +3787,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3800,7 +3800,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3820,7 +3820,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3833,10 +3833,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaPropertyData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3854,7 +3854,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3874,7 +3874,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaPropertyData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3887,7 +3887,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaPropertyData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3907,7 +3907,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaPropertyData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3920,10 +3920,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -3936,7 +3936,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3956,7 +3956,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -3969,7 +3969,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -3981,7 +3981,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -3994,10 +3994,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -4010,7 +4010,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -4030,7 +4030,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -4043,7 +4043,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -4055,7 +4055,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -4068,10 +4068,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -4089,7 +4089,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -4109,7 +4109,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -4122,7 +4122,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -4141,7 +4141,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 
@@ -4154,10 +4154,10 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
+				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
 				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
 				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaFieldData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
 				Assert.Empty(testMessages.OfType<_TestSkipped>());
 			}
 
@@ -4175,7 +4175,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -4195,7 +4195,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaFieldData(int x, double y, string z)
+				public void TestMethod(int x, double y, string z)
 				{
 					Assert.NotNull(z);
 				}
@@ -4208,7 +4208,7 @@ public class Xunit3TheoryAcceptanceTests
 
 				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
 				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaFieldData(x: 42)", passedStarting.TestDisplayName);
+				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
 			}
 
 			class BaseClass
@@ -4227,7 +4227,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				[Theory]
 				[MemberData("DataSource")]
-				public void TestViaFieldData(int x) { }
+				public void TestMethod(int x) { }
 			}
 		}
 	}
@@ -4367,11 +4367,11 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
-			var equalStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == $"Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12:G17}, z: ClassUnderTest {{ }})");
+			var equalStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == $"Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: ClassUnderTest {{ }})");
 			var equalFailure = Assert.Single(testMessages.OfType<_TestFailed>(), msg => msg.TestUniqueID == equalStarting.TestUniqueID);
 			Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-			var notNullStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == "Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");
+			var notNullStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == "Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)");
 			var notNullFailure = Assert.Single(testMessages.OfType<_TestFailed>(), msg => msg.TestUniqueID == notNullStarting.TestUniqueID);
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
@@ -4389,7 +4389,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData("Data")]
-			public void TestViaInlineData(int x, double y, object z)
+			public void TestMethod(int x, double y, object z)
 			{
 				Assert.Equal(0, x); // Fails the first data item
 				Assert.NotNull(z);  // Fails the second data item
