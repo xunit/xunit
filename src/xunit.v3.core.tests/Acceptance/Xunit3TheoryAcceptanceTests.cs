@@ -656,26 +656,28 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(classUnderTest);
 
-			var passed = Assert.Single(
+			Assert.Collection(
 				testMessages
 					.OfType<_TestPassed>()
 					.Select(tp => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tp.TestUniqueID).TestDisplayName)
+					.OrderBy(x => x),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", passed),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", passed)
 			);
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\")", passed);
 
 			var failed = Assert.Single(
 				testMessages
 					.OfType<_TestFailed>()
 					.Select(tf => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName)
 			);
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\")", failed);
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", failed);
 
 			var skipped = Assert.Single(
 				testMessages
 					.OfType<_TestSkipped>()
 					.Select(ts => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == ts.TestUniqueID).TestDisplayName)
 			);
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\")", skipped);
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", skipped);
 		}
 
 		class ClassDataSource
@@ -683,9 +685,10 @@ public class Xunit3TheoryAcceptanceTests
 			public static readonly object[] Data =
 				new object[]
 				{
-					new object?[] { "Hello from class source" },
-					new TheoryDataRow("Class source will fail"),
-					new TheoryDataRow("Class source would fail if I ran") { Skip = "Do not run" },
+					new object?[] { "Hello from class source", 2600 },
+					Tuple.Create("Hello from Tuple", 42),
+					("Class source will fail", 2112),
+					new TheoryDataRow("Class source would fail if I ran", 96) { Skip = "Do not run" },
 				};
 		}
 
@@ -710,7 +713,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[ClassData(typeof(DataSource_AsyncEnumerable))]
-			public void TestMethod(string z)
+			public void TestMethod(string z, int _)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
@@ -720,7 +723,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[ClassData(typeof(DataSource_Enumerable))]
-			public void TestMethod(string z)
+			public void TestMethod(string z, int _)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
@@ -1137,7 +1140,7 @@ public class Xunit3TheoryAcceptanceTests
 				new object[]
 				{
 					new object?[] { "Hello from base" },
-					new TheoryDataRow("Base will fail"),
+					Tuple.Create("Base will fail"),
 					new TheoryDataRow("Base would fail if I ran") { Skip = "Do not run" },
 				};
 			static readonly IAsyncEnumerable<object?> baseDataAsync = baseData.ToAsyncEnumerable();
@@ -1146,7 +1149,7 @@ public class Xunit3TheoryAcceptanceTests
 				new object[]
 				{
 					new object?[] { "Hello, world!" },
-					new TheoryDataRow("I will fail"),
+					Tuple.Create("I will fail"),
 					new TheoryDataRow("I would fail if I ran") { Skip = "Do not run" },
 				};
 			protected static readonly IAsyncEnumerable<object?> dataAsync = data.ToAsyncEnumerable();
@@ -1182,7 +1185,7 @@ public class Xunit3TheoryAcceptanceTests
 				new object[]
 				{
 					new object?[] { "Hello from other source" },
-					new TheoryDataRow("Other source will fail"),
+					Tuple.Create("Other source will fail"),
 					new TheoryDataRow("Other source would fail if I ran") { Skip = "Do not run" },
 				};
 			static readonly IAsyncEnumerable<object> dataAsync = data.ToAsyncEnumerable();

@@ -15,6 +15,20 @@ namespace Xunit.Sdk
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 	public abstract class DataAttribute : Attribute
 	{
+		static readonly MethodInfo? tupleIndexerGetter;
+		static readonly MethodInfo? tupleLengthGetter;
+		static readonly Type? tupleType;
+
+		static DataAttribute()
+		{
+			tupleType = Type.GetType("System.Runtime.CompilerServices.ITuple");
+			if (tupleType == null)
+				return;
+
+			tupleIndexerGetter = tupleType.GetProperty("Item")?.GetMethod;
+			tupleLengthGetter = tupleType.GetProperty("Length")?.GetMethod;
+		}
+
 		/// <summary>
 		/// Converts an item yielded by the data member to an object array, for return from <see cref="GetData"/>.
 		/// Items yielded will typically be <see cref="T:object[]"/> or <see cref="ITheoryDataRow"/>, but this
@@ -40,6 +54,22 @@ namespace Xunit.Sdk
 
 			if (item is object?[] array)
 				return new TheoryDataRow(array);
+
+			if (tupleType != null && tupleIndexerGetter != null && tupleLengthGetter != null)
+			{
+				if (tupleType.IsAssignableFrom(item.GetType()))
+				{
+					var countObj = tupleLengthGetter.Invoke(item, null);
+					if (countObj != null)
+					{
+						var count = (int)countObj;
+						var data = new object?[count];
+						for (var idx = 0; idx < count; ++idx)
+							data[idx] = tupleIndexerGetter.Invoke(item, new object[] { idx });
+						return new TheoryDataRow(data);
+					}
+				}
+			}
 
 			return null;
 		}
