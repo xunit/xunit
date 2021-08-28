@@ -53,6 +53,11 @@ namespace Xunit
 		public object?[] Parameters { get; }
 
 		/// <inheritdoc/>
+		protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item) =>
+			base.ConvertDataItem(testMethod, item)
+				?? throw new ArgumentException($"Member '{MemberName}' on '{MemberType ?? testMethod.DeclaringType}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
+
+		/// <inheritdoc/>
 		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull("testMethod", testMethod);
@@ -88,22 +93,9 @@ namespace Xunit
 			MethodInfo testMethod,
 			Type type)
 		{
-			if (returnValue is Task<IEnumerable<object[]>> returnValueTaskObjectArray)
-				returnValue = await returnValueTaskObjectArray;
-			else if (returnValue is Task<IEnumerable<ITheoryDataRow>> returnValueTaskTheoryDataRow)
-				returnValue = await returnValueTaskTheoryDataRow;
-			else if (returnValue is Task<IAsyncEnumerable<object[]>> returnValueTaskAsyncObjectArray)
-				returnValue = await returnValueTaskAsyncObjectArray;
-			else if (returnValue is Task<IAsyncEnumerable<ITheoryDataRow>> returnValueTaskAsyncTheoryDataRow)
-				returnValue = await returnValueTaskAsyncTheoryDataRow;
-			else if (returnValue is ValueTask<IEnumerable<object[]>> returnValueValueTaskObjectArray)
-				returnValue = await returnValueValueTaskObjectArray;
-			else if (returnValue is ValueTask<IEnumerable<ITheoryDataRow>> returnValueValueTaskTheoryDataRow)
-				returnValue = await returnValueValueTaskTheoryDataRow;
-			else if (returnValue is ValueTask<IAsyncEnumerable<object[]>> returnValueValueTaskAsyncObjectArray)
-				returnValue = await returnValueValueTaskAsyncObjectArray;
-			else if (returnValue is ValueTask<IAsyncEnumerable<ITheoryDataRow>> returnValueValueTaskAsyncTheoryDataRow)
-				returnValue = await returnValueValueTaskAsyncTheoryDataRow;
+			var taskAwaitable = returnValue.AsTask();
+			if (taskAwaitable != null)
+				returnValue = await taskAwaitable;
 
 			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
 			{
@@ -138,33 +130,6 @@ namespace Xunit
 				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
 				"- ValueTask<IAsyncEnumerable<object[]>>"
 			);
-		}
-
-		/// <summary>
-		/// Converts an item yielded by the data member to an object array, for return from <see cref="GetData"/>.
-		/// Items yielded will typically be <see cref="T:object[]"/> or <see cref="ITheoryDataRow"/>, but this
-		/// override will allow derived types to support additional data items. Also will return an empty
-		/// theory data row when <paramref name="item"/> is <c>null</c>.
-		/// </summary>
-		/// <param name="testMethod">The method that is being tested.</param>
-		/// <param name="item">An item yielded from the data member.</param>
-		/// <returns>An <see cref="ITheoryDataRow"/> suitable for return from <see cref="GetData"/>.</returns>
-		protected virtual ITheoryDataRow ConvertDataItem(
-			MethodInfo testMethod,
-			object? item)
-		{
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
-
-			if (item == null)
-				return new TheoryDataRow();
-
-			if (item is ITheoryDataRow dataRow)
-				return dataRow;
-
-			if (item is object?[] array)
-				return new TheoryDataRow(array);
-
-			throw new ArgumentException($"Member '{MemberName}' on '{MemberType ?? testMethod.DeclaringType}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
 		}
 
 		Func<object?>? GetFieldAccessor(Type? type)

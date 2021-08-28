@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Xunit.Internal;
 
 namespace Xunit.Sdk
 {
@@ -14,6 +15,35 @@ namespace Xunit.Sdk
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 	public abstract class DataAttribute : Attribute
 	{
+		/// <summary>
+		/// Converts an item yielded by the data member to an object array, for return from <see cref="GetData"/>.
+		/// Items yielded will typically be <see cref="T:object[]"/> or <see cref="ITheoryDataRow"/>, but this
+		/// override will allow derived types to support additional data items. Also will return an empty
+		/// theory data row when <paramref name="item"/> is <c>null</c>. If the data item cannot be converted,
+		/// this method returns <c>null</c>.
+		/// </summary>
+		/// <param name="testMethod">The method that is being tested.</param>
+		/// <param name="item">An item yielded from the data member.</param>
+		/// <returns>An <see cref="ITheoryDataRow"/> suitable for return from <see cref="GetData"/>, or <c>null</c>
+		/// if the data item is not compatible with <see cref="ITheoryDataRow"/>.</returns>
+		protected virtual ITheoryDataRow? ConvertDataItem(
+			MethodInfo testMethod,
+			object? item)
+		{
+			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+
+			if (item == null)
+				return new TheoryDataRow();
+
+			if (item is ITheoryDataRow dataRow)
+				return dataRow;
+
+			if (item is object?[] array)
+				return new TheoryDataRow(array);
+
+			return null;
+		}
+
 		/// <summary>
 		/// Returns the data to be used to test the theory.
 		/// </summary>

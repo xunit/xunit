@@ -937,40 +937,66 @@ public class Xunit3TheoryAcceptanceTests
 		}
 	}
 
-	public class FieldDataTests : AcceptanceTestV3
+	public class MemberDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void NonStaticFieldDataThrows()
+		public async ValueTask NonStaticData_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithNonStaticFieldData));
+			var testMessages = await RunAsync(typeof(ClassWithNonStaticData));
 
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData", failed.Messages.Single());
+			Assert.Collection(
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
+					.OrderBy(x => x.DisplayName),
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.FieldTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'FieldDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Failed.Messages.Single());
+				},
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.MethodTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'MethodDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Failed.Messages.Single());
+				},
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.PropertyTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'PropertyDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Failed.Messages.Single());
+				}
+			);
 		}
 
-		class ClassWithNonStaticFieldData
+		class ClassWithNonStaticData
 		{
-			public IEnumerable<object?[]>? DataSource = null;
+			public IEnumerable<object?[]>? FieldDataSource = null;
+
+			public IEnumerable<object?[]>? MethodDataSource() => null;
+
+			public IEnumerable<object?[]>? PropertyDataSource => null;
 
 			[Theory]
-			[MemberData("DataSource")]
-			public void TestMethod(int x, double y, string z) { }
+			[MemberData(nameof(FieldDataSource))]
+			public void FieldTestMethod(int x, double y, string z) { }
+
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			public void MethodTestMethod(int x, double y, string z) { }
+
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			public void PropertyTestMethod(int x, double y, string z) { }
 		}
 
 		[Fact]
-		public async void IncompatibleField()
+		public async ValueTask IncompatibleDataReturnType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleField));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleField.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal(
-				"Member 'IncompatibleField' on 'Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleField' must return data in one of the following formats:" + Environment.NewLine +
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleReturnType));
+			var exceptionEpilogue =
+				" must return data in one of the following formats:" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
@@ -982,1082 +1008,453 @@ public class Xunit3TheoryAcceptanceTests
 				"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
-				"- ValueTask<IAsyncEnumerable<object[]>>",
-				failed.Messages.Single()
+				"- ValueTask<IAsyncEnumerable<object[]>>";
+
+			Assert.Collection(
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
+					.OrderBy(x => x.DisplayName),
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.FieldTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleField' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Failed.Messages.Single());
+				},
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.MethodTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleMethod' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Failed.Messages.Single());
+				},
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.PropertyTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleProperty' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Failed.Messages.Single());
+				}
 			);
 		}
 
-		class ClassWithIncompatibleField
+		class ClassWithIncompatibleReturnType
 		{
 			public static int IncompatibleField = 42;
 
+			public static int IncompatibleMethod() => 42;
+
+			public static int IncompatibleProperty => 42;
+
 			[Theory]
 			[MemberData(nameof(IncompatibleField))]
-			public void TestMethod(int x) { }
+			public void FieldTestMethod(int x) { }
+
+			[Theory]
+			[MemberData(nameof(IncompatibleMethod))]
+			public void MethodTestMethod(int x) { }
+
+			[Theory]
+			[MemberData(nameof(IncompatibleProperty))]
+			public void PropertyTestMethod(int x) { }
 		}
 
 		[Fact]
-		public async void IncompatibleFieldData()
+		public async ValueTask IncompatibleDataValueType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleFieldData));
+			var testMessages = await RunAsync(typeof(ClassWithIncompatibleValueData));
 
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleFieldData.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+FieldDataTests+ClassWithIncompatibleFieldData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", failed.Messages.Single());
+			Assert.Collection(
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
+					.OrderBy(x => x.DisplayName),
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.FieldTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+				},
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.MethodTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+				},
+				result =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.PropertyTestMethod", result.DisplayName);
+					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+				}
+			);
 		}
 
-		class ClassWithIncompatibleFieldData
+		class ClassWithIncompatibleValueData
 		{
 			public static IEnumerable<int> IncompatibleFieldData = new[] { 42 };
 
+			public static IEnumerable<int> IncompatibleMethodData() => new[] { 42 };
+
+			public static IEnumerable<int> IncompatiblePropertyData => new[] { 42 };
+
 			[Theory]
 			[MemberData(nameof(IncompatibleFieldData))]
-			public void TestMethod(int x) { }
+			public void FieldTestMethod(int x) { }
+
+			[Theory]
+			[MemberData(nameof(IncompatibleMethodData))]
+			public void MethodTestMethod(int x) { }
+
+			[Theory]
+			[MemberData(nameof(IncompatiblePropertyData))]
+			public void PropertyTestMethod(int x) { }
 		}
 
-		public class IEnumerableObjectArray : AcceptanceTestV3
+		[Theory]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable))]
+		[InlineData(typeof(ClassUnderTest_IEnumerable))]
+		[InlineData(typeof(ClassUnderTest_TaskOfIAsyncEnumerable))]
+		[InlineData(typeof(ClassUnderTest_TaskOfIEnumerable))]
+		[InlineData(typeof(ClassUnderTest_ValueTaskOfIAsyncEnumerable))]
+		[InlineData(typeof(ClassUnderTest_ValueTaskOfIEnumerable))]
+		public async ValueTask AcceptanceTest(Type classUnderTest)
 		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
+			var testMessages = await RunAsync(classUnderTest);
 
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
+			Assert.Collection(
+				testMessages
+					.OfType<_TestPassed>()
+					.Select(tp => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tp.TestUniqueID).TestDisplayName)
+					.OrderBy(x => x),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Hello from base\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Hello from other source\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Hello, world!\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Hello from base\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Hello from other source\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Hello, world!\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Hello from base\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Hello from other source\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Hello, world!\")", displayName)
+			);
+			Assert.Collection(
+				testMessages
+					.OfType<_TestFailed>()
+					.Select(tf => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName)
+					.OrderBy(x => x),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Base will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"I will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Other source will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Base will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"I will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Other source will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Base will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"I will fail\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Other source will fail\")", displayName)
+			);
+			Assert.Collection(
+				testMessages
+					.OfType<_TestSkipped>()
+					.Select(ts => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == ts.TestUniqueID).TestDisplayName)
+					.OrderBy(x => x),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Base would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"I would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Other source would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Base would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"I would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.MethodTestMethod(z: \"Other source would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Base would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"I would fail if I ran\")", displayName),
+				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Other source would fail if I ran\")", displayName)
+			);
+		}
 
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IEnumerable<object?[]> DataSource = new[] {
-					new object?[] { 42, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
+		class DataBase
+		{
+			static readonly object?[] baseData =
+				new object[]
+				{
+					new object?[] { "Hello from base" },
+					new TheoryDataRow("Base will fail"),
+					new TheoryDataRow("Base would fail if I ran") { Skip = "Do not run" },
 				};
+			static readonly IAsyncEnumerable<object?> baseDataAsync = baseData.ToAsyncEnumerable();
 
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
+			protected static readonly object?[] data =
+				new object[]
 				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IEnumerable<object?[]> DataSource = new[] { new object?[] { 42 } };
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class IEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IEnumerable<ITheoryDataRow> DataSource = new[] {
-					new TheoryDataRow(42, 21.12, "Hello, world!"),
-					new TheoryDataRow(0, 0.0, null)
+					new object?[] { "Hello, world!" },
+					new TheoryDataRow("I will fail"),
+					new TheoryDataRow("I would fail if I ran") { Skip = "Do not run" },
 				};
+			protected static readonly IAsyncEnumerable<object?> dataAsync = data.ToAsyncEnumerable();
 
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
+			public static IAsyncEnumerable<object?> AsyncEnumerable_FieldBaseDataSource = baseDataAsync;
+			public static IAsyncEnumerable<object?> AsyncEnumerable_MethodBaseDataSource() => baseDataAsync;
+			public static IAsyncEnumerable<object?> AsyncEnumerable_PropertyBaseDataSource => baseDataAsync;
+
+			public static IEnumerable Enumerable_FieldBaseDataSource = baseData;
+			public static IEnumerable Enumerable_MethodBaseDataSource() => baseData;
+			public static IEnumerable Enumerable_PropertyBaseDataSource => baseData;
+
+			public static Task<IAsyncEnumerable<object?>> TaskOfAsyncEnumerable_FieldBaseDataSource = Task.FromResult(baseDataAsync);
+			public static Task<IAsyncEnumerable<object?>> TaskOfAsyncEnumerable_MethodBaseDataSource() => Task.FromResult(baseDataAsync);
+			public static Task<IAsyncEnumerable<object?>> TaskOfAsyncEnumerable_PropertyBaseDataSource => Task.FromResult(baseDataAsync);
+
+			public static Task<IEnumerable> TaskOfEnumerable_FieldBaseDataSource = Task.FromResult<IEnumerable>(baseData);
+			public static Task<IEnumerable> TaskOfEnumerable_MethodBaseDataSource() => Task.FromResult<IEnumerable>(baseData);
+			public static Task<IEnumerable> TaskOfEnumerable_PropertyBaseDataSource => Task.FromResult<IEnumerable>(baseData);
+
+			public static ValueTask<IAsyncEnumerable<object?>> ValueTaskOfAsyncEnumerable_FieldBaseDataSource = new(baseDataAsync);
+			public static ValueTask<IAsyncEnumerable<object?>> ValueTaskOfAsyncEnumerable_MethodBaseDataSource() => new(baseDataAsync);
+			public static ValueTask<IAsyncEnumerable<object?>> ValueTaskOfAsyncEnumerable_PropertyBaseDataSource => new(baseDataAsync);
+
+			public static ValueTask<IEnumerable> ValueTaskOfEnumerable_FieldBaseDataSource = new(baseData);
+			public static ValueTask<IEnumerable> ValueTaskOfEnumerable_MethodBaseDataSource() => new(baseData);
+			public static ValueTask<IEnumerable> ValueTaskOfEnumerable_PropertyBaseDataSource => new(baseData);
+		}
+
+		class OtherDataSource
+		{
+			static readonly object[] data =
+				new object[]
 				{
-					Assert.NotNull(z);
-				}
+					new object?[] { "Hello from other source" },
+					new TheoryDataRow("Other source will fail"),
+					new TheoryDataRow("Other source would fail if I ran") { Skip = "Do not run" },
+				};
+			static readonly IAsyncEnumerable<object> dataAsync = data.ToAsyncEnumerable();
+
+			public static IAsyncEnumerable<object> AsyncEnumerable_FieldOtherDataSource = dataAsync;
+			public static IAsyncEnumerable<object> AsyncEnumerable_MethodOtherDataSource() => dataAsync;
+			public static IAsyncEnumerable<object> AsyncEnumerable_PropertyOtherDataSource => dataAsync;
+
+			public static IEnumerable Enumerable_FieldOtherDataSource = data;
+			public static IEnumerable Enumerable_MethodOtherDataSource() => data;
+			public static IEnumerable Enumerable_PropertyOtherDataSource => data;
+
+			public static Task<IAsyncEnumerable<object>> TaskOfAsyncEnumerable_FieldOtherDataSource = Task.FromResult(dataAsync);
+			public static Task<IAsyncEnumerable<object>> TaskOfAsyncEnumerable_MethodOtherDataSource() => Task.FromResult(dataAsync);
+			public static Task<IAsyncEnumerable<object>> TaskOfAsyncEnumerable_PropertyOtherDataSource => Task.FromResult(dataAsync);
+
+			public static Task<IEnumerable> TaskOfEnumerable_FieldOtherDataSource = Task.FromResult<IEnumerable>(data);
+			public static Task<IEnumerable> TaskOfEnumerable_MethodOtherDataSource() => Task.FromResult<IEnumerable>(data);
+			public static Task<IEnumerable> TaskOfEnumerable_PropertyOtherDataSource => Task.FromResult<IEnumerable>(data);
+
+			public static ValueTask<IAsyncEnumerable<object>> ValueTaskOfAsyncEnumerable_FieldOtherDataSource = new(dataAsync);
+			public static ValueTask<IAsyncEnumerable<object>> ValueTaskOfAsyncEnumerable_MethodOtherDataSource() => new(dataAsync);
+			public static ValueTask<IAsyncEnumerable<object>> ValueTaskOfAsyncEnumerable_PropertyOtherDataSource => new(dataAsync);
+
+			public static ValueTask<IEnumerable> ValueTaskOfEnumerable_FieldOtherDataSource = new(data);
+			public static ValueTask<IEnumerable> ValueTaskOfEnumerable_MethodOtherDataSource() => new(data);
+			public static ValueTask<IEnumerable> ValueTaskOfEnumerable_PropertyOtherDataSource => new(data);
+		}
+
+		class ClassUnderTest_IAsyncEnumerable : DataBase
+		{
+			public static IAsyncEnumerable<object?> FieldDataSource = dataAsync;
+			public static IAsyncEnumerable<object?> MethodDataSource() => dataAsync;
+			public static IAsyncEnumerable<object?> PropertyDataSource => dataAsync;
+
+			[Theory]
+			[MemberData(nameof(FieldDataSource))]
+			[MemberData(nameof(AsyncEnumerable_FieldBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.AsyncEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void FieldTestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
 			}
 
-			[Fact]
-			public async void DataOnOtherClass()
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			[MemberData(nameof(AsyncEnumerable_MethodBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.AsyncEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void MethodTestMethod(string z)
 			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
+				Assert.DoesNotContain("fail", z);
 			}
 
-			class ClassUnderTest_DataOnOtherClass
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			[MemberData(nameof(AsyncEnumerable_PropertyBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.AsyncEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void PropertyTestMethod(string z)
 			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IEnumerable<ITheoryDataRow> DataSource = new[] { new TheoryDataRow(42) };
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
+				Assert.DoesNotContain("fail", z);
 			}
 		}
 
-		public class IAsyncEnumerableObjectArray : AcceptanceTestV3
+		class ClassUnderTest_IEnumerable : DataBase
 		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
+			public static IEnumerable FieldDataSource = data;
+			public static IEnumerable MethodDataSource() => data;
+			public static IEnumerable PropertyDataSource => data;
 
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			[Theory]
+			[MemberData(nameof(FieldDataSource))]
+			[MemberData(nameof(Enumerable_FieldBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.Enumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void FieldTestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
 			}
 
-			class ClassUnderTest_DataOnSelf
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			[MemberData(nameof(Enumerable_MethodBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.Enumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void MethodTestMethod(string z)
 			{
-				public static IAsyncEnumerable<object?[]> DataSource = GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
+				Assert.DoesNotContain("fail", z);
 			}
 
-			[Fact]
-			public async void DataOnOtherClass()
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			[MemberData(nameof(Enumerable_PropertyBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.Enumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void PropertyTestMethod(string z)
 			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IAsyncEnumerable<object?[]> DataSource = GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
+				Assert.DoesNotContain("fail", z);
 			}
 		}
 
-		public class IAsyncEnumerableITheoryDataRow : AcceptanceTestV3
+		class ClassUnderTest_TaskOfIAsyncEnumerable : DataBase
 		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
+			public static Task<IAsyncEnumerable<object?>> FieldDataSource = Task.FromResult(dataAsync);
+			public static Task<IAsyncEnumerable<object?>> MethodDataSource() => Task.FromResult(dataAsync);
+			public static Task<IAsyncEnumerable<object?>> PropertyDataSource => Task.FromResult(dataAsync);
 
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			[Theory]
+			[MemberData(nameof(FieldDataSource))]
+			[MemberData(nameof(TaskOfAsyncEnumerable_FieldBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.TaskOfAsyncEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void FieldTestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
 			}
 
-			class ClassUnderTest_DataOnSelf
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			[MemberData(nameof(TaskOfAsyncEnumerable_MethodBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.TaskOfAsyncEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void MethodTestMethod(string z)
 			{
-				public static IAsyncEnumerable<ITheoryDataRow> DataSource = GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
+				Assert.DoesNotContain("fail", z);
 			}
 
-			[Fact]
-			public async void DataOnOtherClass()
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			[MemberData(nameof(TaskOfAsyncEnumerable_PropertyBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.TaskOfAsyncEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void PropertyTestMethod(string z)
 			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IAsyncEnumerable<ITheoryDataRow> DataSource = GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
+				Assert.DoesNotContain("fail", z);
 			}
 		}
 
-		public class TaskOfIEnumerableObjectArray : AcceptanceTestV3
+		class ClassUnderTest_TaskOfIEnumerable : DataBase
 		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
+			public static Task<IEnumerable> FieldDataSource = Task.FromResult<IEnumerable>(data);
+			public static Task<IEnumerable> MethodDataSource() => Task.FromResult<IEnumerable>(data);
+			public static Task<IEnumerable> PropertyDataSource => Task.FromResult<IEnumerable>(data);
 
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			[Theory]
+			[MemberData(nameof(FieldDataSource))]
+			[MemberData(nameof(TaskOfEnumerable_FieldBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.TaskOfEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void FieldTestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
 			}
 
-			class ClassUnderTest_DataOnSelf
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			[MemberData(nameof(TaskOfEnumerable_MethodBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.TaskOfEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void MethodTestMethod(string z)
 			{
-				public static Task<IEnumerable<object?[]>> DataSource = Task.FromResult<IEnumerable<object?[]>>(new[] {
-					new object?[] { 42, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
+				Assert.DoesNotContain("fail", z);
 			}
 
-			[Fact]
-			public async void DataOnOtherClass()
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			[MemberData(nameof(TaskOfEnumerable_PropertyBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.TaskOfEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void PropertyTestMethod(string z)
 			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IEnumerable<object?[]>> DataSource = Task.FromResult<IEnumerable<object?[]>>(new[] { new object?[] { 42 } });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
+				Assert.DoesNotContain("fail", z);
 			}
 		}
 
-		public class TaskOfIEnumerableITheoryDataRow : AcceptanceTestV3
+		class ClassUnderTest_ValueTaskOfIAsyncEnumerable : DataBase
 		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
+			public static ValueTask<IAsyncEnumerable<object?>> FieldDataSource = new(dataAsync);
+			public static ValueTask<IAsyncEnumerable<object?>> MethodDataSource() => new(dataAsync);
+			public static ValueTask<IAsyncEnumerable<object?>> PropertyDataSource => new(dataAsync);
 
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			[Theory]
+			[MemberData(nameof(FieldDataSource))]
+			[MemberData(nameof(ValueTaskOfAsyncEnumerable_FieldBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.ValueTaskOfAsyncEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void FieldTestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
 			}
 
-			class ClassUnderTest_DataOnSelf
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			[MemberData(nameof(ValueTaskOfAsyncEnumerable_MethodBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.ValueTaskOfAsyncEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void MethodTestMethod(string z)
 			{
-				public static Task<IEnumerable<ITheoryDataRow>> DataSource = Task.FromResult<IEnumerable<ITheoryDataRow>>(new[] {
-					new TheoryDataRow(42, 21.12, "Hello, world!"),
-					new TheoryDataRow(0, 0.0, null),
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
+				Assert.DoesNotContain("fail", z);
 			}
 
-			[Fact]
-			public async void DataOnOtherClass()
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			[MemberData(nameof(ValueTaskOfAsyncEnumerable_PropertyBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.ValueTaskOfAsyncEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void PropertyTestMethod(string z)
 			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IEnumerable<ITheoryDataRow>> DataSource = Task.FromResult<IEnumerable<ITheoryDataRow>>(new[] { new TheoryDataRow(42) });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
+				Assert.DoesNotContain("fail", z);
 			}
 		}
 
-		public class TaskOfIAsyncEnumerableObjectArray : AcceptanceTestV3
+		class ClassUnderTest_ValueTaskOfIEnumerable : DataBase
 		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
+			public static ValueTask<IEnumerable> FieldDataSource = new(data);
+			public static ValueTask<IEnumerable> MethodDataSource() => new(data);
+			public static ValueTask<IEnumerable> PropertyDataSource => new(data);
 
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
+			[Theory]
+			[MemberData(nameof(FieldDataSource))]
+			[MemberData(nameof(ValueTaskOfEnumerable_FieldBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.ValueTaskOfEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void FieldTestMethod(string z)
+			{
+				Assert.DoesNotContain("fail", z);
 			}
 
-			class ClassUnderTest_DataOnSelf
+			[Theory]
+			[MemberData(nameof(MethodDataSource))]
+			[MemberData(nameof(ValueTaskOfEnumerable_MethodBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.ValueTaskOfEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void MethodTestMethod(string z)
 			{
-				public static Task<IAsyncEnumerable<object?[]>> DataSource = Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
+				Assert.DoesNotContain("fail", z);
 			}
 
-			[Fact]
-			public async void DataOnOtherClass()
+			[Theory]
+			[MemberData(nameof(PropertyDataSource))]
+			[MemberData(nameof(ValueTaskOfEnumerable_PropertyBaseDataSource))]
+			[MemberData(nameof(OtherDataSource.ValueTaskOfEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
+			public void PropertyTestMethod(string z)
 			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IAsyncEnumerable<object?[]>> DataSource = Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class TaskOfIAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IAsyncEnumerable<ITheoryDataRow>> DataSource = Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IAsyncEnumerable<ITheoryDataRow>> DataSource = Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IEnumerable<object?[]>> DataSource = new(new[] {
-					new object?[] { 42, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IEnumerable<object?[]>> DataSource = new(new[] { new object?[] { 42 } });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IEnumerable<ITheoryDataRow>> DataSource = new(new[] {
-					new TheoryDataRow(42, 21.12, "Hello, world!"),
-					new TheoryDataRow(0, 0.0, null),
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IEnumerable<ITheoryDataRow>> DataSource = new(new[] { new TheoryDataRow(42) });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IAsyncEnumerable<object?[]>> DataSource = new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IAsyncEnumerable<object?[]>> DataSource = new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> DataSource = new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+FieldDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> DataSource = new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
+				Assert.DoesNotContain("fail", z);
 			}
 		}
 	}
 
 	public class MethodDataTests : AcceptanceTestV3
 	{
-		[Fact]
-		public async void NonStaticMethodDataThrows()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithNonStaticMethodData));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData.TestViaMethodData", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData", failed.Messages.Single());
-		}
-
-		class ClassWithNonStaticMethodData
-		{
-			public IEnumerable<object?[]>? DataSource() => null;
-
-			[Theory]
-			[MemberData("DataSource")]
-			public void TestViaMethodData(int x, double y, string z) { }
-		}
-
-		[Fact]
-		public async void IncompatibleMethod()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleMethod));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethod.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal(
-				"Member 'IncompatibleMethod' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethod' must return data in one of the following formats:" + Environment.NewLine +
-				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
-				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- IEnumerable<object[]>" + Environment.NewLine +
-				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
-				"- ValueTask<IEnumerable<object[]>>" + Environment.NewLine +
-				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
-				"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
-				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
-				"- ValueTask<IAsyncEnumerable<object[]>>",
-				failed.Messages.Single()
-			);
-		}
-
-		class ClassWithIncompatibleMethod
-		{
-			public static int IncompatibleMethod() => 42;
-
-			[Theory]
-			[MemberData(nameof(IncompatibleMethod))]
-			public void TestMethod(int x) { }
-		}
-
-		[Fact]
-		public async void IncompatibleMethodData()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleMethodData));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethodData.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithIncompatibleMethodData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", failed.Messages.Single());
-		}
-
-		class ClassWithIncompatibleMethodData
-		{
-			public static IEnumerable<int> IncompatibleMethodData() => new[] { 42 };
-
-			[Theory]
-			[MemberData(nameof(IncompatibleMethodData))]
-			public void TestMethod(int x) { }
-		}
-
 		[Fact]
 		public async void NonMatchingMethodInputDataThrows()
 		{
@@ -2183,2051 +1580,6 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<object?[]> TestData()
 			{
 				yield return new object?[] { 42 };
-			}
-		}
-
-		public class IEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IEnumerable<object?[]> DataSource()
-				{
-					return new[] {
-					new object?[] { 42, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
-				};
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IEnumerable<object?[]> DataSource()
-				{
-					return new[] { new object?[] { 42 } };
-				}
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class IEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IEnumerable<ITheoryDataRow> DataSource()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IEnumerable<ITheoryDataRow> DataSource()
-				{
-					yield return new TheoryDataRow(42);
-				}
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class IAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				public async static IAsyncEnumerable<object?[]> DataSource()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				public async static IAsyncEnumerable<object?[]> DataSource()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class IAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				public async static IAsyncEnumerable<ITheoryDataRow> DataSource()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				public async static IAsyncEnumerable<ITheoryDataRow> DataSource()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class TaskOfIEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IEnumerable<object?[]>> DataSource()
-				{
-					return Task.FromResult<IEnumerable<object?[]>>(
-						new[] {
-							new object?[] { 42, 21.12, "Hello, world!" },
-							new object?[] { 0, 0.0, null },
-						}
-					);
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IEnumerable<object?[]>> DataSource()
-				{
-					return Task.FromResult<IEnumerable<object?[]>>(new[] { new object?[] { 42 } });
-				}
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class TaskOfIEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IEnumerable<ITheoryDataRow>> DataSource()
-				{
-					return Task.FromResult<IEnumerable<ITheoryDataRow>>(
-						new[] {
-							new TheoryDataRow(42, 21.12, "Hello, world!"),
-							new TheoryDataRow(0, 0.0, null),
-						}
-					);
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IEnumerable<ITheoryDataRow>> DataSource()
-				{
-					return Task.FromResult<IEnumerable<ITheoryDataRow>>(new[] { new TheoryDataRow(42) });
-				}
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class TaskOfIAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IAsyncEnumerable<object?[]>> DataSource() => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IAsyncEnumerable<object?[]>> DataSource() => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class TaskOfIAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IAsyncEnumerable<ITheoryDataRow>> DataSource() => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestViaMethodData(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestViaMethodData(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IAsyncEnumerable<ITheoryDataRow>> DataSource() => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestViaMethodData(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IEnumerable<object?[]>> DataSource() => new(new[] {
-					new object?[] { 42, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IEnumerable<object?[]>> DataSource() => new(new[] { new object?[] { 42 } });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IEnumerable<ITheoryDataRow>> DataSource() => new(new[] {
-					new TheoryDataRow(42, 21.12, "Hello, world!"),
-					new TheoryDataRow(0, 0.0, null),
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IEnumerable<ITheoryDataRow>> DataSource() => new(new[] { new TheoryDataRow(42) });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IAsyncEnumerable<object?[]>> DataSource() => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IAsyncEnumerable<object?[]>> DataSource() => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> DataSource() => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> DataSource() => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-	}
-
-	public class PropertyDataTests : AcceptanceTestV3
-	{
-		[Fact]
-		public async void NonStaticPropertyDataThrows()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithNonStaticPropertyData));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Messages.Single());
-		}
-
-		[Fact]
-		public async void IncompatibleProperty()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleProperty));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatibleProperty.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal(
-				"Member 'IncompatibleProperty' on 'Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatibleProperty' must return data in one of the following formats:" + Environment.NewLine +
-				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
-				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- IEnumerable<object[]>" + Environment.NewLine +
-				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
-				"- ValueTask<IEnumerable<object[]>>" + Environment.NewLine +
-				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
-				"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
-				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
-				"- ValueTask<IAsyncEnumerable<object[]>>",
-				failed.Messages.Single()
-			);
-		}
-
-		class ClassWithIncompatibleProperty
-		{
-			public static int IncompatibleProperty => 42;
-
-			[Theory]
-			[MemberData(nameof(IncompatibleProperty))]
-			public void TestMethod(int x) { }
-		}
-
-		[Fact]
-		public async void IncompatiblePropertyData()
-		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatiblePropertyData));
-
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatiblePropertyData.TestMethod", failedStarting.TestDisplayName);
-			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+PropertyDataTests+ClassWithIncompatiblePropertyData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", failed.Messages.Single());
-		}
-
-		class ClassWithIncompatiblePropertyData
-		{
-			public static IEnumerable<int> IncompatiblePropertyData => new[] { 42 };
-
-			[Theory]
-			[MemberData(nameof(IncompatiblePropertyData))]
-			public void TestMethod(int x) { }
-		}
-
-		class ClassWithNonStaticPropertyData
-		{
-			public IEnumerable<object?[]>? DataSource => null;
-
-			[Theory]
-			[MemberData("DataSource")]
-			public void TestMethod(int x, double y, string z) { }
-		}
-
-		public class IEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IEnumerable<object?[]> DataSource
-				{
-					get
-					{
-						yield return new object?[] { 42, 21.12, "Hello, world!" };
-						yield return new object?[] { 0, 0.0, null };
-					}
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IEnumerable<object?[]> DataSource { get { yield return new object?[] { 42 }; } }
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class IEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IEnumerable<ITheoryDataRow> DataSource
-				{
-					get
-					{
-						yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-						yield return new TheoryDataRow(0, 0.0, null);
-					}
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IEnumerable<ITheoryDataRow> DataSource { get { yield return new TheoryDataRow(42); } }
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class IAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IAsyncEnumerable<object?[]> DataSource => GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IAsyncEnumerable<object?[]> DataSource => GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class IAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static IAsyncEnumerable<ITheoryDataRow> DataSource => GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+IAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static IAsyncEnumerable<ITheoryDataRow> DataSource => GetData();
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class TaskOfIEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IEnumerable<object?[]>> DataSource
-				{
-					get
-					{
-						return Task.FromResult<IEnumerable<object?[]>>(
-							new[] {
-								new object?[] { 42, 21.12, "Hello, world!" },
-								new object?[] { 0, 0.0, null },
-							}
-						);
-					}
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IEnumerable<object?[]>> DataSource => Task.FromResult<IEnumerable<object?[]>>(new[] { new object?[] { 42 } });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class TaskOfIEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IEnumerable<ITheoryDataRow>> DataSource
-				{
-					get
-					{
-						return Task.FromResult<IEnumerable<ITheoryDataRow>>(
-							new[] {
-								new TheoryDataRow(42, 21.12, "Hello, world!"),
-								new TheoryDataRow(0, 0.0, null),
-							}
-						);
-					}
-				}
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IEnumerable<ITheoryDataRow>> DataSource => Task.FromResult<IEnumerable<ITheoryDataRow>>(new[] { new TheoryDataRow(42) });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class TaskOfIAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IAsyncEnumerable<object?[]>> DataSource => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IAsyncEnumerable<object?[]>> DataSource => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class TaskOfIAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static Task<IAsyncEnumerable<ITheoryDataRow>> DataSource => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTests_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTests_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+TaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static Task<IAsyncEnumerable<ITheoryDataRow>> DataSource => Task.FromResult(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IEnumerable<object?[]>> DataSource => new(new[] {
-					new object?[] { 42, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IEnumerable<object?[]>> DataSource => new(new[] { new object?[] { 42 } });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IEnumerable<ITheoryDataRow>> DataSource => new(new[] {
-					new TheoryDataRow(42, 21.12, "Hello, world!"),
-					new TheoryDataRow(0, 0.0, null),
-				});
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IEnumerable<ITheoryDataRow>> DataSource => new(new[] { new TheoryDataRow(42) });
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIAsyncEnumerableObjectArray : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IAsyncEnumerable<object?[]>> DataSource => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42, 21.12, "Hello, world!" };
-					yield return new object?[] { 0, 0.0, null };
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableObjectArray+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IAsyncEnumerable<object?[]>> DataSource => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<object?[]> GetData()
-				{
-					yield return new object?[] { 42 };
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
-			}
-		}
-
-		public class ValueTaskOfIAsyncEnumerableITheoryDataRow : AcceptanceTestV3
-		{
-			[Fact]
-			public async void DataOnSelf()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnSelf));
-
-				var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-				Assert.Equal($"Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-				var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-				var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnSelf.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnSelf
-			{
-				public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> DataSource => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42, 21.12, "Hello, world!");
-					yield return new TheoryDataRow(0, 0.0, null);
-				}
-#pragma warning restore CS1998
-
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnOtherClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnOtherClass));
-
-				Assert.Single(testMessages.OfType<_TestPassed>());
-				Assert.Single(testMessages.OfType<_TestFailed>());
-				Assert.Empty(testMessages.OfType<_TestSkipped>());
-			}
-
-			class ClassUnderTest_DataOnOtherClass
-			{
-				[Theory]
-				[MemberData("DataSource", MemberType = typeof(ClassUnderTest_DataOnSelf))]
-				public void TestMethod(int x, double y, string z)
-				{
-					Assert.NotNull(z);
-				}
-			}
-
-			[Fact]
-			public async void DataOnBaseClass()
-			{
-				var testMessages = await RunAsync(typeof(ClassUnderTest_DataOnBaseClass));
-
-				var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-				var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-				Assert.Equal("Xunit3TheoryAcceptanceTests+PropertyDataTests+ValueTaskOfIAsyncEnumerableITheoryDataRow+ClassUnderTest_DataOnBaseClass.TestMethod(x: 42)", passedStarting.TestDisplayName);
-			}
-
-			class BaseClass
-			{
-				public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> DataSource => new(GetData());
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-				static async IAsyncEnumerable<ITheoryDataRow> GetData()
-				{
-					yield return new TheoryDataRow(42);
-				}
-#pragma warning restore CS1998
-			}
-
-			class ClassUnderTest_DataOnBaseClass : BaseClass
-			{
-				[Theory]
-				[MemberData("DataSource")]
-				public void TestMethod(int x) { }
 			}
 		}
 	}
