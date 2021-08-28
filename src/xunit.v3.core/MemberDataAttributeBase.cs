@@ -96,6 +96,14 @@ namespace Xunit
 				returnValue = await returnValueTaskAsyncObjectArray;
 			else if (returnValue is Task<IAsyncEnumerable<ITheoryDataRow>> returnValueTaskAsyncTheoryDataRow)
 				returnValue = await returnValueTaskAsyncTheoryDataRow;
+			else if (returnValue is ValueTask<IEnumerable<object[]>> returnValueValueTaskObjectArray)
+				returnValue = await returnValueValueTaskObjectArray;
+			else if (returnValue is ValueTask<IEnumerable<ITheoryDataRow>> returnValueValueTaskTheoryDataRow)
+				returnValue = await returnValueValueTaskTheoryDataRow;
+			else if (returnValue is ValueTask<IAsyncEnumerable<object[]>> returnValueValueTaskAsyncObjectArray)
+				returnValue = await returnValueValueTaskAsyncObjectArray;
+			else if (returnValue is ValueTask<IAsyncEnumerable<ITheoryDataRow>> returnValueValueTaskAsyncTheoryDataRow)
+				returnValue = await returnValueValueTaskAsyncTheoryDataRow;
 
 			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
 			{
@@ -119,12 +127,16 @@ namespace Xunit
 				$"Member '{MemberName}' on '{type.FullName}' must return data in one of the following formats:" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+				"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
+				"- ValueTask<IEnumerable<object[]>>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+				"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
-				"- Task<IAsyncEnumerable<object[]>>"
+				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
+				"- ValueTask<IAsyncEnumerable<object[]>>"
 			);
 		}
 
