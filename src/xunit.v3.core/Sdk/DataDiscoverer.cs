@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -13,7 +14,7 @@ namespace Xunit.Sdk
 	public class DataDiscoverer : IDataDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IReadOnlyCollection<ITheoryDataRow>? GetData(
+		public virtual ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
@@ -41,7 +42,7 @@ namespace Xunit.Sdk
 				}
 			}
 
-			return null;
+			return new(default(IReadOnlyCollection<ITheoryDataRow>));
 		}
 
 		/// <inheritdoc/>

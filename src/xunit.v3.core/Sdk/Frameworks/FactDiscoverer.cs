@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -57,7 +58,7 @@ namespace Xunit.Sdk
 		/// <param name="testMethod">The test method the test cases belong to.</param>
 		/// <param name="factAttribute">The fact attribute attached to the test method.</param>
 		/// <returns>Returns zero or more test cases represented by the test method.</returns>
-		public virtual IReadOnlyCollection<IXunitTestCase> Discover(
+		public virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			_IAttributeInfo factAttribute)
@@ -75,7 +76,7 @@ namespace Xunit.Sdk
 			else
 				testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
-			return new[] { testCase };
+			return new(new[] { testCase });
 		}
 
 		ExecutionErrorTestCase ErrorTestCase(

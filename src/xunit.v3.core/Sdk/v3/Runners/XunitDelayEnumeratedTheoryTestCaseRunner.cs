@@ -102,7 +102,7 @@ namespace Xunit.v3
 						continue;
 					}
 
-					var data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
+					var data = await discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
 					if (data == null)
 					{
 						Aggregator.Add(new InvalidOperationException($"Test data returned null for {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));

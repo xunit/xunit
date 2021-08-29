@@ -118,7 +118,7 @@ namespace Xunit.v3
 			if (discoverer == null)
 				return true;
 
-			foreach (var testCase in discoverer.Discover(discoveryOptions, testMethod, factAttribute))
+			foreach (var testCase in await discoverer.Discover(discoveryOptions, testMethod, factAttribute))
 				if (!await ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
 					return false;
 

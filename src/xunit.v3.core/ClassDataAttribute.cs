@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -29,17 +30,46 @@ namespace Xunit
 		public Type Class { get; private set; }
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod)
+		protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item) =>
+			base.ConvertDataItem(testMethod, item)
+				?? throw new ArgumentException($"Class '{Class.FullName}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
+
+		/// <inheritdoc/>
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			var classInstance = Activator.CreateInstance(Class);
 
-			if (classInstance is IEnumerable<ITheoryDataRow> dataRows)
-				return dataRows.CastOrToReadOnlyCollection();
+			if (classInstance is IEnumerable dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				foreach (var dataItem in dataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return new(result.CastOrToReadOnlyCollection());
+			}
 
-			if (classInstance is IEnumerable<object?[]> data)
-				return data.Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection();
+			return GetDataAsync(classInstance, testMethod);
+		}
 
-			throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object?[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType?.FullName}");
+		// Split into a separate method to avoid the async machinery when we don't have async results
+		async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
+			object? classInstance,
+			MethodInfo testMethod)
+		{
+			if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				await foreach (var dataItem in asyncDataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return result.CastOrToReadOnlyCollection();
+			}
+
+			throw new ArgumentException(
+				$"'{Class.FullName}' must implement one of the following interfaces to be used as ClassData for the test method named '{testMethod.Name}' on '{testMethod.DeclaringType?.FullName}':" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>"
+			);
 		}
 	}
 }

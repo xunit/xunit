@@ -32,7 +32,7 @@ public static class TestFxConsole
 		}
 #endif
 
-		// Mono is only support for v3, at whatever bitness the user installs for Mono
+		// Mono is only supported for v3, at whatever bitness the user installs for Mono
 		if (context.NeedMono)
 			return;
 
@@ -42,6 +42,9 @@ public static class TestFxConsole
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.x86.exe", SearchOption.AllDirectories)
 				.Where(x => x.Contains(netFx32Subpath));
+
+		if (context.V3Only)
+			return;
 
 #if false
 		await context.Exec(context.ConsoleRunnerExe, $"\"{string.Join("\" \"", v3x86TestExes)}\" {context.TestFlagsParallel}-preenumeratetheories -xml \"{v3OutputFileName}-x86.xml\" -html \"{v3OutputFileName}-x86.html\"");

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -52,13 +53,18 @@ namespace Xunit
 		public object?[] Parameters { get; }
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<ITheoryDataRow>? GetData(MethodInfo testMethod)
+		protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item) =>
+			base.ConvertDataItem(testMethod, item)
+				?? throw new ArgumentException($"Member '{MemberName}' on '{MemberType ?? testMethod.DeclaringType}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
+
+		/// <inheritdoc/>
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
 			Guard.ArgumentNotNull("testMethod", testMethod);
 
 			var type = MemberType ?? testMethod.DeclaringType;
 			if (type == null)
-				return null;
+				return new(default(IReadOnlyCollection<ITheoryDataRow>));
 
 			var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
 			if (accessor == null)
@@ -67,30 +73,64 @@ namespace Xunit
 				throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}{parameterText}");
 			}
 
-			var obj = accessor();
-			if (obj == null)
-				return null;
+			var returnValue = accessor();
+			if (returnValue is null)
+				return new(default(IReadOnlyCollection<ITheoryDataRow>));
 
-			if (!(obj is IEnumerable dataItems))
-				throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
+			if (returnValue is IEnumerable dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				foreach (var dataItem in dataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return new(result.CastOrToReadOnlyCollection());
+			}
 
-			return
-				dataItems
-					.Cast<object?>()
-					.Select(item => ConvertDataItem(testMethod, item))
-					.CastOrToReadOnlyCollection();
+			return GetDataAsync(returnValue, testMethod, type);
 		}
 
-		/// <summary>
-		/// Converts an item yielded by the data member to an object array, for return from <see cref="GetData"/>.
-		/// </summary>
-		/// <param name="testMethod">The method that is being tested.</param>
-		/// <param name="item">An item yielded from the data member.</param>
-		/// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
-		protected abstract ITheoryDataRow ConvertDataItem(
+		async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
+			object? returnValue,
 			MethodInfo testMethod,
-			object? item
-		);
+			Type type)
+		{
+			var taskAwaitable = returnValue.AsTask();
+			if (taskAwaitable != null)
+				returnValue = await taskAwaitable;
+
+			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				await foreach (var dataItem in asyncDataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return result.CastOrToReadOnlyCollection();
+			}
+
+			// Duplicate from GetData(), but it's hard to avoid since we need to support Task/ValueTask
+			// of IEnumerable (and not just IAsyncEnumerable).
+			if (returnValue is IEnumerable dataItems)
+			{
+				var result = new List<ITheoryDataRow>();
+				foreach (var dataItem in dataItems)
+					result.Add(ConvertDataItem(testMethod, dataItem));
+				return result.CastOrToReadOnlyCollection();
+			}
+
+			throw new ArgumentException(
+				$"Member '{MemberName}' on '{type.FullName}' must return data in one of the following formats:" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+				"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
+				"- ValueTask<IEnumerable<object[]>>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+				"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
+				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
+				"- ValueTask<IAsyncEnumerable<object[]>>"
+			);
+		}
 
 		Func<object?>? GetFieldAccessor(Type? type)
 		{

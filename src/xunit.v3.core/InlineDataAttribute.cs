@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -24,6 +25,7 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public override IReadOnlyCollection<ITheoryDataRow> GetData(MethodInfo testMethod) => new[] { new TheoryDataRow(data) };
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+			new(new[] { new TheoryDataRow(data) });
 	}
 }

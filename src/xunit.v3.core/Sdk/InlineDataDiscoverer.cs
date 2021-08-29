@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Sdk
@@ -11,7 +12,7 @@ namespace Xunit.Sdk
 	public class InlineDataDiscoverer : IDataDiscoverer
 	{
 		/// <inheritdoc/>
-		public virtual IReadOnlyCollection<ITheoryDataRow> GetData(
+		public virtual ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
@@ -24,7 +25,7 @@ namespace Xunit.Sdk
 			// in Xunit2TheoryAcceptanceTests.InlineDataTests.SingleNullValuesWork).
 
 			var args = dataAttribute.GetConstructorArguments().Single() as IEnumerable<object?> ?? new object?[] { null };
-			return new[] { new TheoryDataRow(args.ToArray()) };
+			return new(new[] { new TheoryDataRow(args.ToArray()) });
 		}
 
 		/// <inheritdoc/>
