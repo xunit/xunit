@@ -93,9 +93,9 @@ namespace Xunit
 			MethodInfo testMethod,
 			Type type)
 		{
-			var taskAwaitable = returnValue.AsTask();
-			if (taskAwaitable != null)
-				returnValue = await taskAwaitable;
+			var taskAwaitable = returnValue.AsValueTask();
+			if (taskAwaitable.HasValue)
+				returnValue = await taskAwaitable.Value;
 
 			if (returnValue is IAsyncEnumerable<object?> asyncDataItems)
 			{

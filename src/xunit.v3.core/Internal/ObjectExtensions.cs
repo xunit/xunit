@@ -10,7 +10,7 @@ namespace Xunit.Internal
 		static readonly MethodInfo? awaitValueTaskMethod = typeof(ObjectExtensions).GetMethod(nameof(AwaitValueTask), BindingFlags.NonPublic | BindingFlags.Static);
 
 		/// <summary/>
-		public static Task<object?>? AsTask(this object? value)
+		public static ValueTask<object?>? AsValueTask(this object? value)
 		{
 			if (value == null || awaitTaskMethod == null || awaitValueTaskMethod == null)
 				return null;
@@ -19,27 +19,29 @@ namespace Xunit.Internal
 			if (!type.IsGenericType)
 				return null;
 
-			if (type.GetGenericTypeDefinition() == typeof(Task<>))
+			var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+			if (genericTypeDefinition == typeof(Task<>))
 			{
 				var taskReturnType = type.GetGenericArguments().Single();
 				var awaitMethod = awaitTaskMethod.MakeGenericMethod(taskReturnType);
-				return awaitMethod.Invoke(null, new[] { value }) as Task<object?>;
+				return (ValueTask<object?>?)awaitMethod.Invoke(null, new[] { value });
 			}
 
-			if (type.GetGenericTypeDefinition() == typeof(ValueTask<>))
+			if (genericTypeDefinition == typeof(ValueTask<>))
 			{
 				var taskReturnType = type.GetGenericArguments().Single();
 				var awaitMethod = awaitValueTaskMethod.MakeGenericMethod(taskReturnType);
-				return awaitMethod.Invoke(null, new[] { value }) as Task<object?>;
+				return (ValueTask<object?>?)awaitMethod.Invoke(null, new[] { value });
 			}
 
 			return null;
 		}
 
-		static async Task<object?> AwaitTask<T>(Task<T> task) =>
+		static async ValueTask<object?> AwaitTask<T>(Task<T> task) =>
 			await task;
 
-		static async Task<object?> AwaitValueTask<T>(ValueTask<T> task) =>
+		static async ValueTask<object?> AwaitValueTask<T>(ValueTask<T> task) =>
 			await task;
 	}
 }
