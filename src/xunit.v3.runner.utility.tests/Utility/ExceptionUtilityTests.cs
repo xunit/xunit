@@ -12,11 +12,14 @@ public class ExceptionUtilityTests
 		readonly List<int> exceptionParentIndices = new List<int>();
 		readonly List<string?> exceptionTypes = new List<string?>();
 		readonly List<string> messages = new List<string>();
+		string? details = null;
 		readonly List<string?> stackTraces = new List<string?>();
 
 		public string?[] ExceptionTypes => exceptionTypes.ToArray();
 
 		public string[] Messages => messages.ToArray();
+
+		public string? Details => details;
 
 		public string?[] StackTraces => stackTraces.ToArray();
 
@@ -26,6 +29,7 @@ public class ExceptionUtilityTests
 			Exception ex,
 			int index = -1)
 		{
+			details ??= ex.ToString();
 			Add(ex.GetType(), ex.Message, ex.StackTrace, index);
 		}
 

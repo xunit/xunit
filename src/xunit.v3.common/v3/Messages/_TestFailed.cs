@@ -13,6 +13,7 @@ namespace Xunit.v3
 		int[]? exceptionParentIndices;
 		string?[]? exceptionTypes;
 		string[]? messages;
+		string? details;
 		string?[]? stackTraces;
 
 		/// <summary>
@@ -47,6 +48,13 @@ namespace Xunit.v3
 		{
 			get => messages ?? throw new InvalidOperationException($"Attempted to get {nameof(Messages)} on an uninitialized '{GetType().FullName}' object");
 			set => messages = Guard.ArgumentNotNullOrEmpty(nameof(Messages), value);
+		}
+
+		/// <inheritdoc/>
+		public string? Details
+		{
+			get => details ?? throw new InvalidOperationException($"Attempted to get {nameof(Details)} on an uninitialized '{GetType().FullName} object");
+			set => details = Guard.ArgumentNotNull(nameof(Details), value);
 		}
 
 		/// <inheritdoc/>
@@ -101,6 +109,7 @@ namespace Xunit.v3
 				Output = output ?? string.Empty,
 				ExceptionTypes = errorMetadata.ExceptionTypes,
 				Messages = errorMetadata.Messages,
+				Details = ex.ToString(),
 				StackTraces = errorMetadata.StackTraces,
 				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 			};

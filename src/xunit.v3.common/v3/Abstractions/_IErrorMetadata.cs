@@ -22,6 +22,11 @@ namespace Xunit.v3
 		string[] Messages { get; }
 
 		/// <summary>
+		/// Gets the details of the exception(s).
+		/// </summary>
+		string? Details { get; }
+
+		/// <summary>
 		/// Gets the stack trace(s) of the exception(s).
 		/// </summary>
 		string?[] StackTraces { get; }

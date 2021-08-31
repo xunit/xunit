@@ -10,11 +10,13 @@
 			ErrorMessageType messageType,
 			string? exceptionType,
 			string? exceptionMessage,
+			string? exceptionDetails,
 			string? exceptionStackTrace)
 		{
 			MesssageType = messageType;
 			ExceptionType = exceptionType;
 			ExceptionMessage = exceptionMessage;
+			ExceptionDetails = exceptionDetails;
 			ExceptionStackTrace = exceptionStackTrace;
 		}
 
@@ -32,6 +34,11 @@
 		/// The message from the exception that caused the test failure.
 		/// </summary>
 		public string? ExceptionMessage { get; }
+
+		/// <summary>
+		/// The full details from the exception that caused the test failure.
+		/// </summary>
+		public string? ExceptionDetails { get; }
 
 		/// <summary>
 		/// The stack trace from the exception that caused the test failure.
