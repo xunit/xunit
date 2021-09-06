@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -12,9 +10,6 @@ namespace Xunit.Sdk
 	/// </summary>
 	public static class ExtensibilityPointFactory
 	{
-		static DisposalTracker disposalTracker = new DisposalTracker();
-		static readonly ConcurrentDictionary<(Type type, _IMessageSink diagnosticMessageSink), object?> instances = new ConcurrentDictionary<(Type type, _IMessageSink diagnosticMessageSink), object?>();
-
 		static object? CreateInstance(
 			_IMessageSink diagnosticMessageSink,
 			Type type,
@@ -41,20 +36,7 @@ namespace Xunit.Sdk
 				}
 			}
 
-			if (result is IDisposable disposable)
-				disposalTracker.Add(disposable);
-
 			return result;
-		}
-
-		/// <summary>
-		/// Disposes the instances that are contained in the cache.
-		/// </summary>
-		public static async ValueTask DisposeAsync()
-		{
-			instances.Clear();
-			await disposalTracker.DisposeAsync();
-			disposalTracker = new DisposalTracker();
 		}
 
 		/// <summary>
@@ -78,7 +60,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 			Guard.ArgumentNotNull(nameof(type), type);
 
-			return (TInterface?)instances.GetOrAdd((type, diagnosticMessageSink), () => CreateInstance(diagnosticMessageSink, type, ctorArgs));
+			return (TInterface?)CreateInstance(diagnosticMessageSink, type, ctorArgs);
 		}
 
 		/// <summary>
