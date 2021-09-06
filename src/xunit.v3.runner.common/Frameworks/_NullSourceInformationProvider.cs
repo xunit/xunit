@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3
+﻿namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// A null implementation of <see cref="_ISourceInformationProvider"/> which always returns empty

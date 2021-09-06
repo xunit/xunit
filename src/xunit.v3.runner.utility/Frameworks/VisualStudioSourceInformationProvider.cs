@@ -2,6 +2,7 @@
 
 using System;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.v3;
 
 namespace Xunit
