@@ -639,7 +639,7 @@ let TestMethod(x : int) =
 			projectAssembly.Configuration.AppDomain = appDomainSupport;
 			projectAssembly.Configuration.ShadowCopy = shadowCopy;
 
-			return Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: new _NullMessageSink());
+			return Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: _NullMessageSink.Instance);
 		}
 	}
 }

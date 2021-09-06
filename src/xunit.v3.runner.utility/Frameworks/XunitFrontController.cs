@@ -128,7 +128,7 @@ namespace Xunit
 			var assemblyFileName = projectAssembly.AssemblyFilename;
 
 			if (diagnosticMessageSink == null)
-				diagnosticMessageSink = new _NullMessageSink();
+				diagnosticMessageSink = _NullMessageSink.Instance;
 
 			if (sourceInformationProvider == null)
 			{
@@ -174,7 +174,7 @@ namespace Xunit
 			var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
 			if (diagnosticMessageSink == null)
-				diagnosticMessageSink = new _NullMessageSink();
+				diagnosticMessageSink = _NullMessageSink.Instance;
 
 #if NETFRAMEWORK
 			if (sourceInformationProvider == null)

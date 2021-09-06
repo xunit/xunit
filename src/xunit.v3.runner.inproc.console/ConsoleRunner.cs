@@ -344,7 +344,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		async ValueTask ListProject(XunitProject project)
 		{
 			var (listOption, listFormat) = project.Configuration.List!.Value;
-			var nullMessageSink = new _NullMessageSink();
+			var nullMessageSink = _NullMessageSink.Instance;
 			var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
 
 			foreach (var assembly in project.Assemblies)

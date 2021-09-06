@@ -25,7 +25,7 @@ public class AcceptanceTestV3
 		{
 			try
 			{
-				var diagnosticMessageSink = new _NullMessageSink();
+				var diagnosticMessageSink = _NullMessageSink.Instance;
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);

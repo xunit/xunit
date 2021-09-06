@@ -31,7 +31,7 @@ namespace Xunit.v3
 		{
 			// No way for us to get access to the message sink on the execution deserialization path, but that should
 			// be okay, because we assume all the issues were reported during discovery.
-			DiagnosticMessageSink = new _NullMessageSink();
+			DiagnosticMessageSink = _NullMessageSink.Instance;
 			Timeout = info.GetValue<int>("Timeout");
 		}
 

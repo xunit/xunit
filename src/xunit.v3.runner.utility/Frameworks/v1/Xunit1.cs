@@ -472,7 +472,7 @@ namespace Xunit.Runner.v1
 			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFilename)}", assemblyFileName);
 
 			if (diagnosticMessageSink == null)
-				diagnosticMessageSink = new _NullMessageSink();
+				diagnosticMessageSink = _NullMessageSink.Instance;
 
 			return new Xunit1(
 				diagnosticMessageSink,
