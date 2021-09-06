@@ -155,14 +155,14 @@ namespace Xunit.Runner.TdNet
 		{
 			var testCases = Discover(method.ReflectedType).Where(tc =>
 			{
-				if (tc.TestClassWithNamespace == null || tc.TestMethod == null)
+				if (tc.TestClassNameWithNamespace == null || tc.TestMethodName == null)
 					return false;
 
-				var typeInfo = Type.GetType(tc.TestClassWithNamespace);
+				var typeInfo = Type.GetType(tc.TestClassNameWithNamespace);
 				if (typeInfo == null)
 					return false;
 
-				var methodInfo = typeInfo.GetMethod(tc.TestMethod, BindingFlags.Public);
+				var methodInfo = typeInfo.GetMethod(tc.TestMethodName, BindingFlags.Public);
 				if (methodInfo == null)
 					return false;
 

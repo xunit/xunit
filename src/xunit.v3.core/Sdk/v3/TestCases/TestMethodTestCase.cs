@@ -32,7 +32,7 @@ namespace Xunit.v3
 			SkipReason = info.GetValue<string>("SkipReason");
 			TestMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<_ITestMethod>("TestMethod"));
 			TestMethodArguments = info.GetValue<object[]>("TestMethodArguments");
-			Traits = SerializationHelper.DeserializeTraits(info);
+			Traits = SerializationHelper.DeserializeTraits(info).ToReadWrite(StringComparer.OrdinalIgnoreCase);
 			uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("UniqueID"));
 
 			formatter = new DisplayNameFormatter(DefaultMethodDisplay, DefaultMethodDisplayOptions);
@@ -159,10 +159,10 @@ namespace Xunit.v3
 		protected internal TestMethodDisplayOptions DefaultMethodDisplayOptions { get; }
 
 		/// <inheritdoc/>
-		public string DisplayName
+		public string TestCaseDisplayName
 		{
 			get => displayName;
-			protected set => displayName = Guard.ArgumentNotNull(nameof(DisplayName), value);
+			protected set => displayName = Guard.ArgumentNotNull(nameof(TestCaseDisplayName), value);
 		}
 
 		/// <summary>
@@ -184,19 +184,38 @@ namespace Xunit.v3
 		public string? SkipReason { get; protected set; }
 
 		/// <inheritdoc/>
-		public _ISourceInformation? SourceInformation { get; set; }
+		public string? SourceFilePath { get; set; }
 
 		/// <inheritdoc/>
-		public _ITestCollection TestCollection => TestMethod.TestClass.TestCollection;
+		public int? SourceLineNumber { get; set; }
+
+		/// <inheritdoc/>
+		public _ITestCollection TestCollection =>
+			TestMethod.TestClass.TestCollection;
+
+		string? _ITestCaseMetadata.TestClassName =>
+			TestMethod.TestClass.Class.SimpleName;
+
+		string? _ITestCaseMetadata.TestClassNamespace =>
+			TestMethod.TestClass.Class.Namespace;
+
+		string? _ITestCaseMetadata.TestClassNameWithNamespace =>
+			TestMethod.TestClass.Class.Name;
 
 		/// <inheritdoc/>
 		public _ITestMethod TestMethod { get; }
+
+		string _ITestCaseMetadata.TestMethodName =>
+			TestMethod.Method.Name;
 
 		/// <inheritdoc/>
 		public object?[]? TestMethodArguments { get; }
 
 		/// <inheritdoc/>
 		public Dictionary<string, List<string>> Traits { get; }
+
+		IReadOnlyDictionary<string, IReadOnlyList<string>> _ITestCaseMetadata.Traits =>
+			Traits.ToReadOnly();
 
 		/// <inheritdoc/>
 		public virtual string UniqueID
@@ -216,7 +235,7 @@ namespace Xunit.v3
 		{
 			info.AddValue("DefaultMethodDisplay", DefaultMethodDisplay);
 			info.AddValue("DefaultMethodDisplayOptions", DefaultMethodDisplayOptions);
-			info.AddValue("DisplayName", DisplayName);
+			info.AddValue("DisplayName", TestCaseDisplayName);
 			info.AddValue("SkipReason", SkipReason);
 			info.AddValue("TestMethod", TestMethod);
 			info.AddValue("TestMethodArguments", TestMethodArguments);

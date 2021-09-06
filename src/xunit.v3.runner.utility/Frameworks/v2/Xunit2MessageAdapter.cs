@@ -281,13 +281,13 @@ namespace Xunit.Runner.v2
 				TestCaseDisplayName = testCase.DisplayName,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
-				TestClass = @class,
+				TestClassName = @class,
+				TestClassNamespace = @namespace,
+				TestClassNameWithNamespace = typeName,
 				TestClassUniqueID = testClassUniqueID,
-				TestClassWithNamespace = typeName,
-				TestMethod = testCase.TestMethod?.Method.Name,
+				TestMethodName = testCase.TestMethod?.Method.Name,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestNamespace = @namespace,
-				Traits = testCase.Traits
+				Traits = testCase.Traits.ToReadOnly()
 			};
 
 			if (discoverer != null)
@@ -338,7 +338,7 @@ namespace Xunit.Runner.v2
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
-				Traits = message.TestCase.Traits
+				Traits = message.TestCase.Traits.ToReadOnly()
 			};
 		}
 

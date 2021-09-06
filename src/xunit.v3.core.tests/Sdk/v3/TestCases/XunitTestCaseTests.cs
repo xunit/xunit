@@ -18,7 +18,7 @@ public class XunitTestCaseTests
 
 			var testCase = new TestableXunitTestCase(testMethod);
 
-			Assert.Equal("Custom Display Name", testCase.DisplayName);
+			Assert.Equal("Custom Display Name", testCase.TestCaseDisplayName);
 		}
 
 		[Fact]
@@ -33,7 +33,7 @@ public class XunitTestCaseTests
 
 			var testCase = new TestableXunitTestCase(testMethod, arguments);
 
-			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
+			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.TestCaseDisplayName);
 		}
 
 		[Fact]
@@ -131,7 +131,7 @@ public class XunitTestCaseTests
 			Assert.Empty(testCase.Traits);
 			var diagnosticMessages = messages.OfType<_DiagnosticMessage>();
 			var diagnosticMessage = Assert.Single(diagnosticMessages);
-			Assert.Equal($"Trait attribute on '{testCase.DisplayName}' did not have [TraitDiscoverer]", diagnosticMessage.Message);
+			Assert.Equal($"Trait attribute on '{testCase.TestCaseDisplayName}' did not have [TraitDiscoverer]", diagnosticMessage.Message);
 		}
 
 		class BadTraitAttribute : Attribute, ITraitAttribute { }

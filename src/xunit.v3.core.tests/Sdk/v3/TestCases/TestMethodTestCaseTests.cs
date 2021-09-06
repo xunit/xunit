@@ -30,11 +30,12 @@ public class TestMethodTestCaseTests
 
 			var testCase = new TestableTestMethodTestCase(testMethod);
 
-			Assert.Equal("MockType.MockMethod", testCase.DisplayName);
+			Assert.Equal("MockType.MockMethod", testCase.TestCaseDisplayName);
 			Assert.Null(testCase.InitializationException);
 			Assert.Same(testMethod.Method, testCase.Method);
 			Assert.Null(testCase.SkipReason);
-			Assert.Null(testCase.SourceInformation);
+			Assert.Null(testCase.SourceFilePath);
+			Assert.Null(testCase.SourceLineNumber);
 			Assert.Same(testMethod, testCase.TestMethod);
 			Assert.Null(testCase.TestMethodArguments);
 			Assert.Empty(testCase.Traits);
@@ -58,7 +59,7 @@ public class TestMethodTestCaseTests
 				"test-case-custom-id"
 			);
 
-			Assert.Equal($"Mock Method(???: 42, ???: {21.12:G17}, ???: \"Hello world!\")", testCase.DisplayName);
+			Assert.Equal($"Mock Method(???: 42, ???: {21.12:G17}, ???: \"Hello world!\")", testCase.TestCaseDisplayName);
 			Assert.Equal("Skip me!", testCase.SkipReason);
 			Assert.Same(arguments, testCase.TestMethodArguments);
 			Assert.Collection(
@@ -86,7 +87,7 @@ public class TestMethodTestCaseTests
 
 			var testCase = new TestableTestMethodTestCase(testMethod, arguments);
 
-			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
+			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.TestCaseDisplayName);
 		}
 
 		[Fact]
@@ -97,7 +98,7 @@ public class TestMethodTestCaseTests
 
 			var testCase = new TestableTestMethodTestCase(testMethod, new object[0]);
 
-			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: ???)", testCase.DisplayName);
+			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: ???)", testCase.TestCaseDisplayName);
 		}
 
 		[CulturedFact]
@@ -109,7 +110,7 @@ public class TestMethodTestCaseTests
 
 			var testCase = new TestableTestMethodTestCase(testMethod, arguments);
 
-			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, ???: {21.12})", testCase.DisplayName);
+			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, ???: {21.12})", testCase.TestCaseDisplayName);
 		}
 
 		[Theory]
@@ -123,7 +124,7 @@ public class TestMethodTestCaseTests
 
 			var testCase = new TestableTestMethodTestCase(testMethod, defaultMethodDisplay: methodDisplay);
 
-			Assert.Equal(expectedDisplayName, testCase.DisplayName);
+			Assert.Equal(expectedDisplayName, testCase.TestCaseDisplayName);
 		}
 	}
 

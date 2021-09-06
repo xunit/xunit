@@ -20,21 +20,17 @@ namespace Xunit.v3
 		_IReflectionAssemblyInfo assemblyInfo;
 		_IMessageSink diagnosticMessageSink;
 		bool disposed;
-		_ISourceInformationProvider sourceInformationProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
-		/// <param name="sourceInformationProvider">The source line number information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkExecutor(
 			_IReflectionAssemblyInfo assemblyInfo,
-			_ISourceInformationProvider sourceInformationProvider,
 			_IMessageSink diagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
-			this.sourceInformationProvider = Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
 			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 		}
 
@@ -62,33 +58,11 @@ namespace Xunit.v3
 		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 		/// <summary>
-		/// Gets the source information provider.
-		/// </summary>
-		protected _ISourceInformationProvider SourceInformationProvider
-		{
-			get => sourceInformationProvider;
-			set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
-		}
-
-		/// <summary>
 		/// Override to create a test framework discoverer that can be used to discover
 		/// tests when the user asks to run all test.
 		/// </summary>
 		/// <returns>The test framework discoverer</returns>
 		protected abstract _ITestFrameworkDiscoverer CreateDiscoverer();
-
-		/// <summary>
-		/// Override to change the way test cases are deserialized. By default, uses <see cref="SerializationHelper"/>
-		/// to do the deserialization work to restore an <see cref="_ITestCase"/> object.
-		/// </summary>
-		/// <param name="serializedTestCase">The serialized test case value</param>
-		/// <returns>The deserialized test case</returns>
-		protected virtual ValueTask<_ITestCase> Deserialize(string serializedTestCase)
-		{
-			Guard.ArgumentNotNull(nameof(serializedTestCase), serializedTestCase);
-
-			return new ValueTask<_ITestCase>(SerializationHelper.Deserialize<_ITestCase>(serializedTestCase));
-		}
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()
@@ -102,7 +76,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public virtual void RunAll(
+		public ValueTask RunAll(
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestFrameworkExecutionOptions executionOptions)
@@ -111,68 +85,72 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 			Guard.ArgumentNotNull("executionOptions", executionOptions);
 
+			var tcs = new TaskCompletionSource<object?>();
+
 			ThreadPool.QueueUserWorkItem(async _ =>
 			{
-				var discoverySink = new TestDiscoveryVisitor();
+				try
+				{
+					await using var tracker = new DisposalTracker();
+					var discoverer = CreateDiscoverer();
+					tracker.Add(discoverer);
 
-				await using var tracker = new DisposalTracker();
-				var discoverer = CreateDiscoverer();
-				tracker.Add(discoverer);
+					var testCases = new List<TTestCase>();
+					await discoverer.Find(
+						testCase => { testCases.Add((TTestCase)testCase); return true; },
+						discoveryOptions
+					);
 
-				discoverer.Find(discoverySink, discoveryOptions);
-				discoverySink.Finished.WaitOne();
+					using (new PreserveWorkingFolder(AssemblyInfo))
+					using (new CultureOverride(executionOptions.Culture()))
+						await RunTestCases(testCases, executionMessageSink, executionOptions);
 
-				var testCases =
-					discoverySink
-						.TestCases
-						.Cast<TTestCase>()
-						.CastOrToReadOnlyCollection();
-
-				using (new CultureOverride(executionOptions.Culture()))
-					await RunTestCases(testCases, executionMessageSink, executionOptions);
+					tcs.SetResult(null);
+				}
+				catch (Exception ex)
+				{
+					tcs.SetException(ex);
+				}
 			});
+
+			return new(tcs.Task);
 		}
 
 		/// <inheritdoc/>
-		public virtual void RunTests(
-			IReadOnlyCollection<string> serializedTestCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions)
-		{
-			Guard.ArgumentNotNull(nameof(serializedTestCases), serializedTestCases);
-			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
-
-			ThreadPool.QueueUserWorkItem(async _ =>
-			{
-				var testCaseTasks = serializedTestCases.Select(x => Deserialize(x));
-
-				var testCases = new List<TTestCase>(serializedTestCases.Count);
-				foreach (var testCaseTask in testCaseTasks)
-					try
-					{
-						testCases.Add((TTestCase)await testCaseTask);
-					}
-					catch (Exception ex)
-					{
-						executionMessageSink.OnMessage(_ErrorMessage.FromException(ex));
-					}
-
-				using (new CultureOverride(executionOptions.Culture()))
-					await RunTestCases(testCases, executionMessageSink, executionOptions);
-			});
-		}
-
-		/// <summary>
-		/// Override to run test cases.
-		/// </summary>
-		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="executionMessageSink">The message sink to report run status to.</param>
-		/// <param name="executionOptions">The user's requested execution options.</param>
-		protected abstract ValueTask RunTestCases(
+		public abstract ValueTask RunTestCases(
 			IReadOnlyCollection<TTestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions
 		);
+
+		ValueTask _ITestFrameworkExecutor.RunTestCases(
+			IReadOnlyCollection<_ITestCase> testCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions)
+		{
+			Guard.ArgumentNotNull(nameof(testCases), testCases);
+			Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+			var tcs = new TaskCompletionSource<object?>();
+
+			ThreadPool.QueueUserWorkItem(async _ =>
+			{
+				try
+				{
+					using (new PreserveWorkingFolder(AssemblyInfo))
+					using (new CultureOverride(executionOptions.Culture()))
+						await RunTestCases(testCases.Cast<TTestCase>().CastOrToReadOnlyCollection(), executionMessageSink, executionOptions);
+
+					tcs.SetResult(null);
+				}
+				catch (Exception ex)
+				{
+					tcs.SetException(ex);
+				}
+			});
+
+			return new(tcs.Task);
+		}
 	}
 }

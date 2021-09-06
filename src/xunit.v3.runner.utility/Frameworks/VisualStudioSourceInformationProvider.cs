@@ -12,8 +12,6 @@ namespace Xunit
 	/// </summary>
 	public class VisualStudioSourceInformationProvider : _ISourceInformationProvider
 	{
-		static readonly _SourceInformation EmptySourceInformation = new _SourceInformation();
-
 		bool disposed;
 		readonly DiaSessionWrapper session;
 
@@ -32,7 +30,7 @@ namespace Xunit
 		}
 
 		/// <inheritdoc/>
-		public _ISourceInformation GetSourceInformation(
+		public (string? sourceFile, int? sourceLine) GetSourceInformation(
 			string? testClassName,
 			string? testMethodName)
 		{
@@ -41,14 +39,7 @@ namespace Xunit
 			if (testClassName != null && testMethodName != null)
 				navData = session.GetNavigationData(testClassName, testMethodName);
 
-			if (navData == null)
-				return EmptySourceInformation;
-
-			return new _SourceInformation
-			{
-				FileName = navData.FileName,
-				LineNumber = navData.LineNumber
-			};
+			return (navData?.FileName, navData?.LineNumber);
 		}
 
 		/// <inheritdoc/>

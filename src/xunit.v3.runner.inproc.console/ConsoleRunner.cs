@@ -345,7 +345,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		{
 			var (listOption, listFormat) = project.Configuration.List!.Value;
 			var nullMessageSink = new _NullMessageSink();
-			var testCasesByAssembly = new Dictionary<string, List<_TestCaseDiscovered>>();
+			var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
 
 			foreach (var assembly in project.Assemblies)
 			{
@@ -365,15 +365,13 @@ namespace Xunit.Runner.InProc.SystemConsole
 				var testFramework = ExtensibilityPointFactory.GetTestFramework(nullMessageSink, assemblyInfo);
 				disposalTracker.Add(testFramework);
 
-				var discoverySink = new TestDiscoverySink(() => cancel);
-
 				// Discover & filter the tests
+				var testCases = new List<_ITestCase>();
 				var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-				testDiscoverer.Find(discoverySink, discoveryOptions);
-				discoverySink.Finished.WaitOne();
+				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return !cancel; }, discoveryOptions);
 
-				var testCasesDiscovered = discoverySink.TestCases.Count;
-				var filteredTestCases = discoverySink.TestCases.Where(assembly.Configuration.Filters.Filter).ToList();
+				var testCasesDiscovered = testCases.Count;
+				var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
 
 				testCasesByAssembly.Add(assemblyFileName, filteredTestCases);
 			}
@@ -452,8 +450,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 				var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
 				disposalTracker.Add(testFramework);
 
-				var discoverySink = new TestDiscoverySink(() => cancel);
-
 				// Discover & filter the tests
 				var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
 				var discoveryStarting = new TestAssemblyDiscoveryStarting
@@ -465,18 +461,17 @@ namespace Xunit.Runner.InProc.SystemConsole
 				};
 				reporterMessageHandler.OnMessage(discoveryStarting);
 
-				testDiscoverer.Find(discoverySink, discoveryOptions);
-				discoverySink.Finished.WaitOne();
+				var testCases = new List<_ITestCase>();
+				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return !cancel; }, discoveryOptions);
 
-				var testCasesDiscovered = discoverySink.TestCases.Count;
-				var filteredTestCases = discoverySink.TestCases.Where(assembly.Configuration.Filters.Filter).ToList();
+				var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
 				var testCasesToRun = filteredTestCases.Count;
 
 				var discoveryFinished = new TestAssemblyDiscoveryFinished
 				{
 					Assembly = assembly,
 					DiscoveryOptions = discoveryOptions,
-					TestCasesDiscovered = testCasesDiscovered,
+					TestCasesDiscovered = testCases.Count,
 					TestCasesToRun = testCasesToRun
 				};
 				reporterMessageHandler.OnMessage(discoveryFinished);
@@ -505,8 +500,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 					{
 						var executor = testFramework.GetExecutor(assemblyInfo);
 
-						executor.RunTests(filteredTestCases, resultsSink, executionOptions);
-						resultsSink.Finished.WaitOne();
+						await executor.RunTestCases(filteredTestCases, resultsSink, executionOptions);
 
 						testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 

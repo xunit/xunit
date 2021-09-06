@@ -43,7 +43,7 @@ namespace Xunit.v3
 					StackTraces = stackTraces
 				};
 
-		static Dictionary<string, List<string>> GetTraits(MethodInfo method)
+		static IReadOnlyDictionary<string, IReadOnlyList<string>> GetTraits(MethodInfo method)
 		{
 			var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -53,7 +53,7 @@ namespace Xunit.v3
 				result.Add((string)ctorArgs[0].Value!, (string)ctorArgs[1].Value!);
 			}
 
-			return result;
+			return result.ToReadOnly();
 		}
 
 		public static TestAssembly TestAssembly(
@@ -319,7 +319,7 @@ namespace Xunit.v3
 			string? testMethod = null,
 			string? testMethodUniqueID = DefaultTestMethodUniqueID,
 			string? testNamespace = null,
-			Dictionary<string, List<string>>? traits = null) =>
+			IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
 				new _TestCaseDiscovered
 				{
 					AssemblyUniqueID = assemblyUniqueID,
@@ -329,14 +329,14 @@ namespace Xunit.v3
 					SourceLineNumber = sourceLineNumber,
 					TestCaseDisplayName = testCaseDisplayName,
 					TestCaseUniqueID = testCaseUniqueID,
-					TestClass = testClass,
+					TestClassName = testClass,
+					TestClassNameWithNamespace = testClassWithNamespace,
+					TestClassNamespace = testNamespace,
 					TestClassUniqueID = testClassUniqueID,
-					TestClassWithNamespace = testClassWithNamespace,
 					TestCollectionUniqueID = testCollectionUniqueID,
-					TestMethod = testMethod,
+					TestMethodName = testMethod,
 					TestMethodUniqueID = testMethodUniqueID,
-					TestNamespace = testNamespace,
-					Traits = traits ?? new Dictionary<string, List<string>>()
+					Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
 				};
 
 		public static _TestCaseFinished TestCaseFinished(
@@ -372,7 +372,7 @@ namespace Xunit.v3
 			string? testClassUniqueID = DefaultTestClassUniqueID,
 			string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 			string? testMethodUniqueID = DefaultTestMethodUniqueID,
-			Dictionary<string, List<string>>? traits = null) =>
+			IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
 				new _TestCaseStarting
 				{
 					AssemblyUniqueID = assemblyUniqueID,
@@ -384,7 +384,7 @@ namespace Xunit.v3
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
 					TestMethodUniqueID = testMethodUniqueID,
-					Traits = traits ?? new Dictionary<string, List<string>>()
+					Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
 				};
 
 		public static _TestClassFinished TestClassFinished(

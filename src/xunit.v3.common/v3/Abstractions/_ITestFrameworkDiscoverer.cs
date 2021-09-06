@@ -1,10 +1,11 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Xunit.v3
 {
 	/// <summary>
-	/// Represents an implementation of the discovery part of a test framework.
-	/// Implementations may optionally implement <see cref="IDisposable"/> and/or <see cref="IAsyncDisposable"/>
+	/// Represents an implementation of the discovery part of a test framework. Implementations may
+	/// optionally implement <see cref="IDisposable"/> and/or <see cref="IAsyncDisposable"/>
 	/// for cleanup operations.
 	/// </summary>
 	public interface _ITestFrameworkDiscoverer
@@ -25,29 +26,18 @@ namespace Xunit.v3
 		string TestFrameworkDisplayName { get; }
 
 		/// <summary>
-		/// Starts the process of finding all tests in an assembly. It is expected that this
-		/// method spawns a worker thread to do work, and returns immediately, while reporting
-		/// status back through the <paramref name="discoveryMessageSink"/>.
+		/// Finds tests inside an assembly. Calls the callback for each discovered test.
 		/// </summary>
-		/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
+		/// <param name="callback">Called for each discovered test. Return <c>true</c> to continue test
+		/// discovery; return <c>false</c> to cancel test discovery.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-		void Find(
-			_IMessageSink discoveryMessageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions
-		);
-
-		/// <summary>
-		/// Starts the process of finding all tests in a class. It is expected that this
-		/// method spawns a worker thread to do work, and returns immediately, while reporting
-		/// status back through the <paramref name="discoveryMessageSink"/>.
-		/// </summary>
-		/// <param name="typeName">The fully qualified type name to find tests in.</param>
-		/// <param name="discoveryMessageSink">The message sink to report results back to.</param>
-		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-		void Find(
-			string typeName,
-			_IMessageSink discoveryMessageSink,
-			_ITestFrameworkDiscoveryOptions discoveryOptions
+		/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
+		/// from one of the provided types; when passed a <c>null</c> collection, discovers all
+		/// tests in the assembly.</param>
+		ValueTask Find(
+			Func<_ITestCase, bool> callback,
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			Type[]? types = null
 		);
 	}
 }

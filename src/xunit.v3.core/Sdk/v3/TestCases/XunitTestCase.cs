@@ -94,7 +94,7 @@ namespace Xunit.v3
 			var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
 			var baseDisplayName = displayName ?? factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
-			DisplayName = TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
+			TestCaseDisplayName = TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
 			SkipReason ??= factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
 			Timeout = timeout ?? factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
 
@@ -109,7 +109,7 @@ namespace Xunit.v3
 							Traits.Add(keyValuePair.Key, keyValuePair.Value);
 				}
 				else
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]" });
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{TestCaseDisplayName}' did not have [TraitDiscoverer]" });
 			}
 		}
 
@@ -162,7 +162,7 @@ namespace Xunit.v3
 
 			return new XunitTestCaseRunner(
 				this,
-				DisplayName,
+				TestCaseDisplayName,
 				SkipReason,
 				constructorArguments,
 				TestMethodArguments,

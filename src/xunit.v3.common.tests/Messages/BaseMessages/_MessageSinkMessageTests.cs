@@ -93,7 +93,7 @@ public class _MessageSinkMessageTests
 			TestCaseDisplayName = "test-case-display-name",
 			TestCaseUniqueID = "test-case-id",
 			TestCollectionUniqueID = "test-collection-id",
-			Traits = new Dictionary<string, List<string>>
+			Traits = new Dictionary<string, IReadOnlyList<string>>
 			{
 				{ "foo", new List<string> { "bar", "baz" } },
 				{ "abc", new List<string> { "123" } },

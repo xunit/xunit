@@ -99,9 +99,9 @@ namespace Xunit.v3
 			{
 				AssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID,
 				SkipReason = TestCase.SkipReason,
-				SourceFilePath = TestCase.SourceInformation?.FileName,
-				SourceLineNumber = TestCase.SourceInformation?.LineNumber,
-				TestCaseDisplayName = TestCase.DisplayName,
+				SourceFilePath = TestCase.SourceFilePath,
+				SourceLineNumber = TestCase.SourceLineNumber,
+				TestCaseDisplayName = TestCase.TestCaseDisplayName,
 				TestCaseUniqueID = TestCase.UniqueID,
 				TestClassUniqueID = TestCase.TestMethod?.TestClass.UniqueID,
 				TestCollectionUniqueID = TestCase.TestCollection.UniqueID,

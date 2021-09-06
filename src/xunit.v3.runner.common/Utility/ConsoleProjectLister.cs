@@ -14,36 +14,38 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public static class ConsoleProjectLister
 	{
-		static Dictionary<ListOption, Action<IReadOnlyDictionary<string, List<_TestCaseDiscovered>>, ListFormat>> ListOutputMethods = new()
-		{
-			{ ListOption.Classes, Classes },
-			{ ListOption.Full, Full },
-			{ ListOption.Methods, Methods },
-			{ ListOption.Tests, Tests },
-			{ ListOption.Traits, Traits },
-		};
-
 		/// <summary>
 		/// List the contents of the test cases to the console, based on the provided option and format.
 		/// </summary>
-		public static void List(
-			IReadOnlyDictionary<string, List<_TestCaseDiscovered>> testCasesByAssembly,
+		public static void List<TTestCase>(
+			IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 			ListOption listOption,
 			ListFormat listFormat)
+				where TTestCase : _ITestCaseMetadata
 		{
-			if (ListOutputMethods.TryGetValue(listOption, out var lister))
-				lister(testCasesByAssembly, listFormat);
+			Action<IReadOnlyDictionary<string, List<TTestCase>>, ListFormat>? lister = listOption switch
+			{
+				ListOption.Classes => Classes,
+				ListOption.Full => Full,
+				ListOption.Methods => Methods,
+				ListOption.Tests => Tests,
+				ListOption.Traits => Traits,
+				_ => null
+			};
+
+			lister?.Invoke(testCasesByAssembly, listFormat);
 		}
 
-		static void Classes(
-			IReadOnlyDictionary<string, List<_TestCaseDiscovered>> testCasesByAssembly,
+		static void Classes<TTestCase>(
+			IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 			ListFormat format)
+				where TTestCase : _ITestCaseMetadata
 		{
 			var testClasses =
 				testCasesByAssembly
 					.SelectMany(kvp => kvp.Value)
-					.Where(tc => tc.TestClass != null)
-					.Select(tc => tc.TestClassWithNamespace)
+					.Where(tc => tc.TestClassName != null)
+					.Select(tc => tc.TestClassNameWithNamespace)
 					.Distinct()
 					.OrderBy(x => x)
 					.ToList();
@@ -55,9 +57,10 @@ namespace Xunit.Runner.Common
 					Console.WriteLine(testClass);
 		}
 
-		static void Full(
-			IReadOnlyDictionary<string, List<_TestCaseDiscovered>> testCasesByAssembly,
+		static void Full<TTestCase>(
+			IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 			ListFormat format)
+				where TTestCase : _ITestCaseMetadata
 		{
 			var fullTestCases =
 				testCasesByAssembly
@@ -66,8 +69,8 @@ namespace Xunit.Runner.Common
 					{
 						Assembly = tuple.assemblyFileName,
 						DisplayName = tuple.testCase.TestCaseDisplayName,
-						Class = tuple.testCase.TestClassWithNamespace,
-						Method = tuple.testCase.TestMethod,
+						Class = tuple.testCase.TestClassNameWithNamespace,
+						Method = tuple.testCase.TestMethodName,
 						Skip = tuple.testCase.SkipReason,
 						Traits = tuple.testCase.Traits.Count > 0 ? tuple.testCase.Traits : null,
 					})
@@ -83,15 +86,16 @@ namespace Xunit.Runner.Common
 					Console.WriteLine(JsonSerializer.Serialize(testCase, jsonOptions));
 		}
 
-		static void Methods(
-			IReadOnlyDictionary<string, List<_TestCaseDiscovered>> testCasesByAssembly,
+		static void Methods<TTestCase>(
+			IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 			ListFormat format)
+				where TTestCase : _ITestCaseMetadata
 		{
 			var testMethods =
 				testCasesByAssembly
 					.SelectMany(kvp => kvp.Value)
-					.Where(tc => tc.TestClass != null && tc.TestMethod != null)
-					.Select(tc => $"{tc.TestClassWithNamespace}.{tc.TestMethod}")
+					.Where(tc => tc.TestClassName != null && tc.TestMethodName != null)
+					.Select(tc => $"{tc.TestClassNameWithNamespace}.{tc.TestMethodName}")
 					.Distinct()
 					.OrderBy(x => x)
 					.ToList();
@@ -103,9 +107,10 @@ namespace Xunit.Runner.Common
 					Console.WriteLine(testMethod);
 		}
 
-		static void Tests(
-			IReadOnlyDictionary<string, List<_TestCaseDiscovered>> testCasesByAssembly,
+		static void Tests<TTestCase>(
+			IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 			ListFormat format)
+				where TTestCase : _ITestCaseMetadata
 		{
 			var displayNames =
 				testCasesByAssembly
@@ -121,9 +126,10 @@ namespace Xunit.Runner.Common
 					Console.WriteLine(displayName);
 		}
 
-		static void Traits(
-			IReadOnlyDictionary<string, List<_TestCaseDiscovered>> testCasesByAssembly,
+		static void Traits<TTestCase>(
+			IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 			ListFormat format)
+				where TTestCase : _ITestCaseMetadata
 		{
 			static string Escape(string value) =>
 				ArgumentFormatter.EscapeString(value).Replace("\"", "\\\"");

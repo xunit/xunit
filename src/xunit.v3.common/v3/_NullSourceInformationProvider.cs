@@ -14,9 +14,9 @@
 		public static _NullSourceInformationProvider Instance { get; } = new _NullSourceInformationProvider();
 
 		/// <inheritdoc/>
-		public _ISourceInformation GetSourceInformation(
+		(string? sourceFile, int? sourceLine) _ISourceInformationProvider.GetSourceInformation(
 			string? testClassName,
 			string? testMethodName) =>
-				new _SourceInformation();
+				(null, null);
 	}
 }

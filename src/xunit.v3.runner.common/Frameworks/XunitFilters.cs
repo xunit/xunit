@@ -81,7 +81,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		/// <param name="testCase">The test case to filter.</param>
 		/// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
-		public bool Filter(_TestCaseDiscovered testCase)
+		public bool Filter(_ITestCaseMetadata testCase)
 		{
 			Guard.ArgumentNotNull(nameof(testCase), testCase);
 
@@ -106,34 +106,34 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterExcludedClasses(_TestCaseDiscovered testCase)
+		bool FilterExcludedClasses(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (ExcludedClasses.Count == 0)
 				return true;
 
 			// No class == pass
-			if (testCase.TestClassWithNamespace == null)
+			if (testCase.TestClassNameWithNamespace == null)
 				return true;
 
 			// Exact match == do not pass
-			if (ExcludedClasses.Contains(testCase.TestClassWithNamespace))
+			if (ExcludedClasses.Contains(testCase.TestClassNameWithNamespace))
 				return false;
 
 			return true;
 		}
 
-		bool FilterExcludedMethods(_TestCaseDiscovered testCase)
+		bool FilterExcludedMethods(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (excludedMethodRegexFilters.Count == 0 && excludedMethodStandardFilters.Count == 0)
 				return true;
 
 			// No method == pass
-			if (testCase.TestMethod == null)
+			if (testCase.TestMethodName == null)
 				return true;
 
-			var methodName = $"{testCase.TestClassWithNamespace}.{testCase.TestMethod}";
+			var methodName = $"{testCase.TestClassNameWithNamespace}.{testCase.TestMethodName}";
 
 			// Standard exact match == do not pass
 			if (excludedMethodStandardFilters.Contains(methodName) == true)
@@ -147,24 +147,24 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterExcludedNamespaces(_TestCaseDiscovered testCase)
+		bool FilterExcludedNamespaces(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (ExcludedNamespaces.Count == 0)
 				return true;
 
 			// No namespace == pass
-			if (testCase.TestNamespace == null)
+			if (testCase.TestClassNamespace == null)
 				return true;
 
 			// Exact match or starts-with match == do not pass
-			if (ExcludedNamespaces.Any(ns => testCase.TestNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
+			if (ExcludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
 				return false;
 
 			return true;
 		}
 
-		bool FilterExcludedTraits(_TestCaseDiscovered testCase)
+		bool FilterExcludedTraits(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (ExcludedTraits.Count == 0)
@@ -182,34 +182,34 @@ namespace Xunit.Runner.Common
 			return true;
 		}
 
-		bool FilterIncludedClasses(_TestCaseDiscovered testCase)
+		bool FilterIncludedClasses(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (IncludedClasses.Count == 0)
 				return true;
 
 			// No class == do not pass
-			if (testCase.TestClassWithNamespace == null)
+			if (testCase.TestClassNameWithNamespace == null)
 				return false;
 
 			// Exact match == pass
-			if (IncludedClasses.Contains(testCase.TestClassWithNamespace))
+			if (IncludedClasses.Contains(testCase.TestClassNameWithNamespace))
 				return true;
 
 			return false;
 		}
 
-		bool FilterIncludedMethods(_TestCaseDiscovered testCase)
+		bool FilterIncludedMethods(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (includedMethodRegexFilters.Count == 0 && includedMethodStandardFilters.Count == 0)
 				return true;
 
 			// No method == do not pass
-			if (testCase.TestMethod == null)
+			if (testCase.TestMethodName == null)
 				return false;
 
-			var methodName = $"{testCase.TestClassWithNamespace}.{testCase.TestMethod}";
+			var methodName = $"{testCase.TestClassNameWithNamespace}.{testCase.TestMethodName}";
 
 			// Standard exact match == pass
 			if (includedMethodStandardFilters.Contains(methodName))
@@ -223,24 +223,24 @@ namespace Xunit.Runner.Common
 			return false;
 		}
 
-		bool FilterIncludedNamespaces(_TestCaseDiscovered testCase)
+		bool FilterIncludedNamespaces(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (IncludedNamespaces.Count == 0)
 				return true;
 
 			// No namespace == do not pass
-			if (testCase.TestNamespace == null)
+			if (testCase.TestClassNamespace == null)
 				return false;
 
 			// Exact match or starts-with match == pass
-			if (IncludedNamespaces.Any(ns => testCase.TestNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
+			if (IncludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
 				return true;
 
 			return false;
 		}
 
-		bool FilterIncludedTraits(_TestCaseDiscovered testCase)
+		bool FilterIncludedTraits(_ITestCaseMetadata testCase)
 		{
 			// No filters == pass
 			if (IncludedTraits.Count == 0)

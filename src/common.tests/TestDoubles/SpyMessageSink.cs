@@ -5,8 +5,13 @@ using NSubstitute;
 
 namespace Xunit.v3
 {
-	public static class SpyMessageSink
+	public class SpyMessageSink : _IMessageSink
 	{
+		public readonly List<_MessageSinkMessage> Messages = new();
+
+		public static SpyMessageSink Capture() =>
+			new();
+
 		public static _IMessageSink Create(
 			bool returnResult = true,
 			List<_MessageSinkMessage>? messages = null) =>
@@ -32,9 +37,15 @@ namespace Xunit.v3
 
 			return result;
 		}
+
+		public virtual bool OnMessage(_MessageSinkMessage message)
+		{
+			Messages.Add(message);
+			return true;
+		}
 	}
 
-	public class SpyMessageSink<TFinalMessage> : _IMessageSink, IDisposable
+	public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 	{
 		readonly Func<_MessageSinkMessage, bool> cancellationThunk;
 		bool disposed;
@@ -44,12 +55,10 @@ namespace Xunit.v3
 			this.cancellationThunk = cancellationThunk ?? (msg => true);
 		}
 
-		public ManualResetEvent Finished = new ManualResetEvent(initialState: false);
-
-		public List<_MessageSinkMessage> Messages = new List<_MessageSinkMessage>();
+		public ManualResetEvent Finished = new(initialState: false);
 
 		public static SpyMessageSink<TFinalMessage> Create(Func<_MessageSinkMessage, bool>? cancellationThunk = null) =>
-			new SpyMessageSink<TFinalMessage>(cancellationThunk);
+			new(cancellationThunk);
 
 		public void Dispose()
 		{
@@ -61,9 +70,9 @@ namespace Xunit.v3
 			Finished.Dispose();
 		}
 
-		public bool OnMessage(_MessageSinkMessage message)
+		public override bool OnMessage(_MessageSinkMessage message)
 		{
-			Messages.Add(message);
+			base.OnMessage(message);
 
 			if (message is TFinalMessage)
 				Finished.Set();

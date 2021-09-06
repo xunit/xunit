@@ -37,7 +37,7 @@ namespace Xunit.v3
 			Traits.Add("Culture", Culture);
 
 			var cultureDisplay = $"[{Culture}]";
-			DisplayName += cultureDisplay;
+			TestCaseDisplayName += cultureDisplay;
 			UniqueID += cultureDisplay;
 		}
 

@@ -160,7 +160,7 @@ public class TestClassCallbackHandlerTests
 		string methodName,
 		string testCaseDisplayName,
 		string? skipReason = null,
-		Dictionary<string, List<string>>? traits = null)
+		Dictionary<string, IReadOnlyList<string>>? traits = null)
 	{
 		return new Xunit1TestCase
 		{
@@ -173,7 +173,7 @@ public class TestClassCallbackHandlerTests
 			TestCollectionUniqueID = $"collection-id: {assemblyPath}:{configFileName}",
 			TestMethod = methodName,
 			TestMethodUniqueID = $"method-id: {typeName}:{methodName}:{assemblyPath}:{configFileName}",
-			Traits = traits ?? new Dictionary<string, List<string>>()
+			Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
 		};
 	}
 

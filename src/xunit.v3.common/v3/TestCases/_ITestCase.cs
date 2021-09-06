@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Xunit.v3
 {
 	/// <summary>
@@ -7,24 +5,8 @@ namespace Xunit.v3
 	/// the case of dynamically generated data for data driven tests, the test case may actually return
 	/// multiple results when run.
 	/// </summary>
-	public interface _ITestCase
+	public interface _ITestCase : _ITestCaseMetadata
 	{
-		/// <summary>
-		/// Gets the display name of the test case.
-		/// </summary>
-		string DisplayName { get; }
-
-		/// <summary>
-		/// Gets the display text for the reason a test is being skipped; if the test
-		/// is not skipped, returns <c>null</c>.
-		/// </summary>
-		string? SkipReason { get; }
-
-		/// <summary>
-		/// Get or sets the source file name and line where the test is defined, if requested (and known).
-		/// </summary>
-		_ISourceInformation? SourceInformation { get; set; }
-
 		/// <summary>
 		/// Gets the test collection this test case belongs to. When <see cref="TestMethod"/> is not <c>null</c>,
 		/// this value must point to the same object as
@@ -42,14 +24,6 @@ namespace Xunit.v3
 		/// Gets the arguments that will be passed to the test method.
 		/// </summary>
 		object?[]? TestMethodArguments { get; }
-
-		/// <summary>
-		/// Gets the trait values associated with this test case. If
-		/// there are none, or the framework does not support traits,
-		/// this should return an empty dictionary (not <c>null</c>). This
-		/// dictionary must be treated as read-only.
-		/// </summary>
-		Dictionary<string, List<string>> Traits { get; }
 
 		/// <summary>
 		/// Gets a unique identifier for the test case.

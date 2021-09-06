@@ -29,7 +29,7 @@ namespace Xunit.v3
 		protected override Task<RunSummary> RunTestAsync()
 		{
 			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
-			var test = new XunitTest(TestCase, TestCase.DisplayName, testIndex: -1);
+			var test = new XunitTest(TestCase, TestCase.TestCaseDisplayName, testIndex: -1);
 			var summary = new RunSummary { Total = 1 };
 
 			var testAssemblyUniqueID = TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;

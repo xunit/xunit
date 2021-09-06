@@ -13,7 +13,6 @@ namespace Xunit.v3
 	public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	{
 		bool disposed;
-		_ISourceInformationProvider sourceInformationProvider = _NullSourceInformationProvider.Instance;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFramework"/> class.
@@ -32,14 +31,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the disposal tracker for the test framework.
 		/// </summary>
-		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
-
-		/// <inheritdoc/>
-		public _ISourceInformationProvider SourceInformationProvider
-		{
-			get => sourceInformationProvider;
-			set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
-		}
+		protected DisposalTracker DisposalTracker { get; } = new();
 
 		/// <inheritdoc/>
 		public virtual async ValueTask DisposeAsync()

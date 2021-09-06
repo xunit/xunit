@@ -53,7 +53,7 @@ namespace Xunit.v3
 			CancellationTokenSource cancellationTokenSource) =>
 				new XunitDelayEnumeratedTheoryTestCaseRunner(
 					this,
-					DisplayName,
+					TestCaseDisplayName,
 					SkipReason,
 					constructorArguments,
 					diagnosticMessageSink,

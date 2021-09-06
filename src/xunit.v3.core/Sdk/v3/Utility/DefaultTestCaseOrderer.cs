@@ -63,8 +63,8 @@ namespace Xunit.v3
 		{
 			Guard.ArgumentNotNull(nameof(x), x);
 			Guard.ArgumentNotNull(nameof(y), y);
-			Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.DisplayName} because it has a null UniqueID", x.UniqueID != null);
-			Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.DisplayName} because it has a null UniqueID", y.UniqueID != null);
+			Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.TestCaseDisplayName} because it has a null UniqueID", x.UniqueID != null);
+			Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.TestCaseDisplayName} because it has a null UniqueID", y.UniqueID != null);
 
 			return string.CompareOrdinal(x.UniqueID, y.UniqueID);
 		}

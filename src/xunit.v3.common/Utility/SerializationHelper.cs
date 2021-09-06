@@ -42,9 +42,9 @@ namespace Xunit.Sdk
 		/// Deserializes a traits dictionary from <see cref="SerializationInfo"/>.
 		/// </summary>
 		/// <param name="info">The <see cref="SerializationInfo"/> to deserialize from.</param>
-		public static Dictionary<string, List<string>> DeserializeTraits(SerializationInfo info)
+		public static Dictionary<string, IReadOnlyList<string>> DeserializeTraits(SerializationInfo info)
 		{
-			var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var result = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 			var keys = Guard.NotNull("Could not retrieve 'Traits.Keys' from serialization", info.GetValue<string[]>("Traits.Keys"));
 
 			foreach (var key in keys)
@@ -196,6 +196,25 @@ namespace Xunit.Sdk
 		public static void SerializeTraits(
 			SerializationInfo info,
 			Dictionary<string, List<string>>? traits)
+		{
+			if (traits == null || traits.Count == 0)
+				info.AddValue("Traits.Keys", new string[0]);
+			else
+			{
+				info.AddValue("Traits.Keys", traits.Keys.ToArray());
+				foreach (var key in traits.Keys)
+					info.AddValue($"Traits[{key}]", traits[key].ToArray());
+			}
+		}
+
+		/// <summary>
+		/// Serializes a traits dictionary into <see cref="SerializationInfo"/>.
+		/// </summary>
+		/// <param name="info">The <see cref="SerializationInfo"/> to serialize into.</param>
+		/// <param name="traits">The traits dictionary to serialize.</param>
+		public static void SerializeTraits(
+			SerializationInfo info,
+			IReadOnlyDictionary<string, IReadOnlyList<string>>? traits)
 		{
 			if (traits == null || traits.Count == 0)
 				info.AddValue("Traits.Keys", new string[0]);

@@ -110,13 +110,13 @@ public class Xunit1Tests
 					Assert.Null(testCase.SkipReason);
 					Assert.Equal("Method1 Display Name", testCase.TestCaseDisplayName);
 					Assert.Equal($":v1:case:Namespace1.OuterType1+Type1.Method1:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
-					Assert.Equal("Type1", testCase.TestClass);
+					Assert.Equal("Type1", testCase.TestClassName);
+					Assert.Equal("Namespace1", testCase.TestClassNamespace);
+					Assert.Equal("Namespace1.OuterType1+Type1", testCase.TestClassNameWithNamespace);
 					Assert.Equal($":v1:class:Namespace1.OuterType1+Type1:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
-					Assert.Equal("Namespace1.OuterType1+Type1", testCase.TestClassWithNamespace);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
-					Assert.Equal("Method1", testCase.TestMethod);
+					Assert.Equal("Method1", testCase.TestMethodName);
 					Assert.Equal($":v1:method:Namespace1.OuterType1+Type1.Method1:{OsSpecificAssemblyPath}:(null)", testCase.TestMethodUniqueID);
-					Assert.Equal("Namespace1", testCase.TestNamespace);
 					Assert.Empty(testCase.Traits);
 				},
 				testCase =>
@@ -126,13 +126,13 @@ public class Xunit1Tests
 					Assert.Equal("I am not run", testCase.SkipReason);
 					Assert.Equal("SpecialType.SkippedMethod", testCase.TestCaseDisplayName);
 					Assert.Equal($":v1:case:SpecialType.SkippedMethod:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
-					Assert.Equal("SpecialType", testCase.TestClass);
+					Assert.Equal("SpecialType", testCase.TestClassName);
+					Assert.Null(testCase.TestClassNamespace);
+					Assert.Equal("SpecialType", testCase.TestClassNameWithNamespace);
 					Assert.Equal($":v1:class:SpecialType:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
-					Assert.Equal("SpecialType", testCase.TestClassWithNamespace);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
-					Assert.Equal("SkippedMethod", testCase.TestMethod);
+					Assert.Equal("SkippedMethod", testCase.TestMethodName);
 					Assert.Equal($":v1:method:SpecialType.SkippedMethod:{OsSpecificAssemblyPath}:(null)", testCase.TestMethodUniqueID);
-					Assert.Null(testCase.TestNamespace);
 					Assert.Empty(testCase.Traits);
 				},
 				testCase =>
@@ -142,13 +142,13 @@ public class Xunit1Tests
 					Assert.Null(testCase.SkipReason);
 					Assert.Equal("SpecialType.MethodWithTraits", testCase.TestCaseDisplayName);
 					Assert.Equal($":v1:case:SpecialType.MethodWithTraits:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
-					Assert.Equal("SpecialType", testCase.TestClass);
+					Assert.Equal("SpecialType", testCase.TestClassName);
+					Assert.Null(testCase.TestClassNamespace);
+					Assert.Equal("SpecialType", testCase.TestClassNameWithNamespace);
 					Assert.Equal($":v1:class:SpecialType:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
-					Assert.Equal("SpecialType", testCase.TestClassWithNamespace);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
-					Assert.Equal("MethodWithTraits", testCase.TestMethod);
+					Assert.Equal("MethodWithTraits", testCase.TestMethodName);
 					Assert.Equal($":v1:method:SpecialType.MethodWithTraits:{OsSpecificAssemblyPath}:(null)", testCase.TestMethodUniqueID);
-					Assert.Null(testCase.TestNamespace);
 					Assert.Collection(
 						testCase.Traits.Keys,
 						key =>
@@ -194,7 +194,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(sink, filter: msg => msg.TestClassWithNamespace == "Namespace1.OuterType1+Type1");
+			xunit1.Find(sink, filter: msg => msg.TestClassNameWithNamespace == "Namespace1.OuterType1+Type1");
 			sink.Finished.WaitOne();
 
 			var testCase = Assert.Single(sink.TestCases);
@@ -220,7 +220,7 @@ public class Xunit1Tests
 			xunit1
 				.SourceInformationProvider
 				.GetSourceInformation(null, null)
-				.ReturnsForAnyArgs(callInfo => new _SourceInformation { FileName = $"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}" });
+				.ReturnsForAnyArgs(callInfo => ($"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}", null));
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink, includeSourceInformation: true);
@@ -968,7 +968,7 @@ public class AmbiguouslyNamedTestMethods
 		string methodName,
 		string testCaseDisplayName,
 		string? skipReason = null,
-		Dictionary<string, List<string>>? traits = null)
+		Dictionary<string, IReadOnlyList<string>>? traits = null)
 	{
 		return new Xunit1TestCase
 		{
@@ -981,7 +981,7 @@ public class AmbiguouslyNamedTestMethods
 			TestCollectionUniqueID = $"collection-id: {assemblyPath}:{configFileName}",
 			TestMethod = methodName,
 			TestMethodUniqueID = $"method-id: {typeName}:{methodName}:{assemblyPath}:{configFileName}",
-			Traits = traits ?? new Dictionary<string, List<string>>()
+			Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
 		};
 	}
 

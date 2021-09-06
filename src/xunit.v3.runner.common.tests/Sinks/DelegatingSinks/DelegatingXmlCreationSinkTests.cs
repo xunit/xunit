@@ -346,7 +346,7 @@ public class DelegatingXmlCreationSinkTests
 	[Fact]
 	public void TestElementTraitsArePlacedInXmlWhenPresent()
 	{
-		var traits = new Dictionary<string, List<string>>
+		var traits = new Dictionary<string, IReadOnlyList<string>>
 		{
 			{ "name1", new List<string> { "value1" }},
 			{ "name2", new List<string> { "value2" }}
