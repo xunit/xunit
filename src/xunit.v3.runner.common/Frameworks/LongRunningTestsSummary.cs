@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit.Internal;
-using Xunit.Runner.Common;
 using Xunit.v3;
 
-namespace Xunit.Runner
+namespace Xunit.Runner.Common
 {
 	/// <summary>
 	/// Represents information about long running tests from <see cref="DelegatingLongRunningTestDetectionSink"/>.
