@@ -74,7 +74,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Gets the metadata cache.
 		/// </summary>
-		protected MessageMetadataCache MetadataCache { get; } = new MessageMetadataCache();
+		protected MessageMetadataCache MetadataCache { get; } = new();
 
 		void AddExecutionOptions(
 			string? assemblyFilename,

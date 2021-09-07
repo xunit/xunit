@@ -34,6 +34,12 @@ namespace Xunit.Runner.Common
 			Task.Run(RunLoop);
 		}
 
+		public void AddTest(IDictionary<string, object?> request)
+		{
+			addQueue.Enqueue(request);
+			workEvent.Set();
+		}
+
 		public void Dispose(CancellationToken cancellationToken)
 		{
 			// Free up to process any remaining work
@@ -73,19 +79,6 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-
-		public void AddTest(IDictionary<string, object?> request)
-		{
-			addQueue.Enqueue(request);
-			workEvent.Set();
-		}
-
-		public void UpdateTest(IDictionary<string, object?> request)
-		{
-			updateQueue.Enqueue(request);
-			workEvent.Set();
-		}
-
 		async Task SendRequest(
 			HttpMethod method,
 			ICollection<IDictionary<string, object?>> body)
@@ -121,11 +114,16 @@ namespace Xunit.Runner.Common
 			}
 		}
 
-
 		static string ToJson(IEnumerable<IDictionary<string, object?>> data)
 		{
 			var results = string.Join(",", data.Select(x => JsonSerializer.Serialize(x)));
 			return $"[{results}]";
+		}
+
+		public void UpdateTest(IDictionary<string, object?> request)
+		{
+			updateQueue.Enqueue(request);
+			workEvent.Set();
 		}
 	}
 }

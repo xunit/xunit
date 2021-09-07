@@ -7,7 +7,8 @@ namespace Xunit.Runner.Common
 	/// <summary>
 	/// An implementation of <see cref="IRunnerReporter" /> that reports results to AppVeyor. This
 	/// is auto-enabled by the presence of the "APPVEYOR_API_URL" environment variable, which points
-	/// to the AppVeyor API endpoint that is used to report tests.
+	/// to the AppVeyor API endpoint that is used to report tests. It has no switch for manual
+	/// enablement, since the API endpoint is required.
 	/// </summary>
 	public class AppVeyorReporter : IRunnerReporter
 	{
