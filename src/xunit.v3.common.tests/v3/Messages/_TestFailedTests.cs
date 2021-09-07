@@ -14,7 +14,7 @@ public class _TestFailedTests
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("Cause", argEx.ParamName);
-			Assert.StartsWith("Cause is not a valid value from Xunit.FailureCause", argEx.Message);
+			Assert.StartsWith($"Cause is not a valid value from {typeof(FailureCause).FullName}", argEx.Message);
 		}
 
 		[Fact]

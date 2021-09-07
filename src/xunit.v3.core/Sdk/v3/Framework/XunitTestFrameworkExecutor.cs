@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 // TODO: Need to acceptance test this via Xunit3, once it comes into existence. See Xunit2Tests.cs for examples.
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit
 {

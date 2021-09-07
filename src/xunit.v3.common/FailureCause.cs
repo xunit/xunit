@@ -1,4 +1,4 @@
-﻿namespace Xunit
+﻿namespace Xunit.Sdk
 {
 	/// <summary>
 	/// Indicates the cause of the test failure.

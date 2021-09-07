@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class _MessageSinkMessageTests
