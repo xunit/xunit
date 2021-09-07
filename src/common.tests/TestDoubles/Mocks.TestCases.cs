@@ -64,7 +64,7 @@ namespace Xunit.v3
 			string methodName,
 			string? displayName = null,
 			string? skipReason = null,
-			Dictionary<string, List<string>>? traits = null,
+			IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
 			string? fileName = null,
 			int? lineNumber = null,
 			string? uniqueID = null) =>
@@ -75,7 +75,7 @@ namespace Xunit.v3
 			string methodName,
 			string? displayName = null,
 			string? skipReason = null,
-			Dictionary<string, List<string>>? traits = null,
+			IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
 			string? fileName = null,
 			int? lineNumber = null,
 			string? uniqueID = null) =>
@@ -85,7 +85,7 @@ namespace Xunit.v3
 			_ITestMethod? testMethod = null,
 			string? displayName = null,
 			string? skipReason = null,
-			Dictionary<string, List<string>>? traits = null,
+			IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
 			string? fileName = null,
 			int? lineNumber = null,
 			string? uniqueID = null)
@@ -96,12 +96,11 @@ namespace Xunit.v3
 			uniqueID ??= "case-id";
 			var testCollection = testMethod.TestClass.TestCollection;
 
-			var sourceInfo = new _SourceInformation { FileName = fileName, LineNumber = lineNumber };
-
 			var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
-			result.DisplayName.Returns(displayName);
+			result.TestCaseDisplayName.Returns(displayName);
 			result.SkipReason.Returns(skipReason);
-			result.SourceInformation.Returns(sourceInfo);
+			result.SourceFilePath.Returns(fileName);
+			result.SourceLineNumber.Returns(lineNumber);
 			result.TestCollection.Returns(testCollection);
 			result.TestMethod.Returns(testMethod);
 			result.Traits.Returns(traits);

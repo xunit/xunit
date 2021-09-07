@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Xunit.Internal
@@ -27,7 +26,7 @@ namespace Xunit.Internal
 
 		/// <summary/>
 		public static bool Contains<TKey, TValue>(
-			this IDictionary<TKey, List<TValue>> dictionary,
+			this IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> dictionary,
 			TKey key,
 			TValue value,
 			IEqualityComparer<TValue> valueComparer)
@@ -110,7 +109,22 @@ namespace Xunit.Internal
 
 		/// <summary/>
 		public static IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> ToReadOnly<TKey, TValue>(this Dictionary<TKey, List<TValue>> dictionary)
-			where TKey : notnull
-				=> new ReadOnlyDictionary<TKey, IReadOnlyList<TValue>>(dictionary.ToDictionary(kvp => kvp.Key, kvp => (IReadOnlyList<TValue>)kvp.Value.AsReadOnly()));
+			where TKey : notnull =>
+				dictionary.ToDictionary(
+					kvp => kvp.Key,
+					kvp => (IReadOnlyList<TValue>)kvp.Value.AsReadOnly(),
+					dictionary.Comparer
+				);
+
+		/// <summary/>
+		public static Dictionary<TKey, List<TValue>> ToReadWrite<TKey, TValue>(
+			this IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> dictionary,
+			IEqualityComparer<TKey>? comparer)
+				where TKey : notnull =>
+					dictionary.ToDictionary(
+						kvp => kvp.Key,
+						kvp => kvp.Value.ToList(),
+						comparer
+					);
 	}
 }

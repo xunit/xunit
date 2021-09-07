@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -141,12 +140,9 @@ public class ExtensibilityPointFactoryTests
 		{
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly, sourceProvider);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
 
-			var testFramework = Assert.IsType<MyTestFramework>(framework);
-			Assert.Same(sourceProvider, testFramework.SourceInformationProvider);
 			Assert.Empty(messages);
 		}
 
@@ -176,13 +172,11 @@ public class ExtensibilityPointFactoryTests
 		{
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscovererWithMessageSink>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-			var sourceProvider = Substitute.For<_ISourceInformationProvider>();
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly, sourceProvider);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
 
 			var testFramework = Assert.IsType<MyTestFrameworkWithMessageSink>(framework);
 			Assert.Same(spy, testFramework.MessageSink);
-			Assert.Same(sourceProvider, testFramework.SourceInformationProvider);
 			Assert.Empty(messages);
 		}
 

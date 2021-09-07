@@ -203,16 +203,17 @@ namespace Xunit.Runner.v1
 									traits.Add(traitName, traitValue);
 							}
 
-						var sourceInformation = default(_ISourceInformation);
+						string? sourceFile = null;
+						int? sourceLine = null;
 						if (includeSourceInformation)
-							sourceInformation = sourceInformationProvider.GetSourceInformation(typeName, methodName);
+							(sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(typeName, methodName);
 
 						var testCase = new Xunit1TestCase
 						{
 							AssemblyUniqueID = TestAssemblyUniqueID,
 							SkipReason = skipReason,
-							SourceFilePath = sourceInformation?.FileName,
-							SourceLineNumber = sourceInformation?.LineNumber,
+							SourceFilePath = sourceFile,
+							SourceLineNumber = sourceLine,
 							TestCaseDisplayName = displayName ?? $"{typeName}.{methodName}",
 							TestCaseUniqueID = $":v1:case:{typeName}.{methodName}:{assemblyFileName}:{configFileName ?? "(null)"}",
 							TestClass = typeName,
@@ -220,7 +221,7 @@ namespace Xunit.Runner.v1
 							TestCollectionUniqueID = $":v1:collection:{assemblyFileName}:{configFileName ?? "(null)"}",
 							TestMethod = methodName,
 							TestMethodUniqueID = $":v1:method:{typeName}.{methodName}:{assemblyFileName}:{configFileName ?? "(null)"}",
-							Traits = traits
+							Traits = traits.ToReadOnly()
 						};
 
 						callback(testCase);

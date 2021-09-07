@@ -32,7 +32,7 @@ namespace Xunit.v3
 		public static _IReflectionAssemblyInfo AssemblyInfo(Assembly assembly) =>
 			Reflector.Wrap(assembly);
 
-		static Dictionary<string, List<string>> GetTraits(_IMethodInfo method)
+		static IReadOnlyDictionary<string, IReadOnlyList<string>> GetTraits(_IMethodInfo method)
 		{
 			var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -42,7 +42,7 @@ namespace Xunit.v3
 				result.Add((string)ctorArgs[0]!, (string)ctorArgs[1]!);
 			}
 
-			return result;
+			return result.ToReadOnly();
 		}
 
 		public static _IReflectionMethodInfo MethodInfo<TClass>(string methodName) =>

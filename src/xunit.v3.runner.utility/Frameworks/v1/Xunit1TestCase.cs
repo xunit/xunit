@@ -21,7 +21,7 @@ namespace Xunit.Runner.v1
 		string? testClassUniqueID;
 		string? testMethod;
 		string? testMethodUniqueID;
-		Dictionary<string, List<string>> traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		IReadOnlyDictionary<string, IReadOnlyList<string>> traits = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit1TestCase"/> class.
@@ -144,15 +144,16 @@ namespace Xunit.Runner.v1
 		/// <summary>
 		/// Gets the traits that are associated with this test case.
 		/// </summary>
-		public Dictionary<string, List<string>> Traits
+		public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 		{
 			get => traits;
 			set
 			{
-				traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+				var newTraits = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 				if (value != null)
 					foreach (var kvp in value)
-						traits[kvp.Key] = kvp.Value;
+						newTraits[kvp.Key] = kvp.Value;
+				traits = newTraits;
 			}
 		}
 
@@ -206,13 +207,13 @@ namespace Xunit.Runner.v1
 				SourceLineNumber = SourceLineNumber,
 				TestCaseDisplayName = TestCaseDisplayName,
 				TestCaseUniqueID = TestCaseUniqueID,
-				TestClass = @class,
+				TestClassName = @class,
+				TestClassNamespace = @namespace,
+				TestClassNameWithNamespace = TestClass,
 				TestClassUniqueID = TestClassUniqueID,
-				TestClassWithNamespace = TestClass,
 				TestCollectionUniqueID = TestCollectionUniqueID,
-				TestMethod = TestMethod,
+				TestMethodName = TestMethod,
 				TestMethodUniqueID = TestMethodUniqueID,
-				TestNamespace = @namespace,
 				Traits = Traits
 			};
 

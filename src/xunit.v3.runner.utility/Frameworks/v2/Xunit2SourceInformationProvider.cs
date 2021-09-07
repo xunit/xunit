@@ -12,7 +12,7 @@ namespace Xunit.Runner.v2
 	/// </summary>
 	public class Xunit2SourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
 	{
-		readonly DisposalTracker disposalTracker = new DisposalTracker();
+		readonly DisposalTracker disposalTracker = new();
 		readonly _ISourceInformationProvider v3Provider;
 
 		/// <summary>
@@ -42,12 +42,8 @@ namespace Xunit.Runner.v2
 			if (className == null || methodName == null)
 				return null;
 
-			var sourceInfo = v3Provider.GetSourceInformation(className, methodName);
-			return new SourceInformation
-			{
-				FileName = sourceInfo.FileName,
-				LineNumber = sourceInfo.LineNumber
-			};
+			var (sourceFile, sourceLine) = v3Provider.GetSourceInformation(className, methodName);
+			return new SourceInformation { FileName = sourceFile, LineNumber = sourceLine };
 		}
 	}
 }

@@ -31,10 +31,10 @@
 
 		/// <inheritdoc/>
 		protected override _ITestFrameworkDiscoverer CreateDiscoverer(_IAssemblyInfo assembly) =>
-			new XunitTestFrameworkDiscoverer(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
+			new XunitTestFrameworkDiscoverer(assembly, configFileName, DiagnosticMessageSink);
 
 		/// <inheritdoc/>
 		protected override _ITestFrameworkExecutor CreateExecutor(_IReflectionAssemblyInfo assembly) =>
-			new XunitTestFrameworkExecutor(assembly, configFileName, SourceInformationProvider, DiagnosticMessageSink);
+			new XunitTestFrameworkExecutor(assembly, configFileName, DiagnosticMessageSink);
 	}
 }

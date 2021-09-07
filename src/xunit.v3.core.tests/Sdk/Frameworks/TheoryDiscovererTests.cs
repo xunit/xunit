@@ -19,7 +19,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var failure = Assert.Single(failures);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-		Assert.Equal("No data found for TheoryDiscovererTests+NoDataAttributesClass.TheoryMethod", failure.Messages.Single());
+		Assert.Equal($"No data found for {typeof(NoDataAttributesClass).FullName}.{nameof(NoDataAttributesClass.TheoryMethod)}", failure.Messages.Single());
 	}
 
 	class NoDataAttributesClass
@@ -35,7 +35,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var failure = Assert.Single(results);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-		Assert.Equal("Test data returned null for TheoryDiscovererTests+NullDataClass.NullMemberData. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
+		Assert.Equal($"Test data returned null for {typeof(NullDataClass).FullName}.{nameof(NullDataClass.NullMemberData)}. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
 	}
 
 	class NullDataClass
@@ -46,7 +46,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		{
 			InitializedInConstructor = new List<object[]>
 			{
-				new object[] { "1", "2"}
+				new object[] { "1", "2" }
 			};
 		}
 
@@ -62,7 +62,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var failure = Assert.Single(failures);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-		Assert.Equal("No data found for TheoryDiscovererTests+EmptyTheoryDataClass.TheoryMethod", failure.Messages.Single());
+		Assert.Equal($"No data found for {typeof(EmptyTheoryDataClass).FullName}.{nameof(EmptyTheoryDataClass.TheoryMethod)}", failure.Messages.Single());
 	}
 
 	class EmptyTheoryDataAttribute : DataAttribute
@@ -82,14 +82,16 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<MultipleDataClass>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<MultipleDataClass>(nameof(MultipleDataClass.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = (await discoverer.Discover(discoveryOptions, testMethod, factAttribute)).ToList();
 
-		Assert.Equal(2, testCases.Count);
-		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 42)");
-		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 2112)");
+		Assert.Collection(
+			testCases.Select(tc => tc.TestCaseDisplayName).OrderBy(x => x),
+			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(x: 2112)", displayName),
+			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(x: 42)", displayName)
+		);
 	}
 
 	[Fact]
@@ -97,14 +99,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		discoveryOptions.SetPreEnumerateTheories(false);
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<MultipleDataClass>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<MultipleDataClass>(nameof(MultipleDataClass.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+MultipleDataClass.TheoryMethod", testCase.DisplayName);
+		Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
 	class MultipleDataAttribute : DataAttribute
@@ -130,19 +132,29 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<MultipleDataClassSkipped>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<MultipleDataClassSkipped>(nameof(MultipleDataClassSkipped.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = (await discoverer.Discover(discoveryOptions, testMethod, factAttribute)).ToList();
 
-		Assert.Equal(2, testCases.Count);
-		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 42)" && testCase.SkipReason == "Skip this attribute");
-		Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 2112)" && testCase.SkipReason == "Skip this attribute");
+		Assert.Collection(
+			testCases.OrderBy(tc => tc.TestCaseDisplayName),
+			testCase =>
+			{
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(x: 2112)", testCase.TestCaseDisplayName);
+				Assert.Equal("Skip this attribute", testCase.SkipReason);
+			},
+			testCase =>
+			{
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(x: 42)", testCase.TestCaseDisplayName);
+				Assert.Equal("Skip this attribute", testCase.SkipReason);
+			}
+		);
 	}
 
 	class MultipleDataClassSkipped
 	{
-		[Theory, MultipleDataAttribute(Skip = "Skip this attribute")]
+		[Theory, MultipleData(Skip = "Skip this attribute")]
 		public void TheoryMethod(int x) { }
 	}
 
@@ -157,10 +169,10 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", testCase.DisplayName);
+		Assert.Equal($"{typeof(ThrowingDataClass).FullName}.{nameof(ThrowingDataClass.TheoryWithMisbehavingData)}", testCase.TestCaseDisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
 		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
-		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
+		Assert.StartsWith($"Exception thrown during theory discovery on '{typeof(ThrowingDataClass).FullName}.{nameof(ThrowingDataClass.TheoryWithMisbehavingData)}'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
 	}
 
 	class ThrowingDataAttribute : DataAttribute
@@ -189,24 +201,24 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("MockTheoryType.MockTheoryMethod", testCase.DisplayName);
+		Assert.Equal("MockTheoryType.MockTheoryMethod", testCase.TestCaseDisplayName);
 	}
 
 	[Fact]
 	public async void NonSerializableDataYieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<NonSerializableDataClass>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<NonSerializableDataClass>(nameof(NonSerializableDataClass.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", testCase.DisplayName);
+		Assert.Equal($"{typeof(NonSerializableDataClass).FullName}.{nameof(NonSerializableDataClass.TheoryMethod)}", testCase.TestCaseDisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
 		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
-		Assert.Equal("Non-serializable data (one or more of: 'TheoryDiscovererTests+NonSerializableDataAttribute') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
+		Assert.Equal($"Non-serializable data (one or more of: '{typeof(NonSerializableDataAttribute).FullName}') found for '{typeof(NonSerializableDataClass).FullName}.{nameof(NonSerializableDataClass.TheoryMethod)}'; falling back to single test case.", diagnostic.Message);
 	}
 
 	class NonSerializableDataAttribute : DataAttribute
@@ -233,8 +245,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var results = await RunAsync<_TestFailed>(typeof(NoSuchDataDiscovererClass));
 
 		var failure = Assert.Single(results);
-		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-		Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NoSuchDataDiscovererAttribute on TheoryDiscovererTests+NoSuchDataDiscovererClass.Test does not exist.", failure.Messages.Single());
+		Assert.Equal(typeof(InvalidOperationException).FullName, failure.ExceptionTypes.Single());
+		Assert.Equal($"Data discoverer specified for {typeof(NoSuchDataDiscovererAttribute).FullName} on {typeof(NoSuchDataDiscovererClass).FullName}.{nameof(NoSuchDataDiscovererClass.Test)} does not exist.", failure.Messages.Single());
 	}
 
 	class NoSuchDataDiscovererClass
@@ -260,7 +272,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var failure = Assert.Single(results);
 		Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-		Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NotADataDiscovererAttribute on TheoryDiscovererTests+NotADataDiscovererClass.Test does not implement IDataDiscoverer.", failure.Messages.Single());
+		Assert.Equal($"Data discoverer specified for {typeof(NotADataDiscovererAttribute).FullName} on {typeof(NotADataDiscovererClass).FullName}.{nameof(NotADataDiscovererClass.Test)} does not implement IDataDiscoverer.", failure.Messages.Single());
 	}
 
 	class NotADataDiscovererClass
@@ -283,14 +295,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>(nameof(NonDiscoveryOnTheoryAttribute.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+NonDiscoveryOnTheoryAttribute.TheoryMethod", testCase.DisplayName);
+		Assert.Equal($"{typeof(NonDiscoveryOnTheoryAttribute).FullName}.{nameof(NonDiscoveryOnTheoryAttribute.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
 	class NonDiscoveryOnTheoryAttribute
@@ -308,14 +320,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>(nameof(NonDiscoveryEnumeratedData.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+NonDiscoveryEnumeratedData.TheoryMethod", testCase.DisplayName);
+		Assert.Equal($"{typeof(NonDiscoveryEnumeratedData).FullName}.{nameof(NonDiscoveryEnumeratedData.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
 	class NonDiscoveryEnumeratedData
@@ -333,14 +345,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>("TheoryMethod");
+		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>(nameof(MixedDiscoveryEnumeratedData.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+MixedDiscoveryEnumeratedData.TheoryMethod", testCase.DisplayName);
+		Assert.Equal($"{typeof(MixedDiscoveryEnumeratedData).FullName}.{nameof(MixedDiscoveryEnumeratedData.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
 	class MixedDiscoveryEnumeratedData
@@ -361,7 +373,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var skip = Assert.Single(msgs.OfType<_TestSkipped>());
 		var skipStarting = Assert.Single(msgs.OfType<_TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
-		Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skipStarting.TestDisplayName);
+		Assert.Equal($"{typeof(SkippedWithNoData).FullName}.{nameof(SkippedWithNoData.TestMethod)}", skipStarting.TestDisplayName);
 		Assert.Equal("I have no data", skip.Reason);
 	}
 
@@ -378,7 +390,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		var skip = Assert.Single(msgs.OfType<_TestSkipped>());
 		var skipStarting = Assert.Single(msgs.OfType<_TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
-		Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skipStarting.TestDisplayName);
+		Assert.Equal($"{typeof(SkippedWithData).FullName}.{nameof(SkippedWithData.TestMethod)}", skipStarting.TestDisplayName);
 		Assert.Equal("I have data", skip.Reason);
 	}
 
@@ -394,14 +406,14 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<ClassWithExplicitConvertedData>("ParameterDeclaredExplicitConversion");
+		var testMethod = Mocks.TestMethod<ClassWithExplicitConvertedData>(nameof(ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
-		Assert.Equal("TheoryDiscovererTests+ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion", testCase.DisplayName);
+		Assert.Equal($"{typeof(ClassWithExplicitConvertedData).FullName}.{nameof(ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion)}", testCase.TestCaseDisplayName);
 	}
 
 	class ClassWithExplicitConvertedData
@@ -451,23 +463,23 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void CanSkipFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>("TestWithSomeSkippedTheoryRows");
+		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>(nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		Assert.Collection(
-			testCases.OrderBy(tc => tc.DisplayName),
+			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
 				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
-				Assert.Equal("TheoryDiscovererTests+ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows(x: 2112)", testCase.DisplayName);
+				Assert.Equal($"{typeof(ClassWithSkippedTheoryDataRows).FullName}.{nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows)}(x: 2112)", testCase.TestCaseDisplayName);
 				Assert.Null(testCase.SkipReason);
 			},
 			testCase =>
 			{
 				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
-				Assert.Equal("TheoryDiscovererTests+ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows(x: 42)", testCase.DisplayName);
+				Assert.Equal($"{typeof(ClassWithSkippedTheoryDataRows).FullName}.{nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows)}(x: 42)", testCase.TestCaseDisplayName);
 				Assert.Equal("Do not run this test", testCase.SkipReason);
 			}
 		);
@@ -496,17 +508,17 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void CanAddTraitsFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>("TestWithTraits");
+		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>(nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		Assert.Collection(
-			testCases.OrderBy(tc => tc.DisplayName),
+			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
 				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
-				Assert.Equal("TheoryDiscovererTests+ClassWithTraitsOnTheoryDataRows.TestWithTraits(x: 2112)", testCase.DisplayName);
+				Assert.Equal($"{typeof(ClassWithTraitsOnTheoryDataRows).FullName}.{nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits)}(x: 2112)", testCase.TestCaseDisplayName);
 				Assert.Collection(
 					testCase.Traits.OrderBy(kvp => kvp.Key),
 					kvp =>  // Assembly level trait
@@ -538,7 +550,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			testCase =>
 			{
 				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
-				Assert.Equal("TheoryDiscovererTests+ClassWithTraitsOnTheoryDataRows.TestWithTraits(x: 42)", testCase.DisplayName);
+				Assert.Equal($"{typeof(ClassWithTraitsOnTheoryDataRows).FullName}.{nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits)}(x: 42)", testCase.TestCaseDisplayName);
 				Assert.Collection(
 					testCase.Traits.OrderBy(kvp => kvp.Key),
 					kvp =>  // Assembly level trait
@@ -592,27 +604,27 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = TestableTheoryDiscoverer.Create();
-		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>("TestWithDisplayName");
+		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>(nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		Assert.Collection(
-			testCases.OrderBy(tc => tc.DisplayName),
+			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
 				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
-				Assert.Equal("I am a skipped test(x: 2600)", testCase.DisplayName);
+				Assert.Equal("I am a skipped test(x: 2600)", testCase.TestCaseDisplayName);
 			},
 			testCase =>
 			{
 				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
-				Assert.Equal("I am a special test(x: 42)", testCase.DisplayName);
+				Assert.Equal("I am a special test(x: 42)", testCase.TestCaseDisplayName);
 			},
 			testCase =>
 			{
 				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
-				Assert.Equal("TheoryDiscovererTests+ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName(x: 2112)", testCase.DisplayName);
+				Assert.Equal($"{typeof(ClassWithDisplayNameOnTheoryDataRows).FullName}.{nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName)}(x: 2112)", testCase.TestCaseDisplayName);
 			}
 		);
 	}

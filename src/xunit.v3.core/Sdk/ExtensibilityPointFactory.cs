@@ -173,12 +173,10 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="testAssembly">The test assembly to get the test framework for</param>
-		/// <param name="sourceInformationProvider">The optional source information provider</param>
 		/// <returns>The test framework object</returns>
 		public static _ITestFramework GetTestFramework(
 			_IMessageSink diagnosticMessageSink,
-			_IAssemblyInfo testAssembly,
-			_ISourceInformationProvider? sourceInformationProvider = null)
+			_IAssemblyInfo testAssembly)
 		{
 			// TODO Guard
 			_ITestFramework result;
@@ -211,9 +209,6 @@ namespace Xunit.Sdk
 				diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown during test framework construction: {ex.Unwrap()}" });
 				result = new XunitTestFramework(diagnosticMessageSink);
 			}
-
-			if (sourceInformationProvider != null)
-				result.SourceInformationProvider = sourceInformationProvider;
 
 			return result;
 		}

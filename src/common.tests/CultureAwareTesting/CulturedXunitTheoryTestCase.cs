@@ -39,7 +39,7 @@ namespace Xunit.v3
 			Traits.Add("Culture", Culture);
 
 			var cultureDisplay = $"[{Culture}]";
-			DisplayName += cultureDisplay;
+			TestCaseDisplayName += cultureDisplay;
 			UniqueID += cultureDisplay;
 		}
 
@@ -62,7 +62,7 @@ namespace Xunit.v3
 			CancellationTokenSource cancellationTokenSource) =>
 				new CulturedXunitTheoryTestCaseRunner(
 					this,
-					DisplayName,
+					TestCaseDisplayName,
 					SkipReason,
 					constructorArguments,
 					diagnosticMessageSink,

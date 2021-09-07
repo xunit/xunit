@@ -46,10 +46,10 @@ public class Xunit1TestCaseTests
 		[Fact]
 		public static void CanSerializeTraits_StayCaseInsensitive()
 		{
-			var traits = new Dictionary<string, List<string>>
+			var traits = new Dictionary<string, IReadOnlyList<string>>
 			{
-				{ "foo", new() { "bar", "baz" } },
-				{ "biff", new() { "Hello, world!" } }
+				{ "foo", new List<string> { "bar", "baz" } },
+				{ "biff", new List<string> { "Hello, world!" } }
 			};
 			var testCase = Create(typeof(Serialization), nameof(CanRoundTrip_PublicClass_PublicTestMethod), traits: traits);
 
@@ -82,22 +82,22 @@ public class Xunit1TestCaseTests
 
 	public class Traits
 	{
-		[Fact]
-		public void TraitNamesAreCaseInsensitive_AddedAfter()
-		{
-			var testCase = Create(typeof(Traits), "TraitNamesAreCaseInsensitive_AddedAfter");
-			testCase.Traits.Add("FOO", new List<string> { "BAR" });
+		//[Fact]
+		//public void TraitNamesAreCaseInsensitive_AddedAfter()
+		//{
+		//	var testCase = Create(typeof(Traits), "TraitNamesAreCaseInsensitive_AddedAfter");
+		//	testCase.Traits.Add("FOO", new List<string> { "BAR" });
 
-			var fooTraitValues = testCase.Traits["foo"];
+		//	var fooTraitValues = testCase.Traits["foo"];
 
-			var fooTraitValue = Assert.Single(fooTraitValues);
-			Assert.Equal("BAR", fooTraitValue);
-		}
+		//	var fooTraitValue = Assert.Single(fooTraitValues);
+		//	Assert.Equal("BAR", fooTraitValue);
+		//}
 
 		[Fact]
 		public void TraitNamesAreCaseInsensitive_PreSeeded()
 		{
-			var traits = new Dictionary<string, List<string>> { { "FOO", new List<string> { "BAR" } } };
+			var traits = new Dictionary<string, IReadOnlyList<string>> { { "FOO", new List<string> { "BAR" } } };
 			var testCase = Create(typeof(Traits), "TraitNamesAreCaseInsensitive_PreSeeded", traits: traits);
 
 			var fooTraitValues = testCase.Traits["foo"];
@@ -111,7 +111,7 @@ public class Xunit1TestCaseTests
 		Type typeUnderTest,
 		string methodName,
 		string? displayName = null,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, IReadOnlyList<string>>? traits = null,
 		string? skipReason = null)
 	{
 		var typeName = typeUnderTest.FullName!;

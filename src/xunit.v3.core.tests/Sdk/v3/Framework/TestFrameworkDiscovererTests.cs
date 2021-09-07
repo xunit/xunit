@@ -1,5 +1,9 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -7,138 +11,202 @@ using Xunit.v3;
 
 public class TestFrameworkDiscovererTests
 {
-	public class Find_Assembly
+	public class Find
 	{
 		[Fact]
-		public void DefaultCulture()
+		public static async ValueTask GuardClauses()
 		{
-			var currentCulture = CultureInfo.CurrentCulture;
-			var discoverer = TestableTestFrameworkDiscoverer.Create();
-			var discoverySink = new TestDiscoverySink();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: null);
+			var framework = TestableTestFrameworkDiscoverer.Create();
 
-			discoverer.Find(discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
-
-			Assert.NotNull(discoverer.DiscoveryCulture);
-			Assert.Same(currentCulture, discoverer.DiscoveryCulture);
+			await Assert.ThrowsAsync<ArgumentNullException>("callback", () => framework.Find(callback: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()));
+			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => framework.Find(callback: _ => true, discoveryOptions: null!));
 		}
 
 		[Fact]
-		public void InvariantCulture()
+		public async ValueTask ExceptionDuringFindTestsForType_ReportsExceptionAsDiagnosticMessage()
 		{
-			var discoverer = TestableTestFrameworkDiscoverer.Create();
-			var discoverySink = new TestDiscoverySink();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: string.Empty);
+			var mockType = Mocks.TypeInfo("MockType");
+			var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
+			discoverer.FindTestsForType_Exception = new DivideByZeroException();
 
-			discoverer.Find(discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
+			await discoverer.Find();
 
-			Assert.NotNull(discoverer.DiscoveryCulture);
-			Assert.Equal(string.Empty, discoverer.DiscoveryCulture.Name);
+			var message = Assert.Single(discoverer.DiagnosticMessageSink.Messages.OfType<_DiagnosticMessage>());
+			Assert.StartsWith($"Exception during discovery:{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", message.Message);
 		}
 
-		[Fact]
-		public void CustomCulture()
+		public class ByAssembly
 		{
-			var discoverer = TestableTestFrameworkDiscoverer.Create();
-			var discoverySink = new TestDiscoverySink();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: "en-GB");
+			[Fact]
+			public static async ValueTask NoTypes()
+			{
+				var discoverer = TestableTestFrameworkDiscoverer.Create();
 
-			discoverer.Find(discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
+				await discoverer.Find();
 
-			Assert.NotNull(discoverer.DiscoveryCulture);
-			Assert.Equal("English (United Kingdom)", discoverer.DiscoveryCulture.DisplayName);
+				Assert.Empty(discoverer.FindTestsForType_TestClasses);
+			}
+
+			[Fact]
+			public static async ValueTask RequestsPublicTypesFromAssembly()
+			{
+				var framework = TestableTestFrameworkDiscoverer.Create();
+
+				await framework.Find();
+
+				framework.AssemblyInfo.Received(1).GetTypes(includePrivateTypes: false);
+			}
+
+			[Fact]
+			public static async ValueTask IncludesNonAbstractTypes()
+			{
+				var objectTypeInfo = Reflector.Wrap(typeof(object));
+				var intTypeInfo = Reflector.Wrap(typeof(int));
+				var discoverer = TestableTestFrameworkDiscoverer.Create(objectTypeInfo, intTypeInfo);
+
+				await discoverer.Find();
+
+				Assert.Collection(
+					discoverer.FindTestsForType_TestClasses.Select(c => c.Class.Name).OrderBy(x => x),
+					typeName => Assert.Equal(typeof(int).FullName, typeName),    // System.Int32
+					typeName => Assert.Equal(typeof(object).FullName, typeName)  // System.Object
+				);
+			}
+
+			[Fact]
+			public static async ValueTask ExcludesAbstractTypes()
+			{
+				var abstractClassTypeInfo = Reflector.Wrap(typeof(AbstractClass));
+				var discoverer = TestableTestFrameworkDiscoverer.Create(abstractClassTypeInfo);
+
+				await discoverer.Find();
+
+				Assert.Empty(discoverer.FindTestsForType_TestClasses);
+			}
+		}
+
+		public class ByTypes
+		{
+			[Fact]
+			public static async ValueTask IncludesNonAbstractTypes()
+			{
+				var discoverer = TestableTestFrameworkDiscoverer.Create();
+
+				await discoverer.Find(types: new[] { typeof(object) });
+
+				var testClass = Assert.Single(discoverer.FindTestsForType_TestClasses);
+				Assert.Equal(typeof(object).FullName, testClass.Class.Name);
+			}
+
+			[Fact]
+			public static async ValueTask ExcludesAbstractTypes()
+			{
+				var discoverer = TestableTestFrameworkDiscoverer.Create();
+
+				await discoverer.Find(types: new[] { typeof(AbstractClass) });
+
+				Assert.Empty(discoverer.FindTestsForType_TestClasses);
+			}
+		}
+
+		public class WithCulture
+		{
+			readonly _ITypeInfo mockType = Mocks.TypeInfo("MockType");
+
+			[Fact]
+			public async ValueTask DefaultCultureIsCurrentCulture()
+			{
+				CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+				var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: null);
+
+				await discoverer.Find(discoveryOptions);
+
+				Assert.NotNull(discoverer.FindTestsForType_CurrentCulture);
+				Assert.Equal("English (United States)", discoverer.FindTestsForType_CurrentCulture.DisplayName);
+			}
+
+			[Fact]
+			public async ValueTask EmptyStringIsInvariantCulture()
+			{
+				CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+				var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: string.Empty);
+
+				await discoverer.Find(discoveryOptions);
+
+				Assert.NotNull(discoverer.FindTestsForType_CurrentCulture);
+				Assert.Equal(string.Empty, discoverer.FindTestsForType_CurrentCulture.Name);
+			}
+
+			[Fact]
+			public async ValueTask CustomCultureViaDiscoveryOptions()
+			{
+				CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+				var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
+				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: "en-GB");
+
+				await discoverer.Find(discoveryOptions);
+
+				Assert.NotNull(discoverer.FindTestsForType_CurrentCulture);
+				Assert.Equal("English (United Kingdom)", discoverer.FindTestsForType_CurrentCulture.DisplayName);
+			}
+		}
+
+		abstract class AbstractClass
+		{
+			[Fact]
+			public static void ATestNotToBeRun() { }
 		}
 	}
 
-	public class Find_Type
+	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<_ITestCase>
 	{
-		[Fact]
-		public void DefaultCulture()
-		{
-			var currentCulture = CultureInfo.CurrentCulture;
-			var discoverer = TestableTestFrameworkDiscoverer.Create();
-			var discoverySink = new TestDiscoverySink();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: null);
-
-			discoverer.Find("MockType", discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
-
-			Assert.NotNull(discoverer.DiscoveryCulture);
-			Assert.Same(currentCulture, discoverer.DiscoveryCulture);
-		}
-
-		[Fact]
-		public void InvariantCulture()
-		{
-			var discoverer = TestableTestFrameworkDiscoverer.Create();
-			var discoverySink = new TestDiscoverySink();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: string.Empty);
-
-			discoverer.Find("MockType", discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
-
-			Assert.NotNull(discoverer.DiscoveryCulture);
-			Assert.Equal(string.Empty, discoverer.DiscoveryCulture.Name);
-		}
-
-		[Fact]
-		public void CustomCulture()
-		{
-			var discoverer = TestableTestFrameworkDiscoverer.Create();
-			var discoverySink = new TestDiscoverySink();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: "en-GB");
-
-			discoverer.Find("MockType", discoverySink, discoveryOptions);
-			discoverySink.Finished.WaitOne();
-
-			Assert.NotNull(discoverer.DiscoveryCulture);
-			Assert.Equal("English (United Kingdom)", discoverer.DiscoveryCulture.DisplayName);
-		}
-	}
-
-	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer
-	{
-		public CultureInfo? DiscoveryCulture;
+		public CultureInfo? FindTestsForType_CurrentCulture;
+		public Exception? FindTestsForType_Exception = null;
+		public readonly List<_ITestClass> FindTestsForType_TestClasses = new();
 
 		TestableTestFrameworkDiscoverer(
 			_IAssemblyInfo assemblyInfo,
-			string? configFileName,
-			_ISourceInformationProvider sourceProvider,
-			_IMessageSink diagnosticMessageSink) :
-				base(assemblyInfo, configFileName, sourceProvider, diagnosticMessageSink)
+			SpyMessageSink diagnosticMessageSink) :
+				base(assemblyInfo, diagnosticMessageSink)
 		{ }
+
+		public new _IAssemblyInfo AssemblyInfo => base.AssemblyInfo;
+
+		public new SpyMessageSink DiagnosticMessageSink => (SpyMessageSink)base.DiagnosticMessageSink;
 
 		public override string TestAssemblyUniqueID => "asm-id";
 
 		public override string TestFrameworkDisplayName => "testable-test-framework";
 
 		protected override ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>
-			new ValueTask<_ITestClass>((_ITestClass)null!);
+			new(Mocks.TestClass(@class));
+
+		public ValueTask Find(
+			_ITestFrameworkDiscoveryOptions? discoveryOptions = null,
+			Type[]? types = null) =>
+				Find(
+					testCase => true,
+					discoveryOptions ?? _TestFrameworkOptions.ForDiscovery(),
+					types
+				);
 
 		protected override ValueTask<bool> FindTestsForType(
 			_ITestClass testClass,
-			IMessageBus messageBus,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			Func<_ITestCase, ValueTask<bool>> discoveryCallback)
 		{
-			DiscoveryCulture = CultureInfo.CurrentCulture;
+			FindTestsForType_CurrentCulture = CultureInfo.CurrentCulture;
+			FindTestsForType_TestClasses.Add(testClass);
 
-			return new ValueTask<bool>(true);
+			if (FindTestsForType_Exception != null)
+				throw FindTestsForType_Exception;
+
+			return new(true);
 		}
 
-		public static TestableTestFrameworkDiscoverer Create()
-		{
-			var mockType = Mocks.TypeInfo("MockType");
-			var mockAssembly = Mocks.AssemblyInfo(new[] { mockType });
-
-			return new TestableTestFrameworkDiscoverer(
-				mockAssembly,
-				null,
-				_NullSourceInformationProvider.Instance,
-				SpyMessageSink.Create()
-			);
-		}
+		public static TestableTestFrameworkDiscoverer Create(params _ITypeInfo[] types) =>
+			new(Mocks.AssemblyInfo(types), SpyMessageSink.Capture());
 	}
 }

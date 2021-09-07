@@ -42,9 +42,8 @@ namespace Xunit.v3
 
 		public static _IReflectionAttributeInfo CollectionBehaviorAttribute<TTestCollectionFactory>(
 			bool disableTestParallelization = false,
-			int maxParallelThreads = 0)
-				where TTestCollectionFactory : IXunitTestCollectionFactory =>
-					CollectionBehaviorAttribute(disableTestParallelization, maxParallelThreads, typeof(TTestCollectionFactory));
+			int maxParallelThreads = 0) =>
+				CollectionBehaviorAttribute(disableTestParallelization, maxParallelThreads, typeof(TTestCollectionFactory));
 
 		static _IReflectionAttributeInfo CollectionBehaviorAttribute(
 			bool disableTestParallelization,

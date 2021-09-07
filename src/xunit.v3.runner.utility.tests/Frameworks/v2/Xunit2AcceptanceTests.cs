@@ -92,10 +92,10 @@ namespace Namespace2
 						Assert.Equal("Namespace2.OuterClass+Class2.TestMethod", testCase.TestCaseDisplayName);
 						Assert.StartsWith(":F:Namespace2.OuterClass+Class2:TestMethod:1:0:", testCase.Serialization);
 						Assert.Null(testCase.SkipReason);
-						Assert.Equal("Class2", testCase.TestClass);
-						Assert.Equal("Namespace2.OuterClass+Class2", testCase.TestClassWithNamespace);
-						Assert.Equal("TestMethod", testCase.TestMethod);
-						Assert.Equal("Namespace2", testCase.TestNamespace);
+						Assert.Equal("Class2", testCase.TestClassName);
+						Assert.Equal("Namespace2", testCase.TestClassNamespace);
+						Assert.Equal("Namespace2.OuterClass+Class2", testCase.TestClassNameWithNamespace);
+						Assert.Equal("TestMethod", testCase.TestMethodName);
 					}
 				);
 			}

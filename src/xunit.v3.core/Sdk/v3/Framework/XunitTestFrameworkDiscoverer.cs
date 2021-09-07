@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -12,10 +11,8 @@ namespace Xunit.v3
 	/// The implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports discovery
 	/// of unit tests linked against xunit.v3.core.dll.
 	/// </summary>
-	public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer
+	public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCase>
 	{
-		static readonly Type XunitTestCaseType = typeof(XunitTestCase);
-
 		/// <summary>
 		/// Gets the display name of the xUnit.net v3 test framework.
 		/// </summary>
@@ -26,27 +23,24 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
-		/// <param name="sourceProvider">The source information provider.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
 		public XunitTestFrameworkDiscoverer(
 			_IAssemblyInfo assemblyInfo,
 			string? configFileName,
-			_ISourceInformationProvider sourceProvider,
 			_IMessageSink diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory = null)
-				: base(assemblyInfo, configFileName, sourceProvider, diagnosticMessageSink)
+				: base(assemblyInfo, diagnosticMessageSink)
 		{
 			var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
 			var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
 			var testAssembly = new TestAssembly(assemblyInfo, configFileName);
 			TestAssemblyUniqueID = testAssembly.UniqueID;
-
 			TestCollectionFactory =
 				collectionFactory
-				?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly)
-				?? new CollectionPerClassTestCollectionFactory(testAssembly, diagnosticMessageSink);
+					?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly)
+					?? new CollectionPerClassTestCollectionFactory(testAssembly, diagnosticMessageSink);
 
 			TestFrameworkDisplayName = $"{DisplayName} [{TestCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}]";
 		}
@@ -56,7 +50,7 @@ namespace Xunit.v3
 		/// is a type that is (or derives from) <see cref="FactAttribute"/>; the value is the
 		/// discoverer type, if known; <c>null</c> if not.
 		/// </summary>
-		protected Dictionary<Type, Type?> DiscovererTypeCache { get; } = new Dictionary<Type, Type?>();
+		protected Dictionary<Type, Type?> DiscovererTypeCache { get; } = new();
 
 		/// <inheritdoc/>
 		public override string TestAssemblyUniqueID { get; }
@@ -71,27 +65,26 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		protected internal override ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>
-			new ValueTask<_ITestClass>(new TestClass(TestCollectionFactory.Get(@class), @class));
+			new(new TestClass(TestCollectionFactory.Get(@class), @class));
 
 		/// <summary>
 		/// Finds the tests on a test method.
 		/// </summary>
 		/// <param name="testMethod">The test method.</param>
-		/// <param name="messageBus">The message bus to report discovery messages to.</param>
 		/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
+		/// <param name="discoveryCallback">The callback that is called for each discovered test case.</param>
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
-		protected internal virtual async ValueTask<bool> FindTestsForMethod(
+		protected virtual async ValueTask<bool> FindTestsForMethod(
 			_ITestMethod testMethod,
-			IMessageBus messageBus,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
 		{
-			var includeSourceInformation = discoveryOptions.IncludeSourceInformationOrDefault();
 			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
 			{
 				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
 				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
-				return await ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
+				return await discoveryCallback(testCase);
 			}
 
 			var factAttribute = factAttributes.FirstOrDefault();
@@ -119,7 +112,7 @@ namespace Xunit.v3
 				return true;
 
 			foreach (var testCase in await discoverer.Discover(discoveryOptions, testMethod, factAttribute))
-				if (!await ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
+				if (!await discoveryCallback(testCase))
 					return false;
 
 			return true;
@@ -128,13 +121,13 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		protected override async ValueTask<bool> FindTestsForType(
 			_ITestClass testClass,
-			IMessageBus messageBus,
-			_ITestFrameworkDiscoveryOptions discoveryOptions)
+			_ITestFrameworkDiscoveryOptions discoveryOptions,
+			Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
 		{
-			foreach (var method in testClass.Class.GetMethods(true))
+			foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
 			{
 				var testMethod = new TestMethod(testClass, method);
-				if (!await FindTestsForMethod(testMethod, messageBus, discoveryOptions))
+				if (!await FindTestsForMethod(testMethod, discoveryOptions, discoveryCallback))
 					return false;
 			}
 
@@ -159,26 +152,6 @@ namespace Xunit.v3
 				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}" });
 				return null;
 			}
-		}
-
-		/// <inheritdoc/>
-		protected override ValueTask<string> Serialize(_ITestCase testCase)
-		{
-			Guard.ArgumentNotNull(nameof(testCase), testCase);
-
-			if (testCase.GetType() == XunitTestCaseType && testCase.TestMethod != null)
-			{
-				var xunitTestCase = (XunitTestCase)testCase;
-				var className = testCase.TestMethod.TestClass.Class.Name.Replace(":", "::");
-				var methodName = testCase.TestMethod.Method.Name.Replace(":", "::");
-				var timeout = xunitTestCase.Timeout;
-				var methodDisplay = (int)xunitTestCase.DefaultMethodDisplay;
-				var methodDisplayOptions = (int)xunitTestCase.DefaultMethodDisplayOptions;
-				var skipReason = testCase.SkipReason == null ? "(null)" : Convert.ToBase64String(Encoding.UTF8.GetBytes(testCase.SkipReason));
-				return new ValueTask<string>($":F:{className}:{methodName}:{methodDisplay}:{methodDisplayOptions}:{timeout}:{skipReason}");
-			}
-
-			return base.Serialize(testCase);
 		}
 	}
 }

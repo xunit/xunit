@@ -83,7 +83,7 @@ namespace Xunit.Sdk
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
 			string message) =>
-				new ExecutionErrorTestCase(
+				new(
 					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
 					discoveryOptions.MethodDisplayOptionsOrDefault(),
