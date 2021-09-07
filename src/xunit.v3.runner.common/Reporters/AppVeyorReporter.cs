@@ -30,11 +30,12 @@ namespace Xunit.Runner.Common
 			_IMessageSink diagnosticMessageSink)
 		{
 			var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
-			return new ValueTask<_IMessageSink>(
+			var handler =
 				baseUri == null
 					? new DefaultRunnerReporterMessageHandler(logger)
-					: new AppVeyorReporterMessageHandler(logger, baseUri)
-			);
+					: new AppVeyorReporterMessageHandler(logger, baseUri);
+
+			return new(handler);
 		}
 
 		/// <inheritdoc/>

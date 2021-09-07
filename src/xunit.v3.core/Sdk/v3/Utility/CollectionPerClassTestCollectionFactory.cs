@@ -13,7 +13,7 @@ namespace Xunit.v3
 	{
 		readonly Dictionary<string, _ITypeInfo> collectionDefinitions;
 		readonly _ITestAssembly testAssembly;
-		readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new ConcurrentDictionary<string, _ITestCollection>();
+		readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CollectionPerClassTestCollectionFactory" /> class.

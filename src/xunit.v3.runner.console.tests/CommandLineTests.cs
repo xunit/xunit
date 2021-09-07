@@ -147,14 +147,10 @@ public class CommandLineTests
 		};
 
 		public static readonly TheoryData<string, Expression<Func<CommandLine, bool>>> SwitchesLowerCase =
-			new TheoryData<string, Expression<Func<CommandLine, bool>>>(
-				SwitchOptionsList
-			);
+			new(SwitchOptionsList);
 
 		public static readonly TheoryData<string, Expression<Func<CommandLine, bool>>> SwitchesUpperCase =
-			new TheoryData<string, Expression<Func<CommandLine, bool>>>(
-				SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor))
-			);
+			new(SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor)));
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesLowerCase))]
@@ -408,14 +404,10 @@ public class CommandLineTests
 			};
 
 		public static readonly TheoryData<string, Expression<Func<CommandLine, ICollection<string>>>> SwitchesLowerCase =
-			new TheoryData<string, Expression<Func<CommandLine, ICollection<string>>>>(
-				SwitchOptionsList
-			);
+			new(SwitchOptionsList);
 
 		public static readonly TheoryData<string, Expression<Func<CommandLine, ICollection<string>>>> SwitchesUpperCase =
-			new TheoryData<string, Expression<Func<CommandLine, ICollection<string>>>>(
-				SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor))
-			);
+			new(SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor)));
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesLowerCase))]
@@ -485,28 +477,16 @@ public class CommandLineTests
 				};
 
 			public static readonly TheoryData<string, Expression<Func<CommandLine, Dictionary<string, List<string>>>>> SwitchesLowerCase =
-				new TheoryData<string, Expression<Func<CommandLine, Dictionary<string, List<string>>>>>(
-					SwitchOptionsList
-				);
+				new(SwitchOptionsList);
 
 			public static readonly TheoryData<string, Expression<Func<CommandLine, Dictionary<string, List<string>>>>> SwitchesUpperCase =
-				new TheoryData<string, Expression<Func<CommandLine, Dictionary<string, List<string>>>>>(
-					SwitchOptionsList.Select(x => (x.Switch.ToUpperInvariant(), x.Accessor))
-				);
+				new(SwitchOptionsList.Select(x => (x.Switch.ToUpperInvariant(), x.Accessor)));
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsLowerCase =
-				new TheoryData<string, string>(
-					SwitchOptionsList.SelectMany(
-						tuple => BadFormatValues.Select(value => (tuple.Switch, value))
-					)
-				);
+				new(SwitchOptionsList.SelectMany(tuple => BadFormatValues.Select(value => (tuple.Switch, value))));
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsUpperCase =
-				new TheoryData<string, string>(
-					SwitchOptionsList.SelectMany(
-						tuple => BadFormatValues.Select(value => (tuple.Switch.ToUpperInvariant(), value))
-					)
-				);
+				new(SwitchOptionsList.SelectMany(tuple => BadFormatValues.Select(value => (tuple.Switch.ToUpperInvariant(), value))));
 
 			[Theory(DisableDiscoveryEnumeration = true)]
 			[MemberData(nameof(SwitchesLowerCase))]
@@ -587,10 +567,10 @@ public class CommandLineTests
 	public class Transforms
 	{
 		public static readonly TheoryData<string> SwitchesLowerCase =
-			new TheoryData<string>(TransformFactory.AvailableTransforms.Select(x => $"-{x.ID}"));
+			new(TransformFactory.AvailableTransforms.Select(x => $"-{x.ID}"));
 
 		public static readonly TheoryData<string> SwitchesUpperCase =
-			new TheoryData<string>(TransformFactory.AvailableTransforms.Select(x => $"-{x.ID.ToUpperInvariant()}"));
+			new(TransformFactory.AvailableTransforms.Select(x => $"-{x.ID.ToUpperInvariant()}"));
 
 		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]
@@ -706,11 +686,11 @@ public class CommandLineTests
 			$"/full/path/{fileName}";
 
 		public static new TestableCommandLine Parse(params string[] arguments) =>
-			new TestableCommandLine(new IRunnerReporter[0], arguments);
+			new(new IRunnerReporter[0], arguments);
 
 		public static TestableCommandLine Parse(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] arguments) =>
-				new TestableCommandLine(reporters, arguments);
+				new(reporters, arguments);
 	}
 }

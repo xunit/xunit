@@ -160,8 +160,7 @@ namespace Xunit
 				if (assembly == null)
 					return;
 
-				Type type;
-				if (typeNameMap.TryGetValue(typeName, out type) && type != null)
+				if (typeNameMap.TryGetValue(typeName, out var type) && type != null)
 				{
 					MethodInfo method = type.GetMethod(methodName);
 					if (method != null)

@@ -11,7 +11,7 @@ namespace Xunit.Runner.v2
 {
 	public static class Xunit2Mocks
 	{
-		static readonly Guid OneGuid = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+		static readonly Guid OneGuid = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
 
 		public static IAfterTestFinished AfterTestFinished(
 			ITest test,
@@ -139,13 +139,13 @@ namespace Xunit.Runner.v2
 
 		public static IErrorMessage ErrorMessage(Exception ex)
 		{
-			var metadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<IErrorMessage, InterfaceProxy<IErrorMessage>>();
-			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
-			result.Messages.Returns(metadata.Messages);
-			result.StackTraces.Returns(metadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			return result;
 		}
 
@@ -195,12 +195,12 @@ namespace Xunit.Runner.v2
 			ITestAssembly testAssembly,
 			Exception ex)
 		{
-			var metadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 			var result = Substitute.For<ITestAssemblyCleanupFailure, InterfaceProxy<ITestAssemblyCleanupFailure>>();
-			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
-			result.Messages.Returns(metadata.Messages);
-			result.StackTraces.Returns(metadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			result.TestAssembly.Returns(testAssembly);
 			return result;
 		}
@@ -270,13 +270,13 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestCaseCleanupFailure, InterfaceProxy<ITestCaseCleanupFailure>>();
-			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(errorMetadata.ExceptionTypes);
-			result.Messages.Returns(errorMetadata.Messages);
-			result.StackTraces.Returns(errorMetadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			result.TestAssembly.Returns(testAssembly);
 			result.TestCase.Returns(testCase);
 			result.TestClass.Returns(testClass);
@@ -361,13 +361,13 @@ namespace Xunit.Runner.v2
 		{
 			var testAssembly = testClass.TestCollection.TestAssembly;
 			var testCollection = testClass.TestCollection;
-			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestClassCleanupFailure, InterfaceProxy<ITestClassCleanupFailure>>();
-			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(errorMetadata.ExceptionTypes);
-			result.Messages.Returns(errorMetadata.Messages);
-			result.StackTraces.Returns(errorMetadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			result.TestAssembly.Returns(testAssembly);
 			result.TestClass.Returns(testClass);
 			result.TestCollection.Returns(testCollection);
@@ -487,13 +487,13 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var metadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestCleanupFailure, InterfaceProxy<ITestCleanupFailure>>();
-			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
-			result.Messages.Returns(metadata.Messages);
-			result.StackTraces.Returns(metadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			result.Test.Returns(test);
 			result.TestAssembly.Returns(testAssembly);
 			result.TestCase.Returns(testCase);
@@ -524,12 +524,12 @@ namespace Xunit.Runner.v2
 			Exception ex)
 		{
 			var testAssembly = collection.TestAssembly;
-			var metadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 			var result = Substitute.For<ITestCollectionCleanupFailure, InterfaceProxy<ITestCollectionCleanupFailure>>();
-			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
-			result.Messages.Returns(metadata.Messages);
-			result.StackTraces.Returns(metadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			result.TestAssembly.Returns(testAssembly);
 			result.TestCollection.Returns(collection);
 			return result;
@@ -573,15 +573,15 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var metadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
-			result.ExceptionParentIndices.Returns(metadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(metadata.ExceptionTypes);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
 			result.ExecutionTime.Returns(executionTime);
-			result.Messages.Returns(metadata.Messages);
+			result.Messages.Returns(messages);
 			result.Output.Returns(output);
-			result.StackTraces.Returns(metadata.StackTraces);
+			result.StackTraces.Returns(stackTraces);
 			result.Test.Returns(test);
 			result.TestAssembly.Returns(testAssembly);
 			result.TestCase.Returns(testCase);
@@ -634,13 +634,13 @@ namespace Xunit.Runner.v2
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
 			var testAssembly = testCollection.TestAssembly;
-			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
 
 			var result = Substitute.For<ITestMethodCleanupFailure, InterfaceProxy<ITestMethodCleanupFailure>>();
-			result.ExceptionParentIndices.Returns(errorMetadata.ExceptionParentIndices);
-			result.ExceptionTypes.Returns(errorMetadata.ExceptionTypes);
-			result.Messages.Returns(errorMetadata.Messages);
-			result.StackTraces.Returns(errorMetadata.StackTraces);
+			result.ExceptionParentIndices.Returns(exceptionParentIndices);
+			result.ExceptionTypes.Returns(exceptionTypes);
+			result.Messages.Returns(messages);
+			result.StackTraces.Returns(stackTraces);
 			result.TestAssembly.Returns(testAssembly);
 			result.TestClass.Returns(testClass);
 			result.TestCollection.Returns(testCollection);

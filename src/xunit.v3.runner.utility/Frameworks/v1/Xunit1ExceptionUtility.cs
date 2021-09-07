@@ -10,8 +10,8 @@ namespace Xunit.Runner.v1
 {
 	static class Xunit1ExceptionUtility
 	{
-		static readonly Regex NestedMessagesRegex = new Regex(@"-*\s*((?<type>.*?) :\s*)?(?<message>.+?)((\r?\n-)|\z)", RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
-		static readonly Regex NestedStackTracesRegex = new Regex(@"\r?\n----- Inner Stack Trace -----\r?\n", RegexOptions.Compiled);
+		static readonly Regex NestedMessagesRegex = new(@"-*\s*((?<type>.*?) :\s*)?(?<message>.+?)((\r?\n-)|\z)", RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
+		static readonly Regex NestedStackTracesRegex = new(@"\r?\n----- Inner Stack Trace -----\r?\n", RegexOptions.Compiled);
 
 		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ConvertToErrorMetadata(Exception? exception)
 		{

@@ -171,7 +171,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		volatile bool stop = false;
 		volatile int stopEventTriggerCount;
 		DateTime utcNow = DateTime.UtcNow;
-		readonly AutoResetEvent workEvent = new AutoResetEvent(initialState: false);
+		readonly AutoResetEvent workEvent = new(initialState: false);
 
 		public TestableDelegatingLongRunningTestDetectionSink(
 			int longRunningSeconds,

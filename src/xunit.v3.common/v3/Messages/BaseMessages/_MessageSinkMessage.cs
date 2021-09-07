@@ -16,9 +16,9 @@ namespace Xunit.v3
 	{
 		delegate void PropertyWriter(Utf8JsonWriter writer, object? value, JsonSerializerOptions options);
 
-		static string assemblyQualifiedNameTemplate;
-		static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
-		static Dictionary<Type, PropertyWriter> propertyWriters = new Dictionary<Type, PropertyWriter>();
+		static readonly string assemblyQualifiedNameTemplate;
+		static readonly JsonSerializerOptions jsonSerializerOptions = new() { Converters = { new JsonStringEnumConverter() } };
+		static readonly Dictionary<Type, PropertyWriter> propertyWriters = new();
 
 		static _MessageSinkMessage()
 		{
@@ -68,8 +68,7 @@ namespace Xunit.v3
 			if (result == null)
 				throw new ArgumentException($"Deserialization of type '{typeName}' unexpectedly returned null", nameof(serialization));
 
-			var typedResult = result as _MessageSinkMessage;
-			if (typedResult == null)
+			if (result is not _MessageSinkMessage typedResult)
 				throw new ArgumentException($"Deserialization of type '{typeName}' returned a value of type '{result.GetType().FullName}' instead of something derived from '{typeof(_MessageSinkMessage).FullName}'", nameof(serialization));
 
 			return typedResult;

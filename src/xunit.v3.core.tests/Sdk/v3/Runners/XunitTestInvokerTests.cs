@@ -295,7 +295,7 @@ public class XunitTestInvokerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			Action? lambda) :
-				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, null, cancellationTokenSource)
+				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
 		{
 			this.lambda = lambda;
 

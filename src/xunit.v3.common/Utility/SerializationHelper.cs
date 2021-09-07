@@ -14,7 +14,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public static class SerializationHelper
 	{
-		static readonly BinaryFormatter formatter = new BinaryFormatter();
+		static readonly BinaryFormatter formatter = new();
 
 		/// <summary>
 		/// De-serializes an object.
@@ -171,7 +171,7 @@ namespace Xunit.Sdk
 		/// <param name="value">The object to test for serializability.</param>
 		/// <returns>true if the object can be serialized; otherwise, false.</returns>
 		public static bool IsSerializable(object? value) =>
-			value == null ? true : value.GetType().IsSerializable;
+			value == null || value.GetType().IsSerializable;
 
 		/// <summary>
 		/// Serializes an object.

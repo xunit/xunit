@@ -55,7 +55,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the disposal tracker for the test framework discoverer.
 		/// </summary>
-		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
+		protected DisposalTracker DisposalTracker { get; } = new();
 
 		/// <summary>
 		/// Override to create a test framework discoverer that can be used to discover

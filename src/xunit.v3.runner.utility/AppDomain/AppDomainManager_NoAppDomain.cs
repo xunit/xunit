@@ -7,15 +7,6 @@ namespace Xunit
 {
 	class AppDomainManager_NoAppDomain : IAppDomainManager
 	{
-		readonly string assemblyFileName;
-
-		public AppDomainManager_NoAppDomain(string assemblyFileName)
-		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
-
-			this.assemblyFileName = assemblyFileName;
-		}
-
 		public bool HasAppDomain => false;
 
 		public TObject? CreateObject<TObject>(

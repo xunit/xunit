@@ -10,7 +10,9 @@ using Xunit.Internal;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-	protected override Task Compile(string code, string[] references)
+	protected override Task Compile(
+		string code,
+		string[] references)
 	{
 		var parameters = new CompilerParameters()
 		{

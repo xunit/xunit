@@ -7,9 +7,9 @@ public class SpyLogger : TaskLoggingHelper
 {
 	readonly bool includeSourceInformation;
 
-	public List<string> Messages = new List<string>();
+	public List<string> Messages = new();
 
-	private SpyLogger(
+	SpyLogger(
 		IBuildEngine buildEngine,
 		string taskName,
 		bool includeSourceInformation)
@@ -33,7 +33,7 @@ public class SpyLogger : TaskLoggingHelper
 	public static SpyLogger Create(
 		string taskName = "MyTask",
 		bool includeSourceInformation = false) =>
-			new SpyLogger(Substitute.For<IBuildEngine>(), taskName, includeSourceInformation);
+			new(Substitute.For<IBuildEngine>(), taskName, includeSourceInformation);
 
 	void Log(BuildMessageEventArgs eventArgs) =>
 		Messages.Add($"MESSAGE[{eventArgs.Importance}]: {eventArgs.Message}");

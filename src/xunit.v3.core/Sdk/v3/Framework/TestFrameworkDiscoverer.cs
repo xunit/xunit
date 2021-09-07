@@ -57,7 +57,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the disposal tracker for the test framework discoverer.
 		/// </summary>
-		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
+		protected DisposalTracker DisposalTracker { get; } = new();
 
 		/// <summary>
 		/// Gets the unique ID for the test assembly under test.

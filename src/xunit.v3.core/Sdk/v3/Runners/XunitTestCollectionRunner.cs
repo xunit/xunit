@@ -14,7 +14,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
 	{
-		Dictionary<Type, object> collectionFixtureMappings = new Dictionary<Type, object>();
+		Dictionary<Type, object> collectionFixtureMappings = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.

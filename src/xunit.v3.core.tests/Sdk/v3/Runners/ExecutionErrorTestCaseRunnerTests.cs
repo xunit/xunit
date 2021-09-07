@@ -6,9 +6,9 @@ using Xunit.v3;
 
 public class ExecutionErrorTestCaseRunnerTests : IDisposable
 {
-	readonly ExceptionAggregator aggregator = new ExceptionAggregator();
-	readonly SpyMessageBus messageBus = new SpyMessageBus();
-	readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
+	readonly ExceptionAggregator aggregator = new();
+	readonly SpyMessageBus messageBus = new();
+	readonly CancellationTokenSource tokenSource = new();
 
 	public void Dispose()
 	{
@@ -77,7 +77,8 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 		_IMessageSink? diagnosticMessageSink = null)
 	{
 		var testMethod = Mocks.TestMethod();
-		return new ExecutionErrorTestCase(
+
+		return new(
 			diagnosticMessageSink ?? _NullMessageSink.Instance,
 			TestMethodDisplay.ClassAndMethod,
 			TestMethodDisplayOptions.None,

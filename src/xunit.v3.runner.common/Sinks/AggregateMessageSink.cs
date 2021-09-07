@@ -13,12 +13,12 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	{
-		DisposalTracker disposalTracker = new DisposalTracker();
+		DisposalTracker disposalTracker = new();
 
 		/// <summary>
 		/// The list of event dispatchers that are registered with the system.
 		/// </summary>
-		protected List<_IMessageSink> AggregatedSinks { get; } = new List<_IMessageSink>();
+		protected List<_IMessageSink> AggregatedSinks { get; } = new();
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()

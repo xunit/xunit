@@ -16,7 +16,7 @@ namespace Xunit.Runner.Common
 	{
 		readonly string? defaultDirectory = null;
 		readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
-		readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, _ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
+		readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
@@ -654,15 +654,15 @@ namespace Xunit.Runner.Common
 			if (summaries.SummariesByAssemblyUniqueID.Count > 1)
 			{
 				logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(longestTotal, '-')}          {"-".PadRight(longestErrors, '-')}          {"-".PadRight(longestFailed, '-')}           {"-".PadRight(longestSkipped, '-')}        {"-".PadRight(longestTime, '-')}");
-				logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}        {totalTime} ({summaries.ElapsedClockTime.TotalSeconds.ToString("0.000s")})");
+				logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}        {totalTime} ({summaries.ElapsedClockTime.TotalSeconds:0.000s})");
 			}
 		}
 
 		class ReaderWriterLockWrapper : IDisposable
 		{
-			static readonly ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
-			static readonly ReaderWriterLockWrapper lockForRead = new ReaderWriterLockWrapper(@lock.ExitReadLock);
-			static readonly ReaderWriterLockWrapper lockForWrite = new ReaderWriterLockWrapper(@lock.ExitWriteLock);
+			static readonly ReaderWriterLockSlim @lock = new();
+			static readonly ReaderWriterLockWrapper lockForRead = new(@lock.ExitReadLock);
+			static readonly ReaderWriterLockWrapper lockForWrite = new(@lock.ExitWriteLock);
 
 			readonly Action unlock;
 

@@ -22,8 +22,8 @@ namespace Xunit
 	public class XunitFrontController : IFrontController
 	{
 		bool disposed;
-		IFrontController? innerController;
-		IFrontControllerDiscoverer innerDiscoverer;
+		readonly IFrontController? innerController;
+		readonly IFrontControllerDiscoverer innerDiscoverer;
 
 		// Discovery controller
 		XunitFrontController(IFrontControllerDiscoverer innerDiscoverer)

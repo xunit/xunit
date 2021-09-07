@@ -15,7 +15,7 @@ namespace Xunit.Runner.Common
 	[Serializable]
 	public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFrameworkExecutionOptions
 	{
-		readonly Dictionary<string, string> properties = new Dictionary<string, string>();
+		readonly Dictionary<string, string> properties = new();
 
 		// Force users to use one of the factory methods
 		_TestFrameworkOptions(string? optionsJson = null)

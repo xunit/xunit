@@ -69,8 +69,8 @@ namespace Xunit.Sdk
 
 		class TestState
 		{
-			readonly StringBuilder buffer = new StringBuilder();
-			readonly object lockObject = new object();
+			readonly StringBuilder buffer = new();
+			readonly object lockObject = new();
 			readonly IMessageBus messageBus;
 			readonly string testAssemblyUniqueID;
 			readonly string testCollectionUniqueID;

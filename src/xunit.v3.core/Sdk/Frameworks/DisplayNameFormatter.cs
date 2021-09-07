@@ -79,9 +79,9 @@ namespace Xunit.Sdk
 				length = text.Length;
 			}
 
-			public StringBuilder FormattedDisplayName { get; } = new StringBuilder();
+			public StringBuilder FormattedDisplayName { get; } = new();
 
-			public StringBuilder Buffer { get; } = new StringBuilder();
+			public StringBuilder Buffer { get; } = new();
 
 			public bool HasMoreText => position < length;
 
@@ -104,7 +104,7 @@ namespace Xunit.Sdk
 		sealed class ReplaceOperatorMonikerRule : CharacterRule
 		{
 			static readonly Dictionary<string, string> tokenMonikers =
-				new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+				new(StringComparer.OrdinalIgnoreCase)
 				{
 					["eq"] = "=",
 					["ne"] = "!=",

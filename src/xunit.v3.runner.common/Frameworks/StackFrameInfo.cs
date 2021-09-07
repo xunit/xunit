@@ -44,7 +44,7 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Get a default (unknown) stack frame info.
 		/// </summary>
-		public static readonly StackFrameInfo None = new StackFrameInfo(null, 0);
+		public static readonly StackFrameInfo None = new(null, 0);
 
 		/// <summary>
 		/// Creates a stack frame info from error metadata.

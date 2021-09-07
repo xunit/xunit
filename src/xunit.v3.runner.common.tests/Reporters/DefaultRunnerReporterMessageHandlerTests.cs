@@ -365,14 +365,14 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_TestFailed : DefaultRunnerReporterMessageHandlerTests
 	{
-		_TestFailed failedMessage = TestData.TestFailed(
+		readonly _TestFailed failedMessage = TestData.TestFailed(
 			exceptionParentIndices: FailureMessages.exceptionParentIndices,
 			exceptionTypes: FailureMessages.exceptionTypes,
 			output: $"This is\t{Environment.NewLine}output",
 			messages: FailureMessages.messages,
 			stackTraces: FailureMessages.stackTraces
 		);
-		_TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
 		[Fact]
 		public void LogsTestNameWithExceptionAndStackTraceAndOutput()
@@ -400,8 +400,8 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_TestPassed
 	{
-		_TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");
-		_TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+		readonly _TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");
+		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
 		[Fact]
 		public void DoesNotLogOutputByDefault()

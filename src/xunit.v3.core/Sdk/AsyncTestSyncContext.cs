@@ -10,7 +10,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class AsyncTestSyncContext : SynchronizationContext
 	{
-		readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
+		readonly AsyncManualResetEvent @event = new(signaled: true);
 		Exception? exception;
 		readonly SynchronizationContext? innerContext;
 		int operationCount;

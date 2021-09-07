@@ -9,8 +9,6 @@ using Xunit.v3;
 
 public class EqualityAssertsTests
 {
-	static bool IsMono = Type.GetType("Mono.Runtime") != null;
-
 	public class Equal
 	{
 		[Fact]
@@ -1245,7 +1243,7 @@ public class EqualityAssertsTests
 	{
 		private readonly IEnumerable<BaseClass> bars;
 
-		public EnumerableClass(string baz, params BaseClass[] bars)
+		public EnumerableClass(string _, params BaseClass[] bars)
 		{
 			this.bars = bars;
 		}

@@ -1,16 +1,9 @@
 using System;
-using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
 public class AssertActualExpectedExceptionTests
 {
-	IEnumerable<object> MakeEnumeration(params object[] values)
-	{
-		foreach (var value in values)
-			yield return value;
-	}
-
 	[Fact]
 	public void NullValuesInArraysCreateCorrectExceptionMessage()
 	{

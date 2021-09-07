@@ -235,7 +235,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 			string methodName,
 			IMessageBus messageBus,
 			string displayName = "MockDisplayName") =>
-				new TestableXunitDelayEnumeratedTheoryTestCaseRunner(
+				new(
 					TestData.XunitTestCase<TClassUnderTest>(methodName),
 					displayName,
 					SpyMessageSink.Create(),

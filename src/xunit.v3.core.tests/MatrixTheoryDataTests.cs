@@ -42,7 +42,7 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 	{
 		public static int[] Numbers = { 42, 5, 6 };
 		public static string[] Strings = { "Hello", "world!" };
-		public static MatrixTheoryData<string, int> MatrixData = new MatrixTheoryData<string, int>(Strings, Numbers);
+		public static MatrixTheoryData<string, int> MatrixData = new(Strings, Numbers);
 
 		[Theory]
 		[MemberData(nameof(MatrixData))]

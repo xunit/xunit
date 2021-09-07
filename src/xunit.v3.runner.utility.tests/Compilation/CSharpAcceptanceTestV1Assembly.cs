@@ -11,7 +11,9 @@ public class CSharpAcceptanceTestV1Assembly : CSharpAcceptanceTestAssembly
 			.GetStandardReferences()
 			.Concat(new[] { "xunit.dll", "xunit.extensions.dll" });
 
-	public static async Task<CSharpAcceptanceTestV1Assembly> Create(string code, params string[] references)
+	public static async Task<CSharpAcceptanceTestV1Assembly> Create(
+		string code,
+		params string[] references)
 	{
 		var assembly = new CSharpAcceptanceTestV1Assembly();
 		await assembly.Compile(code, references);

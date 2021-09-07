@@ -19,7 +19,7 @@ namespace Xunit.Runner.Common
 		readonly string baseUri;
 		readonly int buildId;
 		VstsClient? client;
-		readonly object clientLock = new object();
+		readonly object clientLock = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="VstsReporterMessageHandler" /> class.
@@ -86,6 +86,8 @@ namespace Xunit.Runner.Common
 				var assemblyFileName = Path.GetFileName(args.Message.AssemblyPath) ?? "<unknown filename>";
 				if (!string.IsNullOrWhiteSpace(tfm))
 					assemblyFileName = $"{assemblyFileName} ({tfm})";
+
+				// TODO: What's going on here? ^ assemblyFileName is a throw-away.
 			}
 		}
 

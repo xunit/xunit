@@ -397,18 +397,16 @@ public class TestAssemblyRunnerTests
 			RunSummary? result = null,
 			_ITestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null,
-			bool cancelInRunTestCollectionAsync = false)
-		{
-			return new TestableTestAssemblyRunner(
-				Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
-				testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
-				new List<_MessageSinkMessage>(),
-				executionMessageSink ?? SpyMessageSink.Create(),
-				executionOptions ?? _TestFrameworkOptions.ForExecution(),
-				result ?? new RunSummary(),
-				cancelInRunTestCollectionAsync
-			);
-		}
+			bool cancelInRunTestCollectionAsync = false) =>
+				new(
+					Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
+					testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
+					new List<_MessageSinkMessage>(),
+					executionMessageSink ?? SpyMessageSink.Create(),
+					executionOptions ?? _TestFrameworkOptions.ForExecution(),
+					result ?? new RunSummary(),
+					cancelInRunTestCollectionAsync
+				);
 
 		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
 

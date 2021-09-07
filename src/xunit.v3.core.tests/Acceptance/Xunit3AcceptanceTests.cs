@@ -296,7 +296,7 @@ public class Xunit3AcceptanceTests
 		class ClassUnderTest
 		{
 			[Fact]
-			public Task NonStartedTask() => new Task(() => { Thread.Sleep(1000); });
+			public Task NonStartedTask() => new(() => { Thread.Sleep(1000); });
 		}
 	}
 
@@ -647,7 +647,10 @@ public class Xunit3AcceptanceTests
 			var msgs = await RunAsync(typeof(ClassUnderTest));
 
 			var displayName = Assert.Single(
-				msgs.OfType<_TestPassed>().Select(p => msgs.OfType<_TestStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID).TestDisplayName));
+				msgs
+					.OfType<_TestPassed>()
+					.Select(p => msgs.OfType<_TestStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID).TestDisplayName)
+			);
 			Assert.Equal("Xunit3AcceptanceTests+TestContextAccessor+ClassUnderTest.Passing", displayName);
 		}
 

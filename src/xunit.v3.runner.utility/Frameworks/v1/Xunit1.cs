@@ -25,7 +25,7 @@ namespace Xunit.Runner.v1
 		readonly string assemblyFileName;
 		readonly string? configFileName;
 		readonly _IMessageSink diagnosticMessageSink;
-		readonly DisposalTracker disposalTracker = new DisposalTracker();
+		readonly DisposalTracker disposalTracker = new();
 		bool disposed;
 		IXunit1Executor? executor;
 		readonly bool shadowCopy;
@@ -306,13 +306,13 @@ namespace Xunit.Runner.v1
 				}
 				catch (Exception ex)
 				{
-					var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(ex);
+					var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(ex);
 					var errorMessage = new _ErrorMessage
 					{
-						ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
-						ExceptionTypes = errorMetadata.ExceptionTypes,
-						Messages = errorMetadata.Messages,
-						StackTraces = errorMetadata.StackTraces
+						ExceptionParentIndices = exceptionParentIndices,
+						ExceptionTypes = exceptionTypes,
+						Messages = messages,
+						StackTraces = stackTraces
 					};
 					messageSink.OnMessage(errorMessage);
 				}

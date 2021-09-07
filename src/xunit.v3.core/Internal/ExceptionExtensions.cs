@@ -12,7 +12,7 @@ static class ExceptionExtensions
 	{
 		while (true)
 		{
-			if (!(ex is TargetInvocationException tiex))
+			if (ex is not TargetInvocationException tiex)
 				return ex;
 
 			ex = tiex.InnerException!;

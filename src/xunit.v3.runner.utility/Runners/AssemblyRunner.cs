@@ -21,12 +21,12 @@ namespace Xunit.Runners
 		bool disposed;
 		readonly TestAssemblyConfiguration configuration = new();
 		readonly IFrontController controller;
-		readonly ManualResetEvent discoveryCompleteEvent = new ManualResetEvent(true);
-		readonly DisposalTracker disposalTracker = new DisposalTracker();
-		readonly ManualResetEvent executionCompleteEvent = new ManualResetEvent(true);
-		readonly object statusLock = new object();
+		readonly ManualResetEvent discoveryCompleteEvent = new(true);
+		readonly DisposalTracker disposalTracker = new();
+		readonly ManualResetEvent executionCompleteEvent = new(true);
+		readonly object statusLock = new();
 		int testCasesDiscovered;
-		readonly List<_TestCaseDiscovered> testCasesToRun = new List<_TestCaseDiscovered>();
+		readonly List<_TestCaseDiscovered> testCasesToRun = new();
 
 		static AssemblyRunner()
 		{

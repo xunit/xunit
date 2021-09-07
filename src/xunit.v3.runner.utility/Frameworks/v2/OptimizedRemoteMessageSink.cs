@@ -16,8 +16,8 @@ namespace Xunit.Runner.v2
 	/// </summary>
 	class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink
 	{
-		readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
-		readonly Dictionary<Type, HashSet<string>> interfaceCache = new Dictionary<Type, HashSet<string>>();
+		readonly ReaderWriterLockSlim cacheLock = new();
+		readonly Dictionary<Type, HashSet<string>> interfaceCache = new();
 		readonly IMessageSinkWithTypes runnerSink;
 
 		public OptimizedRemoteMessageSink(IMessageSinkWithTypes runnerSink)

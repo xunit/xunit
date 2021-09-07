@@ -5,8 +5,8 @@ using Xunit.v3;
 
 public class DelegatingFailSkipSinkTests
 {
-	SpyExecutionSink innerSink;
-	DelegatingFailSkipSink sink;
+	readonly SpyExecutionSink innerSink;
+	readonly DelegatingFailSkipSink sink;
 
 	public DelegatingFailSkipSinkTests()
 	{

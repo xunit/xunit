@@ -22,16 +22,16 @@ namespace Xunit.Runner.InProc.SystemConsole
 	/// </summary>
 	public class ConsoleRunner
 	{
-		string[] args;
+		readonly string[] args;
 		volatile bool cancel;
-		CommandLine commandLine;
+		readonly CommandLine commandLine;
 		readonly object consoleLock;
 		bool executed = false;
 		bool failed;
 		IRunnerLogger? logger;
 		IReadOnlyList<IRunnerReporter>? runnerReporters;
-		Assembly testAssembly;
-		TestExecutionSummaries testExecutionSummaries = new TestExecutionSummaries();
+		readonly Assembly testAssembly;
+		readonly TestExecutionSummaries testExecutionSummaries = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ConsoleRunner"/> class.
@@ -537,23 +537,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 			}
 
 			return assemblyElement;
-		}
-
-		bool ValidateFileExists(
-			object consoleLock,
-			string? fileName)
-		{
-			if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
-				return true;
-
-			lock (consoleLock)
-			{
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
-				Console.WriteLine($"File not found: {fileName}");
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Gray);
-			}
-
-			return false;
 		}
 	}
 }

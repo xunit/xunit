@@ -18,11 +18,11 @@ namespace Xunit.Runner.SystemConsole
 {
 	class ConsoleRunner
 	{
-		string[] args;
+		readonly string[] args;
 		volatile bool cancel;
-		CommandLine commandLine;
-		readonly object consoleLock = new object();
-		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+		readonly CommandLine commandLine;
+		readonly object consoleLock = new();
+		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
 		bool failed;
 		IRunnerLogger? logger;
 
@@ -512,21 +512,6 @@ namespace Xunit.Runner.SystemConsole
 			}
 
 			return assemblyElement;
-		}
-
-		bool ValidateFileExists(object consoleLock, string? fileName)
-		{
-			if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
-				return true;
-
-			lock (consoleLock)
-			{
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
-				Console.WriteLine($"File not found: {fileName}");
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Gray);
-			}
-
-			return false;
 		}
 	}
 }

@@ -20,7 +20,7 @@ namespace Xunit.v3
 	public abstract class TestAssemblyRunner<TTestCase> : IAsyncDisposable
 		where TTestCase : _ITestCase
 	{
-		ExceptionAggregator aggregator = new ExceptionAggregator();
+		ExceptionAggregator aggregator = new();
 		_IMessageSink diagnosticMessageSink;
 		_IMessageSink executionMessageSink;
 		_ITestFrameworkExecutionOptions executionOptions;

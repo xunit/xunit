@@ -34,7 +34,7 @@ public class _TestFailedTests
 			Assert.Equal(cause, failed.Cause);
 		}
 
-		public static TheoryData<FailureCause> CauseValues = new TheoryData<FailureCause> { FailureCause.Assertion, FailureCause.Exception, FailureCause.Timeout };
+		public static TheoryData<FailureCause> CauseValues = new() { FailureCause.Assertion, FailureCause.Exception, FailureCause.Timeout };
 	}
 
 	public class FromException

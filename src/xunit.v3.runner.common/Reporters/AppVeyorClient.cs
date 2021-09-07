@@ -13,16 +13,16 @@ namespace Xunit.Runner.Common
 {
 	class AppVeyorClient
 	{
-		ConcurrentQueue<IDictionary<string, object?>> addQueue = new ConcurrentQueue<IDictionary<string, object?>>();
+		ConcurrentQueue<IDictionary<string, object?>> addQueue = new();
 		readonly string baseUri;
-		readonly HttpClient client = new HttpClient();
-		readonly ManualResetEventSlim finished = new ManualResetEventSlim(false);
-		readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
+		readonly HttpClient client = new();
+		readonly ManualResetEventSlim finished = new(initialState: false);
+		readonly MediaTypeWithQualityHeaderValue jsonMediaType = new("application/json");
 		readonly IRunnerLogger logger;
 		volatile bool previousErrors;
 		volatile bool shouldExit;
-		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
-		readonly ManualResetEventSlim workEvent = new ManualResetEventSlim(false);
+		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new();
+		readonly ManualResetEventSlim workEvent = new(initialState: false);
 
 		public AppVeyorClient(
 			IRunnerLogger logger,
@@ -106,14 +106,12 @@ namespace Xunit.Runner.Common
 				request.Content.Headers.ContentType = jsonMediaType;
 				request.Headers.Accept.Add(jsonMediaType);
 
-				using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+				using var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+				var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
+				if (!response.IsSuccessStatusCode)
 				{
-					var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
-					if (!response.IsSuccessStatusCode)
-					{
-						logger.LogWarning($"When sending '{method} {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
-						previousErrors = true;
-					}
+					logger.LogWarning($"When sending '{method} {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+					previousErrors = true;
 				}
 			}
 			catch (Exception ex)

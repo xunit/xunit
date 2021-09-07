@@ -20,8 +20,8 @@ namespace Xunit.Runner.Common
 		bool disposed;
 		readonly XElement errorsElement;
 		readonly IExecutionSink innerSink;
-		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
-		readonly Dictionary<string, XElement> testCollectionElements = new Dictionary<string, XElement>();
+		readonly MessageMetadataCache metadataCache = new();
+		readonly Dictionary<string, XElement> testCollectionElements = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingXmlCreationSink"/> class.
@@ -102,7 +102,8 @@ namespace Xunit.Runner.Common
 		}
 
 		static XElement CreateFailureElement(_IErrorMetadata errorMetadata) =>
-			new XElement("failure",
+			new(
+				"failure",
 				new XAttribute("exception-type", errorMetadata.ExceptionTypes[0] ?? "<unknown type>"),
 				new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(errorMetadata)))),
 				new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(errorMetadata) ?? string.Empty))
@@ -366,7 +367,7 @@ namespace Xunit.Runner.Common
 			{
 				var ch = value[idx];
 				if (ch < 32)
-					escapedValue.Append($@"\x{(+ch).ToString("x2")}");
+					escapedValue.Append($@"\x{+ch:x2}");
 				else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length
 				{
 					escapedValue.Append(ch); // Append valid surrogate chars like normal
@@ -374,7 +375,7 @@ namespace Xunit.Runner.Common
 				}
 				// Check for invalid chars and append them like \x----
 				else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
-					escapedValue.Append($@"\x{(+ch).ToString("x4")}");
+					escapedValue.Append($@"\x{+ch:x4}");
 				else
 					escapedValue.Append(ch);
 			}

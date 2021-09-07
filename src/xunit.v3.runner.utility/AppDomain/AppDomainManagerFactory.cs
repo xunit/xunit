@@ -21,7 +21,7 @@ namespace Xunit
 				return new AppDomainManager_AppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #endif
 
-			return new AppDomainManager_NoAppDomain(assemblyFileName);
+			return new AppDomainManager_NoAppDomain();
 		}
 	}
 }

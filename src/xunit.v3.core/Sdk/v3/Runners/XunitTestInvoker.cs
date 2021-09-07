@@ -14,8 +14,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestInvoker : TestInvoker<IXunitTestCase>
 	{
-		readonly Stack<BeforeAfterTestAttribute> beforeAfterAttributesRun = new Stack<BeforeAfterTestAttribute>();
-		readonly _ITestOutputHelper? testOutputHelper;
+		readonly Stack<BeforeAfterTestAttribute> beforeAfterAttributesRun = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestInvoker"/> class.
@@ -28,7 +27,6 @@ namespace Xunit.v3
 		/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
 		/// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test invocation.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-		/// <param name="testOutputHelper">The output helper that was given to the test; <c>null</c> if one was not created</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		public XunitTestInvoker(
 			_ITest test,
@@ -39,7 +37,6 @@ namespace Xunit.v3
 			object?[]? testMethodArguments,
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
-			_ITestOutputHelper? testOutputHelper,
 			CancellationTokenSource cancellationTokenSource) :
 				base(
 					test,
@@ -53,7 +50,6 @@ namespace Xunit.v3
 				)
 		{
 			BeforeAfterAttributes = Guard.ArgumentNotNull(nameof(beforeAfterAttributes), beforeAfterAttributes);
-			this.testOutputHelper = testOutputHelper;
 		}
 
 		/// <summary>

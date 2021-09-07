@@ -29,7 +29,7 @@ namespace Xunit.v3
 		_ITest test;
 		Type testClass;
 		MethodInfo testMethod;
-		ExecutionTimer timer = new ExecutionTimer();
+		ExecutionTimer timer = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestInvoker{TTestCase}"/> class.

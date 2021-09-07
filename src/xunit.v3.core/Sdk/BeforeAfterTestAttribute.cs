@@ -16,7 +16,9 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
 		/// <param name="test">The current <see cref="_ITest"/></param>
-		public virtual void After(MethodInfo methodUnderTest, _ITest test)
+		public virtual void After(
+			MethodInfo methodUnderTest,
+			_ITest test)
 		{ }
 
 		/// <summary>
@@ -24,7 +26,9 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
 		/// <param name="test">The current <see cref="_ITest"/></param>
-		public virtual void Before(MethodInfo methodUnderTest, _ITest test)
+		public virtual void Before(
+			MethodInfo methodUnderTest,
+			_ITest test)
 		{ }
 	}
 }

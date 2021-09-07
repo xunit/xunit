@@ -37,6 +37,6 @@
 		/// <summary>
 		/// Used to report results when no tests are executed.
 		/// </summary>
-		public static readonly ExecutionCompleteInfo Empty = new ExecutionCompleteInfo(0, 0, 0, 0M);
+		public static readonly ExecutionCompleteInfo Empty = new(0, 0, 0, 0M);
 	}
 }

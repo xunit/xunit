@@ -223,7 +223,7 @@ public class TestMethodRunnerTests
 		public TestContext? RunTestCaseAsync_Context;
 		public readonly CancellationTokenSource TokenSource;
 
-		public List<_ITestCase> TestCasesRun = new List<_ITestCase>();
+		public List<_ITestCase> TestCasesRun = new();
 
 		TestableTestMethodRunner(
 			_ITestMethod? testMethod,

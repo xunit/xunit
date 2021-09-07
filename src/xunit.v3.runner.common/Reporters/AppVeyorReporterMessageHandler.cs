@@ -17,10 +17,10 @@ namespace Xunit.Runner.Common
 		const int MaxLength = 4096;
 
 		int assembliesInFlight;
-		readonly ConcurrentDictionary<string, (string assemblyFileName, Dictionary<string, int> testMethods)> assemblyInfoByUniqueID = new ConcurrentDictionary<string, (string, Dictionary<string, int>)>();
+		readonly ConcurrentDictionary<string, (string assemblyFileName, Dictionary<string, int> testMethods)> assemblyInfoByUniqueID = new();
 		readonly string baseUri;
 		AppVeyorClient? client;
-		readonly object clientLock = new object();
+		readonly object clientLock = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AppVeyorReporterMessageHandler" /> class.
@@ -207,7 +207,7 @@ namespace Xunit.Runner.Common
 			string? errorMessage = null,
 			string? errorStackTrace = null,
 			string? stdOut = null) =>
-				new Dictionary<string, object?>
+				new()
 				{
 					{ "testName", testName },
 					{ "testFramework", testFramework },
