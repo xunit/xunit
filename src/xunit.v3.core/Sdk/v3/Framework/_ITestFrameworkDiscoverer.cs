@@ -35,7 +35,7 @@ namespace Xunit.v3
 		/// from one of the provided types; when passed a <c>null</c> collection, discovers all
 		/// tests in the assembly.</param>
 		ValueTask Find(
-			Func<_ITestCase, bool> callback,
+			Func<_ITestCase, ValueTask<bool>> callback,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			Type[]? types = null
 		);

@@ -97,7 +97,7 @@ namespace Xunit.v3
 
 					var testCases = new List<TTestCase>();
 					await discoverer.Find(
-						testCase => { testCases.Add((TTestCase)testCase); return true; },
+						testCase => { testCases.Add((TTestCase)testCase); return new(true); },
 						discoveryOptions
 					);
 

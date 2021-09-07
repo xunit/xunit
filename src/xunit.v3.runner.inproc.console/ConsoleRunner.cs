@@ -368,7 +368,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				// Discover & filter the tests
 				var testCases = new List<_ITestCase>();
 				var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return !cancel; }, discoveryOptions);
+				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions);
 
 				var testCasesDiscovered = testCases.Count;
 				var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
@@ -462,7 +462,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				reporterMessageHandler.OnMessage(discoveryStarting);
 
 				var testCases = new List<_ITestCase>();
-				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return !cancel; }, discoveryOptions);
+				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions);
 
 				var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
 				var testCasesToRun = filteredTestCases.Count;
