@@ -23,10 +23,9 @@ public static class PublishPackages
 		var packageFiles =
 			Directory
 				.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
-				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
-		foreach (var packageFile in packageFiles)
+		foreach (var packageFile in packageFiles.OrderBy(x => x))
 		{
 			var args = $"nuget push --source https://www.myget.org/F/xunit/api/v2/package --api-key {publishToken} {packageFile}";
 			var redactedArgs = args.Replace(publishToken, "[redacted]");

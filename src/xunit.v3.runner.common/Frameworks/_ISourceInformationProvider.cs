@@ -1,12 +1,10 @@
-using System;
-
-namespace Xunit.v3
+namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// Represents a provider which gives source line information for a test case. Generally
-	/// consumed by an implementation of <see cref="_ITestFrameworkDiscoverer"/> during Find operations.
-	/// Implementations may optionally implement <see cref="IDisposable"/> and/or <see cref="IAsyncDisposable"/>
-	/// for cleanup operations.
+	/// Represents a provider which gives source line information for a test case after discovery has
+	/// completed. This is typically provided by a third party runner (for example, the VSTest plugin provides
+	/// this via DiaSession from Visual Studio). It's used to supplement test case metadata when the discovery
+	/// process itself cannot provide source file and line information.
 	/// </summary>
 	public interface _ISourceInformationProvider
 	{

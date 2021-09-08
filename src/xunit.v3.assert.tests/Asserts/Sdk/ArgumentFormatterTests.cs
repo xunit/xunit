@@ -303,7 +303,7 @@ public class ArgumentFormatterTests
 
 		public class MyComplexTypeWrapper
 		{
-			public MyComplexType t = new MyComplexType();
+			public MyComplexType t = new();
 			public char c = 'A';
 			public string s = "Hello, world!";
 		}

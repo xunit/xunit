@@ -655,7 +655,7 @@ namespace Xunit.v3
 			string? uniqueID = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			diagnosticMessageSink ??= new _NullMessageSink();
+			diagnosticMessageSink ??= _NullMessageSink.Instance;
 
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 
@@ -674,7 +674,7 @@ namespace Xunit.v3
 			string? uniqueID = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			diagnosticMessageSink ??= new _NullMessageSink();
+			diagnosticMessageSink ??= _NullMessageSink.Instance;
 
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 
@@ -691,7 +691,7 @@ namespace Xunit.v3
 			string? uniqueID = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			diagnosticMessageSink ??= new _NullMessageSink();
+			diagnosticMessageSink ??= _NullMessageSink.Instance;
 
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 

@@ -17,7 +17,7 @@ namespace Xunit.v3
 	/// to build from.
 	/// </summary>
 	[Serializable]
-	[DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
+	[DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {TestCaseDisplayName}, skip = {SkipReason} \}")]
 	public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	{
 		static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
@@ -31,7 +31,7 @@ namespace Xunit.v3
 		{
 			// No way for us to get access to the message sink on the execution deserialization path, but that should
 			// be okay, because we assume all the issues were reported during discovery.
-			DiagnosticMessageSink = new _NullMessageSink();
+			DiagnosticMessageSink = _NullMessageSink.Instance;
 			Timeout = info.GetValue<int>("Timeout");
 		}
 

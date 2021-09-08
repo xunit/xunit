@@ -1,4 +1,4 @@
-namespace Xunit.v3
+namespace Xunit.Sdk
 {
 	/// <summary>
 	/// This interface should not be consumed directly; instead, you should

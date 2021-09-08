@@ -14,9 +14,9 @@ namespace Xunit.Internal
 		volatile bool continueRunning = true;
 		bool disposed;
 		readonly _IMessageSink messageSink;
-		readonly ConcurrentQueue<_MessageSinkMessage> reporterQueue = new ConcurrentQueue<_MessageSinkMessage>();
+		readonly ConcurrentQueue<_MessageSinkMessage> reporterQueue = new();
 		readonly Thread reporterThread;
-		readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(false);
+		readonly AutoResetEvent reporterWorkEvent = new(initialState: false);
 		volatile bool shutdownRequested;
 		readonly bool stopOnFail;
 

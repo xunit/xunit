@@ -43,7 +43,7 @@ namespace Xunit.Runner.Common
 			string assemblyDisplayName,
 			bool showDiagnostics,
 			bool noColor) =>
-				new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.Yellow);
+				new(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.Yellow);
 
 		/// <summary>
 		/// Creates a message sink for internal diagnostics.
@@ -57,7 +57,7 @@ namespace Xunit.Runner.Common
 			string assemblyDisplayName,
 			bool showDiagnostics,
 			bool noColor) =>
-				new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
+				new(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
 		/// <summary>
 		/// Creates a message sink for internal diagnostics.
@@ -69,7 +69,7 @@ namespace Xunit.Runner.Common
 			object consoleLock,
 			bool showDiagnostics,
 			bool noColor) =>
-				new ConsoleDiagnosticMessageSink(consoleLock, null, showDiagnostics, noColor, ConsoleColor.DarkGray);
+				new(consoleLock, null, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)

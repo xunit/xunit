@@ -186,7 +186,7 @@ public class xunitTests
 
 	public class Testable_xunit : xunit
 	{
-		public readonly List<IRunnerReporter> AvailableReporters = new List<IRunnerReporter>();
+		public readonly List<IRunnerReporter> AvailableReporters = new();
 
 		public Testable_xunit()
 			: this(0)

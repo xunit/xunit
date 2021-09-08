@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Xunit;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
 public class ExtensibilityPointFactoryTests
 {
-	readonly List<_MessageSinkMessage> messages = new List<_MessageSinkMessage>();
+	readonly List<_MessageSinkMessage> messages = new();
 	protected _IMessageSink spy;
 
 	public ExtensibilityPointFactoryTests()
@@ -141,7 +142,7 @@ public class ExtensibilityPointFactoryTests
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			ExtensibilityPointFactory.GetTestFramework(spy, assembly);
 
 			Assert.Empty(messages);
 		}

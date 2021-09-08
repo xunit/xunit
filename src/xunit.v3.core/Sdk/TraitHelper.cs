@@ -21,7 +21,7 @@ namespace Xunit.Sdk
 		{
 			Guard.ArgumentNotNull(nameof(member), member);
 
-			var messageSink = new _NullMessageSink();
+			var messageSink = _NullMessageSink.Instance;
 			var result = new List<KeyValuePair<string, string>>();
 
 			foreach (var traitAttributeData in member.CustomAttributes)

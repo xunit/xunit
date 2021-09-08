@@ -21,8 +21,8 @@ namespace Xunit.Runner.v1
 		readonly Dictionary<string, Predicate<XmlNode>> handlers;
 		readonly _IMessageSink messageSink;
 		readonly IList<Xunit1TestCase> testCases;
-		readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
-		readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
+		readonly Xunit1RunSummary testCaseResults = new();
+		readonly Xunit1RunSummary testMethodResults = new();
 
 		Xunit1TestCase? lastTestCase;
 		bool startSeen;
@@ -68,13 +68,13 @@ namespace Xunit.Runner.v1
 			XmlNode? failureNode;
 			if ((failureNode = xml.SelectSingleNode("failure")) != null)
 			{
-				var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
+				var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
 				var errorMessage = new _ErrorMessage
 				{
-					ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
-					ExceptionTypes = errorMetadata.ExceptionTypes,
-					Messages = errorMetadata.Messages,
-					StackTraces = errorMetadata.StackTraces
+					ExceptionParentIndices = exceptionParentIndices,
+					ExceptionTypes = exceptionTypes,
+					Messages = messages,
+					StackTraces = stackTraces
 				};
 
 				@continue = messageSink.OnMessage(errorMessage);
@@ -258,17 +258,17 @@ namespace Xunit.Runner.v1
 			string output,
 			XmlNode failure)
 		{
-			var errorMetadata = Xunit1ExceptionUtility.ConvertToErrorMetadata(failure);
+			var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failure);
 
 			return new _TestFailed
 			{
 				AssemblyUniqueID = testCase.AssemblyUniqueID,
-				ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
-				ExceptionTypes = errorMetadata.ExceptionTypes,
+				ExceptionParentIndices = exceptionParentIndices,
+				ExceptionTypes = exceptionTypes,
 				ExecutionTime = executionTime,
-				Messages = errorMetadata.Messages,
+				Messages = messages,
 				Output = output,
-				StackTraces = errorMetadata.StackTraces,
+				StackTraces = stackTraces,
 				TestCaseUniqueID = testCase.TestCaseUniqueID,
 				TestClassUniqueID = testCase.TestClassUniqueID,
 				TestCollectionUniqueID = testCase.TestCollectionUniqueID,

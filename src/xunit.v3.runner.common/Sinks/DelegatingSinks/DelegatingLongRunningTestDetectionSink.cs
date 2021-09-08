@@ -14,8 +14,8 @@ namespace Xunit.Runner.Common
 	public class DelegatingLongRunningTestDetectionSink : IExecutionSink
 	{
 		readonly Action<LongRunningTestsSummary> callback;
-		readonly Dictionary<string, (_ITestCaseMetadata metadata, DateTime startTime)> executingTestCases = new Dictionary<string, (_ITestCaseMetadata, DateTime)>();
-		readonly ExecutionEventSink executionSink = new ExecutionEventSink();
+		readonly Dictionary<string, (_ITestCaseMetadata metadata, DateTime startTime)> executingTestCases = new();
+		readonly ExecutionEventSink executionSink = new();
 		readonly IExecutionSink innerSink;
 		DateTime lastTestActivity;
 		readonly TimeSpan longRunningTestTime;

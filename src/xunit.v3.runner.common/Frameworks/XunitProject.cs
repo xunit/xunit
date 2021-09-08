@@ -5,19 +5,24 @@ using Xunit.Internal;
 namespace Xunit.Runner.Common
 {
 	/// <summary>
-	/// FOR INTERNAL USE ONLY.
+	/// Represents a project which contains zero or more test assemblies, as well as global
+	/// (cross-assembly) configuration settings.
 	/// </summary>
 	public class XunitProject : IEnumerable<XunitProjectAssembly>
 	{
 		readonly List<XunitProjectAssembly> assemblies;
 
-		/// <summary/>
+		/// <summary>
+		/// Initializes a new instance of the <see cref="XunitProject"/> class.
+		/// </summary>
 		public XunitProject()
 		{
 			assemblies = new List<XunitProjectAssembly>();
 		}
 
-		/// <summary/>
+		/// <summary>
+		/// Gets the assemblies that are in the project.
+		/// </summary>
 		public ICollection<XunitProjectAssembly> Assemblies => assemblies;
 
 		/// <summary>
@@ -25,7 +30,10 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		public TestProjectConfiguration Configuration { get; } = new();
 
-		/// <summary/>
+		/// <summary>
+		/// Adds an assembly to the project.
+		/// </summary>
+		/// <param name="assembly">The assembly to add to the project.</param>
 		public void Add(XunitProjectAssembly assembly)
 		{
 			Guard.ArgumentNotNull("assembly", assembly);
@@ -33,7 +41,7 @@ namespace Xunit.Runner.Common
 			assemblies.Add(assembly);
 		}
 
-		/// <summary/>
+		/// <inheritdoc/>
 		public IEnumerator<XunitProjectAssembly> GetEnumerator() =>
 			assemblies.GetEnumerator();
 

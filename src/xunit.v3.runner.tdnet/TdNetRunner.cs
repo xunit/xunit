@@ -9,7 +9,7 @@ namespace Xunit.Runner.TdNet
 	public class TdNetRunner : ITestRunner
 	{
 		public virtual TdNetRunnerHelper CreateHelper(ITestListener testListener, Assembly assembly) =>
-			new TdNetRunnerHelper(assembly, testListener);
+			new(assembly, testListener);
 
 		public TestRunState RunAssembly(ITestListener testListener, Assembly assembly)
 		{

@@ -6,7 +6,7 @@ namespace Xunit.Sdk
 {
 	class ReflectionAttributeNameCache
 	{
-		static readonly ConcurrentDictionary<string, Type?> attributeTypeCache = new ConcurrentDictionary<string, Type?>();
+		static readonly ConcurrentDictionary<string, Type?> attributeTypeCache = new();
 
 		internal static Type? GetType(string assemblyQualifiedAttributeTypeName)
 		{

@@ -385,7 +385,7 @@ public class DisposalTrackerTests
 
 		class MixedDisposableObject : IDisposable, IAsyncDisposable
 		{
-			public List<string> Operations = new List<string>();
+			public List<string> Operations = new();
 
 			public void Dispose() =>
 				Operations.Add("Dispose");
@@ -393,7 +393,7 @@ public class DisposalTrackerTests
 			public ValueTask DisposeAsync()
 			{
 				Operations.Add("DisposeAsync");
-				return default(ValueTask);
+				return default;
 			}
 		}
 	}

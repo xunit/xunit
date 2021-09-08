@@ -5,6 +5,14 @@ namespace Xunit.v3
 	/// </summary>
 	public class _NullMessageSink : _IMessageSink
 	{
+		_NullMessageSink()
+		{ }
+
+		/// <summary>
+		/// Gets the singleton null message sink instance.
+		/// </summary>
+		public static _NullMessageSink Instance = new();
+
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message) => true;
 	}

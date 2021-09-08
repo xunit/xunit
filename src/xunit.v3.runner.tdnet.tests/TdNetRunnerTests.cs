@@ -89,7 +89,7 @@ public class TdNetRunnerTests
 
 	class TestableTdNetRunner : TdNetRunner
 	{
-		public List<string> Operations = new List<string>();
+		public List<string> Operations = new();
 		public List<_TestCaseDiscovered> TestsRun = new();
 		public List<_TestCaseDiscovered> TestsToDiscover = new() { Substitute.For<_TestCaseDiscovered>() };
 

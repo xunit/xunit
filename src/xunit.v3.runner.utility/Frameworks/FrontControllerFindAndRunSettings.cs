@@ -1,6 +1,6 @@
 ﻿using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit
 {

@@ -142,7 +142,7 @@ namespace Xunit.v3
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
-				new XunitTestRunner(
+				new(
 					test,
 					messageBus,
 					testClass,

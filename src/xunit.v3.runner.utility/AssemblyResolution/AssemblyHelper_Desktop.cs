@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Xunit.Internal;
-using Xunit.Runner.v2;
 using Xunit.v3;
 
 namespace Xunit
@@ -20,7 +19,7 @@ namespace Xunit
 		readonly string directory;
 		bool disposed;
 		readonly _IMessageSink? internalDiagnosticsMessageSink;
-		readonly Dictionary<string, Assembly?> lookupCache = new Dictionary<string, Assembly?>();
+		readonly Dictionary<string, Assembly?> lookupCache = new();
 
 		/// <summary>
 		/// Constructs an instance using the given <paramref name="directory"/> for resolution.

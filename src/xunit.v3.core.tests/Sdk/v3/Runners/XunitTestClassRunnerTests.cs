@@ -150,7 +150,7 @@ public class XunitTestClassRunnerTests
 
 		public bool DisposeAsyncCalled;
 
-		public TaskCompletionSource<bool> DisposeAsyncSignaler = new TaskCompletionSource<bool>();
+		public TaskCompletionSource<bool> DisposeAsyncSignaler = new();
 
 		public void Dispose()
 		{
@@ -389,7 +389,7 @@ public class XunitTestClassRunnerTests
 
 	class TestableXunitTestClassRunner : XunitTestClassRunner
 	{
-		public List<object?[]> ConstructorArguments = new List<object?[]>();
+		public List<object?[]> ConstructorArguments = new();
 		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
 
@@ -414,18 +414,20 @@ public class XunitTestClassRunnerTests
 
 		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
-		public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures) =>
-			new TestableXunitTestClassRunner(
-				testCase.TestMethod?.TestClass,
-				(_IReflectionTypeInfo?)testCase.TestMethod?.TestClass.Class,
-				new[] { testCase },
-				new List<_MessageSinkMessage>(),
-				new SpyMessageBus(),
-				new MockTestCaseOrderer(),
-				new ExceptionAggregator(),
-				new CancellationTokenSource(),
-				collectionFixtures.ToDictionary(fixture => fixture.GetType())
-			);
+		public static TestableXunitTestClassRunner Create(
+			IXunitTestCase testCase,
+			params object[] collectionFixtures) =>
+				new(
+					testCase.TestMethod?.TestClass,
+					(_IReflectionTypeInfo?)testCase.TestMethod?.TestClass.Class,
+					new[] { testCase },
+					new List<_MessageSinkMessage>(),
+					new SpyMessageBus(),
+					new MockTestCaseOrderer(),
+					new ExceptionAggregator(),
+					new CancellationTokenSource(),
+					collectionFixtures.ToDictionary(fixture => fixture.GetType())
+				);
 
 		protected override Task<RunSummary> RunTestMethodAsync(
 			_ITestMethod? testMethod,

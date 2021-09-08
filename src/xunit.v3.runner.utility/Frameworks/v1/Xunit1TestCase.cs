@@ -184,7 +184,7 @@ namespace Xunit.Runner.v1
 		public _TestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
 		{
 			string? @namespace = null;
-			string? @class = null;
+			string? @class;
 
 			var namespaceIdx = TestClass.LastIndexOf('.');
 			if (namespaceIdx < 0)

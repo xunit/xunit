@@ -14,7 +14,7 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class TransformFactory
 	{
-		static readonly TransformFactory instance = new TransformFactory();
+		static readonly TransformFactory instance = new();
 
 		readonly List<Transform> availableTransforms;
 

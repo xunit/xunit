@@ -17,8 +17,8 @@ namespace Xunit.v3
 	{
 		readonly IDictionary<Type, object> collectionFixtureMappings;
 
-		Dictionary<Type, object> classFixtureMappings = new Dictionary<Type, object>();
-		HashSet<IAsyncLifetime> initializedAsyncFixtures = new HashSet<IAsyncLifetime>();
+		Dictionary<Type, object> classFixtureMappings = new();
+		HashSet<IAsyncLifetime> initializedAsyncFixtures = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.

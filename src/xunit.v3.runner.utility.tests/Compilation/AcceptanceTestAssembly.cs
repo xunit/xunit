@@ -49,7 +49,9 @@ public abstract class AcceptanceTestAssembly : IDisposable
 		catch { }
 	}
 
-	protected abstract Task Compile(string code, string[] references);
+	protected abstract Task Compile(
+		string code,
+		string[] references);
 
 	protected virtual IEnumerable<string> GetStandardReferences()
 		=> new[] {

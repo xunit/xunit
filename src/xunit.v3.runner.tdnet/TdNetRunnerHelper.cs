@@ -16,7 +16,7 @@ namespace Xunit.Runner.TdNet
 	public class TdNetRunnerHelper : IAsyncDisposable
 	{
 		bool disposed;
-		readonly DisposalTracker disposalTracker = new DisposalTracker();
+		readonly DisposalTracker disposalTracker = new();
 		readonly IFrontController? frontController;
 		readonly XunitProjectAssembly projectAssembly;
 		readonly ITestListener? testListener;

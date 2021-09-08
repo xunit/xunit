@@ -95,7 +95,6 @@ namespace Xunit.v3
 					TestMethodArguments,
 					BeforeAfterAttributes,
 					aggregator,
-					testOutputHelper,
 					CancellationTokenSource
 				).RunAsync();
 

@@ -14,7 +14,7 @@ public class _TestFailedTests
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("Cause", argEx.ParamName);
-			Assert.StartsWith("Cause is not a valid value from Xunit.FailureCause", argEx.Message);
+			Assert.StartsWith($"Cause is not a valid value from {typeof(FailureCause).FullName}", argEx.Message);
 		}
 
 		[Fact]
@@ -34,7 +34,7 @@ public class _TestFailedTests
 			Assert.Equal(cause, failed.Cause);
 		}
 
-		public static TheoryData<FailureCause> CauseValues = new TheoryData<FailureCause> { FailureCause.Assertion, FailureCause.Exception, FailureCause.Timeout };
+		public static TheoryData<FailureCause> CauseValues = new() { FailureCause.Assertion, FailureCause.Exception, FailureCause.Timeout };
 	}
 
 	public class FromException

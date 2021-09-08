@@ -12,7 +12,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class MessageMetadataCache
 	{
-		readonly Dictionary<string, object> cache = new Dictionary<string, object>();
+		readonly Dictionary<string, object> cache = new();
 
 		/// <summary>
 		/// Sets <see cref="_IAssemblyMetadata"/> into the cache.

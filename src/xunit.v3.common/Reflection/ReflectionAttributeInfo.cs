@@ -13,9 +13,9 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	{
-		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();
-		static readonly AttributeUsageAttribute defaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
-		static readonly AttributeUsageAttribute traitAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All) { AllowMultiple = true };
+		static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new();
+		static readonly AttributeUsageAttribute defaultAttributeUsageAttribute = new(AttributeTargets.All);
+		static readonly AttributeUsageAttribute traitAttributeUsageAttribute = new(AttributeTargets.All) { AllowMultiple = true };
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
@@ -176,7 +176,7 @@ namespace Xunit.Sdk
 
 		object? GetTypedValue(CustomAttributeTypedArgument arg)
 		{
-			if (!(arg.Value is IReadOnlyCollection<CustomAttributeTypedArgument> collect))
+			if (arg.Value is not IReadOnlyCollection<CustomAttributeTypedArgument> collect)
 				return arg.Value;
 
 			var argType = arg.ArgumentType.GetElementType();

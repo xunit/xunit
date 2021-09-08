@@ -14,10 +14,10 @@ namespace Xunit.Sdk
 	public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 	{
 		bool disposed = false;
-		readonly ManualResetEvent terminate = new ManualResetEvent(false);
+		readonly ManualResetEvent terminate = new(initialState: false);
 		readonly List<Thread> workerThreads;
-		readonly ConcurrentQueue<(SendOrPostCallback callback, object? state, ExecutionContext? context)> workQueue = new ConcurrentQueue<(SendOrPostCallback callback, object? state, ExecutionContext? context)>();
-		readonly AutoResetEvent workReady = new AutoResetEvent(false);
+		readonly ConcurrentQueue<(SendOrPostCallback callback, object? state, ExecutionContext? context)> workQueue = new();
+		readonly AutoResetEvent workReady = new(initialState: false);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MaxConcurrencySyncContext"/> class.

@@ -11,7 +11,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// The singleton instance of the comparer.
 		/// </summary>
-		public static readonly TestClassComparer Instance = new TestClassComparer();
+		public static readonly TestClassComparer Instance = new();
 
 		/// <inheritdoc/>
 		public bool Equals(_ITestClass? x, _ITestClass? y)

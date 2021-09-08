@@ -16,7 +16,7 @@ namespace Xunit.v3
 	public class TestAssembly : _ITestAssembly, ISerializable
 	{
 		_IAssemblyInfo? assembly;
-		string? uniqueID;
+		readonly string? uniqueID;
 
 		/// <summary>
 		/// Used for de-serialization.
@@ -30,11 +30,7 @@ namespace Xunit.v3
 
 			var assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("AssemblyPath"));
 			var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-			var assembly = System.Reflection.Assembly.Load(new AssemblyName
-			{
-				Name = assemblyName,
-				Version = Version
-			});
+			var assembly = System.Reflection.Assembly.Load(new AssemblyName { Name = assemblyName, Version = Version });
 
 			Assembly = Reflector.Wrap(assembly);
 

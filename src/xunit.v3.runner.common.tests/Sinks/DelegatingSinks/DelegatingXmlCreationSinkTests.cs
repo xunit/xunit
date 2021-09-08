@@ -11,7 +11,7 @@ using Xunit.v3;
 
 public class DelegatingXmlCreationSinkTests
 {
-	readonly ExecutionSummary executionSummary = new ExecutionSummary();
+	readonly ExecutionSummary executionSummary = new();
 	readonly IExecutionSink innerSink;
 
 	public DelegatingXmlCreationSinkTests()

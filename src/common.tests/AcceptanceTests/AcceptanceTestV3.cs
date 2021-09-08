@@ -25,13 +25,13 @@ public class AcceptanceTestV3
 		{
 			try
 			{
-				var diagnosticMessageSink = new _NullMessageSink();
+				var diagnosticMessageSink = _NullMessageSink.Instance;
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				var testCases = new List<_ITestCase>();
-				await discoverer.Find(testCase => { testCases.Add(testCase); return true; }, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: preEnumerateTheories), types);
+				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: preEnumerateTheories), types);
 
 				using var runSink = SpyMessageSink<_TestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(assemblyInfo);

@@ -1,6 +1,6 @@
 ﻿using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.v2
 {
@@ -30,6 +30,6 @@ namespace Xunit.Runner.v2
 		public void SetValue<TValue>(
 			string name,
 			TValue value) =>
-				v3Options.SetValue<TValue>(name, value);
+				v3Options.SetValue(name, value);
 	}
 }

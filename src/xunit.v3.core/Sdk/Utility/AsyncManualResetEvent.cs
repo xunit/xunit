@@ -4,7 +4,7 @@ namespace Xunit.Sdk
 {
 	class AsyncManualResetEvent
 	{
-		volatile TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
+		volatile TaskCompletionSource<bool> taskCompletionSource = new();
 
 		public AsyncManualResetEvent(bool signaled = false)
 		{

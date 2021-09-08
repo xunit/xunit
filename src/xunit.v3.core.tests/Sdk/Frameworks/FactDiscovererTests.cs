@@ -85,6 +85,6 @@ public class FactDiscovererTests
 		{ }
 
 		public static TestableFactDiscoverer Create() =>
-			new TestableFactDiscoverer(SpyMessageSink.Create());
+			new(SpyMessageSink.Create());
 	}
 }

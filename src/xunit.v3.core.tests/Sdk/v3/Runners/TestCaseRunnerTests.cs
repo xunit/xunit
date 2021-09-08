@@ -229,7 +229,7 @@ public class TestCaseRunnerTests
 			if (aggregatorSeedException != null)
 				aggregator.Add(aggregatorSeedException);
 
-			return new TestableTestCaseRunner(
+			return new(
 				testCase ?? Mocks.TestCase<object>("ToString"),
 				messageBus ?? new SpyMessageBus(),
 				aggregator,

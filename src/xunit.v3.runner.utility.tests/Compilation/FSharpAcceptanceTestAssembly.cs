@@ -14,7 +14,9 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
 	protected override IEnumerable<string> GetStandardReferences() => Enumerable.Empty<string>();
 
-	protected override async Task Compile(string code, string[] references)
+	protected override async Task Compile(
+		string code,
+		string[] references)
 	{
 		var sourcePath = Path.GetTempFileName() + ".fs";
 		File.WriteAllText(sourcePath, code);

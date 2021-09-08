@@ -11,7 +11,7 @@ namespace Xunit.Runner.TdNet
 {
 	public class ResultSink : TestMessageSink
 	{
-		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
+		readonly MessageMetadataCache metadataCache = new();
 		readonly int totalTests;
 
 		public ResultSink(ITestListener listener, int totalTests)
@@ -143,7 +143,7 @@ namespace Xunit.Runner.TdNet
 			var testClassMetadata = Guard.NotNull($"Cannot get test class metadata for ID {testResult.TestClassUniqueID}", metadataCache.TryGetClassMetadata(testResult));
 			var testClass = Type.GetType(testClassMetadata.TestClass);
 			var testMethodMetadata = Guard.NotNull($"Cannot get test method metadata for ID {testResult.TestMethodUniqueID}", metadataCache.TryGetMethodMetadata(testResult));
-			var testMethod = testClass != null ? testClass.GetMethod(testMethodMetadata.TestMethod) : null;
+			var testMethod = testClass?.GetMethod(testMethodMetadata.TestMethod);
 			var testMetadata = Guard.NotNull($"Cannot get test metadata for ID {testResult.TestUniqueID}", metadataCache.TryGetTestMetadata(testResult));
 
 			return new TestResult

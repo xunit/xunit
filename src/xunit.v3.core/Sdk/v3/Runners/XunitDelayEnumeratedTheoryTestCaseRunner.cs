@@ -16,10 +16,10 @@ namespace Xunit.v3
 	{
 		static readonly object?[] NoArguments = new object[0];
 
-		readonly ExceptionAggregator cleanupAggregator = new ExceptionAggregator();
+		readonly ExceptionAggregator cleanupAggregator = new();
 		Exception? dataDiscoveryException;
-		readonly DisposalTracker disposalTracker = new DisposalTracker();
-		readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
+		readonly DisposalTracker disposalTracker = new();
+		readonly List<XunitTestRunner> testRunners = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCaseRunner"/> class.
@@ -204,16 +204,16 @@ namespace Xunit.v3
 				CancellationTokenSource.Cancel();
 			else
 			{
-				var errorMetadata = ExceptionUtility.ExtractMetadata(dataDiscoveryException!.Unwrap());
+				var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(dataDiscoveryException!.Unwrap());
 				var testFailed = new _TestFailed
 				{
 					AssemblyUniqueID = testAssemblyUniqueID,
-					ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
-					ExceptionTypes = errorMetadata.ExceptionTypes,
+					ExceptionParentIndices = exceptionParentIndices,
+					ExceptionTypes = exceptionTypes,
 					ExecutionTime = 0m,
-					Messages = errorMetadata.Messages,
+					Messages = messages,
 					Output = "",
-					StackTraces = errorMetadata.StackTraces,
+					StackTraces = stackTraces,
 					TestCaseUniqueID = testCaseUniqueID,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,

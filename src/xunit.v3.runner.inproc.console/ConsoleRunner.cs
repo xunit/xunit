@@ -22,16 +22,16 @@ namespace Xunit.Runner.InProc.SystemConsole
 	/// </summary>
 	public class ConsoleRunner
 	{
-		string[] args;
+		readonly string[] args;
 		volatile bool cancel;
-		CommandLine commandLine;
+		readonly CommandLine commandLine;
 		readonly object consoleLock;
 		bool executed = false;
 		bool failed;
 		IRunnerLogger? logger;
 		IReadOnlyList<IRunnerReporter>? runnerReporters;
-		Assembly testAssembly;
-		TestExecutionSummaries testExecutionSummaries = new TestExecutionSummaries();
+		readonly Assembly testAssembly;
+		readonly TestExecutionSummaries testExecutionSummaries = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ConsoleRunner"/> class.
@@ -344,7 +344,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 		async ValueTask ListProject(XunitProject project)
 		{
 			var (listOption, listFormat) = project.Configuration.List!.Value;
-			var nullMessageSink = new _NullMessageSink();
+			var nullMessageSink = _NullMessageSink.Instance;
 			var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
 
 			foreach (var assembly in project.Assemblies)
@@ -368,7 +368,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				// Discover & filter the tests
 				var testCases = new List<_ITestCase>();
 				var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return !cancel; }, discoveryOptions);
+				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions);
 
 				var testCasesDiscovered = testCases.Count;
 				var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
@@ -462,7 +462,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 				reporterMessageHandler.OnMessage(discoveryStarting);
 
 				var testCases = new List<_ITestCase>();
-				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return !cancel; }, discoveryOptions);
+				await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions);
 
 				var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
 				var testCasesToRun = filteredTestCases.Count;
@@ -537,23 +537,6 @@ namespace Xunit.Runner.InProc.SystemConsole
 			}
 
 			return assemblyElement;
-		}
-
-		bool ValidateFileExists(
-			object consoleLock,
-			string? fileName)
-		{
-			if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
-				return true;
-
-			lock (consoleLock)
-			{
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
-				Console.WriteLine($"File not found: {fileName}");
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Gray);
-			}
-
-			return false;
 		}
 	}
 }

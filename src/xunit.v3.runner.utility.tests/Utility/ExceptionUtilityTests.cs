@@ -9,10 +9,10 @@ public class ExceptionUtilityTests
 {
 	class ErrorMetadata : _IErrorMetadata, IEnumerable
 	{
-		readonly List<int> exceptionParentIndices = new List<int>();
-		readonly List<string?> exceptionTypes = new List<string?>();
-		readonly List<string> messages = new List<string>();
-		readonly List<string?> stackTraces = new List<string?>();
+		readonly List<int> exceptionParentIndices = new();
+		readonly List<string?> exceptionTypes = new();
+		readonly List<string> messages = new();
+		readonly List<string?> stackTraces = new();
 
 		public string?[] ExceptionTypes => exceptionTypes.ToArray();
 

@@ -15,7 +15,7 @@ namespace Xunit.v3
 	public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisposable
 	{
 		string displayName;
-		readonly DisposalTracker disposalTracker = new DisposalTracker();
+		readonly DisposalTracker disposalTracker = new();
 		readonly DisplayNameFormatter formatter;
 		string uniqueID;
 

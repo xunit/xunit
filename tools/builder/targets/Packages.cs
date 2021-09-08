@@ -23,22 +23,20 @@ public static class Packages
 			Directory
 				.GetFiles(srcFolder, "xunit.v3.*.csproj", SearchOption.AllDirectories)
 				.Where(x => !x.EndsWith(".tests.csproj"))
-				.OrderBy(x => x)
 				.Select(x => Path.GetDirectoryName(x)?.Substring(context.BaseFolder.Length + 1))
 				.WhereNotNull()
 				.Where(x => !File.Exists(Path.Combine(x, ".no-package")));
 
-		foreach (var projectFolder in projectFolders)
+		foreach (var projectFolder in projectFolders.OrderBy(x => x))
 		{
 			var packArgs = $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} {projectFolder}";
 			var nuspecFiles =
 				Directory
 					.GetFiles(projectFolder, "*.nuspec")
-					.OrderBy(x => x)
 					.Select(x => Path.GetFileName(x));
 
 			// Pack the .nuspec file(s)
-			foreach (var nuspecFile in nuspecFiles)
+			foreach (var nuspecFile in nuspecFiles.OrderBy(x => x))
 				await context.Exec("dotnet", $"{packArgs} -p:NuspecFile={nuspecFile}");
 
 			// Only pack the .csproj if there's not an exact matching .nuspec file

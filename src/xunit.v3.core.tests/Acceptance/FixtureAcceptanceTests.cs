@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class FixtureAcceptanceTests
@@ -58,6 +57,7 @@ public class FixtureAcceptanceTests
 		class ClassWithTooManyConstructors
 		{
 			public ClassWithTooManyConstructors() { }
+
 			public ClassWithTooManyConstructors(int unused) { }
 
 			[Fact]

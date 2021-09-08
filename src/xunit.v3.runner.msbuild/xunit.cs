@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 

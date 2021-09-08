@@ -24,7 +24,7 @@ namespace Xunit.Runner.Common
 		public ValueTask<_IMessageSink> CreateMessageHandler(
 			IRunnerLogger logger,
 			_IMessageSink diagnosticMessageSink) =>
-				new ValueTask<_IMessageSink>(new QuietReporterMessageHandler(logger));
+				new(new QuietReporterMessageHandler(logger));
 
 		/// <inheritdoc/>
 		public ValueTask DisposeAsync() => default;

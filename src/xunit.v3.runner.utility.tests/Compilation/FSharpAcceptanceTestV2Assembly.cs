@@ -11,7 +11,9 @@ public class FSharpAcceptanceTestV2Assembly : FSharpAcceptanceTestAssembly
 			.GetStandardReferences()
 			.Concat(new[] { "xunit.assert.dll", "xunit.core.dll", "xunit.execution.desktop.dll" });
 
-	public static async Task<FSharpAcceptanceTestV2Assembly> Create(string code, params string[] references)
+	public static async Task<FSharpAcceptanceTestV2Assembly> Create(
+		string code,
+		params string[] references)
 	{
 		var assembly = new FSharpAcceptanceTestV2Assembly();
 		await assembly.Compile(code, references);

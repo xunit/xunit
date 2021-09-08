@@ -216,7 +216,7 @@ public class TestMethodTestCaseTests
 		[Fact]
 		public static void CanRoundTrip_PublicClass_PublicTestMethod()
 		{
-			var testCase = TestableTestMethodTestCase.Create<Serialization>("CanRoundTrip_PublicClass_PublicTestMethod");
+			var testCase = TestableTestMethodTestCase.Create<Serialization>(nameof(CanRoundTrip_PublicClass_PublicTestMethod));
 
 			var serialized = SerializationHelper.Serialize(testCase);
 			var deserialized = SerializationHelper.Deserialize<_ITestCase>(serialized);
@@ -228,7 +228,7 @@ public class TestMethodTestCaseTests
 		[Fact]
 		public static void CanRoundTrip_PublicClass_PrivateTestMethod()
 		{
-			var testCase = TestableTestMethodTestCase.Create<Serialization>("PrivateTestMethod");
+			var testCase = TestableTestMethodTestCase.Create<Serialization>(nameof(PrivateTestMethod));
 
 			var serialized = SerializationHelper.Serialize(testCase);
 			var deserialized = SerializationHelper.Deserialize<_ITestCase>(serialized);
@@ -240,7 +240,7 @@ public class TestMethodTestCaseTests
 		[Fact]
 		public static void CanRoundTrip_PrivateClass()
 		{
-			var testCase = TestableTestMethodTestCase.Create<PrivateClass>("TestMethod");
+			var testCase = TestableTestMethodTestCase.Create<PrivateClass>(nameof(PrivateClass.TestMethod));
 
 			var serialized = SerializationHelper.Serialize(testCase);
 			var deserialized = SerializationHelper.Deserialize<_ITestCase>(serialized);

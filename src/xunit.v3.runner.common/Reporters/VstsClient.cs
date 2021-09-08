@@ -14,21 +14,21 @@ namespace Xunit.Runner.Common
 {
 	class VstsClient
 	{
-		static readonly MediaTypeWithQualityHeaderValue JsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
-		static readonly HttpMethod PatchHttpMethod = new HttpMethod("PATCH");
+		static readonly MediaTypeWithQualityHeaderValue JsonMediaType = new("application/json");
+		static readonly HttpMethod PatchHttpMethod = new("PATCH");
 		const string UNIQUEIDKEY = "UNIQUEIDKEY";
 
-		ConcurrentQueue<IDictionary<string, object?>> addQueue = new ConcurrentQueue<IDictionary<string, object?>>();
+		ConcurrentQueue<IDictionary<string, object?>> addQueue = new();
 		readonly string baseUri;
 		readonly int buildId;
 		readonly HttpClient client;
-		readonly ManualResetEventSlim finished = new ManualResetEventSlim(false);
+		readonly ManualResetEventSlim finished = new(initialState: false);
 		readonly IRunnerLogger logger;
 		volatile bool previousErrors;
 		volatile bool shouldExit;
-		readonly ConcurrentDictionary<string, int> testToTestIdMap = new ConcurrentDictionary<string, int>();
-		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
-		readonly AutoResetEvent workEvent = new AutoResetEvent(false);
+		readonly ConcurrentDictionary<string, int> testToTestIdMap = new();
+		ConcurrentQueue<IDictionary<string, object?>> updateQueue = new();
+		readonly AutoResetEvent workEvent = new(initialState: false);
 
 		public VstsClient(
 			IRunnerLogger logger,

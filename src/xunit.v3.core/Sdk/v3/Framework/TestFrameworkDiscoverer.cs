@@ -57,7 +57,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets the disposal tracker for the test framework discoverer.
 		/// </summary>
-		protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
+		protected DisposalTracker DisposalTracker { get; } = new();
 
 		/// <summary>
 		/// Gets the unique ID for the test assembly under test.
@@ -90,7 +90,7 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public ValueTask Find(
-			Func<_ITestCase, bool> callback,
+			Func<_ITestCase, ValueTask<bool>> callback,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			Type[]? types = null)
 		{
@@ -115,7 +115,7 @@ namespace Xunit.v3
 
 						try
 						{
-							if (!await FindTestsForType(testClass, discoveryOptions, testCase => new(callback(testCase))))
+							if (!await FindTestsForType(testClass, discoveryOptions, testCase => callback(testCase)))
 								break;
 						}
 						catch (Exception ex)

@@ -1,8 +1,9 @@
 using System;
 using System.Globalization;
 using Xunit.Internal;
+using Xunit.v3;
 
-namespace Xunit.v3
+namespace Xunit.Sdk
 {
 	/// <summary>
 	/// Extension methods for reading <see cref="_ITestFrameworkDiscoveryOptions"/> and <see cref="_ITestFrameworkExecutionOptions"/>.

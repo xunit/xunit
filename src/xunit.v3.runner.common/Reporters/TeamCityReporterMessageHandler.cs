@@ -11,7 +11,7 @@ namespace Xunit.Runner.Common
 	public class TeamCityReporterMessageHandler : TestMessageSink
 	{
 		readonly IRunnerLogger logger;
-		MessageMetadataCache metadataCache = new MessageMetadataCache();
+		readonly MessageMetadataCache metadataCache = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TeamCityReporterMessageHandler" /> class.

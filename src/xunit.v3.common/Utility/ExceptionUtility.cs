@@ -13,7 +13,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public static class ExceptionUtility
 	{
-		static ConcurrentDictionary<Type, MethodInfo?> innerExceptionsPropertyByType = new();
+		static readonly ConcurrentDictionary<Type, MethodInfo?> innerExceptionsPropertyByType = new();
 
 		/// <summary>
 		/// Combines multiple levels of messages into a single message.

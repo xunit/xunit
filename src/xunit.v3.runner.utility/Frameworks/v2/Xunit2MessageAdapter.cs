@@ -16,7 +16,7 @@ namespace Xunit.Runner.v2
 	{
 		readonly string assemblyUniqueID;
 		readonly ITestFrameworkDiscoverer? discoverer;
-		readonly Dictionary<ITestCase, Dictionary<ITest, string>> testUniqueIDsByTestCase = new Dictionary<ITestCase, Dictionary<ITest, string>>();
+		readonly Dictionary<ITestCase, Dictionary<ITest, string>> testUniqueIDsByTestCase = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Xunit2MessageAdapter"/> class.
@@ -167,13 +167,13 @@ namespace Xunit.Runner.v2
 		}
 
 		_DiagnosticMessage AdaptDiagnosticMessage(IDiagnosticMessage message) =>
-			new _DiagnosticMessage { Message = message.Message };
+			new() { Message = message.Message };
 
 		_DiscoveryComplete AdaptDiscoveryCompleteMessage(IDiscoveryCompleteMessage message) =>
-			new _DiscoveryComplete { AssemblyUniqueID = assemblyUniqueID };
+			new() { AssemblyUniqueID = assemblyUniqueID };
 
 		_ErrorMessage AdaptErrorMessage(IErrorMessage message) =>
-			new _ErrorMessage
+			new()
 			{
 				ExceptionParentIndices = message.ExceptionParentIndices,
 				ExceptionTypes = message.ExceptionTypes,
@@ -182,7 +182,7 @@ namespace Xunit.Runner.v2
 			};
 
 		_TestAssemblyCleanupFailure AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message) =>
-			new _TestAssemblyCleanupFailure
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = message.ExceptionParentIndices,
@@ -192,7 +192,7 @@ namespace Xunit.Runner.v2
 			};
 
 		_TestAssemblyFinished AdaptTestAssemblyFinished(ITestAssemblyFinished message) =>
-			new _TestAssemblyFinished
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = message.ExecutionTime,

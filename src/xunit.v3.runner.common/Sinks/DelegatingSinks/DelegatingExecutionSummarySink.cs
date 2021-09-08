@@ -23,7 +23,7 @@ namespace Xunit.Runner.Common
 		bool disposed;
 		volatile int errors;
 		readonly _IMessageSink innerSink;
-		readonly MessageMetadataCache metadataCache = new MessageMetadataCache();
+		readonly MessageMetadataCache metadataCache = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingExecutionSummarySink"/> class.

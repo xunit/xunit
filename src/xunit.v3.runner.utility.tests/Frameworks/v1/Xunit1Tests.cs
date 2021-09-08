@@ -1033,7 +1033,7 @@ public class AmbiguouslyNamedTestMethods
 			bool shadowCopy,
 			string? shadowCopyFolder,
 			_ISourceInformationProvider sourceInformationProvider)
-				: base(new _NullMessageSink(), appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
+				: base(_NullMessageSink.Instance, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
 		{
 			Executor_TestAssemblyFileName = assemblyFileName;
 			Executor_ConfigFileName = configFileName;

@@ -345,7 +345,7 @@ public class XunitTestFrameworkDiscovererTests
 			_IAssemblyInfo assembly,
 			_IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
-				: base(assembly, configFileName: null, diagnosticMessageSink ?? new _NullMessageSink(), collectionFactory)
+				: base(assembly, configFileName: null, diagnosticMessageSink ?? _NullMessageSink.Instance, collectionFactory)
 		{ }
 
 		public new _IAssemblyInfo AssemblyInfo => base.AssemblyInfo;
