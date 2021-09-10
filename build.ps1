@@ -34,7 +34,7 @@ $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $solutionFolder = Get-Location
 
-$signClientVersion = "0.9.1"
+$signClientVersion = "1.3.155"
 $signClientFolder = (join-path (Get-Location) "packages\SignClient.$signClientVersion")
 $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 
@@ -64,7 +64,7 @@ function __target_build() {
     __target_restore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.vs2017.sln" $configuration
+        _msbuild "xunit.sln" $configuration
         _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
 }
 
@@ -95,7 +95,7 @@ function __target_register() {
 
 function __target_restore() {
     _build_step "Restoring NuGet packages"
-       _msbuild "xunit.vs2017.sln" $configuration "restore"
+       _msbuild "xunit.sln" $configuration "restore"
 }
 
 function __target_test() {
@@ -162,7 +162,7 @@ function __target__signpackages() {
             }
 
             _build_step "Signing NuGet packages"
-                $appPath = (join-path $signClientFolder "tools\netcoreapp2.0\SignClient.dll")
+                $appPath = (join-path $signClientFolder "tools\netcoreapp3.1\SignClient.dll")
                 $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
                 foreach ($nupkg in $nupgks) {
                     $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r "' + $env:SignClientUser + '" -s "' + $env:SignClientSecret + '" -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
@@ -202,9 +202,9 @@ if ($targetFunction -eq $null) {
 
 _build_step "Performing pre-build verifications"
     _require dotnet "Could not find 'dotnet'. Please ensure .NET CLI Tooling is installed."
-    _verify_dotnetsdk_version "2.1.302"
-    _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15.7 is on the path."
-    _verify_msbuild_version "15.7.0"
+    _verify_dotnetsdk_version "6.0.100"
+    _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v17.0 is on the path."
+    _verify_msbuild_version "17.0.0"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder
