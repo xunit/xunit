@@ -106,8 +106,8 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Disposes all the objects that were added to the disposal tracker, in the reverse order
 		/// of which they were added. For any object which implements both <see cref="IDisposable"/>
-		/// and <see cref="IAsyncDisposable"/> will have <see cref="IAsyncDisposable.DisposeAsync"/>
-		/// called first, and then <see cref="IDisposable.Dispose"/> called after.
+		/// and <see cref="IAsyncDisposable"/> we will favor <see cref="IAsyncDisposable.DisposeAsync"/>
+		/// and not call <see cref="IDisposable.Dispose"/>.
 		/// </summary>
 		public async ValueTask DisposeAsync()
 		{
