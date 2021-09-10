@@ -39,6 +39,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.3
         with:
           vs-version: '[17.0,18.0)'
+          vs-prerelease: true
 
       - name: "Build target: CI"
         env:

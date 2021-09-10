@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31709.452
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 	ProjectSection(SolutionItems) = preProject
@@ -62,6 +62,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{EB403884-D335-40D1-AD83-BD6F92AC1744}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
+		.github\workflows\pull-request.yaml = .github\workflows\pull-request.yaml
+		.github\workflows\push-v2.yaml = .github\workflows\push-v2.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.core", "src\xunit.core\xunit.core.csproj", "{05CC6B6D-5A70-4B82-8118-49A89A70C425}"
