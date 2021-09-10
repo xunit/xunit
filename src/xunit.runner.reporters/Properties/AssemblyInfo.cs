@@ -10,6 +10,8 @@
 [assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Standard 2.0)")]
 #elif NETCOREAPP1_0
 [assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Core 1.0)")]
+#elif WINDOWS_UAP
+[assembly: AssemblyTitle("xUnit.net Runner Reporters (Universal Windows 10.0)")]
 #else
 #error Unknown target platform
 #endif

@@ -15,8 +15,8 @@
     <PackageId>$(MSBuildProjectName)</PackageId>
     <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>
-    <TargetPlatformMinVersion Condition=" '$(TargetFramework)' == 'uap10.0' ">10.0.10240.0</TargetPlatformMinVersion>
-    <TargetPlatformVersion Condition=" '$(TargetFramework)' == 'uap10.0' ">10.0.10240.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion Condition=" '$(TargetFramework)' == 'uap10.0' ">10.0.16299.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion Condition=" '$(TargetFramework)' == 'uap10.0' ">10.0.19041.0</TargetPlatformVersion>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
     <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
@@ -26,7 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- GitHub Actions -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 
 </Project>

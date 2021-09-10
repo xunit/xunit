@@ -11,7 +11,7 @@
     <AssemblyName>test.harness.uwp</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -19,7 +19,8 @@
     <PackageCertificateKeyFile>test.harness.uwp_TemporaryKey.pfx</PackageCertificateKeyFile>
     <UnitTestPlatformVersion>15.5</UnitTestPlatformVersion>
     <UnitTestPlatformVersion Condition="'$(UnitTestPlatformVersion)' == ''">$(VisualStudioVersion)</UnitTestPlatformVersion>
-    <PackageCertificateThumbprint>AF343B60283149D6909381DF64C6142EA0CDF76C</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>47877B0FCC81388D8CE8BDDC0AA954DE87ACAC5B</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -160,7 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.8</Version>
+      <Version>6.2.12</Version>
     </PackageReference>
     <!-- I don't know where these are coming from, but older 4.0 versions are being included and causing downgrades -->
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />

@@ -6,14 +6,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity Name="9add71ac-d7d5-4303-9835-24604627c2f0"
-            Publisher="CN=oren"
+            Publisher="CN=Claire"
             Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="9add71ac-d7d5-4303-9835-24604627c2f0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>test.harness.uwp</DisplayName>
-    <PublisherDisplayName>oren</PublisherDisplayName>
+    <PublisherDisplayName>claire</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
