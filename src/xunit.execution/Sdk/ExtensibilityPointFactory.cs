@@ -39,7 +39,12 @@ namespace Xunit.Sdk
 
             var disposable = result as IDisposable;
             if (disposable != null)
-                disposalTracker.Add(disposable);
+            {
+                lock (disposalTracker)
+                {
+                    disposalTracker.Add(disposable);
+                }
+            }
 
             return result;
         }
@@ -50,7 +55,10 @@ namespace Xunit.Sdk
         public static void Dispose()
         {
             instances.Clear();
-            disposalTracker.Dispose();
+            lock (disposalTracker)
+            {
+                disposalTracker.Dispose();
+            }
         }
 
         /// <summary>
