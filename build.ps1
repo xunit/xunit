@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 
 param(
-    [ValidateSet('AppVeyor','Build','CI','PackageRestore','Packages','Register','Restore','Test',
+    [ValidateSet('GitHubActions','Build','CI','PackageRestore','Packages','Register','Restore','Test',
                  '_Packages','_Publish','_PushMyGet','_Register','_SetVersion','_SignPackages','_Test32','_Test64','_TestCore')]
     [string]$target = "Test",
     [string]$configuration = "Release",
@@ -54,7 +54,7 @@ function _xunit_netcore([string]$targetFramework, [string]$command) {
 
 # Top-level targets
 
-function __target_appveyor() {
+function __target_githubactions() {
     __target_ci    
     __target__signpackages
     __target__pushmyget
@@ -202,7 +202,7 @@ if ($targetFunction -eq $null) {
 
 _build_step "Performing pre-build verifications"
     _require dotnet "Could not find 'dotnet'. Please ensure .NET CLI Tooling is installed."
-    _verify_dotnetsdk_version "6.0.100"
+    #_verify_dotnetsdk_version "6.0.100"
     _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v17.0 is on the path."
     _verify_msbuild_version "17.0.0"
 
