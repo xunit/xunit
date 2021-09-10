@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+      - 'rel/**'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -41,9 +43,9 @@ jobs:
           SignClientSecret: ${{ secrets.SignClientSecret }}
         run: dotnet run --project tools/builder --no-launch-profile -- CI --timing
 
-      - name: "Upload artifact: test-${{ matrix.os }}"
+      - name: "Upload artifact: test"
         uses: actions/upload-artifact@v2
         with:
-          name: test-${{ matrix.os }}
+          name: test
           path: artifacts/test
         if: always()
