@@ -40,6 +40,6 @@ To fix a violation of this rule, [describe how to fix a violation].
 **If the severity of your analyzer isn't _Warning_, delete this section.**
 
 ```csharp
-#pragma warning disable xUnit0000
-#pragma warning restore xUnit0000
+#pragma warning disable xUnit0000 // Paste the description from the analyzer here
+#pragma warning restore xUnit0000 // Paste the description from the analyzer here
 ```

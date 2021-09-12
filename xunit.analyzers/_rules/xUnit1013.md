@@ -7,15 +7,18 @@ severity: Warning
 
 ## Cause
 
-A test class (i.e. a class that has methods annotated with `Fact` or `Theory` attributes) has a public method that is not marked as a test.
+This rule is trigger by having a public method in a test class that is not marked as a test.
 
 ## Reason for rule
 
-Test classes do not typically need to expose public methods that are not tests. A violation indicates that a possible test method is not properly annotated and will therefore not be executed by the test runner.
+It is frequently oversight to have a public method in a test class which isn't a test method.
 
 ## How to fix violations
 
-To fix a violation of this rule, annotate the method with `Fact` or `Theory` attributes.
+To fix a violation of this rule, you may:
+
+* Annotate the method with `Fact` or `Theory` attributes
+* Change the visibility of the method to something other than `public`
 
 ## Examples
 
@@ -25,17 +28,9 @@ To fix a violation of this rule, annotate the method with `Fact` or `Theory` att
 public class Tests
 {
 	[Fact]
-	public void Test1()
-	{
-		Helper();
-	}
+	public void Test1() { }
 
-	public void Test2()
-	{
-		Helper();
-	}
-
-	public void Helper() {}
+	public void Test2() { }
 }
 ```
 
@@ -45,18 +40,20 @@ public class Tests
 public class Tests
 {
 	[Fact]
-	public void Test1()
-	{
-		Helper();
-	}
+	public void Test1() { }
 
 	[Fact]
-	public void Test2()
-	{
-		Helper();
-	}
+	public void Test2() { }
+}
+```
 
-	private void Helper() {}
+```csharp
+public class Tests
+{
+	[Fact]
+	public void Test1() { }
+
+	internal void Test2() { }
 }
 ```
 

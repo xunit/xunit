@@ -5,37 +5,67 @@ category: Usage
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This rule is trigged by having a `null` value in your `[InlineData]` for a value type parameter.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+Value types are incompatible with `null` values.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, you may:
+
+* Replace the `null` value with a non-`null` value
+* Convert the parameter type to a nullable value type
+* Convert the parameter type to a reference type
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData(null)]
+	public void TestMethod(int age) { }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData(42)]
+	public void TestMethod(int age) { }
+}
+```
+
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData(null)]
+	public void TestMethod(int? age) { }
+}
+```
+
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData(null)]
+	public void TestMethod(object value) { }
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit1012 // Null should not be used for value type parameters
+#pragma warning restore xUnit1012 // Null should not be used for value type parameters
 ```

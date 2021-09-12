@@ -22,27 +22,22 @@ Use `Assert.Contains` or `Assert.DoesNotContain` instead.
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
-
-	Assert.True(result.Contains("foo"));
-	Assert.False(result.Contains("bar"));
-}
+Assert.True(collection.Contains("foo"));
 ```
+
+```csharp
+Assert.False(collection.Contains("bar"));
+```
+
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+Assert.Contains("foo", result);
+```
 
-	Assert.Contains("foo", result);
-	Assert.DoesNotContain("bar", result);
-}
+```csharp
+Assert.DoesNotContain("bar", result);
 ```
 
 ## How to suppress violations

@@ -5,37 +5,42 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This rule is triggered when your `[MemberData]` attribute points to a property without a public getter.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+`[MemberData]` attributes which point to write-only properties will fail at runtime, since the property value cannot be read to retrieve the data.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, update the data member to have a getter.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+	public static IEnumerable<object[]> TestData { private get; set; }
+
+	[Theory]
+	[MemberData(nameof(TestData))]
+	public void TestMethod(string greeting, int age) { }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+public class TestClass
+{
+	public static IEnumerable<object[]> TestData { get; set; }
+
+	[Theory]
+	[MemberData(nameof(TestData))]
+	public void TestMethod(string greeting, int age) { }
+}
 ```

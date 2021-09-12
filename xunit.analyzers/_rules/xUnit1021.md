@@ -5,37 +5,65 @@ category: Usage
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This rule is triggered when your `[MemberData]` attribute points to a non-method, but provides method arguments.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+`[MemberData]` which points to a method can pass parameter values to that method; when it points to a field or a property, method parameters will be ignored (and thus should be removed).
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, you may:
+
+* Remove the method parameters from the `[MemberData]` attribute
+* Convert the data member to a method with appropriate parameters
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+	public static IEnumerable<object[]> TestData { get; set; }
+
+	[Theory]
+	[MemberData(nameof(TestData), "Hello world", 123)]
+	public void TestMethod(decimal value) { }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+public class TestClass
+{
+	public static IEnumerable<object[]> TestData { get; set; }
+
+	[Theory]
+	[MemberData(nameof(TestData))]
+	public void TestMethod(decimal value) { }
+}
+```
+
+```csharp
+public class TestClass
+{
+	public static IEnumerable<object[]> TestData(string greeting, int age) { }
+
+	[Theory]
+	[MemberData(nameof(TestData), "Hello world", 123)]
+	public void TestMethod(decimal value) { }
+}
+```
 
 ## How to suppress violations
 
 **If the severity of your analyzer isn't _Warning_, delete this section.**
 
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit1021 // MemberData should not have parameters if the referenced member is not a method
+#pragma warning restore xUnit1021 // MemberData should not have parameters if the referenced member is not a method
 ```

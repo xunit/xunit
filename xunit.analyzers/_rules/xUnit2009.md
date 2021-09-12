@@ -27,27 +27,17 @@ To fix a violation of this rule, replace the offending assertion according to th
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+string result = "foo bar baz";
 
-	Assert.True(result.Contains("bar"));
-	Assert.True(result.StartsWith("foo"));
-}
+Assert.True(result.Contains("bar"));
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+string result = "foo bar baz";
 
-	Assert.Contains("bar", result);
-	Assert.StartsWith("foo", result);
-}
+Assert.Contains("bar", result);
 ```
 
 ## How to suppress violations

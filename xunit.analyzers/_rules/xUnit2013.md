@@ -22,29 +22,29 @@ Use `Assert.Empty`, `Assert.NotEmpty`, or `Assert.Single` instead.
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+Assert.Equal(1, collection.Count());
+```
 
-	Assert.Equal(1, result.Count());
-	Assert.Equal(0, result.Count());
-	Assert.NotEqual(0, result.Count());
-}
+```csharp
+Assert.Equal(0, collection.Count());
+```
+
+```csharp
+Assert.NotEqual(0, collection.Count());
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+Assert.Single(collection);
+```
 
-	Assert.Single(result);
-	Assert.Empty(result);
-	Assert.NotEmpty(result);
-}
+```csharp
+Assert.Empty(collection);
+```
+
+```csharp
+Assert.NotEmpty(collection);
 ```
 
 ## How to suppress violations

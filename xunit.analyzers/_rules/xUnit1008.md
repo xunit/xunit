@@ -5,37 +5,54 @@ category: Usage
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This is triggered by forgetting to put the `[Theory]` attribute on a test method with data attributes.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+If the test method does not have a `[Theory]` attribute on it, then the test will not run.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, either:
+
+* Add a `[Theory]` attribute to the test method
+* Remove the theory data attributes
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+	[InlineData(42)]
+	public void MyTest(int value) { }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData(42)]
+	public void MyTest(int value) { }
+}
+```
+
+```csharp
+public class TestClass
+{
+	public void MyTest(int value) { }
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit1008 // Test data attribute should only be used on a Theory
+#pragma warning restore xUnit1008 // Test data attribute should only be used on a Theory
 ```

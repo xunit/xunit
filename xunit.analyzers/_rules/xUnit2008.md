@@ -22,27 +22,29 @@ Replace the assertions with `Assert.Matches` or `Assert.DoesNotMatch`.
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+string result = "foo bar baz";
 
-	Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
-	Assert.False(Regex.IsMatch(result, "hello (.*?)"));
-}
+Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
+```
+
+```csharp
+string result = "foo bar baz";
+
+Assert.False(Regex.IsMatch(result, "hello (.*?)"));
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+string result = "foo bar baz";
 
-	Assert.Matches("foo (.*?) baz", result);
-	Assert.DoesNotMatch("hello (.*?)", result);
-}
+Assert.Matches("foo (.*?) baz", result);
+```
+
+```csharp
+string result = "foo bar baz";
+
+Assert.DoesNotMatch("hello (.*?)", result);
 ```
 
 ## How to suppress violations

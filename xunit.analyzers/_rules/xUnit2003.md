@@ -22,27 +22,29 @@ To fix a violation of this rule, replace the offending asserts with `Assert.Null
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = GetSomeValue();
+string result = GetSomeValue();
 
-	Assert.NotEqual(null, result);
-	Assert.Equal(null, result);
-}
+Assert.Equal(null, result);
+```
+
+```csharp
+string result = GetSomeValue();
+
+Assert.NotEqual(null, result);
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = GetSomeValue();
+string result = GetSomeValue();
 
-	Assert.NotNull(result);
-	Assert.Null(result);
-}
+Assert.Null(result);
+```
+
+```csharp
+string result = GetSomeValue();
+
+Assert.NotNull(result);
 ```
 
 ## How to suppress violations

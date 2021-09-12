@@ -22,25 +22,17 @@ To fix a violation of this rule, remove the generic argument to use the `string`
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo";
+string result = "foo";
 
-	Assert.Equal<string>("foo", result);
-}
+Assert.Equal<string>("foo", result);
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo";
+string result = "foo";
 
-	Assert.Equal("foo", result);
-}
+Assert.Equal("foo", result);
 ```
 
 ## How to suppress violations

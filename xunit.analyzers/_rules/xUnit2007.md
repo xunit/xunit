@@ -11,7 +11,7 @@ A violation of this rule occurs when the `typeof` operator is used with a type c
 
 ## Reason for rule
 
-When the expected type is known at compile-time, the generic overload should be used.
+When the expected type is known at compile-time, the generic overload should be used. In addition to being more concise, it also returns the value cast to the appropriate type when the assert succeeds, for use in later assertions.
 
 ## How to fix violations
 
@@ -22,25 +22,17 @@ Use the generic overload of `Assert.IsType`, `Assert.IsNotType`, or `Assert.IsAs
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+var result = SomeMethod();
 
-	Assert.IsType(typeof(string), result);
-}
+Assert.IsType(typeof(string), result);
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+var result = SomeMethod();
 
-	Assert.IsType<string>(result);
-}
+Assert.IsType<string>(result);
 ```
 
 ## How to suppress violations

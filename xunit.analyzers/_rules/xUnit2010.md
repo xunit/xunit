@@ -15,34 +15,24 @@ A violation of this rule occurs when `Assert.True` or `Assert.False` are used wi
 
 ## How to fix violations
 
-Replace the assertions with `Assert.Equal` or `Assert.NotEqual`.
+Replace `Assert.True` with `Assert.Equal` and/or `Assert.False` with `Assert.NotEqual`.
 
 ## Examples
 
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+string result = "foo bar baz";
 
-	Assert.True(string.Equals("foo bar baz", result));
-	Assert.False(string.Equals("hello world", result));
-}
+Assert.True(string.Equals("foo bar baz", result));
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	string result = "foo bar baz";
+string result = "foo bar baz";
 
-	Assert.Equal("foo bar baz", result);
-	Assert.NotEqual("hello world", result);
-}
+Assert.Equal("foo bar baz", result);
 ```
 
 ## How to suppress violations

@@ -15,34 +15,24 @@ There are specialized assertions for checking for elements in collections.
 
 ## How to fix violations
 
-Use `Assert.Contains` or `Assert.DoesNotContain` instead.
+Replace `Assert.True` with `Assert.Contains` and/or `Assert.False` with `Assert.DoesNotContain`.
 
 ## Examples
 
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+IEnumerable<string> result = GetItems();
 
-	Assert.True(result.Any(x => x == "foo"));
-	Assert.False(result.Any(x => x == "bar"));
-}
+Assert.True(result.Any(x => x == "foo"));
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+IEnumerable<string> result = GetItems();
 
-	Assert.Contains(result, x => x == "foo");
-	Assert.DoesNotContain(result, x => x == "bar");
-}
+Assert.Contains(result, x => x == "foo");
 ```
 
 ## How to suppress violations

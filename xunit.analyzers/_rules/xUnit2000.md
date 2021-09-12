@@ -22,25 +22,13 @@ To fix a violation of this rule, swap the arguments in the assertion, so that th
 ### Violates
 
 ```csharp
-[Fact]
-public void AdditionExample()
-{
-	var result = 2 + 3;
-
-	Assert.Equal(result, 5);
-}
+Assert.Equal(result, 5);
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void AdditionExample()
-{
-	var result = 2 + 3;
-
-	Assert.Equal(5, result);
-}
+Assert.Equal(5, result);
 ```
 
 ## How to suppress violations

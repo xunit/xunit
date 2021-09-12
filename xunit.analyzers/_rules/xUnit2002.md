@@ -22,26 +22,18 @@ To fix a violation of this rule, either remove the assertion or change the objec
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleTest()
-{
-	int result = GetSomeValue();
+int result = GetSomeValue();
 
-	Assert.NotNull(result);
-	Assert.True(result > 4);
-}
+Assert.NotNull(result);
+Assert.True(result > 4);
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleTest()
-{
-	int result = GetSomeValue();
+int result = GetSomeValue();
 
-	Assert.True(result > 4);
-}
+Assert.True(result > 4);
 ```
 
 ## How to suppress violations

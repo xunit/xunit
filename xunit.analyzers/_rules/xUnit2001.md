@@ -22,15 +22,19 @@ To fix a violation of this rule, use `Assert.Equal` instead of `Equals` and `Ass
 ### Violates
 
 ```csharp
-var o = new object();
-Assert.Equals(o, o);
-Assert.ReferenceEquals(o, o);
+Assert.Equals(42, value);
+```
+
+```csharp
+Assert.ReferenceEquals(expectedObj, actualObj);
 ```
 
 ### Does not violate
 
 ```csharp
-var o = new object();
-Assert.Equal(o, o);
-Assert.Same(o, o);
+Assert.Equal(42, value);
+```
+
+```csharp
+Assert.Same(expectedObj, actualObj);
 ```

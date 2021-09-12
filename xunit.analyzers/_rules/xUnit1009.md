@@ -5,37 +5,60 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This rule is triggered when you don't have enough test data in your `[InlineData]` attribute to match the number of parameters on your test method.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+A theory which has insufficient data to cover all the tests will fail when you attempt to run it because of the missing data.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, you may:
+
+* Add data to the `[InlineData]` attribute
+* Remove unused parameters from the test method
+* Add a default parameter value on the test method parameter
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData("Hello world")]
+	public void TestMethod(string greeting, int age) { }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData("Hello world", 42)]
+	public void TestMethod(string greeting, int age) { }
+}
+```
 
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+public class TestClass
+{
+	[Theory]
+	[InlineData("Hello world")]
+	public void TestMethod(string greeting) { }
+}
+```
+
+```csharp
+public class TestClass
+{
+	[Theory]
+	[InlineData("Hello world")]
+	public void TestMethod(string greeting, int age = 42) { }
+}
 ```

@@ -5,21 +5,17 @@ category: Assertions
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This rule is triggered when using the non-generic version of `Assert.Throws` along with a `typeof` expression.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+When the expected type is known at compile-time, the generic overload should be used. In addition to being more concise, it also returns the exception cast to the appropriate type when the assert succeeds, for use in later assertions.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, use the generic version of `Assert.Throws`.
 
 ## Examples
 
@@ -44,6 +40,6 @@ Assert.Throws<InvalidOperationException>(() => FunctionThatThrows());
 **If the severity of your analyzer isn't _Warning_, delete this section.**
 
 ```csharp
-#pragma warning disable xUnit2015 // <Rule name>
-#pragma warning restore xUnit2015 // <Rule name>
+#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
+#pragma warning restore xUnit2015 // Do not use typeof expression to check the exception type
 ```

@@ -5,37 +5,62 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+This rule is triggered when you have more than one public methods with the same name, and at least one of them is marked as a test method.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+xUnit.net does not support method overloads for test methods. Any test method must have a unique name in the test class.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, you may:
+
+* Rename the extra method(s)
+* Delete the extra method(s)
+* Mark the extra method(s) with visibility other than `public`
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+	[Fact]
+	public void Method() { }
+
+	public void Method(int age) { }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+public class TestClass
+{
+	[Fact]
+	public void Method() { }
 
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
+	public void Method2(int age) { }
+}
+```
 
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+public class TestClass
+{
+	[Fact]
+	public void Method() { }
+}
+```
+
+```csharp
+public class TestClass
+{
+	[Fact]
+	public void Method() { }
+
+	private void Method(int age) { }
+}
 ```

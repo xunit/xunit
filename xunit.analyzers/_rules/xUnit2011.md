@@ -22,25 +22,17 @@ Use `Assert.Empty` instead.
 ### Violates
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+IEnumerable<string> result = GetItems();
 
-	Assert.Collection(result);
-}
+Assert.Collection(result);
 ```
 
 ### Does not violate
 
 ```csharp
-[Fact]
-public void ExampleMethod()
-{
-	IEnumerable<string> result = GetItems();
+IEnumerable<string> result = GetItems();
 
-	Assert.Empty(result);
-}
+Assert.Empty(result);
 ```
 
 ## How to suppress violations
