@@ -1,14 +1,12 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.runner.reporters.net452</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.runner.reporters.netstandard11</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.5' ">xunit.runner.reporters.netstandard15</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.reporters.netcoreapp10</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.reporters.uwp10</AssemblyName>
-	<DefineConstants Condition=" '$(TargetFramework)' == 'uap10.0' ">$(DefineConstants);WINDOWS_UAP</DefineConstants>
-	<RootNamespace>Xunit.Runner.Reporters</RootNamespace>
-    <TargetFrameworks>net452;netstandard1.1;netstandard1.5;netcoreapp1.0;uap10.0</TargetFrameworks>
+    <RootNamespace>Xunit.Runner.Reporters</RootNamespace>
+    <TargetFrameworks>net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,7 +30,4 @@
     <EmbeddedResource Include="Resources\xunit.runner.reporters.netstandard15.rd.xml" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
-  	<EmbeddedResource Include="Resources\xunit.runner.reporters.uwp.rd.xml" />
-  </ItemGroup>
 </Project>
