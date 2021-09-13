@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meta", "Meta", "{3AD1513F-0
 		global.json = global.json
 		license.txt = license.txt
 		README.md = README.md
+		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Runners", "Runners", "{C11636E8-A3D7-4B0C-BC1E-2726B02A101F}"
