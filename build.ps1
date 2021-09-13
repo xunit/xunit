@@ -116,7 +116,6 @@ function __target__publish() {
     _build_step "Publishing projects for packaging"
         _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp1.0" $configuration "publish"
         _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp2.0" $configuration "publish"
-        _msbuild "src\xunit.runner.visualstudio\xunit.runner.visualstudio.csproj /p:TargetFramework=netcoreapp1.0" $configuration "publish"
 }
 
 function __target__pushmyget() {
