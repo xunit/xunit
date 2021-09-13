@@ -13,7 +13,13 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         : base(basePath) { }
 
     protected override IEnumerable<string> GetStandardReferences()
-        => Enumerable.Empty<string>();
+    {
+        var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var mscorlib = $@"{homeDir}\.nuget\packages\microsoft.netframework.referenceassemblies.net452\1.0.2\build\.NETFramework\v4.5.2\mscorlib.dll";
+
+        return new[] {  mscorlib  };
+    }
+
 
     protected override void Compile(string code, string[] references)
     {
@@ -23,6 +29,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         var compilerArgs =
             new[] {
                 "fsc",
+                "--noframework",                
                 sourcePath,
                 $"--out:{FileName}",
                 $"--pdb:{PdbName}",
