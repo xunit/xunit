@@ -49,10 +49,10 @@ jobs:
           SignClientSecret: ${{ secrets.SignClientSecret }}
         run: .\build.ps1 -target githubactions 
 
-      - name: "Upload artifact: test-${{ matrix.os }}"
+      - name: "Upload artifact: test-results"
         uses: actions/upload-artifact@v2
         with:
-          name: test-${{ matrix.os }}
+          name: test-results
           path: artifacts/test
         if: always()
 
