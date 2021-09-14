@@ -50,12 +50,6 @@ public class ExtensibilityPointFactoryTests
         }
 
         [Fact]
-        public void DisposeOnMultipleThreadsThrowsNoException()
-        {
-            Parallel.For(0, 2, (_) => { for (int i = 0; i < 10000; i++) { ExtensibilityPointFactory.Dispose(); } });
-        }
-
-        [Fact]
         public void UserCanChooseCustomCollectionFactory()
         {
             var factoryType = typeof(MyTestCollectionFactory);

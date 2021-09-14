@@ -11,9 +11,6 @@ namespace Xunit.Sdk
     /// </summary>
     public static class ExtensibilityPointFactory
     {
-        static readonly DisposalTracker disposalTracker = new DisposalTracker();
-        static readonly ConcurrentDictionary<Tuple<Type, IMessageSink>, object> instances = new ConcurrentDictionary<Tuple<Type, IMessageSink>, object>();
-
         static object CreateInstance(IMessageSink diagnosticMessageSink, Type type, object[] ctorArgs)
         {
             ctorArgs = ctorArgs ?? new object[0];
@@ -37,22 +34,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            var disposable = result as IDisposable;
-            if (disposable != null)
-                lock (disposalTracker)
-                    disposalTracker.Add(disposable);
-
             return result;
-        }
-
-        /// <summary>
-        /// Disposes the instances that are contained in the cache.
-        /// </summary>
-        public static void Dispose()
-        {
-            instances.Clear();
-            lock (disposalTracker)
-                disposalTracker.Dispose();
         }
 
         /// <summary>
@@ -69,7 +51,7 @@ namespace Xunit.Sdk
         /// <returns>The instance of the type.</returns>
         public static TInterface Get<TInterface>(IMessageSink diagnosticMessageSink, Type type, object[] ctorArgs = null)
         {
-            return (TInterface)instances.GetOrAdd(Tuple.Create(type, diagnosticMessageSink), () => CreateInstance(diagnosticMessageSink, type, ctorArgs));
+            return (TInterface)CreateInstance(diagnosticMessageSink, type, ctorArgs);
         }
 
         /// <summary>
