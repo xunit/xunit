@@ -17,12 +17,6 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Set Version 
-        uses: dotnet/nbgv@v0.4.0
-        id: nbgv
-        with:
-          setAllVars: true
-
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
         with:
@@ -41,7 +35,7 @@ jobs:
 
       - name: Get .NET information
         run: dotnet --info
-        
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.3
         with:
@@ -53,7 +47,7 @@ jobs:
           PublishToken: ${{ secrets.PublishToken }}
           SignClientUser: ${{ secrets.SignClientUser }}
           SignClientSecret: ${{ secrets.SignClientSecret }}
-        run: .\build.ps1 -target githubactions -buildAssemblyVersion ${{ steps.nbgv.outputs.AssemblyVersion }} -buildSemanticVersion ${{ steps.nbgv.outputs.NuGetPackageVersion }}
+        run: .\build.ps1 -target githubactions
 
       - name: "Upload artifact: test-results"
         uses: actions/upload-artifact@v2

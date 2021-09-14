@@ -5,12 +5,14 @@
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
   <PropertyGroup>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>latest</LangVersion>
+    <NoWarn>$(NoWarn);NU1603;CS1701;MSB3277</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
 

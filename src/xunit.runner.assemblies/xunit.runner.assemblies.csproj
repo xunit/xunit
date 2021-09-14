@@ -27,5 +27,5 @@
   <ItemGroup Condition=" '$(TargetFramework)' != 'net452' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
-  
+
 </Project>

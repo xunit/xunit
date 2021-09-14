@@ -2,22 +2,24 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>xunit.core</id>
-    <version>99.99.99-dev</version>
+    <version>$PackageVersion$</version>
     <title>xUnit.net [Core Unit Testing Framework]</title>
-    <authors>James Newkirk,Brad Wilson</authors>
-    <summary>Includes the libraries for writing unit tests with xUnit.net.</summary>
-    <description>Includes the libraries for writing unit tests with xUnit.net.</description>
-    <language>en-US</language>
-    <projectUrl>https://github.com/xunit/xunit</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
-    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <authors>jnewkirk,bradwilson</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>_content/logo-128-transparent.png</icon>
+    <description>Includes the libraries for writing unit tests with xUnit.net.</description>
+    <copyright>Copyright (C) .NET Foundation</copyright>
+    <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
     <dependencies>
-      <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
+      <dependency id="xunit.extensibility.core" version="[$PackageVersion$]" />
+      <dependency id="xunit.extensibility.execution" version="[$PackageVersion$]" />
     </dependencies>
   </metadata>
   <files>
+    <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
+
     <file src="xunit.core\build\xunit.core.props"   target="build\" />
     <file src="xunit.core\build\xunit.core.targets" target="build\" />
     <file src="xunit.core\build\xunit.core.props"   target="buildMultiTargeting\" />
