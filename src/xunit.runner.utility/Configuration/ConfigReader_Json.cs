@@ -139,7 +139,7 @@ namespace Xunit
             try
             {
 #if !NETSTANDARD1_1
-                if(!File.Exists(configFileName))
+                if (!File.Exists(configFileName))
                 {
                     return null;
                 }

@@ -189,7 +189,7 @@ namespace Xunit
 #if NETFRAMEWORK
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? $"on [{(discoveryStarting.ShadowCopy ? "shadow copy" : "no shadow copy")}]" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})");
 #else
-                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})" );
+                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})");
 #endif
             }
             else

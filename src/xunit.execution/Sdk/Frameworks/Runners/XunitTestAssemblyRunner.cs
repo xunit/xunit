@@ -182,7 +182,7 @@ namespace Xunit.Sdk
             foreach (var collection in OrderTestCollections())
             {
                 Func<Task<RunSummary>> task = () => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource);
-                
+
                 // attr is null here from our new unit test, but I'm not sure if that's expected or there's a cheaper approach here
                 // Current approach is trying to avoid any changes to the abstractions at all
                 var attr = collection.Item1.CollectionDefinition?.GetCustomAttributes(typeof(CollectionDefinitionAttribute)).SingleOrDefault();
@@ -195,7 +195,7 @@ namespace Xunit.Sdk
                     (parallel ?? (parallel = new List<Task<RunSummary>>())).Add(taskRunner(task));
                 }
             }
-            
+
             if (parallel?.Count > 0)
             {
                 foreach (var task in parallel)

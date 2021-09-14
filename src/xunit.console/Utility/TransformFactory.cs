@@ -15,7 +15,7 @@ namespace Xunit.ConsoleClient
         readonly Dictionary<string, Transform> availableTransforms = new Dictionary<string, Transform>(StringComparer.OrdinalIgnoreCase);
 
         public static bool NoErrorColoring = false;
-        
+
         protected TransformFactory()
         {
             availableTransforms.Add("xml", new Transform

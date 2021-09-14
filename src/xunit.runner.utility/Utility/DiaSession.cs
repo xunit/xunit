@@ -16,7 +16,7 @@ namespace Xunit
 
         public readonly string AssemblyFileName;
         bool sessionHasErrors;
-        readonly Dictionary<string,IDisposable> wrappedSessions;
+        readonly Dictionary<string, IDisposable> wrappedSessions;
 
         static DiaSession()
         {

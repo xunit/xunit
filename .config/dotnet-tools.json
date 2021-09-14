@@ -2,6 +2,12 @@
   "version": 1,
   "isRoot": true,
   "tools": {
+    "dotnet-format": {
+      "version": "5.1.225507",
+      "commands": [
+        "dotnet-format"
+      ]
+    },
     "signclient": {
       "version": "1.3.155",
       "commands": [

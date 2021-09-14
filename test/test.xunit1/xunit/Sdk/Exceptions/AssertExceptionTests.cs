@@ -25,18 +25,18 @@ namespace Xunit1
         }
 
 #if !DEBUG
-    [Fact]
-    public void DeveloperCanChooseWhichStackFrameItemsToExclude()
-    {
-        CustomException ex = Assert.Throws<CustomException>(() => { throw new CustomException(); });
+        [Fact]
+        public void DeveloperCanChooseWhichStackFrameItemsToExclude()
+        {
+            CustomException ex = Assert.Throws<CustomException>(() => { throw new CustomException(); });
 
-        string stackTrace = ex.StackTrace;
+            string stackTrace = ex.StackTrace;
 
-        Assert.Empty(stackTrace);  // Everything was filtered out in our exception
-        Assert.Equal(2, ex.StackFrames.Count);
-        Assert.Contains("at Xunit1.AssertExceptionTests", ex.StackFrames[0]);
-        Assert.Contains("at Xunit.Record.Exception", ex.StackFrames[1]);
-    }
+            Assert.Empty(stackTrace);  // Everything was filtered out in our exception
+            Assert.Equal(2, ex.StackFrames.Count);
+            Assert.Contains("at Xunit1.AssertExceptionTests", ex.StackFrames[0]);
+            Assert.Contains("at Xunit.Record.Exception", ex.StackFrames[1]);
+        }
 #endif
 
         class CustomException : AssertException

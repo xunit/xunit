@@ -1,8 +1,8 @@
 #Requires -Version 5.1
 
 param(
-    [ValidateSet('GitHubActions','Build','CI','PackageRestore','Packages','Restore','Test',
-                 '_Packages','_Publish','_PushMyGet','_SignPackages','_Test32','_Test64','_TestCore')]
+    [ValidateSet('GitHubActions','Build','CI','FormatSource','PackageRestore','Packages','Restore','Test',
+                 '_AnalyzeSource', '_Packages','_Publish','_PushMyGet','_SignPackages','_Test32','_Test64','_TestCore')]
     [string]$target = "Test",
     [string]$configuration = "Release"
 )
@@ -31,6 +31,7 @@ $parallelFlags = "-parallel all -maxthreads 16"
 $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
+$dotnetFormatCommand = "& dotnet dotnet-format --folder --exclude src/common/AssemblyResolution/Microsoft.DotNet.PlatformAbstractions --exclude src/common/AssemblyResolution/Microsoft.Extensions.DependencyModel --exclude src/xunit.assert/Asserts"
 
 # Helper functions
 
@@ -56,6 +57,7 @@ function __target_githubactions() {
 
 function __target_build() {
     __target_restore
+    __target__analyzesource
 
     _build_step "Compiling binaries"
         _msbuild "xunit.sln" $configuration
@@ -69,6 +71,12 @@ function __target_ci() {
     __target_test
     __target__publish
     __target__packages
+}
+
+function __target_formatsource() {
+    _build_step "Formatting source"
+        _exec "& dotnet tool restore"
+        _exec $dotnetFormatCommand
 }
 
 function __target_packagerestore() {
@@ -94,6 +102,12 @@ function __target_test() {
 }
 
 # Dependent targets
+
+function __target__analyzesource() {
+    _build_step "Analyzing source (if this fails, run './build FormatSource' to fix)"
+        _exec "& dotnet tool restore"
+        _exec ($dotnetFormatCommand + " --check")
+}
 
 function __target__packages() {
     _build_step "Creating NuGet packages"
@@ -125,7 +139,7 @@ function __target__pushmyget() {
 function __target__signpackages() {
     if ($null -ne $env:SignClientSecret) {
         _build_step "Signing NuGet packages"
-            _exec "dotnet tool restore"
+            _exec "& dotnet tool restore"
 
             $cmd = '& dotnet signclient sign --config "' + $signClientAppSettings + '" --user "' + $env:SignClientUser + '" --secret "' + $env:SignClientSecret + '" --name "xUnit.net" --description "xUnit.net" -u "https://github.com/xunit/xunit" --baseDirectory "' + $packageOutputFolder + '" --input **/*.nupkg'
             $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')

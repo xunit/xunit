@@ -357,7 +357,7 @@ public class XmlTestExecutionVisitorTests
             var name2Element = Assert.Single(traitsElements, e => e.Attribute("name").Value == "name2");
             Assert.Equal("value2", name2Element.Attribute("value").Value);
         }
-        
+
         public static IEnumerable<object[]> IllegalXmlTestData()
         {
             yield return new object[]

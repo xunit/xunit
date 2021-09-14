@@ -77,7 +77,7 @@ namespace Xunit.Sdk
                 object arg;
                 if (p.ParameterType == typeof(IMessageSink))
                     arg = DiagnosticMessageSink;
-                else 
+                else
                 if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))
                     missingParameters.Add(p);
                 return arg;

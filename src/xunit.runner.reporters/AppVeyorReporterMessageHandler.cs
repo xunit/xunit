@@ -13,12 +13,12 @@ namespace Xunit.Runner.Reporters
     public class AppVeyorReporterMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
     {
         const int MaxLength = 4096;
-        
+
         readonly ConcurrentDictionary<string, Tuple<string, Dictionary<string, int>>> assemblyNames = new ConcurrentDictionary<string, Tuple<string, Dictionary<string, int>>>();
         readonly string baseUri;
         AppVeyorClient client;
 
-        int assembliesInFlight; 
+        int assembliesInFlight;
         readonly object clientLock = new object();
 
         public AppVeyorReporterMessageHandler(IRunnerLogger logger, string baseUri)
@@ -55,7 +55,7 @@ namespace Xunit.Runner.Reporters
                 // Look for the TFM attrib to disambiguate 
                 var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
                 var arg = attrib?.GetConstructorArguments().FirstOrDefault() as string;
-                
+
                 var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
                 if (arg != null)
                     assemblyFileName = $"{assemblyFileName} ({arg})";

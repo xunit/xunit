@@ -65,7 +65,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultSink(listener, 42) { TestRunState = initialState };
 
-            visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(),null);
+            visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
 
             Assert.Equal(initialState, visitor.TestRunState);
         }

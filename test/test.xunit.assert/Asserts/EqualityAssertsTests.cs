@@ -1028,7 +1028,7 @@ public class EqualityAssertsTests
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
 
             Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
-                         $"Expected: Not {0.11M} (rounded from {0.11111})"+ Environment.NewLine +
+                         $"Expected: Not {0.11M} (rounded from {0.11111})" + Environment.NewLine +
                          $"Actual:   {0.11M} (rounded from {0.11444})", ex.Message);
         }
     }

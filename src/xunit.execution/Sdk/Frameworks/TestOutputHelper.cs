@@ -63,7 +63,7 @@ namespace Xunit.Sdk
             }
 
             messageBus.QueueMessage(new TestOutput(test, output));
-        }        
+        }
 
         private static string EscapeInvalidHexChars(string s)
         {

@@ -182,7 +182,7 @@ namespace Xunit
                     ConvertExceptionToFailureInformation(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
             else
 #endif
-                if (ex.InnerException != null)
+            if (ex.InnerException != null)
                 ConvertExceptionToFailureInformation(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
         }
 
