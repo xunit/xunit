@@ -110,11 +110,11 @@ function __target__publish() {
 
 function __target__pushmyget() {
     _build_step "Pushing packages to MyGet"
-        if ($null -eq $env:MyGetApiKey) {
-            Write-Host -ForegroundColor Yellow "Skipping MyGet push because environment variable 'MyGetApiKey' is not set."
+        if ($null -eq $env:PublishToken) {
+            Write-Host -ForegroundColor Yellow "Skipping MyGet push because environment variable 'PublishToken' is not set."
             Write-Host ""
         } else {
-            Get-ChildItem -Filter *.nupkg $packageOutputFolder | _nuget_push -source https://www.myget.org/F/xunit/api/v2/package -apiKey $env:MyGetApiKey
+            Get-ChildItem -Filter *.nupkg $packageOutputFolder | _nuget_push -source https://www.myget.org/F/xunit/api/v2/package -apiKey $env:PublishToken
         }
 }
 
