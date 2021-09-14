@@ -2,35 +2,37 @@
 <package>
   <metadata minClientVersion="2.12">
     <id>xunit.runner.reporters</id>
-    <version>99.99.99-dev</version>
+    <version>$PackageVersion$</version>
     <title>xUnit.net [Runner Reporters]</title>
-    <authors>James Newkirk,Brad Wilson</authors>
-    <summary>Includes runner reporters: TeamCity, AppVeyor, Verbose and Quiet.</summary>
-    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners. Supports .NET 4.5.2 or later, .NET Standard 1.1, .NET Standard 1.5, and .NET Core 1.0 or later.</description>
-    <language>en-US</language>
-    <projectUrl>https://github.com/xunit/xunit</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
-    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <authors>jnewkirk,bradwilson</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>_content/logo-128-transparent.png</icon>
+    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners. Supports .NET 4.5.2 or later, .NET Standard 1.1, .NET Standard 1.5, and .NET Core 1.0 or later.</description>
+    <copyright>Copyright (C) .NET Foundation</copyright>
+    <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+        <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
       </group>
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+        <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
       </group>
       <group targetFramework="netstandard1.5">
         <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+        <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
       </group>
       <group targetFramework="netcoreapp1.0">
         <dependency id="NETStandard.Library" version="1.6.0" />
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+        <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
       </group>
     </dependencies>
   </metadata>
   <files>
+    <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
+
     <file src="xunit.runner.reporters\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="lib\net452\" />
 
     <file src="xunit.runner.reporters\bin\$Configuration$\netstandard1.1\xunit.runner.reporters.netstandard11.dll" target="lib\netstandard1.1\" />

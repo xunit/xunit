@@ -8,11 +8,24 @@
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <PackageReference Include="NETStandard.Library" Version="1.6.0">
-      <!-- Suppress the warning about forced downgrade. This is caused by SourceLink.Create.CommandLine -->
-      <NoWarn>NU1605</NoWarn>
-    </PackageReference>
-  </ItemGroup>
+  <!-- Supplement Nerdbank.GitVersioning version calculations -->
+  <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <!-- AssemblyVersion and AssemblyFileVersion should be x.y.z.0 -->
+      <AssemblyVersion>$(BuildVersionSimple)</AssemblyVersion>
+      <AssemblyFileVersion>$(BuildVersionSimple)</AssemblyFileVersion>
+      <!-- Always put the Git hash in the informational version, even for non-pre-release versions -->
+      <AssemblyInformationalVersion>$(BuildVersionSimple)$(PrereleaseVersion)+$(GitCommitIdShort)</AssemblyInformationalVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <!-- Never put the Git hash in the package version -->
+      <PackageVersion>$(BuildVersionSimple)$(PrereleaseVersion)</PackageVersion>
+      <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
+      <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId);Configuration=$(Configuration)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
 
 </Project>

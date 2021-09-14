@@ -2,23 +2,25 @@
 <package>
   <metadata minClientVersion="2.12">
     <id>xunit</id>
-    <version>99.99.99-dev</version>
+    <version>$PackageVersion$</version>
     <title>xUnit.net</title>
-    <authors>James Newkirk,Brad Wilson</authors>
-    <summary>xUnit.net is a developer testing framework, built to support Test Driven Development.</summary>
+    <authors>jnewkirk,bradwilson</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>_content/logo-128-transparent.png</icon>
     <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.
 
 Installing this package installs xunit.core, xunit.assert, and xunit.analyzers.</description>
-    <language>en-US</language>
-    <projectUrl>https://github.com/xunit/xunit</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
-    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (C) .NET Foundation</copyright>
+    <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
     <dependencies>
-      <dependency id="xunit.core" version="[99.99.99-dev]" />
-      <dependency id="xunit.assert" version="[99.99.99-dev]" />
+      <dependency id="xunit.core" version="[$PackageVersion$]" />
+      <dependency id="xunit.assert" version="[$PackageVersion$]" />
       <dependency id="xunit.analyzers" version="0.10.0" />
     </dependencies>
   </metadata>
-  <files />
+  <files>
+    <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
+  </files>
 </package>

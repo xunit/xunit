@@ -1,8 +1,8 @@
 #Requires -Version 5.1
 
 param(
-    [ValidateSet('AppVeyor','Build','CI','PackageRestore','Packages','Register','Restore','Test',
-                 '_Packages','_Publish','_PushMyGet','_Register','_SetVersion','_SignPackages','_Test32','_Test64','_TestCore')]
+    [ValidateSet('GitHubActions','Build','CI','PackageRestore','Packages','Restore','Test',
+                 '_Packages','_Publish','_PushMyGet','_SignPackages','_Test32','_Test64','_TestCore')]
     [string]$target = "Test",
     [string]$configuration = "Release",
     [string]$buildAssemblyVersion = "",
@@ -34,7 +34,7 @@ $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $solutionFolder = Get-Location
 
-$signClientVersion = "0.9.1"
+$signClientVersion = "1.3.155"
 $signClientFolder = (join-path (Get-Location) "packages\SignClient.$signClientVersion")
 $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 
@@ -54,8 +54,8 @@ function _xunit_netcore([string]$targetFramework, [string]$command) {
 
 # Top-level targets
 
-function __target_appveyor() {
-    __target_ci    
+function __target_githubactions() {
+    __target_ci
     __target__signpackages
     __target__pushmyget
 }
@@ -64,7 +64,7 @@ function __target_build() {
     __target_restore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.vs2017.sln" $configuration
+        _msbuild "xunit.sln" $configuration
         _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
 }
 
@@ -72,7 +72,6 @@ function __target_ci() {
     $script:parallelFlags = "-parallel none -maxthreads 1"
     $script:nonparallelFlags = "-parallel none -maxthreads 1"
 
-    __target__setversion
     __target_test
     __target__publish
     __target__packages
@@ -88,14 +87,9 @@ function __target_packages() {
     __target__packages
 }
 
-function __target_register() {
-    __target_packages
-    __target__register
-}
-
 function __target_restore() {
     _build_step "Restoring NuGet packages"
-       _msbuild "xunit.vs2017.sln" $configuration "restore"
+       _msbuild "xunit.sln" $configuration "restore"
 }
 
 function __target_test() {
@@ -109,14 +103,16 @@ function __target_test() {
 
 function __target__packages() {
     _build_step "Creating NuGet packages"
-        Get-ChildItem -Recurse -Filter *.nuspec | _nuget_pack -outputFolder $packageOutputFolder -configuration $configuration
+        Get-ChildItem -Recurse -Filter *.nuspec | ForEach-Object {
+            $projectFolder = split-path $_.FullName
+            _exec ('& dotnet pack --nologo --no-build --configuration ' + $configuration + ' --verbosity minimal --output "' + $packageOutputFolder + '" src/xunit.core -p:NuspecFile="' + $_.FullName + '"')
+        }
 }
 
 function __target__publish() {
     _build_step "Publishing projects for packaging"
         _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp1.0" $configuration "publish"
         _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp2.0" $configuration "publish"
-        _msbuild "src\xunit.runner.visualstudio\xunit.runner.visualstudio.csproj /p:TargetFramework=netcoreapp1.0" $configuration "publish"
 }
 
 function __target__pushmyget() {
@@ -129,31 +125,6 @@ function __target__pushmyget() {
         }
 }
 
-function __target__register() {
-    _download_nuget
-
-    _build_step "Registering dotnet-test to NuGet package cache"
-        $nugetCachePath = Join-Path (Join-Path $env:HOME ".nuget") "packages"
-        $packageInstallFolder = Join-Path (Join-Path $nugetCachePath "dotnet-xunit") "99.99.99-dev"
-        if (Test-Path $packageInstallFolder) {
-            Remove-Item $packageInstallFolder -Recurse -Force -ErrorAction SilentlyContinue
-        }
-        _exec ('& "' + $nugetExe + '" add artifacts\packages\dotnet-xunit.99.99.99-dev.nupkg -NonInteractive -Expand -Source "' + $nugetCachePath + '"')
-}
-
-function __target__setversion() {
-    if ($buildAssemblyVersion -ne "") {
-        _build_step ("Setting assembly version: '" + $buildAssemblyVersion + "'")
-            Get-ChildItem -Recurse -Filter GlobalAssemblyInfo.cs | _replace -match '\("99\.99\.99\.0"\)' -replacement ('("' + $buildAssemblyVersion + '")')
-    }
-
-    if ($buildSemanticVersion -ne "") {
-        _build_step ("Setting semantic version: '" + $buildSemanticVersion + "'")
-            Get-ChildItem -Recurse -Filter GlobalAssemblyInfo.cs | _replace -match '\("99\.99\.99-dev"\)' -replacement ('("' + $buildSemanticVersion + '")')
-            Get-ChildItem -Recurse -Filter *.nuspec | _replace -match '99\.99\.99-dev' -replacement $buildSemanticVersion
-    }
-}
-
 function __target__signpackages() {
         if ($env:SignClientSecret -ne $null) {
             if ((test-path $signClientFolder) -eq $false) {
@@ -162,7 +133,7 @@ function __target__signpackages() {
             }
 
             _build_step "Signing NuGet packages"
-                $appPath = (join-path $signClientFolder "tools\netcoreapp2.0\SignClient.dll")
+                $appPath = (join-path $signClientFolder "tools\netcoreapp3.1\SignClient.dll")
                 $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
                 foreach ($nupkg in $nupgks) {
                     $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r "' + $env:SignClientUser + '" -s "' + $env:SignClientSecret + '" -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
@@ -202,9 +173,8 @@ if ($targetFunction -eq $null) {
 
 _build_step "Performing pre-build verifications"
     _require dotnet "Could not find 'dotnet'. Please ensure .NET CLI Tooling is installed."
-    _verify_dotnetsdk_version "2.1.302"
-    _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15.7 is on the path."
-    _verify_msbuild_version "15.7.0"
+    _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v17.0 is on the path."
+    _verify_msbuild_version "17.0.0"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder

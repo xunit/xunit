@@ -1,0 +1,64 @@
+name: xUnit.net CI Build
+on:
+  push:
+    branches:
+      - v2
+
+jobs:
+  build:
+    name: "CI Build"
+    runs-on: windows-2022
+    env:
+      DOTNET_NOLOGO: true
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Install .NET Core SDK 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '2.1.x'
+
+      - name: Install .NET Core SDK 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+
+      - name: Install .NET SDK 6.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: true
+
+      - name: Get .NET information
+        run: dotnet --info
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.3
+        with:
+          vs-version: '[17.0,18.0)'
+          vs-prerelease: true
+
+      - name: "Build target: CI"
+        env:
+          PublishToken: ${{ secrets.PublishToken }}
+          SignClientUser: ${{ secrets.SignClientUser }}
+          SignClientSecret: ${{ secrets.SignClientSecret }}
+        run: .\build.ps1 -target githubactions
+
+      - name: "Upload artifact: test-results"
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: artifacts/test
+        if: always()
+
+      - name: "Upload artifact: packages"
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: artifacts/packages
+        if: always()
