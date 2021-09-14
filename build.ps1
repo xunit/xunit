@@ -4,15 +4,13 @@ param(
     [ValidateSet('GitHubActions','Build','CI','PackageRestore','Packages','Restore','Test',
                  '_Packages','_Publish','_PushMyGet','_SignPackages','_Test32','_Test64','_TestCore')]
     [string]$target = "Test",
-    [string]$configuration = "Release",
-    [string]$buildAssemblyVersion = "",
-    [string]$buildSemanticVersion = ""
+    [string]$configuration = "Release"
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if ($PSScriptRoot -eq $null) {
+if ($null -eq $PSScriptRoot) {
     write-host "This build script requires PowerShell 3 or later." -ForegroundColor Red
     exit -1
 }
@@ -32,10 +30,6 @@ $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
-$solutionFolder = Get-Location
-
-$signClientVersion = "1.3.155"
-$signClientFolder = (join-path (Get-Location) "packages\SignClient.$signClientVersion")
 $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 
 # Helper functions
@@ -104,7 +98,6 @@ function __target_test() {
 function __target__packages() {
     _build_step "Creating NuGet packages"
         Get-ChildItem -Recurse -Filter *.nuspec | ForEach-Object {
-            $projectFolder = split-path $_.FullName
             _exec ('& dotnet pack --nologo --no-build --configuration ' + $configuration + ' --verbosity minimal --output "' + $packageOutputFolder + '" src/xunit.core -p:NuspecFile="' + $_.FullName + '"')
         }
 }
@@ -117,7 +110,7 @@ function __target__publish() {
 
 function __target__pushmyget() {
     _build_step "Pushing packages to MyGet"
-        if ($env:MyGetApiKey -eq $null) {
+        if ($null -eq $env:MyGetApiKey) {
             Write-Host -ForegroundColor Yellow "Skipping MyGet push because environment variable 'MyGetApiKey' is not set."
             Write-Host ""
         } else {
@@ -126,16 +119,14 @@ function __target__pushmyget() {
 }
 
 function __target__signpackages() {
-    if ($env:SignClientSecret -ne $null) {
+    if ($null -ne $env:SignClientSecret) {
         _build_step "Signing NuGet packages"
-            dotnet tool restore
-            $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
-            foreach ($nupkg in $nupgks) {
-                $cmd = '& dotnet signclient sign -c "' + $signClientAppSettings + '" -r "' + $env:SignClientUser + '" -s "' + $env:SignClientSecret + '" -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
-                $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
-                $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
-                _exec $cmd $msg
-            }
+            _exec "dotnet tool restore"
+
+            $cmd = '& dotnet signclient sign --config "' + $signClientAppSettings + '" --user "' + $env:SignClientUser + '" --secret "' + $env:SignClientSecret + '" --name "xUnit.net" --description "xUnit.net" -u "https://github.com/xunit/xunit" --baseDirectory "' + $packageOutputFolder + '" --input **/*.nupkg'
+            $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
+            $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
+            _exec $cmd $msg
     }
 }
 
@@ -162,7 +153,7 @@ function __target__testcore() {
 # Dispatch
 
 $targetFunction = (Get-ChildItem ("Function:__target_" + $target.ToLowerInvariant()) -ErrorAction SilentlyContinue)
-if ($targetFunction -eq $null) {
+if ($null -eq $targetFunction) {
     _fatal "Unknown target '$target'"
 }
 
