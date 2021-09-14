@@ -14,10 +14,47 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 
 ## Latest Builds
 
-| v3 core framework | *TBD* | <a href="https://myget.org/feed/xunit/package/nuget/xunit.v3"><img src="https://img.shields.io/myget/xunit/vpre/xunit.v3.svg?style=flat&amp;label=myget&amp;logo=nuget"></a> | <a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dmain&amp;style=flat&amp;label=build"></a> |
-| v2 core framework | <a href="https://www.nuget.org/packages/xunit"><img src="https://img.shields.io/nuget/v/xunit.svg?style=flat&amp;logo=nuget"></a> | <a href="https://myget.org/feed/xunit/package/nuget/xunit"><img src="https://img.shields.io/myget/xunit/vpre/xunit.svg?style=flat&amp;label=myget&amp;logo=nuget"></a> | <a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dmain&amp;style=flat&amp;label=build"></a> |
-| xunit.analyzers | <a href="https://www.nuget.org/packages/xunit.analyzers"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat&amp;logo=nuget"></a> | <a href="https://myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat&amp;label=myget&amp;logo=nuget"></a> | <a href="https://actions-badge.atrox.dev/xunit/xunit.analyzers/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit.analyzers%2Fbadge%3Fref%3Dmain&amp;style=flat&amp;label=build"></a> |
-| xunit.runner.devices | <a href="https://www.nuget.org/packages/xunit.runner.devices"><img src="https://img.shields.io/nuget/v/xunit.runner.devices.svg?style=flat&amp;logo=nuget"></a> | <a href="https://dev.azure.com/dotnet/xUnit/_packaging?_a=package&amp;feed=fe8eb338-07fd-45a0-b2ac-c80b58ca8c34&amp;package=a4366a02-ff04-4fa0-97b2-564e2f56ea7c&amp;preferRelease=true"><img src="https://azpkgsshield.azurevoodoo.net/dotnet/xUnit/xUnit/xunit.runner.devices"></a> | <a href="https://dev.azure.com/dotnet/xUnit/_build?definitionId=23&amp;_a=summary"><img src="https://img.shields.io/azure-devops/build/dotnet/xUnit/23?style=flat&amp;logo=azure-devops"></a> |
-| xunit.runner.visualstudio | <a href="https://www.nuget.org/packages/xunit.runner.visualstudio"><img src="https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat&amp;logo=nuget"></a> | <a href="https://dev.azure.com/dotnet/xUnit/_packaging?_a=package&amp;feed=fe8eb338-07fd-45a0-b2ac-c80b58ca8c34&amp;package=d5787e76-3ff2-4ac9-bd7f-a0c8ac3ec743&amp;preferRelease=true"><img src="https://azpkgsshield.azurevoodoo.net/dotnet/xUnit/xUnit/xunit.runner.visualstudio"></a> | <a href="https://dev.azure.com/dotnet/xUnit/_build?definitionId=64&amp;_a=summary"><img src="https://img.shields.io/azure-devops/build/dotnet/xUnit/64?style=flat&amp;logo=azure-devops"></a> |
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Stable package</th>
+      <th>Latest CI package</th>
+      <th>Latest CI build</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>v2 core framework</th>
+      <td><a href="https://www.nuget.org/packages/xunit"><img src="https://img.shields.io/nuget/v/xunit.svg?logo=nuget"></a></td>
+      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit"><img src="https://img.shields.io/myget/xunit/vpre/xunit.svg?label=myget&amp;logo=nuget"></td>
+      <td><a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=v2"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dv2&amp;label=build"></td>
+    <tr>
+    <tr>
+      <th>v3 core framework (<a href="/docs/v3-alpha">alpha docs</a>)</th>
+      <td>N/A</td>
+      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit.v3"><img src="https://img.shields.io/myget/xunit/vpre/xunit.v3.svg?label=myget&amp;logo=nuget"></td>
+      <td><a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dmain&amp;label=build"></td>
+    <tr>
+    <tr>
+      <th>xunit.analyzers</th>
+      <td><a href="https://www.nuget.org/packages/xunit.analyzers"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?logo=nuget"></a></td>
+      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?label=myget&amp;logo=nuget"></a></td>
+      <td><a href="https://actions-badge.atrox.dev/xunit/xunit.analyzers/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit.analyzers%2Fbadge%3Fref%3Dmain&amp;label=build"></a></td>
+    </tr>
+    <tr>
+      <th>xunit.runner.devices</th>
+      <td><a href="https://www.nuget.org/packages/xunit.runner.devices"><img src="https://img.shields.io/nuget/v/xunit.runner.devices.svg?logo=nuget"></a></td>
+      <td><a href="https://dev.azure.com/dotnet/xUnit/_packaging?_a=package&amp;feed=fe8eb338-07fd-45a0-b2ac-c80b58ca8c34&amp;package=a4366a02-ff04-4fa0-97b2-564e2f56ea7c&amp;preferRelease=true"><img src="https://azpkgsshield.azurevoodoo.net/dotnet/xUnit/xUnit/xunit.runner.devices"></a></td>
+      <td><a href="https://dev.azure.com/dotnet/xUnit/_build?definitionId=23&amp;_a=summary"><img src="https://img.shields.io/azure-devops/build/dotnet/xUnit/23?logo=azure-devops"></a></td>
+    </tr>
+    <tr>
+      <th>xunit.runner.visualstudio</th>
+      <td><a href="https://www.nuget.org/packages/xunit.runner.visualstudio"><img src="https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?logo=nuget"></a></td>
+      <td><a href="https://dev.azure.com/dotnet/xUnit/_packaging?_a=package&amp;feed=fe8eb338-07fd-45a0-b2ac-c80b58ca8c34&amp;package=d5787e76-3ff2-4ac9-bd7f-a0c8ac3ec743&amp;preferRelease=true"><img src="https://azpkgsshield.azurevoodoo.net/dotnet/xUnit/xUnit/xunit.runner.visualstudio"></a></td>
+      <td><a href="https://dev.azure.com/dotnet/xUnit/_build?definitionId=64&amp;_a=summary"><img src="https://img.shields.io/azure-devops/build/dotnet/xUnit/64?logo=azure-devops"></a></td>
+    </tr>
+  </tbody>
+</table>
 
 *For complete CI package lists, please visit the [MyGet gallery](https://www.myget.org/gallery/xunit/) and the [Azure artifacts gallery](https://dev.azure.com/dotnet/xUnit/_packaging?_a=feed&feed=xUnit).*
