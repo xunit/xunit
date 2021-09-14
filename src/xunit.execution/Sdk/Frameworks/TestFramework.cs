@@ -45,7 +45,6 @@ namespace Xunit.Sdk
             // of things that will be disconnected.
             await Task.Delay(1);
 
-            ExtensibilityPointFactory.Dispose();
             DisposalTracker.Dispose();
 
             LongLivedMarshalByRefObject.DisconnectAll();
