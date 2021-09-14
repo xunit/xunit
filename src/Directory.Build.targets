@@ -70,7 +70,7 @@
   <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <!-- AssemblyVersion and AssemblyFileVersion should be x.y.z.0 -->
-      <AssemblyVersion>$(BuildVersionSimple)</AssemblyFileVersion>
+      <AssemblyVersion>$(BuildVersionSimple)</AssemblyVersion>
       <AssemblyFileVersion>$(BuildVersionSimple)</AssemblyFileVersion>
       <!-- Always put the Git hash in the informational version, even for non-pre-release versions -->
       <AssemblyInformationalVersion>$(BuildVersionSimple)$(PrereleaseVersion)+$(GitCommitIdShort)</AssemblyInformationalVersion>
