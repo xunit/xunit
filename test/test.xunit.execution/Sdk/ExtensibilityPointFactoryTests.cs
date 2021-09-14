@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -46,6 +47,12 @@ public class ExtensibilityPointFactoryTests
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
             Assert.IsType(expectedType, result);
+        }
+
+        [Fact]
+        public void DisposeOnMultipleThreadsThrowsNoException()
+        {
+            Parallel.For(0, 2, (_) => { for (int i = 0; i < 10000; i++) { ExtensibilityPointFactory.Dispose(); } });
         }
 
         [Fact]
