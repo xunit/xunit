@@ -126,22 +126,23 @@ function __target__pushmyget() {
 }
 
 function __target__signpackages() {
-        if ($env:SignClientSecret -ne $null) {
-            if ((test-path $signClientFolder) -eq $false) {
-                _build_step ("Downloading SignClient " + $signClientVersion)
-                    _exec ('& "' + $nugetExe + '" install SignClient -version ' + $signClientVersion + ' -SolutionDir "' + $solutionFolder + '" -Verbosity quiet -NonInteractive')
-            }
-
-            _build_step "Signing NuGet packages"
-                $appPath = (join-path $signClientFolder "tools\netcoreapp3.1\SignClient.dll")
-                $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
-                foreach ($nupkg in $nupgks) {
-                    $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r "' + $env:SignClientUser + '" -s "' + $env:SignClientSecret + '" -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
-                    $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
-                    $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
-                    _exec $cmd $msg
-                }
+    if ($env:SignClientSecret -ne $null) {
+        if ((test-path $signClientFolder) -eq $false) {
+            _download_nuget
+            _build_step ("Downloading SignClient " + $signClientVersion)
+                _exec ('& "' + $nugetExe + '" install SignClient -version ' + $signClientVersion + ' -SolutionDir "' + $solutionFolder + '" -Verbosity quiet -NonInteractive')
         }
+
+        _build_step "Signing NuGet packages"
+            $appPath = (join-path $signClientFolder "tools\netcoreapp3.1\SignClient.dll")
+            $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
+            foreach ($nupkg in $nupgks) {
+                $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r "' + $env:SignClientUser + '" -s "' + $env:SignClientSecret + '" -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
+                $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
+                $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
+                _exec $cmd $msg
+            }
+    }
 }
 
 function __target__test32() {
