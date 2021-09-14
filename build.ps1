@@ -114,7 +114,11 @@ function __target__pushmyget() {
             Write-Host -ForegroundColor Yellow "Skipping MyGet push because environment variable 'PublishToken' is not set."
             Write-Host ""
         } else {
-            Get-ChildItem -Filter *.nupkg $packageOutputFolder | _nuget_push -source https://www.myget.org/F/xunit/api/v2/package -apiKey $env:PublishToken
+            Get-ChildItem -Filter *.nupkg $packageOutputFolder | ForEach-Object {
+                $cmd = '& dotnet nuget push --source https://www.myget.org/F/xunit/api/v2/package --api-key ' + $env:PublishToken + ' "' + $_.FullName + '"'
+                $message = $cmd.Replace($env:PublishToken, "[redacted]")
+                _exec $cmd $message
+            }
         }
 }
 
