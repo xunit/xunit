@@ -14,7 +14,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>latest</LangVersion>
-    <NoWarn>$(NoWarn);NU1603;CS1701</NoWarn>
+    <NoWarn>$(NoWarn);NU1603;NU5131;CS1701</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>

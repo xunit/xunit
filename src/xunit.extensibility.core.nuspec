@@ -36,11 +36,5 @@
 
     <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll" target="lib\netstandard1.1\" />
     <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" target="lib\netstandard1.1\" />
-
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll" target="ref\net452\" />
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" target="ref\net452\" />
-
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll" target="ref\netstandard1.1\" />
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" target="ref\netstandard1.1\" />
   </files>
 </package>

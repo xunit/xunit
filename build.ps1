@@ -111,6 +111,7 @@ function __target__analyzesource() {
 
 function __target__packages() {
     _build_step "Creating NuGet packages"
+        Get-ChildItem -Path $packageOutputFolder -Recurse -Filter *.nupkg | Remove-Item
         Get-ChildItem -Recurse -Filter *.nuspec | ForEach-Object {
             _exec ('& dotnet pack --nologo --no-build --configuration ' + $configuration + ' --verbosity minimal --output "' + $packageOutputFolder + '" src/xunit.core -p:NuspecFile="' + $_.FullName + '"')
         }
