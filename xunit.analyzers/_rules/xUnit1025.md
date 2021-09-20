@@ -27,68 +27,78 @@ Remove duplicated `InlineDataAttribute` occurrences.
 ### Violates
 
 ```csharp
-[Theory]
-[InlineData(2)]
-[InlineData(2)]
-public void TestMethod(int x)
+using Xunit;
+
+public class xUnit1025
 {
-	//...
+    [Theory]
+    [InlineData(2)]
+    [InlineData(2)]
+    public void TestMethod(int x)
+    { }
 }
 ```
 
 ```csharp
-[Theory]
-[InlineData(2, 0)]
-[InlineData(2)]
-public void TestMethod(int x, int y = 0)
+using Xunit;
+
+public class xUnit1025
 {
-	//...
+    [Theory]
+    [InlineData(2)]
+    [InlineData(2, 0)]
+    public void TestMethod(int x, int y = 0)
+    { }
 }
 ```
 
 ```csharp
-[Theory]
-[InlineData(1, 2, 3)]
-[InlineData(new object[] {1, 2, 3})]
-public void TestMethod(params int[] args)
+using Xunit;
+
+public class xUnit1025
 {
+    [Theory]
+    [InlineData(1, 2, 3)]
+    [InlineData(new object[] { 1, 2, 3 })]
+    public void TestMethod(params int[] args)
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-[Theory]
-[InlineData(2)]
-[InlineData(3)]
-public void TestMethod(int x)
+using Xunit;
+
+public class xUnit1025
 {
-	//...
+    [Theory]
+    [InlineData(2)]
+    public void TestMethod(int x)
+    { }
 }
 ```
 
 ```csharp
-[Theory]
-[InlineData(2, 0)]
-[InlineData(2, 1)]
-public void TestMethod(int x, int y = 0)
+using Xunit;
+
+public class xUnit1025
 {
-	//...
+    [Theory]
+    [InlineData(2)]
+    public void TestMethod(int x, int y = 0)
+    { }
 }
 ```
 
 ```csharp
-[Theory]
-[InlineData(1, 2, 3)]
-[InlineData(new object[] {1, 2, 4})]
-public void TestMethod(params int[] args)
+using Xunit;
+
+public class xUnit1025
 {
+    [Theory]
+    [InlineData(1, 2, 3)]
+    public void TestMethod(params int[] args)
+    { }
 }
-```
-
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit1025 // InlineData should be unique within the Theory it belongs to
-#pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
 ```

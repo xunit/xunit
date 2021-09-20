@@ -22,13 +22,16 @@ To fix a violation of this rule, convert from the string literal to `nameof`.
 ### Violates
 
 ```csharp
-public class TestClass
-{
-	public static IEnumerable<object[]> TestData;
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData("TestData")]
-	public void TestMethod(string greeting, int age) { }
+public class xUnit1014
+{
+    public static IEnumerable<object[]> TestData;
+
+    [Theory]
+    [MemberData("TestData")]
+    public void TestMethod(string greeting, int age) { }
 }
 ```
 
@@ -37,21 +40,15 @@ Example(s) of code that violates the rule.
 ### Does not violate
 
 ```csharp
-public class TestClass
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1014
 {
-	public static IEnumerable<object[]> TestData;
+    public static IEnumerable<object[]> TestData;
 
-	[Theory]
-	[MemberData(nameof(TestData))]
-	public void TestMethod(string greeting, int age) { }
+    [Theory]
+    [MemberData(nameof(TestData"))]
+    public void TestMethod(string greeting, int age) { }
 }
-```
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
-```csharp
-#pragma warning disable xUnit1014 // MemberData should use nameof operator for member name
-#pragma warning restore xUnit1014 // MemberData should use nameof operator for member name
 ```

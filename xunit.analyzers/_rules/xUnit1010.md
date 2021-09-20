@@ -22,30 +22,36 @@ To fix a violation of this rule, change either the data or the parameter type to
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1010
 {
-	[Theory]
-	[InlineData("42")]
-	public void TestMethod(int value) { }
+    [Theory]
+    [InlineData("42")]
+    public void TestMethod(int _) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1010
 {
-	[Theory]
-	[InlineData("42")]
-	public void TestMethod(string value) { }
+    [Theory]
+    [InlineData("42")]
+    public void TestMethod(string _) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1010
 {
-	[Theory]
-	[InlineData(42)]
-	public void TestMethod(int value) { }
+    [Theory]
+    [InlineData(42)]
+    public void TestMethod(int _) { }
 }
 ```

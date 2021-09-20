@@ -26,9 +26,9 @@ To fix a violation of this rule, use `Xunit.LongLivedMarshalByRefObject` as the 
 ```csharp
 using Xunit.Abstractions;
 
-public class MyTestCase : ITestCase
+public class xUnit3000 : ITestCase
 {
-	// ...implementation of test case...
+    // ...implementation of test case...
 }
 ```
 
@@ -38,8 +38,8 @@ public class MyTestCase : ITestCase
 using Xunit;
 using Xunit.Abstractions;
 
-public class MyTestCase : LongLivedMarshalByRefObject, ITestCase
+public class xUnit3000 : LongLivedMarshalByRefObject, ITestCase
 {
-	// ...implementation of test case...
+    // ...implementation of test case...
 }
 ```

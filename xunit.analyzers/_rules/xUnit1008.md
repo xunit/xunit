@@ -25,28 +25,34 @@ To fix a violation of this rule, either:
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1008
 {
-	[InlineData(42)]
-	public void MyTest(int value) { }
+    [InlineData(42)]
+    public void TestMethod(int _) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1008
 {
-	[Theory]
-	[InlineData(42)]
-	public void MyTest(int value) { }
+    [Theory]
+    [InlineData(42)]
+    public void TestMethod(int _) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1008
 {
-	public void MyTest(int value) { }
+    public void TestMethod(int _) { }
 }
 ```
 

@@ -25,45 +25,45 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-public class TestClass
-{
-	public static IEnumerable<object[]> TestData { get; set; }
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData(nameof(TestData), "Hello world", 123)]
-	public void TestMethod(decimal value) { }
+public class xUnit1021
+{
+    public static IEnumerable<object[]> TestData { get; set; }
+
+    [Theory]
+    [MemberData(nameof(TestData), "Hello world", 123)]
+    public void TestMethod(int _) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
-{
-	public static IEnumerable<object[]> TestData { get; set; }
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData(nameof(TestData))]
-	public void TestMethod(decimal value) { }
+public class xUnit1021
+{
+    public static IEnumerable<object[]> TestData { get; set; }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public void TestMethod(int _) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1021
 {
-	public static IEnumerable<object[]> TestData(string greeting, int age) { }
+    public static IEnumerable<object[]> TestData(string greeting, int age) { }
 
-	[Theory]
-	[MemberData(nameof(TestData), "Hello world", 123)]
-	public void TestMethod(decimal value) { }
+    [Theory]
+    [MemberData(nameof(TestData), "Hello world", 123)]
+    public void TestMethod(int _) { }
 }
-```
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
-```csharp
-#pragma warning disable xUnit1021 // MemberData should not have parameters if the referenced member is not a method
-#pragma warning restore xUnit1021 // MemberData should not have parameters if the referenced member is not a method
 ```

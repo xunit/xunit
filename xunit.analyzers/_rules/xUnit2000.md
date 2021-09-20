@@ -22,18 +22,33 @@ To fix a violation of this rule, swap the arguments in the assertion, so that th
 ### Violates
 
 ```csharp
-Assert.Equal(result, 5);
+using Xunit;
+
+public class xUnit2000
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 2 + 3;
+
+        Assert.Equal(result, 5);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-Assert.Equal(5, result);
-```
+using Xunit;
 
-## How to suppress violations
+public class xUnit2000
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 2 + 3;
 
-```csharp
-#pragma warning disable xUnit2000 // Constants and literals should be the expected argument
-#pragma warning restore xUnit2000 // Constants and literals should be the expected argument
+        Assert.Equal(5, result);
+    }
+}
 ```

@@ -25,24 +25,51 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-Assert.IsType<IDisposable>(myObject);
+using System;
+using Xunit;
+
+public class xUnit2018
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new object();
+
+        Assert.IsType<IDisposable>(result);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-Assert.IsAssignableFrom<IDisposable>(myObject);
+using System;
+using Xunit;
+
+public class xUnit2018
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new object();
+
+        Assert.IsAssignableFrom<IDisposable>(result);
+    }
+}
 ```
 
 ```csharp
-Assert.IsType<MyConcreteType>(myObject);
-```
+using System;
+using Xunit;
 
-## How to suppress violations
+public class xUnit2018
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new object();
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
-```csharp
-#pragma warning disable xUnit2018 // Do not compare an object's exact type to an abstract class or interface
-#pragma warning restore xUnit2018 // Do not compare an object's exact type to an abstract class or interface
+        Assert.IsType<object>(result);
+    }
+}
 ```

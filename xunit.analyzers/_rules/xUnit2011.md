@@ -15,29 +15,61 @@ There are specialized assertions for checking collection sizes.
 
 ## How to fix violations
 
-Use `Assert.Empty` instead.
+To fix a violation of this rule, you can:
+
+* Use `Assert.Empty` instead.
+* Add element inspectors to the `Assert.Collection` call.
 
 ## Examples
 
 ### Violates
 
 ```csharp
-IEnumerable<string> result = GetItems();
+using Xunit;
 
-Assert.Collection(result);
+public class xUnit2011
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { 1 };
+
+        Assert.Collection(result);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-IEnumerable<string> result = GetItems();
+using Xunit;
 
-Assert.Empty(result);
+public class xUnit2011
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { 1 };
+
+        Assert.Empty(result);
+    }
+}
 ```
 
-## How to suppress violations
-
 ```csharp
-#pragma warning disable xUnit2011 // Do not use empty collection check
-#pragma warning restore xUnit2011 // Do not use empty collection check
+using Xunit;
+
+public class xUnit2011
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { 1 };
+
+        Assert.Collection(
+            result,
+            value => Assert.Equal(1, value)
+        );
+    }
+}
 ```

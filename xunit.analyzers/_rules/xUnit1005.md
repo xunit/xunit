@@ -26,35 +26,36 @@ To fix a violation of this rule, either:
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1005
 {
-	[Fact, InlineData(1)]
-	public void TestMethod()
-	{
-	}
+    [Fact, InlineData(1)]
+    public void TestMethod()
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
-{
-	[Fact]
-	public void TestMethod()
-	{
-	}
+using Xunit;
 
-	[Theory, InlineData(1)]
-	public void ParameterizedTestMethod(int arg)
-	{
-	}
+public class xUnit1005
+{
+    [Fact]
+    public void TestMethod()
+    { }
 }
 ```
 
-## How to suppress violations
-
 ```csharp
-#pragma warning disable xUnit1005 // Fact methods should not have test data
-#pragma warning restore xUnit1005 // Fact methods should not have test data
+using Xunit;
+
+public class xUnit1005
+{
+    [Theory, InlineData(1)]
+    public void TestMethod(int _)
+    { }
+}
 ```

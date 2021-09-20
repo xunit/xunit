@@ -11,7 +11,7 @@ Asserting on equality of two double or decimal values was declared with precisio
 
 ## Reason for rule
 
-`Assert.Equals` uses `System.Math.Round` internally which imposes limits on the precision parameter of [0..15] for 
+`Assert.Equals` uses `System.Math.Round` internally which imposes limits on the precision parameter of [0..15] for
 doubles and [0..28] for decimals.
 
 ## How to fix violations
@@ -23,16 +23,35 @@ Keep the precision in [0..15] for doubles and [0..28] for decimals.
 ### Violates
 
 ```csharp
-Assert.Equals(expectedDouble, actualDouble, 16);
-Assert.Equals(expectedDouble, actualDouble, int.MaxValue);
-Assert.Equals(expectedDecimal, actualDecimal, 32);
+using Xunit;
+
+public class xUnit2016
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var actual = 1.1;
+
+        Assert.Equal(1.1, actual, 16);
+    }
+}
+
 ```
 
 ### Does not violate
 
 ```csharp
-Assert.Equals(expectedDouble, actualDouble, 0);
-Assert.Equals(expectedDouble, actualDouble, 15);
-Assert.Equals(expectedDecimal, actualDecimal, 0);
-Assert.Equals(expectedDecimal, actualDecimal, 28);
+using Xunit;
+
+public class xUnit2016
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var actual = 1.1;
+
+        Assert.Equal(1.1, actual, 15);
+    }
+}
+
 ```

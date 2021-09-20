@@ -22,33 +22,36 @@ To fix a violation of this rule, remove all but one of the Fact or Theory attrib
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1002
 {
-	[Fact, Theory]
-	public void TestMethod()
-	{
-	}
+    [Fact, Theory]
+    public void TestMethod()
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1002
 {
-	[Fact]
-	public void TestMethod()
-	{
-	}
+    [Fact]
+    public void TestMethod()
+    { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1002
 {
-	[Theory]
-	public void TestMethod()
-	{
-	}
+    [Theory]
+    public void TestMethod()
+    { }
 }
 ```

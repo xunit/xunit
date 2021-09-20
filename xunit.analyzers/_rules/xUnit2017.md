@@ -22,27 +22,35 @@ Use `Assert.Contains` or `Assert.DoesNotContain` instead.
 ### Violates
 
 ```csharp
-Assert.True(collection.Contains("foo"));
-```
+using System.Linq;
+using Xunit;
 
-```csharp
-Assert.False(collection.Contains("bar"));
+public class xUnit2017
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { "foo", "bar" };
+
+        Assert.True(result.Contains("foo"));
+    }
+}
 ```
 
 
 ### Does not violate
 
 ```csharp
-Assert.Contains("foo", result);
-```
+using Xunit;
 
-```csharp
-Assert.DoesNotContain("bar", result);
-```
+public class xUnit2017
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { "foo", "bar" };
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
-#pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
+        Assert.Contains("foo", result);
+    }
+}
 ```

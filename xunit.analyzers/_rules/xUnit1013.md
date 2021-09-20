@@ -25,61 +25,63 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-public class Tests
-{
-	[Fact]
-	public void Test1() { }
+using Xunit;
 
-	public void Test2() { }
+public class xUnit1013
+{
+    [Fact]
+    public void TestMethod1() { }
+
+    public void TestMethod2() { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class Tests
-{
-	[Fact]
-	public void Test1() { }
+using Xunit;
 
-	[Fact]
-	public void Test2() { }
+public class xUnit1013
+{
+    [Fact]
+    public void TestMethod1() { }
+
+    [Fact]
+    public void TestMethod2() { }
 }
 ```
 
 ```csharp
-public class Tests
+using Xunit;
+
+public class xUnit1013
 {
-	[Fact]
-	public void Test1() { }
+    [Fact]
+    public void TestMethod1() { }
 
-	internal void Test2() { }
+    internal void TestMethod2() { }
 }
-```
-
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit1013 // Public method should be marked as test
-#pragma warning restore xUnit1013 // Public method should be marked as test
 ```
 
 ## Opt-out for extension authors
 
-Some xUnit.net extensions provide alternative attributes for annotating tests. Such attributes should be annotated with a marker attribute to prevent this rule from firing for valid usages of the extension. The marker attribute has to be called `IgnoreXunitAnalyzersRule1013` (in any or no namespace).
+Some xUnit.net extensions provide alternative attributes for annotating tests. Such attributes should be annotated with a marker attribute to prevent this rule from firing for valid usages of the extension. The marker attribute must be named `IgnoreXunitAnalyzersRule1013`, in any (or no) namespace.
 
 ```csharp
+using System;
+using Xunit;
+
 public sealed class IgnoreXunitAnalyzersRule1013Attribute : Attribute { }
 
 [IgnoreXunitAnalyzersRule1013]
 public class CustomTestTypeAttribute : Attribute { }
 
-public class TestClass
+public class xUnit1013
 {
-	[Fact]
-	public void TestMethod() { }
+    [Fact]
+    public void TestMethod() { }
 
-	[CustomTestType]
-	public void CustomTestMethod() {}
+    [CustomTestType]
+    public void CustomTestMethod() { }
 }
 ```

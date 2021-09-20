@@ -22,33 +22,36 @@ To fix a violation of this rule, remove the parameters from the fact method. Alt
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1001
 {
-	[Fact]
-	public void TestMethod(int p1)
-	{
-	}
+    [Fact]
+    public void TestMethod(int _)
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1001
 {
-	[Fact]
-	public void TestMethod()
-	{
-	}
+    [Fact]
+    public void TestMethod()
+    { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1001
 {
-	[Theory]
-	public void TestMethod(int p1)
-	{
-	}
+    [Theory]
+    public void TestMethod(int _)
+    { }
 }
 ```

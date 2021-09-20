@@ -26,41 +26,49 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-public class TestClass
-{
-	[Fact]
-	public void Method() { }
+using Xunit;
 
-	public void Method(int age) { }
+public class xUnit1024
+{
+    [Fact]
+    public void TestMethod() { }
+
+    public void TestMethod(int age) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
-{
-	[Fact]
-	public void Method() { }
+using Xunit;
 
-	public void Method2(int age) { }
+public class xUnit1024
+{
+    [Fact]
+    public void TestMethod() { }
+
+    public void NonTestMethod(int age) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1024
 {
-	[Fact]
-	public void Method() { }
+    [Fact]
+    public void TestMethod() { }
 }
 ```
 
 ```csharp
-public class TestClass
-{
-	[Fact]
-	public void Method() { }
+using Xunit;
 
-	private void Method(int age) { }
+public class xUnit1024
+{
+    [Fact]
+    public void TestMethod() { }
+
+    private void TestMethod(int age) { }
 }
 ```

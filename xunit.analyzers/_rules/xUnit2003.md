@@ -22,34 +22,33 @@ To fix a violation of this rule, replace the offending asserts with `Assert.Null
 ### Violates
 
 ```csharp
-string result = GetSomeValue();
+using Xunit;
 
-Assert.Equal(null, result);
-```
+public class xUnit2003
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "Hello world!";
 
-```csharp
-string result = GetSomeValue();
-
-Assert.NotEqual(null, result);
+        Assert.Equal(null, result);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-string result = GetSomeValue();
+using Xunit;
 
-Assert.Null(result);
-```
+public class xUnit2003
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "Hello world!";
 
-```csharp
-string result = GetSomeValue();
-
-Assert.NotNull(result);
-```
-
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2003 // Do not use equality check to test for null value
-#pragma warning restore xUnit2003 // Do not use equality check to test for null value
+        Assert.Null(result);
+    }
+}
 ```

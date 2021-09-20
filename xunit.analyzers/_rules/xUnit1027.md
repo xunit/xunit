@@ -22,17 +22,19 @@ To fix a violation of this rule, make the collection definition class public.
 ### Violates
 
 ```csharp
+using Xunit;
+
 [CollectionDefinition("CollectionName")]
 class CollectionDefinitionClass
-{
-}
+{ }
 ```
 
 ### Does not violate
 
 ```csharp
+using Xunit;
+
 [CollectionDefinition("CollectionName")]
 public class CollectionDefinitionClass
-{
-}
+{ }
 ```

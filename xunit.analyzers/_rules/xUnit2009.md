@@ -27,22 +27,33 @@ To fix a violation of this rule, replace the offending assertion according to th
 ### Violates
 
 ```csharp
-string result = "foo bar baz";
+using Xunit;
 
-Assert.True(result.Contains("bar"));
+public class xUnit2009
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo bar baz";
+
+        Assert.True(result.Contains("bar"));
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-string result = "foo bar baz";
+using Xunit;
 
-Assert.Contains("bar", result);
-```
+public class xUnit2009
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo bar baz";
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2009 // Do not use boolean check to check for substrings
-#pragma warning restore xUnit2009 // Do not use boolean check to check for substrings
+        Assert.Contains("bar", result);
+    }
+}
 ```

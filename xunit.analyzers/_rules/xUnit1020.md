@@ -22,25 +22,31 @@ To fix a violation of this rule, update the data member to have a getter.
 ### Violates
 
 ```csharp
-public class TestClass
-{
-	public static IEnumerable<object[]> TestData { private get; set; }
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData(nameof(TestData))]
-	public void TestMethod(string greeting, int age) { }
+public class xUnit1020
+{
+    public static IEnumerable<object[]> TestData { private get; set; }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public void TestMethod(string greeting, int age) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
-{
-	public static IEnumerable<object[]> TestData { get; set; }
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData(nameof(TestData))]
-	public void TestMethod(string greeting, int age) { }
+public class xUnit1020
+{
+    public static IEnumerable<object[]> TestData { get; set; }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public void TestMethod(string greeting, int age) { }
 }
 ```

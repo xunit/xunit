@@ -22,11 +22,43 @@ To fix a violation of this rule, use `Assert.ThrowsAsync` (along with `await`).
 ### Violates
 
 ```csharp
-Assert.Throws<DivideByZeroException>(() => MyMath.DivideAsync(1, 0));
+using System;
+using System.Threading.Tasks;
+using Xunit;
+
+public class xUnit2014
+{
+    class MyMath
+    {
+        public static Task<int> Divide(params int[] values) => 42;
+    }
+
+    [Fact]
+    public void TestMethod()
+    {
+        Assert.Throws<DivideByZeroException>(() => MyMath.Divide(1, 0));
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-await Assert.ThrowsAsync<DivideByZeroException>(() => MyMath.DivideAsync(1, 0));
+using System;
+using System.Threading.Tasks;
+using Xunit;
+
+public class xUnit2014
+{
+    class MyMath
+    {
+        public static Task<int> Divide(params int[] values) => 42;
+    }
+
+    [Fact]
+    public void TestMethod()
+    {
+        Assert.ThrowsAsync<DivideByZeroException>(() => MyMath.Divide(1, 0));
+    }
+}
 ```

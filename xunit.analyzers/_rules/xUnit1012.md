@@ -26,46 +26,47 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1012
 {
-	[Theory]
-	[InlineData(null)]
-	public void TestMethod(int age) { }
+    [Theory]
+    [InlineData(null)]
+    public void TestMethod(int _) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1012
 {
-	[Theory]
-	[InlineData(42)]
-	public void TestMethod(int age) { }
+    [Theory]
+    [InlineData(42)]
+    public void TestMethod(int _) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1012
 {
-	[Theory]
-	[InlineData(null)]
-	public void TestMethod(int? age) { }
+    [Theory]
+    [InlineData(null)]
+    public void TestMethod(int? _) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1012
 {
-	[Theory]
-	[InlineData(null)]
-	public void TestMethod(object value) { }
+    [Theory]
+    [InlineData(null)]
+    public void TestMethod(object _) { }
 }
-```
-
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit1012 // Null should not be used for value type parameters
-#pragma warning restore xUnit1012 // Null should not be used for value type parameters
 ```

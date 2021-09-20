@@ -21,25 +21,36 @@ To fix a violation of this rule, use the generic version of `Assert.Throws`.
 
 ### Violates
 
-Example(s) of code that violates the rule.
-
 ```csharp
-Assert.Throws(typeof(InvalidOperationException), () => FunctionThatThrows());
+using System;
+using Xunit;
+
+public class xUnit2015
+{
+    void FunctionThatThrows() { }
+
+    [Fact]
+    public void TestMethod()
+    {
+        Assert.Throws(typeof(InvalidOperationException), () => FunctionThatThrows());
+    }
+}
 ```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
 ```csharp
-Assert.Throws<InvalidOperationException>(() => FunctionThatThrows());
-```
+using System;
+using Xunit;
 
-## How to suppress violations
+public class xUnit2015
+{
+    void FunctionThatThrows() { }
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
-```csharp
-#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
-#pragma warning restore xUnit2015 // Do not use typeof expression to check the exception type
+    [Fact]
+    public void TestMethod()
+    {
+        Assert.Throws<InvalidOperationException>(() => FunctionThatThrows());
+    }
+}
 ```

@@ -11,33 +11,44 @@ A violation of this rule occurs when the generic overloads of `Assert.Equal` or 
 
 ## Reason for rule
 
-There is an optimized overload of both `Assert.Equal` and `Assert.StrictEqual` for `string` arguments.
+There is an optimized overload of `Assert.Equal` for `string` arguments.
 
 ## How to fix violations
 
-To fix a violation of this rule, remove the generic argument to use the `string` overload.
+To fix a violation of this rule, use the non-generic version of `Assert.Equal` with the `string` overload.
 
 ## Examples
 
 ### Violates
 
 ```csharp
-string result = "foo";
+using Xunit;
 
-Assert.Equal<string>("foo", result);
+public class xUnit2006
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo";
+
+        Assert.Equal<string>("foo", result);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-string result = "foo";
+using Xunit;
 
-Assert.Equal("foo", result);
-```
+public class xUnit2006
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo";
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2006 // Do not use invalid string equality check
-#pragma warning restore xUnit2006 // Do not use invalid string equality check
+        Assert.Equal("foo", result);
+    }
+}
 ```

@@ -26,40 +26,42 @@ To fix a violation of this rule, make sure that the type specified in the `[Clas
 ### Violates
 
 ```csharp
-class TestData
-{
-}
+using Xunit;
 
-class Tests
+class xUnit1007_TestData { }
+
+public class xUnit1007
 {
-	[Theory]
-	[ClassData(typeof(TestData))]
-	public void TestMethod(int amount, string productType)
-	{
-	}
+    [Theory]
+    [ClassData(typeof(xUnit1007_TestData))]
+    public void TestMethod(int quantity, string productType)
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-class TestData : IEnumerable<object[]>
-{
-	public IEnumerator<object[]> GetEnumerator()
-	{
-		yield return new object[] { 1, "book" };
-		yield return new object[] { 1, "magnifying glass" };
-	}
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
 
-	IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+class xUnit1007_TestData : IEnumerable<object[]>
+{
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        yield return new object[] { 12, "book" };
+        yield return new object[] { 9, "magnifying glass" };
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }
 
-class Tests
+public class xUnit1007
 {
-	[Theory]
-	[ClassData(typeof(TestData))]
-	public void TestMethod(int amount, string productType)
-	{
-	}
+    [Theory]
+    [ClassData(typeof(xUnit1007_TestData))]
+    public void TestMethod(int quantity, string productType)
+    { }
 }
 ```

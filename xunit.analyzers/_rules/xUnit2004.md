@@ -32,25 +32,38 @@ For `NotEqual` and `NotStrictEqual`
 - `Assert.NotEqual(false, b)` => `Assert.True(b)`
 - `Assert.NotStrictEqual(false, b)` => `Assert.True(b)`
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2004 // AssertEqualShouldNotBeUsedForBoolLiteralCheck
-#pragma warning restore xUnit2004 // AssertEqualShouldNotBeUsedForBoolLiteralCheck
-```
-
 ## Examples
 
 ### Violates
 
 ```csharp
-Assert.Equal(true, 2 + 2 == 4);
-Assert.Equal(false, 2 + 2 == 5);
+using Xunit;
+
+public class xUnit2004
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 2 + 2;
+
+        Assert.Equal(true, result > 3);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-Assert.True(2 + 2 == 4);
-Assert.False(2 + 2 == 5);
+using Xunit;
+
+public class xUnit2004
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 2 + 2;
+
+        Assert.True(result > 3);
+    }
+}
 ```

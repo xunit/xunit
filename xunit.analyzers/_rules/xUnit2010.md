@@ -22,22 +22,33 @@ Replace `Assert.True` with `Assert.Equal` and/or `Assert.False` with `Assert.Not
 ### Violates
 
 ```csharp
-string result = "foo bar baz";
+using Xunit;
 
-Assert.True(string.Equals("foo bar baz", result));
+public class xUnit2010
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo bar baz";
+
+        Assert.True(string.Equals("foo bar baz", result));
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-string result = "foo bar baz";
+using Xunit;
 
-Assert.Equal("foo bar baz", result);
-```
+public class xUnit2010
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo bar baz";
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2010 // Do not use boolean check to check for string equality
-#pragma warning restore xUnit2010 // Do not use boolean check to check for string equality
+        Assert.Equal("foo bar baz", result);
+    }
+}
 ```

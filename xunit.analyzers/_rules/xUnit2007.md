@@ -22,22 +22,33 @@ Use the generic overload of `Assert.IsType`, `Assert.IsNotType`, or `Assert.IsAs
 ### Violates
 
 ```csharp
-var result = SomeMethod();
+using Xunit;
 
-Assert.IsType(typeof(string), result);
+public class xUnit2007
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo";
+
+        Assert.IsType(typeof(string), result);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-var result = SomeMethod();
+using Xunit;
 
-Assert.IsType<string>(result);
-```
+public class xUnit2007
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo";
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2007 // Do not use typeof expression to check the type
-#pragma warning restore xUnit2007 // Do not use typeof expression to check the type
+        Assert.IsType<string>(result);
+    }
+}
 ```

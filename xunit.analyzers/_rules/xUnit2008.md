@@ -22,34 +22,34 @@ Replace the assertions with `Assert.Matches` or `Assert.DoesNotMatch`.
 ### Violates
 
 ```csharp
-string result = "foo bar baz";
+using System.Text.RegularExpressions;
+using Xunit;
 
-Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
-```
+public class xUnit2008
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo bar baz";
 
-```csharp
-string result = "foo bar baz";
-
-Assert.False(Regex.IsMatch(result, "hello (.*?)"));
+        Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-string result = "foo bar baz";
+using Xunit;
 
-Assert.Matches("foo (.*?) baz", result);
-```
+public class xUnit2008
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = "foo bar baz";
 
-```csharp
-string result = "foo bar baz";
-
-Assert.DoesNotMatch("hello (.*?)", result);
-```
-
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2008 // Do not use boolean check to match on regular expressions
-#pragma warning restore xUnit2008 // Do not use boolean check to match on regular expressions
+        Assert.Matches("foo (.*?) baz", result);
+    }
+}
 ```

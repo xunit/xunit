@@ -22,25 +22,31 @@ To fix a violation of this rule, make the data member `public` visibility.
 ### Violates
 
 ```csharp
-public class TestClass
-{
-	protected static IEnumerable<object[]> TestData;
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData(nameof(TestData))]
-	public void TestMethod(string greeting, int age) { }
+public class xUnit1016
+{
+    protected static IEnumerable<object[]> TestData;
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public void TestMethod(string greeting, int age) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
-{
-	public static IEnumerable<object[]> TestData;
+using System.Collections.Generic;
+using Xunit;
 
-	[Theory]
-	[MemberData(nameof(TestData))]
-	public void TestMethod(string greeting, int age) { }
+public class xUnit1016
+{
+    public static IEnumerable<object[]> TestData;
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public void TestMethod(string greeting, int age) { }
 }
 ```

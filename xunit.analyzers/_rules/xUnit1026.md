@@ -25,54 +25,69 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-public class TestClass
-{
-	[Theory]
-	[InlineData("Joe", 42)]
-	public void ValidateGreeting(string name, int age)
-	{
-		var result = MyGreetingService.Greet(name);
+using Xunit;
 
-		Assert.Equal("Hello, Joe!", result);
-	}
+static class MyGreetingService
+{
+    public static string Greet(string name) =>
+        $"Hello, {name}!";
+}
+
+public class xUnit1026
+{
+    [Theory]
+    [InlineData("Joe", 42)]
+    public void ValidateGreeting(string name, int age)
+    {
+        var result = MyGreetingService.Greet(name);
+
+        Assert.Equal("Hello, Joe!", result);
+    }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
-{
-	[Theory]
-	[InlineData("Joe")]
-	public void ValidateGreeting(string name)
-	{
-		var result = MyGreetingService.Greet(name);
+using Xunit;
 
-		Assert.Equal("Hello, Joe!", result);
-	}
+static class MyGreetingService
+{
+    public static string Greet(string name) =>
+        $"Hello, {name}!";
+}
+
+public class xUnit1026
+{
+    [Theory]
+    [InlineData("Joe", 42)]
+    public void ValidateGreeting(string name)
+    {
+        var result = MyGreetingService.Greet(name);
+
+        Assert.Equal("Hello, Joe!", result);
+    }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+static class MyGreetingService
 {
-	[Theory]
-	[InlineData("Joe", 42)]
-	public void ValidateGreeting(string name, int age)
-	{
-		var result = MyGreetingService.Greet(name, age);
-
-		Assert.Equal("Hello, Joe! How do you like being 42 years old?", result);
-	}
+    public static string Greet(string name, int age) =>
+        $"Hello, {name}! How do you like being {age} years old?";
 }
-```
 
-## How to suppress violations
+public class xUnit1026
+{
+    [Theory]
+    [InlineData("Joe", 42)]
+    public void ValidateGreeting(string name, int age)
+    {
+        var result = MyGreetingService.Greet(name, age);
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
-```csharp
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        Assert.Equal("Hello, Joe! How do you like being 42 years old?", result);
+    }
+}
 ```

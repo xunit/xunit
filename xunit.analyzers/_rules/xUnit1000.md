@@ -22,23 +22,25 @@ To fix a violation of this rule, make the test class public.
 ### Violates
 
 ```csharp
-class TestClass
+using Xunit;
+
+class xUnit1000
 {
-	[Fact]
-	public void TestMethod()
-	{
-	}
+    [Fact]
+    public void TestMethod()
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1000
 {
-	[Fact]
-	public void TestMethod()
-	{
-	}
+    [Fact]
+    public void TestMethod()
+    { }
 }
 ```

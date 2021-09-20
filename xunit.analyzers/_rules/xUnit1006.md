@@ -15,39 +15,45 @@ Theories are tests which are only true for a particular set of data. As such, th
 
 ## How to fix violations
 
-To fix a violation of this rule, add parameters to the test method. The parameter count and types should match the provided test data.
+To fix a violation of this rule, either convert the test to a Fact, or add parameters to the test method. When adding parameters, the parameter count and types should match the provided test data.
 
 ## Examples
 
 ### Violates
 
 ```csharp
-class Tests
+using Xunit;
+
+public class xUnit1006
 {
-	[Theory]
-	[InlineData(12, "book")]
-	public void Test()
-	{
-	}
+    [Theory]
+    [InlineData(12, "book")]
+    public void TestMethod()
+    { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-class Tests
+using Xunit;
+
+public class xUnit1006
 {
-	[Theory]
-	[InlineData(12, "book")]
-	public void Test(int amount, string productType)
-	{
-	}
+    [Fact]
+    public void TestMethod()
+    { }
 }
 ```
 
-## How to suppress violations
-
 ```csharp
-#pragma warning disable xUnit1006 // Theory methods should have parameters
-#pragma warning restore xUnit1006 // Theory methods should have parameters
+using Xunit;
+
+public class xUnit1006
+{
+    [Theory]
+    [InlineData(12, "book")]
+    public void TestMethod(int quantity, string productType)
+    { }
+}
 ```

@@ -16,7 +16,8 @@ should be empty, since all values will come to the object via `IXunitSerializabl
 
 ## How to fix violations
 
-Add a public parameterless empty-bodied constructor, and mark it with `[System.Obsolete]` so users don't call it directly.
+Add a public parameterless empty-bodied constructor, and mark it with `[System.Obsolete]` so users don't call it directly. You may
+keep any other public constructors with parameters.
 
 ## Examples
 
@@ -25,17 +26,13 @@ Add a public parameterless empty-bodied constructor, and mark it with `[System.O
 ```csharp
 using Xunit.Abstractions;
 
-public class MySerializableObject : IXunitSerializable
+public class xUnit3001 : IXunitSerializable
 {
-	public void Deserialize(IXunitSerializationInfo info)
-	{
-		// ...implementation...
-	}
+    public xUnit3001(int _) { }
 
-	public void Serialize(IXunitSerializationInfo info)
-	{
-		// ...implementation...
-	}
+    public void Deserialize(IXunitSerializationInfo info) { }
+
+    public void Serialize(IXunitSerializationInfo info) { }
 }
 ```
 
@@ -45,19 +42,15 @@ public class MySerializableObject : IXunitSerializable
 using System;
 using Xunit.Abstractions;
 
-public class MySerializableObject : IXunitSerializable
+public class xUnit3001 : IXunitSerializable
 {
-	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-	public MySerializableObject() { }
+    [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+    public xUnit3001() { }
 
-	public void Deserialize(IXunitSerializationInfo info)
-	{
-		// ...implementation...
-	}
+    public xUnit3001(int _) { }
 
-	public void Serialize(IXunitSerializationInfo info)
-	{
-		// ...implementation...
-	}
+    public void Deserialize(IXunitSerializationInfo info) { }
+
+    public void Serialize(IXunitSerializationInfo info) { }
 }
 ```

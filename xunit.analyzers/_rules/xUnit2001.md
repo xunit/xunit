@@ -22,19 +22,33 @@ To fix a violation of this rule, use `Assert.Equal` instead of `Equals` and `Ass
 ### Violates
 
 ```csharp
-Assert.Equals(42, value);
-```
+using Xunit;
 
-```csharp
-Assert.ReferenceEquals(expectedObj, actualObj);
+public class xUnit2001
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 21 * 2;
+
+        Assert.Equals(42, result);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-Assert.Equal(42, value);
-```
+using Xunit;
 
-```csharp
-Assert.Same(expectedObj, actualObj);
+public class xUnit2001
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 21 * 2;
+
+        Assert.Equal(42, result);
+    }
+}
 ```

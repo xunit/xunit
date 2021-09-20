@@ -26,39 +26,47 @@ To fix a violation of this rule, you may:
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1009
 {
-	[Theory]
-	[InlineData("Hello world")]
-	public void TestMethod(string greeting, int age) { }
+    [Theory]
+    [InlineData("Hello world")]
+    public void TestMethod(string greeting, int age) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1009
 {
-	[Theory]
-	[InlineData("Hello world", 42)]
-	public void TestMethod(string greeting, int age) { }
+    [Theory]
+    [InlineData("Hello world", 42)]
+    public void TestMethod(string greeting, int age) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1009
 {
-	[Theory]
-	[InlineData("Hello world")]
-	public void TestMethod(string greeting) { }
+    [Theory]
+    [InlineData("Hello world")]
+    public void TestMethod(string greeting) { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1009
 {
-	[Theory]
-	[InlineData("Hello world")]
-	public void TestMethod(string greeting, int age = 42) { }
+    [Theory]
+    [InlineData("Hello world")]
+    public void TestMethod(string greeting, int age = 42) { }
 }
 ```

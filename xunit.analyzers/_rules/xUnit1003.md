@@ -23,35 +23,34 @@ If a Theory method does not have test data, it is never run.
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1003
 {
-	[Theory]
-	public void TestMethod(int p1)
-	{
-	}
+    [Theory]
+    public void TestMethod(int _) { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1003
 {
-	[Fact]
-	public void TestMethod()
-	{
-	}
+    [Fact]
+    public void TestMethod() { }
 }
 ```
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1003
 {
-	[Theory]
-	[InlineData(5)]
-	public void TestMethod(int p1)
-	{
-		Assert.Equal(2 + 2, p1);
-	}
+    [Theory]
+    [InlineData(5)]
+    public void TestMethod(int _) { }
 }
 ```

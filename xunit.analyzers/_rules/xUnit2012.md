@@ -22,22 +22,34 @@ Replace `Assert.True` with `Assert.Contains` and/or `Assert.False` with `Assert.
 ### Violates
 
 ```csharp
-IEnumerable<string> result = GetItems();
+using System.Linq;
+using Xunit;
 
-Assert.True(result.Any(x => x == "foo"));
+public class xUnit2012
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { "Hello" };
+
+        Assert.True(result.Any(value => value.Length == 5));
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-IEnumerable<string> result = GetItems();
+using Xunit;
 
-Assert.Contains(result, x => x == "foo");
-```
+public class xUnit2012
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { "Hello" };
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2012 // Do not use Enumerable.Any() to check if a value exists in a collection
-#pragma warning restore xUnit2012 // Do not use Enumerable.Any() to check if a value exists in a collection
+        Assert.Contains(result, value => value.Length == 5);
+    }
+}
 ```

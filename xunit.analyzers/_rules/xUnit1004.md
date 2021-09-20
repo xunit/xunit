@@ -25,19 +25,23 @@ To fix a violation of this rule, you will typically employ one of two strategies
 ### Violates
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1004
 {
-	[Fact(Skip = "This is a flaky test")]
-	public void MyTest() { }
+    [Fact(Skip = "This is a flaky test")]
+    public void TestMethod() { }
 }
 ```
 
 ### Does not violate
 
 ```csharp
-public class TestClass
+using Xunit;
+
+public class xUnit1004
 {
-	[Fact]
-	public void MyTest() { }
+    [Fact]
+    public void TestMethod() { }
 }
 ```

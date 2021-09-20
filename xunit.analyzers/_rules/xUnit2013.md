@@ -22,34 +22,34 @@ Use `Assert.Empty`, `Assert.NotEmpty`, or `Assert.Single` instead.
 ### Violates
 
 ```csharp
-Assert.Equal(1, collection.Count());
-```
+using System.Linq;
+using Xunit;
 
-```csharp
-Assert.Equal(0, collection.Count());
-```
+public class xUnit2013
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { "Hello" };
 
-```csharp
-Assert.NotEqual(0, collection.Count());
+        Assert.Equal(1, result.Count());
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-Assert.Single(collection);
-```
+using Xunit;
 
-```csharp
-Assert.Empty(collection);
-```
+public class xUnit2013
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = new[] { "Hello" };
 
-```csharp
-Assert.NotEmpty(collection);
-```
-
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2013 // Do not use equality check to check for collection size.
-#pragma warning restore xUnit2013 // Do not use equality check to check for collection size.
+        Assert.Single(result);
+    }
+}
 ```

@@ -22,23 +22,34 @@ To fix a violation of this rule, either remove the assertion or change the objec
 ### Violates
 
 ```csharp
-int result = GetSomeValue();
+using Xunit;
 
-Assert.NotNull(result);
-Assert.True(result > 4);
+public class xUnit2002
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 2 + 3;
+
+        Assert.NotNull(result);
+        Assert.True(result > 4);
+    }
+}
 ```
 
 ### Does not violate
 
 ```csharp
-int result = GetSomeValue();
+using Xunit;
 
-Assert.True(result > 4);
-```
+public class xUnit2002
+{
+    [Fact]
+    public void TestMethod()
+    {
+        var result = 2 + 3;
 
-## How to suppress violations
-
-```csharp
-#pragma warning disable xUnit2002 // Do not use null check on value type
-#pragma warning restore xUnit2002 // Do not use null check on value type
+        Assert.True(result > 4);
+    }
+}
 ```
