@@ -6,26 +6,16 @@ static class DictionaryExtensions
 {
     public static void Add<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value)
     {
-        dictionary.GetOrAdd(key).Add(value);
+        dictionary.AddOrGet(key).Add(value);
     }
 
-    public static bool Contains<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value, IEqualityComparer<TValue> valueComparer)
-    {
-        List<TValue> values;
-
-        if (!dictionary.TryGetValue(key, out values))
-            return false;
-
-        return values.Contains(value, valueComparer);
-    }
-
-    public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+    public static TValue AddOrGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         where TValue : new()
     {
-        return dictionary.GetOrAdd<TKey, TValue>(key, () => new TValue());
+        return dictionary.AddOrGet(key, () => new TValue());
     }
 
-    public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> newValue)
+    public static TValue AddOrGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> newValue)
     {
         TValue result;
 
@@ -36,6 +26,16 @@ static class DictionaryExtensions
         }
 
         return result;
+    }
+
+    public static bool Contains<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value, IEqualityComparer<TValue> valueComparer)
+    {
+        List<TValue> values;
+
+        if (!dictionary.TryGetValue(key, out values))
+            return false;
+
+        return values.Contains(value, valueComparer);
     }
 
     public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TKey, TValue>(this IEnumerable<TValue> values,

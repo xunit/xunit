@@ -148,7 +148,7 @@ namespace Xunit
         XElement GetTestCollectionElement(ITestCollection testCollection)
         {
             lock (testCollectionElements)
-                return testCollectionElements.GetOrAdd(testCollection.UniqueID, () => new XElement("collection"));
+                return testCollectionElements.AddOrGet(testCollection.UniqueID, () => new XElement("collection"));
         }
 
         void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)

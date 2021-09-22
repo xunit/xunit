@@ -66,7 +66,7 @@ namespace Xunit
                         break;
 
                     case 'T':
-                        Traits.GetOrAdd(text).Add(Decode(lines[++idx]));
+                        Traits.AddOrGet(text).Add(Decode(lines[++idx]));
                         break;
                 }
             }
