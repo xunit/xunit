@@ -19,7 +19,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         var mscorlib = $@"{fxDir}mscorlib.dll";
         var sysRuntime = $@"{fxDir}Facades\System.Runtime.dll";
 
-        return new[] {  mscorlib, sysRuntime, "xunit.abstractions.dll"  };
+        return new[] { mscorlib, sysRuntime, "xunit.abstractions.dll" };
     }
 
 
@@ -31,7 +31,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         var compilerArgs =
             new[] {
                 "fsc",
-                "--noframework",                
+                "--noframework",
                 sourcePath,
                 $"--out:{FileName}",
                 $"--pdb:{PdbName}",
