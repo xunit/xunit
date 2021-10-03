@@ -144,7 +144,7 @@ public class TestClass
 
                 Assert.Contains("TestClass.TestMethod(x: ???)", testCaseNames);
                 Assert.Contains("TestClass.TestMethod(x: 42)", testCaseNames);
-                Assert.Contains($"TestClass.TestMethod(x: 42, ???: {21.12})", testCaseNames);
+                Assert.Contains($"TestClass.TestMethod(x: 42, ???: {21.12:G17})", testCaseNames);
             }
         }
     }
@@ -230,7 +230,7 @@ let TestMethod (x:int) =
                 Assert.Collection(sink.TestCases.OrderBy(tc => tc.DisplayName),
                     testCase => Assert.Equal("FSharpTests.TestMethod(x: ???)", testCase.DisplayName),
                     testCase => Assert.Equal("FSharpTests.TestMethod(x: 42)", testCase.DisplayName),
-                    testCase => Assert.Equal("FSharpTests.TestMethod(x: 42, ???: 21.12)", testCase.DisplayName)
+                    testCase => Assert.Equal($"FSharpTests.TestMethod(x: 42, ???: {21.12:G17})", testCase.DisplayName)
                 );
             }
         }

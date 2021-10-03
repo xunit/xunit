@@ -1,402 +1,424 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 
 public class ArgumentFormatterTests
 {
-    public class SimpleValues
-    {
-        [CulturedFact]
-        public static void NullValue()
-        {
-            Assert.Equal("null", ArgumentFormatter.Format(null));
-        }
+	public class SimpleValues
+	{
+		[CulturedFact]
+		public static void NullValue()
+		{
+			Assert.Equal("null", ArgumentFormatter.Format(null!));
+		}
 
-        // NOTE: It's important that this stays as MemberData
-        // instead of InlineData. String constants in attributes
-        // are stored as UTF-8 as IL, so since "\uD800" cannot
-        // be converted to valid UTF-8, it ends up getting corrupted
-        // and being stored as two characters instead. Thus, this test
-        // will fail:
+		// NOTE: It's important that this stays as MemberData
+		// instead of InlineData. String constants in attributes
+		// are stored as UTF-8 as IL, so since "\uD800" cannot
+		// be converted to valid UTF-8, it ends up getting corrupted
+		// and being stored as two characters instead. Thus, this test
+		// will fail:
 
-        // [Theory]
-        // [InlineData("\uD800", 1)]
-        // public void HasLength(string s, int length)
-        // {
-        //     Assert.Equal(length, s.Length);
-        // }
+		// [Theory]
+		// [InlineData("\uD800", 1)]
+		// public void HasLength(string s, int length)
+		// {
+		//     Assert.Equal(length, s.Length);
+		// }
 
-        // While this one will pass:
+		// While this one will pass:
 
-        // public static IEnumerable<object[]> HasLength_TestData()
-        // {
-        //     yield return new object[] { "\uD800", 1 };
-        // }
+		// public static IEnumerable<object[]> HasLength_TestData()
+		// {
+		//     yield return new object[] { "\uD800", 1 };
+		// }
 
-        // [Theory]
-        // [MemberData(nameof(HasLength_TestData))]
-        // public void HasLength(string s, int length)
-        // {
-        //     Assert.Equal(length, s.Length);
-        // }
+		// [Theory]
+		// [MemberData(nameof(HasLength_TestData))]
+		// public void HasLength(string s, int length)
+		// {
+		//     Assert.Equal(length, s.Length);
+		// }
 
-        // For more information, see the following links:
-        // - http://stackoverflow.com/q/36104766/4077294
-        // - http://codeblog.jonskeet.uk/2014/11/07/when-is-a-string-not-a-string/
-        public static IEnumerable<object[]> StringValue_TestData()
-        {
-            yield return new object[] { "\uD800", @"""\xd800""" };
-            yield return new object[] { "\uDC00", @"""\xdc00""" };
-            yield return new object[] { "\uDC00\uD800", @"""\xdc00\xd800""" };
-            yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
-            yield return new object[] { "\uFFFE", @"""\xfffe""" };
-        }
+		// For more information, see the following links:
+		// - http://stackoverflow.com/q/36104766/4077294
+		// - http://codeblog.jonskeet.uk/2014/11/07/when-is-a-string-not-a-string/
+		public static IEnumerable<object[]> StringValue_TestData()
+		{
+			yield return new object[] { "\uD800", @"""\xd800""" };
+			yield return new object[] { "\uDC00", @"""\xdc00""" };
+			yield return new object[] { "\uDC00\uD800", @"""\xdc00\xd800""" };
+			yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
+		}
 
-        [Theory]
-        [InlineData("Hello, world!", "\"Hello, world!\"")]
-        [InlineData(@"""", @"""\""""")] // quotes should be escaped
-        [InlineData("\uD800\uDFFF", "\"\uD800\uDFFF\"")] // valid surrogates should print normally
-        [InlineData("\uFFFE", @"""\xfffe""")] // same for U+FFFE...
-        [InlineData("\uFFFF", @"""\xffff""")] // and U+FFFF, which are non-characters
-        [InlineData("\u001F", @"""\x1f""")] // non-escaped C0 controls should be 2 digits
-        // Other escape sequences
-        [InlineData("\0", @"""\0""")] // null
-        [InlineData("\r", @"""\r""")] // carriage return
-        [InlineData("\n", @"""\n""")] // line feed
-        [InlineData("\a", @"""\a""")] // alert
-        [InlineData("\b", @"""\b""")] // backspace
-        [InlineData("\\", @"""\\""")] // backslash
-        [InlineData("\v", @"""\v""")] // vertical tab
-        [InlineData("\t", @"""\t""")] // tab
-        [InlineData("\f", @"""\f""")] // formfeed
-        [InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"...")] // truncation
-        [MemberData(nameof(StringValue_TestData))]
-        public static void StringValue(string value, string expected)
-        {
-            Assert.Equal(expected, ArgumentFormatter.Format(value));
-        }
+		[Theory]
+		[InlineData("Hello, world!", "\"Hello, world!\"")]
+		[InlineData(@"""", @"""\""""")] // quotes should be escaped
+		[InlineData("\uD800\uDFFF", "\"\uD800\uDFFF\"")] // valid surrogates should print normally
+		[InlineData("\uFFFE", @"""\xfffe""")] // same for U+FFFE...
+		[InlineData("\uFFFF", @"""\xffff""")] // and U+FFFF, which are non-characters
+		[InlineData("\u001F", @"""\x1f""")] // non-escaped C0 controls should be 2 digits
+											// Other escape sequences
+		[InlineData("\0", @"""\0""")] // null
+		[InlineData("\r", @"""\r""")] // carriage return
+		[InlineData("\n", @"""\n""")] // line feed
+		[InlineData("\a", @"""\a""")] // alert
+		[InlineData("\b", @"""\b""")] // backspace
+		[InlineData("\\", @"""\\""")] // backslash
+		[InlineData("\v", @"""\v""")] // vertical tab
+		[InlineData("\t", @"""\t""")] // tab
+		[InlineData("\f", @"""\f""")] // formfeed
+		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"...")] // truncation
+		[MemberData(nameof(StringValue_TestData), DisableDiscoveryEnumeration = true)]
+		public static void StringValue(string value, string expected)
+		{
+			Assert.Equal(expected, ArgumentFormatter.Format(value));
+		}
 
-        public static IEnumerable<object[]> CharValue_TestData()
-        {
-            yield return new object[] { '\uD800', "0xd800" };
-            yield return new object[] { '\uDC00', "0xdc00" };
-            yield return new object[] { '\uFFFD', "'\uFFFD'" };
-            yield return new object[] { '\uFFFE', "0xfffe" };
-        }
+		public static IEnumerable<object[]> CharValue_TestData()
+		{
+			yield return new object[] { '\uD800', "0xd800" };
+			yield return new object[] { '\uDC00', "0xdc00" };
+			yield return new object[] { '\uFFFD', "'\uFFFD'" };
+			yield return new object[] { '\uFFFE', "0xfffe" };
+		}
 
-        [Theory]
-        // Printable
-        [InlineData(' ', "' '")]
-        [InlineData('a', "'a'")]
-        [InlineData('1', "'1'")]
-        [InlineData('!', "'!'")]
-        // Escape sequences
-        [InlineData('\t', @"'\t'")] // tab
-        [InlineData('\n', @"'\n'")] // newline
-        [InlineData('\'', @"'\''")] // single quote
-        [InlineData('\v', @"'\v'")] // vertical tab
-        [InlineData('\a', @"'\a'")] // alert
-        [InlineData('\\', @"'\\'")] // backslash
-        [InlineData('\b', @"'\b'")] // backspace
-        [InlineData('\r', @"'\r'")] // carriage return
-        [InlineData('\f', @"'\f'")] // formfeed
-        // Non-ASCII
-        [InlineData('©', "'©'")]
-        [InlineData('╬', "'╬'")]
-        [InlineData('ئ', "'ئ'")]
-        // Unprintable
-        [InlineData(char.MinValue, @"'\0'")]
-        [InlineData(char.MaxValue, "0xffff")]
-        [MemberData(nameof(CharValue_TestData))]
-        public static void CharacterValue(char value, string expected)
-        {
-            Assert.Equal(expected, ArgumentFormatter.Format(value));
-        }
+		[Theory]
 
-        [CulturedFact]
-        public static void DecimalValue()
-        {
-            Assert.Equal(123.45M.ToString(), ArgumentFormatter.Format(123.45M));
-        }
+		// Printable
+		[InlineData(' ', "' '")]
+		[InlineData('a', "'a'")]
+		[InlineData('1', "'1'")]
+		[InlineData('!', "'!'")]
 
-        [CulturedFact]
-        public static void DateTimeValue()
-        {
-            var now = DateTime.UtcNow;
+		// Escape sequences
+		[InlineData('\t', @"'\t'")] // tab
+		[InlineData('\n', @"'\n'")] // newline
+		[InlineData('\'', @"'\''")] // single quote
+		[InlineData('\v', @"'\v'")] // vertical tab
+		[InlineData('\a', @"'\a'")] // alert
+		[InlineData('\\', @"'\\'")] // backslash
+		[InlineData('\b', @"'\b'")] // backspace
+		[InlineData('\r', @"'\r'")] // carriage return
+		[InlineData('\f', @"'\f'")] // formfeed
 
-            Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
-        }
+		// Non-ASCII
+		[InlineData('©', "'©'")]
+		[InlineData('╬', "'╬'")]
+		[InlineData('ئ', "'ئ'")]
 
-        [CulturedFact]
-        public static void DateTimeOffsetValue()
-        {
-            var now = DateTimeOffset.UtcNow;
+		// Unprintable
+		[InlineData(char.MinValue, @"'\0'")]
+		[InlineData(char.MaxValue, "0xffff")]
+		[MemberData(nameof(CharValue_TestData), DisableDiscoveryEnumeration = true)]
+		public static void CharacterValue(char value, string expected)
+		{
+			Assert.Equal(expected, ArgumentFormatter.Format(value));
+		}
 
-            Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
-        }
+		[CulturedFact]
+		public static void FloatValue()
+		{
+			var floatPI = (float)Math.PI;
 
-        [Fact]
-        public static async void TaskValue()
-        {
-            var task = Task.Run(() => { });
-            await task;
+			Assert.Equal(floatPI.ToString("G9"), ArgumentFormatter.Format(floatPI));
+		}
 
-            Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));
-        }
+		[CulturedFact]
+		public static void DoubleValue()
+		{
+			Assert.Equal(Math.PI.ToString("G17"), ArgumentFormatter.Format(Math.PI));
+		}
 
-        [Fact]
-        public static void TaskGenericValue()
-        {
-            var taskCompletionSource = new TaskCompletionSource<int>();
-            taskCompletionSource.SetException(new DivideByZeroException());
+		[CulturedFact]
+		public static void DecimalValue()
+		{
+			Assert.Equal(123.45M.ToString(), ArgumentFormatter.Format(123.45M));
+		}
 
-            Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
-        }
+		[CulturedFact]
+		public static void DateTimeValue()
+		{
+			var now = DateTime.UtcNow;
 
-        [Theory]
-        [InlineData(typeof(string), "typeof(string)")]
-        [InlineData(typeof(int[]), "typeof(int[])")]
-        [InlineData(typeof(DateTime[,]), "typeof(System.DateTime[,])")]
-        [InlineData(typeof(decimal[][,]), "typeof(decimal[][,])")]
-        [InlineData(typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)")]
-        [InlineData(typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)")]
-        [InlineData(typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)")]
-        [InlineData(typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, System.DateTime>)")]
-        [InlineData(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)")]
-        [InlineData(typeof(bool?), "typeof(bool?)")]
-        [InlineData(typeof(bool?[]), "typeof(bool?[])")]
-        [InlineData(typeof(Uri), "typeof(System.Uri)")]
-        public static void TypeValue(Type type, string expected)
-        {
-            Assert.Equal(expected, ArgumentFormatter.Format(type));
-        }
-    }
+			Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
+		}
 
-    public class Enums
-    {
-        public enum NonFlagsEnum
-        {
-            Value0 = 0,
-            Value1 = 1
-        }
+		[CulturedFact]
+		public static void DateTimeOffsetValue()
+		{
+			var now = DateTimeOffset.UtcNow;
 
-        [CulturedTheory]
-        [InlineData(0, "Value0")]
-        [InlineData(1, "Value1")]
-        [InlineData(42, "42")]
-        public static void NonFlags(NonFlagsEnum enumValue, string expected)
-        {
-            var actual = ArgumentFormatter.Format(enumValue);
+			Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
+		}
 
-            Assert.Equal(expected, actual);
-        }
+		[Fact]
+		public static async void TaskValue()
+		{
+			var task = Task.Run(() => { });
+			await task;
 
-        [Flags]
-        public enum FlagsEnum
-        {
-            Nothing = 0,
-            Value1 = 1,
-            Value2 = 2,
-        }
+			Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));
+		}
 
-        [CulturedTheory]
-        [InlineData(0, "Nothing")]
-        [InlineData(1, "Value1")]
-        [InlineData(3, "Value1 | Value2")]
-        [InlineData(7, "7")]    // This is expected, not "Value1 | Value2 | 4"
-        public static void Flags(FlagsEnum enumValue, string expected)
-        {
-            var actual = ArgumentFormatter.Format(enumValue);
+		[Fact]
+		public static void TaskGenericValue()
+		{
+			var taskCompletionSource = new TaskCompletionSource<int>();
+			taskCompletionSource.SetException(new DivideByZeroException());
 
-            Assert.Equal(expected, actual);
-        }
-    }
+			Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
+		}
 
-    public class Enumerables
-    {
-        [CulturedFact]
-        public static void EnumerableValue()
-        {
-            var expected = $"[1, {2.3M}, \"Hello, world!\"]";
+		public static TheoryData<Type, string> TypeValueData = new()
+		{
+			{ typeof(string), "typeof(string)" },
+			{ typeof(int[]), "typeof(int[])" },
+			{ typeof(DateTime[,]), "typeof(System.DateTime[,])" },
+			{ typeof(decimal[][,]), "typeof(decimal[][,])" },
+			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
+			{ typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)" },
+			{ typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)" },
+			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, System.DateTime>)" },
+			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)" },
+			{ typeof(bool?), "typeof(bool?)" },
+			{ typeof(bool?[]), "typeof(bool?[])" }
+		};
 
-            Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
-        }
+		[Theory]
+		[MemberData(nameof(TypeValueData), DisableDiscoveryEnumeration = true)]
+		public static void TypeValue(Type type, string expected)
+		{
+			Assert.Equal(expected, ArgumentFormatter.Format(type));
+		}
+	}
 
-        [CulturedFact]
-        public static void OnlyFirstFewValuesOfEnumerableAreRendered()
-        {
-            Assert.Equal("[0, 1, 2, 3, 4, ...]", ArgumentFormatter.Format(Enumerable.Range(0, int.MaxValue)));
-        }
+	public class Enums
+	{
+		public enum NonFlagsEnum
+		{
+			Value0 = 0,
+			Value1 = 1
+		}
 
-        [CulturedFact]
-        public static void EnumerablesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
-        {
-            object[] looping = new object[2];
-            looping[0] = 42;
-            looping[1] = looping;
+		[CulturedTheory]
+		[InlineData(0, "Value0")]
+		[InlineData(1, "Value1")]
+		[InlineData(42, "42")]
+		public static void NonFlags(NonFlagsEnum enumValue, string expected)
+		{
+			var actual = ArgumentFormatter.Format(enumValue);
 
-            Assert.Equal("[42, [42, [...]]]", ArgumentFormatter.Format(looping));
-        }
-    }
+			Assert.Equal(expected, actual);
+		}
 
-    public class ComplexTypes
-    {
-        [CulturedFact]
-        public static void ReturnsValuesInAlphabeticalOrder()
-        {
-            var expected = $"MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }}";
+		[Flags]
+		public enum FlagsEnum
+		{
+			Nothing = 0,
+			Value1 = 1,
+			Value2 = 2,
+		}
 
-            Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexType()));
-        }
+		[CulturedTheory]
+		[InlineData(0, "Nothing")]
+		[InlineData(1, "Value1")]
+		[InlineData(3, "Value1 | Value2")]
+		// This is expected, not "Value1 | Value2 | 4"
+		[InlineData(7, "7")]
+		public static void Flags(FlagsEnum enumValue, string expected)
+		{
+			var actual = ArgumentFormatter.Format(enumValue);
 
-        public class MyComplexType
-        {
+			Assert.Equal(expected, actual);
+		}
+	}
+
+	public class Enumerables
+	{
+		[CulturedFact]
+		public static void EnumerableValue()
+		{
+			var expected = $"[1, {2.3M}, \"Hello, world!\"]";
+
+			Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
+		}
+
+		[CulturedFact]
+		public static void OnlyFirstFewValuesOfEnumerableAreRendered()
+		{
+			Assert.Equal("[0, 1, 2, 3, 4, ...]", ArgumentFormatter.Format(Enumerable.Range(0, int.MaxValue)));
+		}
+
+		[CulturedFact]
+		public static void EnumerablesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
+		{
+			var looping = new object[2];
+			looping[0] = 42;
+			looping[1] = looping;
+
+			Assert.Equal("[42, [42, [...]]]", ArgumentFormatter.Format(looping));
+		}
+	}
+
+	public class ComplexTypes
+	{
+		[CulturedFact]
+		public static void ReturnsValuesInAlphabeticalOrder()
+		{
+			var expected = $"MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }}";
+
+			Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexType()));
+		}
+
+		public class MyComplexType
+		{
 #pragma warning disable 414
-            private string MyPrivateField = "Hello, world";
+			private string MyPrivateField = "Hello, world";
 #pragma warning restore 414
 
-            public static int MyPublicStaticField = 2112;
+			public static int MyPublicStaticField = 2112;
 
-            public decimal MyPublicProperty { get; private set; }
+			public decimal MyPublicProperty { get; private set; }
 
-            public int MyPublicField = 42;
+			public int MyPublicField = 42;
 
-            public MyComplexType()
-            {
-                MyPublicProperty = 21.12M;
-            }
-        }
+			public MyComplexType()
+			{
+				MyPublicProperty = 21.12M;
+			}
+		}
 
-        [CulturedFact]
-        public static void ComplexTypeInsideComplexType()
-        {
-            var expected = $"MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }} }}";
+		[CulturedFact]
+		public static void ComplexTypeInsideComplexType()
+		{
+			var expected = $"MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }} }}";
 
-            Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexTypeWrapper()));
-        }
+			Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexTypeWrapper()));
+		}
 
-        public class MyComplexTypeWrapper
-        {
-            public MyComplexType t = new MyComplexType();
-            public char c = 'A';
-            public string s = "Hello, world!";
-        }
+		public class MyComplexTypeWrapper
+		{
+			public MyComplexType t = new();
+			public char c = 'A';
+			public string s = "Hello, world!";
+		}
 
-        [CulturedFact]
-        public static void Empty()
-        {
-            Assert.Equal("Object { }", ArgumentFormatter.Format(new object()));
-        }
+		[CulturedFact]
+		public static void Empty()
+		{
+			Assert.Equal("Object { }", ArgumentFormatter.Format(new object()));
+		}
 
-        [CulturedFact]
-        public static void WithThrowingPropertyGetter()
-        {
-            Assert.Equal("ThrowingGetter { MyThrowingProperty = (throws NotImplementedException) }", ArgumentFormatter.Format(new ThrowingGetter()));
-        }
+		[CulturedFact]
+		public static void WithThrowingPropertyGetter()
+		{
+			Assert.Equal("ThrowingGetter { MyThrowingProperty = (throws NotImplementedException) }", ArgumentFormatter.Format(new ThrowingGetter()));
+		}
 
-        public class ThrowingGetter
-        {
-            public string MyThrowingProperty { get { throw new NotImplementedException(); } }
-        }
+		public class ThrowingGetter
+		{
+			public string MyThrowingProperty { get { throw new NotImplementedException(); } }
+		}
 
-        [CulturedFact]
-        public static void LimitsOutputToFirstFewValues()
-        {
-            var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }}";
+		[CulturedFact]
+		public static void LimitsOutputToFirstFewValues()
+		{
+			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }}";
 
-            Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
-        }
+			Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
+		}
 
-        public class Big
-        {
-            public string MyField2 = "Hello, world!";
+		public class Big
+		{
+			public string MyField2 = "Hello, world!";
 
-            public decimal MyProp1 { get; set; }
+			public decimal MyProp1 { get; set; }
 
-            public object MyProp4 { get; set; }
+			public object MyProp4 { get; set; }
 
-            public object MyProp3 { get; set; }
+			public object MyProp3 { get; set; }
 
-            public int MyField1 = 42;
+			public int MyField1 = 42;
 
-            public Type MyProp2 { get; set; }
+			public Type MyProp2 { get; set; }
 
-            public Big()
-            {
-                MyProp1 = 21.12M;
-                MyProp2 = typeof(Big);
-                MyProp3 = new DateTimeOffset(2014, 04, 17, 07, 45, 23, TimeSpan.Zero);
-                MyProp4 = "Should not be shown";
-            }
-        }
+			public Big()
+			{
+				MyProp1 = 21.12M;
+				MyProp2 = typeof(Big);
+				MyProp3 = new DateTimeOffset(2014, 04, 17, 07, 45, 23, TimeSpan.Zero);
+				MyProp4 = "Should not be shown";
+			}
+		}
 
-        [CulturedFact]
-        public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
-        {
-            Assert.Equal("Looping { Me = Looping { Me = Looping { ... } } }", ArgumentFormatter.Format(new Looping()));
-        }
+		[CulturedFact]
+		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
+		{
+			Assert.Equal("Looping { Me = Looping { Me = Looping { ... } } }", ArgumentFormatter.Format(new Looping()));
+		}
 
-        public class Looping
-        {
-            public Looping Me;
+		public class Looping
+		{
+			public Looping Me;
 
-            public Looping()
-                => Me = this;
-        }
+			public Looping() => Me = this;
+		}
 
-        [Fact]
-        public static void WhenCustomTypeImplementsToString_UsesToString()
-        {
-            Assert.Equal("This is what you should show", ArgumentFormatter.Format(new TypeWithToString()));
-        }
+		[Fact]
+		public static void WhenCustomTypeImplementsToString_UsesToString()
+		{
+			Assert.Equal("This is what you should show", ArgumentFormatter.Format(new TypeWithToString()));
+		}
 
-        public class TypeWithToString
-        {
-            public override string ToString()
-                => "This is what you should show";
-        }
-    }
+		public class TypeWithToString
+		{
+			public override string ToString() => "This is what you should show";
+		}
+	}
 
-    public class TypeNames
-    {
-        [Theory]
-        [InlineData(typeof(int), "typeof(int)")]
-        [InlineData(typeof(long), "typeof(long)")]
-        [InlineData(typeof(string), "typeof(string)")]
-        [InlineData(typeof(List<int>), "typeof(System.Collections.Generic.List<int>)")]
-        [InlineData(typeof(Dictionary<int, string>), "typeof(System.Collections.Generic.Dictionary<int, string>)")]
-        [InlineData(typeof(List<>), "typeof(System.Collections.Generic.List<>)")]
-        [InlineData(typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)")]
-        public void ArgumentFormatterFormatTypeNames(Type type, string expectedResult)
-        {
-            Assert.Equal(expectedResult, ArgumentFormatter.Format(type));
-        }
+	public class TypeNames
+	{
+		public static TheoryData<Type, string> ArgumentFormatterFormatTypeNamesData = new()
+		{
+			{ typeof(int), "typeof(int)" },
+			{ typeof(long), "typeof(long)" },
+			{ typeof(string), "typeof(string)" },
+			{ typeof(List<int>), "typeof(System.Collections.Generic.List<int>)" },
+			{ typeof(Dictionary<int, string>), "typeof(System.Collections.Generic.Dictionary<int, string>)" },
+			{ typeof(List<>), "typeof(System.Collections.Generic.List<>)" },
+			{ typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)" }
+		};
 
-        [Fact]
-        public void ArgumentFormatterFormatTypeNameGenericTypeParameter()
-        {
-            var typeInfo = typeof(List<>).GetTypeInfo();
-            var genericTypeParameters = typeInfo.GenericTypeParameters;
-            var parameterType = genericTypeParameters.First();
+		[Theory]
+		[MemberData(nameof(ArgumentFormatterFormatTypeNamesData), DisableDiscoveryEnumeration = true)]
+		public void ArgumentFormatterFormatTypeNames(Type type, string expectedResult)
+		{
+			Assert.Equal(expectedResult, ArgumentFormatter.Format(type));
+		}
 
-            Assert.Equal("typeof(T)", ArgumentFormatter.Format(parameterType));
-        }
+		[Fact]
+		public void ArgumentFormatterFormatTypeNameGenericTypeParameter()
+		{
+			var genericTypeParameters = typeof(List<>).GetGenericArguments();
+			var parameterType = genericTypeParameters.First();
 
-        [Fact]
-        public void ArgumentFormatterFormatTypeNameGenericTypeParameters()
-        {
-            var typeInfo = typeof(Dictionary<,>).GetTypeInfo();
-            var genericTypeParameters = typeInfo.GenericTypeParameters;
-            var parameterTKey = genericTypeParameters.First();
+			Assert.Equal("typeof(T)", ArgumentFormatter.Format(parameterType));
+		}
 
-            Assert.Equal("typeof(TKey)", ArgumentFormatter.Format(parameterTKey));
+		[Fact]
+		public void ArgumentFormatterFormatTypeNameGenericTypeParameters()
+		{
+			var genericTypeParameters = typeof(Dictionary<,>).GetGenericArguments();
+			var parameterTKey = genericTypeParameters.First();
 
-            var parameterTValue = genericTypeParameters.Last();
-            Assert.Equal("typeof(TValue)", ArgumentFormatter.Format(parameterTValue));
-        }
-    }
+			Assert.Equal("typeof(TKey)", ArgumentFormatter.Format(parameterTKey));
+
+			var parameterTValue = genericTypeParameters.Last();
+			Assert.Equal("typeof(TValue)", ArgumentFormatter.Format(parameterTValue));
+		}
+	}
 }

@@ -23,7 +23,7 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Equal(2, summary.Total);
         Assert.Equal(1, summary.Failed);
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-        Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passed.Test.DisplayName);
+        Assert.Equal($"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")", passed.Test.DisplayName);
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
         Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
     }
@@ -73,11 +73,11 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Equal(2, summary.Skipped);
         Assert.Equal(1, summary.Failed);
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-        Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passed.Test.DisplayName);
+        Assert.Equal($"Display Name(x: 1, y: {2.1:G17}, z: \"not skipped\")", passed.Test.DisplayName);
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
         Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failed.Test.DisplayName);
 
-        Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
+        Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == $"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")");
         Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
     }
 
