@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Sdk;
+
+#if XUNIT_VALUETASK
+using System.Threading.Tasks;
+#endif
 
 public class CollectionAssertsTests
 {
@@ -1292,10 +1295,10 @@ public class CollectionAssertsTests
 		}
 
 		public T Current =>
-			Guard.NotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
+			GuardNotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
 
 		object? IEnumerator.Current =>
-			Guard.NotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
+			GuardNotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
 
 		public bool IsDisposed => innerEnumerator == null;
 
@@ -1304,7 +1307,7 @@ public class CollectionAssertsTests
 		IEnumerator IEnumerable.GetEnumerator() => this;
 
 		public bool MoveNext() =>
-			Guard.NotNull("Tried to call MoveNext() on a disposed enumerator", innerEnumerator).MoveNext();
+			GuardNotNull("Tried to call MoveNext() on a disposed enumerator", innerEnumerator).MoveNext();
 
 		public void Reset() => throw new NotImplementedException();
 
@@ -1312,6 +1315,18 @@ public class CollectionAssertsTests
 		{
 			innerEnumerator?.Dispose();
 			innerEnumerator = null;
+		}
+
+		/// <summary/>
+		static T2 GuardNotNull<T2>(
+			string message,
+			[NotNull] T2? value)
+				where T2 : class
+		{
+			if (value == null)
+				throw new InvalidOperationException(message);
+
+			return value;
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using Xunit.Sdk;
 
-namespace Xunit.v3
+namespace Xunit
 {
 	[XunitTestCaseDiscoverer(typeof(CulturedTheoryAttributeDiscoverer))]
 	public sealed class CulturedTheoryAttribute : TheoryAttribute

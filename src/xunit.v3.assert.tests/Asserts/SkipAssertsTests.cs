@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if XUNIT_SKIP
+
+using System;
 using System.Linq;
 using Xunit;
 using Xunit.v3;
@@ -108,3 +110,5 @@ public class SkipAssertsTests
 		}
 	}
 }
+
+#endif

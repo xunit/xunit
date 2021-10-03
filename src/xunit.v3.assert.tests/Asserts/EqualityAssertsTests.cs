@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xunit;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class EqualityAssertsTests
 {

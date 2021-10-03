@@ -205,6 +205,7 @@ public class ExceptionAssertsTests
 		}
 	}
 
+#if XUNIT_VALUETASK
 	public class ThrowsAsync_Generic_ValueTask
 	{
 		[Fact]
@@ -260,6 +261,7 @@ public class ExceptionAssertsTests
 			Assert.NotNull(ex);
 		}
 	}
+#endif
 
 	public class ThrowsAny_Generic_Action
 	{
@@ -420,6 +422,7 @@ public class ExceptionAssertsTests
 		}
 	}
 
+#if XUNIT_VALUETASK
 	public class ThrowsAnyAsync_Generic_ValueTask
 	{
 		[Fact]
@@ -460,6 +463,7 @@ public class ExceptionAssertsTests
 			}
 		}
 	}
+#endif
 
 	public class Throws_NonGeneric_Action
 	{
@@ -598,6 +602,7 @@ public class ExceptionAssertsTests
 		}
 	}
 
+#if XUNIT_VALUETASK
 	public class ThrowsAsync_NonGeneric_ValueTask
 	{
 		[Fact]
@@ -641,6 +646,7 @@ public class ExceptionAssertsTests
 			Assert.IsType<ArgumentException>(ex);
 		}
 	}
+#endif
 
 	public class ThrowsArgument_Action
 	{
@@ -792,6 +798,7 @@ public class ExceptionAssertsTests
 		}
 	}
 
+#if XUNIT_VALUETASK
 	public class ThrowsArgumentAsync_ValueTask
 	{
 		[Fact]
@@ -861,6 +868,7 @@ public class ExceptionAssertsTests
 			Assert.Equal("paramName2", eqEx.Actual);
 		}
 	}
+#endif
 
 	public class ThrowsArgumentNull_Action
 	{

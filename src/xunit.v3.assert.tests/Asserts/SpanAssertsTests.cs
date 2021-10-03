@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if XUNIT_SPAN
+
+using System;
 using Xunit;
 using Xunit.Sdk;
 
@@ -638,3 +640,5 @@ public static class SpanTestHelpers
 		return new Span<char>((value ?? string.Empty).ToCharArray());
 	}
 }
+
+#endif
