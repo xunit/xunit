@@ -3,8 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
-namespace Xunit.v3
+namespace Xunit
 {
 	public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 	{

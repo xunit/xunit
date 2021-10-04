@@ -112,6 +112,7 @@ public class StringAssertsTests
 		[InlineData(" ", "\t", false, false, true)]
 		[InlineData(" \t", "\t ", false, false, true)]
 		[InlineData("    ", "\t", false, false, true)]
+#if XUNIT_SPAN
 		[InlineData(" ", " \u180E", false, false, true)]
 		[InlineData(" \u180E", "\u180E ", false, false, true)]
 		[InlineData("    ", "\u180E", false, false, true)]
@@ -127,6 +128,7 @@ public class StringAssertsTests
 		[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true)]
 		[InlineData("\u1680", "\t", false, false, true)]
 		[InlineData("\u1680", "       ", false, false, true)]
+#endif
 		public void SuccessCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal

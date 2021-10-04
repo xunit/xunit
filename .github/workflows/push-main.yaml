@@ -49,3 +49,10 @@ jobs:
           name: test
           path: artifacts/test
         if: always()
+
+      - name: "Upload artifact: packages"
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: artifacts/packages
+        if: always()

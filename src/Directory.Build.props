@@ -8,7 +8,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
-    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_SKIP;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
     <ILRepackVersion>2.0.13</ILRepackVersion>
     <LangVersion>9.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>

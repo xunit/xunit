@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class ArgumentFormatterTests
 {
@@ -13,7 +12,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void NullValue()
 		{
-			Assert.Equal("null", ArgumentFormatter.Format(null));
+			Assert.Equal("null", ArgumentFormatter.Format(null!));
 		}
 
 		// NOTE: It's important that this stays as MemberData
@@ -55,7 +54,7 @@ public class ArgumentFormatterTests
 			yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[InlineData("Hello, world!", "\"Hello, world!\"")]
 		[InlineData(@"""", @"""\""""")] // quotes should be escaped
 		[InlineData("\uD800\uDFFF", "\"\uD800\uDFFF\"")] // valid surrogates should print normally
@@ -73,7 +72,7 @@ public class ArgumentFormatterTests
 		[InlineData("\t", @"""\t""")] // tab
 		[InlineData("\f", @"""\f""")] // formfeed
 		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"...")] // truncation
-		[MemberData(nameof(StringValue_TestData))]
+		[MemberData(nameof(StringValue_TestData), DisableDiscoveryEnumeration = true)]
 		public static void StringValue(string value, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
@@ -87,7 +86,7 @@ public class ArgumentFormatterTests
 			yield return new object[] { '\uFFFE', "0xfffe" };
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]  // Disabled because of unprintable characters
+		[Theory]
 
 		// Printable
 		[InlineData(' ', "' '")]
@@ -114,7 +113,7 @@ public class ArgumentFormatterTests
 		// Unprintable
 		[InlineData(char.MinValue, @"'\0'")]
 		[InlineData(char.MaxValue, "0xffff")]
-		[MemberData(nameof(CharValue_TestData))]
+		[MemberData(nameof(CharValue_TestData), DisableDiscoveryEnumeration = true)]
 		public static void CharacterValue(char value, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
@@ -189,8 +188,8 @@ public class ArgumentFormatterTests
 			{ typeof(bool?[]), "typeof(bool?[])" }
 		};
 
-		[Theory(DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(TypeValueData))]
+		[Theory]
+		[MemberData(nameof(TypeValueData), DisableDiscoveryEnumeration = true)]
 		public static void TypeValue(Type type, string expected)
 		{
 			Assert.Equal(expected, ArgumentFormatter.Format(type));
@@ -394,8 +393,8 @@ public class ArgumentFormatterTests
 			{ typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)" }
 		};
 
-		[Theory(DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(ArgumentFormatterFormatTypeNamesData))]
+		[Theory]
+		[MemberData(nameof(ArgumentFormatterFormatTypeNamesData), DisableDiscoveryEnumeration = true)]
 		public void ArgumentFormatterFormatTypeNames(Type type, string expectedResult)
 		{
 			Assert.Equal(expectedResult, ArgumentFormatter.Format(type));
