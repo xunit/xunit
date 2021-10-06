@@ -56,9 +56,11 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override void Deserialize(IXunitSerializationInfo data)
         {
-            base.Deserialize(data);
+            // This happens before base.Deserialize because the base method will call our overridden GetSkipReason
+            // method, so we need the skip reason value before we delegate into deserialization.
+            skipReason = data.GetValue<string>("SkipReason");
 
-            this.skipReason = data.GetValue<string>("SkipReason");
+            base.Deserialize(data);
         }
 
         /// <inheritdoc/>
