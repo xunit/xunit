@@ -5,7 +5,7 @@ breadcrumb: Documentation
 ---
 
 <h1>Current state of the xUnit.net v3 alpha</h1>
-<h2>As of: 2021 March 17 (<code>0.1.0-pre.334</code>)</h2>
+<h2>As of: 2021 October 6 (<code>0.1.0-pre.449</code>)</h2>
 
 <p>
   The purpose of this document is to give a general state of the alpha
@@ -52,7 +52,7 @@ breadcrumb: Documentation
 </p>
 <ul>
   <li>.NET Framework 4.7.2 (or later)</li>
-  <li>.NET Core 2.1 (or later)</li>
+  <li>.NET Core 3.1 (or later)</li>
 </ul>
 <p>
   Also new for v3: Mono is officially supported on Linux and macOS for .NET Framework
@@ -127,7 +127,7 @@ breadcrumb: Documentation
 </p>
 <p>
   Note that currently the <code>xunit.v3.core</code> (and <code>xunit.v3</code>) NuGet
-  package shows target frameworks of <code>net472</code> and <code>netcoreapp2.1</code>
+  package shows target frameworks of <code>net472</code> and <code>netcoreapp3.1</code>
   because of the in-process runner requirement. Developers who extend xUnit.net will
   instead use the <code>xunit.v3.extensibility.core</code> NuGet package, which is
   single-targeted against <code>netstandard2.0</code>. Extensibility authors will no
@@ -246,7 +246,7 @@ breadcrumb: Documentation
   Since there is no project template yet for xUnit.net v3, you should
   create a project using <code>dotnet new console</code> from the .NET
   SDK command line tool. We currently support C#, F#, and VB.NET,
-  targeting .NET Framework 4.7.2+ and/or .NET Core 2.1+.
+  targeting .NET Framework 4.7.2+ and/or .NET Core 3.1+.
 </p>
 <p>After creation, edit your project file to make it look like this:</p>
 
@@ -255,11 +255,11 @@ breadcrumb: Documentation
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.1.0-pre.334" />
+    <PackageReference Include="xunit.v3" Version="0.1.0-pre.449" />
   </ItemGroup>
 
 </Project>
