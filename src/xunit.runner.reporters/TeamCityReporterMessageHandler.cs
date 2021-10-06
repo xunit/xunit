@@ -133,7 +133,7 @@ namespace Xunit.Runner.Reporters
             var formattedName = Escape(displayNameFormatter.DisplayName(testResult.Test));
 
             if (!string.IsNullOrWhiteSpace(testResult.Output))
-                logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}']");
+                logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{ToFlowId(testResult.TestCollection.DisplayName)}' tc:tags='tc:parseServiceMessagesInside']");
 
             logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{ToFlowId(testResult.TestCollection.DisplayName)}']");
         }
