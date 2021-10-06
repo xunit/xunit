@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "xunit.v3.assert.tests (netcoreapp2.1)",
+      "name": "xunit.v3.assert.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_AssertTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.assert.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.assert.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.assert.tests",
       "stopAtEntry": false,
@@ -23,11 +23,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.common.tests (netcoreapp2.1)",
+      "name": "xunit.v3.common.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_CommonTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.common.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.common.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.common.tests",
       "stopAtEntry": false,
@@ -44,11 +44,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.core.tests (netcoreapp2.1)",
+      "name": "xunit.v3.core.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_CoreTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.core.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.core.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.core.tests",
       "stopAtEntry": false,
@@ -65,11 +65,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.common.tests (netcoreapp2.1)",
+      "name": "xunit.v3.runner.common.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerCommonTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.common.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.runner.common.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.common.tests",
       "stopAtEntry": false,
@@ -96,11 +96,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.inproc.console.tests (netcoreapp2.1)",
+      "name": "xunit.v3.runner.inproc.console.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerInprocConsoleTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.inproc.console.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.runner.inproc.console.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.inproc.console.tests",
       "stopAtEntry": false,
@@ -127,11 +127,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.tdnet.tests (netcoreapp2.1)",
+      "name": "xunit.v3.runner.tdnet.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerTdnetTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.tdnet.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.runner.tdnet.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.tdnet.tests",
       "stopAtEntry": false,
@@ -148,11 +148,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.utility.tests (netcoreapp2.1)",
+      "name": "xunit.v3.runner.utility.tests (netcoreapp3.1)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerUtilityTests",
-      "program": "bin/Debug/netcoreapp2.1/xunit.v3.runner.utility.tests.dll",
+      "program": "bin/Debug/netcoreapp3.1/xunit.v3.runner.utility.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.utility.tests",
       "stopAtEntry": false,

@@ -9,7 +9,7 @@
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
 		<icon>_content/logo-128-transparent.png</icon>
-		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET Framework 4.7.2 or later and .NET Core 2.1 or later.</description>
+		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET Framework 4.7.2 or later and .NET Core 3.1 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
@@ -18,7 +18,7 @@
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
 			</group>
-			<group targetFramework=".NETCoreApp2.1">
+			<group targetFramework=".NETCoreApp3.1">
 				<dependency id="System.IO.Pipelines" version="5.0.1" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
@@ -33,9 +33,9 @@
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.inproc.console.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.inproc.console.xml" />
 
-		<file target="lib\netcoreapp2.1\" src="bin\$Configuration$\netcoreapp2.1\xunit.v3.runner.common.dll" />
-		<file target="lib\netcoreapp2.1\" src="bin\$Configuration$\netcoreapp2.1\xunit.v3.runner.common.xml" />
-		<file target="lib\netcoreapp2.1\" src="bin\$Configuration$\netcoreapp2.1\xunit.v3.runner.inproc.console.dll" />
-		<file target="lib\netcoreapp2.1\" src="bin\$Configuration$\netcoreapp2.1\xunit.v3.runner.inproc.console.xml" />
+		<file target="lib\netcoreapp3.1\" src="bin\$Configuration$\netcoreapp3.1\xunit.v3.runner.common.dll" />
+		<file target="lib\netcoreapp3.1\" src="bin\$Configuration$\netcoreapp3.1\xunit.v3.runner.common.xml" />
+		<file target="lib\netcoreapp3.1\" src="bin\$Configuration$\netcoreapp3.1\xunit.v3.runner.inproc.console.dll" />
+		<file target="lib\netcoreapp3.1\" src="bin\$Configuration$\netcoreapp3.1\xunit.v3.runner.inproc.console.xml" />
 	</files>
 </package>

@@ -123,7 +123,7 @@ public class TestFrameworkDiscovererTests
 				await discoverer.Find(discoveryOptions);
 
 				Assert.NotNull(discoverer.FindTestsForType_CurrentCulture);
-				Assert.Equal("English (United States)", discoverer.FindTestsForType_CurrentCulture.DisplayName);
+				Assert.Equal("en-US", discoverer.FindTestsForType_CurrentCulture.Name);
 			}
 
 			[Fact]
@@ -149,7 +149,7 @@ public class TestFrameworkDiscovererTests
 				await discoverer.Find(discoveryOptions);
 
 				Assert.NotNull(discoverer.FindTestsForType_CurrentCulture);
-				Assert.Equal("English (United Kingdom)", discoverer.FindTestsForType_CurrentCulture.DisplayName);
+				Assert.Equal("en-GB", discoverer.FindTestsForType_CurrentCulture.Name);
 			}
 		}
 
