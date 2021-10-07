@@ -16,7 +16,7 @@ namespace Xunit
 		/// </summary>
 		/// <param name="assemblyFileName">The assembly filename.</param>
 		/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
-		/// or ".NETCoreApp,Version=v2.1"). If the target framework type is unknown (missing file,
+		/// or ".NETCoreApp,Version=v3.1"). If the target framework type is unknown (missing file,
 		/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
 		public static string GetTargetFramework(string assemblyFileName)
 		{

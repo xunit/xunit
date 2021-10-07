@@ -4,6 +4,7 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
+    <AnnotatedReferenceAssemblyVersion>5.0.0</AnnotatedReferenceAssemblyVersion>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
@@ -33,7 +34,7 @@
 
   <ItemGroup>
     <PackageDownload Include="ILRepack.MSBuild.Task" Version="[$(ILRepackVersion)]" />
-    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(AnnotatedReferenceAssemblyVersion)]" />
   </ItemGroup>
 
   <!-- ======================================== -->

@@ -65,7 +65,7 @@ public class TestAssemblyRunnerTests
 					Assert.Equal(runner.TestAssembly.ConfigFileName, starting.ConfigFilePath);
 					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
 #else
-					Assert.Equal(".NETCoreApp,Version=v2.1", starting.TargetFramework);
+					Assert.Equal(".NETCoreApp,Version=v3.1", starting.TargetFramework);
 #endif
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);

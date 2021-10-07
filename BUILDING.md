@@ -9,7 +9,6 @@ You will need the following software installed (regardless of OS):
 
 * [.NET SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 * [.NET Core Runtime 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
-* [.NET Core Runtime 2.1](https://dotnet.microsoft.com/download/dotnet-core/2.1)
 * [git](https://git-scm.com/downloads)
 
 ## Linux Pre-Requisites
