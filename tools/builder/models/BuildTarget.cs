@@ -3,6 +3,7 @@ public enum BuildTarget
 	AnalyzeSource,
 	Build,
 	CI,
+	FormatSource,
 	Packages,
 	PR,
 	PublishPackages,
