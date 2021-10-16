@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -410,11 +411,16 @@ namespace Xunit.v3
 		protected virtual async Task InvokeTestMethodAsync(object? testClassInstance)
 		{
 			var oldSyncContext = SynchronizationContext.Current;
+			var asyncSyncContext = default(AsyncTestSyncContext);
 
 			try
 			{
-				var asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
-				SetSynchronizationContext(asyncSyncContext);
+				// Only need the async test sync context when we know you have an "async void" method
+				if (TestMethod.ReturnType == typeof(void) && TestMethod.GetCustomAttribute<AsyncStateMachineAttribute>() != null)
+				{
+					asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
+					SetSynchronizationContext(asyncSyncContext);
+				}
 
 				await Aggregator.RunAsync(
 					() => Timer.AggregateAsync(
@@ -436,7 +442,7 @@ namespace Xunit.v3
 								var valueTask = GetValueTaskFromResult(result);
 								if (valueTask.HasValue)
 									await valueTask.Value;
-								else
+								else if (asyncSyncContext != null)
 								{
 									var ex = await asyncSyncContext.WaitForCompletionAsync();
 									if (ex != null)
