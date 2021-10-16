@@ -100,6 +100,27 @@ namespace Xunit.Runner.Common
 		}
 
 		/// <summary>
+		/// Escapes multi-line text for display purposes, indenting on newlines.
+		/// </summary>
+		/// <param name="text">The text to be escaped</param>
+		/// <param name="indent">The indent to use for multiple line text</param>
+		/// <returns>The escaped text</returns>
+		protected virtual string EscapeMultiLineIndent(
+			string? text,
+			string indent)
+		{
+			if (text == null)
+				return string.Empty;
+
+			return
+				text
+					.Replace("\r\n", "\n")
+					.Replace("\r", "\n")
+					.Replace("\n", $"{Environment.NewLine}{indent}")
+					.Replace("\0", "\\0");
+		}
+
+		/// <summary>
 		/// Gets the display name of a test assembly from a test assembly message.
 		/// </summary>
 		/// <param name="assembly">The test assembly</param>
@@ -591,7 +612,7 @@ namespace Xunit.Runner.Common
 				else
 					Logger.LogWarning("    <unknown test> [SKIP]");
 
-				Logger.LogImportantMessage($"      {Escape(testSkipped.Reason)}");
+				Logger.LogImportantMessage($"      {EscapeMultiLineIndent(testSkipped.Reason, "      ")}");
 			}
 		}
 

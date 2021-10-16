@@ -437,11 +437,14 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_TestSkipped
 	{
-		[Fact]
-		public static void LogsTestNameAsWarning()
+		[Theory]
+		[InlineData("\r\n")]
+		[InlineData("\r")]
+		[InlineData("\n")]
+		public static void LogsTestNameAsWarning(string skipNewline)
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
-			var skipMessage = TestData.TestSkipped(reason: "This is my skip reason \t\r\n");
+			var skipMessage = TestData.TestSkipped(reason: $"This is my skip reason \t{skipNewline}across multiple lines");
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(startingMessage);
@@ -449,7 +452,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Wrn] =>     This is my display name \\t\\r\\n [SKIP]", msg),
-				msg => Assert.Equal("[Imp] =>       This is my skip reason \\t\\r\\n", msg)
+				msg => Assert.Equal($"[Imp] =>       This is my skip reason \t{Environment.NewLine}      across multiple lines", msg)
 			);
 		}
 	}
