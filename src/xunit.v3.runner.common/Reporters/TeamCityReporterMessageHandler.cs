@@ -338,7 +338,7 @@ namespace Xunit.Runner.Common
 			var flowId = testResult.TestCollectionUniqueID;
 
 			if (!string.IsNullOrWhiteSpace(testResult.Output))
-				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{flowId}']");
+				logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}' flowId='{flowId}' tc:tags='tc:parseServiceMessagesInside']");
 
 			logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{flowId}']");
 		}
