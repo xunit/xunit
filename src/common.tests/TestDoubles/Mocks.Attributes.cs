@@ -16,6 +16,14 @@ namespace Xunit.v3
 		static readonly _IReflectionParameterInfo[] EmptyParameterInfos = new _IReflectionParameterInfo[0];
 		static readonly _IReflectionTypeInfo[] EmptyTypeInfos = new _IReflectionTypeInfo[0];
 
+		public static _IReflectionAttributeInfo AssemblyFixtureAttribute(Type fixtureType)
+		{
+			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
+			result.Attribute.Returns(new AssemblyFixtureAttribute(fixtureType));
+			result.GetConstructorArguments().Returns(new[] { fixtureType });
+			return result;
+		}
+
 		public static _IReflectionAttributeInfo CollectionAttribute(string collectionName)
 		{
 			var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();

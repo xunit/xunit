@@ -57,7 +57,7 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="_TestAssemblyCleanupFailure"/> constructed from an <see cref="Exception"/> object.
+		/// Creates a new <see cref="_TestFailed"/> constructed from an <see cref="Exception"/> object.
 		/// </summary>
 		/// <param name="ex">The exception to use</param>
 		/// <param name="assemblyUniqueID">The unique ID of the assembly</param>

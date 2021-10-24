@@ -97,10 +97,15 @@ namespace Xunit.Sdk
 		/// Converts an <see cref="Assembly"/> into an <see cref="_IReflectionAssemblyInfo"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly to wrap.</param>
+		/// <param name="additionalAssemblyAttributes">Additional custom attributes to return for this assembly. These
+		/// attributes will be added to the existing assembly-level attributes that already exist. This is typically
+		/// only used for unit/acceptance testing purposes.</param>
 		/// <returns>The wrapper</returns>
 		[return: NotNullIfNotNull("assembly")]
-		public static _IReflectionAssemblyInfo? Wrap(Assembly? assembly) =>
-			assembly == null ? null : new ReflectionAssemblyInfo(assembly);
+		public static _IReflectionAssemblyInfo? Wrap(
+			Assembly? assembly,
+			params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
+				assembly == null ? null : new ReflectionAssemblyInfo(assembly, additionalAssemblyAttributes);
 
 		/// <summary>
 		/// Converts an <see cref="Attribute"/> into an <see cref="_IAttributeInfo"/> using reflection.

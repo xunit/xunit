@@ -5,7 +5,7 @@ using Xunit.Sdk;
 namespace Xunit.v3
 {
 	/// <summary>
-	/// This message indicates that an error has occurred in test assembly cleanup. 
+	/// This message indicates that an error has occurred in test assembly cleanup.
 	/// </summary>
 	public class _TestAssemblyCleanupFailure : _TestAssemblyMessage, _IErrorMetadata
 	{

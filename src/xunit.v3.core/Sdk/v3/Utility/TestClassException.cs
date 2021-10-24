@@ -19,6 +19,17 @@ namespace Xunit.v3
 			: base(message)
 		{ }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TestClassException"/> class.
+		/// </summary>
+		/// <param name="message">The exception message.</param>
+		/// <param name="innerException">The inner exception that is being reported.</param>
+		public TestClassException(
+			string message,
+			Exception innerException)
+				: base(message, innerException)
+		{ }
+
 		/// <inheritdoc/>
 		protected TestClassException(
 			SerializationInfo info,

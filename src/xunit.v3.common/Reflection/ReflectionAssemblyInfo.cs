@@ -12,13 +12,21 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 	{
+		_IReflectionAttributeInfo[] additionalAssemblyAttributes;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionAssemblyInfo"/> class.
 		/// </summary>
 		/// <param name="assembly">The assembly to be wrapped.</param>
-		public ReflectionAssemblyInfo(Assembly assembly)
+		/// <param name="additionalAssemblyAttributes">Additional custom attributes to return for this assembly. These
+		/// attributes will be added to the existing assembly-level attributes that already exist. This is typically
+		/// only used for unit/acceptance testing purposes.</param>
+		public ReflectionAssemblyInfo(
+			Assembly assembly,
+			params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 		{
 			Assembly = Guard.ArgumentNotNull(nameof(assembly), assembly);
+			this.additionalAssemblyAttributes = Guard.ArgumentNotNull(nameof(additionalAssemblyAttributes), additionalAssemblyAttributes);
 		}
 
 		/// <inheritdoc/>
@@ -51,12 +59,16 @@ namespace Xunit.Sdk
 			Guard.ArgumentValidNotNull(nameof(assemblyQualifiedAttributeTypeName), $"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType);
 
 			return
-				Assembly
-					.CustomAttributes
-					.Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-					.OrderBy(attr => attr.AttributeType.Name)
-					.Select(a => Reflector.Wrap(a))
-					.Cast<_IAttributeInfo>()
+				additionalAssemblyAttributes
+					.Where(customAttribute => attributeType.IsAssignableFrom(customAttribute.Attribute.GetType()))
+					.Concat(
+						Assembly
+							.CustomAttributes
+							.Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+							.OrderBy(attr => attr.AttributeType.Name)
+							.Select(a => Reflector.Wrap(a))
+							.Cast<_IAttributeInfo>()
+					)
 					.CastOrToReadOnlyCollection();
 		}
 

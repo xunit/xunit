@@ -110,7 +110,12 @@ public class FixtureAcceptanceTests
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
 		}
 
 		class ClassWithThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
@@ -125,7 +130,12 @@ public class FixtureAcceptanceTests
 			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingDisposeFixture' threw in Dispose", msg.Messages.First());
 		}
 
 		class ClassWithThrowingFixtureDispose : IClassFixture<ThrowingDisposeFixture>
@@ -267,33 +277,25 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void ThrowingAsyncSetupShouldResultInFailedTest()
+		public async void ThrowingFixtureInitializeAsyncShouldResultInFailedTest()
 		{
-			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureSetup));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingInitializeAsyncFixture' threw in InitializeAsync", msg.Messages.First());
 		}
 
-		class ClassWithThrowingFixtureSetup : IClassFixture<ThrowingSetup>
+		class ClassWithThrowingFixtureInitializeAsync : IClassFixture<ThrowingInitializeAsyncFixture>
 		{
-			public ClassWithThrowingFixtureSetup(ThrowingSetup ignored) { }
+			public ClassWithThrowingFixtureInitializeAsync(ThrowingInitializeAsyncFixture ignored) { }
 
 			[Fact]
 			public void TheTest() { }
-		}
-
-		class ThrowingSetup : IAsyncLifetime
-		{
-			public ValueTask InitializeAsync()
-			{
-				throw new DivideByZeroException();
-			}
-
-			public ValueTask DisposeAsync()
-			{
-				return default;
-			}
 		}
 
 		[Fact]
@@ -302,53 +304,20 @@ public class FixtureAcceptanceTests
 			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingDisposeAsyncFixture' threw in DisposeAsync", msg.Messages.First());
 		}
 
-		class ClassWithThrowingFixtureDisposeAsync : IClassFixture<ThrowingDisposeAsync>
+		class ClassWithThrowingFixtureDisposeAsync : IClassFixture<ThrowingDisposeAsyncFixture>
 		{
-			public ClassWithThrowingFixtureDisposeAsync(ThrowingDisposeAsync ignore) { }
+			public ClassWithThrowingFixtureDisposeAsync(ThrowingDisposeAsyncFixture ignore) { }
 
 			[Fact]
 			public void TheTest() { }
-		}
-
-		class ThrowingDisposeAsync : IAsyncLifetime
-		{
-			public ValueTask InitializeAsync()
-			{
-				return default;
-			}
-
-			public ValueTask DisposeAsync()
-			{
-				throw new DivideByZeroException();
-			}
-		}
-
-		[Fact]
-		public async void TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest_Disposable()
-		{
-			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
-
-			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
-		}
-
-		class ClassWithThrowingFixtureDisposeAsync_Disposable : IClassFixture<ThrowingDisposeAsync_Disposable>
-		{
-			public ClassWithThrowingFixtureDisposeAsync_Disposable(ThrowingDisposeAsync_Disposable ignore) { }
-
-			[Fact]
-			public void TheTest() { }
-		}
-
-		class ThrowingDisposeAsync_Disposable : IAsyncDisposable
-		{
-			public ValueTask DisposeAsync()
-			{
-				throw new DivideByZeroException();
-			}
 		}
 	}
 
@@ -417,7 +386,12 @@ public class FixtureAcceptanceTests
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Collection fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
 		}
 
 		[CollectionDefinition("Collection with throwing constructor")]
@@ -438,7 +412,12 @@ public class FixtureAcceptanceTests
 			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Collection fixture type 'FixtureAcceptanceTests+ThrowingDisposeFixture' threw in Dispose", msg.Messages.First());
 		}
 
 		[CollectionDefinition("Collection with throwing dispose")]
@@ -560,92 +539,49 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureSetupAsyncResultsInFailedTest()
 		{
-			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureSetupAsync));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Collection fixture type 'FixtureAcceptanceTests+ThrowingInitializeAsyncFixture' threw in InitializeAsync", msg.Messages.First());
 		}
 
-		[CollectionDefinition("Collection with throwing async setup")]
-		public class CollectionWithThrowingSetupAsync : ICollectionFixture<ThrowingSetupAsync> { }
+		[CollectionDefinition("Collection with throwing InitializeAsync")]
+		public class CollectionWithThrowingInitializeAsync : ICollectionFixture<ThrowingInitializeAsyncFixture> { }
 
-		[Collection("Collection with throwing async setup")]
-		class ClassWithThrowingFixtureSetupAsync
+		[Collection("Collection with throwing InitializeAsync")]
+		class ClassWithThrowingFixtureInitializeAsync
 		{
 			[Fact]
 			public void TheTest() { }
-		}
-
-		class ThrowingSetupAsync : IAsyncLifetime
-		{
-			public ValueTask InitializeAsync()
-			{
-				throw new DivideByZeroException();
-			}
-
-			public ValueTask DisposeAsync()
-			{
-				return default;
-			}
 		}
 
 		[Fact]
 		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
 		{
-			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose));
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Collection fixture type 'FixtureAcceptanceTests+ThrowingDisposeAsyncFixture' threw in DisposeAsync", msg.Messages.First());
 		}
 
-		[CollectionDefinition("Collection with throwing async Dispose")]
-		public class CollectionWithThrowingAsyncDispose : ICollectionFixture<ThrowingDisposeAsync> { }
+		[CollectionDefinition("Collection with throwing DisposeAsync")]
+		public class CollectionWithThrowingDisposeAsync : ICollectionFixture<ThrowingDisposeAsyncFixture> { }
 
-		[Collection("Collection with throwing async Dispose")]
-		class ClassWithThrowingFixtureAsyncDispose
+		[Collection("Collection with throwing DisposeAsync")]
+		class ClassWithThrowingFixtureDisposeAsync
 		{
 			[Fact]
 			public void TheTest() { }
-		}
-
-		class ThrowingDisposeAsync : IAsyncLifetime
-		{
-			public ValueTask InitializeAsync()
-			{
-				return default;
-			}
-
-			public ValueTask DisposeAsync()
-			{
-				throw new DivideByZeroException();
-			}
-		}
-
-		[Fact]
-		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest_Disposable()
-		{
-			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose_Disposable));
-
-			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
-		}
-
-		[CollectionDefinition("Collection with throwing async Dispose (Disposable)")]
-		public class CollectionWithThrowingAsyncDispose_Disposable : ICollectionFixture<ThrowingDisposeAsync_Disposable> { }
-
-		[Collection("Collection with throwing async Dispose (Disposable)")]
-		class ClassWithThrowingFixtureAsyncDispose_Disposable
-		{
-			[Fact]
-			public void TheTest() { }
-		}
-
-		class ThrowingDisposeAsync_Disposable : IAsyncDisposable
-		{
-			public ValueTask DisposeAsync()
-			{
-				throw new DivideByZeroException();
-			}
 		}
 
 		[Fact]
@@ -707,32 +643,406 @@ public class FixtureAcceptanceTests
 		}
 	}
 
+	public class AssemblyFixture : AcceptanceTestV3
+	{
+		[Fact]
+		public async void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithExtraCtorArg), additionalAssemblyAttributes: assemblyAttribute);
+
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
+			Assert.Equal("The following constructor parameters did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
+		}
+
+		class ClassWithExtraCtorArg
+		{
+			public ClassWithExtraCtorArg(int arg1, EmptyFixtureData fixture, string arg2) { }
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void TestClassWithMissingArgumentToConstructorIsAcceptable()
+		{
+			var emptyFixtureAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
+			var objectFixtureAttribute = Mocks.AssemblyFixtureAttribute(typeof(object));
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithMissingCtorArg), additionalAssemblyAttributes: new[] { emptyFixtureAttribute, objectFixtureAttribute });
+
+			Assert.Single(messages);
+		}
+
+		class ClassWithMissingCtorArg
+		{
+			public ClassWithMissingCtorArg(EmptyFixtureData fixture) { }
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingCtorFixture));
+			var messages = await RunAsync<_TestFailed>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Assembly fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
+		}
+
+
+		[Fact]
+		public async void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingDisposeFixture));
+			var messages = await RunAsync<_TestAssemblyCleanupFailure>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Assembly fixture type 'FixtureAcceptanceTests+ThrowingDisposeFixture' threw in Dispose", msg.Messages.First());
+		}
+
+		class PlainTestClass
+		{
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void FixtureDataIsPassedToConstructor()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy), additionalAssemblyAttributes: assemblyAttribute);
+
+			Assert.Single(messages);
+		}
+
+		class FixtureSpy
+		{
+			public FixtureSpy(EmptyFixtureData data)
+			{
+				Assert.NotNull(data);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void TestClassWithDefaultParameter()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
+			var messages = await RunForResultsAsync<TestPassedWithDisplayName>(typeof(ClassWithDefaultCtorArg), additionalAssemblyAttributes: assemblyAttribute);
+
+			var message = Assert.Single(messages);
+			Assert.Equal("FixtureAcceptanceTests+AssemblyFixture+ClassWithDefaultCtorArg.TheTest", message.TestDisplayName);
+		}
+
+		class ClassWithDefaultCtorArg
+		{
+			public ClassWithDefaultCtorArg(EmptyFixtureData fixture, int x = 0)
+			{
+				Assert.NotNull(fixture);
+				Assert.Equal(0, x);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void TestClassWithOptionalParameter()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
+			var messages = await RunForResultsAsync<TestPassedWithDisplayName>(typeof(ClassWithOptionalCtorArg), additionalAssemblyAttributes: assemblyAttribute);
+
+			var message = Assert.Single(messages);
+			Assert.Equal("FixtureAcceptanceTests+AssemblyFixture+ClassWithOptionalCtorArg.TheTest", message.TestDisplayName);
+		}
+
+		class ClassWithOptionalCtorArg
+		{
+			public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional] int x, [Optional] object y)
+			{
+				Assert.NotNull(fixture);
+				Assert.Equal(0, x);
+				Assert.Null(y);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void TestClassWithParamsParameter()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
+			var messages = await RunForResultsAsync<TestPassedWithDisplayName>(typeof(ClassWithParamsArg), additionalAssemblyAttributes: assemblyAttribute);
+
+			var message = Assert.Single(messages);
+			Assert.Equal("FixtureAcceptanceTests+AssemblyFixture+ClassWithParamsArg.TheTest", message.TestDisplayName);
+		}
+
+		class ClassWithParamsArg
+		{
+			public ClassWithParamsArg(EmptyFixtureData fixture, params object[] x)
+			{
+				Assert.NotNull(fixture);
+				Assert.Empty(x);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+	}
+
+	public class AsyncAssemblyFixture : AcceptanceTestV3
+	{
+		[Fact]
+		public async void TestClassWithThrowingFixtureInitializeAsyncResultsInFailedTest()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingInitializeAsyncFixture));
+			var messages = await RunAsync<_TestFailed>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Assembly fixture type 'FixtureAcceptanceTests+ThrowingInitializeAsyncFixture' threw in InitializeAsync", msg.Messages.First());
+		}
+
+		[Fact]
+		public async void TestClassWithThrowingFixtureDisposeAsyncResultsInFailedTest()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingDisposeAsyncFixture));
+			var messages = await RunAsync<_TestAssemblyCleanupFailure>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Assembly fixture type 'FixtureAcceptanceTests+ThrowingDisposeAsyncFixture' threw in DisposeAsync", msg.Messages.First());
+		}
+
+		class PlainTestClass
+		{
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async void AssemblyFixtureAsyncSetupShouldOnlyRunOnce()
+		{
+			var alphaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Alpha>));
+			var betaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Beta>));
+			var results = await RunAsync<_TestPassed>(new[] { typeof(TestClass1), typeof(TestClass2) }, additionalAssemblyAttributes: new[] { alphaFixture, betaFixture });
+
+			Assert.Equal(2, results.Count);
+		}
+
+		class Alpha { }
+		class Beta { }
+
+		[Collection("Assembly async once")]
+		class TestClass1
+		{
+			public TestClass1(CountedAsyncFixture<Alpha> alpha, CountedAsyncFixture<Beta> beta)
+			{
+				Assert.Equal(1, alpha.Count);
+				Assert.Equal(1, beta.Count);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Collection("Assembly async once")]
+		class TestClass2
+		{
+			public TestClass2(CountedAsyncFixture<Alpha> alpha, CountedAsyncFixture<Beta> beta)
+			{
+				Assert.Equal(1, alpha.Count);
+				Assert.Equal(1, beta.Count);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		class CountedAsyncFixture<T> : IAsyncLifetime
+		{
+			public int Count = 0;
+			public ValueTask InitializeAsync()
+			{
+				Count += 1;
+				return default;
+			}
+
+			public ValueTask DisposeAsync()
+			{
+				return default;
+			}
+		}
+	}
+
+	public class FixtureComposition : AcceptanceTestV3
+	{
+		[Fact]
+		public async void ClassFixtureComposition()
+		{
+			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ComposedAssemblyFixture));
+			var messages = await RunAsync(typeof(TestClassWithClassFixtureComposition), additionalAssemblyAttributes: assemblyAttribute);
+
+			Assert.Single(messages.OfType<_TestPassed>());
+		}
+
+		[CollectionDefinition(nameof(TestClassWithClassFixtureCompositionCollection))]
+		public class TestClassWithClassFixtureCompositionCollection : ICollectionFixture<ComposedCollectionFixture>
+		{ }
+
+		[Collection(nameof(TestClassWithClassFixtureCompositionCollection))]
+		class TestClassWithClassFixtureComposition : IClassFixture<ComposedClassFixture>
+		{
+			readonly ComposedAssemblyFixture assemblyFixture;
+			readonly ComposedClassFixture classFixture;
+			readonly ComposedCollectionFixture collectionFixture;
+			readonly ITestContextAccessor testContextAccessor;
+
+			public TestClassWithClassFixtureComposition(
+				ComposedClassFixture classFixture,
+				ComposedCollectionFixture collectionFixture,
+				ComposedAssemblyFixture assemblyFixture,
+				ITestContextAccessor testContextAccessor)
+			{
+				this.classFixture = classFixture;
+				this.collectionFixture = collectionFixture;
+				this.assemblyFixture = assemblyFixture;
+				this.testContextAccessor = testContextAccessor;
+			}
+
+			[Fact]
+			public void TheTest()
+			{
+				Assert.NotNull(classFixture);
+				Assert.NotNull(collectionFixture);
+				Assert.NotNull(assemblyFixture);
+
+				Assert.Same(collectionFixture, classFixture.CollectionFixture);
+				Assert.Same(assemblyFixture, classFixture.AssemblyFixture);
+				Assert.Same(assemblyFixture, collectionFixture.AssemblyFixture);
+
+				var diagnosticMessageSink = classFixture.DiagnosticMessageSink;
+				Assert.NotNull(diagnosticMessageSink);
+				Assert.Same(diagnosticMessageSink, collectionFixture.DiagnosticMessageSink);
+				Assert.Same(diagnosticMessageSink, assemblyFixture.DiagnosticMessageSink);
+
+				Assert.NotNull(testContextAccessor);
+				Assert.NotNull(classFixture.TestContextAccessor);
+				Assert.NotNull(collectionFixture.TestContextAccessor);
+				Assert.NotNull(assemblyFixture.TestContextAccessor);
+				var testContext = testContextAccessor.Current;
+				Assert.Same(testContext, classFixture.TestContextAccessor.Current);
+				Assert.Same(testContext, collectionFixture.TestContextAccessor.Current);
+				Assert.Same(testContext, assemblyFixture.TestContextAccessor.Current);
+			}
+		}
+
+		class ComposedClassFixture
+		{
+			public ComposedClassFixture(
+				ComposedCollectionFixture collectionFixture,
+				ComposedAssemblyFixture assemblyFixture,
+				_IMessageSink diagnosticMessageSink,
+				ITestContextAccessor testContextAccessor)
+			{
+				CollectionFixture = collectionFixture;
+				AssemblyFixture = assemblyFixture;
+				DiagnosticMessageSink = diagnosticMessageSink;
+				TestContextAccessor = testContextAccessor;
+			}
+
+			public ComposedAssemblyFixture AssemblyFixture { get; }
+			public ComposedCollectionFixture CollectionFixture { get; }
+			public _IMessageSink DiagnosticMessageSink { get; }
+			public ITestContextAccessor TestContextAccessor { get; }
+		}
+
+		class ComposedCollectionFixture
+		{
+			public ComposedCollectionFixture(
+				ComposedAssemblyFixture assemblyFixture,
+				_IMessageSink diagnosticMessageSink,
+				ITestContextAccessor testContextAccessor)
+			{
+				AssemblyFixture = assemblyFixture;
+				DiagnosticMessageSink = diagnosticMessageSink;
+				TestContextAccessor = testContextAccessor;
+			}
+
+			public ComposedAssemblyFixture AssemblyFixture { get; }
+			public _IMessageSink DiagnosticMessageSink { get; }
+			public ITestContextAccessor TestContextAccessor { get; }
+		}
+
+		class ComposedAssemblyFixture
+		{
+			public ComposedAssemblyFixture(
+				_IMessageSink diagnosticMessageSink,
+				ITestContextAccessor testContextAccessor)
+			{
+				DiagnosticMessageSink = diagnosticMessageSink;
+				TestContextAccessor = testContextAccessor;
+			}
+
+			public _IMessageSink DiagnosticMessageSink { get; }
+			public ITestContextAccessor TestContextAccessor { get; }
+		}
+	}
+
 	class EmptyFixtureData { }
 
 	class ThrowingCtorFixture
 	{
-		public ThrowingCtorFixture()
-		{
-			throw new DivideByZeroException();
-		}
+		public ThrowingCtorFixture() => throw new DivideByZeroException();
+	}
+
+	class ThrowingInitializeAsyncFixture : IAsyncLifetime
+	{
+		public ValueTask DisposeAsync() => default;
+
+		public ValueTask InitializeAsync() => throw new DivideByZeroException();
 	}
 
 	class ThrowingDisposeFixture : IDisposable
 	{
-		public void Dispose()
-		{
-			throw new DivideByZeroException();
-		}
+		public void Dispose() => throw new DivideByZeroException();
+	}
+
+	class ThrowingDisposeAsyncFixture : IAsyncDisposable
+	{
+		public ValueTask DisposeAsync() => throw new DivideByZeroException();
 	}
 
 	class CountedFixture
 	{
 		static int counter = 0;
 
-		public CountedFixture()
-		{
-			Identity = ++counter;
-		}
+		public CountedFixture() => Identity = ++counter;
 
 		public readonly int Identity;
 	}

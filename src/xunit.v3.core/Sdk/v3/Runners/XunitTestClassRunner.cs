@@ -15,9 +15,9 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
 	{
-		readonly IDictionary<Type, object> collectionFixtureMappings;
-
+		readonly IDictionary<Type, object> assemblyFixtureMappings;
 		Dictionary<Type, object> classFixtureMappings = new();
+		readonly IDictionary<Type, object> collectionFixtureMappings;
 		HashSet<IAsyncLifetime> initializedAsyncFixtures = new();
 
 		/// <summary>
@@ -33,6 +33,7 @@ namespace Xunit.v3
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+		/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
 		/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 		public XunitTestClassRunner(
 			_ITestClass? testClass,
@@ -43,9 +44,11 @@ namespace Xunit.v3
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
+			IDictionary<Type, object> assemblyFixtureMappings,
 			IDictionary<Type, object> collectionFixtureMappings)
 				: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
+			this.assemblyFixtureMappings = Guard.ArgumentNotNull(nameof(assemblyFixtureMappings), assemblyFixtureMappings);
 			this.collectionFixtureMappings = Guard.ArgumentNotNull(nameof(collectionFixtureMappings), collectionFixtureMappings);
 		}
 
@@ -94,8 +97,9 @@ namespace Xunit.v3
 				object? arg;
 				if (p.ParameterType == typeof(_IMessageSink))
 					arg = DiagnosticMessageSink;
-				else
-				if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))
+				else if (p.ParameterType == typeof(ITestContextAccessor))
+					arg = TestContextAccessor.Instance;
+				else if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg) && !assemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
 					missingParameters.Add(p);
 				return arg;
 			}).ToArray();
@@ -105,7 +109,17 @@ namespace Xunit.v3
 					$"Class fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
 				));
 			else
-				Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
+				Aggregator.Run(() =>
+				{
+					try
+					{
+						ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
+					}
+					catch (Exception ex)
+					{
+						throw new TestClassException($"Class fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
+					}
+				});
 		}
 
 		ValueTask CreateClassFixtureAsync(Type fixtureType)
@@ -121,7 +135,24 @@ namespace Xunit.v3
 
 			InitializedAsyncFixtures.UnionWith(uninitializedFixtures);
 
-			return new(Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask())));
+			var initializeAsyncTasks =
+				uninitializedFixtures
+					.Select(
+						fixture => Aggregator.RunAsync(async () =>
+						{
+							try
+							{
+								await fixture.InitializeAsync();
+							}
+							catch (Exception ex)
+							{
+								throw new TestClassException($"Class fixture type '{fixture.GetType().FullName}' threw in InitializeAsync", ex.Unwrap());
+							}
+						}).AsTask()
+					)
+					.ToList();
+
+			return new(Task.WhenAll(initializeAsyncTasks));
 		}
 
 		/// <inheritdoc/>
@@ -183,13 +214,33 @@ namespace Xunit.v3
 				ClassFixtureMappings
 					.Values
 					.OfType<IAsyncDisposable>()
-					.Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask())
+					.Select(fixture => Aggregator.RunAsync(async () =>
+					{
+						try
+						{
+							await fixture.DisposeAsync();
+						}
+						catch (Exception ex)
+						{
+							throw new TestFixtureCleanupException($"Class fixture type '{fixture.GetType().FullName}' threw in DisposeAsync", ex.Unwrap());
+						}
+					}).AsTask())
 					.ToList();
 
 			await Task.WhenAll(disposeAsyncTasks);
 
 			foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
-				Aggregator.Run(fixture.Dispose);
+				Aggregator.Run(() =>
+				{
+					try
+					{
+						fixture.Dispose();
+					}
+					catch (Exception ex)
+					{
+						throw new TestFixtureCleanupException($"Class fixture type '{fixture.GetType().FullName}' threw in Dispose", ex.Unwrap());
+					}
+				});
 		}
 
 		/// <inheritdoc/>
@@ -250,7 +301,8 @@ namespace Xunit.v3
 			}
 
 			return ClassFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
-				|| collectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
+				|| collectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
+				|| assemblyFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
 		}
 	}
 }

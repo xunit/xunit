@@ -14,6 +14,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
 	{
+		readonly IDictionary<Type, object> assemblyFixtureMappings;
 		Dictionary<Type, object> collectionFixtureMappings = new();
 
 		/// <summary>
@@ -26,6 +27,7 @@ namespace Xunit.v3
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+		/// <param name="assemblyFixtureMappings">The assembly level fixtures</param>
 		public XunitTestCollectionRunner(
 			_ITestCollection testCollection,
 			IReadOnlyCollection<IXunitTestCase> testCases,
@@ -33,10 +35,12 @@ namespace Xunit.v3
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource,
+			IDictionary<Type, object> assemblyFixtureMappings)
 				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			this.assemblyFixtureMappings = Guard.ArgumentNotNull(nameof(assemblyFixtureMappings), assemblyFixtureMappings);
 		}
 
 		/// <summary>
@@ -67,13 +71,33 @@ namespace Xunit.v3
 				CollectionFixtureMappings
 					.Values
 					.OfType<IAsyncDisposable>()
-					.Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync).AsTask())
+					.Select(fixture => Aggregator.RunAsync(async () =>
+					{
+						try
+						{
+							await fixture.DisposeAsync();
+						}
+						catch (Exception ex)
+						{
+							throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in DisposeAsync", ex.Unwrap());
+						}
+					}).AsTask())
 					.ToList();
 
 			await Task.WhenAll(disposeAsyncTasks);
 
 			foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
-				Aggregator.Run(fixture.Dispose);
+				Aggregator.Run(() =>
+				{
+					try
+					{
+						fixture.Dispose();
+					}
+					catch (Exception ex)
+					{
+						throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in Dispose", ex.Unwrap());
+					}
+				});
 		}
 
 		/// <summary>
@@ -103,7 +127,9 @@ namespace Xunit.v3
 				object? arg = null;
 				if (p.ParameterType == typeof(_IMessageSink))
 					arg = DiagnosticMessageSink;
-				else
+				else if (p.ParameterType == typeof(ITestContextAccessor))
+					arg = TestContextAccessor.Instance;
+				else if (!assemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
 					missingParameters.Add(p);
 				return arg;
 			}).ToArray();
@@ -113,7 +139,17 @@ namespace Xunit.v3
 					$"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
 				));
 			else
-				Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
+				Aggregator.Run(() =>
+				{
+					try
+					{
+						CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
+					}
+					catch (Exception ex)
+					{
+						throw new TestClassException($"Collection fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
+					}
+				});
 		}
 
 		ValueTask CreateCollectionFixturesAsync()
@@ -132,7 +168,19 @@ namespace Xunit.v3
 				CollectionFixtureMappings
 					.Values
 					.OfType<IAsyncLifetime>()
-					.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask())
+					.Select(
+						fixture => Aggregator.RunAsync(async () =>
+						{
+							try
+							{
+								await fixture.InitializeAsync();
+							}
+							catch (Exception ex)
+							{
+								throw new TestClassException($"Collection fixture type '{fixture.GetType().FullName}' threw in InitializeAsync", ex.Unwrap());
+							}
+						}).AsTask()
+					)
 					.ToList();
 
 			return new(Task.WhenAll(initializeAsyncTasks));
@@ -185,6 +233,7 @@ namespace Xunit.v3
 					TestCaseOrderer,
 					new ExceptionAggregator(Aggregator),
 					CancellationTokenSource,
+					assemblyFixtureMappings,
 					CollectionFixtureMappings
 				).RunAsync();
 	}

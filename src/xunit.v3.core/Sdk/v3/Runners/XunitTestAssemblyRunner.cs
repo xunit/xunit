@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -13,6 +15,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestAssemblyRunner : TestAssemblyRunner<IXunitTestCase>
 	{
+		Dictionary<Type, object> assemblyFixtureMappings = new();
 		_IAttributeInfo? collectionBehaviorAttribute;
 		bool disableParallelization;
 		bool initialized;
@@ -36,6 +39,15 @@ namespace Xunit.v3
 			_ITestFrameworkExecutionOptions executionOptions)
 				: base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 		{ }
+
+		/// <summary>
+		/// Gets the fixture mappings that were created during <see cref="AfterTestAssemblyStartingAsync"/>.
+		/// </summary>
+		protected Dictionary<Type, object> AssemblyFixtureMappings
+		{
+			get => assemblyFixtureMappings;
+			set => assemblyFixtureMappings = Guard.ArgumentNotNull(nameof(AssemblyFixtureMappings), value);
+		}
 
 		/// <inheritdoc/>
 		public override async ValueTask DisposeAsync()
@@ -148,19 +160,134 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override ValueTask AfterTestAssemblyStartingAsync()
+		protected override async ValueTask AfterTestAssemblyStartingAsync()
 		{
 			Initialize();
 
-			return base.AfterTestAssemblyStartingAsync();
+			await CreateAssemblyFixturesAsync();
+			await base.AfterTestAssemblyStartingAsync();
 		}
 
 		/// <inheritdoc/>
-		protected override ValueTask BeforeTestAssemblyFinishedAsync()
+		protected override async ValueTask BeforeTestAssemblyFinishedAsync()
 		{
-			SetSynchronizationContext(originalSyncContext);
+			var disposeAsyncTasks =
+				AssemblyFixtureMappings
+					.Values
+					.OfType<IAsyncDisposable>()
+					.Select(fixture => Aggregator.RunAsync(async () =>
+					{
+						try
+						{
+							await fixture.DisposeAsync();
+						}
+						catch (Exception ex)
+						{
+							throw new TestFixtureCleanupException($"Assembly fixture type '{fixture.GetType().FullName}' threw in DisposeAsync", ex.Unwrap());
+						}
+					}).AsTask())
+					.ToList();
 
-			return base.BeforeTestAssemblyFinishedAsync();
+			await Task.WhenAll(disposeAsyncTasks);
+
+			foreach (var fixture in AssemblyFixtureMappings.Values.OfType<IDisposable>())
+				Aggregator.Run(() =>
+				{
+					try
+					{
+						fixture.Dispose();
+					}
+					catch (Exception ex)
+					{
+						throw new TestFixtureCleanupException($"Assembly fixture type '{fixture.GetType().FullName}' threw in Dispose", ex.Unwrap());
+					}
+				});
+
+			SetSynchronizationContext(originalSyncContext);
+			await base.BeforeTestAssemblyFinishedAsync();
+		}
+
+		/// <summary>
+		/// Creates the instance of a assembly fixture type to be used by the test assembly. If the fixture can be created,
+		/// it should be placed into the <see cref="AssemblyFixtureMappings"/> dictionary; if it cannot, then the method
+		/// should record the error by calling <code>Aggregator.Add</code>.
+		/// </summary>
+		/// <param name="fixtureType">The type of the fixture to be created</param>
+		protected virtual void CreateAssemblyFixture(Type fixtureType)
+		{
+			var ctors =
+				fixtureType
+					.GetConstructors()
+					.Where(ci => !ci.IsStatic && ci.IsPublic)
+					.ToList();
+
+			if (ctors.Count != 1)
+			{
+				Aggregator.Add(new TestClassException($"Assembly fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+				return;
+			}
+
+			var ctor = ctors[0];
+			var missingParameters = new List<ParameterInfo>();
+			var ctorArgs = ctor.GetParameters().Select(p =>
+			{
+				object? arg = null;
+				if (p.ParameterType == typeof(_IMessageSink))
+					arg = DiagnosticMessageSink;
+				else if (p.ParameterType == typeof(ITestContextAccessor))
+					arg = TestContextAccessor.Instance;
+				else
+					missingParameters.Add(p);
+				return arg;
+			}).ToArray();
+
+			if (missingParameters.Count > 0)
+				Aggregator.Add(new TestClassException(
+					$"Assembly fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
+				));
+			else
+				Aggregator.Run(() =>
+				{
+					try
+					{
+						AssemblyFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
+					}
+					catch (Exception ex)
+					{
+						throw new TestClassException($"Assembly fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
+					}
+				});
+		}
+
+		ValueTask CreateAssemblyFixturesAsync()
+		{
+			foreach (var attributeInfo in TestAssembly.Assembly.GetCustomAttributes(typeof(AssemblyFixtureAttribute)))
+			{
+				var fixtureType = attributeInfo.GetConstructorArguments().Single() as Type;
+				if (fixtureType != null)
+					CreateAssemblyFixture(fixtureType);
+			}
+
+			var initializeAsyncTasks =
+				AssemblyFixtureMappings
+					.Values
+					.OfType<IAsyncLifetime>()
+					.Select(
+						fixture => Aggregator.RunAsync(async () =>
+						{
+							try
+							{
+								await fixture.InitializeAsync();
+							}
+							catch (Exception ex)
+							{
+								throw new TestClassException($"Assembly fixture type '{fixture.GetType().FullName}' threw in InitializeAsync", ex.Unwrap());
+							}
+						}).AsTask()
+					)
+					.ToList();
+
+			return new(Task.WhenAll(initializeAsyncTasks));
 		}
 
 		/// <inheritdoc/>
@@ -246,7 +373,8 @@ namespace Xunit.v3
 					messageBus,
 					TestCaseOrderer,
 					new ExceptionAggregator(Aggregator),
-					cancellationTokenSource
+					cancellationTokenSource,
+					AssemblyFixtureMappings
 				).RunAsync();
 
 		[SecuritySafeCritical]

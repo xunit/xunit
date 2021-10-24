@@ -13,12 +13,14 @@ public class AcceptanceTestV3
 {
 	public Task<List<_MessageSinkMessage>> RunAsync(
 		Type type,
-		bool preEnumerateTheories = true) =>
-			RunAsync(new[] { type }, preEnumerateTheories);
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
+			RunAsync(new[] { type }, preEnumerateTheories, additionalAssemblyAttributes);
 
 	public Task<List<_MessageSinkMessage>> RunAsync(
 		Type[] types,
-		bool preEnumerateTheories = true)
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 	{
 		var tcs = new TaskCompletionSource<List<_MessageSinkMessage>>();
 
@@ -29,7 +31,7 @@ public class AcceptanceTestV3
 				var diagnosticMessageSink = _NullMessageSink.Instance;
 				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
-				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
+				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!, additionalAssemblyAttributes);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				var testCases = new List<_ITestCase>();
 				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: preEnumerateTheories), types);
@@ -51,27 +53,30 @@ public class AcceptanceTestV3
 
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(
 		Type type,
-		bool preEnumerateTheories = true)
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(type, preEnumerateTheories);
+		var results = await RunAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(
 		Type[] types,
-		bool preEnumerateTheories = true)
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(types, preEnumerateTheories);
+		var results = await RunAsync(types, preEnumerateTheories, additionalAssemblyAttributes);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public async Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type type,
-		bool preEnumerateTheories = true)
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 	{
-		var results = await RunAsync(type, preEnumerateTheories);
+		var results = await RunAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
 		return
 			results
 				.OfType<_TestResultMessage>()
@@ -82,10 +87,11 @@ public class AcceptanceTestV3
 
 	public async Task<List<TResult>> RunForResultsAsync<TResult>(
 		Type type,
-		bool preEnumerateTheories = true)
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TResult : ITestResultWithDisplayName
 	{
-		var results = await RunForResultsAsync(type, preEnumerateTheories);
+		var results = await RunForResultsAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
 		return results.OfType<TResult>().ToList();
 	}
 

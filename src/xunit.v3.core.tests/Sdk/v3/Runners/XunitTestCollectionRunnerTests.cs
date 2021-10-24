@@ -271,22 +271,26 @@ public class XunitTestCollectionRunnerTests
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
-				: base(testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource,
+			IDictionary<Type, object> assemblyFixtureMappings)
+				: base(testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
 
-		public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase) =>
-			new(
-				testCase.TestCollection,
-				new[] { testCase },
-				new List<_MessageSinkMessage>(),
-				new SpyMessageBus(),
-				new MockTestCaseOrderer(),
-				new ExceptionAggregator(),
-				new CancellationTokenSource()
-			);
+		public static TestableXunitTestCollectionRunner Create(
+			IXunitTestCase testCase,
+			params object[] assemblyFixtures) =>
+				new(
+					testCase.TestCollection,
+					new[] { testCase },
+					new List<_MessageSinkMessage>(),
+					new SpyMessageBus(),
+					new MockTestCaseOrderer(),
+					new ExceptionAggregator(),
+					new CancellationTokenSource(),
+					assemblyFixtures.ToDictionary(fixture => fixture.GetType())
+				);
 
 		public new Dictionary<Type, object> CollectionFixtureMappings => base.CollectionFixtureMappings;
 

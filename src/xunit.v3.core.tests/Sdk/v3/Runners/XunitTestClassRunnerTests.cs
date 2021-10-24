@@ -402,8 +402,9 @@ public class XunitTestClassRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
+			IDictionary<Type, object> assemblyFixtureMappings,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
+				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
@@ -426,6 +427,7 @@ public class XunitTestClassRunnerTests
 					new MockTestCaseOrderer(),
 					new ExceptionAggregator(),
 					new CancellationTokenSource(),
+					new Dictionary<Type, object>(),  // TODO: Do we need this as an additional argument for testing purposes?
 					collectionFixtures.ToDictionary(fixture => fixture.GetType())
 				);
 
