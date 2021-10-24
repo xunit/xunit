@@ -429,7 +429,7 @@ public class XunitTestClassRunnerTests
 					collectionFixtures.ToDictionary(fixture => fixture.GetType())
 				);
 
-		protected override Task<RunSummary> RunTestMethodAsync(
+		protected override ValueTask<RunSummary> RunTestMethodAsync(
 			_ITestMethod? testMethod,
 			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<IXunitTestCase> testCases,
@@ -438,7 +438,7 @@ public class XunitTestClassRunnerTests
 			ConstructorArguments.Add(constructorArguments);
 			RunTestMethodAsync_AggregatorResult = Aggregator.ToException();
 
-			return Task.FromResult(new RunSummary());
+			return new(new RunSummary());
 		}
 	}
 }

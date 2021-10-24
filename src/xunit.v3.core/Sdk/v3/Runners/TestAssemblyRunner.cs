@@ -152,13 +152,13 @@ namespace Xunit.v3
 		/// This method is called just after <see cref="_TestAssemblyStarting"/> is sent, but before any test collections are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task AfterTestAssemblyStartingAsync() => Task.CompletedTask;
+		protected virtual ValueTask AfterTestAssemblyStartingAsync() => default;
 
 		/// <summary>
 		/// This method is called just before <see cref="_TestAssemblyFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task BeforeTestAssemblyFinishedAsync() => Task.CompletedTask;
+		protected virtual ValueTask BeforeTestAssemblyFinishedAsync() => default;
 
 		/// <summary>
 		/// Creates the message bus to be used for test execution. By default, it inspects
@@ -209,7 +209,7 @@ namespace Xunit.v3
 		/// Runs the tests in the test assembly.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async Task<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> RunAsync()
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 
@@ -297,7 +297,7 @@ namespace Xunit.v3
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected virtual async Task<RunSummary> RunTestCollectionsAsync(
+		protected virtual async ValueTask<RunSummary> RunTestCollectionsAsync(
 			IMessageBus messageBus,
 			CancellationTokenSource cancellationTokenSource)
 		{
@@ -321,7 +321,7 @@ namespace Xunit.v3
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected abstract Task<RunSummary> RunTestCollectionAsync(
+		protected abstract ValueTask<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
 			IReadOnlyCollection<TTestCase> testCases,

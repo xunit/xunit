@@ -108,7 +108,7 @@ namespace Xunit.v3
 				Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
 		}
 
-		Task CreateClassFixtureAsync(Type fixtureType)
+		ValueTask CreateClassFixtureAsync(Type fixtureType)
 		{
 			CreateClassFixture(fixtureType);
 
@@ -121,7 +121,7 @@ namespace Xunit.v3
 
 			InitializedAsyncFixtures.UnionWith(uninitializedFixtures);
 
-			return Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask()));
+			return new(Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask())));
 		}
 
 		/// <inheritdoc/>
@@ -131,10 +131,10 @@ namespace Xunit.v3
 				$"The following constructor parameters did not have matching fixture data: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
 		/// <inheritdoc/>
-		protected override async Task AfterTestClassStartingAsync()
+		protected override ValueTask AfterTestClassStartingAsync()
 		{
 			if (TestClass == null || Class == null)
-				return;
+				return default;
 
 			var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
 			if (ordererAttribute != null)
@@ -164,20 +164,20 @@ namespace Xunit.v3
 
 			var createClassFixtureAsyncTasks = new List<Task>();
 			foreach (var interfaceType in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-				createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()));
+				createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()).AsTask());
 
 			if (TestClass.TestCollection.CollectionDefinition != null)
 			{
 				var declarationType = ((_IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
 				foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-					createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()));
+					createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GenericTypeArguments.Single()).AsTask());
 			}
 
-			await Task.WhenAll(createClassFixtureAsyncTasks);
+			return new(Task.WhenAll(createClassFixtureAsyncTasks));
 		}
 
 		/// <inheritdoc/>
-		protected override async Task BeforeTestClassFinishedAsync()
+		protected override async ValueTask BeforeTestClassFinishedAsync()
 		{
 			var disposeAsyncTasks =
 				ClassFixtureMappings
@@ -193,7 +193,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task<RunSummary> RunTestMethodAsync(
+		protected override ValueTask<RunSummary> RunTestMethodAsync(
 			_ITestMethod? testMethod,
 			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<IXunitTestCase> testCases,

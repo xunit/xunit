@@ -54,14 +54,14 @@ namespace Xunit.v3
 		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
-		protected override async Task AfterTestCollectionStartingAsync()
+		protected override async ValueTask AfterTestCollectionStartingAsync()
 		{
 			await CreateCollectionFixturesAsync();
 			TestCaseOrderer = GetTestCaseOrderer() ?? TestCaseOrderer;
 		}
 
 		/// <inheritdoc/>
-		protected override async Task BeforeTestCollectionFinishedAsync()
+		protected override async ValueTask BeforeTestCollectionFinishedAsync()
 		{
 			var disposeAsyncTasks =
 				CollectionFixtureMappings
@@ -116,10 +116,10 @@ namespace Xunit.v3
 				Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
 		}
 
-		Task CreateCollectionFixturesAsync()
+		ValueTask CreateCollectionFixturesAsync()
 		{
 			if (TestCollection.CollectionDefinition == null)
-				return Task.CompletedTask;
+				return default;
 
 			var declarationType = ((_IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
 			foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
@@ -135,7 +135,7 @@ namespace Xunit.v3
 					.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync).AsTask())
 					.ToList();
 
-			return Task.WhenAll(initializeAsyncTasks);
+			return new(Task.WhenAll(initializeAsyncTasks));
 		}
 
 		/// <summary>
@@ -172,7 +172,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task<RunSummary> RunTestClassAsync(
+		protected override ValueTask<RunSummary> RunTestClassAsync(
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases) =>

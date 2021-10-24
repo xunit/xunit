@@ -67,8 +67,9 @@ public class TestCollectionRunnerTests
 			});
 		var runner = TestableTestCollectionRunner.Create(messageBus);
 
-		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+		var ex = await Record.ExceptionAsync(() => runner.RunAsync());
 
+		Assert.IsType<InvalidOperationException>(ex);
 		var starting = Assert.Single(messages);
 		Assert.IsAssignableFrom<_TestCollectionStarting>(starting);
 		Assert.Empty(runner.ClassesRun);
@@ -308,23 +309,23 @@ public class TestCollectionRunnerTests
 			);
 		}
 
-		protected override Task AfterTestCollectionStartingAsync()
+		protected override ValueTask AfterTestCollectionStartingAsync()
 		{
 			AfterTestCollectionStarting_Called = true;
 			AfterTestCollectionStarting_Context = TestContext.Current;
 			AfterTestCollectionStarting_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task BeforeTestCollectionFinishedAsync()
+		protected override ValueTask BeforeTestCollectionFinishedAsync()
 		{
 			BeforeTestCollectionFinished_Called = true;
 			BeforeTestCollectionFinished_Context = TestContext.Current;
 			BeforeTestCollectionFinished_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task<RunSummary> RunTestClassAsync(
+		protected override ValueTask<RunSummary> RunTestClassAsync(
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<_ITestCase> testCases)
@@ -335,7 +336,7 @@ public class TestCollectionRunnerTests
 			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
 			RunTestClassAsync_Context = TestContext.Current;
 			ClassesRun.Add(Tuple.Create(@class, testCases));
-			return Task.FromResult(result);
+			return new(result);
 		}
 	}
 }

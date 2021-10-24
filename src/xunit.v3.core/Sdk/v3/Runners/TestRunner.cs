@@ -165,13 +165,13 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <returns>Returns a tuple which includes the execution time (in seconds) spent running the
 		/// test method, and any output that was returned by the test.</returns>
-		protected abstract Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator);
+		protected abstract ValueTask<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator);
 
 		/// <summary>
 		/// Runs the test.
 		/// </summary>
 		/// <returns>Returns summary information about the test that was run.</returns>
-		public async Task<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> RunAsync()
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 

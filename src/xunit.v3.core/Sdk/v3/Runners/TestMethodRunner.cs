@@ -119,7 +119,7 @@ namespace Xunit.v3
 		/// Runs the tests in the test method.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async Task<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> RunAsync()
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 
@@ -196,7 +196,7 @@ namespace Xunit.v3
 		/// Runs the list of test cases. By default, it runs the cases in order, synchronously.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected virtual async Task<RunSummary> RunTestCasesAsync()
+		protected virtual async ValueTask<RunSummary> RunTestCasesAsync()
 		{
 			var summary = new RunSummary();
 
@@ -215,7 +215,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testCase">The test case to be run.</param>
 		/// <returns>Returns summary information about the test case run.</returns>
-		protected abstract Task<RunSummary> RunTestCaseAsync(TTestCase testCase);
+		protected abstract ValueTask<RunSummary> RunTestCaseAsync(TTestCase testCase);
 
 		/// <summary>
 		/// Sets the current <see cref="TestContext"/> for the current test method and the given test method status.

@@ -207,8 +207,9 @@ public class TestRunnerTests
 			});
 		var runner = TestableTestRunner.Create(messageBus);
 
-		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+		var ex = await Record.ExceptionAsync(() => runner.RunAsync());
 
+		Assert.IsType<InvalidOperationException>(ex);
 		var starting = Assert.Single(messages);
 		Assert.IsAssignableFrom<_TestStarting>(starting);
 		Assert.False(runner.InvokeTestAsync_Called);
@@ -389,14 +390,14 @@ public class TestRunnerTests
 			BeforeTestFinished_Callback(Aggregator);
 		}
 
-		protected override Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
+		protected override ValueTask<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
 		{
 			if (lambda != null)
 				aggregator.Run(lambda);
 
 			InvokeTestAsync_Called = true;
 
-			return Task.FromResult<Tuple<decimal, string>?>(Tuple.Create(runTime, output));
+			return new(Tuple.Create(runTime, output));
 		}
 	}
 }

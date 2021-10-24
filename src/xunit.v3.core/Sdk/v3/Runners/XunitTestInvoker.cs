@@ -58,7 +58,7 @@ namespace Xunit.v3
 		protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes { get; }
 
 		/// <inheritdoc/>
-		protected override Task BeforeTestMethodInvokedAsync()
+		protected override ValueTask BeforeTestMethodInvokedAsync()
 		{
 			var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
@@ -115,11 +115,11 @@ namespace Xunit.v3
 					break;
 			}
 
-			return Task.CompletedTask;
+			return default;
 		}
 
 		/// <inheritdoc/>
-		protected override Task AfterTestMethodInvokedAsync()
+		protected override ValueTask AfterTestMethodInvokedAsync()
 		{
 			var testAssemblyUniqueID = TestCase.TestCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = TestCase.TestCollection.UniqueID;
@@ -160,7 +160,7 @@ namespace Xunit.v3
 					CancellationTokenSource.Cancel();
 			}
 
-			return Task.CompletedTask;
+			return default;
 		}
 
 		/// <inheritdoc/>
@@ -205,13 +205,13 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task InvokeTestMethodAsync(object? testClassInstance)
+		protected override ValueTask InvokeTestMethodAsync(object? testClassInstance)
 		{
 			if (TestCase.InitializationException != null)
 			{
 				var tcs = new TaskCompletionSource<decimal>();
 				tcs.SetException(TestCase.InitializationException);
-				return tcs.Task;
+				return new(tcs.Task);
 			}
 
 			return TestCase.Timeout > 0
@@ -219,9 +219,9 @@ namespace Xunit.v3
 				: base.InvokeTestMethodAsync(testClassInstance);
 		}
 
-		async Task InvokeTimeoutTestMethodAsync(object? testClassInstance)
+		async ValueTask InvokeTimeoutTestMethodAsync(object? testClassInstance)
 		{
-			var baseTask = base.InvokeTestMethodAsync(testClassInstance);
+			var baseTask = base.InvokeTestMethodAsync(testClassInstance).AsTask();
 			var resultTask = await Task.WhenAny(baseTask, Task.Delay(TestCase.Timeout));
 
 			if (resultTask != baseTask)

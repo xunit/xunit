@@ -106,19 +106,19 @@ namespace Xunit.v3
 		/// This method is called just after <see cref="_TestCollectionStarting"/> is sent, but before any test classes are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task AfterTestCollectionStartingAsync() => Task.CompletedTask;
+		protected virtual ValueTask AfterTestCollectionStartingAsync() => default;
 
 		/// <summary>
 		/// This method is called just before <see cref="_TestCollectionFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task BeforeTestCollectionFinishedAsync() => Task.CompletedTask;
+		protected virtual ValueTask BeforeTestCollectionFinishedAsync() => default;
 
 		/// <summary>
 		/// Runs the tests in the test collection.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async Task<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> RunAsync()
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 
@@ -182,7 +182,7 @@ namespace Xunit.v3
 		/// Runs the list of test classes. By default, groups the tests by class and runs them synchronously.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected virtual async Task<RunSummary> RunTestClassesAsync()
+		protected virtual async ValueTask<RunSummary> RunTestClassesAsync()
 		{
 			var summary = new RunSummary();
 
@@ -213,7 +213,7 @@ namespace Xunit.v3
 		/// cases that do not support classes and methods.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected abstract Task<RunSummary> RunTestClassAsync(
+		protected abstract ValueTask<RunSummary> RunTestClassAsync(
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<TTestCase> testCases

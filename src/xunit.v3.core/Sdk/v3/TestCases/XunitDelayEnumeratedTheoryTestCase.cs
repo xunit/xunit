@@ -45,7 +45,7 @@ namespace Xunit.v3
 		{ }
 
 		/// <inheritdoc/>
-		public override Task<RunSummary> RunAsync(
+		public override ValueTask<RunSummary> RunAsync(
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,

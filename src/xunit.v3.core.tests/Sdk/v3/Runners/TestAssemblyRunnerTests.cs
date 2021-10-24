@@ -103,8 +103,9 @@ public class TestAssemblyRunnerTests
 				});
 			await using var runner = TestableTestAssemblyRunner.Create(messageSink);
 
-			await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+			var ex = await Record.ExceptionAsync(() => runner.RunAsync());
 
+			Assert.IsType<InvalidOperationException>(ex);
 			var starting = Assert.Single(messages);
 			Assert.IsAssignableFrom<_TestAssemblyStarting>(starting);
 			Assert.Empty(runner.CollectionsRun);
@@ -428,23 +429,23 @@ public class TestAssemblyRunnerTests
 
 		protected override string GetTestFrameworkEnvironment() => "The test framework environment";
 
-		protected override Task AfterTestAssemblyStartingAsync()
+		protected override ValueTask AfterTestAssemblyStartingAsync()
 		{
 			AfterTestAssemblyStarting_Called = true;
 			AfterTestAssemblyStarting_Context = TestContext.Current;
 			AfterTestAssemblyStarting_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task BeforeTestAssemblyFinishedAsync()
+		protected override ValueTask BeforeTestAssemblyFinishedAsync()
 		{
 			BeforeTestAssemblyFinished_Called = true;
 			BeforeTestAssemblyFinished_Context = TestContext.Current;
 			BeforeTestAssemblyFinished_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task<RunSummary> RunTestCollectionAsync(
+		protected override ValueTask<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
 			IReadOnlyCollection<_ITestCase> testCases,
@@ -456,7 +457,7 @@ public class TestAssemblyRunnerTests
 			RunTestCollectionAsync_AggregatorResult = Aggregator.ToException();
 			RunTestCollectionAsync_Context = TestContext.Current;
 			CollectionsRun.Add(Tuple.Create(testCollection, testCases));
-			return Task.FromResult(result);
+			return new(result);
 		}
 	}
 

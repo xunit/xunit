@@ -394,7 +394,7 @@ public class XunitTestAssemblyRunnerTests
 			base.Initialize();
 		}
 
-		protected override Task<RunSummary> RunTestCollectionAsync(
+		protected override ValueTask<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
 			IReadOnlyCollection<IXunitTestCase> testCases,
@@ -404,7 +404,7 @@ public class XunitTestAssemblyRunnerTests
 				TestCasesRun.Add(Tuple.Create(Thread.CurrentThread.ManagedThreadId, testCase));
 
 			Thread.Sleep(5); // Hold onto the worker thread long enough to ensure tests all get spread around
-			return Task.FromResult(new RunSummary());
+			return new(new RunSummary());
 		}
 	}
 }

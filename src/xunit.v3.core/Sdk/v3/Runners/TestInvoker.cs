@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -13,8 +12,8 @@ namespace Xunit.v3
 {
 	/// <summary>
 	/// A base class that provides default behavior to invoke a test method. This includes
-	/// support for async test methods (both "async Task" and "async void") as well as
-	/// creation and disposal of the test class.
+	/// support for async test methods ("async Task", "async ValueTask", and "async void" for C#/VB,
+	/// and async functions in F#) as well as creation and disposal of the test class.
 	/// </summary>
 	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 	/// derive from <see cref="_ITestCase"/>.</typeparam>
@@ -228,13 +227,13 @@ namespace Xunit.v3
 		/// This method is called just after the test method has finished executing.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task AfterTestMethodInvokedAsync() => Task.CompletedTask;
+		protected virtual ValueTask AfterTestMethodInvokedAsync() => default;
 
 		/// <summary>
 		/// This method is called just before the test method is invoked.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task BeforeTestMethodInvokedAsync() => Task.CompletedTask;
+		protected virtual ValueTask BeforeTestMethodInvokedAsync() => default;
 
 		/// <summary>
 		/// This method calls the test method via reflection. This is an available override point
@@ -246,17 +245,9 @@ namespace Xunit.v3
 			TestMethod.Invoke(testClassInstance, TestMethodArguments);
 
 		/// <summary>
-		/// This method is obsolete. Call <see cref="GetValueTaskFromResult(object?)"/> instead.
-		/// </summary>
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		[Obsolete("This method has been removed in favor of GetValueTaskFromResult", true)]
-		public static Task? GetTaskFromResult(object? obj) =>
-			throw new NotImplementedException();
-
-		/// <summary>
 		/// Given an object, will attempt to convert instances of <see cref="Task"/> or
 		/// <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/> into <see cref="ValueTask"/>
-		/// as appropriate.
+		/// as appropriate. Will return <c>null</c> if the object is not a task of any supported type.
 		/// </summary>
 		/// <param name="obj">The object to convert</param>
 		public static ValueTask? GetValueTaskFromResult(object? obj)
@@ -269,7 +260,7 @@ namespace Xunit.v3
 				if (task.Status == TaskStatus.Created)
 					throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
 
-				return new ValueTask(task);
+				return new(task);
 			}
 
 			if (obj is ValueTask valueTask)
@@ -291,13 +282,11 @@ namespace Xunit.v3
 						throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
 				}
 
-				var fsharpTask =
-					fSharpStartAsTaskOpenGenericMethod
-						.MakeGenericMethod(type.GetGenericArguments()[0])
-						.Invoke(null, new[] { obj, null, null }) as Task;
 
-				if (fsharpTask != null)
-					return new ValueTask(fsharpTask);
+				if (fSharpStartAsTaskOpenGenericMethod
+						.MakeGenericMethod(type.GetGenericArguments()[0])
+						.Invoke(null, new[] { obj, null, null }) is Task fsharpTask)
+					return new(fsharpTask);
 			}
 
 			return null;
@@ -308,7 +297,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <returns>Returns the time (in seconds) spent creating the test class, running
 		/// the test, and disposing of the test class.</returns>
-		public Task<decimal> RunAsync()
+		public ValueTask<decimal> RunAsync()
 		{
 			return Aggregator.RunAsync(async () =>
 			{
@@ -408,7 +397,7 @@ namespace Xunit.v3
 		/// Aggregate methods on <see cref="Timer"/>.
 		/// </summary>
 		/// <param name="testClassInstance">The test class instance</param>
-		protected virtual async Task InvokeTestMethodAsync(object? testClassInstance)
+		protected virtual async ValueTask InvokeTestMethodAsync(object? testClassInstance)
 		{
 			var oldSyncContext = SynchronizationContext.Current;
 			var asyncSyncContext = default(AsyncTestSyncContext);

@@ -35,7 +35,7 @@ namespace Xunit.v3
 		/// <param name="aggregator">The error aggregator to use for catching exception.</param>
 		/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
 		/// <returns>Returns the summary of the test case run.</returns>
-		Task<RunSummary> RunAsync(
+		ValueTask<RunSummary> RunAsync(
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,

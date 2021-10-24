@@ -179,19 +179,19 @@ namespace Xunit.v3
 		/// This method is called just after <see cref="_TestClassStarting"/> is sent, but before any test methods are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task AfterTestClassStartingAsync() => Task.CompletedTask;
+		protected virtual ValueTask AfterTestClassStartingAsync() => default;
 
 		/// <summary>
 		/// This method is called just before <see cref="_TestClassFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task BeforeTestClassFinishedAsync() => Task.CompletedTask;
+		protected virtual ValueTask BeforeTestClassFinishedAsync() => default;
 
 		/// <summary>
 		/// Runs the tests in the test class.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async Task<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> RunAsync()
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 
@@ -265,7 +265,7 @@ namespace Xunit.v3
 		/// Runs the list of test methods. By default, orders the tests, groups them by method and runs them synchronously.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected virtual async Task<RunSummary> RunTestMethodsAsync()
+		protected virtual async ValueTask<RunSummary> RunTestMethodsAsync()
 		{
 			var summary = new RunSummary();
 			IReadOnlyCollection<TTestCase> orderedTestCases;
@@ -312,7 +312,7 @@ namespace Xunit.v3
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected abstract Task<RunSummary> RunTestMethodAsync(
+		protected abstract ValueTask<RunSummary> RunTestMethodAsync(
 			_ITestMethod? testMethod,
 			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<TTestCase> testCases,

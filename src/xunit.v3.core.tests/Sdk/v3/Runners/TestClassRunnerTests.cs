@@ -70,8 +70,9 @@ public class TestClassRunnerTests
 			});
 		var runner = TestableTestClassRunner.Create(messageBus);
 
-		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+		var ex = await Record.ExceptionAsync(() => runner.RunAsync());
 
+		Assert.IsType<InvalidOperationException>(ex);
 		var starting = Assert.Single(messages);
 		Assert.IsType<_TestClassStarting>(starting);
 		Assert.Empty(runner.MethodsRun);
@@ -461,23 +462,23 @@ public class TestClassRunnerTests
 			);
 		}
 
-		protected override Task AfterTestClassStartingAsync()
+		protected override ValueTask AfterTestClassStartingAsync()
 		{
 			AfterTestClassStarting_Called = true;
 			AfterTestClassStarting_Context = TestContext.Current;
 			AfterTestClassStarting_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task BeforeTestClassFinishedAsync()
+		protected override ValueTask BeforeTestClassFinishedAsync()
 		{
 			BeforeTestClassFinished_Called = true;
 			BeforeTestClassFinished_Context = TestContext.Current;
 			BeforeTestClassFinished_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task<RunSummary> RunTestMethodAsync(
+		protected override ValueTask<RunSummary> RunTestMethodAsync(
 			_ITestMethod? testMethod,
 			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<_ITestCase> testCases,
@@ -489,7 +490,7 @@ public class TestClassRunnerTests
 			RunTestMethodAsync_AggregatorResult = Aggregator.ToException();
 			RunTestMethodAsync_Context = TestContext.Current;
 			MethodsRun.Add(Tuple.Create(method, testCases, constructorArguments));
-			return Task.FromResult(result);
+			return new(result);
 		}
 
 		protected override ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)

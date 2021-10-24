@@ -52,7 +52,7 @@ namespace Xunit.v3
 			info.AddValue("Culture", Culture);
 		}
 
-		public override async Task<RunSummary> RunAsync(
+		public override async ValueTask<RunSummary> RunAsync(
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,

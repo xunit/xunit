@@ -26,7 +26,7 @@ namespace Xunit.Sdk
 			culture = culturedXunitTheoryTestCase.Culture;
 		}
 
-		protected override Task AfterTestCaseStartingAsync()
+		protected override ValueTask AfterTestCaseStartingAsync()
 		{
 			try
 			{
@@ -40,13 +40,13 @@ namespace Xunit.Sdk
 			catch (Exception ex)
 			{
 				Aggregator.Add(ex);
-				return Task.FromResult(0);
+				return default;
 			}
 
 			return base.AfterTestCaseStartingAsync();
 		}
 
-		protected override Task BeforeTestCaseFinishedAsync()
+		protected override ValueTask BeforeTestCaseFinishedAsync()
 		{
 			if (originalUICulture != null)
 				CultureInfo.CurrentUICulture = originalUICulture;

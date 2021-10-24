@@ -26,7 +26,7 @@ namespace Xunit.v3
 		{ }
 
 		/// <inheritdoc/>
-		protected override Task<RunSummary> RunTestAsync()
+		protected override ValueTask<RunSummary> RunTestAsync()
 		{
 			// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
 			var test = new XunitTest(TestCase, TestCase.TestCaseDisplayName, testIndex: -1);
@@ -90,7 +90,7 @@ namespace Xunit.v3
 					CancellationTokenSource.Cancel();
 			}
 
-			return Task.FromResult(summary);
+			return new(summary);
 		}
 	}
 }

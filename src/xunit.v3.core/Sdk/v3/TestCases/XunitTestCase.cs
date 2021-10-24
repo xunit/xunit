@@ -147,7 +147,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		public virtual Task<RunSummary> RunAsync(
+		public virtual ValueTask<RunSummary> RunAsync(
 			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,

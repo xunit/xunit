@@ -45,7 +45,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task<RunSummary> RunTestCaseAsync(IXunitTestCase testCase) =>
+		protected override ValueTask<RunSummary> RunTestCaseAsync(IXunitTestCase testCase) =>
 			testCase.RunAsync(
 				diagnosticMessageSink,
 				MessageBus,

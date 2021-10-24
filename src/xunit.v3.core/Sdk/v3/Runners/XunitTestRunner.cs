@@ -58,7 +58,7 @@ namespace Xunit.v3
 		protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes { get; }
 
 		/// <inheritdoc/>
-		protected override async Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
+		protected override async ValueTask<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
 		{
 			var output = string.Empty;
 			var testOutputHelper = TestContext.Current?.TestOutputHelper as TestOutputHelper;
@@ -83,7 +83,7 @@ namespace Xunit.v3
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="testOutputHelper"></param>
 		/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-		protected virtual Task<decimal> InvokeTestMethodAsync(
+		protected virtual ValueTask<decimal> InvokeTestMethodAsync(
 			ExceptionAggregator aggregator,
 			_ITestOutputHelper? testOutputHelper) =>
 				new XunitTestInvoker(

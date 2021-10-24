@@ -77,19 +77,19 @@ namespace Xunit.v3
 		/// This method is called just after <see cref="_TestCaseStarting"/> is sent, but before any test collections are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task AfterTestCaseStartingAsync() => Task.CompletedTask;
+		protected virtual ValueTask AfterTestCaseStartingAsync() => default;
 
 		/// <summary>
 		/// This method is called just before <see cref="_TestCaseFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
-		protected virtual Task BeforeTestCaseFinishedAsync() => Task.CompletedTask;
+		protected virtual ValueTask BeforeTestCaseFinishedAsync() => default;
 
 		/// <summary>
 		/// Runs the tests in the test case.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async Task<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> RunAsync()
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 
@@ -168,7 +168,7 @@ namespace Xunit.v3
 		/// Override this method to run the tests in an individual test method.
 		/// </summary>
 		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected abstract Task<RunSummary> RunTestAsync();
+		protected abstract ValueTask<RunSummary> RunTestAsync();
 
 		/// <summary>
 		/// Sets the current <see cref="TestContext"/> for the current test case and the given test case status.

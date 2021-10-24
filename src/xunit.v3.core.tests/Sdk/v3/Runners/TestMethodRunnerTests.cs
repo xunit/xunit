@@ -62,8 +62,9 @@ public class TestMethodRunnerTests
 			});
 		var runner = TestableTestMethodRunner.Create(messageBus);
 
-		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+		var ex = await Record.ExceptionAsync(() => runner.RunAsync());
 
+		Assert.IsType<InvalidOperationException>(ex);
 		var starting = Assert.Single(messages);
 		Assert.IsAssignableFrom<_TestMethodStarting>(starting);
 		Assert.Empty(runner.TestCasesRun);
@@ -288,7 +289,7 @@ public class TestMethodRunnerTests
 			BeforeTestMethodFinished_Callback(Aggregator);
 		}
 
-		protected override Task<RunSummary> RunTestCaseAsync(_ITestCase testCase)
+		protected override ValueTask<RunSummary> RunTestCaseAsync(_ITestCase testCase)
 		{
 			if (cancelInRunTestCaseAsync)
 				CancellationTokenSource.Cancel();
@@ -297,7 +298,7 @@ public class TestMethodRunnerTests
 			RunTestCaseAsync_Context = TestContext.Current;
 			TestCasesRun.Add(testCase);
 
-			return Task.FromResult(result);
+			return new(result);
 		}
 	}
 }

@@ -52,7 +52,7 @@ namespace Xunit.v3
 		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
-		protected override async Task AfterTestCaseStartingAsync()
+		protected override async ValueTask AfterTestCaseStartingAsync()
 		{
 			await base.AfterTestCaseStartingAsync();
 
@@ -143,7 +143,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task BeforeTestCaseFinishedAsync()
+		protected override ValueTask BeforeTestCaseFinishedAsync()
 		{
 			Aggregator.Aggregate(cleanupAggregator);
 
@@ -151,7 +151,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override async Task<RunSummary> RunTestAsync()
+		protected override async ValueTask<RunSummary> RunTestAsync()
 		{
 			if (dataDiscoveryException != null)
 				return RunTest_DataDiscoveryException();

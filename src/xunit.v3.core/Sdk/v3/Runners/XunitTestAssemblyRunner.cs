@@ -148,21 +148,23 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task AfterTestAssemblyStartingAsync()
+		protected override ValueTask AfterTestAssemblyStartingAsync()
 		{
 			Initialize();
-			return Task.CompletedTask;
+
+			return base.AfterTestAssemblyStartingAsync();
 		}
 
 		/// <inheritdoc/>
-		protected override Task BeforeTestAssemblyFinishedAsync()
+		protected override ValueTask BeforeTestAssemblyFinishedAsync()
 		{
 			SetSynchronizationContext(originalSyncContext);
-			return Task.CompletedTask;
+
+			return base.BeforeTestAssemblyFinishedAsync();
 		}
 
 		/// <inheritdoc/>
-		protected override async Task<RunSummary> RunTestCollectionsAsync(
+		protected override async ValueTask<RunSummary> RunTestCollectionsAsync(
 			IMessageBus messageBus,
 			CancellationTokenSource cancellationTokenSource)
 		{
@@ -173,28 +175,28 @@ namespace Xunit.v3
 
 			SetupSyncContext(maxParallelThreads);
 
-			Func<Func<Task<RunSummary>>, Task<RunSummary>> taskRunner;
+			Func<Func<ValueTask<RunSummary>>, ValueTask<RunSummary>> taskRunner;
 			if (SynchronizationContext.Current != null)
 			{
 				var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-				taskRunner = code => Task.Factory.StartNew(code, cancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap();
+				taskRunner = code => new(Task.Factory.StartNew(() => code().AsTask(), cancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap());
 			}
 			else
-				taskRunner = code => Task.Run(code, cancellationTokenSource.Token);
+				taskRunner = code => new(Task.Run(() => code().AsTask(), cancellationTokenSource.Token));
 
-			List<Task<RunSummary>>? parallel = null;
-			List<Func<Task<RunSummary>>>? nonParallel = null;
+			List<ValueTask<RunSummary>>? parallel = null;
+			List<Func<ValueTask<RunSummary>>>? nonParallel = null;
 			var summaries = new List<RunSummary>();
 
 			foreach (var collection in OrderTestCollections())
 			{
-				Task<RunSummary> task() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource);
+				ValueTask<RunSummary> task() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource);
 
 				var attr = collection.Item1.CollectionDefinition?.GetCustomAttributes(typeof(CollectionDefinitionAttribute)).SingleOrDefault();
 				if (attr?.GetNamedArgument<bool>(nameof(CollectionDefinitionAttribute.DisableParallelization)) == true)
-					(nonParallel ??= new List<Func<Task<RunSummary>>>()).Add(task);
+					(nonParallel ??= new List<Func<ValueTask<RunSummary>>>()).Add(task);
 				else
-					(parallel ??= new List<Task<RunSummary>>()).Add(taskRunner(task));
+					(parallel ??= new List<ValueTask<RunSummary>>()).Add(taskRunner(task));
 			}
 
 			if (parallel?.Count > 0)
@@ -232,7 +234,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task<RunSummary> RunTestCollectionAsync(
+		protected override ValueTask<RunSummary> RunTestCollectionAsync(
 			IMessageBus messageBus,
 			_ITestCollection testCollection,
 			IReadOnlyCollection<IXunitTestCase> testCases,

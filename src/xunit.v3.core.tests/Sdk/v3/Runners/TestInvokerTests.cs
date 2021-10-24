@@ -405,21 +405,21 @@ public class TestInvokerTests
 			);
 		}
 
-		protected override Task AfterTestMethodInvokedAsync()
+		protected override ValueTask AfterTestMethodInvokedAsync()
 		{
 			AfterTestMethodInvoked_Called = true;
 			AfterTestMethodInvoked_Context = TestContext.Current;
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task BeforeTestMethodInvokedAsync()
+		protected override ValueTask BeforeTestMethodInvokedAsync()
 		{
 			BeforeTestMethodInvoked_Called = true;
 			BeforeTestMethodInvoked_Context = TestContext.Current;
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task InvokeTestMethodAsync(object? testClassInstance)
+		protected override ValueTask InvokeTestMethodAsync(object? testClassInstance)
 		{
 			InvokeTestMethodAsync_Context = TestContext.Current;
 

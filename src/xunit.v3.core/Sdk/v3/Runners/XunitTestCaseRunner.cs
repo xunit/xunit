@@ -177,7 +177,7 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
-		protected override Task<RunSummary> RunTestAsync() =>
+		protected override ValueTask<RunSummary> RunTestAsync() =>
 			CreateTestRunner(
 				CreateTest(TestCase, DisplayName, testIndex: 0),
 				MessageBus,

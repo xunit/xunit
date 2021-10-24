@@ -54,8 +54,9 @@ public class TestCaseRunnerTests
 			});
 		var runner = TestableTestCaseRunner.Create(messageBus);
 
-		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+		var ex = await Record.ExceptionAsync(() => runner.RunAsync());
 
+		Assert.IsType<InvalidOperationException>(ex);
 		var starting = Assert.Single(messages);
 		Assert.IsAssignableFrom<_TestCaseStarting>(starting);
 		Assert.False(runner.RunTestAsync_Called);
@@ -238,28 +239,28 @@ public class TestCaseRunnerTests
 			);
 		}
 
-		protected override Task AfterTestCaseStartingAsync()
+		protected override ValueTask AfterTestCaseStartingAsync()
 		{
 			AfterTestCaseStarting_Called = true;
 			AfterTestCaseStarting_Context = TestContext.Current;
 			AfterTestCaseStarting_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task BeforeTestCaseFinishedAsync()
+		protected override ValueTask BeforeTestCaseFinishedAsync()
 		{
 			BeforeTestCaseFinished_Called = true;
 			BeforeTestCaseStarting_Context = TestContext.Current;
 			BeforeTestCaseFinished_Callback(Aggregator);
-			return Task.CompletedTask;
+			return default;
 		}
 
-		protected override Task<RunSummary> RunTestAsync()
+		protected override ValueTask<RunSummary> RunTestAsync()
 		{
 			RunTestAsync_AggregatorResult = Aggregator.ToException();
 			RunTestAsync_Called = true;
 			RunTestAsync_Context = TestContext.Current;
-			return Task.FromResult(result);
+			return new(result);
 		}
 	}
 }
