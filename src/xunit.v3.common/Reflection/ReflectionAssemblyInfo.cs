@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -94,7 +95,7 @@ namespace Xunit.Sdk
 			}
 			catch (ReflectionTypeLoadException ex)
 			{
-				return ex.Types
+				return (ex.Types ?? Array.Empty<Type>())
 					.WhereNotNull()
 					.Select(t => Reflector.Wrap(t))
 					.Cast<_ITypeInfo>()
