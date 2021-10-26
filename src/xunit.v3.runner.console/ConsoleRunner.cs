@@ -154,7 +154,7 @@ namespace Xunit.Runner.SystemConsole
 					}
 					catch (ReflectionTypeLoadException ex)
 					{
-						types = ex.Types;
+						types = ex.Types ?? Array.Empty<Type>();
 					}
 					catch
 					{
