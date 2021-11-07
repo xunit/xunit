@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
@@ -436,17 +437,31 @@ namespace Xunit.Sdk
 		{
 			Guard.ArgumentNotNull(nameof(genericType), genericType);
 
+			// If a parameter is null, then ResolveGenericParameter returns System.Object.
+			// Because we iterate these parameters every time, if any preceding parameter is null,
+			// then each of the following parameters will resolve to System.Object.
+			// To avoid this, we continue to attempt to resolve a parameter if System.Object is returned.
+			// If anything other than System.Object is returned, then we use that.
+			Type? matchedOnObject = null;
+
 			for (var idx = 0; idx < parameterInfos.Length; ++idx)
 			{
 				var methodParameterType = parameterInfos[idx].ParameterType;
 				var passedParameterType = parameters[idx]?.GetType();
 				Type? matchedType = null;
 
-				if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType) && matchedType != null)
-					return Reflector.Wrap(matchedType);
+				if (genericType.ResolveGenericParameter(methodParameterType, passedParameterType, ref matchedType) &&
+				    matchedType != null)
+				{
+					if (matchedType != typeof(object))
+						return Reflector.Wrap(matchedType);
+					
+					matchedOnObject = matchedType;
+				}
 			}
 
-			return ObjectTypeInfo;
+
+			return matchedOnObject != null ? Reflector.Wrap(matchedOnObject) : ObjectTypeInfo;
 		}
 
 		/// <summary>
@@ -469,6 +484,7 @@ namespace Xunit.Sdk
 			var parameterInfos = method.GetParameters().CastOrToArray();
 
 			for (var idx = 0; idx < genericTypes.Length; ++idx)
+				//resolvedTypes[idx] = genericTypes[idx].ResolveGenericType(parameters[idx], parameterInfos[idx]);
 				resolvedTypes[idx] = ResolveGenericType(genericTypes[idx], parameters, parameterInfos);
 
 			return resolvedTypes;

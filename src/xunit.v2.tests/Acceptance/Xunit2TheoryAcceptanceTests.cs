@@ -465,6 +465,29 @@ public class Xunit2TheoryAcceptanceTests
 			[Theory, MemberData("GenericData")]
 			public void GenericTest<T>(T value) { }
 		}
+
+		public class GenericParameter_Null_DoesNotImpactFollowingTypeLookup
+		{
+#nullable enable
+			public struct Empty<T> { }
+
+			[Theory]
+			[MemberData(nameof(GetData))]
+			public void Example<T1, T2>(T1 t1, Empty<T2> t2)
+			{
+
+			}
+
+			public static IEnumerable<object?[]> GetData()
+			{
+				yield return new object?[] { 1, default(Empty<int>) };
+				yield return new object?[] { "1", default(Empty<int>) };
+				yield return new object?[] { null, default(Empty<int>) };
+			}
+#nullable restore
+		}
+
+
 	}
 
 	public class InlineDataTests : AcceptanceTestV2
