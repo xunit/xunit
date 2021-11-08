@@ -47,7 +47,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 			object? consoleLock = null)
 		{
 			this.args = Guard.ArgumentNotNull(nameof(args), args);
-			this.testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", testAssembly ?? Assembly.GetEntryAssembly());
+			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), "testAssembly was null, and Assembly.GetEntryAssembly() returned null; you should pass a non-null value for testAssembly", testAssembly ?? Assembly.GetEntryAssembly());
 			this.consoleLock = consoleLock ?? new object();
 			this.runnerReporters = runnerReporters.CastOrToReadOnlyList();
 
