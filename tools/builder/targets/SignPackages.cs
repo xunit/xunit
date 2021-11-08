@@ -13,6 +13,8 @@ public static class SignPackages
 	{
 		context.BuildStep("Signing NuGet packages");
 
+		Directory.CreateDirectory(context.PackageOutputFolder);
+
 		var signClientUser = Environment.GetEnvironmentVariable("SignClientUser");
 		var signClientSecret = Environment.GetEnvironmentVariable("SignClientSecret");
 		if (string.IsNullOrWhiteSpace(signClientUser) || string.IsNullOrWhiteSpace(signClientSecret))

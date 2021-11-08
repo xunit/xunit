@@ -13,6 +13,8 @@ public static class PublishPackages
 	{
 		context.BuildStep("Publishing NuGet packages");
 
+		Directory.CreateDirectory(context.PackageOutputFolder);
+
 		var publishToken = Environment.GetEnvironmentVariable("PublishToken");
 		if (string.IsNullOrWhiteSpace(publishToken))
 		{

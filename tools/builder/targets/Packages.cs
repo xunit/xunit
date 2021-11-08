@@ -12,6 +12,8 @@ public static class Packages
 	{
 		context.BuildStep("Creating NuGet packages");
 
+		Directory.CreateDirectory(context.PackageOutputFolder);
+
 		// Clean up any existing packages to force re-packing
 		var packageFiles = Directory.GetFiles(context.PackageOutputFolder, "*.nupkg");
 		foreach (var packageFile in packageFiles)

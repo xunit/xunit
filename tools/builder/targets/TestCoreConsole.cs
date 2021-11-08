@@ -13,6 +13,8 @@ public static class TestCoreConsole
 	{
 		context.BuildStep("Running .NET Core tests (via Console runner)");
 
+		Directory.CreateDirectory(context.TestOutputFolder);
+
 		// v3 (default bitness)
 		// TODO: Convert to console runner when it's available
 		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "netcoreapp");

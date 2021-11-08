@@ -12,6 +12,8 @@ public static class TestFxConsole
 	{
 		context.BuildStep("Running .NET Framework tests (via Console runner)");
 
+		Directory.CreateDirectory(context.TestOutputFolder);
+
 		// v3 (default bitness)
 		var netFxSubpath = Path.Combine("bin", context.ConfigurationText, "net4");
 		var v3OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v3.tests-netfx");

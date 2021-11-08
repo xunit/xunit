@@ -14,6 +14,7 @@ using SimpleExec;
 [HelpOption("-?|-h|--help")]
 public class BuildContext
 {
+	string? artifactsFolder;
 	string? baseFolder;
 	string? consoleRunnerExe;
 	string? consoleRunner32Exe;
@@ -23,6 +24,12 @@ public class BuildContext
 	string? testOutputFolder;
 
 	// Calculated properties
+
+	public string ArtifactsFolder
+	{
+		get => artifactsFolder ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(ArtifactsFolder)}");
+		private set => artifactsFolder = value ?? throw new ArgumentNullException(nameof(ArtifactsFolder));
+	}
 
 	public string BaseFolder
 	{
@@ -151,11 +158,9 @@ public class BuildContext
 			ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
 			// Dependent folders
-			PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");
-			Directory.CreateDirectory(PackageOutputFolder);
-
-			TestOutputFolder = Path.Combine(BaseFolder, "artifacts", "test");
-			Directory.CreateDirectory(TestOutputFolder);
+			ArtifactsFolder = Path.Combine(BaseFolder, "artifacts");
+			PackageOutputFolder = Path.Combine(ArtifactsFolder, "packages");
+			TestOutputFolder = Path.Combine(ArtifactsFolder, "test");
 
 			// Parse the targets
 			var targetNames = Targets.Select(x => x.ToString()).ToList();
