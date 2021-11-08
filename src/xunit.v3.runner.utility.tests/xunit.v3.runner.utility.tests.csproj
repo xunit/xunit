@@ -23,10 +23,9 @@
 
   <ItemGroup>
     <!-- Required for F# acceptance tests -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="40.0.0" />
-    <PackageReference Include="FSharp.Core" Version="5.0.2" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.1" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.11.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="6.0.0" />
   </ItemGroup>
 
   <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">

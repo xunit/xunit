@@ -14,7 +14,7 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework=".NETStandard2.0">
-				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="5.0.0" />
+				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
 				<dependency id="System.Threading.Tasks.Extensions" version="4.5.4" />
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
 			</group>

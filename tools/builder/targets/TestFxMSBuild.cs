@@ -33,7 +33,7 @@ public static class TestFxMSBuild
 				throw;
 
 			context.WriteLineColor(ConsoleColor.Red, "Could not find 'msbuild.exe' on the system PATH. Please run the build from a developer command prompt.");
-			throw new NonZeroExitCodeException(-2);
+			throw new ExitCodeException(-2);
 		}
 	}
 }

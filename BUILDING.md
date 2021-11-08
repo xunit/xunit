@@ -7,7 +7,7 @@ running macOS can generally follow the Linux instructions (while installing the 
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
+* [.NET SDK 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 * [.NET Core Runtime 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 * [git](https://git-scm.com/downloads)
 

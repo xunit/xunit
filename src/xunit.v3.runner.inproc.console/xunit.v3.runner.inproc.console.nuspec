@@ -14,12 +14,12 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework=".NETFramework4.7.2">
-				<dependency id="System.IO.Pipelines" version="5.0.1" />
+				<dependency id="System.IO.Pipelines" version="6.0.0" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework=".NETCoreApp3.1">
-				<dependency id="System.IO.Pipelines" version="5.0.1" />
+				<dependency id="System.IO.Pipelines" version="6.0.0" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
 			</group>

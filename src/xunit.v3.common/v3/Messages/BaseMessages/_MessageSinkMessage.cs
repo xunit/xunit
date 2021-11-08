@@ -142,7 +142,7 @@ namespace Xunit.v3
 			if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
 				propertyType = propertyType.GetGenericArguments()[0];
 
-			return propertyWriters.GetOrAdd(propertyType, () =>
+			return propertyWriters.GetOrAdd<Type, PropertyWriter>(propertyType, () =>
 			{
 				var converter = jsonSerializerOptions.GetConverter(propertyType);
 				if (converter == null)

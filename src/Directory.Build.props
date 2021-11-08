@@ -4,14 +4,14 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>5.0.0</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>6.0.0</AnnotatedReferenceAssemblyVersion>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_SKIP;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
     <ILRepackVersion>2.0.13</ILRepackVersion>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <RootNamespace>Xunit</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -22,7 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.244">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -101,7 +101,7 @@
 
       <ItemGroup>
         <PackageReference Include="NSubstitute" Version="4.2.2" />
-        <PackageReference Include="System.CodeDom" Version="5.0.0" />
+        <PackageReference Include="System.CodeDom" Version="6.0.0" />
         <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
       </ItemGroup>
 

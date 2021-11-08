@@ -223,7 +223,7 @@ public class BuildContext
 
 			Console.WriteLine();
 
-			if (error is NonZeroExitCodeException nonZeroExit)
+			if (error is ExitCodeException nonZeroExit)
 			{
 				WriteLineColor(ConsoleColor.Red, "==> Build failed! <==");
 				return nonZeroExit.ExitCode;

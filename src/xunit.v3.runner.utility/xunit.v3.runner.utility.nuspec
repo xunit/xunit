@@ -15,14 +15,14 @@
 		<dependencies>
 			<group targetFramework=".NETFramework4.7.2">
 				<dependency id="Mono.Cecil" version="0.11.3" />
-				<dependency id="System.IO.Pipelines" version="5.0.1" />
+				<dependency id="System.IO.Pipelines" version="6.0.0" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="xunit.abstractions" version="2.0.3" />
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework=".NETStandard2.0">
 				<dependency id="Mono.Cecil" version="0.11.3" />
-				<dependency id="System.IO.Pipelines" version="5.0.1" />
+				<dependency id="System.IO.Pipelines" version="6.0.0" />
 				<dependency id="System.Net.Http" version="4.3.4" />
 				<dependency id="xunit.abstractions" version="2.0.3" />
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
