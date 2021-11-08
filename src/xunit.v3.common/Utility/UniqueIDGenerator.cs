@@ -98,7 +98,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNullOrEmpty(nameof(assemblyName), assemblyName);
 
 			var parsedAssemblyName = new AssemblyName(assemblyName);
-			Guard.ArgumentValidNotNull(nameof(assemblyName), "assemblyName must include a name component", parsedAssemblyName.Name);
+			Guard.ArgumentNotNull(nameof(assemblyName), "assemblyName must include a name component", parsedAssemblyName.Name);
 
 			using var generator = new UniqueIDGenerator();
 			generator.Add(parsedAssemblyName.Name);

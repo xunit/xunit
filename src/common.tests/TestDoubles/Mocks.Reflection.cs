@@ -46,7 +46,7 @@ namespace Xunit.v3
 		}
 
 		public static _IReflectionMethodInfo MethodInfo<TClass>(string methodName) =>
-			Guard.ArgumentValidNotNull(
+			Guard.ArgumentNotNull(
 				nameof(methodName),
 				$"Could not find method '{methodName}' on '{typeof(TClass).FullName}'",
 				Reflector.Wrap(typeof(TClass).GetMethod(methodName))

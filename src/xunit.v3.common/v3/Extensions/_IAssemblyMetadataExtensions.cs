@@ -15,10 +15,10 @@ namespace Xunit.v3
 		public static string SimpleAssemblyName(this _IAssemblyMetadata assemblyMetadata)
 		{
 			Guard.ArgumentNotNull(nameof(assemblyMetadata), assemblyMetadata);
-			Guard.ArgumentValidNotNullOrEmpty(nameof(assemblyMetadata), $"{nameof(assemblyMetadata)}.{nameof(_IAssemblyMetadata.AssemblyName)}", assemblyMetadata.AssemblyName);
+			Guard.ArgumentNotNullOrEmpty(nameof(assemblyMetadata), $"{nameof(assemblyMetadata)}.{nameof(_IAssemblyMetadata.AssemblyName)}", assemblyMetadata.AssemblyName);
 
 			var parsedAssemblyName = new AssemblyName(assemblyMetadata.AssemblyName);
-			Guard.ArgumentValidNotNullOrEmpty(nameof(assemblyMetadata), $"{nameof(assemblyMetadata)}.{nameof(_IAssemblyMetadata.AssemblyName)} must include a name component", parsedAssemblyName.Name);
+			Guard.ArgumentNotNullOrEmpty(nameof(assemblyMetadata), $"{nameof(assemblyMetadata)}.{nameof(_IAssemblyMetadata.AssemblyName)} must include a name component", parsedAssemblyName.Name);
 
 			return parsedAssemblyName.Name;
 		}
