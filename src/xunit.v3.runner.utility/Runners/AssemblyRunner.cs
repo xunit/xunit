@@ -61,11 +61,11 @@ namespace Xunit.Runners
 			var project = new XunitProject();
 			var projectAssembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = assemblyFileName,
-				ConfigFilename = configFileName,
+				AssemblyFileName = assemblyFileName,
+				ConfigFileName = configFileName,
 			};
 
-			ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFilename, projectAssembly.ConfigFilename);
+			ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 			projectAssembly.Configuration.AppDomain = appDomainSupport;
 			projectAssembly.Configuration.ShadowCopy = shadowCopy;
 			projectAssembly.Configuration.ShadowCopyFolder = shadowCopyFolder;

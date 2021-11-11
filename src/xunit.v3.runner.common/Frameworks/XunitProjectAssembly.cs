@@ -9,6 +9,7 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class XunitProjectAssembly
 	{
+		string? assemblyFileName;
 		string? targetFramework;
 
 		/// <summary>
@@ -32,17 +33,21 @@ namespace Xunit.Runner.Common
 		/// assembly does not have a file name.
 		/// </summary>
 		public string AssemblyDisplayName =>
-			string.IsNullOrWhiteSpace(AssemblyFilename) ? "<dynamic>" : Path.GetFileNameWithoutExtension(AssemblyFilename);
+			AssemblyFileName == string.Empty ? "<dynamic>" : Path.GetFileNameWithoutExtension(AssemblyFileName);
 
 		/// <summary>
-		/// Gets or sets the assembly filename.
+		/// Gets or sets the assembly file name.
 		/// </summary>
-		public string? AssemblyFilename { get; set; }
+		public string AssemblyFileName
+		{
+			get => assemblyFileName ?? string.Empty;
+			set => assemblyFileName = value;
+		}
 
 		/// <summary>
-		/// Gets or sets the config filename.
+		/// Gets or sets the config file name.
 		/// </summary>
-		public string? ConfigFilename { get; set; }
+		public string? ConfigFileName { get; set; }
 
 		/// <summary>
 		/// Gets the configuration values for the test assembly.

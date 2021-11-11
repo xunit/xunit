@@ -289,7 +289,7 @@ namespace Xunit.Runner.Common
 			var executionFinished = args.Message;
 			Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
 
-			RemoveExecutionOptions(executionFinished.Assembly.AssemblyFilename);
+			RemoveExecutionOptions(executionFinished.Assembly.AssemblyFileName);
 		}
 
 		/// <summary>
@@ -301,7 +301,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(nameof(args), args);
 
 			var executionStarting = args.Message;
-			AddExecutionOptions(executionStarting.Assembly.AssemblyFilename, executionStarting.ExecutionOptions);
+			AddExecutionOptions(executionStarting.Assembly.AssemblyFileName, executionStarting.ExecutionOptions);
 
 			var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
 

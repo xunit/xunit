@@ -5,16 +5,11 @@ public class XunitProjectAssemblyTests
 {
 	public class AssemblyDisplayName
 	{
-		[Theory]
-		[InlineData(default(string))]
-		[InlineData("")]
-		public void WhenAssemblyFilenameIsNotSet_ReturnsDynamic(string? assemblyFileName)
+		[Fact]
+		public void WhenAssemblyFilenameIsNotSet_ReturnsDynamic()
 		{
 			var project = new XunitProject();
-			var projectAssembly = new XunitProjectAssembly(project)
-			{
-				AssemblyFilename = assemblyFileName
-			};
+			var projectAssembly = new XunitProjectAssembly(project);
 
 			var displayName = projectAssembly.AssemblyDisplayName;
 
@@ -27,7 +22,7 @@ public class XunitProjectAssemblyTests
 			var project = new XunitProject();
 			var projectAssembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = "/foo/bar/baz.exe"
+				AssemblyFileName = "/foo/bar/baz.exe"
 			};
 
 			var displayName = projectAssembly.AssemblyDisplayName;

@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Xunit.v3;
 
@@ -10,7 +9,7 @@ namespace Xunit.Runner.Common
 	/// line switch or implicitly invoked by being environmentally enabled (for
 	/// example, a reporter that emits messages for TeamCity).
 	/// </summary>
-	public interface IRunnerReporter : IAsyncDisposable
+	public interface IRunnerReporter
 	{
 		/// <summary>
 		/// Gets the description of the reporter. This is typically used when showing

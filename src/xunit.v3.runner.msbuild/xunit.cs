@@ -183,87 +183,80 @@ namespace Xunit.Runner.MSBuild
 				if (reporter == null)
 					return false;
 
-				try
+				logger = new MSBuildLogger(Log);
+				reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
+
+				if (!NoLogo)
+					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+
+				var project = new XunitProject();
+				foreach (var assembly in Assemblies)
 				{
-					logger = new MSBuildLogger(Log);
-					reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
+					var assemblyFileName = assembly.GetMetadata("FullPath");
+					var configFileName = assembly.GetMetadata("ConfigFile");
+					if (configFileName != null && configFileName.Length == 0)
+						configFileName = null;
 
-					if (!NoLogo)
-						Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
-
-					var project = new XunitProject();
-					foreach (var assembly in Assemblies)
+					var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
+					var projectAssembly = new XunitProjectAssembly(project)
 					{
-						var assemblyFileName = assembly.GetMetadata("FullPath");
-						var configFileName = assembly.GetMetadata("ConfigFile");
-						if (configFileName != null && configFileName.Length == 0)
-							configFileName = null;
+						AssemblyFileName = assemblyFileName,
+						ConfigFileName = configFileName,
+						TargetFramework = targetFramework
+					};
 
-						var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
-						var projectAssembly = new XunitProjectAssembly(project)
+					ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+
+					if (Culture != null)
+						projectAssembly.Configuration.Culture = Culture switch
 						{
-							AssemblyFilename = assemblyFileName,
-							ConfigFilename = configFileName,
-							TargetFramework = targetFramework
+							"default" => null,
+							"invariant" => string.Empty,
+							_ => Culture,
 						};
 
-						ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+					if (shadowCopy.HasValue)
+						projectAssembly.Configuration.ShadowCopy = shadowCopy;
 
-						if (Culture != null)
-							projectAssembly.Configuration.Culture = Culture switch
-							{
-								"default" => null,
-								"invariant" => string.Empty,
-								_ => Culture,
-							};
+					project.Add(projectAssembly);
+				}
 
-						if (shadowCopy.HasValue)
-							projectAssembly.Configuration.ShadowCopy = shadowCopy;
+				if (WorkingFolder != null)
+					Directory.SetCurrentDirectory(WorkingFolder);
 
-						project.Add(projectAssembly);
-					}
+				var clockTime = Stopwatch.StartNew();
 
-					if (WorkingFolder != null)
-						Directory.SetCurrentDirectory(WorkingFolder);
+				if (!parallelizeAssemblies.HasValue)
+					parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
 
-					var clockTime = Stopwatch.StartNew();
-
-					if (!parallelizeAssemblies.HasValue)
-						parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
-
-					if (parallelizeAssemblies.GetValueOrDefault())
+				if (parallelizeAssemblies.GetValueOrDefault())
+				{
+					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
+					var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
+					foreach (var assemblyElement in results.WhereNotNull())
+						assembliesElement!.Add(assemblyElement);
+				}
+				else
+				{
+					foreach (var assembly in project.Assemblies)
 					{
-						var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
-						var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-						foreach (var assemblyElement in results.WhereNotNull())
+						var assemblyElement = ExecuteAssembly(assembly, appDomains);
+						if (assemblyElement != null)
 							assembliesElement!.Add(assemblyElement);
 					}
-					else
-					{
-						foreach (var assembly in project.Assemblies)
-						{
-							var assemblyElement = ExecuteAssembly(assembly, appDomains);
-							if (assemblyElement != null)
-								assembliesElement!.Add(assemblyElement);
-						}
-					}
-
-					clockTime.Stop();
-
-					if (assembliesElement != null)
-						assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
-					if (completionMessages.Count > 0)
-					{
-						var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
-						foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
-							summaries.Add(completionMessage.Key, completionMessage.Value);
-						reporterMessageHandler.OnMessage(summaries);
-					}
 				}
-				finally
+
+				clockTime.Stop();
+
+				if (assembliesElement != null)
+					assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
+				if (completionMessages.Count > 0)
 				{
-					reporter.DisposeAsync().GetAwaiter().GetResult();
+					var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
+					foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
+						summaries.Add(completionMessage.Key, completionMessage.Value);
+					reporterMessageHandler.OnMessage(summaries);
 				}
 			}
 
@@ -324,7 +317,7 @@ namespace Xunit.Runner.MSBuild
 				if (stopOnFail.HasValue)
 					executionOptions.SetStopOnTestFail(stopOnFail);
 
-				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename)!;
+				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
 				var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
 				var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;

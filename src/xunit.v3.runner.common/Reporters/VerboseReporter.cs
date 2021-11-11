@@ -26,8 +26,5 @@ namespace Xunit.Runner.Common
 			IRunnerLogger logger,
 			_IMessageSink diagnosticMessageSink) =>
 				new(new VerboseReporterMessageHandler(logger));
-
-		/// <inheritdoc/>
-		public ValueTask DisposeAsync() => default;
 	}
 }

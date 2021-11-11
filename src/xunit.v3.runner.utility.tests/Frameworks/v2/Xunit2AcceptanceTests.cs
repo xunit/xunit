@@ -633,8 +633,8 @@ let TestMethod(x : int) =
 			var project = new XunitProject();
 			var projectAssembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = assemblyFileName,
-				ConfigFilename = configFileName,
+				AssemblyFileName = assemblyFileName,
+				ConfigFileName = configFileName,
 			};
 			projectAssembly.Configuration.AppDomain = appDomainSupport;
 			projectAssembly.Configuration.ShadowCopy = shadowCopy;

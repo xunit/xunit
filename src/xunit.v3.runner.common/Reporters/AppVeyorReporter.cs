@@ -38,8 +38,5 @@ namespace Xunit.Runner.Common
 
 			return new(handler);
 		}
-
-		/// <inheritdoc/>
-		public ValueTask DisposeAsync() => default;
 	}
 }

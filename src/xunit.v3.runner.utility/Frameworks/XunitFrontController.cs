@@ -125,7 +125,7 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(referenceList), referenceList);
 
 			var innerDiscoverer = default(IFrontControllerDiscoverer);
-			var assemblyFileName = projectAssembly.AssemblyFilename;
+			var assemblyFileName = projectAssembly.AssemblyFileName;
 
 			if (diagnosticMessageSink == null)
 				diagnosticMessageSink = _NullMessageSink.Instance;
@@ -170,7 +170,7 @@ namespace Xunit
 			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
 
 			var innerController = default(IFrontController);
-			var assemblyFileName = projectAssembly.AssemblyFilename;
+			var assemblyFileName = projectAssembly.AssemblyFileName;
 			var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
 			if (diagnosticMessageSink == null)

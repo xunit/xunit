@@ -467,9 +467,9 @@ namespace Xunit.Runner.v1
 		{
 			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
 
-			var assemblyFileName = projectAssembly.AssemblyFilename;
+			var assemblyFileName = projectAssembly.AssemblyFileName;
 
-			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFilename)}", assemblyFileName);
+			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFileName)}", assemblyFileName);
 
 			if (diagnosticMessageSink == null)
 				diagnosticMessageSink = _NullMessageSink.Instance;
@@ -483,7 +483,7 @@ namespace Xunit.Runner.v1
 				sourceInformationProvider ?? new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink),
 #endif
 				assemblyFileName,
-				projectAssembly.ConfigFilename,
+				projectAssembly.ConfigFileName,
 				projectAssembly.Configuration.ShadowCopyOrDefault,
 				projectAssembly.Configuration.ShadowCopyFolder
 			);

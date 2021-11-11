@@ -42,8 +42,5 @@ namespace Xunit.Runner.Common
 
 			return new ValueTask<_IMessageSink>(new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId));
 		}
-
-		/// <inheritdoc/>
-		public ValueTask DisposeAsync() => default;
 	}
 }

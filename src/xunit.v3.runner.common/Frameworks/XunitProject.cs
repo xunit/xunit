@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -8,9 +8,10 @@ namespace Xunit.Runner.Common
 	/// Represents a project which contains zero or more test assemblies, as well as global
 	/// (cross-assembly) configuration settings.
 	/// </summary>
-	public class XunitProject : IEnumerable<XunitProjectAssembly>
+	public class XunitProject
 	{
 		readonly List<XunitProjectAssembly> assemblies;
+		IRunnerReporter? runnerReporter;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitProject"/> class.
@@ -31,6 +32,15 @@ namespace Xunit.Runner.Common
 		public TestProjectConfiguration Configuration { get; } = new();
 
 		/// <summary>
+		/// Gets or sets the runner reporter.
+		/// </summary>
+		public IRunnerReporter RunnerReporter
+		{
+			get => runnerReporter ?? throw new InvalidOperationException($"Attempted to get {nameof(RunnerReporter)} on an uninitialized '{GetType().FullName}' object");
+			set => runnerReporter = Guard.ArgumentNotNull(nameof(RunnerReporter), value);
+		}
+
+		/// <summary>
 		/// Adds an assembly to the project.
 		/// </summary>
 		/// <param name="assembly">The assembly to add to the project.</param>
@@ -40,12 +50,5 @@ namespace Xunit.Runner.Common
 
 			assemblies.Add(assembly);
 		}
-
-		/// <inheritdoc/>
-		public IEnumerator<XunitProjectAssembly> GetEnumerator() =>
-			assemblies.GetEnumerator();
-
-		IEnumerator IEnumerable.GetEnumerator() =>
-			GetEnumerator();
 	}
 }

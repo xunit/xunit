@@ -400,7 +400,7 @@ namespace Xunit.Runner.v2
 				assemblyInfo,
 				assemblyFileName: null,
 				xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
-				projectAssembly.ConfigFilename,
+				projectAssembly.ConfigFileName,
 				projectAssembly.Configuration.ShadowCopyOrDefault,
 				projectAssembly.Configuration.ShadowCopyFolder,
 				verifyAssembliesOnDisk
@@ -422,10 +422,10 @@ namespace Xunit.Runner.v2
 			bool verifyAssembliesOnDisk = true)
 		{
 			var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
-			var assemblyFileName = projectAssembly.AssemblyFilename;
+			var assemblyFileName = projectAssembly.AssemblyFileName;
 
 			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFilename)}", assemblyFileName);
+			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFileName)}", assemblyFileName);
 
 			return new Xunit2(
 				diagnosticMessageSink,
@@ -438,7 +438,7 @@ namespace Xunit.Runner.v2
 				assemblyInfo: null,
 				assemblyFileName,
 				GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk),
-				projectAssembly.ConfigFilename,
+				projectAssembly.ConfigFileName,
 				projectAssembly.Configuration.ShadowCopyOrDefault,
 				projectAssembly.Configuration.ShadowCopyFolder,
 				verifyAssembliesOnDisk

@@ -133,8 +133,8 @@ namespace Xunit.v3
 			var project = new XunitProject();
 			var assembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath,
+				AssemblyFileName = assemblyPath,
+				ConfigFileName = configFilePath,
 				TargetFramework = targetFramework
 			};
 			// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
@@ -171,8 +171,8 @@ namespace Xunit.v3
 			var project = new XunitProject();
 			var assembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath,
+				AssemblyFileName = assemblyPath,
+				ConfigFileName = configFilePath,
 				TargetFramework = targetFramework
 			};
 			// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
@@ -211,8 +211,8 @@ namespace Xunit.v3
 			var project = new XunitProject();
 			var assembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath,
+				AssemblyFileName = assemblyPath,
+				ConfigFileName = configFilePath,
 				TargetFramework = targetFramework
 			};
 			// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
@@ -252,8 +252,8 @@ namespace Xunit.v3
 			var project = new XunitProject();
 			var assembly = new XunitProjectAssembly(project)
 			{
-				AssemblyFilename = assemblyPath,
-				ConfigFilename = configFilePath,
+				AssemblyFileName = assemblyPath,
+				ConfigFileName = configFilePath,
 				TargetFramework = targetFramework
 			};
 			// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery

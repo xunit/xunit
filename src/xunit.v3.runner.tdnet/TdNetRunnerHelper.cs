@@ -42,7 +42,7 @@ namespace Xunit.Runner.TdNet
 			projectAssembly = new XunitProjectAssembly(project)
 			{
 				Assembly = assembly,
-				AssemblyFilename = assemblyFileName,
+				AssemblyFileName = assemblyFileName,
 				TargetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName)
 			};
 			projectAssembly.Configuration.ShadowCopy = false;
