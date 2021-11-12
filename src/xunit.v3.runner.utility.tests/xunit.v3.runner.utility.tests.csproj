@@ -13,7 +13,7 @@
     <Content Include="ConfigReader_*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <Reference Include="System.Web" />
   </ItemGroup>
 
@@ -24,7 +24,6 @@
   <ItemGroup>
     <!-- Required for F# acceptance tests -->
     <PackageReference Include="FSharp.Compiler.Service" Version="41.0.1" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.11.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="6.0.0" />
   </ItemGroup>
 
