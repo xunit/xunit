@@ -20,7 +20,7 @@ namespace Xunit
 			_ITestFrameworkDiscoveryOptions options,
 			XunitFilters? filters = null)
 		{
-			Options = Guard.ArgumentNotNull(nameof(options), options);
+			Options = Guard.ArgumentNotNull(options);
 			Filters = filters ?? new XunitFilters();
 		}
 

@@ -69,7 +69,7 @@ namespace Xunit.Internal
 		/// <summary/>
 		public bool QueueMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			if (shutdownRequested)
 				throw new ObjectDisposedException("MessageBus");

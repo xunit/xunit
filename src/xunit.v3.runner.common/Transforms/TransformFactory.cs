@@ -61,7 +61,7 @@ namespace Xunit.Runner.Common
 		/// <returns>The list of transform functions.</returns>
 		public static List<Action<XElement>> GetXmlTransformers(XunitProject project)
 		{
-			Guard.ArgumentNotNull(nameof(project), project);
+			Guard.ArgumentNotNull(project);
 
 			return
 				project
@@ -73,8 +73,8 @@ namespace Xunit.Runner.Common
 
 		static void Handler_DirectWrite(XElement xml, string outputFileName)
 		{
-			Guard.ArgumentNotNull(nameof(xml), xml);
-			Guard.ArgumentNotNull(nameof(outputFileName), outputFileName);
+			Guard.ArgumentNotNull(xml);
+			Guard.ArgumentNotNull(outputFileName);
 
 			using var stream = File.Create(outputFileName);
 			xml.Save(stream);
@@ -82,8 +82,8 @@ namespace Xunit.Runner.Common
 
 		static void Handler_XslTransform(string resourceName, XElement xml, string outputFileName)
 		{
-			Guard.ArgumentNotNull(nameof(xml), xml);
-			Guard.ArgumentNotNull(nameof(outputFileName), outputFileName);
+			Guard.ArgumentNotNull(xml);
+			Guard.ArgumentNotNull(outputFileName);
 
 			var xmlTransform = new XslCompiledTransform();
 
@@ -109,9 +109,9 @@ namespace Xunit.Runner.Common
 			XElement assembliesElement,
 			string outputFileName)
 		{
-			Guard.ArgumentNotNull(nameof(id), id);
-			Guard.ArgumentNotNull(nameof(assembliesElement), assembliesElement);
-			Guard.ArgumentNotNull(nameof(outputFileName), outputFileName);
+			Guard.ArgumentNotNull(id);
+			Guard.ArgumentNotNull(assembliesElement);
+			Guard.ArgumentNotNull(outputFileName);
 
 			var transform = AvailableTransforms.FirstOrDefault(t => string.Equals(t.ID, id, StringComparison.OrdinalIgnoreCase));
 

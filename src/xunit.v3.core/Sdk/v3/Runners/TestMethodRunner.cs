@@ -44,10 +44,10 @@ namespace Xunit.v3
 			TestMethod = testMethod;
 			Class = @class;
 			Method = method;
-			this.testCases = Guard.ArgumentNotNullOrEmpty(nameof(testCases), testCases);
-			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
-			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+			this.testCases = Guard.ArgumentNotNullOrEmpty(testCases);
+			this.messageBus = Guard.ArgumentNotNull(messageBus);
+			this.aggregator = Guard.ArgumentNotNull(aggregator);
+			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 		}
 
 		/// <summary>
@@ -56,7 +56,7 @@ namespace Xunit.v3
 		protected ExceptionAggregator Aggregator
 		{
 			get => aggregator;
-			set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
 		}
 
 		/// <summary>
@@ -65,7 +65,7 @@ namespace Xunit.v3
 		protected CancellationTokenSource CancellationTokenSource
 		{
 			get => cancellationTokenSource;
-			set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+			set => cancellationTokenSource = Guard.ArgumentNotNull(value, nameof(CancellationTokenSource));
 		}
 
 		/// <summary>
@@ -79,7 +79,7 @@ namespace Xunit.v3
 		protected IMessageBus MessageBus
 		{
 			get => messageBus;
-			set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+			set => messageBus = Guard.ArgumentNotNull(value, nameof(MessageBus));
 		}
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace Xunit.v3
 		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
-			set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
+			set => testCases = Guard.ArgumentNotNull(value, nameof(TestCases));
 		}
 
 		/// <summary>

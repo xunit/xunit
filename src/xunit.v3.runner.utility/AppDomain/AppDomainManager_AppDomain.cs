@@ -23,10 +23,10 @@ namespace Xunit
 			string? shadowCopyFolder,
 			_IMessageSink diagnosticMessageSink)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+			Guard.ArgumentNotNullOrEmpty(assemblyFileName);
 
 			assemblyFileName = Path.GetFullPath(assemblyFileName);
-			Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
+			Guard.FileExists(assemblyFileName);
 
 			if (configFileName == null)
 				configFileName = GetDefaultConfigFile(assemblyFileName);
@@ -82,8 +82,8 @@ namespace Xunit
 			params object?[]? args)
 				where TObject : class
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyLocation), assemblyLocation);
-			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+			Guard.ArgumentNotNullOrEmpty(assemblyLocation);
+			Guard.ArgumentNotNullOrEmpty(typeName);
 
 			try
 			{
@@ -103,8 +103,8 @@ namespace Xunit
 			params object?[]? args)
 				where TObject : class
 		{
-			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
-			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+			Guard.ArgumentNotNull(assemblyName);
+			Guard.ArgumentNotNullOrEmpty(typeName);
 
 			try
 			{

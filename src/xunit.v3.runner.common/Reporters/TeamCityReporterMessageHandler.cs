@@ -19,7 +19,7 @@ namespace Xunit.Runner.Common
 		/// <param name="logger">The logger used to report messages</param>
 		public TeamCityReporterMessageHandler(IRunnerLogger logger)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
+			Guard.ArgumentNotNull(logger);
 
 			this.logger = logger;
 
@@ -57,7 +57,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var error = args.Message;
 			LogError("FATAL ERROR", error);
@@ -68,7 +68,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var metadata = metadataCache.TryGetAssemblyMetadata(cleanupFailure);
@@ -83,7 +83,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.TryRemove(args.Message);
 		}
@@ -93,7 +93,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.Set(args.Message);
 		}
@@ -103,7 +103,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var metadata = metadataCache.TryGetTestCaseMetadata(args.Message);
@@ -118,7 +118,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.TryRemove(args.Message);
 		}
@@ -128,7 +128,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.Set(args.Message);
 		}
@@ -138,7 +138,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var metadata = metadataCache.TryGetClassMetadata(cleanupFailure);
@@ -153,7 +153,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.TryRemove(args.Message);
 		}
@@ -163,7 +163,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.Set(args.Message);
 		}
@@ -173,7 +173,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var metadata = metadataCache.TryGetCollectionMetadata(cleanupFailure);
@@ -188,7 +188,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testCollectionFinished = args.Message;
 			var metadata = metadataCache.TryRemove(testCollectionFinished);
@@ -204,7 +204,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testCollectionStarting = args.Message;
 			metadataCache.Set(testCollectionStarting);
@@ -217,7 +217,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var testMetadata = metadataCache.TryGetTestMetadata(cleanupFailure);
@@ -231,7 +231,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testFailed = args.Message;
 			var testMetadata = metadataCache.TryGetTestMetadata(testFailed);
@@ -248,7 +248,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var metadata = metadataCache.TryGetMethodMetadata(args.Message);
@@ -263,7 +263,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.TryRemove(args.Message);
 		}
@@ -273,7 +273,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			metadataCache.Set(args.Message);
 		}
@@ -283,7 +283,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testPassed = args.Message;
 
@@ -295,7 +295,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testSkipped = args.Message;
 			var testMetadata = metadataCache.TryGetTestMetadata(testSkipped);
@@ -311,7 +311,7 @@ namespace Xunit.Runner.Common
 		/// </summary>
 		protected virtual void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testStarting = args.Message;
 			var formattedName = Escape(testStarting.TestDisplayName);

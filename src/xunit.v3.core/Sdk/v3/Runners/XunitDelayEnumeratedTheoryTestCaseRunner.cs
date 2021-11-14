@@ -43,7 +43,7 @@ namespace Xunit.v3
 			CancellationTokenSource cancellationTokenSource)
 				: base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <summary>

@@ -14,7 +14,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public Type? GetTestFrameworkType(_IAttributeInfo attribute)
 		{
-			Guard.ArgumentNotNull(nameof(attribute), attribute);
+			Guard.ArgumentNotNull(attribute);
 
 			var args = attribute.GetConstructorArguments().ToArray();
 			if (args.Length == 1)

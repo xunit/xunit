@@ -37,7 +37,7 @@ namespace Xunit.Runner.Common
 		public IRunnerReporter RunnerReporter
 		{
 			get => runnerReporter ?? throw new InvalidOperationException($"Attempted to get {nameof(RunnerReporter)} on an uninitialized '{GetType().FullName}' object");
-			set => runnerReporter = Guard.ArgumentNotNull(nameof(RunnerReporter), value);
+			set => runnerReporter = Guard.ArgumentNotNull(value, nameof(RunnerReporter));
 		}
 
 		/// <summary>
@@ -46,7 +46,7 @@ namespace Xunit.Runner.Common
 		/// <param name="assembly">The assembly to add to the project.</param>
 		public void Add(XunitProjectAssembly assembly)
 		{
-			Guard.ArgumentNotNull("assembly", assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			assemblies.Add(assembly);
 		}

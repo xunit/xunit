@@ -47,7 +47,7 @@ namespace Xunit.Runner.v1
 
 		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices) ConvertToErrorMetadata(XmlNode failureNode)
 		{
-			Guard.ArgumentNotNull(nameof(failureNode), failureNode);
+			Guard.ArgumentNotNull(failureNode);
 
 			var exceptionTypeAttribute = failureNode.Attributes?["exception-type"];
 			var exceptionType = exceptionTypeAttribute != null ? exceptionTypeAttribute.Value : string.Empty;

@@ -113,7 +113,7 @@ namespace Xunit.Runner.MSBuild
 
 		public override bool Execute()
 		{
-			Guard.ArgumentNotNull(nameof(Assemblies), Assemblies);
+			Guard.ArgumentNotNull(Assemblies);
 
 			RemotingUtility.CleanUpRegisteredChannels();
 

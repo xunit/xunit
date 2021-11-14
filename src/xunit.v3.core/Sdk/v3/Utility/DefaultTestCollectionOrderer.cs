@@ -14,7 +14,7 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections)
 		{
-			Guard.ArgumentNotNull(nameof(testCollections), testCollections);
+			Guard.ArgumentNotNull(testCollections);
 
 			var result = testCollections.ToList();
 			result.Sort(Compare);

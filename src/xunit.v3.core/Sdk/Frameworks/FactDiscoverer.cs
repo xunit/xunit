@@ -18,7 +18,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public FactDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <summary>
@@ -37,9 +37,9 @@ namespace Xunit.Sdk
 			_ITestMethod testMethod,
 			_IAttributeInfo factAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
-			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
+			Guard.ArgumentNotNull(discoveryOptions);
+			Guard.ArgumentNotNull(testMethod);
+			Guard.ArgumentNotNull(factAttribute);
 
 			return new XunitTestCase(
 				DiagnosticMessageSink,
@@ -63,9 +63,9 @@ namespace Xunit.Sdk
 			_ITestMethod testMethod,
 			_IAttributeInfo factAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
-			Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
+			Guard.ArgumentNotNull(discoveryOptions);
+			Guard.ArgumentNotNull(testMethod);
+			Guard.ArgumentNotNull(factAttribute);
 
 			IXunitTestCase testCase;
 

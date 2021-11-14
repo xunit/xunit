@@ -18,7 +18,7 @@ namespace Xunit.Runner.Common
 		/// <param name="project">The project this assembly belongs to.</param>
 		public XunitProjectAssembly(XunitProject project)
 		{
-			Project = Guard.ArgumentNotNull(nameof(project), project);
+			Project = Guard.ArgumentNotNull(project);
 		}
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace Xunit.Runner.Common
 		public string TargetFramework
 		{
 			get => targetFramework ?? AssemblyExtensions.UnknownTargetFramework;
-			set => targetFramework = Guard.ArgumentNotNull(nameof(TargetFramework), value);
+			set => targetFramework = Guard.ArgumentNotNull(value, nameof(TargetFramework));
 		}
 	}
 }

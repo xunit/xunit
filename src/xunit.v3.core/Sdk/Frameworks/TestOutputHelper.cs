@@ -53,7 +53,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public void WriteLine(string message)
 		{
-			Guard.ArgumentNotNull("message", message);
+			Guard.ArgumentNotNull(message);
 
 			QueueTestOutput(message + Environment.NewLine);
 		}
@@ -61,8 +61,8 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public void WriteLine(string format, params object[] args)
 		{
-			Guard.ArgumentNotNull("format", format);
-			Guard.ArgumentNotNull("args", args);
+			Guard.ArgumentNotNull(format);
+			Guard.ArgumentNotNull(args);
 
 			QueueTestOutput(string.Format(format, args) + Environment.NewLine);
 		}
@@ -83,9 +83,9 @@ namespace Xunit.Sdk
 				IMessageBus messageBus,
 				_ITest test)
 			{
-				Guard.ArgumentNotNull(nameof(test), test);
+				Guard.ArgumentNotNull(test);
 
-				this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+				this.messageBus = Guard.ArgumentNotNull(messageBus);
 
 				testAssemblyUniqueID = test.TestCase.TestCollection.TestAssembly.UniqueID;
 				testCollectionUniqueID = test.TestCase.TestCollection.UniqueID;

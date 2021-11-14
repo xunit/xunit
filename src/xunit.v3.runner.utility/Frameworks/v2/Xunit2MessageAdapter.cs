@@ -721,7 +721,7 @@ namespace Xunit.Runner.v2
 			Func<TMessage, _MessageSinkMessage> converter)
 				where TMessage : class, IMessageSinkMessage
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			var castMessage = messageTypes == null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
 			if (castMessage != null)

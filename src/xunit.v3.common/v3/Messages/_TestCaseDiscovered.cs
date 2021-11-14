@@ -23,7 +23,7 @@ namespace Xunit.v3
 		public string Serialization
 		{
 			get => serialization ?? throw new InvalidOperationException($"Attempted to get {nameof(Serialization)} on an uninitialized '{GetType().FullName}' object");
-			set => serialization = Guard.ArgumentNotNull(nameof(Serialization), value);
+			set => serialization = Guard.ArgumentNotNull(value, nameof(Serialization));
 		}
 
 		/// <inheritdoc/>
@@ -39,7 +39,7 @@ namespace Xunit.v3
 		public string TestCaseDisplayName
 		{
 			get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
-			set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(nameof(TestCaseDisplayName), value);
+			set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseDisplayName));
 		}
 
 		/// <inheritdoc/>

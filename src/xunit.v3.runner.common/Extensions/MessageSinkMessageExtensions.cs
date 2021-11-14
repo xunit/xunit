@@ -20,7 +20,7 @@ namespace Xunit.v3
 			MessageHandler<TMessage>? callback)
 				where TMessage : _MessageSinkMessage
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			if (callback != null && message is TMessage castMessage)
 			{

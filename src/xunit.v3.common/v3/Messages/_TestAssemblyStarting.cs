@@ -18,7 +18,7 @@ namespace Xunit.v3
 		public string AssemblyName
 		{
 			get => assemblyName ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyName)} on an uninitialized '{GetType().FullName}' object");
-			set => assemblyName = Guard.ArgumentNotNullOrEmpty(nameof(AssemblyName), value);
+			set => assemblyName = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyName));
 		}
 
 		/// <inheritdoc/>
@@ -47,7 +47,7 @@ namespace Xunit.v3
 		public string TestEnvironment
 		{
 			get => testEnvironment ?? throw new InvalidOperationException($"Attempted to get {nameof(TestEnvironment)} on an uninitialized '{GetType().FullName}' object");
-			set => testEnvironment = Guard.ArgumentNotNullOrEmpty(nameof(TestEnvironment), value);
+			set => testEnvironment = Guard.ArgumentNotNullOrEmpty(value, nameof(TestEnvironment));
 		}
 
 		/// <summary>
@@ -57,7 +57,7 @@ namespace Xunit.v3
 		public string TestFrameworkDisplayName
 		{
 			get => testFrameworkDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestFrameworkDisplayName)} on an uninitialized '{GetType().FullName}' object");
-			set => testFrameworkDisplayName = Guard.ArgumentNotNullOrEmpty(nameof(TestFrameworkDisplayName), value);
+			set => testFrameworkDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestFrameworkDisplayName));
 		}
 
 		/// <inheritdoc/>

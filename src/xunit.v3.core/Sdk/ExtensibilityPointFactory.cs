@@ -57,8 +57,8 @@ namespace Xunit.Sdk
 			object?[]? ctorArgs = null)
 				where TInterface : class
 		{
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			Guard.ArgumentNotNull(nameof(type), type);
+			Guard.ArgumentNotNull(diagnosticMessageSink);
+			Guard.ArgumentNotNull(type);
 
 			return (TInterface?)CreateInstance(diagnosticMessageSink, type, ctorArgs);
 		}
@@ -83,7 +83,7 @@ namespace Xunit.Sdk
 			_IMessageSink diagnosticMessageSink,
 			_IAttributeInfo dataDiscovererAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(dataDiscovererAttribute), dataDiscovererAttribute);
+			Guard.ArgumentNotNull(dataDiscovererAttribute);
 
 			var discovererType = TypeFromAttributeConstructor(dataDiscovererAttribute);
 			if (discovererType == null)
@@ -112,7 +112,7 @@ namespace Xunit.Sdk
 			_IMessageSink diagnosticMessageSink,
 			_IAttributeInfo testCaseOrdererAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(testCaseOrdererAttribute), testCaseOrdererAttribute);
+			Guard.ArgumentNotNull(testCaseOrdererAttribute);
 
 			var ordererType = TypeFromAttributeConstructor(testCaseOrdererAttribute);
 			if (ordererType == null)
@@ -141,7 +141,7 @@ namespace Xunit.Sdk
 			_IMessageSink diagnosticMessageSink,
 			_IAttributeInfo testCollectionOrdererAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(testCollectionOrdererAttribute), testCollectionOrdererAttribute);
+			Guard.ArgumentNotNull(testCollectionOrdererAttribute);
 
 			var ordererType = TypeFromAttributeConstructor(testCollectionOrdererAttribute);
 			if (ordererType == null)
@@ -250,7 +250,7 @@ namespace Xunit.Sdk
 			_IMessageSink diagnosticMessageSink,
 			_IAttributeInfo testFrameworkDiscovererAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(testFrameworkDiscovererAttribute), testFrameworkDiscovererAttribute);
+			Guard.ArgumentNotNull(testFrameworkDiscovererAttribute);
 
 			var testFrameworkDiscovererType = TypeFromAttributeConstructor(testFrameworkDiscovererAttribute);
 			if (testFrameworkDiscovererType == null)
@@ -279,7 +279,7 @@ namespace Xunit.Sdk
 			_IMessageSink diagnosticMessageSink,
 			_IAttributeInfo traitDiscovererAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(traitDiscovererAttribute), traitDiscovererAttribute);
+			Guard.ArgumentNotNull(traitDiscovererAttribute);
 
 			var discovererType = TypeFromAttributeConstructor(traitDiscovererAttribute);
 			if (discovererType == null)
@@ -399,7 +399,7 @@ namespace Xunit.Sdk
 		/// <returns>The type, if it exists; <c>null</c>, otherwise</returns>
 		public static Type? TypeFromAttributeConstructor(_IAttributeInfo attribute)
 		{
-			Guard.ArgumentNotNull(nameof(attribute), attribute);
+			Guard.ArgumentNotNull(attribute);
 
 			var ctorArgs = attribute.GetConstructorArguments().ToArray();
 			if (ctorArgs.Length == 1 && ctorArgs[0] is Type type)
@@ -421,7 +421,7 @@ namespace Xunit.Sdk
 		/// <returns>The type, if it exists; <c>null</c>, otherwise</returns>
 		public static (string? typeName, string? assemblyName) TypeStringsFromAttributeConstructor(_IAttributeInfo attribute)
 		{
-			Guard.ArgumentNotNull(nameof(attribute), attribute);
+			Guard.ArgumentNotNull(attribute);
 
 			var ctorArgs = attribute.GetConstructorArguments().ToArray();
 			if (ctorArgs.Length == 1 && ctorArgs[0] is Type type)

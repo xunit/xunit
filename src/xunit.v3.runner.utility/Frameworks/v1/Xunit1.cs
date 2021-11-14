@@ -45,8 +45,8 @@ namespace Xunit.Runner.v1
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null)
 		{
-			Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+			Guard.ArgumentNotNull(sourceInformationProvider);
+			Guard.ArgumentNotNullOrEmpty(assemblyFileName);
 
 			this.diagnosticMessageSink = diagnosticMessageSink;
 			this.appDomainSupport = appDomainSupport;
@@ -118,7 +118,7 @@ namespace Xunit.Runner.v1
 			bool includeSourceInformation,
 			Predicate<_TestCaseDiscovered>? filter)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(messageSink);
 
 			var discoveryStarting = new _DiscoveryStarting
 			{
@@ -150,8 +150,8 @@ namespace Xunit.Runner.v1
 			_IMessageSink messageSink,
 			FrontControllerFindSettings settings)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			Find(
 				messageSink,
@@ -238,7 +238,7 @@ namespace Xunit.Runner.v1
 			bool includeSourceInformation,
 			Predicate<_TestCaseDiscovered>? filter)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(messageSink);
 
 			var testCases = new List<Xunit1TestCase>();
 
@@ -264,8 +264,8 @@ namespace Xunit.Runner.v1
 			_IMessageSink messageSink,
 			FrontControllerFindAndRunSettings settings)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			// Pass null for empty filter list, since it bypasses _TestCaseDiscovered creation
 			FindAndRun(
@@ -337,8 +337,8 @@ namespace Xunit.Runner.v1
 			_IMessageSink messageSink,
 			FrontControllerRunSettings settings)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			var testCases =
 				settings
@@ -354,7 +354,7 @@ namespace Xunit.Runner.v1
 			IList<Xunit1TestCase> testCases,
 			_IMessageSink messageSink)
 		{
-			Guard.ArgumentValid(nameof(testCases), "testCases must contain at least one test case", testCases.Count > 0);
+			Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
 			var collectionStarting = new _TestCollectionStarting
 			{
@@ -403,7 +403,7 @@ namespace Xunit.Runner.v1
 			IList<Xunit1TestCase> testCases,
 			_IMessageSink messageSink)
 		{
-			Guard.ArgumentValid(nameof(testCases), "testCases must contain at least one test case", testCases.Count > 0);
+			Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
 			var handler = new TestClassCallbackHandler(testCases, messageSink);
 			var results = handler.TestClassResults;
@@ -465,11 +465,8 @@ namespace Xunit.Runner.v1
 			_ISourceInformationProvider? sourceInformationProvider = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
-
-			var assemblyFileName = projectAssembly.AssemblyFileName;
-
-			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFileName)}", assemblyFileName);
+			Guard.ArgumentNotNull(projectAssembly);
+			var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
 
 			if (diagnosticMessageSink == null)
 				diagnosticMessageSink = _NullMessageSink.Instance;

@@ -59,7 +59,7 @@ namespace Xunit.Runner.v1
 		public string AssemblyUniqueID
 		{
 			get => assemblyUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyUniqueID)} on an uninitialized '{GetType().FullName}' object");
-			set => assemblyUniqueID = Guard.ArgumentNotNull(nameof(AssemblyUniqueID), value);
+			set => assemblyUniqueID = Guard.ArgumentNotNull(value, nameof(AssemblyUniqueID));
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace Xunit.Runner.v1
 		public string TestCollectionUniqueID
 		{
 			get => testCollectionUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCollectionUniqueID)} on an uninitialized '{GetType().FullName}' object");
-			set => testCollectionUniqueID = Guard.ArgumentNotNull(nameof(TestCollectionUniqueID), value);
+			set => testCollectionUniqueID = Guard.ArgumentNotNull(value, nameof(TestCollectionUniqueID));
 		}
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace Xunit.Runner.v1
 		public string TestCaseDisplayName
 		{
 			get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
-			set => testCaseDisplayName = Guard.ArgumentNotNull(nameof(TestCaseDisplayName), value);
+			set => testCaseDisplayName = Guard.ArgumentNotNull(value, nameof(TestCaseDisplayName));
 		}
 
 		/// <summary>
@@ -102,7 +102,7 @@ namespace Xunit.Runner.v1
 		public string TestCaseUniqueID
 		{
 			get => testCaseUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseUniqueID)} on an uninitialized '{GetType().FullName}' object");
-			set => testCaseUniqueID = Guard.ArgumentNotNull(nameof(TestCaseUniqueID), value);
+			set => testCaseUniqueID = Guard.ArgumentNotNull(value, nameof(TestCaseUniqueID));
 		}
 
 		/// <summary>
@@ -111,7 +111,7 @@ namespace Xunit.Runner.v1
 		public string TestClass
 		{
 			get => testClass ?? throw new InvalidOperationException($"Attempted to get {nameof(TestClass)} on an uninitialized '{GetType().FullName}' object");
-			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+			set => testClass = Guard.ArgumentNotNull(value, nameof(TestClass));
 		}
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace Xunit.Runner.v1
 		public string TestClassUniqueID
 		{
 			get => testClassUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestClassUniqueID)} on an uninitialized '{GetType().FullName}' object");
-			set => testClassUniqueID = Guard.ArgumentNotNull(nameof(TestClassUniqueID), value);
+			set => testClassUniqueID = Guard.ArgumentNotNull(value, nameof(TestClassUniqueID));
 		}
 
 		/// <summary>
@@ -129,7 +129,7 @@ namespace Xunit.Runner.v1
 		public string TestMethod
 		{
 			get => testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
-			set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+			set => testMethod = Guard.ArgumentNotNull(value, nameof(TestMethod));
 		}
 
 		/// <summary>
@@ -138,7 +138,7 @@ namespace Xunit.Runner.v1
 		public string TestMethodUniqueID
 		{
 			get => testMethodUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethodUniqueID)} on an uninitialized '{GetType().FullName}' object");
-			set => testMethodUniqueID = Guard.ArgumentNotNull(nameof(TestMethodUniqueID), value);
+			set => testMethodUniqueID = Guard.ArgumentNotNull(value, nameof(TestMethodUniqueID));
 		}
 
 		/// <summary>

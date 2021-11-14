@@ -22,7 +22,7 @@ namespace Xunit.Runners
 			string? exceptionStackTrace)
 				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName, executionTime, output)
 		{
-			Guard.ArgumentNotNull(nameof(exceptionMessage), exceptionMessage);
+			Guard.ArgumentNotNull(exceptionMessage);
 
 			ExceptionType = exceptionType;
 			ExceptionMessage = exceptionMessage;

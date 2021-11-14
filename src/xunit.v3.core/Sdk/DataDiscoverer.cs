@@ -18,8 +18,8 @@ namespace Xunit.Sdk
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
-			Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(dataAttribute);
+			Guard.ArgumentNotNull(testMethod);
 
 			if (dataAttribute is _IReflectionAttributeInfo reflectionDataAttribute &&
 				testMethod is _IReflectionMethodInfo reflectionTestMethod)
@@ -50,8 +50,8 @@ namespace Xunit.Sdk
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
-			Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(dataAttribute);
+			Guard.ArgumentNotNull(testMethod);
 
 			return true;
 		}

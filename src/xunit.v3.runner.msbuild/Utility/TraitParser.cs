@@ -39,7 +39,7 @@ namespace Xunit.Runner.MSBuild
 
 		protected virtual void OnWarning(string message)
 		{
-			Guard.ArgumentNotNullOrEmpty("message", message);
+			Guard.ArgumentNotNullOrEmpty(message);
 
 			warningHandler?.Invoke(message);
 		}

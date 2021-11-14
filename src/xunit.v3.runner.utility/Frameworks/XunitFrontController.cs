@@ -28,14 +28,14 @@ namespace Xunit
 		// Discovery controller
 		XunitFrontController(IFrontControllerDiscoverer innerDiscoverer)
 		{
-			this.innerDiscoverer = Guard.ArgumentNotNull(nameof(innerDiscoverer), innerDiscoverer);
+			this.innerDiscoverer = Guard.ArgumentNotNull(innerDiscoverer);
 		}
 
 		// Discovery + execution constructor
 		XunitFrontController(IFrontController innerController) :
 			this((IFrontControllerDiscoverer)innerController)
 		{
-			this.innerController = Guard.ArgumentNotNull(nameof(innerController), innerController);
+			this.innerController = Guard.ArgumentNotNull(innerController);
 		}
 
 		/// <inheritdoc/>
@@ -66,8 +66,8 @@ namespace Xunit
 			_IMessageSink messageSink,
 			FrontControllerFindSettings settings)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			innerDiscoverer.Find(messageSink, settings);
 		}
@@ -79,8 +79,8 @@ namespace Xunit
 		{
 			Guard.NotNull($"This instance of {typeof(XunitFrontController).FullName} is for discovery only", innerController);
 
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			innerController.FindAndRun(messageSink, settings);
 		}
@@ -92,8 +92,8 @@ namespace Xunit
 		{
 			Guard.NotNull($"This instance of {typeof(XunitFrontController).FullName} is for discovery only", innerController);
 
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			innerController.Run(messageSink, settings);
 		}
@@ -120,9 +120,9 @@ namespace Xunit
 			_ISourceInformationProvider? sourceInformationProvider = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
-			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
-			Guard.ArgumentNotNull(nameof(referenceList), referenceList);
+			Guard.ArgumentNotNull(assemblyInfo);
+			Guard.ArgumentNotNull(projectAssembly);
+			Guard.ArgumentNotNull(referenceList);
 
 			var innerDiscoverer = default(IFrontControllerDiscoverer);
 			var assemblyFileName = projectAssembly.AssemblyFileName;
@@ -167,7 +167,7 @@ namespace Xunit
 			_ISourceInformationProvider? sourceInformationProvider = null,
 			_IMessageSink? diagnosticMessageSink = null)
 		{
-			Guard.ArgumentNotNull(nameof(projectAssembly), projectAssembly);
+			Guard.ArgumentNotNull(projectAssembly);
 
 			var innerController = default(IFrontController);
 			var assemblyFileName = projectAssembly.AssemblyFileName;

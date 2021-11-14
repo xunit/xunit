@@ -138,7 +138,7 @@ namespace Xunit.Runner.Common
 		/// <returns>Returns the value.</returns>
 		public TValue? GetValue<TValue>(string name)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(name), name);
+			Guard.ArgumentNotNullOrEmpty(name);
 
 			if (properties.TryGetValue(name, out var result))
 			{

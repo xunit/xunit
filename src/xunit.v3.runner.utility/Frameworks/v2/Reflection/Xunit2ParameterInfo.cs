@@ -15,7 +15,7 @@ namespace Xunit.Runner.v2
 		/// <param name="v3ParameterInfo">The v3 parameter info to wrap.</param>
 		public Xunit2ParameterInfo(_IParameterInfo v3ParameterInfo)
 		{
-			V3ParameterInfo = Guard.ArgumentNotNull(nameof(v3ParameterInfo), v3ParameterInfo);
+			V3ParameterInfo = Guard.ArgumentNotNull(v3ParameterInfo);
 
 			ParameterType = new Xunit2TypeInfo(V3ParameterInfo.ParameterType);
 		}

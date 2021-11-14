@@ -23,7 +23,7 @@ namespace Xunit.Sdk
 			_IMessageSink innerSink,
 			Action<_MessageSinkMessage>? callback = null)
 		{
-			this.innerSink = Guard.ArgumentNotNull(nameof(innerSink), innerSink);
+			this.innerSink = Guard.ArgumentNotNull(innerSink);
 			this.callback = callback;
 		}
 

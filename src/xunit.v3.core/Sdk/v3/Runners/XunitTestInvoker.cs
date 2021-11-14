@@ -49,7 +49,7 @@ namespace Xunit.v3
 					cancellationTokenSource
 				)
 		{
-			BeforeAfterAttributes = Guard.ArgumentNotNull(nameof(beforeAfterAttributes), beforeAfterAttributes);
+			BeforeAfterAttributes = Guard.ArgumentNotNull(beforeAfterAttributes);
 		}
 
 		/// <summary>

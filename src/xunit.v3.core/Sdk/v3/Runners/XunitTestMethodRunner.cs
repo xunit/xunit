@@ -40,8 +40,8 @@ namespace Xunit.v3
 			object?[] constructorArguments)
 				: base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
 		{
-			this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			this.constructorArguments = Guard.ArgumentNotNull(constructorArguments);
+			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <inheritdoc/>

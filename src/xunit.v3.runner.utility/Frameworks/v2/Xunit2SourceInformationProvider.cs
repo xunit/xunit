@@ -23,7 +23,7 @@ namespace Xunit.Runner.v2
 		{
 			disposalTracker.Add(v3Provider);
 
-			this.v3Provider = Guard.ArgumentNotNull(nameof(v3Provider), v3Provider);
+			this.v3Provider = Guard.ArgumentNotNull(v3Provider);
 		}
 
 		/// <inheritdoc/>

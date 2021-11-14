@@ -313,8 +313,8 @@ namespace Xunit.Runners
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null)
 		{
-			Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
-			Guard.ArgumentValid(nameof(shadowCopyFolder), "Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder == null);
+			Guard.FileExists(assemblyFileName);
+			Guard.ArgumentValid("Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder == null, nameof(shadowCopyFolder));
 
 			return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 		}
@@ -326,7 +326,7 @@ namespace Xunit.Runners
 		/// <param name="assemblyFileName">The test assembly.</param>
 		public static AssemblyRunner WithoutAppDomain(string assemblyFileName)
 		{
-			Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
+			Guard.FileExists(assemblyFileName);
 
 			return new AssemblyRunner(AppDomainSupport.Denied, assemblyFileName);
 		}

@@ -25,7 +25,7 @@ namespace Xunit.Runner.Common
 
 			DiscoverySink.TestCaseDiscoveredEvent += args =>
 			{
-				Guard.ArgumentNotNull(nameof(args), args);
+				Guard.ArgumentNotNull(args);
 
 				TestCases.Add(args.Message);
 			};
@@ -62,7 +62,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return
 				DiscoverySink.OnMessage(message) &&

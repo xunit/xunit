@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 			MethodInfo testMethod,
 			object? item)
 		{
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(testMethod);
 
 			if (item == null)
 				return new TheoryDataRow();

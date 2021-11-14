@@ -17,14 +17,14 @@ namespace Xunit.Runner.Common
 		{
 			Execution.TestStartingEvent += args =>
 			{
-				Guard.ArgumentNotNull(nameof(args), args);
+				Guard.ArgumentNotNull(args);
 
 				Logger.LogMessage($"    {Escape(args.Message.TestDisplayName)} [STARTING]");
 			};
 
 			Execution.TestFinishedEvent += args =>
 			{
-				Guard.ArgumentNotNull(nameof(args), args);
+				Guard.ArgumentNotNull(args);
 
 				var metadata = MetadataCache.TryGetTestMetadata(args.Message);
 				if (metadata != null)

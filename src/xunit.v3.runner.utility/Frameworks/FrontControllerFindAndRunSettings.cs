@@ -20,8 +20,8 @@ namespace Xunit
 			_ITestFrameworkExecutionOptions executionOptions,
 			XunitFilters? filters = null)
 		{
-			DiscoveryOptions = Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-			ExecutionOptions = Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			DiscoveryOptions = Guard.ArgumentNotNull(discoveryOptions);
+			ExecutionOptions = Guard.ArgumentNotNull(executionOptions);
 			Filters = filters ?? new XunitFilters();
 		}
 

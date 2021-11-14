@@ -19,7 +19,7 @@ namespace Xunit.Runner.Common
 			TimeSpan configuredLongRunningTime,
 			IDictionary<_ITestCaseMetadata, TimeSpan> testCases)
 		{
-			Guard.ArgumentNotNull(nameof(testCases), testCases);
+			Guard.ArgumentNotNull(testCases);
 
 			ConfiguredLongRunningTime = configuredLongRunningTime;
 			TestCases = testCases;

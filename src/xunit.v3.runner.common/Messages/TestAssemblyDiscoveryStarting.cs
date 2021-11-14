@@ -30,7 +30,7 @@ namespace Xunit.Runner.Common
 		public XunitProjectAssembly Assembly
 		{
 			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);
+			set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
 		}
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace Xunit.Runner.Common
 		public _ITestFrameworkDiscoveryOptions DiscoveryOptions
 		{
 			get => discoveryOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(DiscoveryOptions)} on an uninitialized '{GetType().FullName}' object");
-			set => discoveryOptions = Guard.ArgumentNotNull(nameof(DiscoveryOptions), value);
+			set => discoveryOptions = Guard.ArgumentNotNull(value, nameof(DiscoveryOptions));
 		}
 
 		/// <summary>

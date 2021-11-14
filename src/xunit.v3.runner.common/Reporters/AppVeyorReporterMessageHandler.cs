@@ -32,7 +32,7 @@ namespace Xunit.Runner.Common
 			string baseUri)
 				: base(logger)
 		{
-			Guard.ArgumentNotNull(nameof(baseUri), baseUri);
+			Guard.ArgumentNotNull(baseUri);
 
 			this.baseUri = baseUri.TrimEnd('/');
 		}

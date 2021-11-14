@@ -22,7 +22,7 @@ namespace Xunit.Runner.v2
 
 		public OptimizedRemoteMessageSink(IMessageSinkWithTypes runnerSink)
 		{
-			Guard.ArgumentNotNull(nameof(runnerSink), runnerSink);
+			Guard.ArgumentNotNull(runnerSink);
 
 			this.runnerSink = runnerSink;
 		}

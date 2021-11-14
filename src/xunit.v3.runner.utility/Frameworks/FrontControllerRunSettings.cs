@@ -18,8 +18,8 @@ namespace Xunit
 			_ITestFrameworkExecutionOptions options,
 			IReadOnlyCollection<string> serializedTestCases)
 		{
-			Options = Guard.ArgumentNotNull(nameof(options), options);
-			SerializedTestCases = Guard.ArgumentNotNull(nameof(serializedTestCases), serializedTestCases);
+			Options = Guard.ArgumentNotNull(options);
+			SerializedTestCases = Guard.ArgumentNotNull(serializedTestCases);
 		}
 
 		/// <summary>

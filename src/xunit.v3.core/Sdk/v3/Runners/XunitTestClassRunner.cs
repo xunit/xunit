@@ -48,8 +48,8 @@ namespace Xunit.v3
 			IDictionary<Type, object> collectionFixtureMappings)
 				: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
-			this.assemblyFixtureMappings = Guard.ArgumentNotNull(nameof(assemblyFixtureMappings), assemblyFixtureMappings);
-			this.collectionFixtureMappings = Guard.ArgumentNotNull(nameof(collectionFixtureMappings), collectionFixtureMappings);
+			this.assemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
+			this.collectionFixtureMappings = Guard.ArgumentNotNull(collectionFixtureMappings);
 		}
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace Xunit.v3
 		protected Dictionary<Type, object> ClassFixtureMappings
 		{
 			get => classFixtureMappings;
-			set => classFixtureMappings = Guard.ArgumentNotNull(nameof(ClassFixtureMappings), value);
+			set => classFixtureMappings = Guard.ArgumentNotNull(value, nameof(ClassFixtureMappings));
 		}
 
 		/// <summary>
@@ -67,7 +67,7 @@ namespace Xunit.v3
 		protected HashSet<IAsyncLifetime> InitializedAsyncFixtures
 		{
 			get => initializedAsyncFixtures;
-			set => initializedAsyncFixtures = Guard.ArgumentNotNull(nameof(InitializedAsyncFixtures), value);
+			set => initializedAsyncFixtures = Guard.ArgumentNotNull(value, nameof(InitializedAsyncFixtures));
 		}
 
 		/// <summary>

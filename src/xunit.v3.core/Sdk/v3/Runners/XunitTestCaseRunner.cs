@@ -42,8 +42,8 @@ namespace Xunit.v3
 			CancellationTokenSource cancellationTokenSource)
 				: base(testCase, messageBus, aggregator, cancellationTokenSource)
 		{
-			this.displayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
-			this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
+			this.displayName = Guard.ArgumentNotNull(displayName);
+			this.constructorArguments = Guard.ArgumentNotNull(constructorArguments);
 
 			SkipReason = skipReason;
 
@@ -78,7 +78,7 @@ namespace Xunit.v3
 		protected object?[] ConstructorArguments
 		{
 			get => constructorArguments;
-			set => constructorArguments = Guard.ArgumentNotNull(nameof(ConstructorArguments), value);
+			set => constructorArguments = Guard.ArgumentNotNull(value, nameof(ConstructorArguments));
 		}
 
 		/// <summary>
@@ -87,7 +87,7 @@ namespace Xunit.v3
 		protected string DisplayName
 		{
 			get => displayName;
-			set => displayName = Guard.ArgumentNotNull(nameof(DisplayName), value);
+			set => displayName = Guard.ArgumentNotNull(value, nameof(DisplayName));
 		}
 
 		/// <summary>
@@ -101,7 +101,7 @@ namespace Xunit.v3
 		protected Type TestClass
 		{
 			get => testClass;
-			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+			set => testClass = Guard.ArgumentNotNull(value, nameof(TestClass));
 		}
 
 		/// <summary>
@@ -110,7 +110,7 @@ namespace Xunit.v3
 		protected MethodInfo TestMethod
 		{
 			get => testMethod;
-			set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+			set => testMethod = Guard.ArgumentNotNull(value, nameof(TestMethod));
 		}
 
 		/// <summary>

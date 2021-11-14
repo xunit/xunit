@@ -32,7 +32,7 @@ namespace Xunit.v3
 			string? displayName = null)
 				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null, displayName)
 		{
-			Culture = Guard.ArgumentNotNull(nameof(culture), culture);
+			Culture = Guard.ArgumentNotNull(culture);
 
 			Traits.Add("Culture", Culture);
 

@@ -19,8 +19,8 @@ namespace Xunit.v3
 			string displayName,
 			int testIndex)
 		{
-			TestCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
-			DisplayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
+			TestCase = Guard.ArgumentNotNull(testCase);
+			DisplayName = Guard.ArgumentNotNull(displayName);
 			UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		}
 
@@ -32,9 +32,9 @@ namespace Xunit.v3
 			string displayName,
 			string uniqueID)
 		{
-			TestCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
-			DisplayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
-			UniqueID = Guard.ArgumentNotNull(nameof(uniqueID), uniqueID);
+			TestCase = Guard.ArgumentNotNull(testCase);
+			DisplayName = Guard.ArgumentNotNull(displayName);
+			UniqueID = Guard.ArgumentNotNull(uniqueID);
 		}
 
 		/// <inheritdoc/>

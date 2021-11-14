@@ -23,7 +23,7 @@ namespace Xunit.v3
 			get => cause;
 			set
 			{
-				Guard.ArgumentValid(nameof(Cause), $"Cause is not a valid value from {typeof(FailureCause).FullName}", Enum.IsDefined(typeof(FailureCause), value));
+				Guard.ArgumentValid($"Cause is not a valid value from {typeof(FailureCause).FullName}", Enum.IsDefined(typeof(FailureCause), value), nameof(Cause));
 				cause = value;
 			}
 		}
@@ -32,28 +32,28 @@ namespace Xunit.v3
 		public int[] ExceptionParentIndices
 		{
 			get => exceptionParentIndices ?? throw new InvalidOperationException($"Attempted to get {nameof(ExceptionParentIndices)} on an uninitialized '{GetType().FullName}' object");
-			set => exceptionParentIndices = Guard.ArgumentNotNullOrEmpty(nameof(ExceptionParentIndices), value);
+			set => exceptionParentIndices = Guard.ArgumentNotNullOrEmpty(value, nameof(ExceptionParentIndices));
 		}
 
 		/// <inheritdoc/>
 		public string?[] ExceptionTypes
 		{
 			get => exceptionTypes ?? throw new InvalidOperationException($"Attempted to get {nameof(ExceptionTypes)} on an uninitialized '{GetType().FullName}' object");
-			set => exceptionTypes = Guard.ArgumentNotNullOrEmpty(nameof(ExceptionTypes), value);
+			set => exceptionTypes = Guard.ArgumentNotNullOrEmpty(value, nameof(ExceptionTypes));
 		}
 
 		/// <inheritdoc/>
 		public string[] Messages
 		{
 			get => messages ?? throw new InvalidOperationException($"Attempted to get {nameof(Messages)} on an uninitialized '{GetType().FullName}' object");
-			set => messages = Guard.ArgumentNotNullOrEmpty(nameof(Messages), value);
+			set => messages = Guard.ArgumentNotNullOrEmpty(value, nameof(Messages));
 		}
 
 		/// <inheritdoc/>
 		public string?[] StackTraces
 		{
 			get => stackTraces ?? throw new InvalidOperationException($"Attempted to get {nameof(StackTraces)} on an uninitialized '{GetType().FullName}' object");
-			set => stackTraces = Guard.ArgumentNotNullOrEmpty(nameof(StackTraces), value);
+			set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));
 		}
 
 		/// <summary>
@@ -79,12 +79,12 @@ namespace Xunit.v3
 			decimal executionTime,
 			string? output)
 		{
-			Guard.ArgumentNotNull(nameof(ex), ex);
-			Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
-			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
-			Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
-			Guard.ArgumentNotNull(nameof(testUniqueID), testUniqueID);
-			Guard.ArgumentNotNull(nameof(executionTime), executionTime);
+			Guard.ArgumentNotNull(ex);
+			Guard.ArgumentNotNull(assemblyUniqueID);
+			Guard.ArgumentNotNull(testCollectionUniqueID);
+			Guard.ArgumentNotNull(testCaseUniqueID);
+			Guard.ArgumentNotNull(testUniqueID);
+			Guard.ArgumentNotNull(executionTime);
 
 			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 

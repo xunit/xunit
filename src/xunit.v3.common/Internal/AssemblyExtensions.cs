@@ -70,7 +70,7 @@ namespace Xunit.Internal
 		/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
 		public static string GetTargetFramework(this Assembly assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			var targetFrameworkAttribute = assembly.GetCustomAttribute<TargetFrameworkAttribute>();
 			if (targetFrameworkAttribute != null)

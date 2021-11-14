@@ -16,8 +16,8 @@ namespace Xunit.Runner.Common
 			this IRunnerLogger logger,
 			string message)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(message);
 
 			logger.LogMessage(StackFrameInfo.None, message);
 		}
@@ -33,8 +33,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogMessage(StackFrameInfo.None, string.Format(messageFormat, args));
 		}
@@ -52,8 +52,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogMessage(stackFrame, string.Format(messageFormat, args));
 		}
@@ -67,8 +67,8 @@ namespace Xunit.Runner.Common
 			this IRunnerLogger logger,
 			string message)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(message);
 
 			logger.LogImportantMessage(StackFrameInfo.None, message);
 		}
@@ -84,8 +84,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogImportantMessage(StackFrameInfo.None, string.Format(messageFormat, args));
 		}
@@ -103,8 +103,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogImportantMessage(stackFrame, string.Format(messageFormat, args));
 		}
@@ -118,8 +118,8 @@ namespace Xunit.Runner.Common
 			this IRunnerLogger logger,
 			string message)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(message);
 
 			logger.LogWarning(StackFrameInfo.None, message);
 		}
@@ -135,8 +135,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogWarning(StackFrameInfo.None, string.Format(messageFormat, args));
 		}
@@ -154,8 +154,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogWarning(stackFrame, string.Format(messageFormat, args));
 		}
@@ -169,8 +169,8 @@ namespace Xunit.Runner.Common
 			this IRunnerLogger logger,
 			string message)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(message);
 
 			logger.LogError(StackFrameInfo.None, message);
 		}
@@ -186,8 +186,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogError(StackFrameInfo.None, string.Format(messageFormat, args));
 		}
@@ -205,8 +205,8 @@ namespace Xunit.Runner.Common
 			string messageFormat,
 			params object?[] args)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(messageFormat), messageFormat);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(messageFormat);
 
 			logger.LogError(stackFrame, string.Format(messageFormat, args));
 		}

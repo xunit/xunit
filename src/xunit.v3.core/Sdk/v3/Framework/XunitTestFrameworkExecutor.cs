@@ -39,7 +39,7 @@ namespace Xunit.v3
 		protected TestAssembly TestAssembly
 		{
 			get => testAssembly;
-			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
+			set => testAssembly = Guard.ArgumentNotNull(value, nameof(TestAssembly));
 		}
 
 		/// <inheritdoc/>

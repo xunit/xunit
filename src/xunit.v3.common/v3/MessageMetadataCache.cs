@@ -20,7 +20,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that contains the metadata.</param>
 		public void Set(_TestAssemblyStarting message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 			Guard.NotNull($"{nameof(_TestAssemblyStarting.AssemblyUniqueID)} cannot be null when setting metadata for {typeof(_TestAssemblyStarting).FullName}", message.AssemblyUniqueID);
 
 			InternalSet(message.AssemblyUniqueID, message);
@@ -32,7 +32,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that contains the metadata.</param>
 		public void Set(_TestCaseStarting message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 			Guard.NotNull($"{nameof(_TestCaseStarting.TestCaseUniqueID)} cannot be null when setting metadata for {typeof(_TestCaseStarting).FullName}", message.TestCaseUniqueID);
 
 			InternalSet(message.TestCaseUniqueID, message);
@@ -44,7 +44,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that contains the metadata.</param>
 		public void Set(_TestClassStarting message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 			Guard.NotNull($"{nameof(_TestClassStarting.TestClassUniqueID)} cannot be null when setting metadata for {typeof(_TestClassStarting).FullName}", message.TestClassUniqueID);
 
 			InternalSet(message.TestClassUniqueID, message);
@@ -56,7 +56,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that contains the metadata.</param>
 		public void Set(_TestCollectionStarting message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 			Guard.NotNull($"{nameof(_TestCollectionStarting.TestCollectionUniqueID)} cannot be null when setting metadata for {typeof(_TestCollectionStarting).FullName}", message.TestCollectionUniqueID);
 
 			InternalSet(message.TestCollectionUniqueID, message);
@@ -68,7 +68,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that contains the metadata.</param>
 		public void Set(_TestStarting message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 			Guard.NotNull($"{nameof(_TestStarting.TestUniqueID)} cannot be null when setting metadata for {typeof(_TestStarting).FullName}", message.TestUniqueID);
 
 			InternalSet(message.TestUniqueID, message);
@@ -80,7 +80,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that contains the metadata.</param>
 		public void Set(_TestMethodStarting message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 			Guard.NotNull($"{nameof(_TestMethodStarting.TestMethodUniqueID)} cannot be null when setting metadata for {typeof(_TestMethodStarting).FullName}", message.TestMethodUniqueID);
 
 			InternalSet(message.TestMethodUniqueID, message);
@@ -93,7 +93,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _IAssemblyMetadata? TryGetAssemblyMetadata(string assemblyUniqueID)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyUniqueID), assemblyUniqueID);
+			Guard.ArgumentNotNullOrEmpty(assemblyUniqueID);
 
 			return (_IAssemblyMetadata?)InternalGetAndRemove(assemblyUniqueID, false);
 		}
@@ -104,7 +104,7 @@ namespace Xunit.v3
 		/// <param name="message">The message that indicates which metadata to retrieve.</param>
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _IAssemblyMetadata? TryGetAssemblyMetadata(_TestAssemblyMessage message) =>
-			TryGetAssemblyMetadata(Guard.ArgumentNotNull(nameof(message), message).AssemblyUniqueID);
+			TryGetAssemblyMetadata(Guard.ArgumentNotNull(message).AssemblyUniqueID);
 
 		/// <summary>
 		/// Attempts to retrieve <see cref="_ITestCaseMetadata"/> from the cache.
@@ -113,7 +113,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestCaseMetadata? TryGetTestCaseMetadata(_TestCaseMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestCaseMetadata?)InternalGetAndRemove(message.TestCaseUniqueID, false);
 		}
@@ -125,7 +125,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestClassMetadata? TryGetClassMetadata(_TestClassMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestClassMetadata?)InternalGetAndRemove(message.TestClassUniqueID, false);
 		}
@@ -137,7 +137,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestCollectionMetadata? TryGetCollectionMetadata(_TestCollectionMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestCollectionMetadata?)InternalGetAndRemove(message.TestCollectionUniqueID, false);
 		}
@@ -149,7 +149,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestMethodMetadata? TryGetMethodMetadata(_TestMethodMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestMethodMetadata?)InternalGetAndRemove(message.TestMethodUniqueID, false);
 		}
@@ -161,7 +161,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestMetadata? TryGetTestMetadata(_TestMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestMetadata?)InternalGetAndRemove(message.TestUniqueID, false);
 		}
@@ -174,7 +174,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _IAssemblyMetadata? TryRemove(_TestAssemblyFinished message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_IAssemblyMetadata?)InternalGetAndRemove(message.AssemblyUniqueID, true);
 		}
@@ -187,7 +187,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestCaseMetadata? TryRemove(_TestCaseFinished message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestCaseMetadata?)InternalGetAndRemove(message.TestCaseUniqueID, true);
 		}
@@ -200,7 +200,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestClassMetadata? TryRemove(_TestClassFinished message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestClassMetadata?)InternalGetAndRemove(message.TestClassUniqueID, true);
 		}
@@ -213,7 +213,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestCollectionMetadata? TryRemove(_TestCollectionFinished message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestCollectionMetadata?)InternalGetAndRemove(message.TestCollectionUniqueID, true);
 		}
@@ -226,7 +226,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestMetadata? TryRemove(_TestFinished message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestMetadata?)InternalGetAndRemove(message.TestUniqueID, true);
 		}
@@ -239,7 +239,7 @@ namespace Xunit.v3
 		/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
 		public _ITestMethodMetadata? TryRemove(_TestMethodFinished message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return (_ITestMethodMetadata?)InternalGetAndRemove(message.TestMethodUniqueID, true);
 		}

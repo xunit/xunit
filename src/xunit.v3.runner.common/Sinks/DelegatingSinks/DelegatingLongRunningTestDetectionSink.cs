@@ -35,7 +35,7 @@ namespace Xunit.Runner.Common
 			_IMessageSink diagnosticMessageSink)
 				: this(innerSink, longRunningTestTime, summary => DispatchLongRunningTestsSummaryAsDiagnosticMessage(summary, diagnosticMessageSink))
 		{
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <summary>
@@ -51,9 +51,9 @@ namespace Xunit.Runner.Common
 			TimeSpan longRunningTestTime,
 			Action<LongRunningTestsSummary> callback)
 		{
-			Guard.ArgumentNotNull(nameof(innerSink), innerSink);
-			Guard.ArgumentValid(nameof(longRunningTestTime), "Long running test time must be at least 1 second", longRunningTestTime >= TimeSpan.FromSeconds(1));
-			Guard.ArgumentNotNull(nameof(callback), callback);
+			Guard.ArgumentNotNull(innerSink);
+			Guard.ArgumentValid("Long running test time must be at least 1 second", longRunningTestTime >= TimeSpan.FromSeconds(1), nameof(longRunningTestTime));
+			Guard.ArgumentNotNull(callback);
 
 			this.innerSink = innerSink;
 			this.longRunningTestTime = longRunningTestTime;
@@ -123,7 +123,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			var result = executionSink.OnMessage(message);
 			result = innerSink.OnMessage(message) && result;

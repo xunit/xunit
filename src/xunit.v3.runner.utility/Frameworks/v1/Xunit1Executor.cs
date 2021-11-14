@@ -41,7 +41,7 @@ namespace Xunit.Runner.v1
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null)
 		{
-			Guard.ArgumentNotNull(nameof(testAssemblyFileName), testAssemblyFileName);
+			Guard.ArgumentNotNull(testAssemblyFileName);
 
 			appDomain = AppDomainManagerFactory.Create(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 			xunitAssemblyPath = GetXunitAssemblyPath(testAssemblyFileName);
@@ -77,10 +77,10 @@ namespace Xunit.Runner.v1
 
 		static string GetXunitAssemblyPath(string testAssemblyFileName)
 		{
-			Guard.FileExists(nameof(testAssemblyFileName), testAssemblyFileName);
+			Guard.FileExists(testAssemblyFileName);
 
 			var xunitPath = Path.Combine(Path.GetDirectoryName(testAssemblyFileName)!, "xunit.dll");
-			Guard.FileExists(nameof(testAssemblyFileName), xunitPath);
+			Guard.FileExists(xunitPath, nameof(testAssemblyFileName));
 
 			return xunitPath;
 		}
@@ -88,9 +88,9 @@ namespace Xunit.Runner.v1
 		/// <inheritdoc/>
 		public void RunTests(string type, List<string> methods, ICallbackEventHandler handler)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(type), type);
-			Guard.ArgumentNotNull(nameof(methods), methods);
-			Guard.ArgumentNotNull(nameof(handler), handler);
+			Guard.ArgumentNotNullOrEmpty(type);
+			Guard.ArgumentNotNull(methods);
+			Guard.ArgumentNotNull(handler);
 
 			CreateObject("Xunit.Sdk.Executor+RunTests", executor, type, methods, handler);
 		}

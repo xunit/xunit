@@ -23,7 +23,7 @@ namespace Xunit.v3
 		public string Output
 		{
 			get => output ?? throw new InvalidOperationException($"Attempted to get {nameof(Output)} on an uninitialized '{GetType().FullName}' object");
-			set => output = Guard.ArgumentNotNull(nameof(Output), value);
+			set => output = Guard.ArgumentNotNull(value, nameof(Output));
 		}
 	}
 }

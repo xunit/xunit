@@ -20,7 +20,7 @@ namespace Xunit.Runner.Common
 		public XunitProjectAssembly Assembly
 		{
 			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);
+			set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
 		}
 
 		/// <summary>
@@ -29,7 +29,7 @@ namespace Xunit.Runner.Common
 		public _ITestFrameworkExecutionOptions ExecutionOptions
 		{
 			get => executionOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionOptions)} on an uninitialized '{GetType().FullName}' object");
-			set => executionOptions = Guard.ArgumentNotNull(nameof(ExecutionOptions), value);
+			set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
 		}
 
 		/// <summary>
@@ -38,7 +38,7 @@ namespace Xunit.Runner.Common
 		public ExecutionSummary ExecutionSummary
 		{
 			get => executionSummary ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionSummary)} on an uninitialized '{GetType().FullName}' object");
-			set => executionSummary = Guard.ArgumentNotNull(nameof(ExecutionSummary), value);
+			set => executionSummary = Guard.ArgumentNotNull(value, nameof(ExecutionSummary));
 		}
 	}
 }

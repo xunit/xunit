@@ -18,7 +18,7 @@ namespace Xunit
 		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
 		public static Exception? Exception(Action testCode)
 		{
-			Guard.ArgumentNotNull(nameof(testCode), testCode);
+			Guard.ArgumentNotNull(testCode);
 
 			try
 			{
@@ -39,7 +39,7 @@ namespace Xunit
 		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
 		public static Exception? Exception(Func<object?> testCode)
 		{
-			Guard.ArgumentNotNull(nameof(testCode), testCode);
+			Guard.ArgumentNotNull(testCode);
 			Task? task;
 
 			try
@@ -82,7 +82,7 @@ namespace Xunit
 		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
 		public static async Task<Exception?> ExceptionAsync(Func<Task> testCode)
 		{
-			Guard.ArgumentNotNull(nameof(testCode), testCode);
+			Guard.ArgumentNotNull(testCode);
 
 			try
 			{
@@ -102,7 +102,7 @@ namespace Xunit
 		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
 		public static async ValueTask<Exception?> ExceptionAsync(Func<ValueTask> testCode)
 		{
-			Guard.ArgumentNotNull(nameof(testCode), testCode);
+			Guard.ArgumentNotNull(testCode);
 
 			try
 			{
@@ -123,7 +123,7 @@ namespace Xunit
 		/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
 		public static async ValueTask<Exception?> ExceptionAsync<T>(Func<ValueTask<T>> testCode)
 		{
-			Guard.ArgumentNotNull(nameof(testCode), testCode);
+			Guard.ArgumentNotNull(testCode);
 
 			try
 			{

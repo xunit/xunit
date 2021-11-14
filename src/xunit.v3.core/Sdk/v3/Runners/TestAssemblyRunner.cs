@@ -44,11 +44,11 @@ namespace Xunit.v3
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
-			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
-			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			this.executionMessageSink = Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
-			this.executionOptions = Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
+			this.testCases = Guard.ArgumentNotNull(testCases);
+			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
+			this.executionMessageSink = Guard.ArgumentNotNull(executionMessageSink);
+			this.executionOptions = Guard.ArgumentNotNull(executionOptions);
 
 			testCaseOrderer = new DefaultTestCaseOrderer(DiagnosticMessageSink);
 		}
@@ -59,7 +59,7 @@ namespace Xunit.v3
 		protected ExceptionAggregator Aggregator
 		{
 			get => aggregator;
-			set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace Xunit.v3
 		protected _ITestFrameworkExecutionOptions ExecutionOptions
 		{
 			get => executionOptions;
-			set => executionOptions = Guard.ArgumentNotNull(nameof(ExecutionOptions), value);
+			set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
 		}
 
 		/// <summary>
@@ -77,7 +77,7 @@ namespace Xunit.v3
 		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
-			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
+			set => diagnosticMessageSink = Guard.ArgumentNotNull(value, nameof(DiagnosticMessageSink));
 		}
 
 		/// <summary>
@@ -86,7 +86,7 @@ namespace Xunit.v3
 		protected _IMessageSink ExecutionMessageSink
 		{
 			get => executionMessageSink;
-			set => executionMessageSink = Guard.ArgumentNotNull(nameof(ExecutionMessageSink), value);
+			set => executionMessageSink = Guard.ArgumentNotNull(value, nameof(ExecutionMessageSink));
 		}
 
 		/// <summary>
@@ -95,7 +95,7 @@ namespace Xunit.v3
 		protected _ITestAssembly TestAssembly
 		{
 			get => testAssembly;
-			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
+			set => testAssembly = Guard.ArgumentNotNull(value, nameof(TestAssembly));
 		}
 
 		/// <summary>
@@ -104,7 +104,7 @@ namespace Xunit.v3
 		protected ITestCaseOrderer TestCaseOrderer
 		{
 			get => testCaseOrderer;
-			set => testCaseOrderer = Guard.ArgumentNotNull(nameof(TestCaseOrderer), value);
+			set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
 		}
 
 		/// <summary>
@@ -113,7 +113,7 @@ namespace Xunit.v3
 		protected ITestCollectionOrderer TestCollectionOrderer
 		{
 			get => testCollectionOrderer;
-			set => testCollectionOrderer = Guard.ArgumentNotNull(nameof(TestCollectionOrderer), value);
+			set => testCollectionOrderer = Guard.ArgumentNotNull(value, nameof(TestCollectionOrderer));
 		}
 
 		/// <summary>
@@ -122,7 +122,7 @@ namespace Xunit.v3
 		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
-			set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
+			set => testCases = Guard.ArgumentNotNull(value, nameof(TestCases));
 		}
 
 		/// <inheritdoc/>

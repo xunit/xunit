@@ -18,8 +18,8 @@ namespace Xunit.Internal
 			TValue value)
 				where TKey : notnull
 		{
-			Guard.ArgumentNotNull(nameof(dictionary), dictionary);
-			Guard.ArgumentNotNull(nameof(key), key);
+			Guard.ArgumentNotNull(dictionary);
+			Guard.ArgumentNotNull(key);
 
 			dictionary.GetOrAdd(key).Add(value);
 		}
@@ -32,9 +32,9 @@ namespace Xunit.Internal
 			IEqualityComparer<TValue> valueComparer)
 				where TKey : notnull
 		{
-			Guard.ArgumentNotNull(nameof(dictionary), dictionary);
-			Guard.ArgumentNotNull(nameof(key), key);
-			Guard.ArgumentNotNull(nameof(valueComparer), valueComparer);
+			Guard.ArgumentNotNull(dictionary);
+			Guard.ArgumentNotNull(key);
+			Guard.ArgumentNotNull(valueComparer);
 
 			if (!dictionary.TryGetValue(key, out var values))
 				return false;
@@ -49,8 +49,8 @@ namespace Xunit.Internal
 				where TKey : notnull
 				where TValue : new()
 		{
-			Guard.ArgumentNotNull(nameof(dictionary), dictionary);
-			Guard.ArgumentNotNull(nameof(key), key);
+			Guard.ArgumentNotNull(dictionary);
+			Guard.ArgumentNotNull(key);
 
 			return dictionary.GetOrAdd(key, () => new TValue());
 		}
@@ -62,9 +62,9 @@ namespace Xunit.Internal
 			Func<TValue> newValue)
 				where TKey : notnull
 		{
-			Guard.ArgumentNotNull(nameof(dictionary), dictionary);
-			Guard.ArgumentNotNull(nameof(key), key);
-			Guard.ArgumentNotNull(nameof(newValue), newValue);
+			Guard.ArgumentNotNull(dictionary);
+			Guard.ArgumentNotNull(key);
+			Guard.ArgumentNotNull(newValue);
 
 			if (!dictionary.TryGetValue(key, out var result))
 			{
@@ -91,9 +91,9 @@ namespace Xunit.Internal
 			IEqualityComparer<TKey>? comparer = null)
 				where TKey : notnull
 		{
-			Guard.ArgumentNotNull(nameof(inputValues), inputValues);
-			Guard.ArgumentNotNull(nameof(keySelector), keySelector);
-			Guard.ArgumentNotNull(nameof(valueSelector), valueSelector);
+			Guard.ArgumentNotNull(inputValues);
+			Guard.ArgumentNotNull(keySelector);
+			Guard.ArgumentNotNull(valueSelector);
 
 			var result = new Dictionary<TKey, TValue>(comparer);
 

@@ -21,7 +21,7 @@ namespace Xunit.v3
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public DefaultTestCaseOrderer(_IMessageSink diagnosticMessageSink)
 		{
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <inheritdoc/>
@@ -61,10 +61,10 @@ namespace Xunit.v3
 		int Compare<TTestCase>(TTestCase x, TTestCase y)
 			where TTestCase : _ITestCase
 		{
-			Guard.ArgumentNotNull(nameof(x), x);
-			Guard.ArgumentNotNull(nameof(y), y);
-			Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.TestCaseDisplayName} because it has a null UniqueID", x.UniqueID != null);
-			Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.TestCaseDisplayName} because it has a null UniqueID", y.UniqueID != null);
+			Guard.ArgumentNotNull(x);
+			Guard.ArgumentNotNull(y);
+			Guard.ArgumentValid($"Could not compare test case {x.TestCaseDisplayName} because it has a null UniqueID", x.UniqueID != null, nameof(x));
+			Guard.ArgumentValid($"Could not compare test case {y.TestCaseDisplayName} because it has a null UniqueID", y.UniqueID != null, nameof(y));
 
 			return string.CompareOrdinal(x.UniqueID, y.UniqueID);
 		}

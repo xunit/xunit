@@ -152,7 +152,7 @@ namespace Xunit.Sdk
 			readonly Func<ValueTask> cleanupAction;
 
 			public AsyncDisposableWrapper(Func<ValueTask> cleanupAction) =>
-				this.cleanupAction = Guard.ArgumentNotNull(nameof(cleanupAction), cleanupAction);
+				this.cleanupAction = Guard.ArgumentNotNull(cleanupAction);
 
 			public ValueTask DisposeAsync() =>
 				cleanupAction();
@@ -163,7 +163,7 @@ namespace Xunit.Sdk
 			readonly Action cleanupAction;
 
 			public DisposableWrapper(Action cleanupAction) =>
-				this.cleanupAction = Guard.ArgumentNotNull(nameof(cleanupAction), cleanupAction);
+				this.cleanupAction = Guard.ArgumentNotNull(cleanupAction);
 
 			public void Dispose() =>
 				cleanupAction();

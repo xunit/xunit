@@ -22,7 +22,7 @@ namespace Xunit.Sdk
 		/// <param name="type">The type to wrap.</param>
 		public ReflectionTypeInfo(Type type)
 		{
-			Type = Guard.ArgumentNotNull(nameof(type), type);
+			Type = Guard.ArgumentNotNull(type);
 
 			assembly = new(() => Reflector.Wrap(Type.Assembly));
 			baseType = new(() => Type.BaseType == null ? null : Reflector.Wrap(Type.BaseType!));
@@ -68,7 +68,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+			Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
 			return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).CastOrToList();
 		}
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
 			string methodName,
 			bool includePrivateMethod)
 		{
-			Guard.ArgumentNotNull(nameof(methodName), methodName);
+			Guard.ArgumentNotNull(methodName);
 
 			var method =
 				Type

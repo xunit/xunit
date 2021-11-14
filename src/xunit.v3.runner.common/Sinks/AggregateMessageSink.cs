@@ -62,7 +62,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public virtual bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			var result = true;
 

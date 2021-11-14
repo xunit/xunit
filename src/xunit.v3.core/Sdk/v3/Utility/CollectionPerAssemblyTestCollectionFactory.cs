@@ -27,9 +27,9 @@ namespace Xunit.v3
 			_ITestAssembly testAssembly,
 			_IMessageSink diagnosticMessageSink)
 		{
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			Guard.ArgumentNotNull(diagnosticMessageSink);
 
-			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 
 			defaultCollection = new TestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
 			collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, diagnosticMessageSink);
@@ -47,7 +47,7 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public _ITestCollection Get(_ITypeInfo testClass)
 		{
-			Guard.ArgumentNotNull(nameof(testClass), testClass);
+			Guard.ArgumentNotNull(testClass);
 
 			var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 			if (collectionAttribute == null)

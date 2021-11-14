@@ -70,7 +70,7 @@ namespace Xunit.v3
 			DefaultMethodDisplay = defaultMethodDisplay;
 			DefaultMethodDisplayOptions = defaultMethodDisplayOptions;
 			SkipReason = skipReason;
-			TestMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			TestMethod = Guard.ArgumentNotNull(testMethod);
 			TestMethodArguments = testMethodArguments;
 
 			if (traits != null)
@@ -162,7 +162,7 @@ namespace Xunit.v3
 		public string TestCaseDisplayName
 		{
 			get => displayName;
-			protected set => displayName = Guard.ArgumentNotNull(nameof(TestCaseDisplayName), value);
+			protected set => displayName = Guard.ArgumentNotNull(value, nameof(TestCaseDisplayName));
 		}
 
 		/// <summary>
@@ -221,7 +221,7 @@ namespace Xunit.v3
 		public virtual string UniqueID
 		{
 			get => uniqueID;
-			protected set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+			protected set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
 		}
 
 		/// <inheritdoc/>

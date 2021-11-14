@@ -15,8 +15,8 @@ namespace Xunit
 			params object?[]? args)
 				where TObject : class
 		{
-			Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
-			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+			Guard.ArgumentNotNull(assemblyName);
+			Guard.ArgumentNotNullOrEmpty(typeName);
 
 			try
 			{
@@ -44,8 +44,8 @@ namespace Xunit
 			params object?[]? args)
 				where TObject : class
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyLocation), assemblyLocation);
-			Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+			Guard.ArgumentNotNullOrEmpty(assemblyLocation);
+			Guard.ArgumentNotNullOrEmpty(typeName);
 
 			try
 			{

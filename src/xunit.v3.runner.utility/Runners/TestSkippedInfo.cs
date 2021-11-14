@@ -18,7 +18,7 @@ namespace Xunit.Runners
 			string skipReason)
 				: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
 		{
-			Guard.ArgumentNotNull(nameof(skipReason), skipReason);
+			Guard.ArgumentNotNull(skipReason);
 
 			SkipReason = skipReason;
 		}

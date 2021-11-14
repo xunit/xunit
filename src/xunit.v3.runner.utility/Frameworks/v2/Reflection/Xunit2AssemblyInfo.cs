@@ -17,7 +17,7 @@ namespace Xunit.Runner.v2
 		/// <param name="v3AssemblyInfo">The v3 assembly info to wrap.</param>
 		public Xunit2AssemblyInfo(_IAssemblyInfo v3AssemblyInfo)
 		{
-			V3AssemblyInfo = Guard.ArgumentNotNull(nameof(v3AssemblyInfo), v3AssemblyInfo);
+			V3AssemblyInfo = Guard.ArgumentNotNull(v3AssemblyInfo);
 		}
 
 		/// <inheritdoc/>

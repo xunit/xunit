@@ -38,7 +38,7 @@ namespace Xunit.Sdk
 		/// <returns>The error metadata.</returns>
 		public static (string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices, FailureCause Cause) ExtractMetadata(Exception ex)
 		{
-			Guard.ArgumentNotNull(nameof(ex), ex);
+			Guard.ArgumentNotNull(ex);
 
 			var exceptionTypes = new List<string?>();
 			var messages = new List<string>();
@@ -104,7 +104,7 @@ namespace Xunit.Sdk
 
 		static bool FilterStackFrame(string stackFrame)
 		{
-			Guard.ArgumentNotNull("stackFrame", stackFrame);
+			Guard.ArgumentNotNull(stackFrame);
 
 #if DEBUG
 			return false;
@@ -155,7 +155,7 @@ namespace Xunit.Sdk
 			int index,
 			int level)
 		{
-			Guard.ArgumentNotNull(nameof(errorMetadata), errorMetadata);
+			Guard.ArgumentNotNull(errorMetadata);
 
 			var result = "";
 
@@ -193,7 +193,7 @@ namespace Xunit.Sdk
 			_IErrorMetadata errorMetadata,
 			int index)
 		{
-			Guard.ArgumentNotNull(nameof(errorMetadata), errorMetadata);
+			Guard.ArgumentNotNull(errorMetadata);
 
 			var result = FilterStackTrace(GetAt(errorMetadata.StackTraces, index));
 

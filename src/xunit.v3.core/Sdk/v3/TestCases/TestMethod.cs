@@ -42,8 +42,8 @@ namespace Xunit.v3
 			_IMethodInfo method,
 			string? uniqueID = null)
 		{
-			this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
-			this.method = Guard.ArgumentNotNull(nameof(method), method);
+			this.testClass = Guard.ArgumentNotNull(testClass);
+			this.method = Guard.ArgumentNotNull(method);
 
 			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestMethod(testClass.UniqueID, this.method.Name);
 		}
@@ -52,21 +52,21 @@ namespace Xunit.v3
 		public _IMethodInfo Method
 		{
 			get => method;
-			set => method = Guard.ArgumentNotNull(nameof(Method), value);
+			set => method = Guard.ArgumentNotNull(value, nameof(Method));
 		}
 
 		/// <inheritdoc/>
 		public _ITestClass TestClass
 		{
 			get => testClass;
-			set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+			set => testClass = Guard.ArgumentNotNull(value, nameof(TestClass));
 		}
 
 		/// <inheritdoc/>
 		public string UniqueID
 		{
 			get => uniqueID;
-			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+			set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
 		}
 
 		/// <inheritdoc/>

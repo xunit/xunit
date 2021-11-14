@@ -34,7 +34,7 @@ namespace Xunit.Sdk
 		/// <param name="value">The value to be added to the unique ID computation</param>
 		public void Add(string value)
 		{
-			Guard.ArgumentNotNull(nameof(value), value);
+			Guard.ArgumentNotNull(value);
 
 			lock (stream)
 			{
@@ -95,10 +95,10 @@ namespace Xunit.Sdk
 			string? assemblyPath,
 			string? configFilePath)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyName), assemblyName);
+			Guard.ArgumentNotNullOrEmpty(assemblyName);
 
 			var parsedAssemblyName = new AssemblyName(assemblyName);
-			Guard.ArgumentNotNull(nameof(assemblyName), "assemblyName must include a name component", parsedAssemblyName.Name);
+			Guard.ArgumentNotNull("assemblyName must include a name component", parsedAssemblyName.Name, nameof(assemblyName));
 
 			using var generator = new UniqueIDGenerator();
 			generator.Add(parsedAssemblyName.Name);
@@ -117,7 +117,7 @@ namespace Xunit.Sdk
 			string testCaseUniqueID,
 			int testIndex)
 		{
-			Guard.ArgumentNotNull(nameof(testCaseUniqueID), testCaseUniqueID);
+			Guard.ArgumentNotNull(testCaseUniqueID);
 
 			using var generator = new UniqueIDGenerator();
 			generator.Add(testCaseUniqueID);
@@ -139,7 +139,7 @@ namespace Xunit.Sdk
 			_ITypeInfo[]? testMethodGenericTypes,
 			object?[]? testMethodArguments)
 		{
-			Guard.ArgumentNotNull(nameof(parentUniqueID), parentUniqueID);
+			Guard.ArgumentNotNull(parentUniqueID);
 
 			using var generator = new UniqueIDGenerator();
 
@@ -167,7 +167,7 @@ namespace Xunit.Sdk
 			string testCollectionUniqueID,
 			string? className)
 		{
-			Guard.ArgumentNotNull(nameof(testCollectionUniqueID), testCollectionUniqueID);
+			Guard.ArgumentNotNull(testCollectionUniqueID);
 
 			if (className == null)
 				return null;
@@ -190,8 +190,8 @@ namespace Xunit.Sdk
 			string collectionDisplayName,
 			string? collectionDefinitionClassName)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyUniqueID), assemblyUniqueID);
-			Guard.ArgumentNotNull(nameof(collectionDisplayName), collectionDisplayName);
+			Guard.ArgumentNotNull(assemblyUniqueID);
+			Guard.ArgumentNotNull(collectionDisplayName);
 
 			using var generator = new UniqueIDGenerator();
 			generator.Add(assemblyUniqueID);

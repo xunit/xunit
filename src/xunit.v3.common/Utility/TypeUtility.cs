@@ -20,7 +20,7 @@ namespace Xunit.Sdk
 		/// <returns>Name string of type.</returns>
 		public static string ConvertToSimpleTypeName(_ITypeInfo type)
 		{
-			Guard.ArgumentNotNull(nameof(type), type);
+			Guard.ArgumentNotNull(type);
 
 			var baseTypeName = type.Name;
 
@@ -55,7 +55,7 @@ namespace Xunit.Sdk
 			this MethodBase testMethod,
 			object?[] arguments)
 		{
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(testMethod);
 
 			var parameters = testMethod.GetParameters();
 			var hasParamsParameter = false;
@@ -214,8 +214,8 @@ namespace Xunit.Sdk
 			object?[]? arguments,
 			_ITypeInfo[]? genericTypes)
 		{
-			Guard.ArgumentNotNull(nameof(method), method);
-			Guard.ArgumentNotNull(nameof(baseDisplayName), baseDisplayName);
+			Guard.ArgumentNotNull(method);
+			Guard.ArgumentNotNull(baseDisplayName);
 
 			baseDisplayName += ResolveGenericDisplay(genericTypes);
 
@@ -434,7 +434,7 @@ namespace Xunit.Sdk
 			object?[] parameters,
 			_IParameterInfo[] parameterInfos)
 		{
-			Guard.ArgumentNotNull(nameof(genericType), genericType);
+			Guard.ArgumentNotNull(genericType);
 
 			for (var idx = 0; idx < parameterInfos.Length; ++idx)
 			{
@@ -461,8 +461,8 @@ namespace Xunit.Sdk
 			this _IMethodInfo method,
 			object?[] parameters)
 		{
-			Guard.ArgumentNotNull(nameof(method), method);
-			Guard.ArgumentNotNull(nameof(parameters), parameters);
+			Guard.ArgumentNotNull(method);
+			Guard.ArgumentNotNull(parameters);
 
 			var genericTypes = method.GetGenericArguments().ToArray();
 			var resolvedTypes = new _ITypeInfo[genericTypes.Length];

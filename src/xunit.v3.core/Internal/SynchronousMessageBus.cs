@@ -13,7 +13,7 @@ namespace Xunit.Internal
 		/// <summary/>
 		public SynchronousMessageBus(_IMessageSink messageSink)
 		{
-			this.messageSink = Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			this.messageSink = Guard.ArgumentNotNull(messageSink);
 		}
 
 		/// <summary/>
@@ -23,7 +23,7 @@ namespace Xunit.Internal
 		/// <summary/>
 		public bool QueueMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return messageSink.OnMessage(message);
 		}

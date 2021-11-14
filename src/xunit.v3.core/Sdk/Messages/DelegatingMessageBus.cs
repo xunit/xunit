@@ -23,7 +23,7 @@ namespace Xunit.Sdk
 			IMessageBus innerMessageBus,
 			Action<_MessageSinkMessage>? callback = null)
 		{
-			this.innerMessageBus = Guard.ArgumentNotNull(nameof(innerMessageBus), innerMessageBus);
+			this.innerMessageBus = Guard.ArgumentNotNull(innerMessageBus);
 			this.callback = callback;
 		}
 

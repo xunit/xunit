@@ -13,8 +13,8 @@ namespace Xunit.Sdk
 			_IAttributeInfo dataAttribute,
 			_IMethodInfo testMethod)
 		{
-			Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(dataAttribute);
+			Guard.ArgumentNotNull(testMethod);
 
 			return !dataAttribute.GetNamedArgument<bool>("DisableDiscoveryEnumeration");
 		}

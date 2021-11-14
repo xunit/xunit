@@ -36,8 +36,8 @@ namespace Xunit.Runner.v3
 			Socket socket,
 			Action<ReadOnlyMemory<byte>> receiveHandler)
 		{
-			this.socket = Guard.ArgumentNotNull(nameof(socket), socket);
-			this.receiveHandler = Guard.ArgumentNotNull(nameof(receiveHandler), receiveHandler);
+			this.socket = Guard.ArgumentNotNull(socket);
+			this.receiveHandler = Guard.ArgumentNotNull(receiveHandler);
 		}
 
 		/// <inheritdoc/>

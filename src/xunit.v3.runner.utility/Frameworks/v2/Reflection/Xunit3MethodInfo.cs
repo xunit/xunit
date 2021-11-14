@@ -17,7 +17,7 @@ namespace Xunit.Runner.v2
 		/// <param name="v2MethodInfo">The v2 method info to wrap.</param>
 		public Xunit3MethodInfo(IMethodInfo v2MethodInfo)
 		{
-			V2MethodInfo = Guard.ArgumentNotNull(nameof(v2MethodInfo), v2MethodInfo);
+			V2MethodInfo = Guard.ArgumentNotNull(v2MethodInfo);
 
 			ReturnType = new Xunit3TypeInfo(V2MethodInfo.ReturnType);
 			Type = new Xunit3TypeInfo(V2MethodInfo.Type);

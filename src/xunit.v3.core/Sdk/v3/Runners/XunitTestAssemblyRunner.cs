@@ -46,7 +46,7 @@ namespace Xunit.v3
 		protected Dictionary<Type, object> AssemblyFixtureMappings
 		{
 			get => assemblyFixtureMappings;
-			set => assemblyFixtureMappings = Guard.ArgumentNotNull(nameof(AssemblyFixtureMappings), value);
+			set => assemblyFixtureMappings = Guard.ArgumentNotNull(value, nameof(AssemblyFixtureMappings));
 		}
 
 		/// <inheritdoc/>

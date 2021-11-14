@@ -39,8 +39,8 @@ namespace Xunit.v3
 			IDictionary<Type, object> assemblyFixtureMappings)
 				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			this.assemblyFixtureMappings = Guard.ArgumentNotNull(nameof(assemblyFixtureMappings), assemblyFixtureMappings);
+			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
+			this.assemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
 		}
 
 		/// <summary>
@@ -49,7 +49,7 @@ namespace Xunit.v3
 		protected Dictionary<Type, object> CollectionFixtureMappings
 		{
 			get => collectionFixtureMappings;
-			set => collectionFixtureMappings = Guard.ArgumentNotNull(nameof(CollectionFixtureMappings), value);
+			set => collectionFixtureMappings = Guard.ArgumentNotNull(value, nameof(CollectionFixtureMappings));
 		}
 
 		/// <summary>

@@ -36,7 +36,7 @@ namespace Xunit.Runner.Common
 			Func<bool>? cancelThunk = null,
 			DelegatingExecutionSummarySinkCallback? completionCallback = null)
 		{
-			Guard.ArgumentNotNull(nameof(innerSink), innerSink);
+			Guard.ArgumentNotNull(innerSink);
 
 			this.innerSink = innerSink;
 			this.cancelThunk = cancelThunk ?? (() => false);
@@ -83,7 +83,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			var result = innerSink.OnMessage(message);
 

@@ -17,7 +17,7 @@ namespace Xunit.Runner.v2
 		/// <param name="v2TypeInfo">The v2 type info to wrap.</param>
 		public Xunit3TypeInfo(ITypeInfo v2TypeInfo)
 		{
-			V2TypeInfo = Guard.ArgumentNotNull(nameof(v2TypeInfo), v2TypeInfo);
+			V2TypeInfo = Guard.ArgumentNotNull(v2TypeInfo);
 
 			Assembly = new Xunit3AssemblyInfo(V2TypeInfo.Assembly);
 			BaseType = V2TypeInfo.BaseType == null ? null : new Xunit3TypeInfo(v2TypeInfo.BaseType);

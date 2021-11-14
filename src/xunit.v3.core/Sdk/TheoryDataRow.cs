@@ -17,7 +17,7 @@ namespace Xunit.Sdk
 		/// <param name="data">The data for the theory row</param>
 		public TheoryDataRow(params object?[] data)
 		{
-			this.data = Guard.ArgumentNotNull(nameof(data), data);
+			this.data = Guard.ArgumentNotNull(data);
 		}
 
 		/// <inheritdoc/>

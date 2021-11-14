@@ -17,7 +17,7 @@ namespace Xunit.v3
 		public string Message
 		{
 			get => message ?? throw new InvalidOperationException($"Attempted to get {nameof(Message)} on an uninitialized '{GetType().FullName}' object");
-			set => message = Guard.ArgumentNotNull(nameof(Message), value);
+			set => message = Guard.ArgumentNotNull(value, nameof(Message));
 		}
 
 		/// <inheritdoc/>

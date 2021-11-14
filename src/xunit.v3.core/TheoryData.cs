@@ -21,7 +21,7 @@ namespace Xunit
 		/// <param name="values">The values to be added.</param>
 		protected void AddRow(params object?[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			data.Add(values);
 		}
@@ -32,7 +32,7 @@ namespace Xunit
 		/// <param name="rows">The rows to be added.</param>
 		protected void AddRows(IEnumerable<object?[]> rows)
 		{
-			Guard.ArgumentNotNull(nameof(rows), rows);
+			Guard.ArgumentNotNull(rows);
 
 			foreach (var row in rows)
 				AddRow(row);
@@ -58,7 +58,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<T> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -99,7 +99,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -125,7 +125,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2 }));
 		}
@@ -146,7 +146,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -173,7 +173,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3 }));
 		}
@@ -195,7 +195,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -223,7 +223,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4 }));
 		}
@@ -246,7 +246,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4, T5)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -275,7 +275,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5 }));
 		}
@@ -299,7 +299,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -329,7 +329,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6 }));
 		}
@@ -354,7 +354,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -385,7 +385,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7 }));
 		}
@@ -411,7 +411,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -443,7 +443,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7, x.p8 }));
 		}
@@ -470,7 +470,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -503,7 +503,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7, x.p8, x.p9 }));
 		}
@@ -531,7 +531,7 @@ namespace Xunit
 		/// <param name="values">The initial set of values</param>
 		public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRange(values.ToArray());
 		}
@@ -565,7 +565,7 @@ namespace Xunit
 		/// <param name="values">The data values.</param>
 		public void AddRange(params (T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10)[] values)
 		{
-			Guard.ArgumentNotNull(nameof(values), values);
+			Guard.ArgumentNotNull(values);
 
 			AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7, x.p8, x.p9, x.p10 }));
 		}

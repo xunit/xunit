@@ -50,7 +50,7 @@ namespace Xunit.v3
 					defaultMethodDisplayOptions,
 					testMethod,
 					testMethodArguments,
-					Guard.ArgumentNotNull(nameof(skipReason), skipReason),
+					Guard.ArgumentNotNull(skipReason),
 					traits,
 					timeout: null,
 					uniqueID,

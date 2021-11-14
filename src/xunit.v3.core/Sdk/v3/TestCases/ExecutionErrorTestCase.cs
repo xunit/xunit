@@ -41,7 +41,7 @@ namespace Xunit.v3
 			string errorMessage)
 				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
-			this.errorMessage = Guard.ArgumentNotNull(nameof(errorMessage), errorMessage);
+			this.errorMessage = Guard.ArgumentNotNull(errorMessage);
 		}
 
 		/// <summary>
@@ -50,7 +50,7 @@ namespace Xunit.v3
 		public string ErrorMessage
 		{
 			get => errorMessage;
-			private set => errorMessage = Guard.ArgumentNotNull(nameof(ErrorMessage), value);
+			private set => errorMessage = Guard.ArgumentNotNull(value, nameof(ErrorMessage));
 		}
 
 		/// <inheritdoc/>

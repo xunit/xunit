@@ -40,12 +40,12 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
-			this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
-			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-			this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
-			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
-			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+			this.testCollection = Guard.ArgumentNotNull(testCollection);
+			this.testCases = Guard.ArgumentNotNull(testCases);
+			this.messageBus = Guard.ArgumentNotNull(messageBus);
+			this.testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
+			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
+			this.aggregator = Guard.ArgumentNotNull(aggregator);
 		}
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace Xunit.v3
 		protected ExceptionAggregator Aggregator
 		{
 			get => aggregator;
-			set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
 		}
 
 		/// <summary>
@@ -63,7 +63,7 @@ namespace Xunit.v3
 		protected CancellationTokenSource CancellationTokenSource
 		{
 			get => cancellationTokenSource;
-			set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+			set => cancellationTokenSource = Guard.ArgumentNotNull(value, nameof(CancellationTokenSource));
 		}
 
 		/// <summary>
@@ -72,7 +72,7 @@ namespace Xunit.v3
 		protected IMessageBus MessageBus
 		{
 			get => messageBus;
-			set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+			set => messageBus = Guard.ArgumentNotNull(value, nameof(MessageBus));
 		}
 
 		/// <summary>
@@ -81,7 +81,7 @@ namespace Xunit.v3
 		protected ITestCaseOrderer TestCaseOrderer
 		{
 			get => testCaseOrderer;
-			set => testCaseOrderer = Guard.ArgumentNotNull(nameof(TestCaseOrderer), value);
+			set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
 		}
 
 		/// <summary>
@@ -90,7 +90,7 @@ namespace Xunit.v3
 		protected IReadOnlyCollection<TTestCase> TestCases
 		{
 			get => testCases;
-			set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
+			set => testCases = Guard.ArgumentNotNull(value, nameof(TestCases));
 		}
 
 		/// <summary>
@@ -99,7 +99,7 @@ namespace Xunit.v3
 		protected _ITestCollection TestCollection
 		{
 			get => testCollection;
-			set => testCollection = Guard.ArgumentNotNull(nameof(TestCollection), value);
+			set => testCollection = Guard.ArgumentNotNull(value, nameof(TestCollection));
 		}
 
 		/// <summary>

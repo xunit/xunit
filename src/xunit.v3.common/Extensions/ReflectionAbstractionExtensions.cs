@@ -30,8 +30,8 @@ public static class ReflectionAbstractionExtensions
 	/// <returns>The methods that have the same visibility as the supplied method.</returns>
 	public static IReadOnlyCollection<MethodInfo> GetMatchingMethods(this Type type, MethodInfo methodInfo)
 	{
-		Guard.ArgumentNotNull(nameof(type), type);
-		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
+		Guard.ArgumentNotNull(type);
+		Guard.ArgumentNotNull(methodInfo);
 
 		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();
 
@@ -48,8 +48,8 @@ public static class ReflectionAbstractionExtensions
 	/// <returns>The matching attributes that decorate the assembly</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _IAssemblyInfo assemblyInfo, Type attributeType)
 	{
-		Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
-		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+		Guard.ArgumentNotNull(assemblyInfo);
+		Guard.ArgumentNotNull(attributeType);
 		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
 		return assemblyInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
@@ -63,8 +63,8 @@ public static class ReflectionAbstractionExtensions
 	/// <returns>The matching attributes that decorate the attribute</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _IAttributeInfo attributeInfo, Type attributeType)
 	{
-		Guard.ArgumentNotNull(nameof(attributeInfo), attributeInfo);
-		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+		Guard.ArgumentNotNull(attributeInfo);
+		Guard.ArgumentNotNull(attributeType);
 		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
 		return attributeInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
@@ -78,8 +78,8 @@ public static class ReflectionAbstractionExtensions
 	/// <returns>The matching attributes that decorate the method</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _IMethodInfo methodInfo, Type attributeType)
 	{
-		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
-		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+		Guard.ArgumentNotNull(methodInfo);
+		Guard.ArgumentNotNull(attributeType);
 		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
 		return methodInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
@@ -93,8 +93,8 @@ public static class ReflectionAbstractionExtensions
 	/// <returns>The matching attributes that decorate the type</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(this _ITypeInfo typeInfo, Type attributeType)
 	{
-		Guard.ArgumentNotNull(nameof(typeInfo), typeInfo);
-		Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+		Guard.ArgumentNotNull(typeInfo);
+		Guard.ArgumentNotNull(attributeType);
 		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
 		return typeInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
@@ -108,7 +108,7 @@ public static class ReflectionAbstractionExtensions
 	/// <returns>The runtime method, if available; <c>null</c>, otherwise</returns>
 	public static MethodInfo? ToRuntimeMethod(this _IMethodInfo methodInfo)
 	{
-		Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
+		Guard.ArgumentNotNull(methodInfo);
 
 		if (methodInfo is _IReflectionMethodInfo reflectionMethodInfo)
 			return reflectionMethodInfo.MethodInfo;

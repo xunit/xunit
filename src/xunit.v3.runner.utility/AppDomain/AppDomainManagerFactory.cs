@@ -13,8 +13,8 @@ namespace Xunit
 			string? shadowCopyFolder,
 			_IMessageSink diagnosticMessageSink)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			Guard.ArgumentNotNullOrEmpty(assemblyFileName);
+			Guard.ArgumentNotNull(diagnosticMessageSink);
 
 #if NETFRAMEWORK
 			if (useAppDomain)

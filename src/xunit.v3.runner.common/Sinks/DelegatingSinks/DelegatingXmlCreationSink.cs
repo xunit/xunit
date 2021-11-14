@@ -32,8 +32,8 @@ namespace Xunit.Runner.Common
 			IExecutionSink innerSink,
 			XElement assemblyElement)
 		{
-			Guard.ArgumentNotNull(nameof(innerSink), innerSink);
-			Guard.ArgumentNotNull(nameof(assemblyElement), assemblyElement);
+			Guard.ArgumentNotNull(innerSink);
+			Guard.ArgumentNotNull(assemblyElement);
 
 			this.innerSink = innerSink;
 			this.assemblyElement = assemblyElement;
@@ -51,7 +51,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			// Call the inner sink first, because we want to be able to depend on ExecutionSummary
 			// being correctly filled out.

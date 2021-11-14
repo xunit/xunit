@@ -38,7 +38,7 @@ namespace Xunit
 			string directory,
 			_IMessageSink? internalDiagnosticsMessageSink)
 		{
-			this.directory = Guard.ArgumentNotNull(nameof(directory), directory);
+			this.directory = Guard.ArgumentNotNull(directory);
 			this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
 			AppDomain.CurrentDomain.AssemblyResolve += Resolve;

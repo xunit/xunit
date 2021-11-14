@@ -14,7 +14,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public virtual IReadOnlyCollection<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(traitAttribute), traitAttribute);
+			Guard.ArgumentNotNull(traitAttribute);
 
 			var ctorArgs =
 				traitAttribute

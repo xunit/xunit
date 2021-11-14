@@ -17,7 +17,7 @@ namespace Xunit.Runner.v2
 		/// <param name="v2AttributeInfo">The v2 attribute info to wrap.</param>
 		public Xunit3AttributeInfo(IAttributeInfo v2AttributeInfo)
 		{
-			V2AttributeInfo = Guard.ArgumentNotNull(nameof(v2AttributeInfo), v2AttributeInfo);
+			V2AttributeInfo = Guard.ArgumentNotNull(v2AttributeInfo);
 		}
 
 		/// <summary>

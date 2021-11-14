@@ -83,7 +83,7 @@ namespace Xunit.Runner.Common
 		/// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
 		public bool Filter(_ITestCaseMetadata testCase)
 		{
-			Guard.ArgumentNotNull(nameof(testCase), testCase);
+			Guard.ArgumentNotNull(testCase);
 
 			SplitFilters();
 

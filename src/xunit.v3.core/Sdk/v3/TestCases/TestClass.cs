@@ -48,8 +48,8 @@ namespace Xunit.v3
 			_ITypeInfo @class,
 			string? uniqueID = null)
 		{
-			this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
-			this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+			this.@class = Guard.ArgumentNotNull(@class);
+			this.testCollection = Guard.ArgumentNotNull(testCollection);
 			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestClass(TestCollection.UniqueID, Class.Name);
 		}
 
@@ -57,21 +57,21 @@ namespace Xunit.v3
 		public _ITypeInfo Class
 		{
 			get => @class;
-			set => @class = Guard.ArgumentNotNull(nameof(Class), value);
+			set => @class = Guard.ArgumentNotNull(value, nameof(Class));
 		}
 
 		/// <inheritdoc/>
 		public _ITestCollection TestCollection
 		{
 			get => testCollection;
-			set => testCollection = Guard.ArgumentNotNull(nameof(TestCollection), value);
+			set => testCollection = Guard.ArgumentNotNull(value, nameof(TestCollection));
 		}
 
 		/// <inheritdoc/>
 		public string UniqueID
 		{
 			get => uniqueID;
-			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+			set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
 		}
 
 		/// <inheritdoc/>

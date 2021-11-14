@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 		/// <returns>A list of traits that are defined on the method.</returns>
 		public static IReadOnlyList<KeyValuePair<string, string>> GetTraits(MemberInfo member)
 		{
-			Guard.ArgumentNotNull(nameof(member), member);
+			Guard.ArgumentNotNull(member);
 
 			var messageSink = _NullMessageSink.Instance;
 			var result = new List<KeyValuePair<string, string>>();

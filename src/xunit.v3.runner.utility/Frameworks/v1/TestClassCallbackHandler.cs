@@ -37,8 +37,8 @@ namespace Xunit.Runner.v1
 			_IMessageSink messageSink)
 				: base(lastNodeName: "class")
 		{
-			Guard.ArgumentNotNull(nameof(testCases), testCases);
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+			Guard.ArgumentNotNull(testCases);
+			Guard.ArgumentNotNull(messageSink);
 
 			this.messageSink = messageSink;
 			this.testCases = testCases;

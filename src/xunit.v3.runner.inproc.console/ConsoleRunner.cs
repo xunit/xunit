@@ -44,8 +44,8 @@ public class ConsoleRunner
 		IEnumerable<IRunnerReporter>? runnerReporters = null,
 		object? consoleLock = null)
 	{
-		this.args = Guard.ArgumentNotNull(nameof(args), args);
-		this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), "testAssembly was null, and Assembly.GetEntryAssembly() returned null; you should pass a non-null value for testAssembly", testAssembly ?? Assembly.GetEntryAssembly());
+		this.args = Guard.ArgumentNotNull(args);
+		this.testAssembly = Guard.ArgumentNotNull("testAssembly was null, and Assembly.GetEntryAssembly() returned null; you should pass a non-null value for testAssembly", testAssembly ?? Assembly.GetEntryAssembly(), nameof(testAssembly));
 		this.consoleLock = consoleLock ?? new object();
 		this.runnerReporters = runnerReporters.CastOrToReadOnlyList();
 	}
@@ -197,7 +197,7 @@ public class ConsoleRunner
 
 		foreach (var assembly in project.Assemblies)
 		{
-			var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFileName);
+			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
 
 			// Default to false for console runners
 			assembly.Configuration.PreEnumerateTheories ??= false;

@@ -30,7 +30,7 @@ namespace Xunit.Runner.Common
 			bool useColors,
 			object lockObject)
 		{
-			Guard.ArgumentNotNull(nameof(lockObject), lockObject);
+			Guard.ArgumentNotNull(lockObject);
 
 			this.useColors = useColors;
 			LockObject = lockObject;

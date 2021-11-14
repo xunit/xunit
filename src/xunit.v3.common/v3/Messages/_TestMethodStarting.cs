@@ -14,7 +14,7 @@ namespace Xunit.v3
 		public string TestMethod
 		{
 			get => testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
-			set => testMethod = Guard.ArgumentNotNullOrEmpty(nameof(TestMethod), value);
+			set => testMethod = Guard.ArgumentNotNullOrEmpty(value, nameof(TestMethod));
 		}
 
 		/// <inheritdoc/>

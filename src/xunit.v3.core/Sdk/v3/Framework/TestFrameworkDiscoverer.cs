@@ -30,8 +30,8 @@ namespace Xunit.v3
 			_IAssemblyInfo assemblyInfo,
 			_IMessageSink diagnosticMessageSink)
 		{
-			this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			this.assemblyInfo = Guard.ArgumentNotNull(assemblyInfo);
+			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 
 			targetFramework = new Lazy<string>(() => AssemblyInfo.GetTargetFramework());
 		}
@@ -42,7 +42,7 @@ namespace Xunit.v3
 		protected internal _IAssemblyInfo AssemblyInfo
 		{
 			get => assemblyInfo;
-			set => assemblyInfo = Guard.ArgumentNotNull(nameof(AssemblyInfo), value);
+			set => assemblyInfo = Guard.ArgumentNotNull(value, nameof(AssemblyInfo));
 		}
 
 		/// <summary>
@@ -51,7 +51,7 @@ namespace Xunit.v3
 		protected _IMessageSink DiagnosticMessageSink
 		{
 			get => diagnosticMessageSink;
-			set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
+			set => diagnosticMessageSink = Guard.ArgumentNotNull(value, nameof(DiagnosticMessageSink));
 		}
 
 		/// <summary>
@@ -94,8 +94,8 @@ namespace Xunit.v3
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			Type[]? types = null)
 		{
-			Guard.ArgumentNotNull("callback", callback);
-			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
+			Guard.ArgumentNotNull(callback);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			var tcs = new TaskCompletionSource<object?>();
 
@@ -154,7 +154,7 @@ namespace Xunit.v3
 		/// <returns>Returns <c>true</c> if the type can contain tests; <c>false</c>, otherwise.</returns>
 		protected virtual bool IsValidTestClass(_ITypeInfo type)
 		{
-			Guard.ArgumentNotNull(nameof(type), type);
+			Guard.ArgumentNotNull(type);
 
 			return !type.IsAbstract || type.IsSealed;
 		}

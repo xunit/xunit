@@ -23,7 +23,7 @@ namespace Xunit.Sdk
 		/// <param name="attribute">The attribute to be wrapped.</param>
 		public ReflectionAttributeInfo(CustomAttributeData attribute)
 		{
-			AttributeData = Guard.ArgumentNotNull(nameof(attribute), attribute);
+			AttributeData = Guard.ArgumentNotNull(attribute);
 			Attribute = Instantiate(AttributeData);
 		}
 
@@ -72,7 +72,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+			Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(Attribute.GetType(), assemblyQualifiedAttributeTypeName);
 		}
@@ -83,7 +83,7 @@ namespace Xunit.Sdk
 		{
 			var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), $"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType);
+			Guard.ArgumentNotNull($"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType, nameof(assemblyQualifiedAttributeTypeName));
 
 			return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
 		}

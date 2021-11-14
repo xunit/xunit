@@ -89,7 +89,7 @@ namespace Xunit.v3
 			string? displayName)
 				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID, displayName)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 
 			var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
 			var baseDisplayName = displayName ?? factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
@@ -123,21 +123,21 @@ namespace Xunit.v3
 
 		static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
 		static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
 		{
-			Guard.ArgumentNotNull(nameof(type), type);
+			Guard.ArgumentNotNull(type);
 
 			return typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
 		}
 
 		static IReadOnlyCollection<_IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
 		{
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(testMethod);
 
 			return
 				GetCachedTraitAttributes(testMethod.TestClass.Class.Assembly)
@@ -154,11 +154,11 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-			Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
-			Guard.ArgumentNotNull(nameof(aggregator), aggregator);
-			Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+			Guard.ArgumentNotNull(diagnosticMessageSink);
+			Guard.ArgumentNotNull(messageBus);
+			Guard.ArgumentNotNull(constructorArguments);
+			Guard.ArgumentNotNull(aggregator);
+			Guard.ArgumentNotNull(cancellationTokenSource);
 
 			return new XunitTestCaseRunner(
 				this,

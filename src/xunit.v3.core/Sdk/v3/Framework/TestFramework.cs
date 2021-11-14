@@ -20,7 +20,7 @@ namespace Xunit.v3
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFramework(_IMessageSink diagnosticMessageSink)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <summary>
@@ -61,7 +61,7 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			var discoverer = CreateDiscoverer(assembly);
 			DisposalTracker.Add(discoverer);
@@ -71,7 +71,7 @@ namespace Xunit.v3
 		/// <inheritdoc/>
 		public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			var executor = CreateExecutor(assembly);
 			DisposalTracker.Add(executor);

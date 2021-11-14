@@ -19,7 +19,7 @@ namespace Xunit.Runner.v2
 		/// <param name="v3Options">The v3 options object to delegate all the calls to.</param>
 		public Xunit2Options(_ITestFrameworkOptions v3Options)
 		{
-			this.v3Options = Guard.ArgumentNotNull(nameof(v3Options), v3Options);
+			this.v3Options = Guard.ArgumentNotNull(v3Options);
 		}
 
 		/// <inheritdoc/>

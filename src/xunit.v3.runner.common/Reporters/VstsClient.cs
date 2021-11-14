@@ -36,9 +36,9 @@ namespace Xunit.Runner.Common
 			string accessToken,
 			int buildId)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNullOrEmpty(nameof(baseUri), baseUri);
-			Guard.ArgumentNotNullOrEmpty(nameof(accessToken), accessToken);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNullOrEmpty(baseUri);
+			Guard.ArgumentNotNullOrEmpty(accessToken);
 
 			this.logger = logger;
 			this.baseUri = baseUri;

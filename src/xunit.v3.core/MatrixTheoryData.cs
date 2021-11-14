@@ -20,8 +20,8 @@ namespace Xunit
 			IEnumerable<T1> dimension1,
 			IEnumerable<T2> dimension2)
 		{
-			Guard.ArgumentNotNull(nameof(dimension1), dimension1);
-			Guard.ArgumentNotNull(nameof(dimension2), dimension2);
+			Guard.ArgumentNotNull(dimension1);
+			Guard.ArgumentNotNull(dimension2);
 
 			var data1Empty = true;
 			var data2Empty = true;
@@ -37,8 +37,8 @@ namespace Xunit
 				}
 			}
 
-			Guard.ArgumentValid(nameof(dimension1), "Data dimension cannot be empty", !data1Empty);
-			Guard.ArgumentValid(nameof(dimension2), "Data dimension cannot be empty", !data2Empty);
+			Guard.ArgumentValid("Data dimension cannot be empty", !data1Empty, nameof(dimension1));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data2Empty, nameof(dimension2));
 		}
 	}
 
@@ -62,9 +62,9 @@ namespace Xunit
 			IEnumerable<T2> dimension2,
 			IEnumerable<T3> dimension3)
 		{
-			Guard.ArgumentNotNull(nameof(dimension1), dimension1);
-			Guard.ArgumentNotNull(nameof(dimension2), dimension2);
-			Guard.ArgumentNotNull(nameof(dimension3), dimension3);
+			Guard.ArgumentNotNull(dimension1);
+			Guard.ArgumentNotNull(dimension2);
+			Guard.ArgumentNotNull(dimension3);
 
 			var data1Empty = true;
 			var data2Empty = true;
@@ -86,9 +86,9 @@ namespace Xunit
 				}
 			}
 
-			Guard.ArgumentValid(nameof(dimension1), "Data dimension cannot be empty", !data1Empty);
-			Guard.ArgumentValid(nameof(dimension2), "Data dimension cannot be empty", !data2Empty);
-			Guard.ArgumentValid(nameof(dimension3), "Data dimension cannot be empty", !data3Empty);
+			Guard.ArgumentValid("Data dimension cannot be empty", !data1Empty, nameof(dimension1));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data2Empty, nameof(dimension2));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data3Empty, nameof(dimension3));
 		}
 	}
 
@@ -115,10 +115,10 @@ namespace Xunit
 			IEnumerable<T3> dimension3,
 			IEnumerable<T4> dimension4)
 		{
-			Guard.ArgumentNotNull(nameof(dimension1), dimension1);
-			Guard.ArgumentNotNull(nameof(dimension2), dimension2);
-			Guard.ArgumentNotNull(nameof(dimension3), dimension3);
-			Guard.ArgumentNotNull(nameof(dimension4), dimension4);
+			Guard.ArgumentNotNull(dimension1);
+			Guard.ArgumentNotNull(dimension2);
+			Guard.ArgumentNotNull(dimension3);
+			Guard.ArgumentNotNull(dimension4);
 
 			var data1Empty = true;
 			var data2Empty = true;
@@ -146,10 +146,10 @@ namespace Xunit
 				}
 			}
 
-			Guard.ArgumentValid(nameof(dimension1), "Data dimension cannot be empty", !data1Empty);
-			Guard.ArgumentValid(nameof(dimension2), "Data dimension cannot be empty", !data2Empty);
-			Guard.ArgumentValid(nameof(dimension3), "Data dimension cannot be empty", !data3Empty);
-			Guard.ArgumentValid(nameof(dimension4), "Data dimension cannot be empty", !data4Empty);
+			Guard.ArgumentValid("Data dimension cannot be empty", !data1Empty, nameof(dimension1));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data2Empty, nameof(dimension2));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data3Empty, nameof(dimension3));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data4Empty, nameof(dimension4));
 		}
 	}
 
@@ -179,11 +179,11 @@ namespace Xunit
 			IEnumerable<T4> dimension4,
 			IEnumerable<T5> dimension5)
 		{
-			Guard.ArgumentNotNull(nameof(dimension1), dimension1);
-			Guard.ArgumentNotNull(nameof(dimension2), dimension2);
-			Guard.ArgumentNotNull(nameof(dimension3), dimension3);
-			Guard.ArgumentNotNull(nameof(dimension4), dimension4);
-			Guard.ArgumentNotNull(nameof(dimension5), dimension5);
+			Guard.ArgumentNotNull(dimension1);
+			Guard.ArgumentNotNull(dimension2);
+			Guard.ArgumentNotNull(dimension3);
+			Guard.ArgumentNotNull(dimension4);
+			Guard.ArgumentNotNull(dimension5);
 
 			var data1Empty = true;
 			var data2Empty = true;
@@ -217,11 +217,11 @@ namespace Xunit
 				}
 			}
 
-			Guard.ArgumentValid(nameof(dimension1), "Data dimension cannot be empty", !data1Empty);
-			Guard.ArgumentValid(nameof(dimension2), "Data dimension cannot be empty", !data2Empty);
-			Guard.ArgumentValid(nameof(dimension3), "Data dimension cannot be empty", !data3Empty);
-			Guard.ArgumentValid(nameof(dimension4), "Data dimension cannot be empty", !data4Empty);
-			Guard.ArgumentValid(nameof(dimension5), "Data dimension cannot be empty", !data5Empty);
+			Guard.ArgumentValid("Data dimension cannot be empty", !data1Empty, nameof(dimension1));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data2Empty, nameof(dimension2));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data3Empty, nameof(dimension3));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data4Empty, nameof(dimension4));
+			Guard.ArgumentValid("Data dimension cannot be empty", !data5Empty, nameof(dimension5));
 		}
 	}
 }

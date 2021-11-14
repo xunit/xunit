@@ -36,7 +36,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return
 				message.DispatchWhen(TestAssemblyDiscoveryFinishedEvent) &&

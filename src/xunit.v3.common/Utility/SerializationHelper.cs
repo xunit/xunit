@@ -25,7 +25,7 @@ namespace Xunit.Sdk
 		public static T Deserialize<T>(string serializedValue)
 			where T : class
 		{
-			Guard.ArgumentNotNull(nameof(serializedValue), serializedValue);
+			Guard.ArgumentNotNull(serializedValue);
 
 			try
 			{

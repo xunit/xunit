@@ -31,10 +31,10 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			this.testCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
-			this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
-			this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
-			this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+			this.testCase = Guard.ArgumentNotNull(testCase);
+			this.messageBus = Guard.ArgumentNotNull(messageBus);
+			this.aggregator = Guard.ArgumentNotNull(aggregator);
+			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 		}
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace Xunit.v3
 		protected ExceptionAggregator Aggregator
 		{
 			get => aggregator;
-			set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
 		}
 
 		/// <summary>
@@ -52,7 +52,7 @@ namespace Xunit.v3
 		protected CancellationTokenSource CancellationTokenSource
 		{
 			get => cancellationTokenSource;
-			set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+			set => cancellationTokenSource = Guard.ArgumentNotNull(value, nameof(CancellationTokenSource));
 		}
 
 		/// <summary>
@@ -61,7 +61,7 @@ namespace Xunit.v3
 		protected IMessageBus MessageBus
 		{
 			get => messageBus;
-			set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+			set => messageBus = Guard.ArgumentNotNull(value, nameof(MessageBus));
 		}
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace Xunit.v3
 		protected TTestCase TestCase
 		{
 			get => testCase;
-			set => testCase = Guard.ArgumentNotNull(nameof(TestCase), value);
+			set => testCase = Guard.ArgumentNotNull(value, nameof(TestCase));
 		}
 
 		/// <summary>

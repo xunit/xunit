@@ -22,7 +22,7 @@ namespace Xunit.Runner.Common
 			bool noColor,
 			ConsoleColor displayColor)
 		{
-			Guard.ArgumentNotNull(nameof(consoleLock), consoleLock);
+			Guard.ArgumentNotNull(consoleLock);
 
 			this.consoleLock = consoleLock;
 			this.assemblyDisplayName = assemblyDisplayName;
@@ -74,7 +74,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			if (showDiagnostics && message is _DiagnosticMessage diagnosticMessage)
 			{

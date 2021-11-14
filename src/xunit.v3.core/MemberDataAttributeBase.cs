@@ -25,8 +25,8 @@ namespace Xunit
 			string memberName,
 			object?[] parameters)
 		{
-			MemberName = Guard.ArgumentNotNull(nameof(memberName), memberName);
-			Parameters = Guard.ArgumentNotNull(nameof(parameters), parameters);
+			MemberName = Guard.ArgumentNotNull(memberName);
+			Parameters = Guard.ArgumentNotNull(parameters);
 		}
 
 		/// <summary>
@@ -60,7 +60,7 @@ namespace Xunit
 		/// <inheritdoc/>
 		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 		{
-			Guard.ArgumentNotNull("testMethod", testMethod);
+			Guard.ArgumentNotNull(testMethod);
 
 			var type = MemberType ?? testMethod.DeclaringType;
 			if (type == null)

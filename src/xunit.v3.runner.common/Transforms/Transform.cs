@@ -20,9 +20,9 @@ namespace Xunit.Runner.Common
 			string description,
 			Action<XElement, string> outputHandler)
 		{
-			Guard.ArgumentNotNull(nameof(id), id);
-			Guard.ArgumentNotNull(nameof(description), description);
-			Guard.ArgumentNotNull(nameof(outputHandler), outputHandler);
+			Guard.ArgumentNotNull(id);
+			Guard.ArgumentNotNull(description);
+			Guard.ArgumentNotNull(outputHandler);
 
 			ID = id;
 			Description = description;

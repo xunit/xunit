@@ -10,7 +10,7 @@ namespace Xunit.Sdk
 
 		internal static Type? GetType(string assemblyQualifiedAttributeTypeName)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+			Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
 			return attributeTypeCache.GetOrAdd(assemblyQualifiedAttributeTypeName, name => SerializationHelper.GetType(name));
 		}

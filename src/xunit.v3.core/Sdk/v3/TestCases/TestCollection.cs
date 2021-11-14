@@ -56,8 +56,8 @@ namespace Xunit.v3
 		{
 			CollectionDefinition = collectionDefinition;
 
-			this.displayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
-			this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+			this.displayName = Guard.ArgumentNotNull(displayName);
+			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, this.displayName, CollectionDefinition?.Name);
 		}
 
@@ -68,21 +68,21 @@ namespace Xunit.v3
 		public string DisplayName
 		{
 			get => displayName;
-			set => displayName = Guard.ArgumentNotNull(nameof(DisplayName), value);
+			set => displayName = Guard.ArgumentNotNull(value, nameof(DisplayName));
 		}
 
 		/// <inheritdoc/>
 		public _ITestAssembly TestAssembly
 		{
 			get => testAssembly;
-			set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
+			set => testAssembly = Guard.ArgumentNotNull(value, nameof(TestAssembly));
 		}
 
 		/// <inheritdoc/>
 		public string UniqueID
 		{
 			get => uniqueID;
-			set => uniqueID = Guard.ArgumentNotNull(nameof(UniqueID), value);
+			set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
 		}
 
 		/// <inheritdoc/>

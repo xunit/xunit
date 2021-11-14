@@ -25,7 +25,7 @@ namespace Xunit
 			string assemblyFileName,
 			_IMessageSink diagnosticMessageSink)
 		{
-			Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+			Guard.ArgumentNotNullOrEmpty(assemblyFileName);
 
 			session = new DiaSessionWrapper(assemblyFileName, diagnosticMessageSink);
 		}

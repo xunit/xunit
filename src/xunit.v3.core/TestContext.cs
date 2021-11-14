@@ -128,7 +128,7 @@ namespace Xunit
 			TestState? testState = null,
 			_ITestOutputHelper? testOutputHelper = null)
 		{
-			Guard.ArgumentNotNull(nameof(test), test);
+			Guard.ArgumentNotNull(test);
 
 			local.Value = new TestContext(test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
@@ -155,7 +155,7 @@ namespace Xunit
 			_ITestAssembly testAssembly,
 			TestEngineStatus testAssemblyStatus)
 		{
-			Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+			Guard.ArgumentNotNull(testAssembly);
 
 			local.Value = new TestContext(testAssembly, testAssemblyStatus);
 		}
@@ -164,7 +164,7 @@ namespace Xunit
 			_ITestCase testCase,
 			TestEngineStatus testCaseStatus)
 		{
-			Guard.ArgumentNotNull(nameof(testCase), testCase);
+			Guard.ArgumentNotNull(testCase);
 
 			local.Value = new TestContext(testCase.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
@@ -186,7 +186,7 @@ namespace Xunit
 			_ITestClass testClass,
 			TestEngineStatus testClassStatus)
 		{
-			Guard.ArgumentNotNull(nameof(testClass), testClass);
+			Guard.ArgumentNotNull(testClass);
 
 			local.Value = new TestContext(testClass.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
@@ -202,7 +202,7 @@ namespace Xunit
 			_ITestCollection testCollection,
 			TestEngineStatus testCollectionStatus)
 		{
-			Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+			Guard.ArgumentNotNull(testCollection);
 
 			local.Value = new TestContext(testCollection.TestAssembly, TestEngineStatus.Running)
 			{
@@ -215,7 +215,7 @@ namespace Xunit
 			_ITestMethod testMethod,
 			TestEngineStatus testMethodStatus)
 		{
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+			Guard.ArgumentNotNull(testMethod);
 
 			local.Value = new TestContext(testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{

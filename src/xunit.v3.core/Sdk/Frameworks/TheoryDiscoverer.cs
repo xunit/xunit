@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		public TheoryDiscoverer(_IMessageSink diagnosticMessageSink)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <summary>
@@ -166,9 +166,9 @@ namespace Xunit.Sdk
 			_ITestMethod testMethod,
 			_IAttributeInfo theoryAttribute)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
-			Guard.ArgumentNotNull(nameof(testMethod), testMethod);
-			Guard.ArgumentNotNull(nameof(theoryAttribute), theoryAttribute);
+			Guard.ArgumentNotNull(discoveryOptions);
+			Guard.ArgumentNotNull(testMethod);
+			Guard.ArgumentNotNull(theoryAttribute);
 
 			// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped test may
 			// not actually have any data (which is quasi-legal, since it's skipped).

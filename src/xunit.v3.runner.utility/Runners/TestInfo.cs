@@ -16,10 +16,10 @@ namespace Xunit.Runners
 			string testDisplayName,
 			string testCollectionDisplayName)
 		{
-			Guard.ArgumentNotNull(nameof(typeName), typeName);
-			Guard.ArgumentNotNull(nameof(methodName), methodName);
-			Guard.ArgumentNotNull(nameof(testDisplayName), testDisplayName);
-			Guard.ArgumentNotNull(nameof(testCollectionDisplayName), testCollectionDisplayName);
+			Guard.ArgumentNotNull(typeName);
+			Guard.ArgumentNotNull(methodName);
+			Guard.ArgumentNotNull(testDisplayName);
+			Guard.ArgumentNotNull(testCollectionDisplayName);
 
 			TypeName = typeName;
 			MethodName = methodName;

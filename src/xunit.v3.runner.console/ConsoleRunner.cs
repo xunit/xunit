@@ -28,7 +28,7 @@ class ConsoleRunner
 		string[] args,
 		object? consoleLock = null)
 	{
-		this.args = Guard.ArgumentNotNull(nameof(args), args);
+		this.args = Guard.ArgumentNotNull(args);
 		this.consoleLock = consoleLock ?? new object();
 	}
 
@@ -180,7 +180,7 @@ class ConsoleRunner
 
 		foreach (var assembly in project.Assemblies)
 		{
-			var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFileName);
+			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
 
 			// Default to false for console runners
 			assembly.Configuration.PreEnumerateTheories ??= false;
@@ -288,7 +288,7 @@ class ConsoleRunner
 
 		try
 		{
-			var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFileName);
+			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
 
 			// Default to false for console runners
 			assembly.Configuration.PreEnumerateTheories ??= false;

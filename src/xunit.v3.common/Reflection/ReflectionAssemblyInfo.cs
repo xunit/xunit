@@ -25,8 +25,8 @@ namespace Xunit.Sdk
 			Assembly assembly,
 			params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 		{
-			Assembly = Guard.ArgumentNotNull(nameof(assembly), assembly);
-			this.additionalAssemblyAttributes = Guard.ArgumentNotNull(nameof(additionalAssemblyAttributes), additionalAssemblyAttributes);
+			Assembly = Guard.ArgumentNotNull(assembly);
+			this.additionalAssemblyAttributes = Guard.ArgumentNotNull(additionalAssemblyAttributes);
 		}
 
 		/// <inheritdoc/>
@@ -56,7 +56,7 @@ namespace Xunit.Sdk
 		{
 			var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), $"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType);
+			Guard.ArgumentNotNull($"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType, nameof(assemblyQualifiedAttributeTypeName));
 
 			return
 				additionalAssemblyAttributes

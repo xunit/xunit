@@ -28,7 +28,7 @@ namespace Xunit.Runner.v2
 			string? assemblyUniqueID = null,
 			ITestFrameworkDiscoverer? discoverer = null)
 		{
-			this.v3MessageSink = Guard.ArgumentNotNull(nameof(v3MessageSink), v3MessageSink);
+			this.v3MessageSink = Guard.ArgumentNotNull(v3MessageSink);
 
 			adapter = new Xunit2MessageAdapter(assemblyUniqueID, discoverer);
 		}
@@ -42,7 +42,7 @@ namespace Xunit.Runner.v2
 
 		static HashSet<string>? GetImplementedInterfaces(IMessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			if (message is IMessageSinkMessageWithTypes messageWithTypes)
 				return messageWithTypes.InterfaceTypes;
@@ -64,7 +64,7 @@ namespace Xunit.Runner.v2
 		/// <inheritdoc/>
 		public bool OnMessage(IMessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			return OnMessageWithTypes(message, GetImplementedInterfaces(message));
 		}
@@ -74,7 +74,7 @@ namespace Xunit.Runner.v2
 			IMessageSinkMessage message,
 			HashSet<string>? messageTypes)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			var v3Message = adapter.Adapt(message, messageTypes);
 			return v3MessageSink.OnMessage(v3Message);

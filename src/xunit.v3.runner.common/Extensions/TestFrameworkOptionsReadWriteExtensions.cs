@@ -21,7 +21,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static string? GetCulture(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetValue<string?>(TestOptionsNames.Discovery.Culture);
 		}
@@ -31,7 +31,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetDiagnosticMessages(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.DiagnosticMessages);
 		}
@@ -42,7 +42,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetDiagnosticMessagesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetDiagnosticMessages() ?? false;
 		}
@@ -54,7 +54,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetIncludeSourceInformation(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.IncludeSourceInformation);
 		}
@@ -67,7 +67,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetIncludeSourceInformationOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetIncludeSourceInformation() ?? false;
 		}
@@ -77,7 +77,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.InternalDiagnosticMessages);
 		}
@@ -88,7 +88,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetInternalDiagnosticMessagesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetInternalDiagnosticMessages() ?? false;
 		}
@@ -98,7 +98,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static TestMethodDisplay? GetMethodDisplay(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			var methodDisplayString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplay);
 			return methodDisplayString != null ? (TestMethodDisplay?)Enum.Parse(typeof(TestMethodDisplay), methodDisplayString) : null;
@@ -110,7 +110,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static TestMethodDisplay GetMethodDisplayOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetMethodDisplay() ?? TestMethodDisplay.ClassAndMethod;
 		}
@@ -120,7 +120,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static TestMethodDisplayOptions? GetMethodDisplayOptions(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			var methodDisplayOptionsString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplayOptions);
 			return methodDisplayOptionsString != null ? (TestMethodDisplayOptions?)Enum.Parse(typeof(TestMethodDisplayOptions), methodDisplayOptionsString) : null;
@@ -132,7 +132,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static TestMethodDisplayOptions GetMethodDisplayOptionsOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetMethodDisplayOptions() ?? TestMethodDisplayOptions.None;
 		}
@@ -144,7 +144,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetPreEnumerateTheories(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.PreEnumerateTheories);
 		}
@@ -157,7 +157,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetPreEnumerateTheoriesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetPreEnumerateTheories() ?? false;
 		}
@@ -167,7 +167,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetSynchronousMessageReporting(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.SynchronousMessageReporting);
 		}
@@ -178,7 +178,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetSynchronousMessageReportingOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			return discoveryOptions.GetSynchronousMessageReporting() ?? false;
 		}
@@ -194,7 +194,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			string? culture)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.Culture, culture);
 		}
@@ -206,7 +206,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.DiagnosticMessages, value);
 		}
@@ -220,7 +220,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.IncludeSourceInformation, value);
 		}
@@ -232,7 +232,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.InternalDiagnosticMessages, value);
 		}
@@ -244,7 +244,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			TestMethodDisplay? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.MethodDisplay, value.HasValue ? value.GetValueOrDefault().ToString() : null);
 		}
@@ -256,7 +256,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			TestMethodDisplayOptions? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.MethodDisplayOptions, value.HasValue ? value.GetValueOrDefault().ToString() : null);
 		}
@@ -270,7 +270,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.PreEnumerateTheories, value);
 		}
@@ -282,7 +282,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkDiscoveryOptions discoveryOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+			Guard.ArgumentNotNull(discoveryOptions);
 
 			discoveryOptions.SetValue(TestOptionsNames.Discovery.SynchronousMessageReporting, value);
 		}
@@ -298,7 +298,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static string? GetCulture(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetValue<string?>(TestOptionsNames.Execution.Culture);
 		}
@@ -308,7 +308,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DiagnosticMessages);
 		}
@@ -318,7 +318,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.InternalDiagnosticMessages);
 		}
@@ -329,7 +329,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetDiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetDiagnosticMessages() ?? false;
 		}
@@ -340,7 +340,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetInternalDiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetInternalDiagnosticMessages() ?? false;
 		}
@@ -350,7 +350,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetDisableParallelization(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DisableParallelization);
 		}
@@ -361,7 +361,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetDisableParallelizationOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetDisableParallelization() ?? false;
 		}
@@ -371,7 +371,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static int? GetMaxParallelThreads(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetValue<int?>(TestOptionsNames.Execution.MaxParallelThreads);
 		}
@@ -383,7 +383,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static int GetMaxParallelThreadsOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			var result = executionOptions.GetMaxParallelThreads();
 			if (result == null || result == 0)
@@ -397,7 +397,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool? GetSynchronousMessageReporting(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.SynchronousMessageReporting);
 		}
@@ -408,7 +408,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		public static bool GetSynchronousMessageReportingOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			return executionOptions.GetSynchronousMessageReporting() ?? false;
 		}
@@ -424,7 +424,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			string? culture)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.Culture, culture);
 		}
@@ -436,7 +436,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.DiagnosticMessages, value);
 		}
@@ -448,7 +448,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.InternalDiagnosticMessages, value);
 		}
@@ -460,7 +460,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.StopOnFail, value);
 		}
@@ -472,7 +472,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.DisableParallelization, value);
 		}
@@ -485,7 +485,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			int? value)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.MaxParallelThreads, value);
 		}
@@ -497,7 +497,7 @@ namespace Xunit.Sdk
 			this _ITestFrameworkExecutionOptions executionOptions,
 			bool? value)
 		{
-			Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+			Guard.ArgumentNotNull(executionOptions);
 
 			executionOptions.SetValue(TestOptionsNames.Execution.SynchronousMessageReporting, value);
 		}

@@ -24,7 +24,7 @@ namespace Xunit.Runner.Common
 		/// <param name="logger">The logger used to report messages</param>
 		public DefaultRunnerReporterMessageHandler(IRunnerLogger logger)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
+			Guard.ArgumentNotNull(logger);
 
 			defaultDirectory = Directory.GetCurrentDirectory();
 
@@ -127,7 +127,7 @@ namespace Xunit.Runner.Common
 		/// <returns>The assembly display name</returns>
 		protected virtual string GetAssemblyDisplayName(XunitProjectAssembly assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			return assembly.AssemblyDisplayName;
 		}
@@ -156,8 +156,8 @@ namespace Xunit.Runner.Common
 			string failureType,
 			_IErrorMetadata errorMetadata)
 		{
-			Guard.ArgumentNotNull(nameof(failureType), failureType);
-			Guard.ArgumentNotNull(nameof(errorMetadata), errorMetadata);
+			Guard.ArgumentNotNull(failureType);
+			Guard.ArgumentNotNull(errorMetadata);
 
 			var frameInfo = StackFrameInfo.FromErrorMetadata(errorMetadata);
 
@@ -223,7 +223,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			LogError("FATAL ERROR", args.Message);
 		}
@@ -234,7 +234,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyDiscoveryFinished(MessageHandlerArgs<TestAssemblyDiscoveryFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var discoveryFinished = args.Message;
 			var assemblyDisplayName = GetAssemblyDisplayName(discoveryFinished.Assembly);
@@ -258,7 +258,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyDiscoveryStarting(MessageHandlerArgs<TestAssemblyDiscoveryStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var discoveryStarting = args.Message;
 			var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
@@ -284,7 +284,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyExecutionFinished(MessageHandlerArgs<TestAssemblyExecutionFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var executionFinished = args.Message;
 			Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
@@ -298,7 +298,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyExecutionStarting(MessageHandlerArgs<TestAssemblyExecutionStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var executionStarting = args.Message;
 			AddExecutionOptions(executionStarting.Assembly.AssemblyFileName, executionStarting.ExecutionOptions);
@@ -321,7 +321,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetAssemblyMetadata(args.Message);
 			if (metadata != null)
@@ -336,7 +336,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			// We don't remove this metadata from the cache, because the assembly ID is how we map
 			// execution results. We need the cache to still contain that mapping so we can print
@@ -349,7 +349,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.Set(args.Message);
 		}
@@ -360,7 +360,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetTestCaseMetadata(args.Message);
 			if (metadata != null)
@@ -375,7 +375,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.TryRemove(args.Message);
 		}
@@ -386,7 +386,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.Set(args.Message);
 		}
@@ -397,7 +397,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetClassMetadata(args.Message);
 			if (metadata != null)
@@ -412,7 +412,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.TryRemove(args.Message);
 		}
@@ -423,7 +423,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.Set(args.Message);
 		}
@@ -434,7 +434,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
 			if (metadata != null)
@@ -449,7 +449,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetCollectionMetadata(args.Message);
 			if (metadata != null)
@@ -464,7 +464,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.TryRemove(args.Message);
 		}
@@ -475,7 +475,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.Set(args.Message);
 		}
@@ -486,7 +486,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestExecutionSummaries(MessageHandlerArgs<TestExecutionSummaries> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			WriteDefaultSummary(Logger, args.Message);
 		}
@@ -497,7 +497,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testFailed = args.Message;
 			var frameInfo = StackFrameInfo.FromErrorMetadata(testFailed);
@@ -524,7 +524,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestFinished(MessageHandlerArgs<_TestFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			//MetadataCache.TryRemove(args.Message);
 		}
@@ -535,7 +535,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var cleanupFailure = args.Message;
 			var metadata = MetadataCache.TryGetMethodMetadata(args.Message);
@@ -551,7 +551,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.TryRemove(args.Message);
 		}
@@ -562,7 +562,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.Set(args.Message);
 		}
@@ -573,7 +573,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			var testPassed = args.Message;
 			var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(testPassed);
@@ -601,7 +601,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			lock (Logger.LockObject)
 			{
@@ -622,7 +622,7 @@ namespace Xunit.Runner.Common
 		/// <param name="args">An object that contains the event data.</param>
 		protected virtual void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 		{
-			Guard.ArgumentNotNull(nameof(args), args);
+			Guard.ArgumentNotNull(args);
 
 			MetadataCache.Set(args.Message);
 		}
@@ -635,8 +635,8 @@ namespace Xunit.Runner.Common
 		/// <param name="summaries">The execution summary to display.</param>
 		public void WriteDefaultSummary(IRunnerLogger logger, TestExecutionSummaries summaries)
 		{
-			Guard.ArgumentNotNull(nameof(logger), logger);
-			Guard.ArgumentNotNull(nameof(summaries), summaries);
+			Guard.ArgumentNotNull(logger);
+			Guard.ArgumentNotNull(summaries);
 
 			logger.LogImportantMessage("=== TEST EXECUTION SUMMARY ===");
 

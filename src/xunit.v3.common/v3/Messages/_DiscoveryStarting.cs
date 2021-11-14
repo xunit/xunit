@@ -15,7 +15,7 @@ namespace Xunit.v3
 		public string AssemblyName
 		{
 			get => assemblyName ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyName)} on an uninitialized '{GetType().FullName}' object");
-			set => assemblyName = Guard.ArgumentNotNullOrEmpty(nameof(AssemblyName), value);
+			set => assemblyName = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyName));
 		}
 
 		/// <inheritdoc/>

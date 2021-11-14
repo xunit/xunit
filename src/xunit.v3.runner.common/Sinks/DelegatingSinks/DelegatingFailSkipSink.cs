@@ -20,7 +20,7 @@ namespace Xunit.Runner.Common
 		/// <param name="innerSink">The sink to delegate messages to.</param>
 		public DelegatingFailSkipSink(IExecutionSink innerSink)
 		{
-			Guard.ArgumentNotNull(nameof(innerSink), innerSink);
+			Guard.ArgumentNotNull(innerSink);
 
 			this.innerSink = innerSink;
 		}
@@ -45,7 +45,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			if (message is _TestSkipped testSkipped)
 			{

@@ -28,7 +28,7 @@ namespace Xunit.Sdk
 		/// <param name="parent">The parent aggregator to copy exceptions from.</param>
 		public ExceptionAggregator(ExceptionAggregator parent)
 		{
-			Guard.ArgumentNotNull(nameof(parent), parent);
+			Guard.ArgumentNotNull(parent);
 
 			exceptions = new List<Exception>(parent.exceptions);
 		}
@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 		/// <param name="ex">The exception to be added.</param>
 		public void Add(Exception ex)
 		{
-			Guard.ArgumentNotNull(nameof(ex), ex);
+			Guard.ArgumentNotNull(ex);
 
 			exceptions.Add(ex);
 		}
@@ -55,7 +55,7 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The aggregator whose exceptions should be copied.</param>
 		public void Aggregate(ExceptionAggregator aggregator)
 		{
-			Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+			Guard.ArgumentNotNull(aggregator);
 
 			exceptions.AddRange(aggregator.exceptions);
 		}
@@ -75,7 +75,7 @@ namespace Xunit.Sdk
 		/// <param name="code">The code to be run.</param>
 		public void Run(Action code)
 		{
-			Guard.ArgumentNotNull(nameof(code), code);
+			Guard.ArgumentNotNull(code);
 
 			try
 			{
@@ -94,7 +94,7 @@ namespace Xunit.Sdk
 		/// <param name="code">The code to be run.</param>
 		public async ValueTask RunAsync(Func<ValueTask> code)
 		{
-			Guard.ArgumentNotNull(nameof(code), code);
+			Guard.ArgumentNotNull(code);
 
 			try
 			{
@@ -114,7 +114,7 @@ namespace Xunit.Sdk
 		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
 		public async ValueTask<T?> RunAsync<T>(Func<ValueTask<T>> code, T? defaultValue = default)
 		{
-			Guard.ArgumentNotNull(nameof(code), code);
+			Guard.ArgumentNotNull(code);
 
 			try
 			{

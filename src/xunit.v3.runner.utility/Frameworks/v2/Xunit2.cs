@@ -49,7 +49,7 @@ namespace Xunit.Runner.v2
 #if NETFRAMEWORK
 			// Only safe to assume the execution reference is copied in a desktop project
 			if (verifyAssembliesOnDisk)
-				Guard.FileExists(nameof(xunitExecutionAssemblyPath), xunitExecutionAssemblyPath);
+				Guard.FileExists(xunitExecutionAssemblyPath);
 
 			CanUseAppDomains = !IsDotNet(xunitExecutionAssemblyPath);
 #else
@@ -182,7 +182,7 @@ namespace Xunit.Runner.v2
 			_IMessageSink sink,
 			bool serializeDiscoveredTestCases = true)
 		{
-			Guard.ArgumentNotNull(nameof(sink), sink);
+			Guard.ArgumentNotNull(sink);
 
 			var v2MessageSink = new Xunit2MessageSink(sink, TestAssemblyUniqueID, serializeDiscoveredTestCases ? remoteDiscoverer : null);
 
@@ -214,8 +214,8 @@ namespace Xunit.Runner.v2
 			_IMessageSink messageSink,
 			FrontControllerFindSettings settings)
 		{
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
 			var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
@@ -238,8 +238,8 @@ namespace Xunit.Runner.v2
 		{
 			Guard.NotNull($"This instance of {typeof(Xunit2).FullName} was created for discovery only; execution-related operations cannot be performed.", remoteExecutor);
 
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			if (settings.Filters.Empty)
 			{
@@ -315,9 +315,9 @@ namespace Xunit.Runner.v2
 			string assemblyFileName,
 			bool verifyTestAssemblyExists)
 		{
-			Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
+			Guard.ArgumentNotNullOrEmpty(assemblyFileName);
 			if (verifyTestAssemblyExists)
-				Guard.FileExists("assemblyFileName", assemblyFileName);
+				Guard.FileExists(assemblyFileName);
 
 			return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyFileName)!);
 		}
@@ -326,8 +326,8 @@ namespace Xunit.Runner.v2
 			AppDomainSupport appDomainSupport,
 			_IAssemblyInfo assemblyInfo)
 		{
-			Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
-			Guard.ArgumentNotNullOrEmpty("assemblyInfo.AssemblyPath", assemblyInfo.AssemblyPath);
+			Guard.ArgumentNotNull(assemblyInfo);
+			Guard.ArgumentNotNullOrEmpty(assemblyInfo.AssemblyPath);
 
 			return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyInfo.AssemblyPath)!);
 		}
@@ -344,8 +344,8 @@ namespace Xunit.Runner.v2
 		{
 			Guard.NotNull($"This instance of {typeof(Xunit2).FullName} was created for discovery only; execution-related operations cannot be performed.", remoteExecutor);
 
-			Guard.ArgumentNotNull(nameof(messageSink), messageSink);
-			Guard.ArgumentNotNull(nameof(settings), settings);
+			Guard.ArgumentNotNull(messageSink);
+			Guard.ArgumentNotNull(settings);
 
 			remoteExecutor.RunTests(
 				BulkDeserialize(settings.SerializedTestCases.ToList()).Select(kvp => kvp.Value).ToList(),
@@ -390,11 +390,10 @@ namespace Xunit.Runner.v2
 		{
 			var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
 
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+			Guard.ArgumentNotNull(assemblyInfo);
 
 			return new Xunit2(
-				diagnosticMessageSink,
+				diagnosticMessageSink ?? _NullMessageSink.Instance,
 				appDomainSupport,
 				sourceInformationProvider ?? _NullSourceInformationProvider.Instance,  // TODO: Need to find a way to be able to use VisualStudioSourceInformationProvider
 				assemblyInfo,
@@ -421,11 +420,13 @@ namespace Xunit.Runner.v2
 			_IMessageSink? diagnosticMessageSink = null,
 			bool verifyAssembliesOnDisk = true)
 		{
-			var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
-			var assemblyFileName = projectAssembly.AssemblyFileName;
+			Guard.ArgumentNotNull(projectAssembly);
 
-			Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
-			Guard.ArgumentNotNull($"{nameof(projectAssembly)}.{nameof(XunitProjectAssembly.AssemblyFileName)}", assemblyFileName);
+			var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
+			var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
+
+			if (diagnosticMessageSink == null)
+				diagnosticMessageSink = _NullMessageSink.Instance;
 
 			return new Xunit2(
 				diagnosticMessageSink,

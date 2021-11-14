@@ -23,7 +23,7 @@ namespace Xunit.Sdk
 		/// <param name="action">The action to measure.</param>
 		public void Aggregate(Action action)
 		{
-			Guard.ArgumentNotNull(nameof(action), action);
+			Guard.ArgumentNotNull(action);
 
 			var stopwatch = Stopwatch.StartNew();
 
@@ -43,7 +43,7 @@ namespace Xunit.Sdk
 		/// <param name="asyncAction">The action to measure.</param>
 		public async ValueTask AggregateAsync(Func<ValueTask> asyncAction)
 		{
-			Guard.ArgumentNotNull(nameof(asyncAction), asyncAction);
+			Guard.ArgumentNotNull(asyncAction);
 
 			var stopwatch = Stopwatch.StartNew();
 

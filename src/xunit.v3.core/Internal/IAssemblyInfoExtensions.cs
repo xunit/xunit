@@ -18,7 +18,7 @@ namespace Xunit.Internal
 		/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
 		public static string GetTargetFramework(this _IAssemblyInfo assembly)
 		{
-			Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Guard.ArgumentNotNull(assembly);
 
 			string? result = null;
 

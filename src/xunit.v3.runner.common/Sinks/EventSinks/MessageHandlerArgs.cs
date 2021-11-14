@@ -30,7 +30,7 @@ namespace Xunit.Runner.Common
 		/// <param name="message">The message to be handled.</param>
 		public MessageHandlerArgs(TMessage message)
 		{
-			Guard.ArgumentNotNull(nameof(message), message);
+			Guard.ArgumentNotNull(message);
 
 			Message = message;
 		}

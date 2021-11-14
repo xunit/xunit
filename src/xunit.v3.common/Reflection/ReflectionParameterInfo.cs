@@ -18,7 +18,7 @@ namespace Xunit.Sdk
 		/// <param name="parameterInfo">The parameter to be wrapped.</param>
 		public ReflectionParameterInfo(ParameterInfo parameterInfo)
 		{
-			ParameterInfo = Guard.ArgumentNotNull(nameof(parameterInfo), parameterInfo);
+			ParameterInfo = Guard.ArgumentNotNull(parameterInfo);
 
 			parameterType = new(() => Reflector.Wrap(ParameterInfo.ParameterType));
 		}

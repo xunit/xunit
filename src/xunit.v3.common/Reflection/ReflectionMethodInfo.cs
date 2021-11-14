@@ -25,7 +25,7 @@ namespace Xunit.Sdk
 		/// <param name="method">The method to be wrapped.</param>
 		public ReflectionMethodInfo(MethodInfo method)
 		{
-			MethodInfo = Guard.ArgumentNotNull(nameof(method), method);
+			MethodInfo = Guard.ArgumentNotNull(method);
 
 			returnType = new(() => Reflector.Wrap(MethodInfo.ReturnType));
 			type = new(() => Reflector.Wrap(MethodInfo.ReflectedType!));
@@ -58,7 +58,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+			Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
 		}
@@ -67,12 +67,12 @@ namespace Xunit.Sdk
 			MethodInfo method,
 			string assemblyQualifiedAttributeTypeName)
 		{
-			Guard.ArgumentNotNull(nameof(method), method);
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+			Guard.ArgumentNotNull(method);
+			Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
 			var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
-			Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), $"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType);
+			Guard.ArgumentNotNull($"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType, nameof(assemblyQualifiedAttributeTypeName));
 
 			return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 		}
@@ -160,7 +160,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public _IMethodInfo MakeGenericMethod(params _ITypeInfo[] typeArguments)
 		{
-			Guard.ArgumentNotNull(nameof(typeArguments), typeArguments);
+			Guard.ArgumentNotNull(typeArguments);
 
 			var unwrapedTypeArguments = typeArguments.Select(t => ((_IReflectionTypeInfo)t).Type).ToArray();
 

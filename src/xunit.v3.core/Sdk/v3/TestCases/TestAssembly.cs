@@ -50,7 +50,7 @@ namespace Xunit.v3
 			Version? version = null,
 			string? uniqueID = null)
 		{
-			Assembly = Guard.ArgumentNotNull(nameof(assembly), assembly);
+			Assembly = Guard.ArgumentNotNull(assembly);
 			ConfigFileName = configFileName;
 
 			this.uniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
@@ -64,7 +64,7 @@ namespace Xunit.v3
 		public _IAssemblyInfo Assembly
 		{
 			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-			set => assembly = Guard.ArgumentNotNull(nameof(Assembly), value);
+			set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
 		}
 
 		/// <inheritdoc/>
