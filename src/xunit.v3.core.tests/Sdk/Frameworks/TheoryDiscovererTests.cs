@@ -336,8 +336,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public static IEnumerable<object[]> bar { get { return Enumerable.Empty<object[]>(); } }
 
 		[Theory]
-		[MemberData("foo", DisableDiscoveryEnumeration = true)]
-		[MemberData("bar", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(foo), DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(bar), DisableDiscoveryEnumeration = true)]
 		public static void TheoryMethod(int x) { }
 	}
 
@@ -361,8 +361,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public static IEnumerable<object[]> bar { get { return Enumerable.Empty<object[]>(); } }
 
 		[Theory]
-		[MemberData("foo", DisableDiscoveryEnumeration = false)]
-		[MemberData("bar", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(foo), DisableDiscoveryEnumeration = false)]
+		[MemberData(nameof(bar), DisableDiscoveryEnumeration = true)]
 		public static void TheoryMethod(int x) { }
 	}
 

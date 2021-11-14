@@ -185,14 +185,14 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		}
 
 		[Theory]
-		[MemberData("SomeData")]
+		[MemberData(nameof(SomeData))]
 		public void TestWithData(int x, double y, string z)
 		{
 			Assert.NotEqual(x, 0);
 		}
 
 		[Theory]
-		[MemberData("DisposableData")]
+		[MemberData(nameof(DisposableData))]
 		public void TestWithDisposableData(IDisposable x)
 		{
 			Assert.True(false);
@@ -200,8 +200,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 
 		[Theory]
 		[InlineData(1, 2.1, "not skipped")]
-		[MemberData("SomeData", Skip = "Skipped")]
-		[MemberData("SomeData2")]
+		[MemberData(nameof(SomeData), Skip = "Skipped")]
+		[MemberData(nameof(SomeData2))]
 		[InlineData(0, 0.0, "also not skipped")]
 		public void TestWithSomeDataSkipped(int x, double y, string z)
 		{
@@ -217,7 +217,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		}
 
 		[Theory]
-		[MemberData("ThrowingData")]
+		[MemberData(nameof(ThrowingData))]
 		public void TestWithThrowingData(int x) { }
 	}
 

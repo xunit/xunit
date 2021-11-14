@@ -448,7 +448,7 @@ public class Xunit3TheoryAcceptanceTests
 				}
 			}
 
-			[Theory, MemberData("GenericData")]
+			[Theory, MemberData(nameof(GenericData))]
 			public void GenericTest<T1, T2>(T1 value1, T2 value2) { }
 		}
 
@@ -471,7 +471,7 @@ public class Xunit3TheoryAcceptanceTests
 				}
 			}
 
-			[Theory, MemberData("GenericData")]
+			[Theory, MemberData(nameof(GenericData))]
 			public void GenericTest<T>(T value) { }
 		}
 	}
@@ -899,7 +899,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<object?[]> Data = new TheoryData<MyConvertible> { new MyConvertible() };
 
 			[Theory]
-			[MemberData("Data")]
+			[MemberData(nameof(Data))]
 			public void TestViaIConvertible(int x) { }
 		}
 	}
@@ -1439,7 +1439,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<object?[]>? DataSource(int x) => null;
 
 			[Theory]
-			[MemberData("DataSource", 21.12)]
+			[MemberData(nameof(DataSource), 21.12)]
 			public void TestViaMethodData(int x, double y, string z) { }
 		}
 
@@ -1461,7 +1461,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory]
-			[MemberData("TestData")]
+			[MemberData(nameof(TestData))]
 			public void Test(int x)
 			{
 				Assert.Equal(42, x);
@@ -1495,7 +1495,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory]
-			[MemberData("DataSource", 84)]
+			[MemberData(nameof(DataSource), 84)]
 			public void TestViaMethodData(int x, double y, string z)
 			{
 				Assert.NotNull(z);
@@ -1517,8 +1517,8 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<object?[]> DataSource(object x, string y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
 
 			[Theory]
-			[MemberData("DataSource", 42, "Hello world")]
-			[MemberData("DataSource", 21.12, null)]
+			[MemberData(nameof(DataSource), 42, "Hello world")]
+			[MemberData(nameof(DataSource), 21.12, null)]
 			public void TestViaMethodData(int x, double y, string z) { }
 		}
 
@@ -1535,7 +1535,7 @@ public class Xunit3TheoryAcceptanceTests
 		public abstract class BaseClassWithTestWithoutData
 		{
 			[Theory]
-			[MemberData("TestData")]
+			[MemberData(nameof(TestData))]
 			public void Test(int x)
 			{
 				Assert.Equal(42, x);
@@ -1707,7 +1707,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory]
-			[MemberData("Data")]
+			[MemberData(nameof(Data))]
 			public void TestMethod(int x, double y, object z)
 			{
 				Assert.Equal(0, x); // Fails the first data item
