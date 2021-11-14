@@ -180,7 +180,7 @@ namespace Xunit.Sdk
 		/// <returns>The serialized value</returns>
 		public static string Serialize(object value)
 		{
-			Guard.NotNull(nameof(value), value);
+			Guard.ArgumentNotNull(value);
 
 			using var stream = new MemoryStream();
 			formatter.Serialize(stream, value);
