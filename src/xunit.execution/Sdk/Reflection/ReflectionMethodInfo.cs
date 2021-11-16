@@ -68,7 +68,19 @@ namespace Xunit.Sdk
         public ITypeInfo Type
         {
 #if NETSTANDARD1_1
-            get { throw new NotSupportedException(); }
+            get
+            {
+                var reflectedTypeProperty = MethodInfo.GetType().GetRuntimeProperty("ReflectedType");
+                if (reflectedTypeProperty != null)
+                {
+                    var methodInfoReflectedType = (Type)reflectedTypeProperty.GetValue(MethodInfo, null);
+                    return Reflector.Wrap(methodInfoReflectedType);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
 #else
             get { return Reflector.Wrap(MethodInfo.ReflectedType); }
 #endif
