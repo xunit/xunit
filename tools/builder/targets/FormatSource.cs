@@ -10,6 +10,6 @@ public static class FormatSource
 	{
 		context.BuildStep("Formatting source");
 
-		await context.Exec("dotnet", $"dotnet-format --folder --verbosity {context.Verbosity} --exclude src/xunit.v3.assert/Asserts");
+		await context.Exec("dotnet", $"dotnet-format --folder --exclude src/xunit.v3.assert/Asserts");
 	}
 }
