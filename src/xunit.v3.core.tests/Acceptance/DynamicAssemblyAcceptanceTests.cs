@@ -20,6 +20,8 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 	[Fact]
 	public async void CanDiscoverTests()
 	{
+		Assert.SkipWhen(EnvironmentHelper.IsMono, "Mono does not fully support dynamic assemblies");
+
 		var assemblyInfo = new ReflectionAssemblyInfo(fixture.Assembly);
 
 		await using var disposalTracker = new DisposalTracker();
@@ -40,6 +42,8 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 	[Fact]
 	public async void CanRunTests()
 	{
+		Assert.SkipWhen(EnvironmentHelper.IsMono, "Mono does not fully support dynamic assemblies");
+
 		var assemblyInfo = new ReflectionAssemblyInfo(fixture.Assembly);
 
 		await using var disposalTracker = new DisposalTracker();
