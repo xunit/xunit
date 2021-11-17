@@ -11,7 +11,7 @@ namespace Xunit.Runner.InProc.SystemConsole;
 public class CommandLine : CommandLineParserBase
 {
 	readonly Assembly assembly;
-	readonly string assemblyFileName;
+	readonly string? assemblyFileName;
 
 	/// <summary/>
 	public CommandLine(
@@ -19,10 +19,10 @@ public class CommandLine : CommandLineParserBase
 		string[] args,
 		IReadOnlyList<IRunnerReporter>? runnerReporters = null,
 		string? reporterFolder = null)
-			: base(runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.Location), args)
+			: base(runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.GetSafeLocation()), args)
 	{
 		this.assembly = assembly;
-		assemblyFileName = assembly.Location;
+		assemblyFileName = assembly.GetSafeLocation();
 
 		// General options
 		AddParser(
@@ -35,11 +35,10 @@ public class CommandLine : CommandLineParserBase
 
 	void AddAssembly(
 		Assembly assembly,
-		string assemblyFileName,
+		string? assemblyFileName,
 		string? configFileName)
 	{
-		// Assembly.Location will return string.Empty for assemblies not on disk
-		if (assemblyFileName != string.Empty && !FileExists(assemblyFileName))
+		if (assemblyFileName != null && !FileExists(assemblyFileName))
 			throw new ArgumentException($"assembly not found: {assemblyFileName}");
 		if (configFileName != null && !FileExists(configFileName))
 			throw new ArgumentException($"config file not found: {configFileName}");

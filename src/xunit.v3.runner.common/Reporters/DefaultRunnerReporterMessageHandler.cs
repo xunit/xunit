@@ -77,13 +77,11 @@ namespace Xunit.Runner.Common
 		protected MessageMetadataCache MetadataCache { get; } = new();
 
 		void AddExecutionOptions(
-			string? assemblyFilename,
+			string assemblyIdentifier,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
-			Guard.NotNull("Attempted to log messages for an XunitProjectAssembly without first setting AssemblyFilename", assemblyFilename);
-
 			using (ReaderWriterLockWrapper.WriteLock())
-				executionOptionsByAssembly[assemblyFilename] = executionOptions;
+				executionOptionsByAssembly[assemblyIdentifier] = executionOptions;
 		}
 
 		/// <summary>
@@ -209,12 +207,10 @@ namespace Xunit.Runner.Common
 				Logger.LogImportantMessage(frameInfo, $"        {line}");
 		}
 
-		void RemoveExecutionOptions(string? assemblyFilename)
+		void RemoveExecutionOptions(string assemblyIdentifier)
 		{
-			Guard.NotNull("Attempted to log messages for an XunitProjectAssembly without first setting AssemblyFilename", assemblyFilename);
-
 			using (ReaderWriterLockWrapper.WriteLock())
-				executionOptionsByAssembly.Remove(assemblyFilename);
+				executionOptionsByAssembly.Remove(assemblyIdentifier);
 		}
 
 		/// <summary>
@@ -289,7 +285,7 @@ namespace Xunit.Runner.Common
 			var executionFinished = args.Message;
 			Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
 
-			RemoveExecutionOptions(executionFinished.Assembly.AssemblyFileName);
+			RemoveExecutionOptions(executionFinished.Assembly.Identifier);
 		}
 
 		/// <summary>
@@ -301,7 +297,7 @@ namespace Xunit.Runner.Common
 			Guard.ArgumentNotNull(args);
 
 			var executionStarting = args.Message;
-			AddExecutionOptions(executionStarting.Assembly.AssemblyFileName, executionStarting.ExecutionOptions);
+			AddExecutionOptions(executionStarting.Assembly.Identifier, executionStarting.ExecutionOptions);
 
 			var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
 
@@ -647,7 +643,7 @@ namespace Xunit.Runner.Common
 						summary => (
 							summary.Summary,
 							summary.AssemblyUniqueID,
-							AssemblyDisplayName: Path.GetFileNameWithoutExtension(MetadataCache.TryGetAssemblyMetadata(summary.AssemblyUniqueID)?.AssemblyPath) ?? "<unknown assembly>"
+							AssemblyDisplayName: MetadataCache.TryGetAssemblyMetadata(summary.AssemblyUniqueID)?.SimpleAssemblyName() ?? "<unknown assembly>"
 						)
 					).OrderBy(summary => summary.AssemblyDisplayName)
 					.ToList();

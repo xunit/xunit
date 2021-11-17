@@ -83,22 +83,25 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IReadOnlyCollection<_ITypeInfo> GetTypes(bool includePrivateTypes)
 		{
-			var selector = includePrivateTypes ? Assembly.DefinedTypes.Select(t => t.AsType()) : Assembly.ExportedTypes;
-
 			try
 			{
-				return selector
-					.Select(t => Reflector.Wrap(t))
-					.Cast<_ITypeInfo>()
-					.CastOrToReadOnlyCollection();
+				return
+					Assembly
+						.DefinedTypes
+						.Where(t => includePrivateTypes || t.IsPublic || t.IsNestedPublic)
+						.Select(t => Reflector.Wrap(t.AsType()))
+						.Cast<_ITypeInfo>()
+						.CastOrToReadOnlyCollection();
 			}
 			catch (ReflectionTypeLoadException ex)
 			{
-				return ex.Types
-					.WhereNotNull()
-					.Select(t => Reflector.Wrap(t))
-					.Cast<_ITypeInfo>()
-					.CastOrToReadOnlyCollection();
+				return
+					ex
+						.Types
+						.WhereNotNull()
+						.Select(t => Reflector.Wrap(t))
+						.Cast<_ITypeInfo>()
+						.CastOrToReadOnlyCollection();
 			}
 		}
 

@@ -6,18 +6,32 @@ public class XunitProjectAssemblyTests
 	public class AssemblyDisplayName
 	{
 		[Fact]
-		public void WhenAssemblyFilenameIsNotSet_ReturnsDynamic()
+		public void WhenAssemblyFileNameIsNotSet_AndAssemblyIsNotSet_ReturnsDynamic()
 		{
 			var project = new XunitProject();
 			var projectAssembly = new XunitProjectAssembly(project);
 
 			var displayName = projectAssembly.AssemblyDisplayName;
 
-			Assert.Equal("<dynamic>", displayName);
+			Assert.Equal("<unnamed dynamic assembly>", displayName);
 		}
 
 		[Fact]
-		public void WhenAssemblyFilenameIsSet_ReturnsFileNameWithoutExtension()
+		public void WhenAssemblyFileNameIsNotSet_AndAssemblyIsSet_ReturnsAssemblyName()
+		{
+			var project = new XunitProject();
+			var projectAssembly = new XunitProjectAssembly(project)
+			{
+				Assembly = typeof(XunitProjectAssemblyTests).Assembly
+			};
+
+			var displayName = projectAssembly.AssemblyDisplayName;
+
+			Assert.Equal(typeof(XunitProjectAssemblyTests).Assembly.GetName().Name, displayName);
+		}
+
+		[Fact]
+		public void WhenAssemblyFileNameIsSet_ReturnsFileNameWithoutExtension()
 		{
 			var project = new XunitProject();
 			var projectAssembly = new XunitProjectAssembly(project)

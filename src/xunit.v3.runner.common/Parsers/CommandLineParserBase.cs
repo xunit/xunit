@@ -28,7 +28,7 @@ public abstract class CommandLineParserBase
 		Args = args;
 
 		if (string.IsNullOrWhiteSpace(this.reporterFolder))
-			this.reporterFolder = Assembly.GetEntryAssembly()?.Location;
+			this.reporterFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
 		// General options
 		AddParser(

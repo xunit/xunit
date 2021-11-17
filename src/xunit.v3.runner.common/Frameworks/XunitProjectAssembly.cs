@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using Xunit.Internal;
 
@@ -9,7 +10,6 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	public class XunitProjectAssembly
 	{
-		string? assemblyFileName;
 		string? targetFramework;
 
 		/// <summary>
@@ -32,17 +32,21 @@ namespace Xunit.Runner.Common
 		/// Gets the assembly display name. Will return the value "&lt;dynamic&gt;" if the
 		/// assembly does not have a file name.
 		/// </summary>
-		public string AssemblyDisplayName =>
-			AssemblyFileName == string.Empty ? "<dynamic>" : Path.GetFileNameWithoutExtension(AssemblyFileName);
+		public string AssemblyDisplayName
+		{
+			get
+			{
+				if (AssemblyFileName != null)
+					return Path.GetFileNameWithoutExtension(AssemblyFileName);
+
+				return Assembly?.GetName()?.Name ?? "<unnamed dynamic assembly>";
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets the assembly file name.
 		/// </summary>
-		public string AssemblyFileName
-		{
-			get => assemblyFileName ?? string.Empty;
-			set => assemblyFileName = value;
-		}
+		public string? AssemblyFileName { get; set; }
 
 		/// <summary>
 		/// Gets or sets the config file name.
@@ -53,6 +57,24 @@ namespace Xunit.Runner.Common
 		/// Gets the configuration values for the test assembly.
 		/// </summary>
 		public TestAssemblyConfiguration Configuration { get; } = new();
+
+		/// <summary>
+		/// Gets an identifier for the current assembly. This is guaranteed to be unique, but not necessarily repeatable
+		/// across runs (because it relies on <see cref="Assembly.GetHashCode"/>).
+		/// </summary>
+		public string Identifier
+		{
+			get
+			{
+				if (AssemblyFileName != null)
+					return AssemblyFileName;
+
+				if (Assembly == null)
+					throw new InvalidOperationException($"Cannot get the UniqueID of a {GetType().FullName} instance when both {nameof(Assembly)} and {nameof(AssemblyFileName)} are null");
+
+				return $"{Assembly.FullName ?? "<unnamed dynamic assembly>"}::{Assembly.GetHashCode()}";
+			}
+		}
 
 		/// <summary>
 		/// Gets the project that this project assembly belongs to.

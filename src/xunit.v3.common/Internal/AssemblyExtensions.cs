@@ -21,7 +21,7 @@ namespace Xunit.Internal
 		/// <summary/>
 		[return: NotNullIfNotNull("assembly")]
 		public static string? GetLocalCodeBase(this Assembly? assembly) =>
-			GetLocalCodeBase(assembly?.CodeBase, Path.DirectorySeparatorChar);
+			GetLocalCodeBase(assembly?.GetSafeCodeBase(), Path.DirectorySeparatorChar);
 
 		/// <summary/>
 		[return: NotNullIfNotNull("codeBase")]
@@ -60,6 +60,24 @@ namespace Xunit.Internal
 
 			throw new ArgumentException($"Unknown directory separator '{directorySeparator}'; must be one of '/' or '\\'.", nameof(directorySeparator));
 		}
+
+		/// <summary>
+		/// Safely gets the code base of an assembly.
+		/// </summary>
+		/// <param name="assembly">The assembly.</param>
+		/// <returns>If the assembly is null, or is dynamic, then it returns <c>null</c>; otherwise, it returns the value
+		/// from <see cref="Assembly.CodeBase"/>.</returns>
+		public static string? GetSafeCodeBase(this Assembly? assembly) =>
+			assembly == null || assembly.IsDynamic ? null : assembly.CodeBase;
+
+		/// <summary>
+		/// Safely gets the location of an assembly.
+		/// </summary>
+		/// <param name="assembly">The assembly.</param>
+		/// <returns>If the assembly is null, or is dynamic, then it returns <c>null</c>; otherwise, it returns the value
+		/// from <see cref="Assembly.Location"/>.</returns>
+		public static string? GetSafeLocation(this Assembly? assembly) =>
+			assembly == null || assembly.IsDynamic ? null : assembly.Location;
 
 		/// <summary>
 		/// Gets the target framework name for the given assembly.
