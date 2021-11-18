@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Xunit.Internal;
@@ -7,6 +8,24 @@ namespace Xunit
 {
 	class AppDomainManager_NoAppDomain : IAppDomainManager
 	{
+		public AppDomainManager_NoAppDomain(
+			string assemblyFileName,
+			string? configFileName)
+		{
+			Guard.ArgumentNotNullOrEmpty(assemblyFileName);
+
+			assemblyFileName = Path.GetFullPath(assemblyFileName);
+			Guard.FileExists(assemblyFileName);
+
+			if (configFileName == null)
+				configFileName = GetDefaultConfigFile(assemblyFileName);
+
+			if (configFileName != null)
+				configFileName = Path.GetFullPath(configFileName);
+
+			AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configFileName);
+		}
+
 		public bool HasAppDomain => false;
 
 		public TObject? CreateObject<TObject>(
@@ -65,5 +84,15 @@ namespace Xunit
 
 		public void Dispose()
 		{ }
+
+		static string? GetDefaultConfigFile(string assemblyFile)
+		{
+			var configFilename = assemblyFile + ".config";
+
+			if (File.Exists(configFilename))
+				return configFilename;
+
+			return null;
+		}
 	}
 }
