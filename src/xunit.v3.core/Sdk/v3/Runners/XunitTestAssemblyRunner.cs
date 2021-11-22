@@ -22,6 +22,8 @@ namespace Xunit.v3
 		int maxParallelThreads;
 		SynchronizationContext? originalSyncContext;
 		MaxConcurrencySyncContext? syncContext;
+		ITestCaseOrderer? testCaseOrdererOverride;
+		ITestCollectionOrderer? testCollectionOrdererOverride;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -47,116 +49,6 @@ namespace Xunit.v3
 		{
 			get => assemblyFixtureMappings;
 			set => assemblyFixtureMappings = Guard.ArgumentNotNull(value, nameof(AssemblyFixtureMappings));
-		}
-
-		/// <inheritdoc/>
-		public override async ValueTask DisposeAsync()
-		{
-			if (syncContext is IAsyncDisposable asyncDisposable)
-				await asyncDisposable.DisposeAsync();
-			if (syncContext is IDisposable disposable)
-				disposable.Dispose();
-		}
-
-		/// <inheritdoc/>
-		protected override string GetTestFrameworkDisplayName() =>
-			XunitTestFrameworkDiscoverer.DisplayName;
-
-		/// <inheritdoc/>
-		protected override string GetTestFrameworkEnvironment()
-		{
-			Initialize();
-
-			var testCollectionFactory =
-				ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly)
-				?? new CollectionPerClassTestCollectionFactory(TestAssembly, DiagnosticMessageSink);
-
-			var threadCountText = maxParallelThreads < 0 ? "unlimited" : maxParallelThreads.ToString();
-
-			return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory?.DisplayName}, {(disableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
-		}
-
-		/// <summary>
-		/// Gets the synchronization context used when potentially running tests in parallel.
-		/// If <paramref name="maxParallelThreads"/> is greater than 0, it creates
-		/// and uses an instance of <see cref="T:Xunit.Sdk.MaxConcurrencySyncContext"/>.
-		/// </summary>
-		/// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
-		protected virtual void SetupSyncContext(int maxParallelThreads)
-		{
-			if (MaxConcurrencySyncContext.IsSupported && maxParallelThreads > 0)
-			{
-				syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
-				SetSynchronizationContext(syncContext);
-			}
-		}
-
-		/// <summary>
-		/// Ensures the assembly runner is initialized (sets up the collection behavior,
-		/// parallelization options, and test orderers from their assembly attributes).
-		/// </summary>
-		protected void Initialize()
-		{
-			if (initialized)
-				return;
-
-			collectionBehaviorAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-			if (collectionBehaviorAttribute != null)
-			{
-				disableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
-				maxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>("MaxParallelThreads");
-			}
-
-			disableParallelization = ExecutionOptions.DisableParallelization() ?? disableParallelization;
-			maxParallelThreads = ExecutionOptions.MaxParallelThreads() ?? maxParallelThreads;
-			if (maxParallelThreads == 0)
-				maxParallelThreads = Environment.ProcessorCount;
-
-			var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-			if (testCaseOrdererAttribute != null)
-			{
-				try
-				{
-					var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, testCaseOrdererAttribute);
-					if (testCaseOrderer != null)
-						TestCaseOrderer = testCaseOrderer;
-					else
-					{
-						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
-						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test case orderer" });
-					}
-				}
-				catch (Exception ex)
-				{
-					var innerEx = ex.Unwrap();
-					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test case orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
-				}
-			}
-
-			var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
-			if (testCollectionOrdererAttribute != null)
-			{
-				try
-				{
-					var testCollectionOrderer = ExtensibilityPointFactory.GetTestCollectionOrderer(DiagnosticMessageSink, testCollectionOrdererAttribute);
-					if (testCollectionOrderer != null)
-						TestCollectionOrderer = testCollectionOrderer;
-					else
-					{
-						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
-						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test collection orderer" });
-					}
-				}
-				catch (Exception ex)
-				{
-					var innerEx = ex.Unwrap();
-					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test collection orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
-				}
-			}
-
-			initialized = true;
 		}
 
 		/// <inheritdoc/>
@@ -203,7 +95,7 @@ namespace Xunit.v3
 					}
 				});
 
-			SetSynchronizationContext(originalSyncContext);
+			SetupSyncContextInternal(originalSyncContext);
 			await base.BeforeTestAssemblyFinishedAsync();
 		}
 
@@ -291,6 +183,114 @@ namespace Xunit.v3
 		}
 
 		/// <inheritdoc/>
+		public override async ValueTask DisposeAsync()
+		{
+			if (syncContext is IAsyncDisposable asyncDisposable)
+				await asyncDisposable.DisposeAsync();
+			else if (syncContext is IDisposable disposable)
+				disposable.Dispose();
+		}
+
+		/// <inheritdoc/>
+		protected override ITestCaseOrderer GetTestCaseOrderer()
+		{
+			Initialize();
+
+			return testCaseOrdererOverride ?? base.GetTestCaseOrderer();
+		}
+
+		/// <inheritdoc/>
+		protected override ITestCollectionOrderer GetTestCollectionOrderer()
+		{
+			Initialize();
+
+			return testCollectionOrdererOverride ?? base.GetTestCollectionOrderer();
+		}
+
+		/// <inheritdoc/>
+		protected override string GetTestFrameworkDisplayName() =>
+			XunitTestFrameworkDiscoverer.DisplayName;
+
+		/// <inheritdoc/>
+		protected override string GetTestFrameworkEnvironment()
+		{
+			Initialize();
+
+			var testCollectionFactory =
+				ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly)
+				?? new CollectionPerClassTestCollectionFactory(TestAssembly, DiagnosticMessageSink);
+
+			var threadCountText = maxParallelThreads < 0 ? "unlimited" : maxParallelThreads.ToString();
+
+			return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory?.DisplayName}, {(disableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
+		}
+
+		/// <summary>
+		/// Ensures the assembly runner is initialized (sets up the collection behavior, parallelization options, and test orderers
+		/// from their assembly attributes). If this method is overridden, it must call this base version before doing any
+		/// further initialization work; derived methods must also support multiple calls to this method gracefully.
+		/// </summary>
+		protected virtual void Initialize()
+		{
+			if (initialized)
+				return;
+
+			collectionBehaviorAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
+			if (collectionBehaviorAttribute != null)
+			{
+				disableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+				maxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>("MaxParallelThreads");
+			}
+
+			disableParallelization = ExecutionOptions.DisableParallelization() ?? disableParallelization;
+			maxParallelThreads = ExecutionOptions.MaxParallelThreads() ?? maxParallelThreads;
+			if (maxParallelThreads == 0)
+				maxParallelThreads = Environment.ProcessorCount;
+
+			var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+			if (testCaseOrdererAttribute != null)
+			{
+				try
+				{
+					testCaseOrdererOverride = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, testCaseOrdererAttribute);
+					if (testCaseOrdererOverride == null)
+					{
+						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test case orderer" });
+					}
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test case orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+				}
+			}
+
+			var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
+			if (testCollectionOrdererAttribute != null)
+			{
+				try
+				{
+					testCollectionOrdererOverride = ExtensibilityPointFactory.GetTestCollectionOrderer(DiagnosticMessageSink, testCollectionOrdererAttribute);
+					if (testCollectionOrdererOverride == null)
+					{
+						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
+						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test collection orderer" });
+					}
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
+					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test collection orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+				}
+			}
+
+			initialized = true;
+		}
+
+		/// <inheritdoc/>
 		protected override async ValueTask<RunSummary> RunTestCollectionsAsync(
 			IMessageBus messageBus,
 			CancellationTokenSource cancellationTokenSource)
@@ -327,21 +327,15 @@ namespace Xunit.v3
 			}
 
 			if (parallel?.Count > 0)
-			{
 				foreach (var task in parallel)
-				{
 					try
 					{
 						summaries.Add(await task);
 					}
 					catch (TaskCanceledException) { }
-				}
-			}
 
 			if (nonParallel?.Count > 0)
-			{
 				foreach (var task in nonParallel)
-				{
 					try
 					{
 						summaries.Add(await taskRunner(task));
@@ -349,8 +343,6 @@ namespace Xunit.v3
 							break;
 					}
 					catch (TaskCanceledException) { }
-				}
-			}
 
 			return new RunSummary()
 			{
@@ -371,14 +363,29 @@ namespace Xunit.v3
 					testCases,
 					DiagnosticMessageSink,
 					messageBus,
-					TestCaseOrderer,
+					GetTestCaseOrderer(),
 					new ExceptionAggregator(Aggregator),
 					cancellationTokenSource,
 					AssemblyFixtureMappings
 				).RunAsync();
 
+		/// <summary>
+		/// Gets the synchronization context used when potentially running tests in parallel.
+		/// If <paramref name="maxParallelThreads"/> is greater than 0, it creates
+		/// and uses an instance of <see cref="T:Xunit.Sdk.MaxConcurrencySyncContext"/>.
+		/// </summary>
+		/// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
+		protected virtual void SetupSyncContext(int maxParallelThreads)
+		{
+			if (MaxConcurrencySyncContext.IsSupported && maxParallelThreads > 0)
+			{
+				syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
+				SetupSyncContextInternal(syncContext);
+			}
+		}
+
 		[SecuritySafeCritical]
-		static void SetSynchronizationContext(SynchronizationContext? context) =>
+		static void SetupSyncContextInternal(SynchronizationContext? context) =>
 			SynchronizationContext.SetSynchronizationContext(context);
 	}
 }

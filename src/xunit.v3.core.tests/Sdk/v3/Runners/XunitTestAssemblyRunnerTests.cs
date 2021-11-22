@@ -208,7 +208,7 @@ public class XunitTestAssemblyRunnerTests
 
 			runner.Initialize();
 
-			Assert.IsType<MyTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<MyTestCaseOrderer>(runner.DefaultTestCaseOrderer);
 		}
 
 		class MyTestCaseOrderer : ITestCaseOrderer
@@ -229,7 +229,7 @@ public class XunitTestAssemblyRunnerTests
 
 			runner.Initialize();
 
-			Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
 			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test case orderer", diagnosticMessage.Message);
 		}
@@ -243,7 +243,7 @@ public class XunitTestAssemblyRunnerTests
 
 			runner.Initialize();
 
-			Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
 			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Assembly-level test case orderer 'XunitTestAssemblyRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
@@ -268,16 +268,16 @@ public class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask CanSetTestCollectionOrdererInAssemblyAttribute()
 		{
-			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyTestCollectionOrderer>();
+			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<DescendingDisplayNameCollectionOrderer>();
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
 			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
-			Assert.IsType<MyTestCollectionOrderer>(runner.TestCollectionOrderer);
+			Assert.IsType<DescendingDisplayNameCollectionOrderer>(runner.DefaultTestCollectionOrderer);
 		}
 
-		class MyTestCollectionOrderer : ITestCollectionOrderer
+		class DescendingDisplayNameCollectionOrderer : ITestCollectionOrderer
 		{
 			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> TestCollections) =>
 				TestCollections
@@ -294,7 +294,7 @@ public class XunitTestAssemblyRunnerTests
 
 			runner.Initialize();
 
-			Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
+			Assert.IsType<DefaultTestCollectionOrderer>(runner.DefaultTestCollectionOrderer);
 			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test collection orderer", diagnosticMessage.Message);
 		}
@@ -302,20 +302,20 @@ public class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
-			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyCtorThrowingTestCollectionOrderer>();
+			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<CtorThrowingCollectionOrderer>();
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
 			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
 			runner.Initialize();
 
-			Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
 			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
-			Assert.StartsWith("Assembly-level test collection orderer 'XunitTestAssemblyRunnerTests+TestCollectionOrderer+MyCtorThrowingTestCollectionOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
+			Assert.StartsWith("Assembly-level test collection orderer 'XunitTestAssemblyRunnerTests+TestCollectionOrderer+CtorThrowingCollectionOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
-		class MyCtorThrowingTestCollectionOrderer : ITestCollectionOrderer
+		class CtorThrowingCollectionOrderer : ITestCollectionOrderer
 		{
-			public MyCtorThrowingTestCollectionOrderer()
+			public CtorThrowingCollectionOrderer()
 			{
 				throw new DivideByZeroException();
 			}
@@ -337,7 +337,6 @@ public class XunitTestAssemblyRunnerTests
 	class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner
 	{
 		public List<_MessageSinkMessage> DiagnosticMessages;
-
 		public ConcurrentBag<Tuple<int, IXunitTestCase>> TestCasesRun = new();
 
 		TestableXunitTestAssemblyRunner(
@@ -350,6 +349,10 @@ public class XunitTestAssemblyRunnerTests
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}
+
+		public ITestCaseOrderer DefaultTestCaseOrderer => base.GetTestCaseOrderer();
+
+		public ITestCollectionOrderer DefaultTestCollectionOrderer => base.GetTestCollectionOrderer();
 
 		public static TestableXunitTestAssemblyRunner Create(
 			_ITestAssembly? assembly = null,
@@ -366,17 +369,6 @@ public class XunitTestAssemblyRunnerTests
 				SpyMessageSink.Create(),
 				executionOptions ?? _TestFrameworkOptions.ForExecution()
 			);
-		}
-
-		public new ITestCaseOrderer TestCaseOrderer
-		{
-			get { return base.TestCaseOrderer; }
-		}
-
-		public new ITestCollectionOrderer TestCollectionOrderer
-		{
-			get { return base.TestCollectionOrderer; }
-			set { base.TestCollectionOrderer = value; }
 		}
 
 		public new string GetTestFrameworkDisplayName()

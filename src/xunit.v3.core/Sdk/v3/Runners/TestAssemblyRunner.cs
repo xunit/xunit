@@ -21,13 +21,13 @@ namespace Xunit.v3
 		where TTestCase : _ITestCase
 	{
 		ExceptionAggregator aggregator = new();
+		readonly Lazy<ITestCaseOrderer> defaultTestCaseOrderer;
+		readonly Lazy<ITestCollectionOrderer> defaultTestCollectionOrderer;
 		_IMessageSink diagnosticMessageSink;
 		_IMessageSink executionMessageSink;
 		_ITestFrameworkExecutionOptions executionOptions;
 		_ITestAssembly testAssembly;
-		ITestCaseOrderer testCaseOrderer;
 		IReadOnlyCollection<TTestCase> testCases;
-		ITestCollectionOrderer testCollectionOrderer = new DefaultTestCollectionOrderer();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestAssemblyRunner{TTestCase}"/> class.
@@ -50,7 +50,8 @@ namespace Xunit.v3
 			this.executionMessageSink = Guard.ArgumentNotNull(executionMessageSink);
 			this.executionOptions = Guard.ArgumentNotNull(executionOptions);
 
-			testCaseOrderer = new DefaultTestCaseOrderer(DiagnosticMessageSink);
+			defaultTestCaseOrderer = new(() => new DefaultTestCaseOrderer(DiagnosticMessageSink));
+			defaultTestCollectionOrderer = new(() => new DefaultTestCollectionOrderer());
 		}
 
 		/// <summary>
@@ -99,24 +100,6 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets or sets the test case orderer that will be used to decide how to order the tests.
-		/// </summary>
-		protected ITestCaseOrderer TestCaseOrderer
-		{
-			get => testCaseOrderer;
-			set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
-		}
-
-		/// <summary>
-		/// Gets or sets the test collection orderer that will be used to decide how to order the test collections.
-		/// </summary>
-		protected ITestCollectionOrderer TestCollectionOrderer
-		{
-			get => testCollectionOrderer;
-			set => testCollectionOrderer = Guard.ArgumentNotNull(value, nameof(TestCollectionOrderer));
-		}
-
-		/// <summary>
 		/// Gets or sets the test cases to be run.
 		/// </summary>
 		protected IReadOnlyCollection<TTestCase> TestCases
@@ -124,29 +107,6 @@ namespace Xunit.v3
 			get => testCases;
 			set => testCases = Guard.ArgumentNotNull(value, nameof(TestCases));
 		}
-
-		/// <inheritdoc/>
-		public virtual ValueTask DisposeAsync() => default;
-
-		/// <summary>
-		/// Override this to provide the target framework against which the assembly was compiled
-		/// (f.e., ".NETFramework,Version=v4.7.2"). This value is placed into
-		/// <see cref="_TestAssemblyStarting.TargetFramework"/>.
-		/// </summary>
-		protected virtual string? GetTargetFramework() =>
-			TestAssembly.Assembly.GetTargetFramework();
-
-		/// <summary>
-		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").
-		/// This value is placed into <see cref="_TestAssemblyStarting.TestFrameworkDisplayName"/>.
-		/// </summary>
-		protected abstract string GetTestFrameworkDisplayName();
-
-		/// <summary>
-		/// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
-		/// placed into <see cref="_TestAssemblyStarting.TestEnvironment"/>.
-		/// </summary>
-		protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}";
 
 		/// <summary>
 		/// This method is called just after <see cref="_TestAssemblyStarting"/> is sent, but before any test collections are run.
@@ -175,12 +135,50 @@ namespace Xunit.v3
 			return new MessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
 		}
 
+		/// <inheritdoc/>
+		public virtual ValueTask DisposeAsync() => default;
+
 		/// <summary>
-		/// Orders the test collections using the <see cref="TestCollectionOrderer"/>.
+		/// Override this to provide the target framework against which the assembly was compiled
+		/// (f.e., ".NETFramework,Version=v4.7.2"). This value is placed into
+		/// <see cref="_TestAssemblyStarting.TargetFramework"/>.
 		/// </summary>
-		/// <returns>Test collections (and the associated test cases) in run order</returns>
+		protected virtual string? GetTargetFramework() =>
+			TestAssembly.Assembly.GetTargetFramework();
+
+		/// <summary>
+		/// Override this to provide a default test case orderer for use when ordering tests in test collections
+		/// and test classes. Defaults to an instance of <see cref="DefaultTestCaseOrderer"/>.
+		/// </summary>
+		protected virtual ITestCaseOrderer GetTestCaseOrderer() =>
+			defaultTestCaseOrderer.Value;
+
+		/// <summary>
+		/// Orderride this to provide the default test collection order for ordering collections in the assembly.
+		/// Defaults to an instance of <see cref="DefaultTestCollectionOrderer"/>.
+		/// </summary>
+		protected virtual ITestCollectionOrderer GetTestCollectionOrderer() =>
+			defaultTestCollectionOrderer.Value;
+
+		/// <summary>
+		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").
+		/// This value is placed into <see cref="_TestAssemblyStarting.TestFrameworkDisplayName"/>.
+		/// </summary>
+		protected abstract string GetTestFrameworkDisplayName();
+
+		/// <summary>
+		/// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
+		/// placed into <see cref="_TestAssemblyStarting.TestEnvironment"/>.
+		/// </summary>
+		protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}";
+
+		/// <summary>
+		/// Orders the test collections in the assembly.
+		/// </summary>
+		/// <returns>Test collections in run order (and associated, not-yet-ordered test cases).</returns>
 		protected List<Tuple<_ITestCollection, List<TTestCase>>> OrderTestCollections()
 		{
+			var testCollectionOrderer = GetTestCollectionOrderer();
 			var testCasesByCollection =
 				TestCases
 					.GroupBy(tc => tc.TestCollection, TestCollectionComparer.Instance)
@@ -190,12 +188,12 @@ namespace Xunit.v3
 
 			try
 			{
-				orderedTestCollections = TestCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+				orderedTestCollections = testCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
 			}
 			catch (Exception ex)
 			{
 				var innerEx = ex.Unwrap();
-				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test collection orderer '{TestCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test collection orderer '{testCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
 				orderedTestCollections = testCasesByCollection.Keys.CastOrToReadOnlyCollection();
 			}
 
@@ -250,10 +248,10 @@ namespace Xunit.v3
 
 						SetTestContext(TestEngineStatus.Running);
 
-						var masterStopwatch = Stopwatch.StartNew();
-						totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
 						// Want clock time, not aggregated run time
-						totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
+						var clockTimeStopwatch = Stopwatch.StartNew();
+						totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
+						totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
 
 						SetTestContext(TestEngineStatus.CleaningUp);
 
@@ -318,7 +316,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCollection">The test collection that is being run.</param>
-		/// <param name="testCases">The test cases to be run.</param>
+		/// <param name="testCases">The test cases that belong to the test collection.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 		/// <returns>Returns summary information about the tests that were run.</returns>
 		protected abstract ValueTask<RunSummary> RunTestCollectionAsync(

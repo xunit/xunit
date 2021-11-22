@@ -265,22 +265,22 @@ public class TestAssemblyRunnerTests
 		{
 			await using var runner = TestableTestAssemblyRunner.Create();
 
-			Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
 		}
 	}
 
 	public class TestCollectionOrderer
 	{
 		[Fact]
-		public static async ValueTask DefaultTestCaseOrderer()
+		public static async ValueTask DefaultTestCollectionOrderer()
 		{
 			await using var runner = TestableTestAssemblyRunner.Create();
 
-			Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
+			Assert.IsType<DefaultTestCollectionOrderer>(runner.DefaultTestCollectionOrderer);
 		}
 
 		[Fact]
-		public static async ValueTask OrdererUsedToOrderTestCases()
+		public static async ValueTask OrdererUsedToOrderTestCollections()
 		{
 			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");
 			var testCase1a = TestCaseForTestCollection(collection1);
@@ -292,8 +292,7 @@ public class TestAssemblyRunnerTests
 			var testCase3a = TestCaseForTestCollection(collection3);
 			var testCase3b = TestCaseForTestCollection(collection3);
 			var testCases = new[] { testCase1a, testCase3a, testCase2a, testCase3b, testCase2b, testCase1b };
-			await using var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
-			runner.TestCollectionOrderer = new MyTestCollectionOrderer();
+			await using var runner = TestableTestAssemblyRunner.Create(testCases: testCases, testCollectionOrderer: new DescendingDisplayNameCollectionOrderer());
 
 			await runner.RunAsync();
 
@@ -317,7 +316,7 @@ public class TestAssemblyRunnerTests
 			);
 		}
 
-		class MyTestCollectionOrderer : ITestCollectionOrderer
+		class DescendingDisplayNameCollectionOrderer : ITestCollectionOrderer
 		{
 			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> TestCollections) =>
 				TestCollections
@@ -326,7 +325,7 @@ public class TestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTestCollections()
 		{
 			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");
 			var testCase1 = TestCaseForTestCollection(collection1);
@@ -335,8 +334,7 @@ public class TestAssemblyRunnerTests
 			var collection3 = Mocks.TestCollection(displayName: "MM", uniqueID: "collection-3");
 			var testCase3 = TestCaseForTestCollection(collection3);
 			var testCases = new[] { testCase1, testCase2, testCase3 };
-			await using var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
-			runner.TestCollectionOrderer = new ThrowingOrderer();
+			await using var runner = TestableTestAssemblyRunner.Create(testCases: testCases, testCollectionOrderer: new ThrowingCollectionOrderer());
 
 			await runner.RunAsync();
 
@@ -347,10 +345,10 @@ public class TestAssemblyRunnerTests
 				collection => Assert.Same(collection3, collection.Item1)
 			);
 			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
-			Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
+			Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingCollectionOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
-		class ThrowingOrderer : ITestCollectionOrderer
+		class ThrowingCollectionOrderer : ITestCollectionOrderer
 		{
 			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections)
 			{
@@ -363,6 +361,7 @@ public class TestAssemblyRunnerTests
 	{
 		readonly bool cancelInRunTestCollectionAsync;
 		readonly RunSummary result;
+		readonly ITestCollectionOrderer? testCollectionOrderer;
 
 		public List<Tuple<_ITestCollection, IReadOnlyCollection<_ITestCase>>> CollectionsRun = new();
 		public Action<ExceptionAggregator> AfterTestAssemblyStarting_Callback = _ => { };
@@ -382,13 +381,15 @@ public class TestAssemblyRunnerTests
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions,
 			RunSummary result,
-			bool cancelInRunTestCollectionAsync)
+			bool cancelInRunTestCollectionAsync,
+			ITestCollectionOrderer? testCollectionOrderer)
 				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
 		{
 			DiagnosticMessages = diagnosticMessages;
 
 			this.result = result;
 			this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
+			this.testCollectionOrderer = testCollectionOrderer;
 		}
 
 		public new _ITestAssembly TestAssembly => base.TestAssembly;
@@ -398,7 +399,8 @@ public class TestAssemblyRunnerTests
 			RunSummary? result = null,
 			_ITestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null,
-			bool cancelInRunTestCollectionAsync = false) =>
+			bool cancelInRunTestCollectionAsync = false,
+			ITestCollectionOrderer? testCollectionOrderer = null) =>
 				new(
 					Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
 					testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
@@ -406,16 +408,13 @@ public class TestAssemblyRunnerTests
 					executionMessageSink ?? SpyMessageSink.Create(),
 					executionOptions ?? _TestFrameworkOptions.ForExecution(),
 					result ?? new RunSummary(),
-					cancelInRunTestCollectionAsync
+					cancelInRunTestCollectionAsync,
+					testCollectionOrderer
 				);
 
-		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
+		public ITestCaseOrderer DefaultTestCaseOrderer => base.GetTestCaseOrderer();
 
-		public new ITestCollectionOrderer TestCollectionOrderer
-		{
-			get { return base.TestCollectionOrderer; }
-			set { base.TestCollectionOrderer = value; }
-		}
+		public ITestCollectionOrderer DefaultTestCollectionOrderer => base.GetTestCollectionOrderer();
 
 		public IMessageBus CreateMessageBus_Public() => base.CreateMessageBus();
 
@@ -424,6 +423,8 @@ public class TestAssemblyRunnerTests
 			// Use the sync message bus, so that we can immediately react to cancellations.
 			return new SynchronousMessageBus(ExecutionMessageSink);
 		}
+
+		protected override ITestCollectionOrderer GetTestCollectionOrderer() => testCollectionOrderer ?? base.GetTestCollectionOrderer();
 
 		protected override string GetTestFrameworkDisplayName() => "The test framework display name";
 
