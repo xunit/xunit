@@ -71,12 +71,18 @@ public class AcceptanceTestV3
 		return results.OfType<TMessageType>().ToList();
 	}
 
-	public async Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
+	public Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type type,
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
+			RunForResultsAsync(new[] { type }, preEnumerateTheories, additionalAssemblyAttributes);
+
+	public async Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
+		Type[] types,
 		bool preEnumerateTheories = true,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 	{
-		var results = await RunAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
+		var results = await RunAsync(types, preEnumerateTheories, additionalAssemblyAttributes);
 		return
 			results
 				.OfType<_TestResultMessage>()
@@ -92,6 +98,16 @@ public class AcceptanceTestV3
 			where TResult : ITestResultWithDisplayName
 	{
 		var results = await RunForResultsAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
+		return results.OfType<TResult>().ToList();
+	}
+
+	public async Task<List<TResult>> RunForResultsAsync<TResult>(
+		Type[] types,
+		bool preEnumerateTheories = true,
+		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
+			where TResult : ITestResultWithDisplayName
+	{
+		var results = await RunForResultsAsync(types, preEnumerateTheories, additionalAssemblyAttributes);
 		return results.OfType<TResult>().ToList();
 	}
 
