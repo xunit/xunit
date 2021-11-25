@@ -92,6 +92,29 @@ namespace Xunit.Sdk
 		/// the aggregate.
 		/// </summary>
 		/// <param name="code">The code to be run.</param>
+		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
+		public T? Run<T>(
+			Func<T> code,
+			T? defaultValue = default)
+		{
+			Guard.ArgumentNotNull(code);
+
+			try
+			{
+				return code();
+			}
+			catch (Exception ex)
+			{
+				exceptions.Add(ex.Unwrap());
+				return defaultValue;
+			}
+		}
+
+		/// <summary>
+		/// Runs the code, catching the exception that is thrown and adding it to
+		/// the aggregate.
+		/// </summary>
+		/// <param name="code">The code to be run.</param>
 		public async ValueTask RunAsync(Func<ValueTask> code)
 		{
 			Guard.ArgumentNotNull(code);
