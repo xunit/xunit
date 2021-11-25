@@ -86,17 +86,17 @@ namespace Xunit.v3
 		protected virtual ValueTask<decimal> InvokeTestMethodAsync(
 			ExceptionAggregator aggregator,
 			_ITestOutputHelper? testOutputHelper) =>
-				new XunitTestInvoker(
+				XunitTestInvoker.Instance.RunAsync(
 					Test,
-					MessageBus,
 					TestClass,
 					ConstructorArguments,
 					TestMethod,
 					TestMethodArguments,
 					BeforeAfterAttributes,
+					MessageBus,
 					aggregator,
 					CancellationTokenSource
-				).RunAsync();
+				);
 
 		/// <inheritdoc/>
 		protected override void SetTestContext(

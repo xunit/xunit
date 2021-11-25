@@ -78,7 +78,7 @@ public class _TestFailedTests
 		[Fact]
 		public void BuiltInTimeoutException()
 		{
-			var ex = new TestTimeoutException(2112);
+			var ex = TestTimeoutException.ForTimedOutTest(2112);
 
 			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
 

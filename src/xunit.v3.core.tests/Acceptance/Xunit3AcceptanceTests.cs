@@ -252,17 +252,25 @@ public class Xunit3AcceptanceTests
 		public async void TimedOutTest()
 		{
 			var stopwatch = Stopwatch.StartNew();
-			var results = await RunAsync(typeof(ClassUnderTest));
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
 			stopwatch.Stop();
 
-			var passedMessage = Assert.Single(results.OfType<_TestPassed>());
-			var passedStarting = results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passedMessage.TestUniqueID).Single();
-			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passedStarting.TestDisplayName);
+			var passed = Assert.Single(results.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passed.TestDisplayName);
 
-			var failedMessage = Assert.Single(results.OfType<_TestFailed>());
-			var failedStarting = results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == failedMessage.TestUniqueID).Single();
-			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedStarting.TestDisplayName);
-			Assert.Equal("Test execution timed out after 10 milliseconds", failedMessage.Messages.Single());
+			Assert.Collection(
+				results.OfType<TestFailedWithDisplayName>().OrderBy(f => f.TestDisplayName),
+				failed =>
+				{
+					Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.IllegalTest", failed.TestDisplayName);
+					Assert.Equal("Tests marked with Timeout are only supported for async tests", failed.Messages.Single());
+				},
+				failed =>
+				{
+					Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failed.TestDisplayName);
+					Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
+				}
+			);
 
 			Assert.True(stopwatch.ElapsedMilliseconds < 10000, "Elapsed time should be less than 10 seconds");
 		}
@@ -273,7 +281,11 @@ public class Xunit3AcceptanceTests
 			public Task LongRunningTest() => Task.Delay(10000);
 
 			[Fact(Timeout = 10000)]
-			public void ShortRunningTest() => Task.Delay(10);
+			public Task ShortRunningTest() => Task.Delay(10);
+
+			// Can't have timeout on a non-async test
+			[Fact(Timeout = 10000)]
+			public void IllegalTest() { }
 		}
 	}
 

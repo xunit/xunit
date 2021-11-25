@@ -278,10 +278,17 @@ public class XunitTestInvokerTests
 
 	class TestableXunitTestInvoker : XunitTestInvoker
 	{
+		readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		readonly object?[] constructorArguments;
 		readonly Action? lambda;
+		readonly IMessageBus messageBus;
+		readonly _ITest test;
+		readonly Type testClass;
+		readonly MethodInfo testMethod;
+		readonly object?[]? testMethodArguments;
 
-		public readonly new ExceptionAggregator Aggregator;
-		public readonly new IXunitTestCase TestCase;
+		public readonly ExceptionAggregator Aggregator;
+		public readonly IXunitTestCase TestCase;
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableXunitTestInvoker(
@@ -294,9 +301,15 @@ public class XunitTestInvokerTests
 			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			Action? lambda) :
-				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
+			Action? lambda)
 		{
+			this.test = test;
+			this.messageBus = messageBus;
+			this.testClass = testClass;
+			this.constructorArguments = constructorArguments;
+			this.testMethod = testMethod;
+			this.testMethodArguments = testMethodArguments;
+			this.beforeAfterAttributes = beforeAfterAttributes;
 			this.lambda = lambda;
 
 			TestCase = (IXunitTestCase)test.TestCase;
@@ -327,19 +340,24 @@ public class XunitTestInvokerTests
 			);
 		}
 
-		protected override ValueTask InvokeTestMethodAsync(object? testClassInstance)
+		protected override ValueTask<decimal> InvokeTestMethodAsync(
+			XunitTestInvokerContext ctxt,
+			object? testClassInstance)
 		{
 			if (lambda == null)
-				return base.InvokeTestMethodAsync(testClassInstance);
+				return base.InvokeTestMethodAsync(ctxt, testClassInstance);
 
 			Aggregator.Run(lambda);
 			return default;
 		}
 
-		class ClassUnderTest
-		{
-			[Fact]
-			public void Passing() { }
-		}
+		public ValueTask<decimal> RunAsync() =>
+			RunAsync(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, beforeAfterAttributes, messageBus, Aggregator, TokenSource);
+	}
+
+	class ClassUnderTest
+	{
+		[Fact]
+		public void Passing() { }
 	}
 }
