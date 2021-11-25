@@ -338,6 +338,6 @@ namespace Xunit.v3
 		protected virtual void SetTestContext(
 			TestEngineStatus testStatus,
 			TestState? testState = null) =>
-				TestContext.SetForTest(test, testStatus, testState);
+				TestContext.SetForTest(test, testStatus, CancellationTokenSource.Token, testState);
 	}
 }

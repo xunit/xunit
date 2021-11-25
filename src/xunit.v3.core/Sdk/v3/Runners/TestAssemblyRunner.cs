@@ -21,6 +21,7 @@ namespace Xunit.v3
 		where TTestCase : _ITestCase
 	{
 		ExceptionAggregator aggregator = new();
+		CancellationTokenSource cancellationTokenSource = new();
 		readonly Lazy<ITestCaseOrderer> defaultTestCaseOrderer;
 		readonly Lazy<ITestCollectionOrderer> defaultTestCollectionOrderer;
 		_IMessageSink diagnosticMessageSink;
@@ -61,6 +62,15 @@ namespace Xunit.v3
 		{
 			get => aggregator;
 			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
+		}
+
+		/// <summary>
+		/// Gets or sets the task cancellation token source, used to cancel the test run.
+		/// </summary>
+		protected CancellationTokenSource CancellationTokenSource
+		{
+			get => cancellationTokenSource;
+			set => cancellationTokenSource = Guard.ArgumentNotNull(value, nameof(CancellationTokenSource));
 		}
 
 		/// <summary>
@@ -211,7 +221,6 @@ namespace Xunit.v3
 		{
 			SetTestContext(TestEngineStatus.Initializing);
 
-			var cancellationTokenSource = new CancellationTokenSource();
 			var totalSummary = new RunSummary();
 			var currentDirectory = Directory.GetCurrentDirectory();
 			var targetFramework = GetTargetFramework();
@@ -250,7 +259,7 @@ namespace Xunit.v3
 
 						// Want clock time, not aggregated run time
 						var clockTimeStopwatch = Stopwatch.StartNew();
-						totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
+						totalSummary = await RunTestCollectionsAsync(messageBus, CancellationTokenSource);
 						totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
 
 						SetTestContext(TestEngineStatus.CleaningUp);
@@ -331,6 +340,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testAssemblyStatus">The current test assembly status.</param>
 		protected virtual void SetTestContext(TestEngineStatus testAssemblyStatus) =>
-			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus);
+			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus, CancellationTokenSource.Token);
 	}
 }

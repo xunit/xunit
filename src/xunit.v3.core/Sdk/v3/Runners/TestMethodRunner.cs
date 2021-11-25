@@ -225,7 +225,7 @@ namespace Xunit.v3
 		protected virtual void SetTestContext(TestEngineStatus testMethodStatus)
 		{
 			if (TestMethod != null)
-				TestContext.SetForTestMethod(TestMethod, testMethodStatus);
+				TestContext.SetForTestMethod(TestMethod, testMethodStatus, CancellationTokenSource.Token);
 		}
 	}
 }

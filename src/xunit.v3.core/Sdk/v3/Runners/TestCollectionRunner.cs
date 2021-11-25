@@ -224,6 +224,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testCollectionStatus">The current test collection status.</param>
 		protected virtual void SetTestContext(TestEngineStatus testCollectionStatus) =>
-			TestContext.SetForTestCollection(TestCollection, testCollectionStatus);
+			TestContext.SetForTestCollection(TestCollection, testCollectionStatus, CancellationTokenSource.Token);
 	}
 }

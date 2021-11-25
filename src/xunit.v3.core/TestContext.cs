@@ -16,11 +16,20 @@ namespace Xunit
 
 		TestContext(
 			_ITestAssembly testAssembly,
-			TestEngineStatus testAssemblyStatus)
+			TestEngineStatus testAssemblyStatus,
+			CancellationToken cancellationToken)
 		{
 			TestAssembly = testAssembly;
 			TestAssemblyStatus = testAssemblyStatus;
+			CancellationToken = cancellationToken;
 		}
+
+		/// <summary>
+		/// Gets the cancellation token that is used to indicate that the test run should be
+		/// aborted. Async tests should pass this along to any async functions that support
+		/// cancellation tokens, to help speed up the cancellation process.
+		/// </summary>
+		public CancellationToken CancellationToken { get; }
 
 		/// <summary/>
 		public static TestContext? Current => local.Value;
@@ -125,12 +134,13 @@ namespace Xunit
 		internal static void SetForTest(
 			_ITest test,
 			TestEngineStatus testStatus,
+			CancellationToken cancellationToken,
 			TestState? testState = null,
 			_ITestOutputHelper? testOutputHelper = null)
 		{
 			Guard.ArgumentNotNull(test);
 
-			local.Value = new TestContext(test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
 			{
 				Test = test,
 				TestStatus = testStatus,
@@ -153,20 +163,22 @@ namespace Xunit
 
 		internal static void SetForTestAssembly(
 			_ITestAssembly testAssembly,
-			TestEngineStatus testAssemblyStatus)
+			TestEngineStatus testAssemblyStatus,
+			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testAssembly);
 
-			local.Value = new TestContext(testAssembly, testAssemblyStatus);
+			local.Value = new TestContext(testAssembly, testAssemblyStatus, cancellationToken);
 		}
 
 		internal static void SetForTestCase(
 			_ITestCase testCase,
-			TestEngineStatus testCaseStatus)
+			TestEngineStatus testCaseStatus,
+			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testCase);
 
-			local.Value = new TestContext(testCase.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(testCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
 			{
 				TestCase = testCase,
 				TestCaseStatus = testCaseStatus,
@@ -184,11 +196,12 @@ namespace Xunit
 
 		internal static void SetForTestClass(
 			_ITestClass testClass,
-			TestEngineStatus testClassStatus)
+			TestEngineStatus testClassStatus,
+			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testClass);
 
-			local.Value = new TestContext(testClass.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(testClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
 			{
 				TestClass = testClass,
 				TestClassStatus = testClassStatus,
@@ -200,11 +213,12 @@ namespace Xunit
 
 		internal static void SetForTestCollection(
 			_ITestCollection testCollection,
-			TestEngineStatus testCollectionStatus)
+			TestEngineStatus testCollectionStatus,
+			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testCollection);
 
-			local.Value = new TestContext(testCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(testCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
 			{
 				TestCollection = testCollection,
 				TestCollectionStatus = testCollectionStatus,
@@ -213,11 +227,12 @@ namespace Xunit
 
 		internal static void SetForTestMethod(
 			_ITestMethod testMethod,
-			TestEngineStatus testMethodStatus)
+			TestEngineStatus testMethodStatus,
+			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testMethod);
 
-			local.Value = new TestContext(testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
 			{
 				TestMethod = testMethod,
 				TestMethodStatus = testMethodStatus,

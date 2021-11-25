@@ -105,6 +105,7 @@ namespace Xunit.v3
 				TestContext.SetForTest(
 					Test,
 					testStatus,
+					CancellationTokenSource.Token,
 					testState,
 					testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current?.TestOutputHelper
 				);

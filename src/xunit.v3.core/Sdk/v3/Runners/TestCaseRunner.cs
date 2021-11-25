@@ -175,6 +175,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testCaseStatus">The current test case status.</param>
 		protected virtual void SetTestContext(TestEngineStatus testCaseStatus) =>
-			TestContext.SetForTestCase(TestCase, testCaseStatus);
+			TestContext.SetForTestCase(TestCase, testCaseStatus, CancellationTokenSource.Token);
 	}
 }
