@@ -446,7 +446,7 @@ public class TestInvokerTests
 		{
 			InvokeTestMethodAsync_Context = TestContext.Current;
 
-			Timer.Aggregate(new TimeSpan(0, 0, 0, 21, 120));
+			ElapsedTime += new TimeSpan(0, 0, 0, 21, 120);
 
 			return base.InvokeTestMethodAsync(testClassInstance);
 		}

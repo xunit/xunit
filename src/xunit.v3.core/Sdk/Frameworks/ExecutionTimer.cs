@@ -3,67 +3,75 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
-namespace Xunit.Sdk
+namespace Xunit.Sdk;
+
+/// <summary>
+/// The methods on this static class can measure the time taken to execute actions (both synchronous
+/// and asynchronous).
+/// </summary>
+public static class ExecutionTimer
 {
 	/// <summary>
-	/// Measures and aggregates execution time of one or more actions.
+	/// Executes an action and returns the amount of time it took to execute. Note: time cannot be
+	/// measured for any action that throws an exception, so this should only be called by code that
+	/// is known not to throw (f.e., using <see cref="ExceptionAggregator"/>) or when the execution
+	/// time for throwing code is irrelevant.
 	/// </summary>
-	public class ExecutionTimer
+	/// <param name="action">The action to measure.</param>
+	public static TimeSpan Measure(Action action)
 	{
-		TimeSpan total;
+		Guard.ArgumentNotNull(action);
 
-		/// <summary>
-		/// Returns the total time aggregated across all the actions.
-		/// </summary>
-		public decimal Total => (decimal)total.TotalSeconds;
+		var stopwatch = Stopwatch.StartNew();
+		action();
+		return stopwatch.Elapsed;
+	}
 
-		/// <summary>
-		/// Executes an action and aggregates its run time into the total.
-		/// </summary>
-		/// <param name="action">The action to measure.</param>
-		public void Aggregate(Action action)
-		{
-			Guard.ArgumentNotNull(action);
+	/// <summary>
+	/// Executes a function and returns the amount of time it took to execute. Note: time cannot be
+	/// measured for any action that throws an exception, so this should only be called by code that
+	/// is known not to throw (f.e., using <see cref="ExceptionAggregator"/>) or when the execution
+	/// time for throwing code is irrelevant.
+	/// </summary>
+	/// <param name="func">The function to measure.</param>
+	public static (T Result, TimeSpan Elapsed) Measure<T>(Func<T> func)
+	{
+		Guard.ArgumentNotNull(func);
 
-			var stopwatch = Stopwatch.StartNew();
+		var stopwatch = Stopwatch.StartNew();
+		var result = func();
+		return (result, stopwatch.Elapsed);
+	}
 
-			try
-			{
-				action();
-			}
-			finally
-			{
-				total += stopwatch.Elapsed;
-			}
-		}
+	/// <summary>
+	/// Executes an asynchronous action and returns the amount of time it took to execute. Note: time
+	/// cannot be measured for any action that throws an exception, so this should only be called by
+	/// code that is known not to throw (f.e., using <see cref="ExceptionAggregator"/>) or when the
+	/// execution time for throwing code is irrelevant.
+	/// </summary>
+	/// <param name="asyncAction">The asynchronous action to measure.</param>
+	public static async ValueTask<TimeSpan> MeasureAsync(Func<ValueTask> asyncAction)
+	{
+		Guard.ArgumentNotNull(asyncAction);
 
-		/// <summary>
-		/// Executes an asynchronous action and aggregates its run time into the total.
-		/// </summary>
-		/// <param name="asyncAction">The action to measure.</param>
-		public async ValueTask AggregateAsync(Func<ValueTask> asyncAction)
-		{
-			Guard.ArgumentNotNull(asyncAction);
+		var stopwatch = Stopwatch.StartNew();
+		await asyncAction();
+		return stopwatch.Elapsed;
+	}
 
-			var stopwatch = Stopwatch.StartNew();
+	/// <summary>
+	/// Executes an asynchronous function and returns the amount of time it took to execute. Note: time
+	/// cannot be measured for any action that throws an exception, so this should only be called by
+	/// code that is known not to throw (f.e., using <see cref="ExceptionAggregator"/>) or when the
+	/// execution time for throwing code is irrelevant.
+	/// </summary>
+	/// <param name="asyncFunc">The asynchronous function to measure.</param>
+	public static async ValueTask<(T Result, TimeSpan Elapsed)> MeasureAsync<T>(Func<ValueTask<T>> asyncFunc)
+	{
+		Guard.ArgumentNotNull(asyncFunc);
 
-			try
-			{
-				await asyncAction();
-			}
-			finally
-			{
-				total += stopwatch.Elapsed;
-			}
-		}
-
-		/// <summary>
-		/// Aggregates a time span into the total time.
-		/// </summary>
-		/// <param name="time">The time to add.</param>
-		public void Aggregate(TimeSpan time)
-		{
-			total += time;
-		}
+		var stopwatch = Stopwatch.StartNew();
+		var result = await asyncFunc();
+		return (result, stopwatch.Elapsed);
 	}
 }

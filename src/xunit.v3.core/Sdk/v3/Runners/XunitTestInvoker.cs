@@ -86,7 +86,7 @@ namespace Xunit.v3
 				{
 					try
 					{
-						Timer.Aggregate(() => beforeAfterAttribute.Before(TestMethod, Test));
+						ElapsedTime += ExecutionTimer.Measure(() => beforeAfterAttribute.Before(TestMethod, Test));
 						beforeAfterAttributesRun.Push(beforeAfterAttribute);
 					}
 					catch (Exception ex)
@@ -144,7 +144,7 @@ namespace Xunit.v3
 				if (!MessageBus.QueueMessage(afterTestStarting))
 					CancellationTokenSource.Cancel();
 
-				Aggregator.Run(() => Timer.Aggregate(() => beforeAfterAttribute.After(TestMethod, Test)));
+				ElapsedTime += ExecutionTimer.Measure(() => Aggregator.Run(() => beforeAfterAttribute.After(TestMethod, Test)));
 
 				var afterTestFinished = new _AfterTestFinished
 				{

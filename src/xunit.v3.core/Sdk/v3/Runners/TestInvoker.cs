@@ -29,7 +29,6 @@ namespace Xunit.v3
 		_ITest test;
 		Type testClass;
 		MethodInfo testMethod;
-		ExecutionTimer timer = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestInvoker{TTestCase}"/> class.
@@ -98,6 +97,11 @@ namespace Xunit.v3
 		protected string DisplayName => Test.DisplayName;
 
 		/// <summary>
+		/// Gets or sets the currently elapsed time for invocation activities.
+		/// </summary>
+		protected TimeSpan ElapsedTime { get; set; }
+
+		/// <summary>
 		/// Gets or sets the message bus to report run status to.
 		/// </summary>
 		protected IMessageBus MessageBus
@@ -144,15 +148,6 @@ namespace Xunit.v3
 		protected object?[]? TestMethodArguments { get; set; }
 
 		/// <summary>
-		/// Gets or sets the object which measures execution time.
-		/// </summary>
-		protected ExecutionTimer Timer
-		{
-			get => timer;
-			set => timer = Guard.ArgumentNotNull(value, nameof(Timer));
-		}
-
-		/// <summary>
 		/// Creates the test class, unless the test method is static or there have already been errors. Note that
 		/// this method times the creation of the test class (using <see cref="Timer"/>). It is also responsible for
 		/// sending the <see cref="_TestClassConstructionStarting"/> and <see cref="_TestClassConstructionFinished"/>
@@ -192,7 +187,7 @@ namespace Xunit.v3
 					try
 					{
 						if (!cancellationTokenSource.IsCancellationRequested)
-							Aggregator.Run(() => Timer.Aggregate(() => testClass = CreateTestClassInstance()));
+							ElapsedTime += ExecutionTimer.Measure(() => Aggregator.Run(() => { testClass = CreateTestClassInstance(); }));
 					}
 					finally
 					{
@@ -305,7 +300,7 @@ namespace Xunit.v3
 					SetTestContext(TestEngineStatus.Initializing);
 
 					object? testClassInstance = null;
-					Timer.Aggregate(() => testClassInstance = CreateTestClass());
+					ElapsedTime += ExecutionTimer.Measure(() => { testClassInstance = CreateTestClass(); });
 
 					var asyncDisposable = testClassInstance as IAsyncDisposable;
 					var disposable = testClassInstance as IDisposable;
@@ -320,7 +315,7 @@ namespace Xunit.v3
 					try
 					{
 						if (testClassInstance is IAsyncLifetime asyncLifetime)
-							await Timer.AggregateAsync(asyncLifetime.InitializeAsync);
+							ElapsedTime += await ExecutionTimer.MeasureAsync(asyncLifetime.InitializeAsync);
 
 						try
 						{
@@ -333,7 +328,7 @@ namespace Xunit.v3
 								if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
 									await InvokeTestMethodAsync(testClassInstance);
 
-								SetTestContext(TestEngineStatus.CleaningUp, TestState.FromException(Timer.Total, Aggregator.ToException()));
+								SetTestContext(TestEngineStatus.CleaningUp, TestState.FromException((decimal)ElapsedTime.TotalSeconds, Aggregator.ToException()));
 
 								await AfterTestMethodInvokedAsync();
 							}
@@ -357,13 +352,13 @@ namespace Xunit.v3
 							}
 
 							if (asyncDisposable != null)
-								await Aggregator.RunAsync(() => Timer.AggregateAsync(asyncDisposable.DisposeAsync));
+								ElapsedTime += await ExecutionTimer.MeasureAsync(() => Aggregator.RunAsync(asyncDisposable.DisposeAsync));
 						}
 					}
 					finally
 					{
 						if (disposable != null)
-							Aggregator.Run(() => Timer.Aggregate(disposable.Dispose));
+							ElapsedTime += ExecutionTimer.Measure(() => Aggregator.Run(disposable.Dispose));
 
 						if (asyncDisposable != null || disposable != null)
 						{
@@ -383,7 +378,7 @@ namespace Xunit.v3
 					}
 				}
 
-				return Timer.Total;
+				return (decimal)ElapsedTime.TotalSeconds;
 			});
 		}
 
@@ -410,8 +405,8 @@ namespace Xunit.v3
 					SetSynchronizationContext(asyncSyncContext);
 				}
 
-				await Aggregator.RunAsync(
-					() => Timer.AggregateAsync(
+				ElapsedTime += await ExecutionTimer.MeasureAsync(
+					() => Aggregator.RunAsync(
 						async () =>
 						{
 							var parameterCount = TestMethod.GetParameters().Length;

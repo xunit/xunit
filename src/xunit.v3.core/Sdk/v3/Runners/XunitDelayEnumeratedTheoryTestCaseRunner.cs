@@ -163,18 +163,19 @@ namespace Xunit.v3
 			// Run the cleanup here so we can include cleanup time in the run summary,
 			// but save any exceptions so we can surface them during the cleanup phase,
 			// so they get properly reported as test case cleanup failures.
-			var timer = new ExecutionTimer();
+			TimeSpan elapsedTime = TimeSpan.Zero;
+
 			foreach (var trackedObject in disposalTracker.TrackedObjects)
 			{
 				if (trackedObject is IAsyncDisposable asyncDisposable)
-					await timer.AggregateAsync(() => cleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
+					elapsedTime += await ExecutionTimer.MeasureAsync(() => cleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
 				if (trackedObject is IDisposable disposable)
-					timer.Aggregate(() => cleanupAggregator.Run(disposable.Dispose));
+					elapsedTime += ExecutionTimer.Measure(() => cleanupAggregator.Run(disposable.Dispose));
 			}
 
 			disposalTracker.Clear();
 
-			runSummary.Time += timer.Total;
+			runSummary.Time += (decimal)elapsedTime.TotalSeconds;
 			return runSummary;
 		}
 
