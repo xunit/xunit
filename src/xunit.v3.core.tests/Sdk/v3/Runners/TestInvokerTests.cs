@@ -115,6 +115,18 @@ public class TestInvokerTests
 		}
 
 		[Fact]
+		public static async ValueTask ClassCreationFailure_LogsExceptionIntoAggregator()
+		{
+			var invoker = TestableTestInvoker.Create<NonCreateableClass>("Passing");
+
+			await invoker.RunAsync();
+
+			var ex = invoker.Aggregator.ToException();
+			Assert.IsType<MissingMethodException>(ex);
+			Assert.Equal("Constructor on type 'TestInvokerTests+NonCreateableClass' not found.", ex.Message);
+		}
+
+		[Fact]
 		public static async void TooManyParameterValues()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", testMethodArguments: new object[] { 42 });
@@ -359,6 +371,17 @@ public class TestInvokerTests
 
 		[Fact]
 		public void Passing() { }
+	}
+
+	class NonCreateableClass
+	{
+		// Unmatched constructor argument, class isn't createable
+		public NonCreateableClass(int _)
+		{ }
+
+		[Fact]
+		public void Passing() =>
+			Assert.Fail("This test should never be run");
 	}
 
 	class TestableTestInvoker : TestInvoker<_ITestCase>

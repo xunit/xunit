@@ -192,7 +192,7 @@ namespace Xunit.v3
 					try
 					{
 						if (!cancellationTokenSource.IsCancellationRequested)
-							Timer.Aggregate(() => testClass = CreateTestClassInstance());
+							Aggregator.Run(() => Timer.Aggregate(() => testClass = CreateTestClassInstance()));
 					}
 					finally
 					{
@@ -215,11 +215,10 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Creates the instance of the test class. By default, uses <see cref="Activator"/>.<see cref="Activator.CreateInstance(Type, object[])"/>
+		/// Creates the instance of the test class. By default, uses <see cref="Activator.CreateInstance(Type, object[])"/>
 		/// with the values from <see cref="TestClass"/> and <see cref="ConstructorArguments"/>. You should override this in order to
 		/// change the input values and/or use a factory method other than Activator.CreateInstance.
 		/// </summary>
-		/// <returns></returns>
 		protected virtual object? CreateTestClassInstance() =>
 			Activator.CreateInstance(TestClass, ConstructorArguments);
 
