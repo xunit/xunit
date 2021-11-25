@@ -9,12 +9,12 @@ namespace Xunit.Sdk
 	/// Aggregates exceptions. Intended to run one or more code blocks, and collect the
 	/// exceptions thrown by those code blocks.
 	/// </summary>
-	public class ExceptionAggregator
+	public struct ExceptionAggregator
 	{
 		readonly List<Exception> exceptions;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> class.
+		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> struct.
 		/// </summary>
 		public ExceptionAggregator()
 		{
@@ -22,7 +22,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> class that
+		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> struct that
 		/// contains the exception list of its parent.
 		/// </summary>
 		/// <param name="parent">The parent aggregator to copy exceptions from.</param>
@@ -112,7 +112,9 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="code">The code to be run.</param>
 		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
-		public async ValueTask<T?> RunAsync<T>(Func<ValueTask<T>> code, T? defaultValue = default)
+		public async ValueTask<T?> RunAsync<T>(
+			Func<ValueTask<T>> code,
+			T? defaultValue = default)
 		{
 			Guard.ArgumentNotNull(code);
 
