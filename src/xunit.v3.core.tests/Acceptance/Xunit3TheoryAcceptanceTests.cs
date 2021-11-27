@@ -404,15 +404,15 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void Skipped()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest));
+			var testMessages = await RunAsync(typeof(ClassWithSkippedTheory));
 
 			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
 			var skippedStarting = Assert.Single(testMessages.OfType<_TestStarting>().Where(s => s.TestUniqueID == skipped.TestUniqueID));
-			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestMethod", skippedStarting.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkippedTheory.TestMethod", skippedStarting.TestDisplayName);
 			Assert.Equal("Don't run this!", skipped.Reason);
 		}
 
-		class ClassUnderTest
+		class ClassWithSkippedTheory
 		{
 			[Theory(Skip = "Don't run this!")]
 			[InlineData(42, 21.12, "Hello, world!")]
