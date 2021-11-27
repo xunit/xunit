@@ -422,27 +422,49 @@ public class Xunit2TheoryAcceptanceTests
         {
             var results = Run<ITestResultMessage>(typeof(GenericWithSerializableData));
 
-            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.Test.DisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", result.Test.DisplayName),
-                result => Assert.Equal($@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: {21.12:G17})", result.Test.DisplayName)
+            Assert.Collection(results.OfType<ITestPassed>().Select(p => p.Test.DisplayName).OrderBy(x => x),
+                // Embedded (T1, Empty<T2>)
+                displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<Int32, Int32>(value: 1, value2: Empty<Int32>)", displayName),
+                displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<Object, Int32>(value: null, value2: Empty<Int32>)", displayName),
+                displayName => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<String, Int32>(value: ""1"", value2: Empty<Int32>)", displayName),
+                // Simple (T1, T2)
+                displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32, Object>(value1: 42, value2: null)", displayName),
+                displayName => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", displayName),
+                displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Object, Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData+Empty<Int32>>(value1: null, value2: Empty<Int32>)", displayName),
+                displayName => Assert.Equal($@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<String, Double>(value1: ""Hello, world!"", value2: {21.12:G17})", displayName)
             );
         }
 
-        public class GenericWithSerializableData
+        class GenericWithSerializableData
         {
-            public static IEnumerable<object[]> GenericData
+            public static IEnumerable<object[]> GenericData_Embedded()
+            {
+                yield return new object[] { 1, default(Empty<int>) };
+                yield return new object[] { "1", default(Empty<int>) };
+                yield return new object[] { null, default(Empty<int>) };
+            }
+
+            [Theory, MemberData(nameof(GenericData_Embedded))]
+            public void GenericTest_Embedded<T1, T2>(T1 value, Empty<T2> value2) { }
+
+            public struct Empty<T>
+            {
+                public override string ToString() => $"Empty<{typeof(T).Name}>";
+            }
+
+            public static IEnumerable<object[]> GenericData_Simple
             {
                 get
                 {
                     yield return new object[] { 42, null };
                     yield return new object[] { "Hello, world!", 21.12 };
                     yield return new object[] { new int[] { 1, 2, 3 }, new List<string> { "a", "b", "c" } };
+                    yield return new object[] { null, default(Empty<int>) };
                 }
             }
 
-            [Theory, MemberData("GenericData")]
-            public void GenericTest<T1, T2>(T1 value1, T2 value2) { }
+            [Theory, MemberData(nameof(GenericData_Simple))]
+            public void GenericTest_Simple<T1, T2>(T1 value1, T2 value2) { }
         }
 
         [Fact]
