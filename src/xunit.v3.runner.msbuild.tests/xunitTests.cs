@@ -81,6 +81,42 @@ public class xunitTests
 
 			Assert.False(result);
 		}
+
+		[Fact]
+		public static void ReportsWhenUnableToReadConfig()
+		{
+			static bool configReader(
+				TestAssemblyConfiguration configuration,
+				string? assemblyFileName,
+				string? configFileName = null) =>
+					false;
+
+			var messageSink = SpyMessageSink.Capture();
+			var reporter = Substitute.For<IRunnerReporter>();
+			reporter
+				.IsEnvironmentallyEnabled
+				.Returns(true);
+			reporter
+				.CreateMessageHandler(Arg.Any<IRunnerLogger>(), Arg.Any<_IMessageSink>())
+				.Returns(messageSink);
+			var stubAssembly = Substitute.For<ITaskItem>();
+			stubAssembly
+				.GetMetadata("ConfigFile")
+				.Returns("DummyPath");
+			var assemblies = new ITaskItem[] { stubAssembly };
+			var xunit = new Testable_xunit(configReader, reporter)
+			{
+				Assemblies = assemblies,
+				NoLogo = true
+			};
+
+			xunit.Cancel();
+			xunit.Execute();
+
+			var msg = Assert.Single(messageSink.Messages);
+			var diagnosticMessage = Assert.IsType<_DiagnosticMessage>(msg);
+			Assert.Equal("Unable to read 'DummyPath'; falling back to default values.", diagnosticMessage.Message);
+		}
 	}
 
 	public class GetReporter
@@ -186,14 +222,19 @@ public class xunitTests
 
 	public class Testable_xunit : xunit
 	{
-		public readonly List<IRunnerReporter> AvailableReporters = new();
+		public readonly List<IRunnerReporter> AvailableReporters;
 
-		public Testable_xunit()
-			: this(0)
-		{ }
-
-		public Testable_xunit(int exitCode)
+		public Testable_xunit(
+			Func<TestAssemblyConfiguration, string?, string?, bool> configReader,
+			IRunnerReporter reporter) :
+				base(configReader)
 		{
+			AvailableReporters = new() { reporter };
+		}
+
+		public Testable_xunit(int exitCode = 0)
+		{
+			AvailableReporters = new();
 			BuildEngine = Substitute.For<IBuildEngine>();
 			Assemblies = new ITaskItem[0];
 			ExitCode = exitCode;

@@ -22,6 +22,7 @@ namespace Xunit.Runner.MSBuild
 	{
 		volatile bool cancel;
 		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
+		readonly Func<TestAssemblyConfiguration, string?, string?, bool> configReader;
 		bool? diagnosticMessages;
 		bool? failSkips;
 		XunitFilters? filters;
@@ -34,6 +35,16 @@ namespace Xunit.Runner.MSBuild
 		_IMessageSink? reporterMessageHandler;
 		bool? shadowCopy;
 		bool? stopOnFail;
+
+		public xunit()
+			: this(ConfigReader.Load)
+		{ }
+
+		// For unit test purposes only
+		protected xunit(Func<TestAssemblyConfiguration, string?, string?, bool> configReader)
+		{
+			this.configReader = configReader;
+		}
 
 		public string? AppDomains { get; set; }
 
@@ -205,7 +216,8 @@ namespace Xunit.Runner.MSBuild
 						TargetFramework = targetFramework
 					};
 
-					ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+					if (!configReader.Invoke(projectAssembly.Configuration, assemblyFileName, configFileName) && configFileName != null)
+						reporterMessageHandler.OnMessage(new _DiagnosticMessage() { Message = $"Unable to read '{configFileName}'; falling back to default values." });
 
 					if (Culture != null)
 						projectAssembly.Configuration.Culture = Culture switch
@@ -241,7 +253,7 @@ namespace Xunit.Runner.MSBuild
 					foreach (var assembly in project.Assemblies)
 					{
 						var assemblyElement = ExecuteAssembly(assembly, appDomains);
-						if (assemblyElement != null)
+						if (assemblyElement != null && assemblyElement.Result != null)
 							assembliesElement!.Add(assemblyElement);
 					}
 				}
