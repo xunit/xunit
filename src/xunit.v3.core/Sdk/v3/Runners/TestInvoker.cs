@@ -438,7 +438,8 @@ namespace Xunit.v3
 			}
 			finally
 			{
-				SetSynchronizationContext(oldSyncContext);
+				if (asyncSyncContext is not null)
+					SetSynchronizationContext(oldSyncContext);
 			}
 		}
 
