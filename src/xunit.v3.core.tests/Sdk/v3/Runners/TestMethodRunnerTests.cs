@@ -209,11 +209,16 @@ public class TestMethodRunnerTests
 		public void Other() { }
 	}
 
-	class TestableTestMethodRunner : TestMethodRunner<_ITestCase>
+	class TestableTestMethodRunner : TestMethodRunner<TestMethodRunnerContext<_ITestCase>, _ITestCase>
 	{
 		readonly bool cancelInRunTestCaseAsync;
+		readonly _IReflectionTypeInfo? @class;
+		readonly IMessageBus messageBus;
+		readonly _IReflectionMethodInfo? method;
 		readonly RunSummary result;
+		readonly IReadOnlyCollection<_ITestCase> testCases;
 
+		public readonly ExceptionAggregator Aggregator;
 		public bool AfterTestMethodStarting_Called;
 		public TestContext? AfterTestMethodStarting_Context;
 		public Action<ExceptionAggregator> AfterTestMethodStarting_Callback = _ => { };
@@ -222,6 +227,7 @@ public class TestMethodRunnerTests
 		public Action<ExceptionAggregator> BeforeTestMethodFinished_Callback = _ => { };
 		public Exception? RunTestCaseAsync_AggregatorResult;
 		public TestContext? RunTestCaseAsync_Context;
+		public readonly _ITestMethod? TestMethod;
 		public readonly CancellationTokenSource TokenSource;
 
 		public List<_ITestCase> TestCasesRun = new();
@@ -236,15 +242,18 @@ public class TestMethodRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			RunSummary result,
 			bool cancelInRunTestCaseAsync)
-				: base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
 		{
+			TestMethod = testMethod;
+			Aggregator = aggregator;
 			TokenSource = cancellationTokenSource;
 
+			this.@class = @class;
+			this.method = method;
+			this.testCases = testCases;
+			this.messageBus = messageBus;
 			this.result = result;
 			this.cancelInRunTestCaseAsync = cancelInRunTestCaseAsync;
 		}
-
-		public new _ITestMethod? TestMethod => base.TestMethod;
 
 		public static TestableTestMethodRunner Create(
 			IMessageBus? messageBus = null,
@@ -275,24 +284,33 @@ public class TestMethodRunnerTests
 			);
 		}
 
-		protected override void AfterTestMethodStarting()
+		protected override ValueTask AfterTestMethodStarting(TestMethodRunnerContext<_ITestCase> ctxt)
 		{
 			AfterTestMethodStarting_Called = true;
 			AfterTestMethodStarting_Context = TestContext.Current;
 			AfterTestMethodStarting_Callback(Aggregator);
+
+			return default;
 		}
 
-		protected override void BeforeTestMethodFinished()
+		protected override ValueTask BeforeTestMethodFinished(TestMethodRunnerContext<_ITestCase> ctxt)
 		{
 			BeforeTestMethodFinished_Called = true;
 			BeforeTestMethodFinished_Context = TestContext.Current;
 			BeforeTestMethodFinished_Callback(Aggregator);
+
+			return default;
 		}
 
-		protected override ValueTask<RunSummary> RunTestCaseAsync(_ITestCase testCase)
+		public ValueTask<RunSummary> RunAsync() =>
+			RunAsync(new(TestMethod, @class, method, testCases, messageBus, Aggregator, TokenSource));
+
+		protected override ValueTask<RunSummary> RunTestCaseAsync(
+			TestMethodRunnerContext<_ITestCase> ctxt,
+			_ITestCase testCase)
 		{
 			if (cancelInRunTestCaseAsync)
-				CancellationTokenSource.Cancel();
+				TokenSource.Cancel();
 
 			RunTestCaseAsync_AggregatorResult = Aggregator.ToException();
 			RunTestCaseAsync_Context = TestContext.Current;

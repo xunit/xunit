@@ -1,227 +1,159 @@
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.v3
+namespace Xunit.v3;
+
+/// <summary>
+/// A base class that provides default behavior when running tests in a test method.
+/// </summary>
+/// <typeparam name="TContext">The context type used by the runner</typeparam>
+/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
+/// derive from <see cref="_ITestCase"/>.</typeparam>
+public abstract class TestMethodRunner<TContext, TTestCase>
+	where TContext : TestMethodRunnerContext<TTestCase>
+	where TTestCase : _ITestCase
 {
 	/// <summary>
-	/// A base class that provides default behavior when running tests in a test method.
+	/// Initializes a new instance of the <see cref="TestMethodRunner{TContext, TTestCase}"/> class.
 	/// </summary>
-	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="_ITestCase"/>.</typeparam>
-	public abstract class TestMethodRunner<TTestCase>
-		where TTestCase : _ITestCase
+	protected TestMethodRunner()
+	{ }
+
+	/// <summary>
+	/// This method is called just after <see cref="_TestMethodStarting"/> is sent, but before any test cases are run.
+	/// This method should NEVER throw; any exceptions should be placed into the aggregator in <paramref name="ctxt"/>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	protected virtual ValueTask AfterTestMethodStarting(TContext ctxt) =>
+		default;
+
+	/// <summary>
+	/// This method is called after all test cases are run, but just before <see cref="_TestMethodFinished"/> is sent.
+	/// This method should NEVER throw; any exceptions should be placed into the aggregator in <paramref name="ctxt"/>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	protected virtual ValueTask BeforeTestMethodFinished(TContext ctxt) =>
+		default;
+
+	/// <summary>
+	/// Runs the tests in the test method.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		CancellationTokenSource cancellationTokenSource;
-		IMessageBus messageBus;
-		IReadOnlyCollection<TTestCase> testCases;
+		SetTestContext(ctxt, TestEngineStatus.Initializing);
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TestMethodRunner{TTestCase}"/> class.
-		/// </summary>
-		/// <param name="testMethod">The test method under test. May be <c>null</c> for test cases that do not support methods.</param>
-		/// <param name="class">The CLR class that contains the test method. May be <c>null</c> for test cases that do not
-		/// support classes and methods.</param>
-		/// <param name="method">The CLR method that contains the tests to be run. May be <c>null</c> for test cases that do not
-		/// support methods.</param>
-		/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
-		/// <param name="messageBus">The message bus to report run status to.</param>
-		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-		protected TestMethodRunner(
-			_ITestMethod? testMethod,
-			_IReflectionTypeInfo? @class,
-			_IReflectionMethodInfo? method,
-			IReadOnlyCollection<TTestCase> testCases,
-			IMessageBus messageBus,
-			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
+		var methodSummary = new RunSummary();
+		var testCollection = ctxt.TestCases.First().TestCollection;
+		var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = testCollection.UniqueID;
+		var testClassUniqueID = ctxt.TestMethod?.TestClass.UniqueID;
+		var testMethodUniqueID = ctxt.TestMethod?.UniqueID;
+
+		if (ctxt.TestMethod != null)
 		{
-			TestMethod = testMethod;
-			Class = @class;
-			Method = method;
-			Aggregator = aggregator;
-
-			this.testCases = Guard.ArgumentNotNullOrEmpty(testCases);
-			this.messageBus = Guard.ArgumentNotNull(messageBus);
-			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
-		}
-
-		/// <summary>
-		/// Gets or sets the exception aggregator used to run code and collect exceptions.
-		/// </summary>
-		protected ExceptionAggregator Aggregator { get; set; }
-
-		/// <summary>
-		/// Gets or sets the task cancellation token source, used to cancel the test run.
-		/// </summary>
-		protected CancellationTokenSource CancellationTokenSource
-		{
-			get => cancellationTokenSource;
-			set => cancellationTokenSource = Guard.ArgumentNotNull(value, nameof(CancellationTokenSource));
-		}
-
-		/// <summary>
-		/// Gets or sets the CLR class that contains the test method.
-		/// </summary>
-		protected _IReflectionTypeInfo? Class { get; set; }
-
-		/// <summary>
-		/// Gets or sets the message bus to report run status to.
-		/// </summary>
-		protected IMessageBus MessageBus
-		{
-			get => messageBus;
-			set => messageBus = Guard.ArgumentNotNull(value, nameof(MessageBus));
-		}
-
-		/// <summary>
-		/// Gets or sets the CLR method that contains the tests to be run.
-		/// </summary>
-		protected _IReflectionMethodInfo? Method { get; set; }
-
-		/// <summary>
-		/// Gets or sets the test cases to be run.
-		/// </summary>
-		protected IReadOnlyCollection<TTestCase> TestCases
-		{
-			get => testCases;
-			set => testCases = Guard.ArgumentNotNull(value, nameof(TestCases));
-		}
-
-		/// <summary>
-		/// Gets or sets the test method that contains the test cases.
-		/// </summary>
-		protected _ITestMethod? TestMethod { get; set; }
-
-		/// <summary>
-		/// This method is called just after <see cref="_TestMethodStarting"/> is sent, but before any test cases are run.
-		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
-		/// </summary>
-		protected virtual void AfterTestMethodStarting()
-		{ }
-
-		/// <summary>
-		/// This method is called just before <see cref="_TestMethodFinished"/> is sent.
-		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
-		/// </summary>
-		protected virtual void BeforeTestMethodFinished()
-		{ }
-
-		/// <summary>
-		/// Runs the tests in the test method.
-		/// </summary>
-		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async ValueTask<RunSummary> RunAsync()
-		{
-			SetTestContext(TestEngineStatus.Initializing);
-
-			var methodSummary = new RunSummary();
-			var testCollection = TestCases.First().TestCollection;
-			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = testCollection.UniqueID;
-			var testClassUniqueID = TestMethod?.TestClass.UniqueID;
-			var testMethodUniqueID = TestMethod?.UniqueID;
-
-			if (TestMethod != null)
+			var methodStarting = new _TestMethodStarting
 			{
-				var methodStarting = new _TestMethodStarting
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestMethod = TestMethod.Method.Name,
-					TestMethodUniqueID = testMethodUniqueID
-				};
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethod = ctxt.TestMethod.Method.Name,
+				TestMethodUniqueID = testMethodUniqueID
+			};
 
-				if (!MessageBus.QueueMessage(methodStarting))
-				{
-					CancellationTokenSource.Cancel();
-					return methodSummary;
-				}
-			}
-
-			try
+			if (!ctxt.MessageBus.QueueMessage(methodStarting))
 			{
-				AfterTestMethodStarting();
-
-				SetTestContext(TestEngineStatus.Running);
-
-				methodSummary = await RunTestCasesAsync();
-
-				SetTestContext(TestEngineStatus.CleaningUp);
-
-				Aggregator.Clear();
-				BeforeTestMethodFinished();
-
-				if (Aggregator.HasExceptions)
-				{
-					var methodCleanupFailure = _TestMethodCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID);
-					if (!MessageBus.QueueMessage(methodCleanupFailure))
-						CancellationTokenSource.Cancel();
-				}
-
+				ctxt.CancellationTokenSource.Cancel();
 				return methodSummary;
 			}
-			finally
+		}
+
+		try
+		{
+			await AfterTestMethodStarting(ctxt);
+
+			SetTestContext(ctxt, TestEngineStatus.Running);
+
+			methodSummary = await RunTestCasesAsync(ctxt);
+
+			SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+			ctxt.Aggregator.Clear();
+			await BeforeTestMethodFinished(ctxt);
+
+			if (ctxt.Aggregator.HasExceptions)
 			{
-				if (TestMethod != null)
+				var methodCleanupFailure = _TestMethodCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID);
+				if (!ctxt.MessageBus.QueueMessage(methodCleanupFailure))
+					ctxt.CancellationTokenSource.Cancel();
+			}
+
+			return methodSummary;
+		}
+		finally
+		{
+			if (ctxt.TestMethod != null)
+			{
+				var testMethodFinished = new _TestMethodFinished
 				{
-					var testMethodFinished = new _TestMethodFinished
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = methodSummary.Time,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestMethodUniqueID = testMethodUniqueID,
-						TestsFailed = methodSummary.Failed,
-						TestsRun = methodSummary.Total,
-						TestsSkipped = methodSummary.Skipped
-					};
+					AssemblyUniqueID = testAssemblyUniqueID,
+					ExecutionTime = methodSummary.Time,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestsFailed = methodSummary.Failed,
+					TestsRun = methodSummary.Total,
+					TestsSkipped = methodSummary.Skipped
+				};
 
-					if (!MessageBus.QueueMessage(testMethodFinished))
-						CancellationTokenSource.Cancel();
-				}
+				if (!ctxt.MessageBus.QueueMessage(testMethodFinished))
+					ctxt.CancellationTokenSource.Cancel();
 			}
 		}
+	}
 
-		/// <summary>
-		/// Runs the list of test cases. By default, it runs the cases in order, synchronously.
-		/// </summary>
-		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected virtual async ValueTask<RunSummary> RunTestCasesAsync()
+	/// <summary>
+	/// Runs the list of test cases. By default, it runs the cases in order, synchronously.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	protected virtual async ValueTask<RunSummary> RunTestCasesAsync(TContext ctxt)
+	{
+		var summary = new RunSummary();
+
+		foreach (var testCase in ctxt.TestCases)
 		{
-			var summary = new RunSummary();
-
-			foreach (var testCase in TestCases)
-			{
-				summary.Aggregate(await RunTestCaseAsync(testCase));
-				if (CancellationTokenSource.IsCancellationRequested)
-					break;
-			}
-
-			return summary;
+			summary.Aggregate(await RunTestCaseAsync(ctxt, testCase));
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				break;
 		}
 
-		/// <summary>
-		/// Override this method to run an individual test case.
-		/// </summary>
-		/// <param name="testCase">The test case to be run.</param>
-		/// <returns>Returns summary information about the test case run.</returns>
-		protected abstract ValueTask<RunSummary> RunTestCaseAsync(TTestCase testCase);
+		return summary;
+	}
 
-		/// <summary>
-		/// Sets the current <see cref="TestContext"/> for the current test method and the given test method status.
-		/// Does nothing when <see cref="TestMethod"/> is <c>null</c>.
-		/// </summary>
-		/// <param name="testMethodStatus">The current test method status.</param>
-		protected virtual void SetTestContext(TestEngineStatus testMethodStatus)
-		{
-			if (TestMethod != null)
-				TestContext.SetForTestMethod(TestMethod, testMethodStatus, CancellationTokenSource.Token);
-		}
+	/// <summary>
+	/// Override this method to run an individual test case.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	/// <param name="testCase">The test case to be run.</param>
+	/// <returns>Returns summary information about the test case run.</returns>
+	protected abstract ValueTask<RunSummary> RunTestCaseAsync(
+		TContext ctxt,
+		TTestCase testCase);
+
+	/// <summary>
+	/// Sets the current <see cref="TestContext"/> for the current test method and the given test method status.
+	/// Does nothing when <see cref="TestMethod"/> is <c>null</c>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	/// <param name="testMethodStatus">The current test method status.</param>
+	protected virtual void SetTestContext(
+		TContext ctxt,
+		TestEngineStatus testMethodStatus)
+	{
+		if (ctxt.TestMethod != null)
+			TestContext.SetForTestMethod(ctxt.TestMethod, testMethodStatus, ctxt.CancellationTokenSource.Token);
 	}
 }

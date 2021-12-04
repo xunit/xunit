@@ -262,7 +262,7 @@ namespace Xunit.v3
 			_IReflectionMethodInfo? method,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			object?[] constructorArguments) =>
-				new XunitTestMethodRunner(
+				XunitTestMethodRunner.Instance.RunAsync(
 					testMethod,
 					Class,
 					method,
@@ -271,7 +271,7 @@ namespace Xunit.v3
 					Aggregator.Clone(),
 					CancellationTokenSource,
 					constructorArguments
-				).RunAsync();
+				);
 
 		/// <inheritdoc/>
 		protected override ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)
