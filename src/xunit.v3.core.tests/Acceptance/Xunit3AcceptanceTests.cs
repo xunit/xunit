@@ -521,7 +521,7 @@ public class Xunit3AcceptanceTests
 		public class AlphabeticalOrderer : ITestCaseOrderer
 		{
 			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : _ITestCase
+				where TTestCase : notnull, _ITestCase
 			{
 				var result = testCases.ToList();
 				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.Method.Name, y.TestMethod?.Method.Name));

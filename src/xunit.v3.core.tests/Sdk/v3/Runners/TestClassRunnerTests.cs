@@ -310,7 +310,8 @@ public class TestClassRunnerTests
 
 		class ThrowingOrderer : ITestCaseOrderer
 		{
-			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases) where TTestCase : _ITestCase
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : notnull, _ITestCase
 			{
 				throw new DivideByZeroException();
 			}

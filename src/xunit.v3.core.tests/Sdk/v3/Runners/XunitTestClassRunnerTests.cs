@@ -337,7 +337,7 @@ public class XunitTestClassRunnerTests
 			}
 
 			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : _ITestCase
+				where TTestCase : notnull, _ITestCase
 					=> Array.Empty<TTestCase>();
 		}
 	}
@@ -383,7 +383,7 @@ public class XunitTestClassRunnerTests
 	class CustomTestCaseOrderer : ITestCaseOrderer
 	{
 		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-			where TTestCase : _ITestCase
+			where TTestCase : notnull, _ITestCase
 				=> testCases;
 	}
 

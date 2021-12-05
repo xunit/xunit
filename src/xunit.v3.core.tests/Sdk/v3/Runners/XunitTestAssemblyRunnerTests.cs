@@ -214,7 +214,7 @@ public class XunitTestAssemblyRunnerTests
 		class MyTestCaseOrderer : ITestCaseOrderer
 		{
 			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : _ITestCase
+				where TTestCase : notnull, _ITestCase
 			{
 				throw new NotImplementedException();
 			}
@@ -256,7 +256,7 @@ public class XunitTestAssemblyRunnerTests
 			}
 
 			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : _ITestCase
+				where TTestCase : notnull, _ITestCase
 			{
 				return Array.Empty<TTestCase>();
 			}

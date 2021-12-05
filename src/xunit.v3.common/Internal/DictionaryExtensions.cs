@@ -19,7 +19,6 @@ namespace Xunit.Internal
 				where TKey : notnull
 		{
 			Guard.ArgumentNotNull(dictionary);
-			Guard.ArgumentNotNull(key);
 
 			dictionary.GetOrAdd(key).Add(value);
 		}
@@ -33,7 +32,6 @@ namespace Xunit.Internal
 				where TKey : notnull
 		{
 			Guard.ArgumentNotNull(dictionary);
-			Guard.ArgumentNotNull(key);
 			Guard.ArgumentNotNull(valueComparer);
 
 			if (!dictionary.TryGetValue(key, out var values))
@@ -50,7 +48,6 @@ namespace Xunit.Internal
 				where TValue : new()
 		{
 			Guard.ArgumentNotNull(dictionary);
-			Guard.ArgumentNotNull(key);
 
 			return dictionary.GetOrAdd(key, () => new TValue());
 		}
@@ -63,7 +60,6 @@ namespace Xunit.Internal
 				where TKey : notnull
 		{
 			Guard.ArgumentNotNull(dictionary);
-			Guard.ArgumentNotNull(key);
 			Guard.ArgumentNotNull(newValue);
 
 			if (!dictionary.TryGetValue(key, out var result))

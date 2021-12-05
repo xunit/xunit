@@ -20,7 +20,6 @@ namespace Xunit.v3
 	public abstract class TestAssemblyRunner<TTestCase> : IAsyncDisposable
 		where TTestCase : _ITestCase
 	{
-		ExceptionAggregator aggregator = new();
 		CancellationTokenSource cancellationTokenSource = new();
 		readonly Lazy<ITestCaseOrderer> defaultTestCaseOrderer;
 		readonly Lazy<ITestCollectionOrderer> defaultTestCollectionOrderer;
@@ -58,11 +57,7 @@ namespace Xunit.v3
 		/// <summary>
 		/// Gets or sets the exception aggregator used to run code and collect exceptions.
 		/// </summary>
-		protected ExceptionAggregator Aggregator
-		{
-			get => aggregator;
-			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
-		}
+		protected ExceptionAggregator Aggregator { get; set; } = new();
 
 		/// <summary>
 		/// Gets or sets the task cancellation token source, used to cancel the test run.

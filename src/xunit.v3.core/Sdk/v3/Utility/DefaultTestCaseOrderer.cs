@@ -26,7 +26,7 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-			where TTestCase : _ITestCase
+			where TTestCase : notnull, _ITestCase
 		{
 			var result = testCases.ToList();
 
@@ -59,12 +59,10 @@ namespace Xunit.v3
 		}
 
 		int Compare<TTestCase>(TTestCase x, TTestCase y)
-			where TTestCase : _ITestCase
+			where TTestCase : notnull, _ITestCase
 		{
-			Guard.ArgumentNotNull(x);
-			Guard.ArgumentNotNull(y);
-			Guard.ArgumentValid($"Could not compare test case {x.TestCaseDisplayName} because it has a null UniqueID", x.UniqueID != null, nameof(x));
-			Guard.ArgumentValid($"Could not compare test case {y.TestCaseDisplayName} because it has a null UniqueID", y.UniqueID != null, nameof(y));
+			Guard.ArgumentNotNull(x.UniqueID);
+			Guard.ArgumentNotNull(y.UniqueID);
 
 			return string.CompareOrdinal(x.UniqueID, y.UniqueID);
 		}

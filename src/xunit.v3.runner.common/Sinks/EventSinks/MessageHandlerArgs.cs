@@ -23,6 +23,7 @@ namespace Xunit.Runner.Common
 	/// </summary>
 	/// <typeparam name="TMessage">The type of the message to be handled.</typeparam>
 	public class MessageHandlerArgs<TMessage> : MessageHandlerArgs
+		where TMessage : class
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MessageHandlerArgs{TMessage}"/> class.

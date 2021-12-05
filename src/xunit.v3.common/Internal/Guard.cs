@@ -14,7 +14,7 @@ namespace Xunit.Internal
 	public static class Guard
 	{
 		/// <summary>
-		/// Ensures that an argument is not null.
+		/// Ensures that a nullable value type argument is not null.
 		/// </summary>
 		/// <typeparam name="T">The argument type</typeparam>
 		/// <param name="argValue">The value of the argument</param>
@@ -24,6 +24,26 @@ namespace Xunit.Internal
 		public static T ArgumentNotNull<T>(
 			[NotNull] T? argValue,
 			[CallerArgumentExpression("argValue")] string? argName = null)
+				where T : struct
+		{
+			if (!argValue.HasValue)
+				throw new ArgumentNullException(argName?.TrimStart('@'));
+
+			return argValue.Value;
+		}
+
+		/// <summary>
+		/// Ensures that a nullable reference type argument is not null.
+		/// </summary>
+		/// <typeparam name="T">The argument type</typeparam>
+		/// <param name="argValue">The value of the argument</param>
+		/// <param name="argName">The name of the argument</param>
+		/// <returns>The argument value as a non-null value</returns>
+		/// <exception cref="ArgumentNullException">Thrown when the argument is null</exception>
+		public static T ArgumentNotNull<T>(
+			[NotNull] T? argValue,
+			[CallerArgumentExpression("argValue")] string? argName = null)
+				where T : class
 		{
 			if (argValue == null)
 				throw new ArgumentNullException(argName?.TrimStart('@'));
@@ -32,7 +52,7 @@ namespace Xunit.Internal
 		}
 
 		/// <summary>
-		/// Ensures that an argument is not null.
+		/// Ensures that a nullable reference type argument is not null.
 		/// </summary>
 		/// <typeparam name="T">The argument type</typeparam>
 		/// <param name="message">The exception message to use when the argument is null</param>
@@ -53,7 +73,7 @@ namespace Xunit.Internal
 		}
 
 		/// <summary>
-		/// Ensures that an argument is not null or empty.
+		/// Ensures that a nullable enumerable type argument is not null or empty.
 		/// </summary>
 		/// <typeparam name="T">The argument type</typeparam>
 		/// <param name="argValue">The value of the argument</param>
@@ -68,13 +88,13 @@ namespace Xunit.Internal
 			ArgumentNotNull(argValue, argName);
 
 			if (!argValue.GetEnumerator().MoveNext())
-				throw new ArgumentException("Argument was empty", argName);
+				throw new ArgumentException("Argument was empty", argName?.TrimStart('@'));
 
 			return argValue;
 		}
 
 		/// <summary>
-		/// Ensures that an argument is not null or empty.
+		/// Ensures that a nullable enumerable type argument is not null or empty.
 		/// </summary>
 		/// <typeparam name="T">The argument type</typeparam>
 		/// <param name="message">The exception message to use when the argument is null or empty</param>
@@ -123,7 +143,7 @@ namespace Xunit.Internal
 			[CallerArgumentExpression("fileName")] string? argName = null)
 		{
 			ArgumentNotNullOrEmpty(fileName, argName);
-			ArgumentValid($"File not found: {fileName}", File.Exists(fileName), argName);
+			ArgumentValid($"File not found: {fileName}", File.Exists(fileName), argName?.TrimStart('@'));
 
 			return fileName;
 		}

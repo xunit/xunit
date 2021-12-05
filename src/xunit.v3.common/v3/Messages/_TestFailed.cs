@@ -84,7 +84,6 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(testCollectionUniqueID);
 			Guard.ArgumentNotNull(testCaseUniqueID);
 			Guard.ArgumentNotNull(testUniqueID);
-			Guard.ArgumentNotNull(executionTime);
 
 			var errorMetadata = ExceptionUtility.ExtractMetadata(ex);
 

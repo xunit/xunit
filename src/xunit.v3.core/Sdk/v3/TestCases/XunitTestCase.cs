@@ -157,7 +157,6 @@ namespace Xunit.v3
 			Guard.ArgumentNotNull(diagnosticMessageSink);
 			Guard.ArgumentNotNull(messageBus);
 			Guard.ArgumentNotNull(constructorArguments);
-			Guard.ArgumentNotNull(aggregator);
 			Guard.ArgumentNotNull(cancellationTokenSource);
 
 			return new XunitTestCaseRunner(

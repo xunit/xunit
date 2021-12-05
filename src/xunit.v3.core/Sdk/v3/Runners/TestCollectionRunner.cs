@@ -16,7 +16,6 @@ namespace Xunit.v3
 	public abstract class TestCollectionRunner<TTestCase>
 		where TTestCase : class, _ITestCase
 	{
-		ExceptionAggregator aggregator;
 		CancellationTokenSource cancellationTokenSource;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
@@ -40,22 +39,19 @@ namespace Xunit.v3
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
+			Aggregator = aggregator;
+
 			this.testCollection = Guard.ArgumentNotNull(testCollection);
 			this.testCases = Guard.ArgumentNotNull(testCases);
 			this.messageBus = Guard.ArgumentNotNull(messageBus);
 			this.testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
-			this.aggregator = Guard.ArgumentNotNull(aggregator);
 		}
 
 		/// <summary>
 		/// Gets or sets the exception aggregator used to run code and collect exceptions.
 		/// </summary>
-		protected ExceptionAggregator Aggregator
-		{
-			get => aggregator;
-			set => aggregator = Guard.ArgumentNotNull(value, nameof(Aggregator));
-		}
+		protected ExceptionAggregator Aggregator { get; set; }
 
 		/// <summary>
 		/// Gets or sets the task cancellation token source, used to cancel the test run.

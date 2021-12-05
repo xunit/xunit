@@ -28,8 +28,6 @@ namespace Xunit.Sdk
 		/// <param name="parent">The parent aggregator to copy exceptions from.</param>
 		public ExceptionAggregator(ExceptionAggregator parent)
 		{
-			Guard.ArgumentNotNull(parent);
-
 			exceptions = new List<Exception>(parent.exceptions);
 		}
 
@@ -55,8 +53,6 @@ namespace Xunit.Sdk
 		/// <param name="aggregator">The aggregator whose exceptions should be copied.</param>
 		public void Aggregate(ExceptionAggregator aggregator)
 		{
-			Guard.ArgumentNotNull(aggregator);
-
 			exceptions.AddRange(aggregator.exceptions);
 		}
 
