@@ -284,7 +284,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
 
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(\+[0-9a-f]+)?)? \[collection-per-class, parallel\]", discoverer.TestFrameworkDisplayName);
+			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-class, parallel\]", discoverer.TestFrameworkDisplayName);
 		}
 
 		[Fact]
@@ -295,7 +295,7 @@ public class XunitTestFrameworkDiscovererTests
 
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
 
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(\+[0-9a-f]+)?)? \[collection-per-assembly, parallel\]", discoverer.TestFrameworkDisplayName);
+			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-assembly, parallel\]", discoverer.TestFrameworkDisplayName);
 		}
 
 		[Fact]
@@ -306,7 +306,7 @@ public class XunitTestFrameworkDiscovererTests
 
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
 
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(\+[0-9a-f]+)?)? \[my-custom-test-collection-factory, parallel\]", discoverer.TestFrameworkDisplayName);
+			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[my-custom-test-collection-factory, parallel\]", discoverer.TestFrameworkDisplayName);
 		}
 
 		[Fact]
@@ -317,7 +317,7 @@ public class XunitTestFrameworkDiscovererTests
 
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
 
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(\+[0-9a-f]+)?)? \[collection-per-class, non-parallel\]", discoverer.TestFrameworkDisplayName);
+			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-class, non-parallel\]", discoverer.TestFrameworkDisplayName);
 		}
 	}
 
