@@ -218,11 +218,11 @@ namespace Xunit.v3
 				}
 				else
 				{
-					var aggregator = new ExceptionAggregator(Aggregator);
+					var aggregator = Aggregator.Clone();
 
 					if (!aggregator.HasExceptions)
 					{
-						var tuple = await aggregator.RunAsync(() => InvokeTestAsync(aggregator));
+						var tuple = await aggregator.RunAsync(() => InvokeTestAsync(aggregator), null);
 						if (tuple != null)
 						{
 							runSummary.Time = tuple.Item1;

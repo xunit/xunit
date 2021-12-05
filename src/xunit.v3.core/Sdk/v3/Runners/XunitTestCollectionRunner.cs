@@ -231,7 +231,7 @@ namespace Xunit.v3
 					DiagnosticMessageSink,
 					MessageBus,
 					TestCaseOrderer,
-					new ExceptionAggregator(Aggregator),
+					Aggregator.Clone(),
 					CancellationTokenSource,
 					assemblyFixtureMappings,
 					CollectionFixtureMappings

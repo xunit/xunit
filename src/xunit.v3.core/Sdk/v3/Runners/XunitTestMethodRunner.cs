@@ -50,7 +50,7 @@ namespace Xunit.v3
 				diagnosticMessageSink,
 				MessageBus,
 				constructorArguments,
-				new ExceptionAggregator(Aggregator),
+				Aggregator.Clone(),
 				CancellationTokenSource
 			);
 	}

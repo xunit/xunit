@@ -364,7 +364,7 @@ namespace Xunit.v3
 					DiagnosticMessageSink,
 					messageBus,
 					GetTestCaseOrderer(),
-					new ExceptionAggregator(Aggregator),
+					Aggregator.Clone(),
 					cancellationTokenSource,
 					AssemblyFixtureMappings
 				).RunAsync();

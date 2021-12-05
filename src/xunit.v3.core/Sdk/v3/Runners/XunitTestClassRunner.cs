@@ -256,7 +256,7 @@ namespace Xunit.v3
 					testCases,
 					DiagnosticMessageSink,
 					MessageBus,
-					new ExceptionAggregator(Aggregator),
+					Aggregator.Clone(),
 					CancellationTokenSource,
 					constructorArguments
 				).RunAsync();

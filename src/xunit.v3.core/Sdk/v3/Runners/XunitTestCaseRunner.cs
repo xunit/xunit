@@ -151,7 +151,7 @@ namespace Xunit.v3
 					testMethodArguments,
 					skipReason,
 					beforeAfterAttributes,
-					new ExceptionAggregator(aggregator),
+					aggregator.Clone(),
 					cancellationTokenSource
 				);
 

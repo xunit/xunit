@@ -374,7 +374,7 @@ namespace Xunit.v3
 				}
 
 				return (decimal)ElapsedTime.TotalSeconds;
-			});
+			}, 0m);
 		}
 
 		/// <summary>

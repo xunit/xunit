@@ -14,55 +14,50 @@ namespace Xunit.Sdk
 		readonly List<Exception> exceptions;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> struct.
+		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> value type.
 		/// </summary>
 		public ExceptionAggregator()
 		{
-			exceptions = new List<Exception>();
+			exceptions = new();
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ExceptionAggregator"/> struct that
-		/// contains the exception list of its parent.
-		/// </summary>
-		/// <param name="parent">The parent aggregator to copy exceptions from.</param>
-		public ExceptionAggregator(ExceptionAggregator parent)
-		{
-			exceptions = new List<Exception>(parent.exceptions);
-		}
+		ExceptionAggregator(IEnumerable<Exception>? exceptionsToClone) =>
+			exceptions = new(exceptionsToClone ?? Array.Empty<Exception>());
 
 		/// <summary>
 		/// Returns <c>true</c> if the aggregator has at least one exception inside it.
 		/// </summary>
-		public bool HasExceptions => exceptions.Count > 0;
+		public bool HasExceptions =>
+			GetExceptions().Count > 0;
 
 		/// <summary>
 		/// Adds an exception to the aggregator.
 		/// </summary>
 		/// <param name="ex">The exception to be added.</param>
-		public void Add(Exception ex)
-		{
-			Guard.ArgumentNotNull(ex);
-
-			exceptions.Add(ex);
-		}
+		public void Add(Exception ex) =>
+			GetExceptions().Add(Guard.ArgumentNotNull(ex));
 
 		/// <summary>
 		/// Adds exceptions from another aggregator into this aggregator.
 		/// </summary>
 		/// <param name="aggregator">The aggregator whose exceptions should be copied.</param>
-		public void Aggregate(ExceptionAggregator aggregator)
-		{
-			exceptions.AddRange(aggregator.exceptions);
-		}
+		public void Aggregate(ExceptionAggregator aggregator) =>
+			GetExceptions().AddRange(aggregator.GetExceptions());
 
 		/// <summary>
 		/// Clears the aggregator.
 		/// </summary>
-		public void Clear()
-		{
-			exceptions.Clear();
-		}
+		public void Clear() =>
+			GetExceptions().Clear();
+
+		/// <summary>
+		/// Clones the aggregator with a copy of the existing exceptions.
+		/// </summary>
+		public ExceptionAggregator Clone() =>
+			new(GetExceptions());
+
+		List<Exception> GetExceptions() =>
+			Guard.NotNull("ExceptionAggregator is in an invalid state", exceptions);
 
 		/// <summary>
 		/// Runs the code, catching the exception that is thrown and adding it to
@@ -79,7 +74,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				exceptions.Add(ex.Unwrap());
+				GetExceptions().Add(ex.Unwrap());
 			}
 		}
 
@@ -89,9 +84,9 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="code">The code to be run.</param>
 		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
-		public T? Run<T>(
+		public T Run<T>(
 			Func<T> code,
-			T? defaultValue = default)
+			T defaultValue)
 		{
 			Guard.ArgumentNotNull(code);
 
@@ -101,7 +96,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				exceptions.Add(ex.Unwrap());
+				GetExceptions().Add(ex.Unwrap());
 				return defaultValue;
 			}
 		}
@@ -121,7 +116,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				exceptions.Add(ex.Unwrap());
+				GetExceptions().Add(ex.Unwrap());
 			}
 		}
 
@@ -131,9 +126,9 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="code">The code to be run.</param>
 		/// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
-		public async ValueTask<T?> RunAsync<T>(
+		public async ValueTask<T> RunAsync<T>(
 			Func<ValueTask<T>> code,
-			T? defaultValue = default)
+			T defaultValue)
 		{
 			Guard.ArgumentNotNull(code);
 
@@ -143,7 +138,7 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				exceptions.Add(ex.Unwrap());
+				GetExceptions().Add(ex.Unwrap());
 				return defaultValue;
 			}
 		}
@@ -157,6 +152,8 @@ namespace Xunit.Sdk
 		/// if more than one exception was thrown.</returns>
 		public Exception? ToException()
 		{
+			var exceptions = GetExceptions();
+
 			if (exceptions.Count == 0)
 				return null;
 			if (exceptions.Count == 1)
