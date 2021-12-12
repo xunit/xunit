@@ -112,7 +112,7 @@ public class TestClass
 	[Theory]
 	[InlineData]
 	[InlineData(42)]
-	[InlineData(42, 21.12)]
+	[InlineData(42, ""Hello world"")]
 	public void TestMethod(int x) { }
 }";
 
@@ -128,7 +128,7 @@ public class TestClass
 					sink.TestCases.OrderBy(tc => tc.TestCaseDisplayName),
 					testCase => Assert.Contains("TestClass.TestMethod(x: ???)", testCase.TestCaseDisplayName),
 					testCase => Assert.Contains("TestClass.TestMethod(x: 42)", testCase.TestCaseDisplayName),
-					testCase => Assert.Contains($"TestClass.TestMethod(x: 42, ???: {21.12})", testCase.TestCaseDisplayName)
+					testCase => Assert.Contains("TestClass.TestMethod(x: 42, ???: \"Hello world\")", testCase.TestCaseDisplayName)
 				);
 			}
 		}
@@ -199,7 +199,7 @@ open Xunit
 [<Theory>]
 [<InlineData>]
 [<InlineData(42)>]
-[<InlineData(42, 21.12)>]
+[<InlineData(42, ""Hello world"")>]
 let TestMethod (x:int) =
 	Assert.True(true)
 ";
@@ -216,7 +216,7 @@ let TestMethod (x:int) =
 					sink.TestCases.OrderBy(tc => tc.TestCaseDisplayName),
 					testCase => Assert.Equal("FSharpTests.TestMethod(x: ???)", testCase.TestCaseDisplayName),
 					testCase => Assert.Equal("FSharpTests.TestMethod(x: 42)", testCase.TestCaseDisplayName),
-					testCase => Assert.Equal("FSharpTests.TestMethod(x: 42, ???: 21.12)", testCase.TestCaseDisplayName)
+					testCase => Assert.Equal("FSharpTests.TestMethod(x: 42, ???: \"Hello world\")", testCase.TestCaseDisplayName)
 				);
 			}
 		}

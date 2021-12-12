@@ -159,7 +159,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 		Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", theoryTestCase.DisplayName);
 		var message = Assert.Single(discoverer.DiagnosticMessages);
 		var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
-		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
+		Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException:", diagnostic.Message);
 	}
 
 	public class ThrowingDataAttribute : DataAttribute

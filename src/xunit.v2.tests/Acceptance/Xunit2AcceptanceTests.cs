@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -247,18 +246,16 @@ public class Xunit2AcceptanceTests
 		[Fact]
 		public void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			var messages = Run<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
 			var msg = Assert.Single(messages);
 			var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
-			Assert.StartsWith("System.AggregateException : One or more errors occurred.", combinedMessage);
-			Assert.EndsWith(
+			Assert.StartsWith("System.AggregateException : ", combinedMessage);
+			Assert.Contains(
 				"---- Assert.Equal() Failure" + Environment.NewLine +
 				"Expected: 2" + Environment.NewLine +
 				"Actual:   3" + Environment.NewLine +
-				"---- System.DivideByZeroException : Attempted to divide by zero.",
+				"---- System.DivideByZeroException : ",
 				combinedMessage);
 		}
 

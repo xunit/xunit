@@ -34,8 +34,8 @@ namespace Xunit1
 
 			Assert.Empty(stackTrace);  // Everything was filtered out in our exception
 			Assert.Equal(2, ex.StackFrames.Count);
-			Assert.Contains("at Xunit1.AssertExceptionTests", ex.StackFrames[0]);
-			Assert.Contains("at Xunit.Record.Exception", ex.StackFrames[1]);
+			Assert.Contains("Xunit1.AssertExceptionTests", ex.StackFrames[0]);
+			Assert.Contains("Xunit.Record.Exception", ex.StackFrames[1]);
 		}
 #endif
 

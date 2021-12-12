@@ -108,8 +108,8 @@ public class TestClassCallbackHandlerTests
 			string culture,
 			string uiCulture)
 		{
-			this.culture = new Lazy<CultureInfo>(() => new CultureInfo(culture));
-			this.uiCulture = new Lazy<CultureInfo>(() => new CultureInfo(uiCulture));
+			this.culture = new Lazy<CultureInfo>(() => new CultureInfo(culture, useUserOverride: false));
+			this.uiCulture = new Lazy<CultureInfo>(() => new CultureInfo(uiCulture, useUserOverride: false));
 		}
 
 		/// <summary>

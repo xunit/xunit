@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -776,8 +775,6 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void IncompatibleDataThrows()
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			var testMessages = await RunAsync(typeof(ClassWithIncompatibleData));
 
 			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
@@ -1575,8 +1572,6 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void TestDataWithInternalConstructor_ReturnsTwoPassingTheories()
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			var testMessages = await RunAsync(typeof(ClassWithCustomDataWithInternalDataCtor));
 
 			Assert.Collection(
@@ -1612,8 +1607,6 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void CanSupportConstructorOverloadingWithDataAttribute()  // https://github.com/xunit/xunit/issues/1711
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			var testMessages = await RunAsync(typeof(DataConstructorOverloadExample));
 
 			Assert.Single(testMessages.OfType<_TestPassed>());

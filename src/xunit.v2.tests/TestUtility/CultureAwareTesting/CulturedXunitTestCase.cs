@@ -67,7 +67,7 @@ namespace TestUtility
 
 			try
 			{
-				var cultureInfo = new CultureInfo(culture);
+				var cultureInfo = new CultureInfo(culture, useUserOverride: false);
 				CurrentCulture = cultureInfo;
 				CurrentUICulture = cultureInfo;
 

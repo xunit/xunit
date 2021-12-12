@@ -64,7 +64,7 @@ namespace Xunit.v3
 
 			try
 			{
-				var cultureInfo = new CultureInfo(Culture);
+				var cultureInfo = new CultureInfo(Culture, useUserOverride: false);
 				CultureInfo.CurrentCulture = cultureInfo;
 				CultureInfo.CurrentUICulture = cultureInfo;
 

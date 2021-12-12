@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.v3;
@@ -213,6 +212,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 		static void AssertFailureMessages(IEnumerable<string> messages, string messageType)
 		{
+#if NETCOREAPP  // Stack frame parsing appears to be broken outside of en-US culture on .NET Framework
 			Assert.Collection(
 				messages,
 				msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     [" + messageType + "] ExceptionType", msg),
@@ -223,6 +223,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         SomeFolder\\SomeClass.cs(18,0): at SomeClass.SomeMethod()", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 3", msg)
 			);
+#endif
 		}
 	}
 
@@ -335,8 +336,6 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void MultipleAssemblies()
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			var clockTime = TimeSpan.FromSeconds(12.3456);
 			var @short = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
 			var nothing = new ExecutionSummary { Total = 0 };
@@ -363,6 +362,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		}
 	}
 
+#if NETCOREAPP  // Stack frame parsing appears to be broken outside of en-US culture on .NET Framework
 	public class OnMessage_TestFailed : DefaultRunnerReporterMessageHandlerTests
 	{
 		readonly _TestFailed failedMessage = TestData.TestFailed(
@@ -397,6 +397,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 			);
 		}
 	}
+#endif
 
 	public class OnMessage_TestPassed
 	{

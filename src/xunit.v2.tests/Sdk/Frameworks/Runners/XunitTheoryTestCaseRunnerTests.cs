@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using NSubstitute;
@@ -23,9 +22,9 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal(2, summary.Total);
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passed.Test.DisplayName);
+		Assert.Equal("Display Name(x: 42, y: 'a', z: \"Hello\")", passed.Test.DisplayName);
 		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
+		Assert.Equal("Display Name(x: 0, y: null, z: \"World!\")", failed.Test.DisplayName);
 	}
 
 	[CulturedFact("en-US")]
@@ -71,12 +70,12 @@ public class XunitTheoryTestCaseRunnerTests
 		Assert.Equal(2, summary.Skipped);
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-		Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passed.Test.DisplayName);
+		Assert.Equal($"Display Name(x: 1, y: 'b', z: \"not skipped\")", passed.Test.DisplayName);
 		var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-		Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failed.Test.DisplayName);
+		Assert.Equal("Display Name(x: 0, y: 'c', z: \"also not skipped\")", failed.Test.DisplayName);
 
-		Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
-		Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
+		Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == $"Display Name(x: 42, y: 'a', z: \"Hello\")");
+		Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == "Display Name(x: 0, y: null, z: \"World!\")");
 	}
 
 	[Fact]
@@ -157,14 +156,14 @@ public class XunitTheoryTestCaseRunnerTests
 		{
 			get
 			{
-				yield return new object[] { 42, 21.12, "Hello" };
-				yield return new object[] { 0, 0.0, "World!" };
+				yield return new object[] { 42, 'a', "Hello" };
+				yield return new object[] { 0, null, "World!" };
 			}
 		}
 
 		[Theory]
 		[MemberData("SomeData")]
-		public void TestWithData(int x, double y, string z)
+		public void TestWithData(int x, char? y, string z)
 		{
 			Assert.NotEqual(x, 0);
 		}
@@ -177,10 +176,10 @@ public class XunitTheoryTestCaseRunnerTests
 		}
 
 		[Theory]
-		[InlineData(1, 2.1, "not skipped")]
+		[InlineData(1, 'b', "not skipped")]
 		[MemberData("SomeData", Skip = "Skipped")]
-		[InlineData(0, 0.0, "also not skipped")]
-		public void TestWithSomeDataSkipped(int x, double y, string z)
+		[InlineData(0, 'c', "also not skipped")]
+		public void TestWithSomeDataSkipped(int x, char? y, string z)
 		{
 			Assert.NotEqual(x, 0);
 		}

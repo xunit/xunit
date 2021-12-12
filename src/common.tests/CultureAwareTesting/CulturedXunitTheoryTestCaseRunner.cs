@@ -33,7 +33,7 @@ namespace Xunit.Sdk
 				originalCulture = CultureInfo.CurrentCulture;
 				originalUICulture = CultureInfo.CurrentUICulture;
 
-				var cultureInfo = new CultureInfo(culture);
+				var cultureInfo = new CultureInfo(culture, useUserOverride: false);
 				CultureInfo.CurrentCulture = cultureInfo;
 				CultureInfo.CurrentUICulture = cultureInfo;
 			}

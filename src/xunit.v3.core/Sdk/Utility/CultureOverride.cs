@@ -15,7 +15,7 @@ namespace Xunit.Sdk
 
 			if (culture != null)
 			{
-				var newCulture = new CultureInfo(culture);
+				var newCulture = new CultureInfo(culture, useUserOverride: false);
 				CultureInfo.CurrentCulture = newCulture;
 				CultureInfo.CurrentUICulture = newCulture;
 			}

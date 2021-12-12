@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -356,8 +355,6 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
 			var msg = Assert.Single(messages);
