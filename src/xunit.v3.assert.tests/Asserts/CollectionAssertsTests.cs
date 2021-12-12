@@ -544,6 +544,72 @@ public class CollectionAssertsTests
 		}
 	}
 
+	public class Distinct
+	{
+		[Fact]
+		public static void GuardClauses()
+		{
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Distinct<int>(null!));
+			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(Array.Empty<object>(), null!));
+		}
+
+		[Fact]
+		public static void WithNull()
+		{
+			var list = new List<object?> { 16, "Hi there", null };
+
+			Assert.Distinct(list);
+		}
+
+		[Fact]
+		public static void TwoItems()
+		{
+			var list = new List<int> { 42, 42 };
+
+			var ex = Assert.Throws<ContainsDuplicateException>(() => Assert.Distinct(list));
+
+			Assert.Equal(
+				"Assert.Distinct() Failure: The item 42 occurs multiple times in [42, 42].",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void TwoNulls()
+		{
+			var list = new List<string?> { "a", null, "b", null };
+
+			var ex = Assert.Throws<ContainsDuplicateException>(() => Assert.Distinct(list));
+
+			Assert.Equal(
+				"Assert.Distinct() Failure: The item null occurs multiple times in [\"a\", null, \"b\", null].",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void CaseSensitiveStrings()
+		{
+			var list = new string[] { "a", "b", "A" };
+
+			Assert.Distinct(list);
+			Assert.Distinct(list, StringComparer.Ordinal);
+		}
+
+		[Fact]
+		public static void CaseInsensitiveStrings()
+		{
+			var list = new string[] { "a", "b", "A" };
+
+			var ex = Assert.Throws<ContainsDuplicateException>(() => Assert.Distinct(list, StringComparer.OrdinalIgnoreCase));
+
+			Assert.Equal(
+				"Assert.Distinct() Failure: The item \"A\" occurs multiple times in [\"a\", \"b\", \"A\"].",
+				ex.Message
+			);
+		}
+	}
+
 	public class DoesNotContain
 	{
 		[Fact]
