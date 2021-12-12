@@ -38,32 +38,32 @@ namespace Xunit
         /// <inheritdoc/>
         public void LogError(StackFrameInfo stackFrame, string message)
         {
-            using (SetColor(ConsoleColor.Red))
-                lock (LockObject)
+            lock (LockObject)
+                using (SetColor(ConsoleColor.Red))
                     Console.Error.WriteLine(message);
         }
 
         /// <inheritdoc/>
         public void LogImportantMessage(StackFrameInfo stackFrame, string message)
         {
-            using (SetColor(ConsoleColor.Gray))
-                lock (LockObject)
+            lock (LockObject)
+                using (SetColor(ConsoleColor.Gray))
                     Console.WriteLine(message);
         }
 
         /// <inheritdoc/>
         public void LogMessage(StackFrameInfo stackFrame, string message)
         {
-            using (SetColor(ConsoleColor.DarkGray))
-                lock (LockObject)
+            lock (LockObject)
+                using (SetColor(ConsoleColor.DarkGray))
                     Console.WriteLine(message);
         }
 
         /// <inheritdoc/>
         public void LogWarning(StackFrameInfo stackFrame, string message)
         {
-            using (SetColor(ConsoleColor.Yellow))
-                lock (LockObject)
+            lock (LockObject)
+                using (SetColor(ConsoleColor.Yellow))
                     Console.WriteLine(message);
         }
 
