@@ -547,9 +547,10 @@ public class CollectionAssertsTests
 	public class Distinct
 	{
 		[Fact]
-		public static void GuardClause()
+		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Distinct<int>(null!));
+			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(Array.Empty<object>(), null!));
 		}
 
 		[Fact]
@@ -586,11 +587,11 @@ public class CollectionAssertsTests
 			);
 		}
 
-
 		[Fact]
 		public static void CaseSensitiveStrings()
 		{
 			var list = new string[] { "a", "b", "A" };
+
 			Assert.Distinct(list);
 			Assert.Distinct(list, StringComparer.Ordinal);
 		}
