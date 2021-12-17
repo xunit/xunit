@@ -15,20 +15,6 @@ namespace Xunit.v3
 		bool disposed;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TestFramework"/> class.
-		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		protected TestFramework(_IMessageSink diagnosticMessageSink)
-		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
-		}
-
-		/// <summary>
-		/// Gets the message sink used to send diagnostic messages.
-		/// </summary>
-		public _IMessageSink DiagnosticMessageSink { get; }
-
-		/// <summary>
 		/// Gets the disposal tracker for the test framework.
 		/// </summary>
 		protected DisposalTracker DisposalTracker { get; } = new();

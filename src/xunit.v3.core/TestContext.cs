@@ -17,11 +17,15 @@ namespace Xunit
 		TestContext(
 			_ITestAssembly testAssembly,
 			TestEngineStatus testAssemblyStatus,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			_IMessageSink? diagnosticMessageSink,
+			_IMessageSink? internalDiagnosticMessageSink)
 		{
 			TestAssembly = testAssembly;
 			TestAssemblyStatus = testAssemblyStatus;
 			CancellationToken = cancellationToken;
+			DiagnosticMessageSink = diagnosticMessageSink;
+			InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
 		}
 
 		/// <summary>
@@ -31,8 +35,17 @@ namespace Xunit
 		/// </summary>
 		public CancellationToken CancellationToken { get; }
 
-		/// <summary/>
+		/// <summary>
+		/// Gets the current test context. If called outside of the text discovery or execution path,
+		/// will return <c>null</c>. The current test context is a "snapshot in time" for when this
+		/// property is called, so do not cache the instance across a single method boundary (or else
+		/// you run the risk of having an out-of-date context).
+		/// </summary>
 		public static TestContext? Current => local.Value;
+
+		internal _IMessageSink? DiagnosticMessageSink { get; set; }
+
+		internal _IMessageSink? InternalDiagnosticMessageSink { get; set; }
 
 		/// <summary>
 		/// Gets the current test, if the engine is currently in the process of running a test;
@@ -131,6 +144,45 @@ namespace Xunit
 		[NotNullIfNotNull(nameof(Test))]
 		public TestEngineStatus? TestStatus { get; private set; }
 
+		/// <summary>
+		/// Sends a diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
+		/// See https://xunit.net/docs/configuration-files for configuration information.
+		/// </summary>
+		/// <param name="message">The message to send</param>
+		public void SendDiagnosticMessage(string message)
+		{
+			if (DiagnosticMessageSink != null)
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
+		}
+
+		/// <summary>
+		/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
+		/// See https://xunit.net/docs/configuration-files for configuration information.
+		/// </summary>
+		/// <param name="format">A composite format string.</param>
+		/// <param name="args">An object array that contains zero or more objects to format.</param>
+		public void SendDiagnosticMessage(
+			string format,
+			params object?[] args)
+		{
+			if (DiagnosticMessageSink != null)
+				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, args) });
+		}
+
+		internal void SendInternalDiagnosticMessage(string message)
+		{
+			if (InternalDiagnosticMessageSink != null)
+				InternalDiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
+		}
+
+		internal void SendInternalDiagnosticMessage(
+			string format,
+			params object?[] args)
+		{
+			if (InternalDiagnosticMessageSink != null)
+				InternalDiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, args) });
+		}
+
 		internal static void SetForTest(
 			_ITest test,
 			TestEngineStatus testStatus,
@@ -140,7 +192,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(test);
 
-			local.Value = new TestContext(test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
+			local.Value = new TestContext(test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
 			{
 				Test = test,
 				TestStatus = testStatus,
@@ -164,11 +216,13 @@ namespace Xunit
 		internal static void SetForTestAssembly(
 			_ITestAssembly testAssembly,
 			TestEngineStatus testAssemblyStatus,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			_IMessageSink? diagnosticMessageSink,
+			_IMessageSink? internalDiagnosticMessageSink)
 		{
 			Guard.ArgumentNotNull(testAssembly);
 
-			local.Value = new TestContext(testAssembly, testAssemblyStatus, cancellationToken);
+			local.Value = new TestContext(testAssembly, testAssemblyStatus, cancellationToken, diagnosticMessageSink, internalDiagnosticMessageSink);
 		}
 
 		internal static void SetForTestCase(
@@ -178,7 +232,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(testCase);
 
-			local.Value = new TestContext(testCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
+			local.Value = new TestContext(testCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
 			{
 				TestCase = testCase,
 				TestCaseStatus = testCaseStatus,
@@ -201,7 +255,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(testClass);
 
-			local.Value = new TestContext(testClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
+			local.Value = new TestContext(testClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
 			{
 				TestClass = testClass,
 				TestClassStatus = testClassStatus,
@@ -218,7 +272,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(testCollection);
 
-			local.Value = new TestContext(testCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
+			local.Value = new TestContext(testCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
 			{
 				TestCollection = testCollection,
 				TestCollectionStatus = testCollectionStatus,
@@ -232,7 +286,7 @@ namespace Xunit
 		{
 			Guard.ArgumentNotNull(testMethod);
 
-			local.Value = new TestContext(testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken)
+			local.Value = new TestContext(testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
 			{
 				TestMethod = testMethod,
 				TestMethodStatus = testMethodStatus,

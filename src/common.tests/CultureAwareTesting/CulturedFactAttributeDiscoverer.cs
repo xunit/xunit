@@ -9,13 +9,6 @@ namespace Xunit
 {
 	public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 	{
-		readonly _IMessageSink diagnosticMessageSink;
-
-		public CulturedFactAttributeDiscoverer(_IMessageSink diagnosticMessageSink)
-		{
-			this.diagnosticMessageSink = diagnosticMessageSink;
-		}
-
 		public ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
@@ -45,7 +38,6 @@ namespace Xunit
 			TestMethodDisplayOptions methodDisplayOptions)
 		{
 			return new CulturedXunitTestCase(
-				diagnosticMessageSink,
 				methodDisplay,
 				methodDisplayOptions,
 				testMethod,

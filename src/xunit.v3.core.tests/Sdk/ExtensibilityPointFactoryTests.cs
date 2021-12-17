@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -9,40 +7,31 @@ using Xunit.v3;
 
 public class ExtensibilityPointFactoryTests
 {
-	readonly List<_MessageSinkMessage> messages = new();
-	protected _IMessageSink spy;
-
-	public ExtensibilityPointFactoryTests()
-	{
-		spy = SpyMessageSink.Create(messages: messages);
-	}
-
-	public IEnumerable<string> DiagnosticMessages =>
-		messages.OfType<_DiagnosticMessage>().Select(m => m.Message);
-
 	public class GetTestFramework : ExtensibilityPointFactoryTests
 	{
 		[Fact]
 		public void NoAttribute()
 		{
+			var spy = SpyMessageSink.Capture();
 			var assembly = Mocks.AssemblyInfo();
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
-			Assert.Empty(messages);
+			Assert.Empty(spy.Messages);
 		}
 
 		[Fact]
 		public void Attribute_NoDiscoverer()
 		{
+			var spy = SpyMessageSink.Capture();
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithoutDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
-			AssertSingleDiagnosticMessage("Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]");
+			AssertSingleDiagnosticMessage(spy, "Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]");
 		}
 
 		class AttributeWithoutDiscoverer : Attribute, ITestFrameworkAttribute { }
@@ -52,13 +41,14 @@ public class ExtensibilityPointFactoryTests
 		{
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
+			var spy = SpyMessageSink.Capture();
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingDiscovererCtor>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var factory = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			var factory = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
 			Assert.IsType<XunitTestFramework>(factory);
-			AssertSingleDiagnosticMessage("Exception thrown during test framework discoverer construction: System.DivideByZeroException: Attempted to divide by zero.");
+			AssertSingleDiagnosticMessage(spy, "Exception thrown during test framework discoverer construction: System.DivideByZeroException: Attempted to divide by zero.");
 		}
 
 		[TestFrameworkDiscoverer(typeof(ThrowingDiscovererCtor))]
@@ -79,13 +69,14 @@ public class ExtensibilityPointFactoryTests
 		{
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
+			var spy = SpyMessageSink.Capture();
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingDiscovererMethod>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
-			AssertSingleDiagnosticMessage("Exception thrown during test framework discoverer construction: System.DivideByZeroException: Attempted to divide by zero.");
+			AssertSingleDiagnosticMessage(spy, "Exception thrown during test framework discoverer construction: System.DivideByZeroException: Attempted to divide by zero.");
 		}
 
 		[TestFrameworkDiscoverer(typeof(ThrowingDiscoverer))]
@@ -103,13 +94,14 @@ public class ExtensibilityPointFactoryTests
 		{
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
+			var spy = SpyMessageSink.Capture();
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingTestFrameworkCtor>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
-			AssertSingleDiagnosticMessage("Exception thrown during test framework construction: System.DivideByZeroException: Attempted to divide by zero.");
+			AssertSingleDiagnosticMessage(spy, "Exception thrown during test framework construction; falling back to default test framework: System.DivideByZeroException: Attempted to divide by zero.");
 		}
 
 		[TestFrameworkDiscoverer(typeof(DiscovererForThrowingTestFrameworkCtor))]
@@ -139,12 +131,13 @@ public class ExtensibilityPointFactoryTests
 		[Fact]
 		public void Attribute_WithDiscoverer_NoMessageSink()
 		{
+			var spy = SpyMessageSink.Capture();
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
-			Assert.Empty(messages);
+			Assert.Empty(spy.Messages);
 		}
 
 		[TestFrameworkDiscoverer(typeof(MyDiscoverer))]
@@ -171,14 +164,15 @@ public class ExtensibilityPointFactoryTests
 		[Fact]
 		public void Attribute_WithDiscoverer_WithMessageSink()
 		{
+			var spy = SpyMessageSink.Capture();
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscovererWithMessageSink>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
 
 			var testFramework = Assert.IsType<MyTestFrameworkWithMessageSink>(framework);
 			Assert.Same(spy, testFramework.MessageSink);
-			Assert.Empty(messages);
+			Assert.Empty(spy.Messages);
 		}
 
 		[TestFrameworkDiscoverer(typeof(MyDiscovererWithMessageSink))]
@@ -208,13 +202,6 @@ public class ExtensibilityPointFactoryTests
 			public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly) =>
 				throw new NotImplementedException();
 		}
-
-		void AssertSingleDiagnosticMessage(string expectedMessage)
-		{
-			var message = Assert.Single(messages);
-			var diagnosticMessage = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
-			Assert.StartsWith(expectedMessage, diagnosticMessage.Message);
-		}
 	}
 
 	public class GetXunitTestCollectionFactory : ExtensibilityPointFactoryTests
@@ -224,7 +211,7 @@ public class ExtensibilityPointFactoryTests
 		{
 			var assembly = Mocks.TestAssembly();
 
-			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (_IAttributeInfo?)null, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory((_IAttributeInfo?)null, assembly);
 
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
 		}
@@ -237,7 +224,7 @@ public class ExtensibilityPointFactoryTests
 			var attr = Mocks.CollectionBehaviorAttribute(behavior);
 			var assembly = Mocks.TestAssembly();
 
-			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 
 			Assert.IsType(expectedType, result);
 		}
@@ -248,7 +235,7 @@ public class ExtensibilityPointFactoryTests
 			var attr = Mocks.CollectionBehaviorAttribute<MyTestCollectionFactory>();
 			var assembly = Mocks.TestAssembly();
 
-			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 
 			var myFactory = Assert.IsType<MyTestCollectionFactory>(result);
 			Assert.Same(assembly, myFactory.Assembly);
@@ -261,7 +248,7 @@ public class ExtensibilityPointFactoryTests
 			var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!);
 			var assembly = Mocks.TestAssembly();
 
-			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 
 			var myFactory = Assert.IsType<MyTestCollectionFactory>(result);
 			Assert.Same(assembly, myFactory.Assembly);
@@ -295,6 +282,9 @@ public class ExtensibilityPointFactoryTests
 			"Unable to create test collection factory type 'xunit.v3.core.tests, ThisIsNotARealType'")]
 		public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName, string expectedMessage)
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 #if BUILD_X86
 			expectedMessage = expectedMessage.Replace("xunit.v3.core.tests", "xunit.v3.core.tests.x86");
 			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests.x86");
@@ -303,10 +293,9 @@ public class ExtensibilityPointFactoryTests
 #endif
 			var assembly = Mocks.TestAssembly();
 
-			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
+			var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 
-			var msg = Assert.Single(DiagnosticMessages);
-			Assert.StartsWith(expectedMessage, msg);
+			AssertSingleDiagnosticMessage(spy, expectedMessage);
 		}
 
 		class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory
@@ -323,5 +312,11 @@ public class ExtensibilityPointFactoryTests
 			public TestCollectionFactory_DoesNotImplementInterface(_IAssemblyInfo _)
 			{ }
 		}
+	}
+	void AssertSingleDiagnosticMessage(SpyMessageSink spy, string expectedMessage)
+	{
+		var message = Assert.Single(spy.Messages);
+		var diagnosticMessage = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
+		Assert.StartsWith(expectedMessage, diagnosticMessage.Message);
 	}
 }

@@ -17,11 +17,10 @@ namespace Xunit.Sdk
 			string displayName,
 			string? skipReason,
 			object?[] constructorArguments,
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
-				: base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource)
+				: base(culturedXunitTheoryTestCase, displayName, skipReason, constructorArguments, messageBus, aggregator, cancellationTokenSource)
 		{
 			culture = culturedXunitTheoryTestCase.Culture;
 		}

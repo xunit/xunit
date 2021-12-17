@@ -24,7 +24,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCase"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The method under test.</param>
@@ -33,7 +32,6 @@ namespace Xunit.v3
 		/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 		public XunitDelayEnumeratedTheoryTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
@@ -41,12 +39,11 @@ namespace Xunit.v3
 			Dictionary<string, List<string>>? traits = null,
 			int? timeout = null,
 			string? uniqueID = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, traits, timeout, uniqueID, null)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, traits, timeout, uniqueID, null)
 		{ }
 
 		/// <inheritdoc/>
 		public override ValueTask<RunSummary> RunAsync(
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
@@ -56,7 +53,6 @@ namespace Xunit.v3
 					TestCaseDisplayName,
 					SkipReason,
 					constructorArguments,
-					diagnosticMessageSink,
 					messageBus,
 					aggregator,
 					cancellationTokenSource

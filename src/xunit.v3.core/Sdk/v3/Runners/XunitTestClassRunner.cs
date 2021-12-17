@@ -28,7 +28,6 @@ namespace Xunit.v3
 		/// <param name="class">The test class that contains the tests to be run. May be <c>null</c> for test cases that do not
 		/// support classes and methods.</param>
 		/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
@@ -39,14 +38,13 @@ namespace Xunit.v3
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases,
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IDictionary<Type, object> assemblyFixtureMappings,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			this.assemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
 			this.collectionFixtureMappings = Guard.ArgumentNotNull(collectionFixtureMappings);
@@ -96,7 +94,7 @@ namespace Xunit.v3
 			{
 				object? arg;
 				if (p.ParameterType == typeof(_IMessageSink))
-					arg = DiagnosticMessageSink;
+					arg = TestContext.Current?.DiagnosticMessageSink;
 				else if (p.ParameterType == typeof(ITestContextAccessor))
 					arg = TestContextAccessor.Instance;
 				else if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg) && !assemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
@@ -172,20 +170,35 @@ namespace Xunit.v3
 			{
 				try
 				{
-					var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, ordererAttribute);
+					var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
 					if (testCaseOrderer != null)
 						TestCaseOrderer = testCaseOrderer;
 					else
 					{
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-						DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for class-level test case orderer on test class '{TestClass.Class.Name}'" });
+
+						TestContext.Current?.SendDiagnosticMessage(
+							"Could not find type '{0}' in {1} for class-level test case orderer on test class '{2}'",
+							type,
+							assembly,
+							TestClass.Class.Name
+						);
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Class-level test case orderer '{type}' for test class '{TestClass.Class.Name}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+
+					TestContext.Current?.SendDiagnosticMessage(
+						"Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}{4}{5}",
+						type,
+						TestClass.Class.Name,
+						innerEx.GetType().FullName,
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
 				}
 			}
 
@@ -254,7 +267,6 @@ namespace Xunit.v3
 					Class,
 					method,
 					testCases,
-					DiagnosticMessageSink,
 					MessageBus,
 					Aggregator.Clone(),
 					CancellationTokenSource,

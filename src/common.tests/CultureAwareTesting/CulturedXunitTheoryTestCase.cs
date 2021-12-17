@@ -22,17 +22,15 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CulturedXunitTheoryTestCase"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The method under test.</param>
 		public CulturedXunitTheoryTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
 			string culture)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
 			Culture = Guard.ArgumentNotNull(culture);
 
@@ -55,7 +53,6 @@ namespace Xunit.v3
 		}
 
 		public override ValueTask<RunSummary> RunAsync(
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
@@ -65,7 +62,6 @@ namespace Xunit.v3
 					TestCaseDisplayName,
 					SkipReason,
 					constructorArguments,
-					diagnosticMessageSink,
 					messageBus,
 					aggregator,
 					cancellationTokenSource

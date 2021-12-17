@@ -14,20 +14,6 @@ namespace Xunit.Sdk
 	public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TheoryDiscoverer"/> class.
-		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		public TheoryDiscoverer(_IMessageSink diagnosticMessageSink)
-		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
-		}
-
-		/// <summary>
-		/// Gets the message sink to be used to send diagnostic messages.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink { get; }
-
-		/// <summary>
 		/// Creates test cases for a single row of data. By default, returns a single instance of <see cref="XunitTestCase"/>
 		/// with the data row inside of it.
 		/// </summary>
@@ -47,7 +33,6 @@ namespace Xunit.Sdk
 			object?[] dataRow)
 		{
 			var testCase = new XunitPreEnumeratedTheoryTestCase(
-				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod,
@@ -83,7 +68,6 @@ namespace Xunit.Sdk
 			string skipReason)
 		{
 			var testCase = new XunitSkippedDataRowTestCase(
-				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod,
@@ -113,7 +97,6 @@ namespace Xunit.Sdk
 		{
 			// TODO: Skip reason should be passed down into the test case
 			var testCase = new XunitTestCase(
-				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod
@@ -138,7 +121,6 @@ namespace Xunit.Sdk
 			_IAttributeInfo theoryAttribute)
 		{
 			var testCase = new XunitDelayEnumeratedTheoryTestCase(
-				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod
@@ -193,14 +175,13 @@ namespace Xunit.Sdk
 						IDataDiscoverer? discoverer;
 						try
 						{
-							discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererAttribute);
+							discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
 						}
 						catch (InvalidCastException)
 						{
 							if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 								results.Add(
 									new ExecutionErrorTestCase(
-										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
 										testMethod,
@@ -210,7 +191,6 @@ namespace Xunit.Sdk
 							else
 								results.Add(
 									new ExecutionErrorTestCase(
-										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
 										testMethod,
@@ -226,7 +206,6 @@ namespace Xunit.Sdk
 							if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 								results.Add(
 									new ExecutionErrorTestCase(
-										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
 										testMethod,
@@ -236,7 +215,6 @@ namespace Xunit.Sdk
 							else
 								results.Add(
 									new ExecutionErrorTestCase(
-										DiagnosticMessageSink,
 										discoveryOptions.MethodDisplayOrDefault(),
 										discoveryOptions.MethodDisplayOptionsOrDefault(),
 										testMethod,
@@ -257,7 +235,6 @@ namespace Xunit.Sdk
 						{
 							results.Add(
 								new ExecutionErrorTestCase(
-									DiagnosticMessageSink,
 									discoveryOptions.MethodDisplayOrDefault(),
 									discoveryOptions.MethodDisplayOptionsOrDefault(),
 									testMethod,
@@ -290,7 +267,13 @@ namespace Xunit.Sdk
 										.Select(x => $"'{x}'")
 										.ToList();
 
-								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Non-serializable data (one or more of: {string.Join(", ", typeNames)}) found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case." });
+								TestContext.Current?.SendDiagnosticMessage(
+									"Non-serializable data (one or more of: {0}) found for '{1}.{2}'; falling back to single test case.",
+									string.Join(", ", typeNames),
+									testMethod.TestClass.Class.Name,
+									testMethod.Method.Name
+								);
+
 								return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 
@@ -305,7 +288,13 @@ namespace Xunit.Sdk
 							}
 							catch (Exception ex)
 							{
-								DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Error creating theory test case for for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case. Exception message: '{ex.Message}'" });
+								TestContext.Current?.SendDiagnosticMessage(
+									"Error creating theory test case for for '{0}.{1}'; falling back to single test case. Exception message: '{2}'",
+									testMethod.TestClass.Class.Name,
+									testMethod.Method.Name,
+									ex.Message
+								);
+
 								return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 							}
 						}
@@ -314,7 +303,6 @@ namespace Xunit.Sdk
 					if (results.Count == 0)
 						results.Add(
 							new ExecutionErrorTestCase(
-								DiagnosticMessageSink,
 								discoveryOptions.MethodDisplayOrDefault(),
 								discoveryOptions.MethodDisplayOptionsOrDefault(),
 								testMethod,
@@ -326,7 +314,13 @@ namespace Xunit.Sdk
 				}
 				catch (Exception ex)    // If something goes wrong, fall through to return just the XunitTestCase
 				{
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown during theory discovery on '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case.{Environment.NewLine}{ex}" });
+					TestContext.Current?.SendDiagnosticMessage(
+						"Exception thrown during theory discovery on '{0}.{1}'; falling back to single test case.{2}{3}",
+						testMethod.TestClass.Class.Name,
+						testMethod.Method.Name,
+						Environment.NewLine,
+						ex
+					);
 				}
 			}
 

@@ -169,14 +169,17 @@ public class TestFrameworkDiscovererTests
 		TestableTestFrameworkDiscoverer(
 			_IAssemblyInfo assemblyInfo,
 			SpyMessageSink diagnosticMessageSink) :
-				base(assemblyInfo, diagnosticMessageSink)
-		{ }
+				base(assemblyInfo, diagnosticMessageSink, null)
+		{
+			DiagnosticMessageSink = diagnosticMessageSink;
+			TestAssembly = Mocks.TestAssembly(assemblyInfo.AssemblyPath, uniqueID: "asm-id");
+		}
 
 		public new _IAssemblyInfo AssemblyInfo => base.AssemblyInfo;
 
-		public new SpyMessageSink DiagnosticMessageSink => (SpyMessageSink)base.DiagnosticMessageSink;
+		public SpyMessageSink DiagnosticMessageSink { get; }
 
-		public override string TestAssemblyUniqueID => "asm-id";
+		public override _ITestAssembly TestAssembly { get; }
 
 		public override string TestFrameworkDisplayName => "testable-test-framework";
 

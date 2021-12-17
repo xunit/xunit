@@ -18,20 +18,15 @@ namespace Xunit.v3
 		where TTestCase : _ITestCase
 	{
 		_IReflectionAssemblyInfo assemblyInfo;
-		_IMessageSink diagnosticMessageSink;
 		bool disposed;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		protected TestFrameworkExecutor(
-			_IReflectionAssemblyInfo assemblyInfo,
-			_IMessageSink diagnosticMessageSink)
+		protected TestFrameworkExecutor(_IReflectionAssemblyInfo assemblyInfo)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(assemblyInfo);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 		}
 
 		/// <summary>
@@ -41,15 +36,6 @@ namespace Xunit.v3
 		{
 			get => assemblyInfo;
 			set => assemblyInfo = Guard.ArgumentNotNull(value, nameof(AssemblyInfo));
-		}
-
-		/// <summary>
-		/// Gets the message sink to send diagnostic messages to.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink
-		{
-			get => diagnosticMessageSink;
-			set => diagnosticMessageSink = Guard.ArgumentNotNull(value, nameof(DiagnosticMessageSink));
 		}
 
 		/// <summary>

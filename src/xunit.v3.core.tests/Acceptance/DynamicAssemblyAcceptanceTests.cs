@@ -25,7 +25,7 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 		var assemblyInfo = new ReflectionAssemblyInfo(fixture.Assembly);
 
 		await using var disposalTracker = new DisposalTracker();
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(_NullMessageSink.Instance, assemblyInfo);
+		var testFramework = ExtensibilityPointFactory.GetTestFramework(null, null, assemblyInfo);
 		disposalTracker.Add(testFramework);
 
 		var testCases = new List<_ITestCase>();
@@ -47,7 +47,7 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 		var assemblyInfo = new ReflectionAssemblyInfo(fixture.Assembly);
 
 		await using var disposalTracker = new DisposalTracker();
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(_NullMessageSink.Instance, assemblyInfo);
+		var testFramework = ExtensibilityPointFactory.GetTestFramework(null, null, assemblyInfo);
 		disposalTracker.Add(testFramework);
 
 		var messages = new List<_MessageSinkMessage>();

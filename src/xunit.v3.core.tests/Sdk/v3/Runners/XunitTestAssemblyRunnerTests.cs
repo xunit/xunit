@@ -345,7 +345,7 @@ public class XunitTestAssemblyRunnerTests
 			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
-				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
+				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), null, executionMessageSink, executionOptions)
 		{
 			DiagnosticMessages = diagnosticMessages;
 		}

@@ -26,26 +26,26 @@ public class FactDiscovererTests
 	[Fact]
 	public async void FactWithoutParameters_ReturnsTestCaseThatRunsFact()
 	{
-		var discoverer = TestableFactDiscoverer.Create();
+		var discoverer = new FactDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithNoParameters");
 
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
+		await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
 		Assert.Single(messageBus.Messages.OfType<_TestPassed>());
 	}
 
 	[Fact]
 	public async void FactWithParameters_ReturnsTestCaseWhichThrows()
 	{
-		var discoverer = TestableFactDiscoverer.Create();
+		var discoverer = new FactDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithParameters");
 
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
+		await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
 		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, failed.ExceptionTypes.Single());
 		Assert.Equal("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?", failed.Messages.Single());
@@ -54,13 +54,13 @@ public class FactDiscovererTests
 	[Fact]
 	public async void GenericFact_ReturnsTestCaseWhichThrows()
 	{
-		var discoverer = TestableFactDiscoverer.Create();
+		var discoverer = new FactDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("GenericFact");
 
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
+		await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
 		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, failed.ExceptionTypes.Single());
 		Assert.Equal("[Fact] methods are not allowed to be generic.", failed.Messages.Single());
@@ -76,15 +76,5 @@ public class FactDiscovererTests
 
 		[Fact]
 		public void GenericFact<T>() { }
-	}
-
-	class TestableFactDiscoverer : FactDiscoverer
-	{
-		public TestableFactDiscoverer(_IMessageSink diagnosticMessageSink)
-			: base(diagnosticMessageSink)
-		{ }
-
-		public static TestableFactDiscoverer Create() =>
-			new(SpyMessageSink.Create());
 	}
 }

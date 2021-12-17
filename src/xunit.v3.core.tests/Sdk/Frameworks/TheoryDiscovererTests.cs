@@ -81,7 +81,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<MultipleDataClass>(nameof(MultipleDataClass.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -98,7 +98,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTestCase()
 	{
 		discoveryOptions.SetPreEnumerateTheories(false);
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<MultipleDataClass>(nameof(MultipleDataClass.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -131,7 +131,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async void DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<MultipleDataClassSkipped>(nameof(MultipleDataClassSkipped.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -161,7 +161,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void ThrowingData()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ThrowingDataClass>("TheoryWithMisbehavingData");
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -170,8 +172,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 		Assert.Equal($"{typeof(ThrowingDataClass).FullName}.{nameof(ThrowingDataClass.TheoryWithMisbehavingData)}", testCase.TestCaseDisplayName);
-		var message = Assert.Single(discoverer.DiagnosticMessages);
-		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
+		var diagnostic = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 		Assert.StartsWith($"Exception thrown during theory discovery on '{typeof(ThrowingDataClass).FullName}.{nameof(ThrowingDataClass.TheoryWithMisbehavingData)}'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
 	}
 
@@ -192,7 +193,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void DataDiscovererReturningNullYieldsSingleTheoryTestCase()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
+		var discoverer = new TheoryDiscoverer();
 		var theoryAttribute = Mocks.TheoryAttribute();
 		var dataAttribute = Mocks.DataAttribute();
 		var testMethod = Mocks.TestMethod("MockTheoryType", "MockTheoryMethod", methodAttributes: new[] { theoryAttribute, dataAttribute });
@@ -202,12 +205,16 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 		Assert.Equal("MockTheoryType.MockTheoryMethod", testCase.TestCaseDisplayName);
+		var diagnostic = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
+		Assert.StartsWith($"Exception thrown during theory discovery on 'MockTheoryType.MockTheoryMethod'; falling back to single test case.{Environment.NewLine}System.InvalidOperationException: Sequence contains no elements", diagnostic.Message);
 	}
 
 	[Fact]
 	public async void NonSerializableDataYieldsSingleTheoryTestCase()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<NonSerializableDataClass>(nameof(NonSerializableDataClass.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -216,8 +223,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 		Assert.Equal($"{typeof(NonSerializableDataClass).FullName}.{nameof(NonSerializableDataClass.TheoryMethod)}", testCase.TestCaseDisplayName);
-		var message = Assert.Single(discoverer.DiagnosticMessages);
-		var diagnostic = Assert.IsAssignableFrom<_DiagnosticMessage>(message);
+		var diagnostic = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 		Assert.Equal($"Non-serializable data (one or more of: '{typeof(NonSerializableDataAttribute).FullName}') found for '{typeof(NonSerializableDataClass).FullName}.{nameof(NonSerializableDataClass.TheoryMethod)}'; falling back to single test case.", diagnostic.Message);
 	}
 
@@ -294,7 +300,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>(nameof(NonDiscoveryOnTheoryAttribute.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -319,7 +325,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>(nameof(NonDiscoveryEnumeratedData.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -344,7 +350,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>(nameof(MixedDiscoveryEnumeratedData.TheoryMethod));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -405,7 +411,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		TestContext.Current!.DiagnosticMessageSink = SpyMessageSink.Capture();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithExplicitConvertedData>(nameof(ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -462,7 +469,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void CanSkipFromTheoryDataRow_Preenumerated()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>(nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -507,7 +514,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void CanAddTraitsFromTheoryDataRow_Preenumerated()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>(nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -603,7 +610,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
 	{
-		var discoverer = TestableTheoryDiscoverer.Create();
+		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>(nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName));
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -627,21 +634,5 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 				Assert.Equal($"{typeof(ClassWithDisplayNameOnTheoryDataRows).FullName}.{nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName)}(x: 2112)", testCase.TestCaseDisplayName);
 			}
 		);
-	}
-
-	class TestableTheoryDiscoverer : TheoryDiscoverer
-	{
-		public List<_MessageSinkMessage> DiagnosticMessages;
-
-		public TestableTheoryDiscoverer(List<_MessageSinkMessage> diagnosticMessages)
-			: base(SpyMessageSink.Create(messages: diagnosticMessages))
-		{
-			DiagnosticMessages = diagnosticMessages;
-		}
-
-		public static TestableTheoryDiscoverer Create()
-		{
-			return new TestableTheoryDiscoverer(new List<_MessageSinkMessage>());
-		}
 	}
 }

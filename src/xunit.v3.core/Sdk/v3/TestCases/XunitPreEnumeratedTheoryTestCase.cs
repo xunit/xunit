@@ -20,7 +20,6 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitPreEnumeratedTheoryTestCase"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method this test case belongs to.</param>
@@ -31,7 +30,6 @@ namespace Xunit.v3
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 		/// <param name="displayName">The optional display name for the test</param>
 		public XunitPreEnumeratedTheoryTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
@@ -41,7 +39,7 @@ namespace Xunit.v3
 			int? timeout = null,
 			string? uniqueID = null,
 			string? displayName = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, timeout, uniqueID, displayName)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, timeout, uniqueID, displayName)
 		{ }
 	}
 }

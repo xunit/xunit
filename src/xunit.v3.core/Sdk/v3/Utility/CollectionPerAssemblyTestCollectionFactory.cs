@@ -22,17 +22,12 @@ namespace Xunit.v3
 		/// Initializes a new instance of the <see cref="CollectionPerAssemblyTestCollectionFactory" /> class.
 		/// </summary>
 		/// <param name="testAssembly">The assembly.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		public CollectionPerAssemblyTestCollectionFactory(
-			_ITestAssembly testAssembly,
-			_IMessageSink diagnosticMessageSink)
+		public CollectionPerAssemblyTestCollectionFactory(_ITestAssembly testAssembly)
 		{
-			Guard.ArgumentNotNull(diagnosticMessageSink);
-
 			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 
 			defaultCollection = new TestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
-			collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, diagnosticMessageSink);
+			collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
 		}
 
 		/// <inheritdoc/>

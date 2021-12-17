@@ -236,6 +236,8 @@ public class XunitTestClassRunnerTests
 	[Fact]
 	public static async void CanInjectMessageSinkIntoClassFixture()
 	{
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
 		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
@@ -244,18 +246,20 @@ public class XunitTestClassRunnerTests
 		Assert.Null(runner.RunTestMethodAsync_AggregatorResult);
 		var classFixture = runner.ClassFixtureMappings.Values.OfType<ClassFixtureWithMessageSinkDependency>().Single();
 		Assert.NotNull(classFixture.MessageSink);
-		Assert.Same(runner.DiagnosticMessageSink, classFixture.MessageSink);
+		Assert.Same(spy, classFixture.MessageSink);
 	}
 
 	[Fact]
 	public static async void CanLogSinkMessageFromClassFixture()
 	{
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
 		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
 
 		await runner.RunAsync();
 
-		var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+		var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
 		Assert.Equal("ClassFixtureWithMessageSinkDependency constructor message", diagnosticMessage.Message);
 	}
 
@@ -292,13 +296,15 @@ public class XunitTestClassRunnerTests
 		[Fact]
 		public static async void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var testCase = TestData.XunitTestCase<TestClassWithUnknownTestCaseOrderer>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for class-level test case orderer on test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithUnknownTestCaseOrderer'", diagnosticMessage.Message);
 		}
 
@@ -312,13 +318,15 @@ public class XunitTestClassRunnerTests
 		[Fact]
 		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
 
 			await runner.RunAsync();
 
 			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Class-level test case orderer 'XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithCtorThrowingTestCaseOrder' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -390,30 +398,24 @@ public class XunitTestClassRunnerTests
 	class TestableXunitTestClassRunner : XunitTestClassRunner
 	{
 		public List<object?[]> ConstructorArguments = new();
-		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
 
 		TestableXunitTestClassRunner(
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases,
-			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IDictionary<Type, object> assemblyFixtureMappings,
 			IDictionary<Type, object> collectionFixtureMappings)
-				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings)
-		{
-			DiagnosticMessages = diagnosticMessages;
-		}
+				: base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings)
+		{ }
 
 		public new Dictionary<Type, object> ClassFixtureMappings => base.ClassFixtureMappings;
 
 		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
-
-		public new _IMessageSink DiagnosticMessageSink => base.DiagnosticMessageSink;
 
 		public static TestableXunitTestClassRunner Create(
 			IXunitTestCase testCase,
@@ -422,7 +424,6 @@ public class XunitTestClassRunnerTests
 					testCase.TestMethod?.TestClass,
 					(_IReflectionTypeInfo?)testCase.TestMethod?.TestClass.Class,
 					new[] { testCase },
-					new List<_MessageSinkMessage>(),
 					new SpyMessageBus(),
 					new MockTestCaseOrderer(),
 					new ExceptionAggregator(),

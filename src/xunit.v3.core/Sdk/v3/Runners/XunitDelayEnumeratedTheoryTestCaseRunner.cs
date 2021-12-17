@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3
@@ -28,7 +27,6 @@ namespace Xunit.v3
 		/// <param name="displayName">The display name of the test case.</param>
 		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
@@ -37,19 +35,11 @@ namespace Xunit.v3
 			string displayName,
 			string? skipReason,
 			object?[] constructorArguments,
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 				: base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
-		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
-		}
-
-		/// <summary>
-		/// Gets the message sink used to report <see cref="_DiagnosticMessage"/> messages.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink { get; }
+		{ }
 
 		/// <inheritdoc/>
 		protected override async ValueTask AfterTestCaseStartingAsync()
@@ -81,7 +71,7 @@ namespace Xunit.v3
 					IDataDiscoverer? discoverer;
 					try
 					{
-						discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererAttribute);
+						discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
 						if (discoverer == null)
 						{
 							if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)

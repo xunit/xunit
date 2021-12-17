@@ -23,9 +23,10 @@ namespace Xunit.v3
 		CancellationTokenSource cancellationTokenSource = new();
 		readonly Lazy<ITestCaseOrderer> defaultTestCaseOrderer;
 		readonly Lazy<ITestCollectionOrderer> defaultTestCollectionOrderer;
-		_IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink? diagnosticMessageSink;
 		_IMessageSink executionMessageSink;
 		_ITestFrameworkExecutionOptions executionOptions;
+		readonly _IMessageSink? internalDiagnosticMessageSink;
 		_ITestAssembly testAssembly;
 		IReadOnlyCollection<TTestCase> testCases;
 
@@ -35,22 +36,25 @@ namespace Xunit.v3
 		/// <param name="testAssembly">The assembly that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected TestAssemblyRunner(
 			_ITestAssembly testAssembly,
 			IReadOnlyCollection<TTestCase> testCases,
-			_IMessageSink diagnosticMessageSink,
+			_IMessageSink? diagnosticMessageSink,
+			_IMessageSink? internalDiagnosticMessageSink,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 			this.testCases = Guard.ArgumentNotNull(testCases);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
+			this.diagnosticMessageSink = diagnosticMessageSink;
+			this.internalDiagnosticMessageSink = internalDiagnosticMessageSink;
 			this.executionMessageSink = Guard.ArgumentNotNull(executionMessageSink);
 			this.executionOptions = Guard.ArgumentNotNull(executionOptions);
 
-			defaultTestCaseOrderer = new(() => new DefaultTestCaseOrderer(DiagnosticMessageSink));
+			defaultTestCaseOrderer = new(() => new DefaultTestCaseOrderer());
 			defaultTestCollectionOrderer = new(() => new DefaultTestCollectionOrderer());
 		}
 
@@ -75,15 +79,6 @@ namespace Xunit.v3
 		{
 			get => executionOptions;
 			set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
-		}
-
-		/// <summary>
-		/// Gets or sets the message sink to report diagnostic messages to.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink
-		{
-			get => diagnosticMessageSink;
-			set => diagnosticMessageSink = Guard.ArgumentNotNull(value, nameof(DiagnosticMessageSink));
 		}
 
 		/// <summary>
@@ -198,7 +193,16 @@ namespace Xunit.v3
 			catch (Exception ex)
 			{
 				var innerEx = ex.Unwrap();
-				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test collection orderer '{testCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+
+				TestContext.Current?.SendDiagnosticMessage(
+					"Test collection orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
+					testCollectionOrderer.GetType().FullName,
+					innerEx.GetType().FullName,
+					innerEx.Message,
+					Environment.NewLine,
+					innerEx.StackTrace
+				);
+
 				orderedTestCollections = testCasesByCollection.Keys.CastOrToReadOnlyCollection();
 			}
 
@@ -335,6 +339,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testAssemblyStatus">The current test assembly status.</param>
 		protected virtual void SetTestContext(TestEngineStatus testAssemblyStatus) =>
-			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus, CancellationTokenSource.Token);
+			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus, CancellationTokenSource.Token, diagnosticMessageSink, internalDiagnosticMessageSink);
 	}
 }

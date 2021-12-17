@@ -22,7 +22,6 @@ namespace Xunit.v3
 		}
 
 		public CulturedXunitTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
@@ -30,7 +29,7 @@ namespace Xunit.v3
 			object?[]? testMethodArguments = null,
 			Dictionary<string, List<string>>? traits = null,
 			string? displayName = null)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null, displayName)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null, displayName)
 		{
 			Culture = Guard.ArgumentNotNull(culture);
 
@@ -53,7 +52,6 @@ namespace Xunit.v3
 		}
 
 		public override async ValueTask<RunSummary> RunAsync(
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
@@ -68,7 +66,7 @@ namespace Xunit.v3
 				CultureInfo.CurrentCulture = cultureInfo;
 				CultureInfo.CurrentUICulture = cultureInfo;
 
-				return await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator, cancellationTokenSource);
+				return await base.RunAsync(messageBus, constructorArguments, aggregator, cancellationTokenSource);
 			}
 			finally
 			{

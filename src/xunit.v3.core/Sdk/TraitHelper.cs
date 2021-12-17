@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Sdk
 {
@@ -21,7 +20,6 @@ namespace Xunit.Sdk
 		{
 			Guard.ArgumentNotNull(member);
 
-			var messageSink = _NullMessageSink.Instance;
 			var result = new List<KeyValuePair<string, string>>();
 
 			foreach (var traitAttributeData in member.CustomAttributes)
@@ -34,7 +32,7 @@ namespace Xunit.Sdk
 				if (discovererAttributeData == null)
 					continue;
 
-				var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(messageSink, Reflector.Wrap(discovererAttributeData));
+				var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(Reflector.Wrap(discovererAttributeData));
 				if (discoverer == null)
 					continue;
 

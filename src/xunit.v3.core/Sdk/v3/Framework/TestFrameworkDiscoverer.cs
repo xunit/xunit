@@ -17,8 +17,9 @@ namespace Xunit.v3
 		where TTestCase : _ITestCase
 	{
 		_IAssemblyInfo assemblyInfo;
-		_IMessageSink diagnosticMessageSink;
+		readonly _IMessageSink? diagnosticMessageSink;
 		bool disposed;
+		readonly _IMessageSink? internalDiagnosticMessageSink;
 		readonly Lazy<string> targetFramework;
 
 		/// <summary>
@@ -26,12 +27,15 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		protected TestFrameworkDiscoverer(
 			_IAssemblyInfo assemblyInfo,
-			_IMessageSink diagnosticMessageSink)
+			_IMessageSink? diagnosticMessageSink,
+			_IMessageSink? internalDiagnosticMessageSink)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(assemblyInfo);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
+			this.diagnosticMessageSink = diagnosticMessageSink;
+			this.internalDiagnosticMessageSink = internalDiagnosticMessageSink;
 
 			targetFramework = new Lazy<string>(() => AssemblyInfo.GetTargetFramework());
 		}
@@ -46,23 +50,14 @@ namespace Xunit.v3
 		}
 
 		/// <summary>
-		/// Gets the message sink used to report diagnostic messages.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink
-		{
-			get => diagnosticMessageSink;
-			set => diagnosticMessageSink = Guard.ArgumentNotNull(value, nameof(DiagnosticMessageSink));
-		}
-
-		/// <summary>
 		/// Gets the disposal tracker for the test framework discoverer.
 		/// </summary>
 		protected DisposalTracker DisposalTracker { get; } = new();
 
 		/// <summary>
-		/// Gets the unique ID for the test assembly under test.
+		/// Gets the test assembly.
 		/// </summary>
-		public abstract string TestAssemblyUniqueID { get; }
+		public abstract _ITestAssembly TestAssembly { get; }
 
 		/// <inheritdoc/>
 		public string TargetFramework => targetFramework.Value;
@@ -75,7 +70,7 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="class">The CLR type.</param>
 		/// <returns>The test class.</returns>
-		protected internal abstract ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class);
+		protected abstract ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class);
 
 		/// <inheritdoc/>
 		public virtual ValueTask DisposeAsync()
@@ -92,7 +87,8 @@ namespace Xunit.v3
 		public ValueTask Find(
 			Func<_ITestCase, ValueTask<bool>> callback,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			Type[]? types = null)
+			Type[]? types = null,
+			CancellationToken? cancellationToken = null)
 		{
 			Guard.ArgumentNotNull(callback);
 			Guard.ArgumentNotNull(discoveryOptions);
@@ -101,6 +97,8 @@ namespace Xunit.v3
 
 			ThreadPool.QueueUserWorkItem(async _ =>
 			{
+				TestContext.SetForTestAssembly(TestAssembly, TestEngineStatus.Discovering, cancellationToken ?? CancellationToken.None, diagnosticMessageSink, internalDiagnosticMessageSink);
+
 				using (new PreserveWorkingFolder(AssemblyInfo))
 				using (new CultureOverride(discoveryOptions.Culture()))
 				{
@@ -120,7 +118,7 @@ namespace Xunit.v3
 						}
 						catch (Exception ex)
 						{
-							DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception during discovery:{Environment.NewLine}{ex}" });
+							TestContext.Current?.SendDiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex);
 						}
 					}
 				}

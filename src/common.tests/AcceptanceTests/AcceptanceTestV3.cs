@@ -14,12 +14,16 @@ public class AcceptanceTestV3
 	public Task<List<_MessageSinkMessage>> RunAsync(
 		Type type,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
-			RunAsync(new[] { type }, preEnumerateTheories, additionalAssemblyAttributes);
+			RunAsync(new[] { type }, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 
 	public Task<List<_MessageSinkMessage>> RunAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 	{
 		var tcs = new TaskCompletionSource<List<_MessageSinkMessage>>();
@@ -28,8 +32,7 @@ public class AcceptanceTestV3
 		{
 			try
 			{
-				var diagnosticMessageSink = _NullMessageSink.Instance;
-				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
+				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, internalDiagnosticMessageSink, configFileName: null);
 
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!, additionalAssemblyAttributes);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
@@ -54,35 +57,43 @@ public class AcceptanceTestV3
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(
 		Type type,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
+		var results = await RunAsync(type, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(types, preEnumerateTheories, additionalAssemblyAttributes);
+		var results = await RunAsync(types, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type type,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
-			RunForResultsAsync(new[] { type }, preEnumerateTheories, additionalAssemblyAttributes);
+			RunForResultsAsync(new[] { type }, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 
 	public async Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 	{
-		var results = await RunAsync(types, preEnumerateTheories, additionalAssemblyAttributes);
+		var results = await RunAsync(types, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return
 			results
 				.OfType<_TestResultMessage>()
@@ -94,20 +105,24 @@ public class AcceptanceTestV3
 	public async Task<List<TResult>> RunForResultsAsync<TResult>(
 		Type type,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TResult : ITestResultWithDisplayName
 	{
-		var results = await RunForResultsAsync(type, preEnumerateTheories, additionalAssemblyAttributes);
+		var results = await RunForResultsAsync(type, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TResult>().ToList();
 	}
 
 	public async Task<List<TResult>> RunForResultsAsync<TResult>(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		_IMessageSink? diagnosticMessageSink = null,
+		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TResult : ITestResultWithDisplayName
 	{
-		var results = await RunForResultsAsync(types, preEnumerateTheories, additionalAssemblyAttributes);
+		var results = await RunForResultsAsync(types, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TResult>().ToList();
 	}
 

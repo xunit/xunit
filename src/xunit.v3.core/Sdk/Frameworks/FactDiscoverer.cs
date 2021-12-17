@@ -13,20 +13,6 @@ namespace Xunit.Sdk
 	public class FactDiscoverer : IXunitTestCaseDiscoverer
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="FactDiscoverer"/> class.
-		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		public FactDiscoverer(_IMessageSink diagnosticMessageSink)
-		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
-		}
-
-		/// <summary>
-		/// Gets the message sink used to report <see cref="_DiagnosticMessage"/> messages.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink { get; }
-
-		/// <summary>
 		/// Creates a single <see cref="XunitTestCase"/> for the given test method.
 		/// </summary>
 		/// <param name="discoveryOptions">The discovery options to be used.</param>
@@ -42,7 +28,6 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull(factAttribute);
 
 			return new XunitTestCase(
-				DiagnosticMessageSink,
 				discoveryOptions.MethodDisplayOrDefault(),
 				discoveryOptions.MethodDisplayOptionsOrDefault(),
 				testMethod
@@ -84,7 +69,6 @@ namespace Xunit.Sdk
 			_ITestMethod testMethod,
 			string message) =>
 				new(
-					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
 					discoveryOptions.MethodDisplayOptionsOrDefault(),
 					testMethod,

@@ -210,7 +210,7 @@ public class ConsoleRunner
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
 			await using var disposalTracker = new DisposalTracker();
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(nullMessageSink, assemblyInfo);
+			var testFramework = ExtensibilityPointFactory.GetTestFramework(nullMessageSink, null, assemblyInfo);
 			disposalTracker.Add(testFramework);
 
 			// Discover & filter the tests
@@ -295,7 +295,7 @@ public class ConsoleRunner
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
 			await using var disposalTracker = new DisposalTracker();
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, assemblyInfo);
+			var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, internalDiagnosticsMessageSink, assemblyInfo);
 			disposalTracker.Add(testFramework);
 
 			// Discover & filter the tests
@@ -326,7 +326,7 @@ public class ConsoleRunner
 
 			// Run the filtered tests
 			if (testCasesToRun == 0)
-				testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, new ExecutionSummary());
+				testExecutionSummaries.Add(testDiscoverer.TestAssembly.UniqueID, new ExecutionSummary());
 			else
 			{
 				var executionStarting = new TestAssemblyExecutionStarting
@@ -350,7 +350,7 @@ public class ConsoleRunner
 
 					await executor.RunTestCases(filteredTestCases, resultsSink, executionOptions);
 
-					testExecutionSummaries.Add(testDiscoverer.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
+					testExecutionSummaries.Add(testDiscoverer.TestAssembly.UniqueID, resultsSink.ExecutionSummary);
 
 					var executionFinished = new TestAssemblyExecutionFinished
 					{

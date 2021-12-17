@@ -11,7 +11,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFactory
 	{
-		readonly Dictionary<string, _ITypeInfo> collectionDefinitions;
+		Dictionary<string, _ITypeInfo>? collectionDefinitions;
 		readonly _ITestAssembly testAssembly;
 		readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new();
 
@@ -19,16 +19,9 @@ namespace Xunit.v3
 		/// Initializes a new instance of the <see cref="CollectionPerClassTestCollectionFactory" /> class.
 		/// </summary>
 		/// <param name="testAssembly">The assembly info.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		public CollectionPerClassTestCollectionFactory(
-			_ITestAssembly testAssembly,
-			_IMessageSink diagnosticMessageSink)
+		public CollectionPerClassTestCollectionFactory(_ITestAssembly testAssembly)
 		{
-			Guard.ArgumentNotNull(diagnosticMessageSink);
-
 			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
-
-			collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, diagnosticMessageSink);
 		}
 
 		/// <inheritdoc/>
@@ -36,6 +29,9 @@ namespace Xunit.v3
 
 		_ITestCollection CreateCollection(string name)
 		{
+			if (collectionDefinitions == null)
+				collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
+
 			collectionDefinitions.TryGetValue(name, out var definitionType);
 			return new TestCollection(testAssembly, definitionType, name);
 		}

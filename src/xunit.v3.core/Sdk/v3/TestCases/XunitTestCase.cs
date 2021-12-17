@@ -29,9 +29,6 @@ namespace Xunit.v3
 			StreamingContext context) :
 				base(info, context)
 		{
-			// No way for us to get access to the message sink on the execution deserialization path, but that should
-			// be okay, because we assume all the issues were reported during discovery.
-			DiagnosticMessageSink = _NullMessageSink.Instance;
 			Timeout = info.GetValue<int>("Timeout");
 		}
 
@@ -43,7 +40,6 @@ namespace Xunit.v3
 		/// (and not any derived attribute). Developers creating custom attributes derived from <see cref="FactAttribute"/>
 		/// should create their own test case class (derived from this) and use the protected constructor instead.
 		/// </remarks>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method this test case belongs to.</param>
@@ -52,7 +48,6 @@ namespace Xunit.v3
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 		/// <param name="displayName">The optional display name for the test</param>
 		public XunitTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
@@ -60,13 +55,12 @@ namespace Xunit.v3
 			int? timeout = null,
 			string? uniqueID = null,
 			string? displayName = null)
-				: this(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, null, timeout, uniqueID, displayName)
+				: this(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, null, timeout, uniqueID, displayName)
 		{ }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method this test case belongs to.</param>
@@ -77,7 +71,6 @@ namespace Xunit.v3
 		/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 		/// <param name="displayName">The optional display name for the test</param>
 		protected XunitTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
@@ -89,8 +82,6 @@ namespace Xunit.v3
 			string? displayName)
 				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID, displayName)
 		{
-			DiagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
-
 			var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
 			var baseDisplayName = displayName ?? factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
@@ -103,20 +94,15 @@ namespace Xunit.v3
 				var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
 				if (discovererAttribute != null)
 				{
-					var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
+					var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
 					if (discoverer != null)
 						foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
 							Traits.Add(keyValuePair.Key, keyValuePair.Value);
 				}
 				else
-					DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Trait attribute on '{TestCaseDisplayName}' did not have [TraitDiscoverer]" });
+					TestContext.Current?.SendDiagnosticMessage("Trait attribute on '{0}' did not have [TraitDiscoverer]", TestCaseDisplayName);
 			}
 		}
-
-		/// <summary>
-		/// Gets the message sink used to report <see cref="_DiagnosticMessage"/> messages.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink { get; }
 
 		/// <inheritdoc/>
 		public int Timeout { get; protected set; }
@@ -148,13 +134,11 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public virtual ValueTask<RunSummary> RunAsync(
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource)
 		{
-			Guard.ArgumentNotNull(diagnosticMessageSink);
 			Guard.ArgumentNotNull(messageBus);
 			Guard.ArgumentNotNull(constructorArguments);
 			Guard.ArgumentNotNull(cancellationTokenSource);

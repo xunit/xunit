@@ -28,18 +28,16 @@ namespace Xunit.v3
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ExecutionErrorTestCase"/> class.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
 		/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 		/// <param name="testMethod">The test method.</param>
 		/// <param name="errorMessage">The error message to report for the test.</param>
 		public ExecutionErrorTestCase(
-			_IMessageSink diagnosticMessageSink,
 			TestMethodDisplay defaultMethodDisplay,
 			TestMethodDisplayOptions defaultMethodDisplayOptions,
 			_ITestMethod testMethod,
 			string errorMessage)
-				: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 		{
 			this.errorMessage = Guard.ArgumentNotNull(errorMessage);
 		}
@@ -65,7 +63,6 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		public override ValueTask<RunSummary> RunAsync(
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,

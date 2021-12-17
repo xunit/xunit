@@ -13,17 +13,6 @@ namespace Xunit.v3
 	/// </summary>
 	public class DefaultTestCaseOrderer : ITestCaseOrderer
 	{
-		readonly _IMessageSink diagnosticMessageSink;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DefaultTestCaseOrderer"/> class.
-		/// </summary>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		public DefaultTestCaseOrderer(_IMessageSink diagnosticMessageSink)
-		{
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
-		}
-
 		/// <inheritdoc/>
 		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 			where TTestCase : notnull, _ITestCase
@@ -36,7 +25,7 @@ namespace Xunit.v3
 			}
 			catch (Exception ex)
 			{
-				diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{Environment.NewLine}{ex}" });
+				TestContext.Current?.SendDiagnosticMessage("Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{0}{1}", Environment.NewLine, ex);
 				result = Randomize(result);
 			}
 

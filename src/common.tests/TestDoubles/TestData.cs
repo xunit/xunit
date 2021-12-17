@@ -652,14 +652,11 @@ namespace Xunit.v3
 			string? skipReason = null,
 			Dictionary<string, List<string>>? traits = null,
 			int? timeout = null,
-			string? uniqueID = null,
-			_IMessageSink? diagnosticMessageSink = null)
+			string? uniqueID = null)
 		{
-			diagnosticMessageSink ??= _NullMessageSink.Instance;
-
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-			return new XunitDelayEnumeratedTheoryTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, skipReason, traits, timeout, uniqueID);
+			return new XunitDelayEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, skipReason, traits, timeout, uniqueID);
 		}
 
 		public static XunitPreEnumeratedTheoryTestCase XunitPreEnumeratedTheoryTestCase<TClassUnderTest>(
@@ -671,14 +668,11 @@ namespace Xunit.v3
 			string? skipReason = null,
 			Dictionary<string, List<string>>? traits = null,
 			int? timeout = null,
-			string? uniqueID = null,
-			_IMessageSink? diagnosticMessageSink = null)
+			string? uniqueID = null)
 		{
-			diagnosticMessageSink ??= _NullMessageSink.Instance;
-
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-			return new XunitPreEnumeratedTheoryTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, methodArguments, skipReason, traits, timeout, uniqueID);
+			return new XunitPreEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, methodArguments, skipReason, traits, timeout, uniqueID);
 		}
 
 		public static XunitTestCase XunitTestCase<TClassUnderTest>(
@@ -688,14 +682,11 @@ namespace Xunit.v3
 			TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 			string? skipReason = null,
 			int? timeout = null,
-			string? uniqueID = null,
-			_IMessageSink? diagnosticMessageSink = null)
+			string? uniqueID = null)
 		{
-			diagnosticMessageSink ??= _NullMessageSink.Instance;
-
 			var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-			return new XunitTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, method, skipReason, timeout, uniqueID);
+			return new XunitTestCase(methodDisplay, methodDisplayOptions, method, skipReason, timeout, uniqueID);
 		}
 	}
 }

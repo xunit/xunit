@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -277,6 +276,8 @@ public class TestClassRunnerTests
 		[Fact]
 		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var other1 = Mocks.TestCase<ClassUnderTest>("Other");
@@ -304,7 +305,7 @@ public class TestClassRunnerTests
 					);
 				}
 			);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -395,7 +396,6 @@ public class TestClassRunnerTests
 		public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
 		public bool BeforeTestClassFinished_Called;
 		public TestContext? BeforeTestClassFinished_Context;
-		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestMethodAsync_AggregatorResult;
 		public TestContext? RunTestMethodAsync_Context;
 		public readonly CancellationTokenSource TokenSource;
@@ -404,7 +404,6 @@ public class TestClassRunnerTests
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<_ITestCase> testCases,
-			List<_MessageSinkMessage> diagnosticMessages,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -413,9 +412,8 @@ public class TestClassRunnerTests
 			object[] availableArguments,
 			RunSummary result,
 			bool cancelInRunTestMethodAsync)
-				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
-			DiagnosticMessages = diagnosticMessages;
 			TokenSource = cancellationTokenSource;
 
 			this.constructor = constructor;
@@ -451,7 +449,6 @@ public class TestClassRunnerTests
 				firstTest.TestMethod?.TestClass,
 				(_IReflectionTypeInfo?)firstTest.TestMethod?.TestClass.Class,
 				testCases,
-				new List<_MessageSinkMessage>(),
 				messageBus ?? new SpyMessageBus(),
 				orderer ?? new MockTestCaseOrderer(),
 				aggregator,
@@ -503,13 +500,21 @@ public class TestClassRunnerTests
 			ConstructorInfo constructor,
 			int index,
 			ParameterInfo parameter,
-			[MaybeNullWhen(false)] out object argumentValue)
+			out object argumentValue)
 		{
-			argumentValue = availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType()));
-			if (argumentValue != null)
-				return true;
+			var resultValue = availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType()));
+			if (resultValue == null)
+			{
+				var result = base.TryGetConstructorArgument(constructor, index, parameter, out resultValue);
+				if (result == false || resultValue == null)
+				{
+					argumentValue = null!;
+					return false;
+				}
+			}
 
-			return base.TryGetConstructorArgument(constructor, index, parameter, out argumentValue);
+			argumentValue = resultValue;
+			return true;
 		}
 	}
 }

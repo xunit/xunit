@@ -9,9 +9,6 @@ namespace Xunit
 {
 	public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 	{
-		public CulturedTheoryAttributeDiscoverer(_IMessageSink diagnosticMessageSink)
-			: base(diagnosticMessageSink) { }
-
 		protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			_ITestMethod testMethod,
@@ -23,7 +20,6 @@ namespace Xunit
 			var cultures = GetCultures(theoryAttribute);
 			var result = cultures.Select(
 				culture => new CulturedXunitTestCase(
-					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
 					discoveryOptions.MethodDisplayOptionsOrDefault(),
 					testMethod,
@@ -44,7 +40,6 @@ namespace Xunit
 			var cultures = GetCultures(theoryAttribute);
 			var result = cultures.Select(
 				culture => new CulturedXunitTheoryTestCase(
-					DiagnosticMessageSink,
 					discoveryOptions.MethodDisplayOrDefault(),
 					discoveryOptions.MethodDisplayOptionsOrDefault(),
 					testMethod,

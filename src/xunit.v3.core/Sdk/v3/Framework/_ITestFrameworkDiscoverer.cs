@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -17,9 +18,9 @@ namespace Xunit.v3
 		string TargetFramework { get; }
 
 		/// <summary>
-		/// Gets the unique ID for the test assembly provided to the discoverer.
+		/// Gets the test assembly provided to the discoverer.
 		/// </summary>
-		string TestAssemblyUniqueID { get; }
+		_ITestAssembly TestAssembly { get; }
 
 		/// <summary>
 		/// Returns the display name of the test framework that this discoverer is running tests for.
@@ -35,10 +36,13 @@ namespace Xunit.v3
 		/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
 		/// from one of the provided types; when passed a <c>null</c> collection, discovers all
 		/// tests in the assembly.</param>
+		/// <param name="cancellationToken">The cancellation token which can be used to cancel the test
+		/// discovery process.</param>
 		ValueTask Find(
 			Func<_ITestCase, ValueTask<bool>> callback,
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			Type[]? types = null
+			Type[]? types = null,
+			CancellationToken? cancellationToken = null
 		);
 	}
 }

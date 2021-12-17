@@ -121,15 +121,15 @@ public class XunitTestCaseTests
 		[Fact]
 		public static void CustomTraitWithoutDiscoverer()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var trait = Mocks.TraitAttribute<BadTraitAttribute>();
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait });
-			var messages = new List<_MessageSinkMessage>();
-			var spy = SpyMessageSink.Create(messages: messages);
 
-			var testCase = new TestableXunitTestCase(testMethod, diagnosticMessageSink: spy);
+			var testCase = new TestableXunitTestCase(testMethod);
 
 			Assert.Empty(testCase.Traits);
-			var diagnosticMessages = messages.OfType<_DiagnosticMessage>();
+			var diagnosticMessages = spy.Messages.OfType<_DiagnosticMessage>();
 			var diagnosticMessage = Assert.Single(diagnosticMessages);
 			Assert.Equal($"Trait attribute on '{testCase.TestCaseDisplayName}' did not have [TraitDiscoverer]", diagnosticMessage.Message);
 		}
@@ -294,20 +294,8 @@ public class XunitTestCaseTests
 
 		public TestableXunitTestCase(
 			_ITestMethod testMethod,
-			object?[]? testMethodArguments = null,
-			_IMessageSink? diagnosticMessageSink = null) :
-				base(
-					diagnosticMessageSink ?? SpyMessageSink.Create(),
-					TestMethodDisplay.ClassAndMethod,
-					TestMethodDisplayOptions.None,
-					testMethod,
-					testMethodArguments,
-					null,
-					null,
-					null,
-					null,
-					null
-				)
+			object?[]? testMethodArguments = null) :
+				base(TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, testMethodArguments, null, null, null, null, null)
 		{ }
 	}
 }

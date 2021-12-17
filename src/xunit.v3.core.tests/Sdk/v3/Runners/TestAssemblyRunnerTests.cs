@@ -383,7 +383,7 @@ public class TestAssemblyRunnerTests
 			RunSummary result,
 			bool cancelInRunTestCollectionAsync,
 			ITestCollectionOrderer? testCollectionOrderer)
-				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
+				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), null, executionMessageSink, executionOptions)
 		{
 			DiagnosticMessages = diagnosticMessages;
 

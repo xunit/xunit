@@ -21,5 +21,10 @@
 		/// The test engine has run the given stage of the pipeline, and is currently doing clean up (f.e., Dispose).
 		/// </summary>
 		CleaningUp,
+
+		/// <summary>
+		/// The test engine is in the process of discovering tests.
+		/// </summary>
+		Discovering,
 	}
 }

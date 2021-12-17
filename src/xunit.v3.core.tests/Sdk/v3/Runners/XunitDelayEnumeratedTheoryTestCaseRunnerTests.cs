@@ -226,9 +226,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		TestableXunitDelayEnumeratedTheoryTestCaseRunner(
 			IXunitTestCase testCase,
 			string displayName,
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus) :
-				base(testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
+				base(testCase, displayName, null, new object[0], messageBus, new ExceptionAggregator(), new CancellationTokenSource())
 		{ }
 
 		public static TestableXunitDelayEnumeratedTheoryTestCaseRunner Create<TClassUnderTest>(
@@ -238,7 +237,6 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 				new(
 					TestData.XunitTestCase<TClassUnderTest>(methodName),
 					displayName,
-					SpyMessageSink.Create(),
 					messageBus
 				);
 	}

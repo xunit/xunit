@@ -20,7 +20,6 @@ namespace Xunit.v3
 		where TTestCase : class, _ITestCase
 	{
 		CancellationTokenSource cancellationTokenSource;
-		_IMessageSink diagnosticMessageSink;
 		IMessageBus messageBus;
 		ITestCaseOrderer testCaseOrderer;
 		IReadOnlyCollection<TTestCase> testCases;
@@ -33,7 +32,6 @@ namespace Xunit.v3
 		/// <param name="class">The test class that contains the tests to be run. May be <c>null</c> for test cases that do not
 		/// support classes and methods.</param>
 		/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="messageBus">The message bus to report run status to.</param>
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
@@ -42,7 +40,6 @@ namespace Xunit.v3
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<TTestCase> testCases,
-			_IMessageSink diagnosticMessageSink,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
@@ -53,7 +50,6 @@ namespace Xunit.v3
 			Aggregator = aggregator;
 
 			this.testCases = Guard.ArgumentNotNullOrEmpty(testCases);
-			this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 			this.messageBus = Guard.ArgumentNotNull(messageBus);
 			this.testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
 			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
@@ -77,15 +73,6 @@ namespace Xunit.v3
 		/// Gets or sets the CLR class that contains the tests to be run.
 		/// </summary>
 		protected _IReflectionTypeInfo? Class { get; set; }
-
-		/// <summary>
-		/// Gets the message sink used to send diagnostic messages.
-		/// </summary>
-		protected _IMessageSink DiagnosticMessageSink
-		{
-			get => diagnosticMessageSink;
-			set => diagnosticMessageSink = Guard.ArgumentNotNull(value, nameof(DiagnosticMessageSink));
-		}
 
 		/// <summary>
 		/// Gets or sets the message bus to report run status to.
@@ -273,7 +260,16 @@ namespace Xunit.v3
 			catch (Exception ex)
 			{
 				var innerEx = ex.Unwrap();
-				DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test case orderer '{TestCaseOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+
+				TestContext.Current?.SendDiagnosticMessage(
+					"Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
+					TestCaseOrderer.GetType().FullName,
+					innerEx.GetType().FullName,
+					innerEx.Message,
+					Environment.NewLine,
+					innerEx.StackTrace
+				);
+
 				orderedTestCases = TestCases.CastOrToReadOnlyCollection();
 			}
 

@@ -13,13 +13,9 @@ public class XunitTestFrameworkDiscovererTests
 	public class Construction
 	{
 		[Fact]
-		public static void GuardClauses()
+		public static void GuardClause()
 		{
-			var assembly = Substitute.For<_IAssemblyInfo>();
-			var diagnosticMessageSink = SpyMessageSink.Create();
-
-			Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(assemblyInfo: null!, configFileName: null, diagnosticMessageSink));
-			Assert.Throws<ArgumentNullException>("diagnosticMessageSink", () => new XunitTestFrameworkDiscoverer(assembly, configFileName: null, diagnosticMessageSink: null!));
+			Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(assemblyInfo: null!, configFileName: null, diagnosticMessageSink: null, internalDiagnosticMessageSink: null));
 		}
 	}
 
@@ -268,12 +264,17 @@ public class XunitTestFrameworkDiscovererTests
 		[Fact]
 		public static void InvalidCustomFactoryFallsBackToDefault()
 		{
+			var spyMessageSink = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spyMessageSink;
 			var behaviorAttribute = Mocks.CollectionBehaviorAttribute<object>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
 
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
 
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
+			var message = Assert.Single(spyMessageSink.Messages);
+			var diagMessage = Assert.IsType<_DiagnosticMessage>(message);
+			Assert.Equal("Test collection factory type 'System.Object' does not implement IXunitTestCollectionFactory", diagMessage.Message);
 		}
 	}
 
@@ -342,15 +343,17 @@ public class XunitTestFrameworkDiscovererTests
 		public List<_ITestCaseMetadata> FindTestsForType_TestCases = new();
 
 		TestableXunitTestFrameworkDiscoverer(
-			_IAssemblyInfo assembly,
+			_IAssemblyInfo assemblyInfo,
 			_IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
-				: base(assembly, configFileName: null, diagnosticMessageSink ?? _NullMessageSink.Instance, collectionFactory)
-		{ }
+				: base(assemblyInfo, configFileName: null, diagnosticMessageSink ?? _NullMessageSink.Instance, null, collectionFactory)
+		{
+			TestAssembly = Mocks.TestAssembly(assemblyInfo.AssemblyPath, uniqueID: "asm-id");
+		}
 
 		public new _IAssemblyInfo AssemblyInfo => base.AssemblyInfo;
 
-		public override sealed string TestAssemblyUniqueID => "asm-id";
+		public override _ITestAssembly TestAssembly { get; }
 
 		public new ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>
 			base.CreateTestClass(@class);

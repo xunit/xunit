@@ -79,7 +79,6 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 		var testMethod = Mocks.TestMethod();
 
 		return new(
-			diagnosticMessageSink ?? _NullMessageSink.Instance,
 			TestMethodDisplay.ClassAndMethod,
 			TestMethodDisplayOptions.None,
 			testMethod,

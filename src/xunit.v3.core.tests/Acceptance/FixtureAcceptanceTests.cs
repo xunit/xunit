@@ -906,7 +906,8 @@ public class FixtureAcceptanceTests
 		public async void ClassFixtureComposition()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ComposedAssemblyFixture));
-			var messages = await RunAsync(typeof(TestClassWithClassFixtureComposition), additionalAssemblyAttributes: assemblyAttribute);
+			var messageSink = SpyMessageSink.Capture();
+			var messages = await RunAsync(typeof(TestClassWithClassFixtureComposition), diagnosticMessageSink: messageSink, additionalAssemblyAttributes: assemblyAttribute);
 
 			Assert.Single(messages.OfType<_TestPassed>());
 		}
