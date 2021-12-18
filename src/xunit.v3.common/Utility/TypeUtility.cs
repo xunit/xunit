@@ -148,54 +148,46 @@ namespace Xunit.Sdk
 			if (argumentValue == null)
 				return null;
 
-			var argumentValueType = argumentValue.GetType();
-
-			// We don't need to check if we're passing null to a value type here, as MethodInfo.Invoke does this
-			if (argumentValueType == null)
-				return argumentValue;
-
 			// No need to perform conversion
-			if (parameterType.IsAssignableFrom(argumentValueType))
+			if (parameterType.IsAssignableFrom(argumentValue.GetType()))
 				return argumentValue;
 
-			// Implicit & explicit conversions to/from a type can be declared on either side of the relationship
-			// We need to check both possibilities.
-			return PerformDefinedConversions(argumentValue, parameterType)
-				?? PerformDefinedConversions(argumentValue, argumentValueType, parameterType)
-				?? argumentValue;
+			return PerformDefinedConversions(argumentValue, parameterType) ?? argumentValue;
 		}
 
 		static object? PerformDefinedConversions(
 			object argumentValue,
-			Type conversionDeclaringType,
-			Type? targetType = null)
+			Type parameterType)
 		{
-			targetType ??= conversionDeclaringType;
-
 			// argumentValue is known to not be null when we're called from TryConvertObject
 			var argumentValueType = argumentValue.GetType();
 
 			var methodArguments = new object[] { argumentValue };
 
-			// Check if we can implicitly convert the argument type to the parameter type
-			var implicitMethod = conversionDeclaringType.GetRuntimeMethods()
-				.Where(m => m.Name.Equals("op_Implicit") &&
-							m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
-							m.GetParameters()[0].ParameterType == argumentValueType &&
-							targetType.IsAssignableFrom(m.ReturnType))
-				.FirstOrDefault();
-			if (implicitMethod != null && implicitMethod.IsStatic && !IsByRefLikeType(implicitMethod.ReturnType))
-				return implicitMethod.Invoke(null, methodArguments);
+			// Implicit & explicit conversions to/from a type can be declared on either side of the relationship
+			// We need to check both possibilities.
+			foreach (var conversionDeclaringType in new[] { parameterType, argumentValueType })
+			{
+				// Check if we can implicitly convert the argument type to the parameter type
+				var implicitMethod = conversionDeclaringType.GetRuntimeMethods()
+					.Where(m => m.Name.Equals("op_Implicit") &&
+								m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
+								m.GetParameters()[0].ParameterType == argumentValueType &&
+								parameterType.IsAssignableFrom(m.ReturnType))
+					.FirstOrDefault();
+				if (implicitMethod != null && implicitMethod.IsStatic && !IsByRefLikeType(implicitMethod.ReturnType))
+					return implicitMethod.Invoke(null, methodArguments);
 
-			// Check if we can explicitly convert the argument type to the parameter type
-			var explicitMethod = conversionDeclaringType.GetRuntimeMethods()
-				.Where(m => m.Name.Equals("op_Explicit") &&
-							m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
-							m.GetParameters()[0].ParameterType == argumentValueType &&
-							targetType.IsAssignableFrom(m.ReturnType))
-				.FirstOrDefault();
-			if (explicitMethod != null && explicitMethod.IsStatic && !IsByRefLikeType(explicitMethod.ReturnType))
-				return explicitMethod.Invoke(null, methodArguments);
+				// Check if we can explicitly convert the argument type to the parameter type
+				var explicitMethod = conversionDeclaringType.GetRuntimeMethods()
+					.Where(m => m.Name.Equals("op_Explicit") &&
+								m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
+								m.GetParameters()[0].ParameterType == argumentValueType &&
+								parameterType.IsAssignableFrom(m.ReturnType))
+					.FirstOrDefault();
+				if (explicitMethod != null && explicitMethod.IsStatic && !IsByRefLikeType(explicitMethod.ReturnType))
+					return explicitMethod.Invoke(null, methodArguments);
+			}
 
 			return null;
 		}
