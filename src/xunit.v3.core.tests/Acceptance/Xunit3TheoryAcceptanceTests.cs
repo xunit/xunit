@@ -265,9 +265,13 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Collection(
 				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversionToInt(value: 43)", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversionToLong(value: 43)", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredImplicitConversion(value: ""abc"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", displayName),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversion(e: Explicit { Value = ""abc"" })", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversion(e: Explicit { LongValue = 0, Value = ""abc"" })", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversionToLong(e: Explicit { LongValue = 32, Value = null })", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversionToLong(e: Explicit { LongValue = 32, Value = null })", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", displayName)
 			);
@@ -285,6 +289,14 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.Equal("abc", e.Value);
 			}
 
+			[Theory]
+			[InlineData(32)]
+			[InlineData(32L)]
+			public void ParameterDeclaredExplicitConversionToLong(Explicit e)
+			{
+				Assert.Equal(32, e.LongValue);
+			}
+
 			// Implicit conversion defined on the parameter's type
 			[Theory]
 			[InlineData("abc")]
@@ -296,12 +308,29 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<object?[]> ExplicitArgument =
 				new[] { new[] { new Explicit { Value = "abc" } } };
 
+			public static IEnumerable<object?[]> ExplicitLongArgument =
+				new[] { new[] { new Explicit { LongValue = 43 } } };
+
 			// Explicit conversion defined on the argument's type
 			[Theory]
 			[MemberData(nameof(ExplicitArgument))]
 			public void ArgumentDeclaredExplicitConversion(string value)
 			{
 				Assert.Equal("abc", value);
+			}
+
+			[Theory]
+			[MemberData(nameof(ExplicitLongArgument))]
+			public void ArgumentDeclaredExplicitConversionToInt(int value)
+			{
+				Assert.Equal(43, value);
+			}
+
+			[Theory]
+			[MemberData(nameof(ExplicitLongArgument))]
+			public void ArgumentDeclaredExplicitConversionToLong(long value)
+			{
+				Assert.Equal(43L, value);
 			}
 
 			public static IEnumerable<object?[]> ImplicitArgument =
@@ -333,14 +362,41 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				public string? Value { get; set; }
 
+				public long LongValue { get; set; }
+
 				public static explicit operator Explicit(string value)
 				{
 					return new Explicit() { Value = value };
 				}
 
+				public static explicit operator Explicit(int value)
+				{
+					return new Explicit() { LongValue = value };
+				}
+
+				public static explicit operator Explicit(long value)
+				{
+					return new Explicit() { LongValue = value };
+				}
+
 				public static explicit operator string?(Explicit e)
 				{
 					return e.Value;
+				}
+
+				public static explicit operator short(Explicit e)
+				{
+					return (short)e.LongValue;
+				}
+
+				public static explicit operator int(Explicit e)
+				{
+					return (int)e.LongValue;
+				}
+
+				public static explicit operator long(Explicit e)
+				{
+					return e.LongValue;
 				}
 			}
 
@@ -353,9 +409,19 @@ public class Xunit3TheoryAcceptanceTests
 					return new Implicit() { Value = value };
 				}
 
+				public static implicit operator Implicit(char value)
+				{
+					return new Implicit() { Value = value.ToString() };
+				}
+
 				public static implicit operator string?(Implicit i)
 				{
 					return i.Value;
+				}
+
+				public static implicit operator char(Implicit i)
+				{
+					return string.IsNullOrEmpty(i.Value) ? '!' : i.Value[0];
 				}
 			}
 		}
