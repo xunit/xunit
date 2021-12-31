@@ -17,10 +17,8 @@ namespace Xunit.v3
 	{
 		Dictionary<Type, object> assemblyFixtureMappings = new();
 		_IAttributeInfo? collectionBehaviorAttribute;
-		readonly _IMessageSink? diagnosticMessageSink;
 		bool disableParallelization;
 		bool initialized;
-		readonly _IMessageSink? internalDiagnosticMessageSink;
 		int maxParallelThreads;
 		SynchronizationContext? originalSyncContext;
 		MaxConcurrencySyncContext? syncContext;
@@ -32,22 +30,15 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testAssembly">The assembly that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		public XunitTestAssemblyRunner(
 			_ITestAssembly testAssembly,
 			IReadOnlyCollection<IXunitTestCase> testCases,
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
-				: base(testAssembly, testCases, diagnosticMessageSink, internalDiagnosticMessageSink, executionMessageSink, executionOptions)
-		{
-			this.diagnosticMessageSink = diagnosticMessageSink;
-			this.internalDiagnosticMessageSink = internalDiagnosticMessageSink;
-		}
+				: base(testAssembly, testCases, executionMessageSink, executionOptions)
+		{ }
 
 		/// <summary>
 		/// Gets the fixture mappings that were created during <see cref="AfterTestAssemblyStartingAsync"/>.
@@ -264,8 +255,7 @@ namespace Xunit.v3
 					{
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
 
-						if (diagnosticMessageSink != null)
-							diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test case orderer" });
+						TestContext.Current?.SendDiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test case orderer", type, assembly);
 					}
 				}
 				catch (Exception ex)
@@ -273,8 +263,14 @@ namespace Xunit.v3
 					var innerEx = ex.Unwrap();
 					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
 
-					if (diagnosticMessageSink != null)
-						diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test case orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+					TestContext.Current?.SendDiagnosticMessage(
+						"Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
+						type,
+						innerEx.GetType().FullName,
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
 				}
 			}
 
@@ -288,8 +284,7 @@ namespace Xunit.v3
 					{
 						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
 
-						if (diagnosticMessageSink != null)
-							diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Could not find type '{type}' in {assembly} for assembly-level test collection orderer" });
+						TestContext.Current?.SendDiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test collection orderer", type, assembly);
 					}
 				}
 				catch (Exception ex)
@@ -297,8 +292,14 @@ namespace Xunit.v3
 					var innerEx = ex.Unwrap();
 					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
 
-					if (diagnosticMessageSink != null)
-						diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Assembly-level test collection orderer '{type}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}" });
+					TestContext.Current?.SendDiagnosticMessage(
+						"Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
+						type,
+						innerEx.GetType().FullName,
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
 				}
 			}
 

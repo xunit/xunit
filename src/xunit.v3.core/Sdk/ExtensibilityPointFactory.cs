@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -13,61 +12,43 @@ namespace Xunit.Sdk
 	{
 		static object? CreateInstance(
 			Type type,
-			object?[]? ctorArgs,
-			_IMessageSink? diagnosticMessageSink = null)
+			object?[]? ctorArgs)
 		{
 			ctorArgs ??= new object[0];
-			object? result = null;
 
 			try
 			{
-				// TODO: For legacy reasons, we support constructors that accept diagnostic message sink as a first parameter.
-				var ctorArgsWithMessageSink = ctorArgs.Concat(new object[] { diagnosticMessageSink ?? TestContext.Current?.DiagnosticMessageSink ?? _NullMessageSink.Instance }).ToArray();
-				result = Activator.CreateInstance(type, ctorArgsWithMessageSink);
+				return Activator.CreateInstance(type, ctorArgs);
 			}
 			catch (MissingMemberException)
 			{
-				try
-				{
-					result = Activator.CreateInstance(type, ctorArgs);
-				}
-				catch (MissingMemberException)
-				{
-					TestContext.Current?.SendDiagnosticMessage(
-						"Could not find constructor for '{0}' with arguments type(s): {1}",
-						type.FullName,
-						string.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))
-					);
-					throw;
-				}
-			}
+				TestContext.Current?.SendDiagnosticMessage(
+					"Could not find constructor for '{0}' with arguments type(s): {1}",
+					type.FullName,
+					string.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))
+				);
 
-			return result;
+				throw;
+			}
 		}
 
 		/// <summary>
 		/// Gets an instance of the given type, casting it to <typeparamref name="TInterface"/>, using the provided
-		/// constructor arguments. Support for legacy constructors which have a first parameter of type <see cref="_IMessageSink"/>
-		/// are still supported, though it's strongly encouraged that classes use <see cref="TestContext.SendDiagnosticMessage(string)"/>
-		/// or <see cref="TestContext.SendDiagnosticMessage(string, object?[])"/> instead.
+		/// constructor arguments.
 		/// </summary>
 		/// <typeparam name="TInterface">The interface type.</typeparam>
 		/// <param name="type">The implementation type.</param>
 		/// <param name="ctorArgs">The constructor arguments. Since diagnostic message sinks are optional,
 		/// the code first looks for a type that takes the given arguments plus the message sink, and only
 		/// falls back to the message sink-less constructor if none was found.</param>
-		/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.
-		/// If one isn't provided, but the constructor requires one, then a null message sink will be provided.</param>
 		/// <returns>The instance of the type.</returns>
 		public static TInterface? Get<TInterface>(
 			Type type,
-			object?[]? ctorArgs = null,
-			_IMessageSink? diagnosticMessageSink = null)
-				where TInterface : class
+			object?[]? ctorArgs = null)
 		{
 			Guard.ArgumentNotNull(type);
 
-			return (TInterface?)CreateInstance(type, ctorArgs, diagnosticMessageSink);
+			return (TInterface?)CreateInstance(type, ctorArgs);
 		}
 
 		/// <summary>
@@ -140,71 +121,39 @@ namespace Xunit.Sdk
 		}
 
 		/// <summary>
-		/// Gets the test framework object for the given test assembly.
+		/// Gets the test framework object for the given test assembly. It is important that callers to this function have
+		/// called <see cref="TestContext.SetForInitialization"/> before calling this, so that the test framework and
+		/// any ancillary helper classes have access to the diagnostic and internal diagnostic message sinks.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="testAssembly">The test assembly to get the test framework for</param>
 		/// <returns>The test framework object</returns>
-		public static _ITestFramework GetTestFramework(
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink,
-			_IAssemblyInfo testAssembly)
+		public static _ITestFramework GetTestFramework(_IAssemblyInfo testAssembly)
 		{
 			_ITestFramework result;
 
-			var testFrameworkType = GetTestFrameworkType(diagnosticMessageSink, testAssembly);
+			var testFrameworkType = GetTestFrameworkType(testAssembly);
 			if (!typeof(_ITestFramework).IsAssignableFrom(testFrameworkType))
 			{
-				if (diagnosticMessageSink != null)
-					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Test framework type '{testFrameworkType.FullName}' does not implement '{typeof(_ITestFramework).FullName}'; falling back to '{typeof(XunitTestFramework).FullName}'" });
+				TestContext.Current?.SendDiagnosticMessage("Test framework type '{0}' does not implement '{1}'; falling back to '{2}'", testFrameworkType.FullName, typeof(_ITestFramework).FullName, typeof(XunitTestFramework).FullName);
 
 				testFrameworkType = typeof(XunitTestFramework);
 			}
 
 			try
 			{
-				var ctorWithSink = default(ConstructorInfo);
-				var ctorWithSinks = default(ConstructorInfo);
-				var messageSinkType = typeof(_IMessageSink);
-
-				foreach (var ctor in testFrameworkType.GetConstructors())
-				{
-					var paramInfos = ctor.GetParameters();
-
-					// Legacy style, with just diagnostic message sink
-					if (paramInfos.Length == 1 && paramInfos[0].ParameterType == messageSinkType)
-						ctorWithSink = ctor;
-
-					// v3 style, with both diagnostic message sink and internal diagnostic message sink
-					if (paramInfos.Length == 2 && paramInfos[0].ParameterType == messageSinkType && paramInfos[1].ParameterType == messageSinkType)
-						ctorWithSinks = ctor;
-
-					if (ctorWithSink != null && ctorWithSinks != null)
-						break;
-				}
-
-				if (ctorWithSinks != null)
-					result = (_ITestFramework)ctorWithSinks.Invoke(new object?[] { diagnosticMessageSink, internalDiagnosticMessageSink });
-				else if (ctorWithSink != null)
-					result = (_ITestFramework)ctorWithSink.Invoke(new object?[] { diagnosticMessageSink });
-				else
-					result = (_ITestFramework)Activator.CreateInstance(testFrameworkType)!;
+				result = (_ITestFramework)Activator.CreateInstance(testFrameworkType)!;
 			}
 			catch (Exception ex)
 			{
-				if (diagnosticMessageSink != null)
-					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown during test framework construction; falling back to default test framework: {ex.Unwrap()}" });
+				TestContext.Current?.SendDiagnosticMessage("Exception thrown during test framework construction; falling back to default test framework: {0}", ex.Unwrap());
 
-				result = new XunitTestFramework(diagnosticMessageSink, internalDiagnosticMessageSink);
+				result = new XunitTestFramework();
 			}
 
 			return result;
 		}
 
-		static Type GetTestFrameworkType(
-			_IMessageSink? diagnosticMessageSink,
-			_IAssemblyInfo testAssembly)
+		static Type GetTestFrameworkType(_IAssemblyInfo testAssembly)
 		{
 			try
 			{
@@ -214,7 +163,7 @@ namespace Xunit.Sdk
 					var discovererAttr = testFrameworkAttr.GetCustomAttributes(typeof(TestFrameworkDiscovererAttribute)).FirstOrDefault();
 					if (discovererAttr != null)
 					{
-						var discoverer = GetTestFrameworkTypeDiscoverer(diagnosticMessageSink, discovererAttr);
+						var discoverer = GetTestFrameworkTypeDiscoverer(discovererAttr);
 						if (discoverer != null)
 						{
 							var discovererType = discoverer.GetTestFrameworkType(testFrameworkAttr);
@@ -222,20 +171,17 @@ namespace Xunit.Sdk
 								return discovererType;
 						}
 
-						if (diagnosticMessageSink != null)
-							diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Unable to create custom test framework discoverer type from '{testFrameworkAttr.GetType().FullName}'" });
+						TestContext.Current?.SendDiagnosticMessage("Unable to create custom test framework discoverer type from '{0}'", testFrameworkAttr.GetType().FullName);
 					}
 					else
 					{
-						if (diagnosticMessageSink != null)
-							diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = "Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]" });
+						TestContext.Current?.SendDiagnosticMessage("Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]");
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				if (diagnosticMessageSink != null)
-					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"Exception thrown during test framework discoverer construction: {ex.Unwrap()}" });
+				TestContext.Current?.SendDiagnosticMessage("Exception thrown during test framework discoverer construction: {0}", ex.Unwrap());
 			}
 
 			return typeof(XunitTestFramework);
@@ -244,21 +190,15 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets a test framework discoverer.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="frameworkType">The test framework type discoverer type</param>
-		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(
-			_IMessageSink? diagnosticMessageSink,
-			Type frameworkType) =>
-				Get<ITestFrameworkTypeDiscoverer>(frameworkType, diagnosticMessageSink: diagnosticMessageSink);
+		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(Type frameworkType) =>
+			Get<ITestFrameworkTypeDiscoverer>(frameworkType);
 
 		/// <summary>
 		/// Gets a test framework discoverer, as specified in a reflected <see cref="TestFrameworkDiscovererAttribute"/>.
 		/// </summary>
-		/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="testFrameworkDiscovererAttribute">The test framework discoverer attribute</param>
-		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(
-			_IMessageSink? diagnosticMessageSink,
-			_IAttributeInfo testFrameworkDiscovererAttribute)
+		public static ITestFrameworkTypeDiscoverer? GetTestFrameworkTypeDiscoverer(_IAttributeInfo testFrameworkDiscovererAttribute)
 		{
 			Guard.ArgumentNotNull(testFrameworkDiscovererAttribute);
 
@@ -266,7 +206,7 @@ namespace Xunit.Sdk
 			if (testFrameworkDiscovererType == null)
 				return null;
 
-			return GetTestFrameworkTypeDiscoverer(diagnosticMessageSink, testFrameworkDiscovererType);
+			return GetTestFrameworkTypeDiscoverer(testFrameworkDiscovererType);
 		}
 
 		/// <summary>

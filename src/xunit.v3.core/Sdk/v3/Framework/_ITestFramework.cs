@@ -4,10 +4,11 @@ namespace Xunit.v3
 {
 	/// <summary>
 	/// Represents a test framework. There are two pieces to test frameworks: discovery and
-	/// execution. The two factory methods represent these two pieces. Test frameworks can
-	/// implement an empty constructor, or they can implement one that takes <see cref="_IMessageSink"/>
-	/// if they want to be able to send diagnostic messages. It may optionally implement
-	/// either <see cref="IDisposable"/> or <see cref="IAsyncDisposable"/>.
+	/// execution. The two factory methods represent these two pieces. Test frameworks may optionally
+	/// implement either <see cref="IDisposable"/> or <see cref="IAsyncDisposable"/>. They may
+	/// implement a constructor which is either empty, or takes a single <see cref="_IMessageSink"/>
+	/// for diagnostic messages, or takes two instances of <see cref="_IMessageSink"/> for diagnostic
+	/// messages and internal diagnostic messages, respectively.
 	/// </summary>
 	// TODO: Do we still think this is the right way to do constructors?
 	public interface _ITestFramework

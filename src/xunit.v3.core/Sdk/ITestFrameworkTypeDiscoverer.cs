@@ -4,7 +4,10 @@ using Xunit.v3;
 namespace Xunit.Sdk
 {
 	/// <summary>
-	/// Interface to be implemented by classes which are used to discover the test framework.
+	/// Interface to be implemented by classes which are used to discover the test framework. Classes which implement
+	/// this interface may take <see cref="_IMessageSink"/> as a constructor argument to get access to a message sink
+	/// to which you can send <see cref="_DiagnosticMessage"/> instances, since <see cref="TestContext.Current"/> will
+	/// always be <c>null</c> here.
 	/// </summary>
 	public interface ITestFrameworkTypeDiscoverer
 	{

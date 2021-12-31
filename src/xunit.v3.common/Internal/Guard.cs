@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -13,6 +14,24 @@ namespace Xunit.Internal
 	/// </summary>
 	public static class Guard
 	{
+		/// <summary>
+		/// Ensures that an enum value is valid by comparing against a list of valid values.
+		/// </summary>
+		/// <typeparam name="T">The argument type</typeparam>
+		/// <param name="argValue">The value of the argument</param>
+		/// <param name="validValues">The list of valid values</param>
+		/// <param name="argName">The name of the argument</param>
+		/// <exception cref="ArgumentException"></exception>
+		public static void ArgumentEnumValid<T>(
+			T argValue,
+			HashSet<T> validValues,
+			[CallerArgumentExpression("argValue")] string? argName = null)
+				where T : Enum
+		{
+			if (!validValues.Contains(argValue))
+				throw new ArgumentException($"Enum value {argValue} not in valid set: [{string.Join(",", validValues)}]", argName?.TrimStart('@'));
+		}
+
 		/// <summary>
 		/// Ensures that a nullable value type argument is not null.
 		/// </summary>

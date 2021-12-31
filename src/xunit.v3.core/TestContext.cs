@@ -1,6 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit
@@ -13,19 +15,20 @@ namespace Xunit
 	public class TestContext
 	{
 		static readonly AsyncLocal<TestContext?> local = new();
+		static readonly HashSet<TestEngineStatus> validExecutionStatuses = new() { TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp };
 
 		TestContext(
-			_ITestAssembly testAssembly,
-			TestEngineStatus testAssemblyStatus,
 			CancellationToken cancellationToken,
 			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink)
+			_IMessageSink? internalDiagnosticMessageSink,
+			_ITestAssembly? testAssembly = null,
+			TestEngineStatus? testAssemblyStatus = null)
 		{
-			TestAssembly = testAssembly;
-			TestAssemblyStatus = testAssemblyStatus;
 			CancellationToken = cancellationToken;
 			DiagnosticMessageSink = diagnosticMessageSink;
 			InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
+			TestAssembly = testAssembly;
+			TestAssemblyStatus = testAssemblyStatus;
 		}
 
 		/// <summary>
@@ -54,14 +57,18 @@ namespace Xunit
 		public _ITest? Test { get; private set; }
 
 		/// <summary>
-		/// Gets the current test assembly.
+		/// Gets the current test assembly, if the engine is currently in the process of running or
+		/// discovering tests in assembly; will return <c>null</c> out of this context (this typically
+		/// means the test framework itself is being created and initialized).
 		/// </summary>
-		public _ITestAssembly TestAssembly { get; private set; }
+		[NotNullIfNotNull(nameof(TestCollection))]
+		public _ITestAssembly? TestAssembly { get; private set; }
 
 		/// <summary>
 		/// Gets the current test engine status for the test assembly.
 		/// </summary>
-		public TestEngineStatus TestAssemblyStatus { get; private set; }
+		[NotNullIfNotNull(nameof(TestAssembly))]
+		public TestEngineStatus? TestAssemblyStatus { get; private set; }
 
 		/// <summary>
 		/// Gets the current test case, if the engine is currently in the process of running a
@@ -183,7 +190,34 @@ namespace Xunit
 				InternalDiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, args) });
 		}
 
-		internal static void SetForTest(
+		/// <summary>
+		/// Sets the test context for test framework initialization. This is the moment before any specific assembly is
+		/// being discovered or run. This is typically used by custom runners just before they create the test framework
+		/// via a call to <see cref="ExtensibilityPointFactory.GetTestFramework"/>.
+		/// </summary>
+		/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="_DiagnosticMessage"/> instances.</param>
+		/// <param name="internalDiagnosticMessageSink">The optional message sink used to receive internal <see cref="_DiagnosticMessage"/> instances.</param>
+		public static void SetForInitialization(
+			_IMessageSink? diagnosticMessageSink,
+			_IMessageSink? internalDiagnosticMessageSink)
+		{
+			local.Value = new TestContext(default, diagnosticMessageSink, internalDiagnosticMessageSink);
+		}
+
+		/// <summary>
+		/// Sets the test context for execution of a test. This assumes an existing test context already exists from which
+		/// it can pull the diagnostic and internal diagnostic message sinks.
+		/// </summary>
+		/// <param name="test">The test that is being executed</param>
+		/// <param name="testStatus">The test status (valid values: <see cref="TestEngineStatus.Initializing"/>,
+		/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
+		/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+		/// <param name="testState">The state of the test (only required when <paramref name="testStatus"/>
+		/// is <see cref="TestEngineStatus.CleaningUp"/>).</param>
+		/// <param name="testOutputHelper">The test output helper that the test can use to write output. Must be passed
+		/// when <paramref name="testStatus"/> is <see cref="TestEngineStatus.Initializing"/>; can be <c>null</c> for
+		/// other statuses (as it will be pulled from the existing test context).</param>
+		public static void SetForTest(
 			_ITest test,
 			TestEngineStatus testStatus,
 			CancellationToken cancellationToken,
@@ -191,12 +225,20 @@ namespace Xunit
 			_ITestOutputHelper? testOutputHelper = null)
 		{
 			Guard.ArgumentNotNull(test);
+			Guard.ArgumentEnumValid(testStatus, validExecutionStatuses);
+			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
+			if (testStatus == TestEngineStatus.CleaningUp)
+				Guard.ArgumentNotNull(testState);
+
+			if (Current.TestOutputHelper == null)
+				Guard.ArgumentNotNull(testOutputHelper);
+
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
 				Test = test,
 				TestStatus = testStatus,
-				TestOutputHelper = testOutputHelper ?? Current?.TestOutputHelper,
+				TestOutputHelper = testOutputHelper ?? Current.TestOutputHelper,
 				TestState = testState,
 
 				TestCase = test.TestCase,
@@ -213,26 +255,42 @@ namespace Xunit
 			};
 		}
 
-		internal static void SetForTestAssembly(
+		/// <summary>
+		/// Sets the test context for discovery or execution of a test assembly. This assumes an existing test context already exists
+		/// from which it can pull the diagnostic and internal diagnostic message sinks.
+		/// </summary>
+		/// <param name="testAssembly">The test assembly that is being executed</param>
+		/// <param name="testAssemblyStatus">The test assembly status</param>
+		/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+		public static void SetForTestAssembly(
 			_ITestAssembly testAssembly,
 			TestEngineStatus testAssemblyStatus,
-			CancellationToken cancellationToken,
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink)
+			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testAssembly);
+			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(testAssembly, testAssemblyStatus, cancellationToken, diagnosticMessageSink, internalDiagnosticMessageSink);
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testAssembly, testAssemblyStatus);
 		}
 
-		internal static void SetForTestCase(
+		/// <summary>
+		/// Sets the test context for execution of a test case. This assumes an existing test context already exists from which
+		/// it can pull the diagnostic and internal diagnostic message sinks.
+		/// </summary>
+		/// <param name="testCase">The test case that is being executed</param>
+		/// <param name="testCaseStatus">The test case status (valid values: <see cref="TestEngineStatus.Initializing"/>,
+		/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
+		/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+		public static void SetForTestCase(
 			_ITestCase testCase,
 			TestEngineStatus testCaseStatus,
 			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testCase);
+			Guard.ArgumentEnumValid(testCaseStatus, validExecutionStatuses);
+			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(testCase.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testCase.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
 				TestCase = testCase,
 				TestCaseStatus = testCaseStatus,
@@ -248,14 +306,24 @@ namespace Xunit
 			};
 		}
 
-		internal static void SetForTestClass(
+		/// <summary>
+		/// Sets the test context for execution of a test class. This assumes an existing test context already exists from which
+		/// it can pull the diagnostic and internal diagnostic message sinks.
+		/// </summary>
+		/// <param name="testClass">The test class that is being executed</param>
+		/// <param name="testClassStatus">The test class status (valid values: <see cref="TestEngineStatus.Initializing"/>,
+		/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
+		/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+		public static void SetForTestClass(
 			_ITestClass testClass,
 			TestEngineStatus testClassStatus,
 			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testClass);
+			Guard.ArgumentEnumValid(testClassStatus, validExecutionStatuses);
+			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(testClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testClass.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
 				TestClass = testClass,
 				TestClassStatus = testClassStatus,
@@ -265,28 +333,48 @@ namespace Xunit
 			};
 		}
 
-		internal static void SetForTestCollection(
+		/// <summary>
+		/// Sets the test context for execution of a test collection. This assumes an existing test context already exists from which
+		/// it can pull the diagnostic and internal diagnostic message sinks.
+		/// </summary>
+		/// <param name="testCollection">The test collection that is being executed</param>
+		/// <param name="testCollectionStatus">The test collection status (valid values: <see cref="TestEngineStatus.Initializing"/>,
+		/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
+		/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+		public static void SetForTestCollection(
 			_ITestCollection testCollection,
 			TestEngineStatus testCollectionStatus,
 			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testCollection);
+			Guard.ArgumentEnumValid(testCollectionStatus, validExecutionStatuses);
+			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(testCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testCollection.TestAssembly, TestEngineStatus.Running)
 			{
 				TestCollection = testCollection,
 				TestCollectionStatus = testCollectionStatus,
 			};
 		}
 
-		internal static void SetForTestMethod(
+		/// <summary>
+		/// Sets the test context for execution of a test method. This assumes an existing test context already exists from which
+		/// it can pull the diagnostic and internal diagnostic message sinks.
+		/// </summary>
+		/// <param name="testMethod">The test method that is being executed</param>
+		/// <param name="testMethodStatus">The test method status (valid values: <see cref="TestEngineStatus.Initializing"/>,
+		/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
+		/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+		public static void SetForTestMethod(
 			_ITestMethod testMethod,
 			TestEngineStatus testMethodStatus,
 			CancellationToken cancellationToken)
 		{
 			Guard.ArgumentNotNull(testMethod);
+			Guard.ArgumentEnumValid(testMethodStatus, validExecutionStatuses);
+			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running, cancellationToken, Current?.DiagnosticMessageSink, Current?.InternalDiagnosticMessageSink)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running)
 			{
 				TestMethod = testMethod,
 				TestMethodStatus = testMethodStatus,

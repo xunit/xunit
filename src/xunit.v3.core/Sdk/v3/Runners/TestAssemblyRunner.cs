@@ -23,10 +23,8 @@ namespace Xunit.v3
 		CancellationTokenSource cancellationTokenSource = new();
 		readonly Lazy<ITestCaseOrderer> defaultTestCaseOrderer;
 		readonly Lazy<ITestCollectionOrderer> defaultTestCollectionOrderer;
-		readonly _IMessageSink? diagnosticMessageSink;
 		_IMessageSink executionMessageSink;
 		_ITestFrameworkExecutionOptions executionOptions;
-		readonly _IMessageSink? internalDiagnosticMessageSink;
 		_ITestAssembly testAssembly;
 		IReadOnlyCollection<TTestCase> testCases;
 
@@ -35,22 +33,16 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testAssembly">The assembly that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		protected TestAssemblyRunner(
 			_ITestAssembly testAssembly,
 			IReadOnlyCollection<TTestCase> testCases,
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
 			this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 			this.testCases = Guard.ArgumentNotNull(testCases);
-			this.diagnosticMessageSink = diagnosticMessageSink;
-			this.internalDiagnosticMessageSink = internalDiagnosticMessageSink;
 			this.executionMessageSink = Guard.ArgumentNotNull(executionMessageSink);
 			this.executionOptions = Guard.ArgumentNotNull(executionOptions);
 
@@ -339,6 +331,6 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="testAssemblyStatus">The current test assembly status.</param>
 		protected virtual void SetTestContext(TestEngineStatus testAssemblyStatus) =>
-			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus, CancellationTokenSource.Token, diagnosticMessageSink, internalDiagnosticMessageSink);
+			TestContext.SetForTestAssembly(TestAssembly, testAssemblyStatus, CancellationTokenSource.Token);
 	}
 }

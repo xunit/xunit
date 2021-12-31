@@ -13,9 +13,10 @@ public class ExtensibilityPointFactoryTests
 		public void NoAttribute()
 		{
 			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var assembly = Mocks.AssemblyInfo();
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
 			Assert.Empty(spy.Messages);
@@ -25,10 +26,11 @@ public class ExtensibilityPointFactoryTests
 		public void Attribute_NoDiscoverer()
 		{
 			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithoutDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
 			AssertSingleDiagnosticMessage(spy, "Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]");
@@ -42,10 +44,11 @@ public class ExtensibilityPointFactoryTests
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
 			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingDiscovererCtor>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var factory = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
+			var factory = ExtensibilityPointFactory.GetTestFramework(assembly);
 
 			Assert.IsType<XunitTestFramework>(factory);
 			AssertSingleDiagnosticMessage(spy, "Exception thrown during test framework discoverer construction: System.DivideByZeroException: Attempted to divide by zero.");
@@ -70,10 +73,11 @@ public class ExtensibilityPointFactoryTests
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
 			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingDiscovererMethod>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
 			AssertSingleDiagnosticMessage(spy, "Exception thrown during test framework discoverer construction: System.DivideByZeroException: Attempted to divide by zero.");
@@ -95,10 +99,11 @@ public class ExtensibilityPointFactoryTests
 			CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
 
 			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithThrowingTestFrameworkCtor>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
+			var framework = ExtensibilityPointFactory.GetTestFramework(assembly);
 
 			Assert.IsType<XunitTestFramework>(framework);
 			AssertSingleDiagnosticMessage(spy, "Exception thrown during test framework construction; falling back to default test framework: System.DivideByZeroException: Attempted to divide by zero.");
@@ -132,10 +137,11 @@ public class ExtensibilityPointFactoryTests
 		public void Attribute_WithDiscoverer_NoMessageSink()
 		{
 			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
 			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscoverer>();
 			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
-			ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
+			ExtensibilityPointFactory.GetTestFramework(assembly);
 
 			Assert.Empty(spy.Messages);
 		}
@@ -152,48 +158,6 @@ public class ExtensibilityPointFactoryTests
 
 		public class MyTestFramework : _ITestFramework
 		{
-			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
-
-			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>
-				throw new NotImplementedException();
-
-			public _ITestFrameworkExecutor GetExecutor(_IReflectionAssemblyInfo assembly) =>
-				throw new NotImplementedException();
-		}
-
-		[Fact]
-		public void Attribute_WithDiscoverer_WithMessageSink()
-		{
-			var spy = SpyMessageSink.Capture();
-			var attribute = Mocks.TestFrameworkAttribute<AttributeWithDiscovererWithMessageSink>();
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
-
-			var framework = ExtensibilityPointFactory.GetTestFramework(spy, null, assembly);
-
-			var testFramework = Assert.IsType<MyTestFrameworkWithMessageSink>(framework);
-			Assert.Same(spy, testFramework.MessageSink);
-			Assert.Empty(spy.Messages);
-		}
-
-		[TestFrameworkDiscoverer(typeof(MyDiscovererWithMessageSink))]
-		public class AttributeWithDiscovererWithMessageSink : Attribute, ITestFrameworkAttribute
-		{ }
-
-		public class MyDiscovererWithMessageSink : ITestFrameworkTypeDiscoverer
-		{
-			public Type GetTestFrameworkType(_IAttributeInfo attribute) =>
-				typeof(MyTestFrameworkWithMessageSink);
-		}
-
-		public class MyTestFrameworkWithMessageSink : _ITestFramework
-		{
-			public readonly _IMessageSink MessageSink;
-
-			public MyTestFrameworkWithMessageSink(_IMessageSink messageSink)
-			{
-				MessageSink = messageSink;
-			}
-
 			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
 
 			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>

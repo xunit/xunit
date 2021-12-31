@@ -14,9 +14,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestFrameworkExecutor : TestFrameworkExecutor<IXunitTestCase>
 	{
-		readonly _IMessageSink? diagnosticMessageSink;
 		readonly Lazy<XunitTestFrameworkDiscoverer> discoverer;
-		readonly _IMessageSink? internalDiagnosticMessageSink;
 		TestAssembly testAssembly;
 
 		/// <summary>
@@ -24,20 +22,13 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		public XunitTestFrameworkExecutor(
 			_IReflectionAssemblyInfo assemblyInfo,
-			string? configFileName,
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink)
+			string? configFileName)
 				: base(assemblyInfo)
 		{
-			this.diagnosticMessageSink = diagnosticMessageSink;
-			this.internalDiagnosticMessageSink = internalDiagnosticMessageSink;
-
 			testAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyInfo.Assembly.GetName().Version);
-			discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, configFileName, diagnosticMessageSink, internalDiagnosticMessageSink));
+			discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, configFileName));
 		}
 
 		/// <summary>
@@ -58,7 +49,7 @@ namespace Xunit.v3
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
-			await using var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, diagnosticMessageSink, internalDiagnosticMessageSink, executionMessageSink, executionOptions);
+			await using var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, executionMessageSink, executionOptions);
 			await assemblyRunner.RunAsync();
 		}
 	}

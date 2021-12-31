@@ -192,8 +192,10 @@ public class ConsoleRunner
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
-		var nullMessageSink = _NullMessageSink.Instance;
 		var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
+
+		// TODO: Sinks?
+		TestContext.SetForInitialization(null, null);
 
 		foreach (var assembly in project.Assemblies)
 		{
@@ -210,7 +212,7 @@ public class ConsoleRunner
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
 			await using var disposalTracker = new DisposalTracker();
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(nullMessageSink, null, assemblyInfo);
+			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
 			disposalTracker.Add(testFramework);
 
 			// Discover & filter the tests
@@ -288,14 +290,17 @@ public class ConsoleRunner
 
 			var assemblyDisplayName = assembly.AssemblyDisplayName;
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
+			// TODO: Make these return null when they're not necessary
 			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-			var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
+			var internalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+
+			TestContext.SetForInitialization(diagnosticMessageSink, internalDiagnosticMessageSink);
 
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
 			await using var disposalTracker = new DisposalTracker();
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(diagnosticMessageSink, internalDiagnosticsMessageSink, assemblyInfo);
+			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
 			disposalTracker.Add(testFramework);
 
 			// Discover & filter the tests

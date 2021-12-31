@@ -17,25 +17,16 @@ namespace Xunit.v3
 		where TTestCase : _ITestCase
 	{
 		_IAssemblyInfo assemblyInfo;
-		readonly _IMessageSink? diagnosticMessageSink;
 		bool disposed;
-		readonly _IMessageSink? internalDiagnosticMessageSink;
 		readonly Lazy<string> targetFramework;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestFrameworkDiscoverer{TTestCase}"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
-		protected TestFrameworkDiscoverer(
-			_IAssemblyInfo assemblyInfo,
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink)
+		protected TestFrameworkDiscoverer(_IAssemblyInfo assemblyInfo)
 		{
 			this.assemblyInfo = Guard.ArgumentNotNull(assemblyInfo);
-			this.diagnosticMessageSink = diagnosticMessageSink;
-			this.internalDiagnosticMessageSink = internalDiagnosticMessageSink;
 
 			targetFramework = new Lazy<string>(() => AssemblyInfo.GetTargetFramework());
 		}
@@ -97,7 +88,7 @@ namespace Xunit.v3
 
 			ThreadPool.QueueUserWorkItem(async _ =>
 			{
-				TestContext.SetForTestAssembly(TestAssembly, TestEngineStatus.Discovering, cancellationToken ?? CancellationToken.None, diagnosticMessageSink, internalDiagnosticMessageSink);
+				TestContext.SetForTestAssembly(TestAssembly, TestEngineStatus.Discovering, cancellationToken ?? CancellationToken.None);
 
 				using (new PreserveWorkingFolder(AssemblyInfo))
 				using (new CultureOverride(discoveryOptions.Culture()))

@@ -327,6 +327,9 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTestCollections()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");
 			var testCase1 = TestCaseForTestCollection(collection1);
 			var collection2 = Mocks.TestCollection(displayName: "ZZZZ", uniqueID: "collection-2");
@@ -344,7 +347,7 @@ public class TestAssemblyRunnerTests
 				collection => Assert.Same(collection2, collection.Item1),
 				collection => Assert.Same(collection3, collection.Item1)
 			);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 			Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingCollectionOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -370,23 +373,19 @@ public class TestAssemblyRunnerTests
 		public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
 		public bool BeforeTestAssemblyFinished_Called;
 		public TestContext? BeforeTestAssemblyFinished_Context;
-		public List<_MessageSinkMessage> DiagnosticMessages;
 		public Exception? RunTestCollectionAsync_AggregatorResult;
 		public TestContext? RunTestCollectionAsync_Context;
 
 		TestableTestAssemblyRunner(
 			_ITestAssembly testAssembly,
 			IReadOnlyCollection<_ITestCase> testCases,
-			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions,
 			RunSummary result,
 			bool cancelInRunTestCollectionAsync,
 			ITestCollectionOrderer? testCollectionOrderer)
-				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), null, executionMessageSink, executionOptions)
+				: base(testAssembly, testCases, executionMessageSink, executionOptions)
 		{
-			DiagnosticMessages = diagnosticMessages;
-
 			this.result = result;
 			this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
 			this.testCollectionOrderer = testCollectionOrderer;
@@ -404,7 +403,6 @@ public class TestAssemblyRunnerTests
 				new(
 					Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
 					testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
-					new List<_MessageSinkMessage>(),
 					executionMessageSink ?? SpyMessageSink.Create(),
 					executionOptions ?? _TestFrameworkOptions.ForExecution(),
 					result ?? new RunSummary(),

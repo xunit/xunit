@@ -223,6 +223,9 @@ public class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute("UnknownType", "UnknownAssembly");
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
 			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
@@ -230,13 +233,16 @@ public class XunitTestAssemblyRunnerTests
 			runner.Initialize();
 
 			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test case orderer", diagnosticMessage.Message);
 		}
 
 		[Fact]
 		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
 			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
@@ -244,7 +250,7 @@ public class XunitTestAssemblyRunnerTests
 			runner.Initialize();
 
 			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 			Assert.StartsWith("Assembly-level test case orderer 'XunitTestAssemblyRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -288,6 +294,9 @@ public class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask SettingUnknownTestCollectionOrderLogsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute("UnknownType", "UnknownAssembly");
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
 			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
@@ -295,13 +304,16 @@ public class XunitTestAssemblyRunnerTests
 			runner.Initialize();
 
 			Assert.IsType<DefaultTestCollectionOrderer>(runner.DefaultTestCollectionOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test collection orderer", diagnosticMessage.Message);
 		}
 
 		[Fact]
 		public static async ValueTask SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<CtorThrowingCollectionOrderer>();
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
 			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
@@ -309,7 +321,7 @@ public class XunitTestAssemblyRunnerTests
 			runner.Initialize();
 
 			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<_DiagnosticMessage>());
+			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 			Assert.StartsWith("Assembly-level test collection orderer 'XunitTestAssemblyRunnerTests+TestCollectionOrderer+CtorThrowingCollectionOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
@@ -336,19 +348,15 @@ public class XunitTestAssemblyRunnerTests
 
 	class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner
 	{
-		public List<_MessageSinkMessage> DiagnosticMessages;
 		public ConcurrentBag<Tuple<int, IXunitTestCase>> TestCasesRun = new();
 
 		TestableXunitTestAssemblyRunner(
 			_ITestAssembly testAssembly,
 			IReadOnlyCollection<IXunitTestCase> testCases,
-			List<_MessageSinkMessage> diagnosticMessages,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
-				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), null, executionMessageSink, executionOptions)
-		{
-			DiagnosticMessages = diagnosticMessages;
-		}
+				: base(testAssembly, testCases, executionMessageSink, executionOptions)
+		{ }
 
 		public ITestCaseOrderer DefaultTestCaseOrderer => base.GetTestCaseOrderer();
 
@@ -365,7 +373,6 @@ public class XunitTestAssemblyRunnerTests
 			return new TestableXunitTestAssemblyRunner(
 				assembly ?? testCases.First().TestCollection.TestAssembly,
 				testCases ?? new IXunitTestCase[0],
-				new List<_MessageSinkMessage>(),
 				SpyMessageSink.Create(),
 				executionOptions ?? _TestFrameworkOptions.ForExecution()
 			);

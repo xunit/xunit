@@ -25,16 +25,12 @@ namespace Xunit.v3
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="configFileName">The test configuration file.</param>
-		/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-		/// <param name="internalDiagnosticMessageSink">The optional message sink which receives internal <see cref="_DiagnosticMessage"/> messages.</param>
 		/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
 		public XunitTestFrameworkDiscoverer(
 			_IAssemblyInfo assemblyInfo,
 			string? configFileName,
-			_IMessageSink? diagnosticMessageSink,
-			_IMessageSink? internalDiagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory = null)
-				: base(assemblyInfo, diagnosticMessageSink, internalDiagnosticMessageSink)
+				: base(assemblyInfo)
 		{
 			var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
 			var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");

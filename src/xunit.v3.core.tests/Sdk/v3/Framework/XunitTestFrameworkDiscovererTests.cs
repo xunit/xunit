@@ -15,7 +15,7 @@ public class XunitTestFrameworkDiscovererTests
 		[Fact]
 		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(assemblyInfo: null!, configFileName: null, diagnosticMessageSink: null, internalDiagnosticMessageSink: null));
+			Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(assemblyInfo: null!, configFileName: null));
 		}
 	}
 
@@ -344,9 +344,8 @@ public class XunitTestFrameworkDiscovererTests
 
 		TestableXunitTestFrameworkDiscoverer(
 			_IAssemblyInfo assemblyInfo,
-			_IMessageSink? diagnosticMessageSink,
 			IXunitTestCollectionFactory? collectionFactory)
-				: base(assemblyInfo, configFileName: null, diagnosticMessageSink ?? _NullMessageSink.Instance, null, collectionFactory)
+				: base(assemblyInfo, configFileName: null, collectionFactory)
 		{
 			TestAssembly = Mocks.TestAssembly(assemblyInfo.AssemblyPath, uniqueID: "asm-id");
 		}
@@ -376,8 +375,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		public static TestableXunitTestFrameworkDiscoverer Create(
 			_IAssemblyInfo? assembly = null,
-			_IMessageSink? diagnosticMessageSink = null,
 			IXunitTestCollectionFactory? collectionFactory = null) =>
-				new(assembly ?? Mocks.AssemblyInfo(), diagnosticMessageSink, collectionFactory);
+				new(assembly ?? Mocks.AssemblyInfo(), collectionFactory);
 	}
 }

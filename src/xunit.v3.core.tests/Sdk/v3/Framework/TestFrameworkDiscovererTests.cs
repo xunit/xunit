@@ -25,13 +25,16 @@ public class TestFrameworkDiscovererTests
 		[Fact]
 		public async ValueTask ExceptionDuringFindTestsForType_ReportsExceptionAsDiagnosticMessage()
 		{
+			var spy = SpyMessageSink.Capture();
+			TestContext.Current!.DiagnosticMessageSink = spy;
+
 			var mockType = Mocks.TypeInfo("MockType");
 			var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
 			discoverer.FindTestsForType_Exception = new DivideByZeroException();
 
 			await discoverer.Find();
 
-			var message = Assert.Single(discoverer.DiagnosticMessageSink.Messages.OfType<_DiagnosticMessage>());
+			var message = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
 			Assert.StartsWith($"Exception during discovery:{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", message.Message);
 		}
 
@@ -166,18 +169,13 @@ public class TestFrameworkDiscovererTests
 		public Exception? FindTestsForType_Exception = null;
 		public readonly List<_ITestClass> FindTestsForType_TestClasses = new();
 
-		TestableTestFrameworkDiscoverer(
-			_IAssemblyInfo assemblyInfo,
-			SpyMessageSink diagnosticMessageSink) :
-				base(assemblyInfo, diagnosticMessageSink, null)
+		TestableTestFrameworkDiscoverer(_IAssemblyInfo assemblyInfo) :
+			base(assemblyInfo)
 		{
-			DiagnosticMessageSink = diagnosticMessageSink;
 			TestAssembly = Mocks.TestAssembly(assemblyInfo.AssemblyPath, uniqueID: "asm-id");
 		}
 
 		public new _IAssemblyInfo AssemblyInfo => base.AssemblyInfo;
-
-		public SpyMessageSink DiagnosticMessageSink { get; }
 
 		public override _ITestAssembly TestAssembly { get; }
 
@@ -210,6 +208,6 @@ public class TestFrameworkDiscovererTests
 		}
 
 		public static TestableTestFrameworkDiscoverer Create(params _ITypeInfo[] types) =>
-			new(Mocks.AssemblyInfo(types), SpyMessageSink.Capture());
+			new(Mocks.AssemblyInfo(types));
 	}
 }

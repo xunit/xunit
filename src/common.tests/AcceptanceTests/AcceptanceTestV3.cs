@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -32,7 +33,9 @@ public class AcceptanceTestV3
 		{
 			try
 			{
-				await using var testFramework = new XunitTestFramework(diagnosticMessageSink, internalDiagnosticMessageSink, configFileName: null);
+				TestContext.SetForInitialization(diagnosticMessageSink, internalDiagnosticMessageSink);
+
+				await using var testFramework = new XunitTestFramework();
 
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!, additionalAssemblyAttributes);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
