@@ -23,7 +23,7 @@ namespace Xunit.Runner.Common
 		/// <inheritdoc/>
 		public ValueTask<_IMessageSink> CreateMessageHandler(
 			IRunnerLogger logger,
-			_IMessageSink diagnosticMessageSink) =>
+			_IMessageSink? diagnosticMessageSink) =>
 				new(new QuietReporterMessageHandler(logger));
 	}
 }

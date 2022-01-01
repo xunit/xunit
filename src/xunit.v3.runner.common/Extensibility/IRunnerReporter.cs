@@ -44,10 +44,10 @@ namespace Xunit.Runner.Common
 		/// test assembly.
 		/// </summary>
 		/// <param name="logger">The logger used to send result messages to</param>
-		/// <param name="diagnosticMessageSink">A message sink that diagnostic messages can be sent to.</param>
+		/// <param name="diagnosticMessageSink">An optional message sink that diagnostic messages can be sent to.</param>
 		/// <returns>The message handler that handles the messages</returns>
 		ValueTask<_IMessageSink> CreateMessageHandler(
 			IRunnerLogger logger,
-			_IMessageSink diagnosticMessageSink);
+			_IMessageSink? diagnosticMessageSink);
 	}
 }
