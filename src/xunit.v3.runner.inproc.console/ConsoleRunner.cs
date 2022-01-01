@@ -194,9 +194,6 @@ public class ConsoleRunner
 		var (listOption, listFormat) = project.Configuration.List!.Value;
 		var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
 
-		// TODO: Sinks?
-		TestContext.SetForInitialization(null, null);
-
 		foreach (var assembly in project.Assemblies)
 		{
 			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
@@ -208,6 +205,11 @@ public class ConsoleRunner
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
 			var assemblyDisplayName = assembly.AssemblyDisplayName;
+			var noColor = assembly.Project.Configuration.NoColorOrDefault;
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
+			var internalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
+
+			TestContext.SetForInitialization(diagnosticMessageSink, internalDiagnosticMessageSink);
 
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
@@ -290,7 +292,6 @@ public class ConsoleRunner
 
 			var assemblyDisplayName = assembly.AssemblyDisplayName;
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
-			// TODO: Make these return null when they're not necessary
 			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
 			var internalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -344,7 +345,7 @@ public class ConsoleRunner
 				IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel);
 				if (assemblyElement != null)
 					resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-				if (longRunningSeconds > 0)
+				if (longRunningSeconds > 0 && diagnosticMessageSink != null)
 					resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 				if (assembly.Configuration.FailSkipsOrDefault)
 					resultsSink = new DelegatingFailSkipSink(resultsSink);

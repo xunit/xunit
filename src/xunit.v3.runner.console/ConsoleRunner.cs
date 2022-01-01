@@ -318,7 +318,7 @@ class ConsoleRunner
 			IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
 			if (assemblyElement != null)
 				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-			if (longRunningSeconds > 0)
+			if (longRunningSeconds > 0 && diagnosticMessageSink != null)
 				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 			if (assembly.Configuration.FailSkipsOrDefault)
 				resultsSink = new DelegatingFailSkipSink(resultsSink);

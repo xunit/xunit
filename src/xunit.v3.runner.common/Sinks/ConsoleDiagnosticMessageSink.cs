@@ -13,12 +13,10 @@ namespace Xunit.Runner.Common
 		readonly object consoleLock;
 		readonly ConsoleColor displayColor;
 		readonly bool noColor;
-		readonly bool showDiagnostics;
 
 		ConsoleDiagnosticMessageSink(
 			object consoleLock,
 			string? assemblyDisplayName,
-			bool showDiagnostics,
 			bool noColor,
 			ConsoleColor displayColor)
 		{
@@ -28,7 +26,6 @@ namespace Xunit.Runner.Common
 			this.assemblyDisplayName = assemblyDisplayName;
 			this.noColor = noColor;
 			this.displayColor = displayColor;
-			this.showDiagnostics = showDiagnostics;
 		}
 
 		/// <summary>
@@ -38,12 +35,12 @@ namespace Xunit.Runner.Common
 		/// <param name="assemblyDisplayName">The display name for the test assembly</param>
 		/// <param name="showDiagnostics">A flag to indicate whether to show public diagnostics</param>
 		/// <param name="noColor">A flag to indicate whether to disable color output</param>
-		public static ConsoleDiagnosticMessageSink ForDiagnostics(
+		public static ConsoleDiagnosticMessageSink? ForDiagnostics(
 			object consoleLock,
 			string assemblyDisplayName,
 			bool showDiagnostics,
 			bool noColor) =>
-				new(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.Yellow);
+				showDiagnostics ? new(consoleLock, assemblyDisplayName, noColor, ConsoleColor.Yellow) : null;
 
 		/// <summary>
 		/// Creates a message sink for internal diagnostics.
@@ -52,12 +49,12 @@ namespace Xunit.Runner.Common
 		/// <param name="assemblyDisplayName">The display name for the test assembly</param>
 		/// <param name="showDiagnostics">A flag to indicate whether to show internal diagnostics</param>
 		/// <param name="noColor">A flag to indicate whether to disable color output</param>
-		public static ConsoleDiagnosticMessageSink ForInternalDiagnostics(
+		public static ConsoleDiagnosticMessageSink? ForInternalDiagnostics(
 			object consoleLock,
 			string assemblyDisplayName,
 			bool showDiagnostics,
 			bool noColor) =>
-				new(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
+				showDiagnostics ? new(consoleLock, assemblyDisplayName, noColor, ConsoleColor.DarkGray) : null;
 
 		/// <summary>
 		/// Creates a message sink for internal diagnostics.
@@ -65,18 +62,18 @@ namespace Xunit.Runner.Common
 		/// <param name="consoleLock">The console lock, used to prevent console contention</param>
 		/// <param name="showDiagnostics">A flag to indicate whether to show internal diagnostics</param>
 		/// <param name="noColor">A flag to indicate whether to disable color output</param>
-		public static ConsoleDiagnosticMessageSink ForInternalDiagnostics(
+		public static ConsoleDiagnosticMessageSink? ForInternalDiagnostics(
 			object consoleLock,
 			bool showDiagnostics,
 			bool noColor) =>
-				new(consoleLock, null, showDiagnostics, noColor, ConsoleColor.DarkGray);
+				showDiagnostics ? new(consoleLock, null, noColor, ConsoleColor.DarkGray) : null;
 
 		/// <inheritdoc/>
 		public bool OnMessage(_MessageSinkMessage message)
 		{
 			Guard.ArgumentNotNull(message);
 
-			if (showDiagnostics && message is _DiagnosticMessage diagnosticMessage)
+			if (message is _DiagnosticMessage diagnosticMessage)
 			{
 				lock (consoleLock)
 				{
