@@ -168,6 +168,25 @@ namespace Xunit.Internal
 		}
 
 		/// <summary>
+		/// Ensures that a value is not default value. This is used for values of generic types
+		/// where nullability is not known.
+		/// </summary>
+		/// <typeparam name="T">The argument type</typeparam>
+		/// <param name="argValue">The value of the argument</param>
+		/// <param name="argName">The name of the argument</param>
+		/// <returns>The argument value as a non-default value</returns>
+		/// <exception cref="ArgumentNullException">Thrown when the argument is default</exception>
+		public static T GenericArgumentNotNull<T>(
+			[NotNull] T? argValue,
+			[CallerArgumentExpression("argValue")] string? argName = null)
+		{
+			if (argValue == null)
+				throw new ArgumentNullException(argName?.TrimStart('@'));
+
+			return argValue;
+		}
+
+		/// <summary>
 		/// Ensure that a value is not null.
 		/// </summary>
 		/// <typeparam name="T">The value type</typeparam>

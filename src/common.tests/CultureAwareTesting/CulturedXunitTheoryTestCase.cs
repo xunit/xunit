@@ -57,14 +57,15 @@ namespace Xunit.v3
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
-				new CulturedXunitTheoryTestCaseRunner(
+				new CulturedXunitTheoryTestCaseRunner(Culture).RunAsync(
 					this,
+					messageBus,
+					aggregator,
+					cancellationTokenSource,
 					TestCaseDisplayName,
 					SkipReason,
 					constructorArguments,
-					messageBus,
-					aggregator,
-					cancellationTokenSource
-				).RunAsync();
+					TestMethodArguments
+				);
 	}
 }

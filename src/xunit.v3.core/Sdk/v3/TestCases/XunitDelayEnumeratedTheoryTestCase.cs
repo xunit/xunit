@@ -48,14 +48,15 @@ namespace Xunit.v3
 			object?[] constructorArguments,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource) =>
-				new XunitDelayEnumeratedTheoryTestCaseRunner(
+				XunitDelayEnumeratedTheoryTestCaseRunner.Instance.RunAsync(
 					this,
+					messageBus,
+					aggregator,
+					cancellationTokenSource,
 					TestCaseDisplayName,
 					SkipReason,
 					constructorArguments,
-					messageBus,
-					aggregator,
-					cancellationTokenSource
-				).RunAsync();
+					TestMethodArguments
+				);
 	}
 }

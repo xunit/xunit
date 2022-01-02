@@ -59,7 +59,7 @@ public class TestCaseRunnerTests
 		Assert.IsType<InvalidOperationException>(ex);
 		var starting = Assert.Single(messages);
 		Assert.IsAssignableFrom<_TestCaseStarting>(starting);
-		Assert.False(runner.RunTestAsync_Called);
+		Assert.False(runner.RunTestsAsync_Called);
 	}
 
 	[Fact]
@@ -71,7 +71,7 @@ public class TestCaseRunnerTests
 
 		await runner.RunAsync();
 
-		Assert.Same(ex, runner.RunTestAsync_AggregatorResult);
+		Assert.Same(ex, runner.RunTestsAsync_AggregatorResult);
 		Assert.Empty(messageBus.Messages.OfType<_TestCaseCleanupFailure>());
 	}
 
@@ -85,7 +85,7 @@ public class TestCaseRunnerTests
 
 		await runner.RunAsync();
 
-		Assert.Same(ex, runner.RunTestAsync_AggregatorResult);
+		Assert.Same(ex, runner.RunTestsAsync_AggregatorResult);
 		Assert.Empty(messageBus.Messages.OfType<_TestCaseCleanupFailure>());
 	}
 
@@ -171,14 +171,14 @@ public class TestCaseRunnerTests
 		Assert.Null(runner.AfterTestCaseStarting_Context.TestStatus);
 		Assert.Same(runner.TestCase, runner.AfterTestCaseStarting_Context.TestCase);
 
-		Assert.NotNull(runner.RunTestAsync_Context);
-		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestAssemblyStatus);
-		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestCollectionStatus);
-		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestClassStatus);
-		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestMethodStatus);
-		Assert.Equal(TestEngineStatus.Running, runner.RunTestAsync_Context.TestCaseStatus);
-		Assert.Null(runner.RunTestAsync_Context.TestStatus);
-		Assert.Same(runner.TestCase, runner.RunTestAsync_Context.TestCase);
+		Assert.NotNull(runner.RunTestsAsync_Context);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestsAsync_Context.TestAssemblyStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestsAsync_Context.TestCollectionStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestsAsync_Context.TestClassStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestsAsync_Context.TestMethodStatus);
+		Assert.Equal(TestEngineStatus.Running, runner.RunTestsAsync_Context.TestCaseStatus);
+		Assert.Null(runner.RunTestsAsync_Context.TestStatus);
+		Assert.Same(runner.TestCase, runner.RunTestsAsync_Context.TestCase);
 
 		Assert.NotNull(runner.BeforeTestCaseStarting_Context);
 		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestCaseStarting_Context.TestAssemblyStatus);
@@ -190,8 +190,10 @@ public class TestCaseRunnerTests
 		Assert.Same(runner.TestCase, runner.BeforeTestCaseStarting_Context.TestCase);
 	}
 
-	class TestableTestCaseRunner : TestCaseRunner<_ITestCase>
+	class TestableTestCaseRunner : TestCaseRunner<TestCaseRunnerContext<_ITestCase>, _ITestCase>
 	{
+		readonly ExceptionAggregator aggregator;
+		readonly IMessageBus messageBus;
 		readonly RunSummary result;
 
 		public Action<ExceptionAggregator> AfterTestCaseStarting_Callback = _ => { };
@@ -200,9 +202,10 @@ public class TestCaseRunnerTests
 		public Action<ExceptionAggregator> BeforeTestCaseFinished_Callback = _ => { };
 		public bool BeforeTestCaseFinished_Called;
 		public TestContext? BeforeTestCaseStarting_Context;
-		public Exception? RunTestAsync_AggregatorResult;
-		public bool RunTestAsync_Called;
-		public TestContext? RunTestAsync_Context;
+		public Exception? RunTestsAsync_AggregatorResult;
+		public bool RunTestsAsync_Called;
+		public TestContext? RunTestsAsync_Context;
+		public _ITestCase TestCase;
 		public CancellationTokenSource TokenSource;
 
 		TestableTestCaseRunner(
@@ -211,14 +214,14 @@ public class TestCaseRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource tokenSource,
 			RunSummary result)
-				: base(testCase, messageBus, aggregator, tokenSource)
 		{
+			this.messageBus = messageBus;
+			this.aggregator = aggregator;
 			this.result = result;
 
+			TestCase = testCase;
 			TokenSource = tokenSource;
 		}
-
-		public new _ITestCase? TestCase => base.TestCase;
 
 		public static TestableTestCaseRunner Create(
 			IMessageBus? messageBus = null,
@@ -239,27 +242,30 @@ public class TestCaseRunnerTests
 			);
 		}
 
-		protected override ValueTask AfterTestCaseStartingAsync()
+		protected override ValueTask AfterTestCaseStartingAsync(TestCaseRunnerContext<_ITestCase> ctxt)
 		{
 			AfterTestCaseStarting_Called = true;
 			AfterTestCaseStarting_Context = TestContext.Current;
-			AfterTestCaseStarting_Callback(Aggregator);
+			AfterTestCaseStarting_Callback(ctxt.Aggregator);
 			return default;
 		}
 
-		protected override ValueTask BeforeTestCaseFinishedAsync()
+		protected override ValueTask BeforeTestCaseFinishedAsync(TestCaseRunnerContext<_ITestCase> ctxt)
 		{
 			BeforeTestCaseFinished_Called = true;
 			BeforeTestCaseStarting_Context = TestContext.Current;
-			BeforeTestCaseFinished_Callback(Aggregator);
+			BeforeTestCaseFinished_Callback(ctxt.Aggregator);
 			return default;
 		}
 
-		protected override ValueTask<RunSummary> RunTestAsync()
+		public ValueTask<RunSummary> RunAsync()
+			=> RunAsync(new(TestCase, messageBus, aggregator, TokenSource));
+
+		protected override ValueTask<RunSummary> RunTestsAsync(TestCaseRunnerContext<_ITestCase> ctxt)
 		{
-			RunTestAsync_AggregatorResult = Aggregator.ToException();
-			RunTestAsync_Called = true;
-			RunTestAsync_Context = TestContext.Current;
+			RunTestsAsync_AggregatorResult = ctxt.Aggregator.ToException();
+			RunTestsAsync_Called = true;
+			RunTestsAsync_Context = TestContext.Current;
 			return new(result);
 		}
 	}

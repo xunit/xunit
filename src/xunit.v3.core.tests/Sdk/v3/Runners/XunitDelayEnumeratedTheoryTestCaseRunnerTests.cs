@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
@@ -223,21 +224,27 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 
 	class TestableXunitDelayEnumeratedTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestCaseRunner
 	{
+		readonly string displayName;
+		readonly IMessageBus messageBus;
+		readonly IXunitTestCase testCase;
+
 		TestableXunitDelayEnumeratedTheoryTestCaseRunner(
 			IXunitTestCase testCase,
 			string displayName,
-			IMessageBus messageBus) :
-				base(testCase, displayName, null, new object[0], messageBus, new ExceptionAggregator(), new CancellationTokenSource())
-		{ }
+			IMessageBus messageBus)
+		{
+			this.testCase = testCase;
+			this.displayName = displayName;
+			this.messageBus = messageBus;
+		}
 
 		public static TestableXunitDelayEnumeratedTheoryTestCaseRunner Create<TClassUnderTest>(
 			string methodName,
 			IMessageBus messageBus,
 			string displayName = "MockDisplayName") =>
-				new(
-					TestData.XunitTestCase<TClassUnderTest>(methodName),
-					displayName,
-					messageBus
-				);
+				new(TestData.XunitTestCase<TClassUnderTest>(methodName), displayName, messageBus);
+
+		public ValueTask<RunSummary> RunAsync() =>
+			RunAsync(testCase, messageBus, new ExceptionAggregator(), new CancellationTokenSource(), displayName, null, Array.Empty<object>(), Array.Empty<object>());
 	}
 }

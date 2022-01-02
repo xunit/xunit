@@ -1,167 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.v3
+namespace Xunit.v3;
+
+/// <summary>
+/// The test case runner for xUnit.net v3 tests.
+/// </summary>
+public class XunitTestCaseRunner : XunitTestCaseRunnerBase<XunitTestCaseRunnerContext>
 {
 	/// <summary>
-	/// The test case runner for xUnit.net v3 tests.
+	/// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
 	/// </summary>
-	public class XunitTestCaseRunner : TestCaseRunner<IXunitTestCase>
+	protected XunitTestCaseRunner()
+	{ }
+
+	/// <summary>
+	/// Gets the singleton instance of the <see cref="XunitTestCaseRunner"/> class.
+	/// </summary>
+	public static XunitTestCaseRunner Instance { get; } = new();
+
+	/// <summary>
+	/// Runs the test case.
+	/// </summary>
+	/// <param name="testCase">The test case that this invocation belongs to.</param>
+	/// <param name="messageBus">The message bus to report run status to.</param>
+	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
+	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="displayName">The display name of the test case.</param>
+	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
+	/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
+	/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
+	/// <returns>Returns summary information about the test that was run.</returns>
+	public ValueTask<RunSummary> RunAsync(
+		IXunitTestCase testCase,
+		IMessageBus messageBus,
+		ExceptionAggregator aggregator,
+		CancellationTokenSource cancellationTokenSource,
+		string displayName,
+		string? skipReason,
+		object?[] constructorArguments,
+		object?[]? testMethodArguments)
 	{
-		List<BeforeAfterTestAttribute>? beforeAfterAttributes;
-		object?[] constructorArguments;
-		string displayName;
-		Type testClass;
-		MethodInfo testMethod;
+		Guard.ArgumentNotNull(testCase);
+		Guard.ArgumentNotNull(displayName);
+		Guard.ArgumentNotNull(constructorArguments);
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
-		/// </summary>
-		/// <param name="testCase">The test case to be run.</param>
-		/// <param name="displayName">The display name of the test case.</param>
-		/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
-		/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
-		/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
-		/// <param name="messageBus">The message bus to report run status to.</param>
-		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-		public XunitTestCaseRunner(
-			IXunitTestCase testCase,
-			string displayName,
-			string? skipReason,
-			object?[] constructorArguments,
-			object?[]? testMethodArguments,
-			IMessageBus messageBus,
-			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
-				: base(testCase, messageBus, aggregator, cancellationTokenSource)
-		{
-			this.displayName = Guard.ArgumentNotNull(displayName);
-			this.constructorArguments = Guard.ArgumentNotNull(constructorArguments);
+		var (testClass, testMethod, beforeAfterTestAttributes) = Initialize(testCase, ref testMethodArguments);
 
-			SkipReason = skipReason;
-
-			testClass = TestCase.TestMethod?.TestClass.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestMethod.TestClass.Class does not map to a Type object", nameof(testCase));
-			testMethod = TestCase.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod does not map to a MethodInfo object", nameof(testCase));
-
-			var parameters = TestMethod.GetParameters();
-			var parameterTypes = new Type[parameters.Length];
-			for (var i = 0; i < parameters.Length; i++)
-				parameterTypes[i] = parameters[i].ParameterType;
-
-			TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
-		}
-
-		/// <summary>
-		/// Gets the list of <see cref="BeforeAfterTestAttribute"/>s that will be used for this test case.
-		/// </summary>
-		public IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
-		{
-			get
-			{
-				if (beforeAfterAttributes == null)
-					beforeAfterAttributes = GetBeforeAfterTestAttributes();
-
-				return beforeAfterAttributes;
-			}
-		}
-
-		/// <summary>
-		/// Gets or sets the arguments passed to the test class constructor
-		/// </summary>
-		protected object?[] ConstructorArguments
-		{
-			get => constructorArguments;
-			set => constructorArguments = Guard.ArgumentNotNull(value, nameof(ConstructorArguments));
-		}
-
-		/// <summary>
-		/// Gets or sets the display name of the test case
-		/// </summary>
-		protected string DisplayName
-		{
-			get => displayName;
-			set => displayName = Guard.ArgumentNotNull(value, nameof(DisplayName));
-		}
-
-		/// <summary>
-		/// Gets or sets the skip reason for the test, if set.
-		/// </summary>
-		protected string? SkipReason { get; set; }
-
-		/// <summary>
-		/// Gets or sets the runtime type for the test class that the test method belongs to.
-		/// </summary>
-		protected Type TestClass
-		{
-			get => testClass;
-			set => testClass = Guard.ArgumentNotNull(value, nameof(TestClass));
-		}
-
-		/// <summary>
-		/// Gets of sets the runtime method for the test method that the test case belongs to.
-		/// </summary>
-		protected MethodInfo TestMethod
-		{
-			get => testMethod;
-			set => testMethod = Guard.ArgumentNotNull(value, nameof(TestMethod));
-		}
-
-		/// <summary>
-		/// Gets or sets the arguments to pass to the test method when it's being invoked.
-		/// Maybe be <c>null</c> to indicate there are no arguments.
-		/// </summary>
-		protected object?[]? TestMethodArguments { get; set; }
-
-		/// <summary>
-		/// Creates the <see cref="_ITest"/> instance for the given test case.
-		/// </summary>
-		protected virtual _ITest CreateTest(
-			IXunitTestCase testCase,
-			string displayName,
-			int testIndex) =>
-				new XunitTest(testCase, displayName, testIndex);
-
-		/// <summary>
-		/// Gets the list of <see cref="BeforeAfterTestAttribute"/> attributes that apply to this test case.
-		/// </summary>
-		protected virtual List<BeforeAfterTestAttribute> GetBeforeAfterTestAttributes()
-		{
-			IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
-
-			if (TestCase.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
-				beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetCustomAttributes(typeof(BeforeAfterTestAttribute));
-			else
-				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
-
-			return
-				beforeAfterTestCollectionAttributes
-					.Concat(TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-					.Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-					.Concat(TestClass.Assembly.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-					.Cast<BeforeAfterTestAttribute>()
-					.CastOrToList();
-		}
-
-		/// <inheritdoc/>
-		protected override ValueTask<RunSummary> RunTestAsync() =>
-			XunitTestRunner.Instance.RunAsync(
-				CreateTest(TestCase, DisplayName, testIndex: 0),
-				MessageBus,
-				TestClass,
-				ConstructorArguments,
-				TestMethod,
-				TestMethodArguments,
-				SkipReason,
-				Aggregator,
-				CancellationTokenSource,
-				BeforeAfterAttributes
-			);
+		return RunAsync(new(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes));
 	}
 }

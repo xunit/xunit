@@ -88,7 +88,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 		string? skipReason,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes) =>
+		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterAttributes) =>
 			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource, beforeAfterAttributes));
 
 	/// <inheritdoc/>

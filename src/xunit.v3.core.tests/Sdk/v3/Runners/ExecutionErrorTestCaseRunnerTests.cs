@@ -20,9 +20,8 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	public async void Messages()
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
-		var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
-		var result = await runner.RunAsync();
+		var result = await ExecutionErrorTestCaseRunner.Instance.RunAsync(testCase, messageBus, aggregator, tokenSource);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -65,9 +64,8 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
-		var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
-		await runner.RunAsync();
+		await ExecutionErrorTestCaseRunner.Instance.RunAsync(testCase, messageBus, aggregator, tokenSource);
 
 		Assert.True(tokenSource.IsCancellationRequested);
 	}

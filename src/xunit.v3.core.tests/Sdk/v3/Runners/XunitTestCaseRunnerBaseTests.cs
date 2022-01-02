@@ -1,27 +1,24 @@
-﻿using System.Linq;
-using System.Threading;
-using NSubstitute;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-[assembly: XunitTestCaseRunnerTests.BeforeAfterOnAssembly]
+[assembly: XunitTestCaseRunnerBaseTests.BeforeAfterOnAssembly]
 
-public class XunitTestCaseRunnerTests
+public class XunitTestCaseRunnerBaseTests
 {
 	[Fact]
 	public static void BeforeAfterTestAttributesComeFromTestCollectionAndTestClassAndTestMethod()
 	{
 		var collection = Mocks.TestCollection(definition: Reflector.Wrap(typeof(BeforeAfterCollection)));
 		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing", collection);
-		var messageBus = Substitute.For<IMessageBus>();
-		var aggregator = new ExceptionAggregator();
-		var tokenSource = new CancellationTokenSource();
+		var runner = new TestableXunitTestCaseRunnerBase();
 
-		var runner = new XunitTestCaseRunner(testCase, "Display Name", "Skip Reason", new object[0], new object[0], messageBus, aggregator, tokenSource);
+		var result = runner.GetBeforeAfterTestAttributes(testCase);
 
 		Assert.Collection(
-			runner.BeforeAfterAttributes.OrderBy(a => a.GetType().Name),
+			result.OrderBy(a => a.GetType().Name),
 			attr => Assert.IsType<BeforeAfterOnAssembly>(attr),
 			attr => Assert.IsType<BeforeAfterOnClass>(attr),
 			attr => Assert.IsType<BeforeAfterOnCollection>(attr),
@@ -44,4 +41,14 @@ public class XunitTestCaseRunnerTests
 	class BeforeAfterOnClass : BeforeAfterTestAttribute { }
 	class BeforeAfterOnMethod : BeforeAfterTestAttribute { }
 	public class BeforeAfterOnAssembly : BeforeAfterTestAttribute { }
+
+	class TestableXunitTestCaseRunnerBase : XunitTestCaseRunnerBase<XunitTestCaseRunnerContext>
+	{
+		public IReadOnlyCollection<BeforeAfterTestAttribute> GetBeforeAfterTestAttributes(IXunitTestCase testCase)
+		{
+			var testMethodArguments = new object?[0];
+			var result = Initialize(testCase, ref testMethodArguments);
+			return result.BeforeAfterTestAttributes;
+		}
+	}
 }
