@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base context class for <see cref="TestClassRunner{TContext, TTestCase}"/>.
 /// </summary>
-public class TestClassRunnerContext<TTestCase>
+public class TestClassRunnerContext<TTestCase> : ContextBase
 	where TTestCase : _ITestCase
 {
 	ITestCaseOrderer testCaseOrderer;
@@ -23,36 +23,19 @@ public class TestClassRunnerContext<TTestCase>
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource)
+		CancellationTokenSource cancellationTokenSource) :
+			base(messageBus, aggregator, cancellationTokenSource)
 	{
 		TestClass = testClass;
 		Class = @class;
 		TestCases = Guard.ArgumentNotNull(testCases);
-		MessageBus = Guard.ArgumentNotNull(messageBus);
 		this.testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
-		Aggregator = aggregator;
-		CancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	}
-
-	/// <summary>
-	/// Gets the aggregator used for reporting exceptions.
-	/// </summary>
-	public ExceptionAggregator Aggregator { get; }
-
-	/// <summary>
-	/// Gets the cancellation token source used for cancelling test execution.
-	/// </summary>
-	public CancellationTokenSource CancellationTokenSource { get; }
 
 	/// <summary>
 	/// Gets the type that maps to this test class.
 	/// </summary>
 	public _IReflectionTypeInfo? Class { get; }
-
-	/// <summary>
-	/// Gets the message bus to send execution engine messages to.
-	/// </summary>
-	public IMessageBus MessageBus { get; }
 
 	/// <summary>
 	/// Gets or sets the orderer used to order the test cases.

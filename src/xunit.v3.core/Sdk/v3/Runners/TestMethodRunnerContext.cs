@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base context class for <see cref="TestMethodRunner{TContext, TTestCase}"/>.
 /// </summary>
-public class TestMethodRunnerContext<TTestCase>
+public class TestMethodRunnerContext<TTestCase> : ContextBase
 	where TTestCase : _ITestCase
 {
 	/// <summary>
@@ -22,36 +22,19 @@ public class TestMethodRunnerContext<TTestCase>
 		IReadOnlyCollection<TTestCase> testCases,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource)
+		CancellationTokenSource cancellationTokenSource) :
+			base(messageBus, aggregator, cancellationTokenSource)
 	{
 		TestMethod = testMethod;
 		Class = @class;
 		Method = method;
 		TestCases = Guard.ArgumentNotNull(testCases);
-		MessageBus = Guard.ArgumentNotNull(messageBus);
-		Aggregator = aggregator;
-		CancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	}
-
-	/// <summary>
-	/// Gets the aggregator used for reporting exceptions.
-	/// </summary>
-	public ExceptionAggregator Aggregator { get; }
-
-	/// <summary>
-	/// Gets the cancellation token source used for cancelling test execution.
-	/// </summary>
-	public CancellationTokenSource CancellationTokenSource { get; }
 
 	/// <summary>
 	/// Gets the class that this test method is associated with.
 	/// </summary>
 	public _IReflectionTypeInfo? Class { get; }
-
-	/// <summary>
-	/// Gets the message bus to send execution engine messages to.
-	/// </summary>
-	public IMessageBus MessageBus { get; }
 
 	/// <summary>
 	/// Gets the method that this test method derives from.

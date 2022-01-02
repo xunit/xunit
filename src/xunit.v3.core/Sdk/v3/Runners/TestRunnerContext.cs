@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base context class for <see cref="TestRunner{TContext}"/>.
 /// </summary>
-public class TestRunnerContext
+public class TestRunnerContext : ContextBase
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestRunnerContext"/> class.
@@ -23,38 +23,21 @@ public class TestRunnerContext
 		object?[]? testMethodArguments,
 		string? skipReason,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource)
+		CancellationTokenSource cancellationTokenSource) :
+			base(messageBus, aggregator, cancellationTokenSource)
 	{
 		Test = Guard.ArgumentNotNull(test);
 		TestClass = Guard.ArgumentNotNull(testClass);
 		ConstructorArguments = Guard.ArgumentNotNull(constructorArguments);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
 		TestMethodArguments = testMethodArguments;
-		MessageBus = Guard.ArgumentNotNull(messageBus);
 		SkipReason = skipReason;
-		Aggregator = aggregator;
-		CancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	}
-
-	/// <summary>
-	/// Gets the aggregator used for reporting exceptions.
-	/// </summary>
-	public ExceptionAggregator Aggregator { get; }
-
-	/// <summary>
-	/// Gets the cancellation token source used for cancelling test execution.
-	/// </summary>
-	public CancellationTokenSource CancellationTokenSource { get; }
 
 	/// <summary>
 	/// Gets the arguments that should be passed to the test class when it's constructed.
 	/// </summary>
 	public object?[] ConstructorArguments { get; }
-
-	/// <summary>
-	/// Gets the message bus to send execution engine messages to.
-	/// </summary>
-	public IMessageBus MessageBus { get; }
 
 	/// <summary>
 	/// Gets the skip reason given for the test; will be <c>null</c> if the test is not

@@ -22,7 +22,7 @@ public class ContextBase
 	{
 		MessageBus = Guard.ArgumentNotNull(messageBus);
 		Aggregator = aggregator;
-		CancellationTokenSource = cancellationTokenSource;
+		CancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	}
 
 	/// <summary>
