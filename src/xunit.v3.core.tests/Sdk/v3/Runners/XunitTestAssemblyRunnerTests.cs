@@ -5,165 +5,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
 public class XunitTestAssemblyRunnerTests
 {
-	public class GetTestFrameworkDisplayName
-	{
-		[Fact]
-		public static async ValueTask IsXunit()
-		{
-			await using var runner = TestableXunitTestAssemblyRunner.Create();
-
-			var result = runner.GetTestFrameworkDisplayName();
-
-			Assert.StartsWith("xUnit.net ", result);
-		}
-	}
-
-	public class GetTestFrameworkEnvironment
-	{
-		[Fact]
-		public static async ValueTask Default()
-		{
-			await using var runner = TestableXunitTestAssemblyRunner.Create();
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith($"[collection-per-class, parallel ({Environment.ProcessorCount} threads)]", result);
-		}
-
-		[Fact]
-		public static async ValueTask Attribute_NonParallel()
-		{
-			var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, non-parallel]", result);
-		}
-
-		[Fact]
-		public static async ValueTask Attribute_MaxThreads()
-		{
-			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
-		}
-
-		[Fact]
-		public static async ValueTask Attribute_Unlimited()
-		{
-			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: -1);
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, parallel (unlimited threads)]", result);
-		}
-
-		[Theory]
-		[InlineData(CollectionBehavior.CollectionPerAssembly, "collection-per-assembly")]
-		[InlineData(CollectionBehavior.CollectionPerClass, "collection-per-class")]
-		public static async ValueTask Attribute_CollectionBehavior(CollectionBehavior behavior, string expectedDisplayText)
-		{
-			var attribute = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith($"[{expectedDisplayText}, non-parallel]", result);
-		}
-
-		[Fact]
-		public static async ValueTask Attribute_CustomCollectionFactory()
-		{
-			var factoryType = typeof(MyTestCollectionFactory);
-			var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!, disableTestParallelization: true);
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attr });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[My Factory, non-parallel]", result);
-		}
-
-		class MyTestCollectionFactory : IXunitTestCollectionFactory
-		{
-			public string DisplayName { get { return "My Factory"; } }
-
-			public MyTestCollectionFactory(_ITestAssembly assembly) { }
-
-			public _ITestCollection Get(_ITypeInfo testClass)
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		[Fact]
-		public static async ValueTask TestOptions_NonParallel()
-		{
-			var options = _TestFrameworkOptions.ForExecution();
-			options.SetDisableParallelization(true);
-			await using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, non-parallel]", result);
-		}
-
-		[Fact]
-		public static async ValueTask TestOptions_MaxThreads()
-		{
-			var options = _TestFrameworkOptions.ForExecution();
-			options.SetMaxParallelThreads(3);
-			await using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
-		}
-
-		[Fact]
-		public static async ValueTask TestOptions_Unlimited()
-		{
-			var options = _TestFrameworkOptions.ForExecution();
-			options.SetMaxParallelThreads(-1);
-			await using var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, parallel (unlimited threads)]", result);
-		}
-
-		[Fact]
-		public static async ValueTask TestOptionsOverrideAttribute()
-		{
-			var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
-			var options = _TestFrameworkOptions.ForExecution();
-			options.SetDisableParallelization(false);
-			options.SetMaxParallelThreads(3);
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, executionOptions: options);
-
-			var result = runner.GetTestFrameworkEnvironment();
-
-			Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
-		}
-	}
-
 	public class RunAsync
 	{
 		[Fact]
@@ -173,7 +20,7 @@ public class XunitTestAssemblyRunnerTests
 			var other = TestData.XunitTestCase<ClassUnderTest>("Other");
 			var options = _TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(1);
-			await using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
+			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();
 
@@ -188,152 +35,12 @@ public class XunitTestAssemblyRunnerTests
 			var other = TestData.XunitTestCase<ClassUnderTest>("Other");
 			var options = _TestFrameworkOptions.ForExecution();
 			options.SetDisableParallelization(true);
-			await using var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
+			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();
 
 			var threadIDs = runner.TestCasesRun.Select(x => x.Item1).ToList();
 			Assert.Equal(threadIDs[0], threadIDs[1]);
-		}
-	}
-
-	public class TestCaseOrderer
-	{
-		[Fact]
-		public static async ValueTask CanSetTestCaseOrdererInAssemblyAttribute()
-		{
-			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyTestCaseOrderer>();
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			runner.Initialize();
-
-			Assert.IsType<MyTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-		}
-
-		class MyTestCaseOrderer : ITestCaseOrderer
-		{
-			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : notnull, _ITestCase
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		[Fact]
-		public static async ValueTask SettingUnknownTestCaseOrderLogsDiagnosticMessage()
-		{
-			var spy = SpyMessageSink.Capture();
-			TestContext.Current!.DiagnosticMessageSink = spy;
-
-			var ordererAttribute = Mocks.TestCaseOrdererAttribute("UnknownType", "UnknownAssembly");
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			runner.Initialize();
-
-			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
-			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test case orderer", diagnosticMessage.Message);
-		}
-
-		[Fact]
-		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
-		{
-			var spy = SpyMessageSink.Capture();
-			TestContext.Current!.DiagnosticMessageSink = spy;
-
-			var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			runner.Initialize();
-
-			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
-			Assert.StartsWith("Assembly-level test case orderer 'XunitTestAssemblyRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
-		}
-
-		class MyCtorThrowingTestCaseOrderer : ITestCaseOrderer
-		{
-			public MyCtorThrowingTestCaseOrderer()
-			{
-				throw new DivideByZeroException();
-			}
-
-			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : notnull, _ITestCase
-			{
-				return Array.Empty<TTestCase>();
-			}
-		}
-	}
-
-	public class TestCollectionOrderer
-	{
-		[Fact]
-		public static async ValueTask CanSetTestCollectionOrdererInAssemblyAttribute()
-		{
-			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<DescendingDisplayNameCollectionOrderer>();
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			runner.Initialize();
-
-			Assert.IsType<DescendingDisplayNameCollectionOrderer>(runner.DefaultTestCollectionOrderer);
-		}
-
-		class DescendingDisplayNameCollectionOrderer : ITestCollectionOrderer
-		{
-			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> TestCollections) =>
-				TestCollections
-					.OrderByDescending(c => c.DisplayName)
-					.CastOrToReadOnlyCollection();
-		}
-
-		[Fact]
-		public static async ValueTask SettingUnknownTestCollectionOrderLogsDiagnosticMessage()
-		{
-			var spy = SpyMessageSink.Capture();
-			TestContext.Current!.DiagnosticMessageSink = spy;
-
-			var ordererAttribute = Mocks.TestCollectionOrdererAttribute("UnknownType", "UnknownAssembly");
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			runner.Initialize();
-
-			Assert.IsType<DefaultTestCollectionOrderer>(runner.DefaultTestCollectionOrderer);
-			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
-			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test collection orderer", diagnosticMessage.Message);
-		}
-
-		[Fact]
-		public static async ValueTask SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
-		{
-			var spy = SpyMessageSink.Capture();
-			TestContext.Current!.DiagnosticMessageSink = spy;
-
-			var ordererAttribute = Mocks.TestCollectionOrdererAttribute<CtorThrowingCollectionOrderer>();
-			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { ordererAttribute });
-			await using var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
-
-			runner.Initialize();
-
-			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
-			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
-			Assert.StartsWith("Assembly-level test collection orderer 'XunitTestAssemblyRunnerTests+TestCollectionOrderer+CtorThrowingCollectionOrderer' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
-		}
-
-		class CtorThrowingCollectionOrderer : ITestCollectionOrderer
-		{
-			public CtorThrowingCollectionOrderer()
-			{
-				throw new DivideByZeroException();
-			}
-
-			public IReadOnlyCollection<_ITestCollection> OrderTestCollections(IReadOnlyCollection<_ITestCollection> testCollections) =>
-				Array.Empty<_ITestCollection>();
 		}
 	}
 
@@ -348,6 +55,11 @@ public class XunitTestAssemblyRunnerTests
 
 	class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner
 	{
+		readonly _IMessageSink executionMessageSink;
+		readonly _ITestFrameworkExecutionOptions executionOptions;
+		readonly _ITestAssembly testAssembly;
+		readonly IReadOnlyCollection<IXunitTestCase> testCases;
+
 		public ConcurrentBag<Tuple<int, IXunitTestCase>> TestCasesRun = new();
 
 		TestableXunitTestAssemblyRunner(
@@ -355,12 +67,12 @@ public class XunitTestAssemblyRunnerTests
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
-				: base(testAssembly, testCases, executionMessageSink, executionOptions)
-		{ }
-
-		public ITestCaseOrderer DefaultTestCaseOrderer => base.GetTestCaseOrderer();
-
-		public ITestCollectionOrderer DefaultTestCollectionOrderer => base.GetTestCollectionOrderer();
+		{
+			this.testAssembly = testAssembly;
+			this.testCases = testCases;
+			this.executionMessageSink = executionMessageSink;
+			this.executionOptions = executionOptions;
+		}
 
 		public static TestableXunitTestAssemblyRunner Create(
 			_ITestAssembly? assembly = null,
@@ -378,26 +90,13 @@ public class XunitTestAssemblyRunnerTests
 			);
 		}
 
-		public new string GetTestFrameworkDisplayName()
-		{
-			return base.GetTestFrameworkDisplayName();
-		}
-
-		public new string GetTestFrameworkEnvironment()
-		{
-			return base.GetTestFrameworkEnvironment();
-		}
-
-		public new void Initialize()
-		{
-			base.Initialize();
-		}
+		public ValueTask<RunSummary> RunAsync() =>
+			RunAsync(new(testAssembly, testCases, executionMessageSink, executionOptions));
 
 		protected override ValueTask<RunSummary> RunTestCollectionAsync(
-			IMessageBus messageBus,
+			XunitTestAssemblyRunnerContext ctxt,
 			_ITestCollection testCollection,
-			IReadOnlyCollection<IXunitTestCase> testCases,
-			CancellationTokenSource cancellationTokenSource)
+			IReadOnlyCollection<IXunitTestCase> testCases)
 		{
 			foreach (var testCase in testCases)
 				TestCasesRun.Add(Tuple.Create(Thread.CurrentThread.ManagedThreadId, testCase));

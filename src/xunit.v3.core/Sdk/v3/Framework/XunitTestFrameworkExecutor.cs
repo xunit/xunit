@@ -49,8 +49,7 @@ namespace Xunit.v3
 			_IMessageSink executionMessageSink,
 			_ITestFrameworkExecutionOptions executionOptions)
 		{
-			await using var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, executionMessageSink, executionOptions);
-			await assemblyRunner.RunAsync();
+			await XunitTestAssemblyRunner.Instance.RunAsync(TestAssembly, testCases, executionMessageSink, executionOptions);
 		}
 	}
 }
