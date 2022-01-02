@@ -3,357 +3,298 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.v3
+namespace Xunit.v3;
+
+/// <summary>
+/// A base class that provides default behavior when running tests in a test class. It groups the tests
+/// by test method, and then runs the individual test methods.
+/// </summary>
+/// <typeparam name="TContext">The context type used by the runner</typeparam>
+/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
+/// derive from <see cref="_ITestCase"/>.</typeparam>
+public abstract class TestClassRunner<TContext, TTestCase>
+	where TContext : TestClassRunnerContext<TTestCase>
+	where TTestCase : class, _ITestCase
 {
 	/// <summary>
-	/// A base class that provides default behavior when running tests in a test class. It groups the tests
-	/// by test method, and then runs the individual test methods.
+	/// Initializes a new instance of the <see cref="TestClassRunner{TContext, TTestCase}"/> class.
 	/// </summary>
-	/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-	/// derive from <see cref="_ITestCase"/>.</typeparam>
-	public abstract class TestClassRunner<TTestCase>
-		where TTestCase : class, _ITestCase
+	protected TestClassRunner()
+	{ }
+
+	/// <summary>
+	/// Creates the arguments for the test class constructor. Attempts to resolve each parameter
+	/// individually, and adds an error when the constructor arguments cannot all be provided.
+	/// If the class is static, does not look for constructor, since one will not be needed.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <returns>The test class constructor arguments.</returns>
+	protected virtual object?[] CreateTestClassConstructorArguments(TContext ctxt)
 	{
-		CancellationTokenSource cancellationTokenSource;
-		IMessageBus messageBus;
-		ITestCaseOrderer testCaseOrderer;
-		IReadOnlyCollection<TTestCase> testCases;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
-		/// </summary>
-		/// <param name="testClass">The test class to be run. May be <c>null</c> for test cases that do not support classes
-		/// and methods.</param>
-		/// <param name="class">The test class that contains the tests to be run. May be <c>null</c> for test cases that do not
-		/// support classes and methods.</param>
-		/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
-		/// <param name="messageBus">The message bus to report run status to.</param>
-		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
-		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-		protected TestClassRunner(
-			_ITestClass? testClass,
-			_IReflectionTypeInfo? @class,
-			IReadOnlyCollection<TTestCase> testCases,
-			IMessageBus messageBus,
-			ITestCaseOrderer testCaseOrderer,
-			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource)
+		var isStaticClass = ctxt.Class == null || (ctxt.Class.Type.IsAbstract && ctxt.Class.Type.IsSealed);
+		if (ctxt.Class != null && !isStaticClass)
 		{
-			TestClass = testClass;
-			Class = @class;
-			Aggregator = aggregator;
-
-			this.testCases = Guard.ArgumentNotNullOrEmpty(testCases);
-			this.messageBus = Guard.ArgumentNotNull(messageBus);
-			this.testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
-			this.cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
-		}
-
-		/// <summary>
-		/// Gets or sets the exception aggregator used to run code and collect exceptions.
-		/// </summary>
-		protected ExceptionAggregator Aggregator { get; set; }
-
-		/// <summary>
-		/// Gets or sets the task cancellation token source, used to cancel the test run.
-		/// </summary>
-		protected CancellationTokenSource CancellationTokenSource
-		{
-			get => cancellationTokenSource;
-			set => cancellationTokenSource = Guard.ArgumentNotNull(value, nameof(CancellationTokenSource));
-		}
-
-		/// <summary>
-		/// Gets or sets the CLR class that contains the tests to be run.
-		/// </summary>
-		protected _IReflectionTypeInfo? Class { get; set; }
-
-		/// <summary>
-		/// Gets or sets the message bus to report run status to.
-		/// </summary>
-		protected IMessageBus MessageBus
-		{
-			get => messageBus;
-			set => messageBus = Guard.ArgumentNotNull(value, nameof(MessageBus));
-		}
-
-		/// <summary>
-		/// Gets or sets the test case orderer that will be used to decide how to order the test.
-		/// </summary>
-		protected ITestCaseOrderer TestCaseOrderer
-		{
-			get => testCaseOrderer;
-			set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
-		}
-
-		/// <summary>
-		/// Gets or sets the test cases to be run.
-		/// </summary>
-		protected IReadOnlyCollection<TTestCase> TestCases
-		{
-			get => testCases;
-			set => testCases = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
-		}
-
-		/// <summary>
-		/// Gets or sets the test class to be run.
-		/// </summary>
-		protected _ITestClass? TestClass { get; set; }
-
-		/// <summary>
-		/// Creates the arguments for the test class constructor. Attempts to resolve each parameter
-		/// individually, and adds an error when the constructor arguments cannot all be provided.
-		/// If the class is static, does not look for constructor, since one will not be needed.
-		/// </summary>
-		/// <returns>The test class constructor arguments.</returns>
-		protected virtual object?[] CreateTestClassConstructorArguments()
-		{
-			var isStaticClass = Class == null || (Class.Type.IsAbstract && Class.Type.IsSealed);
-			if (Class != null && !isStaticClass)
+			var ctor = SelectTestClassConstructor(ctxt);
+			if (ctor != null)
 			{
-				var ctor = SelectTestClassConstructor(Class);
-				if (ctor != null)
+				var unusedArguments = new List<Tuple<int, ParameterInfo>>();
+				var parameters = ctor.GetParameters();
+
+				var constructorArguments = new object?[parameters.Length];
+				for (var idx = 0; idx < parameters.Length; ++idx)
 				{
-					var unusedArguments = new List<Tuple<int, ParameterInfo>>();
-					var parameters = ctor.GetParameters();
+					var parameter = parameters[idx];
 
-					var constructorArguments = new object?[parameters.Length];
-					for (var idx = 0; idx < parameters.Length; ++idx)
-					{
-						var parameter = parameters[idx];
-
-						if (TryGetConstructorArgument(ctor, idx, parameter, out var argumentValue))
-							constructorArguments[idx] = argumentValue;
-						else if (parameter.HasDefaultValue)
-							constructorArguments[idx] = parameter.DefaultValue;
-						else if (parameter.IsOptional)
-							constructorArguments[idx] = parameter.ParameterType.GetDefaultValue();
-						else if (parameter.GetCustomAttribute<ParamArrayAttribute>() != null)
-							constructorArguments[idx] = Array.CreateInstance(parameter.ParameterType, 0);
-						else
-							unusedArguments.Add(Tuple.Create(idx, parameter));
-					}
-
-					if (unusedArguments.Count > 0)
-						Aggregator.Add(new TestClassException(FormatConstructorArgsMissingMessage(ctor, unusedArguments)));
-
-					return constructorArguments;
+					if (TryGetConstructorArgument(ctxt, ctor, idx, parameter, out var argumentValue))
+						constructorArguments[idx] = argumentValue;
+					else if (parameter.HasDefaultValue)
+						constructorArguments[idx] = parameter.DefaultValue;
+					else if (parameter.IsOptional)
+						constructorArguments[idx] = parameter.ParameterType.GetDefaultValue();
+					else if (parameter.GetCustomAttribute<ParamArrayAttribute>() != null)
+						constructorArguments[idx] = Array.CreateInstance(parameter.ParameterType, 0);
+					else
+						unusedArguments.Add(Tuple.Create(idx, parameter));
 				}
+
+				if (unusedArguments.Count > 0)
+					ctxt.Aggregator.Add(new TestClassException(FormatConstructorArgsMissingMessage(ctxt, ctor, unusedArguments)));
+
+				return constructorArguments;
 			}
-
-			return new object[0];
 		}
 
-		/// <summary>
-		/// Gets the message to be used when the constructor is missing arguments.
-		/// </summary>
-		protected virtual string FormatConstructorArgsMissingMessage(
-			ConstructorInfo constructor,
-			IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments) =>
-				$"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
+		return new object[0];
+	}
 
-		/// <summary>
-		/// This method is called just after <see cref="_TestClassStarting"/> is sent, but before any test methods are run.
-		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
-		/// </summary>
-		protected virtual ValueTask AfterTestClassStartingAsync() => default;
+	/// <summary>
+	/// Gets the message to be used when the constructor is missing arguments.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="constructor">The constructor that was selected</param>
+	/// <param name="unusedArguments">The arguments that had no matching parameter values</param>
+	protected virtual string FormatConstructorArgsMissingMessage(
+		TContext ctxt,
+		ConstructorInfo constructor,
+		IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments) =>
+			$"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
-		/// <summary>
-		/// This method is called just before <see cref="_TestClassFinished"/> is sent.
-		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
-		/// </summary>
-		protected virtual ValueTask BeforeTestClassFinishedAsync() => default;
+	/// <summary>
+	/// This method is called just after <see cref="_TestClassStarting"/> is sent, but before any test methods are run.
+	/// This method should NEVER throw; any exceptions should be placed into the aggregator in <paramref name="ctxt"/>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	protected virtual ValueTask AfterTestClassStartingAsync(TContext ctxt) =>
+		default;
 
-		/// <summary>
-		/// Runs the tests in the test class.
-		/// </summary>
-		/// <returns>Returns summary information about the tests that were run.</returns>
-		public async ValueTask<RunSummary> RunAsync()
+	/// <summary>
+	/// This method is called after all test methods are run, but just before <see cref="_TestClassFinished"/> is sent.
+	/// This method should NEVER throw; any exceptions should be placed into the aggregator in <paramref name="ctxt"/>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	protected virtual ValueTask BeforeTestClassFinishedAsync(TContext ctxt) =>
+		default;
+
+	/// <summary>
+	/// Runs the tests in the test class.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
+	{
+		SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+		var classSummary = new RunSummary();
+		var testCollection = ctxt.TestCases.First().TestCollection;
+		var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = testCollection.UniqueID;
+		var testClassUniqueID = ctxt.TestClass?.UniqueID;
+
+		if (ctxt.TestClass != null)
 		{
-			SetTestContext(TestEngineStatus.Initializing);
-
-			var classSummary = new RunSummary();
-			var testCollection = TestCases.First().TestCollection;
-			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = testCollection.UniqueID;
-			var testClassUniqueID = TestClass?.UniqueID;
-
-			if (TestClass != null)
+			var classStarting = new _TestClassStarting
 			{
-				var classStarting = new _TestClassStarting
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					TestClass = TestClass.Class.Name,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID
-				};
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestClass = ctxt.TestClass.Class.Name,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID
+			};
 
-				if (!MessageBus.QueueMessage(classStarting))
-				{
-					CancellationTokenSource.Cancel();
-					return classSummary;
-				}
-			}
-
-			try
+			if (!ctxt.MessageBus.QueueMessage(classStarting))
 			{
-				await AfterTestClassStartingAsync();
-
-				SetTestContext(TestEngineStatus.Running);
-
-				classSummary = await RunTestMethodsAsync();
-
-				SetTestContext(TestEngineStatus.CleaningUp);
-
-				Aggregator.Clear();
-				await BeforeTestClassFinishedAsync();
-
-				if (Aggregator.HasExceptions)
-				{
-					var classCleanupFailure = _TestClassCleanupFailure.FromException(Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
-					if (!MessageBus.QueueMessage(classCleanupFailure))
-						CancellationTokenSource.Cancel();
-				}
-
+				ctxt.CancellationTokenSource.Cancel();
 				return classSummary;
 			}
-			finally
+		}
+
+		try
+		{
+			await AfterTestClassStartingAsync(ctxt);
+
+			SetTestContext(ctxt, TestEngineStatus.Running);
+
+			classSummary = await RunTestMethodsAsync(ctxt);
+
+			SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+			ctxt.Aggregator.Clear();
+			await BeforeTestClassFinishedAsync(ctxt);
+
+			if (ctxt.Aggregator.HasExceptions)
 			{
-				if (TestClass != null)
+				var classCleanupFailure = _TestClassCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
+				if (!ctxt.MessageBus.QueueMessage(classCleanupFailure))
+					ctxt.CancellationTokenSource.Cancel();
+			}
+
+			return classSummary;
+		}
+		finally
+		{
+			if (ctxt.TestClass != null)
+			{
+				var classFinished = new _TestClassFinished
 				{
-					var classFinished = new _TestClassFinished
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = classSummary.Time,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestsFailed = classSummary.Failed,
-						TestsRun = classSummary.Total,
-						TestsSkipped = classSummary.Skipped
-					};
+					AssemblyUniqueID = testAssemblyUniqueID,
+					ExecutionTime = classSummary.Time,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestsFailed = classSummary.Failed,
+					TestsRun = classSummary.Total,
+					TestsSkipped = classSummary.Skipped
+				};
 
-					if (!MessageBus.QueueMessage(classFinished))
-						CancellationTokenSource.Cancel();
-				}
+				if (!ctxt.MessageBus.QueueMessage(classFinished))
+					ctxt.CancellationTokenSource.Cancel();
 			}
 		}
+	}
 
-		/// <summary>
-		/// Runs the list of test methods. By default, orders the tests, groups them by method and runs them synchronously.
-		/// </summary>
-		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected virtual async ValueTask<RunSummary> RunTestMethodsAsync()
+	/// <summary>
+	/// Runs the list of test methods. By default, orders the tests, groups them by method and runs them synchronously.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	protected virtual async ValueTask<RunSummary> RunTestMethodsAsync(TContext ctxt)
+	{
+		var summary = new RunSummary();
+		IReadOnlyCollection<TTestCase> orderedTestCases;
+
+		try
 		{
-			var summary = new RunSummary();
-			IReadOnlyCollection<TTestCase> orderedTestCases;
+			orderedTestCases = ctxt.TestCaseOrderer.OrderTestCases(ctxt.TestCases);
+		}
+		catch (Exception ex)
+		{
+			var innerEx = ex.Unwrap();
 
-			try
-			{
-				orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
-			}
-			catch (Exception ex)
-			{
-				var innerEx = ex.Unwrap();
+			TestContext.Current?.SendDiagnosticMessage(
+				"Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
+				ctxt.TestCaseOrderer.GetType().FullName,
+				innerEx.GetType().FullName,
+				innerEx.Message,
+				Environment.NewLine,
+				innerEx.StackTrace
+			);
 
-				TestContext.Current?.SendDiagnosticMessage(
-					"Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
-					TestCaseOrderer.GetType().FullName,
-					innerEx.GetType().FullName,
-					innerEx.Message,
-					Environment.NewLine,
-					innerEx.StackTrace
-				);
-
-				orderedTestCases = TestCases.CastOrToReadOnlyCollection();
-			}
-
-			var constructorArguments = CreateTestClassConstructorArguments();
-
-			foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
-			{
-				summary.Aggregate(
-					await RunTestMethodAsync(
-						method.Key,
-						// TODO: This will throw for non-reflection-based type info. Should it raise a warning instead?
-						(_IReflectionMethodInfo?)method.Key?.Method,
-						method.CastOrToReadOnlyCollection(),
-						constructorArguments
-					)
-				);
-
-				if (CancellationTokenSource.IsCancellationRequested)
-					break;
-			}
-
-			return summary;
+			orderedTestCases = ctxt.TestCases.CastOrToReadOnlyCollection();
 		}
 
-		/// <summary>
-		/// Override this method to run the tests in an individual test method.
-		/// </summary>
-		/// <param name="testMethod">The test method that contains the test cases. May be <c>null</c> for test cases that do not
-		/// support classes and methods.</param>
-		/// <param name="method">The CLR method that contains the tests to be run. May be <c>null</c> for test cases that do not
-		/// support classes and methods.</param>
-		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
-		/// <returns>Returns summary information about the tests that were run.</returns>
-		protected abstract ValueTask<RunSummary> RunTestMethodAsync(
-			_ITestMethod? testMethod,
-			_IReflectionMethodInfo? method,
-			IReadOnlyCollection<TTestCase> testCases,
-			object?[] constructorArguments
-		);
+		var constructorArguments = CreateTestClassConstructorArguments(ctxt);
 
-		/// <summary>
-		/// Selects the constructor to be used for the test class. By default, chooses the parameterless
-		/// constructor. Override to change the constructor selection logic.
-		/// </summary>
-		/// <param name="class">The test class to get the constructor for.</param>
-		/// <returns>The constructor to be used for creating the test class.</returns>
-		protected virtual ConstructorInfo? SelectTestClassConstructor(_IReflectionTypeInfo @class)
+		foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
 		{
-			var result = @class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
-			if (result == null)
-				Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
+			summary.Aggregate(
+				await RunTestMethodAsync(
+					ctxt,
+					method.Key,
+					method.Key?.Method as _IReflectionMethodInfo,
+					method.CastOrToReadOnlyCollection(),
+					constructorArguments
+				)
+			);
 
-			return result;
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				break;
 		}
 
-		/// <summary>
-		/// Sets the current <see cref="TestContext"/> for the current test class and the given test class status.
-		/// Does nothing when <see cref="TestClass"/> is <c>null</c>.
-		/// </summary>
-		/// <param name="testClassStatus">The current test class status.</param>
-		protected virtual void SetTestContext(TestEngineStatus testClassStatus)
-		{
-			if (TestClass != null)
-				TestContext.SetForTestClass(TestClass, testClassStatus, CancellationTokenSource.Token);
-		}
+		return summary;
+	}
 
-		/// <summary>
-		/// Tries to supply a test class constructor argument. By default, always fails. Override to
-		/// change the argument lookup logic.
-		/// </summary>
-		/// <param name="constructor">The constructor that will be used to create the test class.</param>
-		/// <param name="index">The parameter index.</param>
-		/// <param name="parameter">The parameter information.</param>
-		/// <param name="argumentValue">The argument value that should be used for the parameter.</param>
-		/// <returns>Returns <c>true</c> if the argument was supplied; <c>false</c>, otherwise.</returns>
-		protected virtual bool TryGetConstructorArgument(
-			ConstructorInfo constructor,
-			int index,
-			ParameterInfo parameter,
-			[MaybeNullWhen(false)] out object argumentValue)
-		{
-			argumentValue = null;
-			return false;
-		}
+	/// <summary>
+	/// Override this method to run the tests in an individual test method.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="testMethod">The test method that contains the test cases. May be <c>null</c> for test cases that do not
+	/// support classes and methods.</param>
+	/// <param name="method">The CLR method that contains the tests to be run. May be <c>null</c> for test cases that do not
+	/// support classes and methods.</param>
+	/// <param name="testCases">The test cases to be run.</param>
+	/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	protected abstract ValueTask<RunSummary> RunTestMethodAsync(
+		TContext ctxt,
+		_ITestMethod? testMethod,
+		_IReflectionMethodInfo? method,
+		IReadOnlyCollection<TTestCase> testCases,
+		object?[] constructorArguments
+	);
+
+	/// <summary>
+	/// Selects the constructor to be used for the test class. By default, chooses the parameterless
+	/// constructor. Override to change the constructor selection logic.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <returns>The constructor to be used for creating the test class.</returns>
+	protected virtual ConstructorInfo? SelectTestClassConstructor(TContext ctxt)
+	{
+		// This should never happen, but we'll be safe here just in case
+		if (ctxt.Class == null)
+			return null;
+
+		var result = ctxt.Class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
+		if (result == null)
+			ctxt.Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
+
+		return result;
+	}
+
+	/// <summary>
+	/// Sets the current <see cref="TestContext"/> for the current test class and the given test class status.
+	/// Does nothing when <see cref="TestClass"/> is <c>null</c>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="testClassStatus">The current test class status.</param>
+	protected virtual void SetTestContext(
+		TContext ctxt,
+		TestEngineStatus testClassStatus)
+	{
+		if (ctxt.TestClass != null)
+			TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token);
+	}
+
+	/// <summary>
+	/// Tries to supply a test class constructor argument. By default, always fails. Override to
+	/// change the argument lookup logic.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="constructor">The constructor that will be used to create the test class.</param>
+	/// <param name="index">The parameter index.</param>
+	/// <param name="parameter">The parameter information.</param>
+	/// <param name="argumentValue">The argument value that should be used for the parameter.</param>
+	/// <returns>Returns <c>true</c> if the argument was supplied; <c>false</c>, otherwise.</returns>
+	protected virtual bool TryGetConstructorArgument(
+		TContext ctxt,
+		ConstructorInfo constructor,
+		int index,
+		ParameterInfo parameter,
+		[MaybeNullWhen(false)] out object argumentValue)
+	{
+		argumentValue = null;
+		return false;
 	}
 }

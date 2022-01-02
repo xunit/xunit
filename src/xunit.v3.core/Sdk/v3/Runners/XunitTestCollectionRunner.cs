@@ -14,7 +14,7 @@ namespace Xunit.v3
 	/// </summary>
 	public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
 	{
-		readonly IDictionary<Type, object> assemblyFixtureMappings;
+		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
 		Dictionary<Type, object> collectionFixtureMappings = new();
 
 		/// <summary>
@@ -34,7 +34,7 @@ namespace Xunit.v3
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			IDictionary<Type, object> assemblyFixtureMappings)
+			IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
 				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			this.assemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
@@ -231,7 +231,7 @@ namespace Xunit.v3
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases) =>
-				new XunitTestClassRunner(
+				XunitTestClassRunner.Instance.RunAsync(
 					testClass,
 					@class,
 					testCases,
@@ -241,6 +241,6 @@ namespace Xunit.v3
 					CancellationTokenSource,
 					assemblyFixtureMappings,
 					CollectionFixtureMappings
-				).RunAsync();
+				);
 	}
 }

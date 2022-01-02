@@ -278,7 +278,7 @@ public class XunitTestCollectionRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			IDictionary<Type, object> assemblyFixtureMappings)
+			IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
 				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings)
 		{ }
 
