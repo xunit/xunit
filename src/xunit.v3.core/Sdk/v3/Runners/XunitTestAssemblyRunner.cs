@@ -374,7 +374,7 @@ namespace Xunit.v3
 			_ITestCollection testCollection,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			CancellationTokenSource cancellationTokenSource) =>
-				new XunitTestCollectionRunner(
+				XunitTestCollectionRunner.Instance.RunAsync(
 					testCollection,
 					testCases,
 					messageBus,
@@ -382,7 +382,7 @@ namespace Xunit.v3
 					Aggregator.Clone(),
 					cancellationTokenSource,
 					AssemblyFixtureMappings
-				).RunAsync();
+				);
 
 		/// <summary>
 		/// Gets the synchronization context used when potentially running tests in parallel.

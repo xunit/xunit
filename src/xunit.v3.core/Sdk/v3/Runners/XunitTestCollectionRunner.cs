@@ -7,240 +7,250 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.v3
+namespace Xunit.v3;
+
+/// <summary>
+/// The test collection runner for xUnit.net v3 tests.
+/// </summary>
+public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectionRunnerContext, IXunitTestCase>
 {
 	/// <summary>
-	/// The test collection runner for xUnit.net v3 tests.
+	/// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
 	/// </summary>
-	public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
+	protected XunitTestCollectionRunner()
+	{ }
+
+	/// <summary>
+	/// Gets the singleton instance of <see cref="XunitTestCollectionRunner"/>.
+	/// </summary>
+	public static XunitTestCollectionRunner Instance { get; } = new();
+
+	/// <inheritdoc/>
+	protected override async ValueTask AfterTestCollectionStartingAsync(XunitTestCollectionRunnerContext ctxt)
 	{
-		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
-		Dictionary<Type, object> collectionFixtureMappings = new();
+		await CreateCollectionFixturesAsync(ctxt);
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
-		/// </summary>
-		/// <param name="testCollection">The test collection that contains the tests to be run.</param>
-		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="messageBus">The message bus to report run status to.</param>
-		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
-		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-		/// <param name="assemblyFixtureMappings">The assembly level fixtures</param>
-		public XunitTestCollectionRunner(
-			_ITestCollection testCollection,
-			IReadOnlyCollection<IXunitTestCase> testCases,
-			IMessageBus messageBus,
-			ITestCaseOrderer testCaseOrderer,
-			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource,
-			IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
-				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+		ctxt.TestCaseOrderer = GetTestCaseOrderer(ctxt) ?? ctxt.TestCaseOrderer;
+	}
+
+	/// <inheritdoc/>
+	protected override async ValueTask BeforeTestCollectionFinishedAsync(XunitTestCollectionRunnerContext ctxt)
+	{
+		var disposeAsyncTasks =
+			ctxt.CollectionFixtureMappings
+				.Values
+				.OfType<IAsyncDisposable>()
+				.Select(fixture => ctxt.Aggregator.RunAsync(async () =>
+				{
+					try
+					{
+						await fixture.DisposeAsync();
+					}
+					catch (Exception ex)
+					{
+						throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in DisposeAsync", ex.Unwrap());
+					}
+				}).AsTask())
+				.ToList();
+
+		await Task.WhenAll(disposeAsyncTasks);
+
+		foreach (var fixture in ctxt.CollectionFixtureMappings.Values.OfType<IDisposable>())
+			ctxt.Aggregator.Run(() =>
+			{
+				try
+				{
+					fixture.Dispose();
+				}
+				catch (Exception ex)
+				{
+					throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in Dispose", ex.Unwrap());
+				}
+			});
+	}
+
+	/// <summary>
+	/// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
+	/// it should be placed into the CollectionFixtureMappings dictionary of <paramref name="ctxt"/>; if it cannot, then the
+	/// method should record the error by calling <code>Aggregator.Add</code>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test collection</param>
+	/// <param name="fixtureType">The type of the fixture to be created</param>
+	protected virtual void CreateCollectionFixture(
+		XunitTestCollectionRunnerContext ctxt,
+		Type fixtureType)
+	{
+		var ctors =
+			fixtureType
+				.GetConstructors()
+				.Where(ci => !ci.IsStatic && ci.IsPublic)
+				.ToList();
+
+		if (ctors.Count != 1)
 		{
-			this.assemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
+			ctxt.Aggregator.Add(new TestClassException($"Collection fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+			return;
 		}
 
-		/// <summary>
-		/// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStartingAsync"/>.
-		/// </summary>
-		protected Dictionary<Type, object> CollectionFixtureMappings
+		var ctor = ctors[0];
+		var missingParameters = new List<ParameterInfo>();
+		var ctorArgs = ctor.GetParameters().Select(p =>
 		{
-			get => collectionFixtureMappings;
-			set => collectionFixtureMappings = Guard.ArgumentNotNull(value, nameof(CollectionFixtureMappings));
+			object? arg = null;
+			if (p.ParameterType == typeof(_IMessageSink))
+				arg = TestContext.Current?.DiagnosticMessageSink;
+			else if (p.ParameterType == typeof(ITestContextAccessor))
+				arg = TestContextAccessor.Instance;
+			else if (!ctxt.AssemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
+				missingParameters.Add(p);
+			return arg;
+		}).ToArray();
+
+		if (missingParameters.Count > 0)
+			ctxt.Aggregator.Add(new TestClassException(
+				$"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
+			));
+		else
+			ctxt.Aggregator.Run(() =>
+			{
+				try
+				{
+					ctxt.CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
+				}
+				catch (Exception ex)
+				{
+					throw new TestClassException($"Collection fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
+				}
+			});
+	}
+
+	ValueTask CreateCollectionFixturesAsync(XunitTestCollectionRunnerContext ctxt)
+	{
+		if (ctxt.TestCollection.CollectionDefinition == null || ctxt.TestCollection.CollectionDefinition is not _IReflectionTypeInfo collectionDefinition)
+			return default;
+
+		var declarationType = collectionDefinition.Type;
+		foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+		{
+			var fixtureType = interfaceType.GenericTypeArguments.Single();
+			CreateCollectionFixture(ctxt, fixtureType);
 		}
 
-		/// <inheritdoc/>
-		protected override async ValueTask AfterTestCollectionStartingAsync()
-		{
-			await CreateCollectionFixturesAsync();
-			TestCaseOrderer = GetTestCaseOrderer() ?? TestCaseOrderer;
-		}
-
-		/// <inheritdoc/>
-		protected override async ValueTask BeforeTestCollectionFinishedAsync()
-		{
-			var disposeAsyncTasks =
-				CollectionFixtureMappings
-					.Values
-					.OfType<IAsyncDisposable>()
-					.Select(fixture => Aggregator.RunAsync(async () =>
+		var initializeAsyncTasks =
+			ctxt.CollectionFixtureMappings
+				.Values
+				.OfType<IAsyncLifetime>()
+				.Select(
+					fixture => ctxt.Aggregator.RunAsync(async () =>
 					{
 						try
 						{
-							await fixture.DisposeAsync();
+							await fixture.InitializeAsync();
 						}
 						catch (Exception ex)
 						{
-							throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in DisposeAsync", ex.Unwrap());
+							throw new TestClassException($"Collection fixture type '{fixture.GetType().FullName}' threw in InitializeAsync", ex.Unwrap());
 						}
-					}).AsTask())
-					.ToList();
+					}).AsTask()
+				)
+				.ToList();
 
-			await Task.WhenAll(disposeAsyncTasks);
+		return new(Task.WhenAll(initializeAsyncTasks));
+	}
 
-			foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
-				Aggregator.Run(() =>
-				{
-					try
-					{
-						fixture.Dispose();
-					}
-					catch (Exception ex)
-					{
-						throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in Dispose", ex.Unwrap());
-					}
-				});
-		}
-
-		/// <summary>
-		/// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
-		/// it should be placed into the <see cref="CollectionFixtureMappings"/> dictionary; if it cannot, then the method
-		/// should record the error by calling <code>Aggregator.Add</code>.
-		/// </summary>
-		/// <param name="fixtureType">The type of the fixture to be created</param>
-		protected virtual void CreateCollectionFixture(Type fixtureType)
+	/// <summary>
+	/// Gives an opportunity to override test case orderer. By default, this method gets the
+	/// orderer from the collection definition. If this function returns <c>null</c>, the
+	/// test case orderer passed into the constructor will be used.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test collection</param>
+	protected virtual ITestCaseOrderer? GetTestCaseOrderer(XunitTestCollectionRunnerContext ctxt)
+	{
+		if (ctxt.TestCollection.CollectionDefinition != null)
 		{
-			var ctors =
-				fixtureType
-					.GetConstructors()
-					.Where(ci => !ci.IsStatic && ci.IsPublic)
-					.ToList();
-
-			if (ctors.Count != 1)
+			var ordererAttribute = ctxt.TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+			if (ordererAttribute != null)
 			{
-				Aggregator.Add(new TestClassException($"Collection fixture type '{fixtureType.FullName}' may only define a single public constructor."));
-				return;
-			}
-
-			var ctor = ctors[0];
-			var missingParameters = new List<ParameterInfo>();
-			var ctorArgs = ctor.GetParameters().Select(p =>
-			{
-				object? arg = null;
-				if (p.ParameterType == typeof(_IMessageSink))
-					arg = TestContext.Current?.DiagnosticMessageSink;
-				else if (p.ParameterType == typeof(ITestContextAccessor))
-					arg = TestContextAccessor.Instance;
-				else if (!assemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
-					missingParameters.Add(p);
-				return arg;
-			}).ToArray();
-
-			if (missingParameters.Count > 0)
-				Aggregator.Add(new TestClassException(
-					$"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
-				));
-			else
-				Aggregator.Run(() =>
+				try
 				{
-					try
-					{
-						CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
-					}
-					catch (Exception ex)
-					{
-						throw new TestClassException($"Collection fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
-					}
-				});
-		}
+					var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
+					if (testCaseOrderer != null)
+						return testCaseOrderer;
 
-		ValueTask CreateCollectionFixturesAsync()
-		{
-			if (TestCollection.CollectionDefinition == null)
-				return default;
+					var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
 
-			var declarationType = ((_IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
-			foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-			{
-				var fixtureType = interfaceType.GenericTypeArguments.Single();
-				CreateCollectionFixture(fixtureType);
-			}
-
-			var initializeAsyncTasks =
-				CollectionFixtureMappings
-					.Values
-					.OfType<IAsyncLifetime>()
-					.Select(
-						fixture => Aggregator.RunAsync(async () =>
-						{
-							try
-							{
-								await fixture.InitializeAsync();
-							}
-							catch (Exception ex)
-							{
-								throw new TestClassException($"Collection fixture type '{fixture.GetType().FullName}' threw in InitializeAsync", ex.Unwrap());
-							}
-						}).AsTask()
-					)
-					.ToList();
-
-			return new(Task.WhenAll(initializeAsyncTasks));
-		}
-
-		/// <summary>
-		/// Gives an opportunity to override test case orderer. By default, this method gets the
-		/// orderer from the collection definition. If this function returns <c>null</c>, the
-		/// test case orderer passed into the constructor will be used.
-		/// </summary>
-		protected virtual ITestCaseOrderer? GetTestCaseOrderer()
-		{
-			if (TestCollection.CollectionDefinition != null)
-			{
-				var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-				if (ordererAttribute != null)
+					TestContext.Current?.SendDiagnosticMessage(
+						"Could not find type '{0}' in {1} for collection-level test case orderer on test collection '{2}'",
+						type,
+						assembly,
+						ctxt.TestCollection.DisplayName
+					);
+				}
+				catch (Exception ex)
 				{
-					try
-					{
-						var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
-						if (testCaseOrderer != null)
-							return testCaseOrderer;
+					var innerEx = ex.Unwrap();
+					var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
 
-						var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-
-						TestContext.Current?.SendDiagnosticMessage(
-							"Could not find type '{0}' in {1} for collection-level test case orderer on test collection '{2}'",
-							type,
-							assembly,
-							TestCollection.DisplayName
-						);
-					}
-					catch (Exception ex)
-					{
-						var innerEx = ex.Unwrap();
-						var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
-
-						TestContext.Current?.SendDiagnosticMessage(
-							"Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}",
-							type,
-							TestCollection.DisplayName,
-							innerEx.GetType().FullName,
-							innerEx.Message,
-							Environment.NewLine,
-							innerEx.StackTrace
-						);
-					}
+					TestContext.Current?.SendDiagnosticMessage(
+						"Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}",
+						type,
+						ctxt.TestCollection.DisplayName,
+						innerEx.GetType().FullName,
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
 				}
 			}
-
-			return null;
 		}
 
-		/// <inheritdoc/>
-		protected override ValueTask<RunSummary> RunTestClassAsync(
-			_ITestClass? testClass,
-			_IReflectionTypeInfo? @class,
-			IReadOnlyCollection<IXunitTestCase> testCases) =>
-				XunitTestClassRunner.Instance.RunAsync(
-					testClass,
-					@class,
-					testCases,
-					MessageBus,
-					TestCaseOrderer,
-					Aggregator.Clone(),
-					CancellationTokenSource,
-					assemblyFixtureMappings,
-					CollectionFixtureMappings
-				);
+		return null;
 	}
+
+	/// <summary>
+	/// Runs the test collection.
+	/// </summary>
+	/// <param name="testCollection">The test collection to be run.</param>
+	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
+	/// <param name="messageBus">The message bus to report run status to.</param>
+	/// <param name="testCaseOrderer">The test case orderer that was applied at the assembly level.</param>
+	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
+	public ValueTask<RunSummary> RunAsync(
+		_ITestCollection testCollection,
+		IReadOnlyCollection<IXunitTestCase> testCases,
+		IMessageBus messageBus,
+		ITestCaseOrderer testCaseOrderer,
+		ExceptionAggregator aggregator,
+		CancellationTokenSource cancellationTokenSource,
+		IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
+	{
+		Guard.ArgumentNotNull(testCollection);
+		Guard.ArgumentNotNull(testCases);
+		Guard.ArgumentNotNull(messageBus);
+		Guard.ArgumentNotNull(testCaseOrderer);
+		Guard.ArgumentNotNull(cancellationTokenSource);
+		Guard.ArgumentNotNull(assemblyFixtureMappings);
+
+		return RunAsync(new(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings));
+	}
+
+	/// <inheritdoc/>
+	protected override ValueTask<RunSummary> RunTestClassAsync(
+		XunitTestCollectionRunnerContext ctxt,
+		_ITestClass? testClass,
+		_IReflectionTypeInfo? @class,
+		IReadOnlyCollection<IXunitTestCase> testCases) =>
+			XunitTestClassRunner.Instance.RunAsync(
+				testClass,
+				@class,
+				testCases,
+				ctxt.MessageBus,
+				ctxt.TestCaseOrderer,
+				ctxt.Aggregator.Clone(),
+				ctxt.CancellationTokenSource,
+				ctxt.AssemblyFixtureMappings,
+				ctxt.CollectionFixtureMappings
+			);
 }

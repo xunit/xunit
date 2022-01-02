@@ -18,8 +18,9 @@ public class XunitTestCollectionRunnerTests
 
 		await runner.RunAsync();
 
+		Assert.NotNull(runner.RunTestClassesAsync_CollectionFixtureMappings);
 		Assert.Collection(
-			runner.CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
+			runner.RunTestClassesAsync_CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
 			mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
 			mapping => Assert.IsType<object>(mapping.Value)
 		);
@@ -34,7 +35,8 @@ public class XunitTestCollectionRunnerTests
 
 		await runner.RunAsync();
 
-		var fixtureUnderTest = runner.CollectionFixtureMappings.Values.OfType<FixtureUnderTest>().Single();
+		Assert.NotNull(runner.RunTestClassesAsync_CollectionFixtureMappings);
+		var fixtureUnderTest = runner.RunTestClassesAsync_CollectionFixtureMappings.Values.OfType<FixtureUnderTest>().Single();
 		Assert.True(fixtureUnderTest.Disposed);
 	}
 
@@ -49,7 +51,8 @@ public class XunitTestCollectionRunnerTests
 
 		await Task.Delay(500);
 
-		var fixtureUnderTest = runner.CollectionFixtureMappings.Values.OfType<FixtureAsyncDisposableUnderTest>().Single();
+		Assert.NotNull(runner.RunTestClassesAsync_CollectionFixtureMappings);
+		var fixtureUnderTest = runner.RunTestClassesAsync_CollectionFixtureMappings.Values.OfType<FixtureAsyncDisposableUnderTest>().Single();
 
 		Assert.True(fixtureUnderTest.DisposeAsyncCalled);
 		Assert.False(fixtureUnderTest.Disposed);
@@ -145,7 +148,8 @@ public class XunitTestCollectionRunnerTests
 		await runner.RunAsync();
 
 		Assert.Null(runner.RunTestClassAsync_AggregatorResult);
-		var classFixture = runner.CollectionFixtureMappings.Values.OfType<CollectionFixtureWithMessageSinkDependency>().Single();
+		Assert.NotNull(runner.RunTestClassesAsync_CollectionFixtureMappings);
+		var classFixture = runner.RunTestClassesAsync_CollectionFixtureMappings.Values.OfType<CollectionFixtureWithMessageSinkDependency>().Single();
 		Assert.NotNull(classFixture.MessageSink);
 		Assert.Same(spy, classFixture.MessageSink);
 	}
@@ -189,7 +193,7 @@ public class XunitTestCollectionRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.IsType<CustomTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<CustomTestCaseOrderer>(runner.RunTestClassesAsync_TestCaseOrderer);
 		}
 
 		[Fact]
@@ -203,7 +207,7 @@ public class XunitTestCollectionRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<MockTestCaseOrderer>(runner.RunTestClassesAsync_TestCaseOrderer);
 			var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
 			Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for collection-level test case orderer on test collection 'TestCollectionDisplayName'", diagnosticMessage.Message);
 		}
@@ -222,7 +226,7 @@ public class XunitTestCollectionRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
+			Assert.IsType<MockTestCaseOrderer>(runner.RunTestClassesAsync_TestCaseOrderer);
 			var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
 			Assert.StartsWith("Collection-level test case orderer 'XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test collection 'TestCollectionDisplayName' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
@@ -269,7 +273,17 @@ public class XunitTestCollectionRunnerTests
 
 	class TestableXunitTestCollectionRunner : XunitTestCollectionRunner
 	{
+		readonly ExceptionAggregator aggregator;
+		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
+		readonly CancellationTokenSource cancellationTokenSource;
+		readonly IMessageBus messageBus;
+		readonly ITestCaseOrderer testCaseOrderer;
+		readonly IReadOnlyCollection<IXunitTestCase> testCases;
+		readonly _ITestCollection testCollection;
+
 		public Exception? RunTestClassAsync_AggregatorResult;
+		public Dictionary<Type, object>? RunTestClassesAsync_CollectionFixtureMappings;
+		public ITestCaseOrderer? RunTestClassesAsync_TestCaseOrderer;
 
 		TestableXunitTestCollectionRunner(
 			_ITestCollection testCollection,
@@ -279,8 +293,15 @@ public class XunitTestCollectionRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
-				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings)
-		{ }
+		{
+			this.testCollection = testCollection;
+			this.testCases = testCases;
+			this.messageBus = messageBus;
+			this.testCaseOrderer = testCaseOrderer;
+			this.aggregator = aggregator;
+			this.cancellationTokenSource = cancellationTokenSource;
+			this.assemblyFixtureMappings = assemblyFixtureMappings;
+		}
 
 		public static TestableXunitTestCollectionRunner Create(
 			IXunitTestCase testCase,
@@ -295,16 +316,26 @@ public class XunitTestCollectionRunnerTests
 					assemblyFixtures.ToDictionary(fixture => fixture.GetType())
 				);
 
-		public new Dictionary<Type, object> CollectionFixtureMappings => base.CollectionFixtureMappings;
+		public ValueTask<RunSummary> RunAsync() =>
+			RunAsync(new(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings));
 
-		public new ITestCaseOrderer TestCaseOrderer => base.TestCaseOrderer;
+		protected override ValueTask<RunSummary> RunTestClassesAsync(XunitTestCollectionRunnerContext ctxt)
+		{
+			var result = base.RunTestClassesAsync(ctxt);
+
+			RunTestClassesAsync_CollectionFixtureMappings = ctxt.CollectionFixtureMappings;
+			RunTestClassesAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
+
+			return result;
+		}
 
 		protected override ValueTask<RunSummary> RunTestClassAsync(
+			XunitTestCollectionRunnerContext ctxt,
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<IXunitTestCase> testCases)
 		{
-			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
+			RunTestClassAsync_AggregatorResult = ctxt.Aggregator.ToException();
 
 			return new(new RunSummary());
 		}

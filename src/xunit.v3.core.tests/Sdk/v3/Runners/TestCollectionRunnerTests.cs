@@ -248,10 +248,14 @@ public class TestCollectionRunnerTests
 
 	class ClassUnderTest2 : ClassUnderTest { }
 
-	class TestableTestCollectionRunner : TestCollectionRunner<_ITestCase>
+	class TestableTestCollectionRunner : TestCollectionRunner<TestCollectionRunnerContext<_ITestCase>, _ITestCase>
 	{
+		readonly ExceptionAggregator aggregator;
 		readonly bool cancelInRunTestClassAsync;
+		readonly IMessageBus messageBus;
 		readonly RunSummary result;
+		readonly ITestCaseOrderer testCaseOrderer;
+		readonly IReadOnlyCollection<_ITestCase> testCases;
 
 		public readonly List<Tuple<_IReflectionTypeInfo?, IReadOnlyCollection<_ITestCase>>> ClassesRun = new();
 		public Action<ExceptionAggregator> AfterTestCollectionStarting_Callback = _ => { };
@@ -262,6 +266,7 @@ public class TestCollectionRunnerTests
 		public TestContext? BeforeTestCollectionFinished_Context;
 		public Exception? RunTestClassAsync_AggregatorResult;
 		public TestContext? RunTestClassAsync_Context;
+		public readonly _ITestCollection TestCollection;
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestCollectionRunner(
@@ -273,15 +278,16 @@ public class TestCollectionRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			RunSummary result,
 			bool cancelInRunTestClassAsync)
-				: base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
+			TestCollection = testCollection;
+			this.testCases = testCases;
+			this.messageBus = messageBus;
+			this.testCaseOrderer = testCaseOrderer;
+			this.aggregator = aggregator;
 			TokenSource = cancellationTokenSource;
-
 			this.result = result;
 			this.cancelInRunTestClassAsync = cancelInRunTestClassAsync;
 		}
-
-		public new _ITestCollection TestCollection => base.TestCollection;
 
 		public static TestableTestCollectionRunner Create(
 			IMessageBus? messageBus = null,
@@ -309,31 +315,35 @@ public class TestCollectionRunnerTests
 			);
 		}
 
-		protected override ValueTask AfterTestCollectionStartingAsync()
+		protected override ValueTask AfterTestCollectionStartingAsync(TestCollectionRunnerContext<_ITestCase> ctxt)
 		{
 			AfterTestCollectionStarting_Called = true;
 			AfterTestCollectionStarting_Context = TestContext.Current;
-			AfterTestCollectionStarting_Callback(Aggregator);
+			AfterTestCollectionStarting_Callback(ctxt.Aggregator);
 			return default;
 		}
 
-		protected override ValueTask BeforeTestCollectionFinishedAsync()
+		protected override ValueTask BeforeTestCollectionFinishedAsync(TestCollectionRunnerContext<_ITestCase> ctxt)
 		{
 			BeforeTestCollectionFinished_Called = true;
 			BeforeTestCollectionFinished_Context = TestContext.Current;
-			BeforeTestCollectionFinished_Callback(Aggregator);
+			BeforeTestCollectionFinished_Callback(ctxt.Aggregator);
 			return default;
 		}
 
+		public ValueTask<RunSummary> RunAsync() =>
+			RunAsync(new(TestCollection, testCases, messageBus, testCaseOrderer, aggregator, TokenSource));
+
 		protected override ValueTask<RunSummary> RunTestClassAsync(
+			TestCollectionRunnerContext<_ITestCase> ctxt,
 			_ITestClass? testClass,
 			_IReflectionTypeInfo? @class,
 			IReadOnlyCollection<_ITestCase> testCases)
 		{
 			if (cancelInRunTestClassAsync)
-				CancellationTokenSource.Cancel();
+				ctxt.CancellationTokenSource.Cancel();
 
-			RunTestClassAsync_AggregatorResult = Aggregator.ToException();
+			RunTestClassAsync_AggregatorResult = ctxt.Aggregator.ToException();
 			RunTestClassAsync_Context = TestContext.Current;
 			ClassesRun.Add(Tuple.Create(@class, testCases));
 			return new(result);
