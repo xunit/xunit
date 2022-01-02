@@ -18,7 +18,7 @@ namespace Xunit.v3
 		readonly ExceptionAggregator cleanupAggregator = new();
 		Exception? dataDiscoveryException;
 		readonly DisposalTracker disposalTracker = new();
-		readonly List<XunitTestRunner> testRunners = new();
+		readonly List<Func<ValueTask<RunSummary>>> testRunners = new();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCaseRunner"/> class.
@@ -121,7 +121,7 @@ namespace Xunit.v3
 						var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
 						var test = CreateTest(TestCase, theoryDisplayName, testIndex++);
 						var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip") ?? dataRow.Skip;
-						testRunners.Add(CreateTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
+						testRunners.Add(() => XunitTestRunner.Instance.RunAsync(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, Aggregator, CancellationTokenSource, BeforeAfterAttributes));
 					}
 				}
 			}
@@ -148,7 +148,7 @@ namespace Xunit.v3
 
 			var runSummary = new RunSummary();
 			foreach (var testRunner in testRunners)
-				runSummary.Aggregate(await testRunner.RunAsync());
+				runSummary.Aggregate(await testRunner.Invoke());
 
 			// Run the cleanup here so we can include cleanup time in the run summary,
 			// but save any exceptions so we can surface them during the cleanup phase,

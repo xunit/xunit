@@ -129,33 +129,6 @@ namespace Xunit.v3
 				new XunitTest(testCase, displayName, testIndex);
 
 		/// <summary>
-		/// Creates the test runner used to run the given test.
-		/// </summary>
-		protected virtual XunitTestRunner CreateTestRunner(
-			_ITest test,
-			IMessageBus messageBus,
-			Type testClass,
-			object?[] constructorArguments,
-			MethodInfo testMethod,
-			object?[]? testMethodArguments,
-			string? skipReason,
-			IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
-			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource) =>
-				new(
-					test,
-					messageBus,
-					testClass,
-					constructorArguments,
-					testMethod,
-					testMethodArguments,
-					skipReason,
-					beforeAfterAttributes,
-					aggregator.Clone(),
-					cancellationTokenSource
-				);
-
-		/// <summary>
 		/// Gets the list of <see cref="BeforeAfterTestAttribute"/> attributes that apply to this test case.
 		/// </summary>
 		protected virtual List<BeforeAfterTestAttribute> GetBeforeAfterTestAttributes()
@@ -178,7 +151,7 @@ namespace Xunit.v3
 
 		/// <inheritdoc/>
 		protected override ValueTask<RunSummary> RunTestAsync() =>
-			CreateTestRunner(
+			XunitTestRunner.Instance.RunAsync(
 				CreateTest(TestCase, DisplayName, testIndex: 0),
 				MessageBus,
 				TestClass,
@@ -186,9 +159,9 @@ namespace Xunit.v3
 				TestMethod,
 				TestMethodArguments,
 				SkipReason,
-				BeforeAfterAttributes,
 				Aggregator,
-				CancellationTokenSource
-			).RunAsync();
+				CancellationTokenSource,
+				BeforeAfterAttributes
+			);
 	}
 }

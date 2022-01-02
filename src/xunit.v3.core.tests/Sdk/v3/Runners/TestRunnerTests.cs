@@ -306,11 +306,19 @@ public class TestRunnerTests
 		Assert.True(runner.TokenSource.IsCancellationRequested);
 	}
 
-	class TestableTestRunner : TestRunner<_ITestCase>
+	class TestableTestRunner : TestRunner<TestRunnerContext>
 	{
+		readonly ExceptionAggregator aggregator;
+		readonly object?[] constructorArguments;
 		readonly Action? lambda;
+		readonly IMessageBus messageBus;
 		readonly string output;
 		readonly decimal runTime;
+		readonly string? skipReason;
+		readonly _ITest test;
+		readonly Type testClass;
+		readonly MethodInfo testMethod;
+		readonly object?[]? testMethodArguments;
 
 		public bool InvokeTestAsync_Called;
 		public Action<ExceptionAggregator> AfterTestStarting_Callback = _ => { };
@@ -333,9 +341,16 @@ public class TestRunnerTests
 			CancellationTokenSource cancellationTokenSource,
 			decimal runTime,
 			string output,
-			Action? lambda) :
-				base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
+			Action? lambda)
 		{
+			this.test = test;
+			this.messageBus = messageBus;
+			this.testClass = testClass;
+			this.constructorArguments = constructorArguments;
+			this.testMethod = testMethod;
+			this.testMethodArguments = testMethodArguments;
+			this.skipReason = skipReason;
+			this.aggregator = aggregator;
 			TokenSource = cancellationTokenSource;
 
 			this.runTime = runTime;
@@ -376,28 +391,31 @@ public class TestRunnerTests
 			);
 		}
 
-		protected override void AfterTestStarting()
+		protected override void AfterTestStarting(TestRunnerContext ctxt)
 		{
 			AfterTestStarting_Called = true;
 			AfterTestStarting_Context = TestContext.Current;
-			AfterTestStarting_Callback(Aggregator);
+			AfterTestStarting_Callback(aggregator);
 		}
 
-		protected override void BeforeTestFinished()
+		protected override void BeforeTestFinished(TestRunnerContext ctxt)
 		{
 			BeforeTestFinished_Called = true;
 			BeforeTestFinished_Context = TestContext.Current;
-			BeforeTestFinished_Callback(Aggregator);
+			BeforeTestFinished_Callback(aggregator);
 		}
 
-		protected override ValueTask<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
+		protected override ValueTask<(decimal ExecutionTime, string Output)?> InvokeTestAsync(TestRunnerContext ctxt)
 		{
 			if (lambda != null)
 				aggregator.Run(lambda);
 
 			InvokeTestAsync_Called = true;
 
-			return new(Tuple.Create(runTime, output));
+			return new((runTime, output));
 		}
+
+		public ValueTask<RunSummary> RunAsync() =>
+			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, TokenSource));
 	}
 }
