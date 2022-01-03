@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Xunit.v3
 {
 	/// <summary>
@@ -8,9 +10,16 @@ namespace Xunit.v3
 	public interface _ITestCase : _ITestCaseMetadata
 	{
 		/// <summary>
-		/// Gets the test collection this test case belongs to. When <see cref="TestMethod"/> is not <c>null</c>,
-		/// this value must point to the same object as
-		/// <see cref="TestMethod"/>.<see cref="_ITestMethod.TestClass"/>.<see cref="_ITestClass.TestCollection"/>.
+		/// Gets the test class that this test case belongs to; may be <c>null</c> if the test isn't backed by
+		/// a class, but will not be <c>null</c> if <see cref="TestMethod"/> is not <c>null</c> (and must be
+		/// the same instance returned via <see cref="TestMethod"/>).
+		/// </summary>
+		[NotNullIfNotNull(nameof(TestMethod))]
+		_ITestClass? TestClass { get; }
+
+		/// <summary>
+		/// Gets the test collection this test case belongs to. Must be the same instance returned
+		/// via <see cref="TestMethod"/> and/or <see cref="TestClass"/> when they are not <c>null</c>.
 		/// </summary>
 		_ITestCollection TestCollection { get; }
 

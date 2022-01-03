@@ -263,6 +263,7 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		object?[] constructorArguments) =>
 			XunitTestMethodRunner.Instance.RunAsync(
+				ctxt.TestClass,
 				testMethod,
 				ctxt.Class,
 				method,

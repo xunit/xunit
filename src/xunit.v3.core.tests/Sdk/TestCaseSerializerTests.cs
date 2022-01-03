@@ -38,7 +38,7 @@ public class TestCaseSerializerTests
 			Assert.Null(result.TestCollection.CollectionDefinition);
 			Assert.Equal(testCase.TestCollection.DisplayName, result.TestCollection.DisplayName);
 			Assert.Equal(testCase.TestCollection.UniqueID, result.TestCollection.UniqueID);
-			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod?.TestClass.Class.Name);
+			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestClass?.Class.Name);
 			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod?.Method.Name);
 			Assert.Equal(testCase.TestCaseDisplayName, result.TestCaseDisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
@@ -106,7 +106,7 @@ public class TestCaseSerializerTests
 			Assert.Null(result.TestCollection.CollectionDefinition);
 			Assert.Equal(testCase.TestCollection.DisplayName, result.TestCollection.DisplayName);
 			Assert.Equal(testCase.TestCollection.UniqueID, result.TestCollection.UniqueID);
-			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestMethod?.TestClass.Class.Name);
+			Assert.Equal(testCase.TestMethod.TestClass.Class.Name, result.TestClass?.Class.Name);
 			Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod?.Method.Name);
 			Assert.Equal<object>(testCase.TestCaseDisplayName, result.TestCaseDisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);

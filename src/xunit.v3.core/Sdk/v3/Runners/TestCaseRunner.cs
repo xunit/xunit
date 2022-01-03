@@ -47,7 +47,7 @@ public abstract class TestCaseRunner<TContext, TTestCase>
 
 		var assemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID;
 		var testCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID;
-		var testClassUniqueID = ctxt.TestCase.TestMethod?.TestClass.UniqueID;
+		var testClassUniqueID = ctxt.TestCase.TestClass?.UniqueID;
 		var testMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID;
 		var testCaseUniqueID = ctxt.TestCase.UniqueID;
 

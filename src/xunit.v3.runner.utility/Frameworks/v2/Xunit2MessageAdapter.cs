@@ -255,7 +255,7 @@ namespace Xunit.Runner.v2
 			string? @namespace = null;
 			string? @class = null;
 
-			var typeName = testCase.TestMethod?.TestClass?.Class.Name;
+			var typeName = testCase.TestMethod?.TestClass.Class.Name;
 			if (typeName != null)
 			{
 				var namespaceIdx = typeName.LastIndexOf('.');

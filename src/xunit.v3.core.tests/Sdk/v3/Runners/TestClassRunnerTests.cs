@@ -454,8 +454,8 @@ public class TestClassRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
-				firstTest.TestMethod?.TestClass,
-				(_IReflectionTypeInfo?)firstTest.TestMethod?.TestClass.Class,
+				firstTest.TestClass,
+				firstTest.TestClass?.Class as _IReflectionTypeInfo,
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				orderer ?? new MockTestCaseOrderer(),

@@ -247,8 +247,8 @@ namespace Xunit
 				TestMethod = test.TestCase.TestMethod,
 				TestMethodStatus = test.TestCase.TestMethod == null ? null : TestEngineStatus.Running,
 
-				TestClass = test.TestCase.TestMethod?.TestClass,
-				TestClassStatus = test.TestCase.TestMethod?.TestClass == null ? null : TestEngineStatus.Running,
+				TestClass = test.TestCase.TestClass,
+				TestClassStatus = test.TestCase.TestClass == null ? null : TestEngineStatus.Running,
 
 				TestCollection = test.TestCase.TestCollection,
 				TestCollectionStatus = TestEngineStatus.Running,
@@ -298,8 +298,8 @@ namespace Xunit
 				TestMethod = testCase.TestMethod,
 				TestMethodStatus = testCase.TestMethod == null ? null : TestEngineStatus.Running,
 
-				TestClass = testCase.TestMethod?.TestClass,
-				TestClassStatus = testCase.TestMethod?.TestClass == null ? null : TestEngineStatus.Running,
+				TestClass = testCase.TestClass,
+				TestClassStatus = testCase.TestClass == null ? null : TestEngineStatus.Running,
 
 				TestCollection = testCase.TestCollection,
 				TestCollectionStatus = TestEngineStatus.Running,

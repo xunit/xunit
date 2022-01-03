@@ -193,6 +193,10 @@ namespace Xunit.v3
 		public _ITestCollection TestCollection =>
 			TestMethod.TestClass.TestCollection;
 
+		/// <inheritdoc/>
+		public _ITestClass TestClass =>
+			TestMethod.TestClass;
+
 		string? _ITestCaseMetadata.TestClassName =>
 			TestMethod.TestClass.Class.SimpleName;
 

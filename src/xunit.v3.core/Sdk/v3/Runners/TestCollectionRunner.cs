@@ -113,7 +113,7 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 	{
 		var summary = new RunSummary();
 
-		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestMethod?.TestClass, TestClassComparer.Instance))
+		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance))
 		{
 			summary.Aggregate(
 				await RunTestClassAsync(

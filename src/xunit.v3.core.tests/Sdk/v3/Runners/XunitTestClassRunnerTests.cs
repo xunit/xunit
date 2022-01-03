@@ -443,8 +443,8 @@ public class XunitTestClassRunnerTests
 			IXunitTestCase testCase,
 			params object[] collectionFixtures) =>
 				new(
-					testCase.TestMethod?.TestClass,
-					(_IReflectionTypeInfo?)testCase.TestMethod?.TestClass.Class,
+					testCase.TestClass,
+					testCase.TestClass?.Class as _IReflectionTypeInfo,
 					new[] { testCase },
 					new SpyMessageBus(),
 					new MockTestCaseOrderer(),

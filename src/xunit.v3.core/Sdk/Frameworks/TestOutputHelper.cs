@@ -89,7 +89,7 @@ namespace Xunit.Sdk
 
 				testAssemblyUniqueID = test.TestCase.TestCollection.TestAssembly.UniqueID;
 				testCollectionUniqueID = test.TestCase.TestCollection.UniqueID;
-				testClassUniqueID = test.TestCase.TestMethod?.TestClass.UniqueID;
+				testClassUniqueID = test.TestCase.TestClass?.UniqueID;
 				testMethodUniqueID = test.TestCase.TestMethod?.UniqueID;
 				testCaseUniqueID = test.TestCase.UniqueID;
 				testUniqueID = test.UniqueID;

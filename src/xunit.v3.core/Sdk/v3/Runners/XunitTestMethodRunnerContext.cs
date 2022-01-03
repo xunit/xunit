@@ -13,6 +13,7 @@ public class XunitTestMethodRunnerContext : TestMethodRunnerContext<IXunitTestCa
 	/// Initializes a new instance of the <see cref="XunitTestMethodRunnerContext"/> record.
 	/// </summary>
 	public XunitTestMethodRunnerContext(
+		_ITestClass? testClass,
 		_ITestMethod? testMethod,
 		_IReflectionTypeInfo? @class,
 		_IReflectionMethodInfo? method,
@@ -21,7 +22,7 @@ public class XunitTestMethodRunnerContext : TestMethodRunnerContext<IXunitTestCa
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		object?[] constructorArguments) :
-			base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+			base(testClass, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
 	{
 		ConstructorArguments = constructorArguments;
 	}

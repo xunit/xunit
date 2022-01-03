@@ -69,7 +69,7 @@ public abstract class TestInvoker<TContext>
 			{
 				var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
 				var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
-				var testClassUniqueID = ctxt.Test.TestCase.TestMethod?.TestClass.UniqueID;
+				var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
 				var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
 				var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
 				var testUniqueID = ctxt.Test.UniqueID;
@@ -261,7 +261,7 @@ public abstract class TestInvoker<TContext>
 
 			var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
-			var testClassUniqueID = ctxt.Test.TestCase.TestMethod?.TestClass.UniqueID;
+			var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
 			var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
 			var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
 			var testUniqueID = ctxt.Test.UniqueID;

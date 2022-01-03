@@ -19,6 +19,8 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 	/// <summary>
 	/// Runs the test test method.
 	/// </summary>
+	/// <param name="testClass">The test class that the test method belongs to. May be <c>null</c> for test cases
+	/// that do not support classes.</param>
 	/// <param name="testMethod">The test method to be run. May be <c>null</c> for test cases that do not support methods.</param>
 	/// <param name="class">The CLR class that contains the test method. May be <c>null</c> for test cases that do not
 	/// support classes and methods.</param>
@@ -30,6 +32,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
 	public ValueTask<RunSummary> RunAsync(
+		_ITestClass? testClass,
 		_ITestMethod? testMethod,
 		_IReflectionTypeInfo? @class,
 		_IReflectionMethodInfo? method,
@@ -43,7 +46,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 		Guard.ArgumentNotNull(messageBus);
 		Guard.ArgumentNotNull(constructorArguments);
 
-		return RunAsync(new(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource, constructorArguments));
+		return RunAsync(new(testClass, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource, constructorArguments));
 	}
 
 	/// <inheritdoc/>

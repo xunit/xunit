@@ -33,7 +33,7 @@ public class TestOutputHelperTests
 		test.UniqueID.Returns("test-id");
 		test.TestCase.UniqueID.Returns("case-id");
 		test.TestCase.TestMethod!.UniqueID.Returns("method-id");
-		test.TestCase.TestMethod!.TestClass.UniqueID.Returns("class-id");
+		test.TestCase.TestClass!.UniqueID.Returns("class-id");
 		test.TestCase.TestCollection.UniqueID.Returns("coll-id");
 		test.TestCase.TestCollection.TestAssembly.UniqueID.Returns("asm-id");
 		output.Initialize(messageBus, test);

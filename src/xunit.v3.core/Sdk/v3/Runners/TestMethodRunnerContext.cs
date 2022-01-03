@@ -16,6 +16,7 @@ public class TestMethodRunnerContext<TTestCase> : ContextBase
 	/// </summary>
 	// TODO: Why are method and class nullable here?
 	public TestMethodRunnerContext(
+		_ITestClass? testClass,
 		_ITestMethod? testMethod,
 		_IReflectionTypeInfo? @class,
 		_IReflectionMethodInfo? method,
@@ -25,6 +26,7 @@ public class TestMethodRunnerContext<TTestCase> : ContextBase
 		CancellationTokenSource cancellationTokenSource) :
 			base(messageBus, aggregator, cancellationTokenSource)
 	{
+		TestClass = testClass;
 		TestMethod = testMethod;
 		Class = @class;
 		Method = method;
@@ -45,6 +47,11 @@ public class TestMethodRunnerContext<TTestCase> : ContextBase
 	/// Gets the test cases that are derived from this test method.
 	/// </summary>
 	public IReadOnlyCollection<TTestCase> TestCases { get; }
+
+	/// <summary>
+	/// Gets the test class.
+	/// </summary>
+	public _ITestClass? TestClass { get; }
 
 	/// <summary>
 	/// Gets the test method.

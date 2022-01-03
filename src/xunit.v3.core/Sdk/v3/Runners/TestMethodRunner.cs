@@ -49,7 +49,7 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 		var testCollection = ctxt.TestCases.First().TestCollection;
 		var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 		var testCollectionUniqueID = testCollection.UniqueID;
-		var testClassUniqueID = ctxt.TestMethod?.TestClass.UniqueID;
+		var testClassUniqueID = ctxt.TestClass?.UniqueID;
 		var testMethodUniqueID = ctxt.TestMethod?.UniqueID;
 
 		if (ctxt.TestMethod != null)

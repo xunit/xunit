@@ -217,6 +217,7 @@ public class TestMethodRunnerTests
 		readonly _IReflectionMethodInfo? method;
 		readonly RunSummary result;
 		readonly IReadOnlyCollection<_ITestCase> testCases;
+		readonly _ITestClass? testClass;
 
 		public readonly ExceptionAggregator Aggregator;
 		public bool AfterTestMethodStarting_Called;
@@ -233,6 +234,7 @@ public class TestMethodRunnerTests
 		public List<_ITestCase> TestCasesRun = new();
 
 		TestableTestMethodRunner(
+			_ITestClass? testClass,
 			_ITestMethod? testMethod,
 			_IReflectionTypeInfo? @class,
 			_IReflectionMethodInfo? method,
@@ -243,14 +245,14 @@ public class TestMethodRunnerTests
 			RunSummary result,
 			bool cancelInRunTestCaseAsync)
 		{
+			this.testClass = testClass;
 			TestMethod = testMethod;
-			Aggregator = aggregator;
-			TokenSource = cancellationTokenSource;
-
 			this.@class = @class;
 			this.method = method;
 			this.testCases = testCases;
 			this.messageBus = messageBus;
+			Aggregator = aggregator;
+			TokenSource = cancellationTokenSource;
 			this.result = result;
 			this.cancelInRunTestCaseAsync = cancelInRunTestCaseAsync;
 		}
@@ -272,9 +274,10 @@ public class TestMethodRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestMethodRunner(
+				firstTestCase.TestClass,
 				firstTestCase.TestMethod,
-				(_IReflectionTypeInfo?)firstTestCase.TestMethod?.TestClass.Class,
-				(_IReflectionMethodInfo?)firstTestCase.TestMethod?.Method,
+				firstTestCase.TestClass?.Class as _IReflectionTypeInfo,
+				firstTestCase.TestMethod?.Method as _IReflectionMethodInfo,
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				aggregator,
@@ -303,7 +306,7 @@ public class TestMethodRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(TestMethod, @class, method, testCases, messageBus, Aggregator, TokenSource));
+			RunAsync(new(testClass, TestMethod, @class, method, testCases, messageBus, Aggregator, TokenSource));
 
 		protected override ValueTask<RunSummary> RunTestCaseAsync(
 			TestMethodRunnerContext<_ITestCase> ctxt,

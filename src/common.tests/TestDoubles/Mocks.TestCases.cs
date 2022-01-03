@@ -95,6 +95,7 @@ namespace Xunit.v3
 			traits ??= GetTraits(testMethod.Method);
 			uniqueID ??= "case-id";
 			var testCollection = testMethod.TestClass.TestCollection;
+			var testClass = testMethod.TestClass;
 
 			var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
 			result.TestCaseDisplayName.Returns(displayName);
@@ -102,6 +103,7 @@ namespace Xunit.v3
 			result.SourceFilePath.Returns(fileName);
 			result.SourceLineNumber.Returns(lineNumber);
 			result.TestCollection.Returns(testCollection);
+			result.TestClass.Returns(testClass);
 			result.TestMethod.Returns(testMethod);
 			result.Traits.Returns(traits);
 			result.UniqueID.Returns(uniqueID);
