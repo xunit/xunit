@@ -13,10 +13,6 @@ public class TestCaseRunnerContext<TTestCase> : ContextBase
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestCaseRunnerContext{TTestCase}"/> class.
 	/// </summary>
-	/// <param name="testCase"></param>
-	/// <param name="messageBus"></param>
-	/// <param name="aggregator"></param>
-	/// <param name="cancellationTokenSource"></param>
 	public TestCaseRunnerContext(
 		TTestCase testCase,
 		IMessageBus messageBus,

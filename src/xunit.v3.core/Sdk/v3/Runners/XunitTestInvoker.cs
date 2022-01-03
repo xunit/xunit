@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -220,7 +219,7 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		object? testClassInstance,
 		int timeout)
 	{
-		if (!ctxt.TestMethod.IsAsync())
+		if (!AsyncUtility.IsAsync(ctxt.TestMethod))
 			throw TestTimeoutException.ForIncompatibleTest();
 
 		var baseTask = base.InvokeTestMethodAsync(ctxt, testClassInstance).AsTask();

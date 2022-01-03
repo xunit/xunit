@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -19,8 +17,6 @@ namespace Xunit.v3;
 public abstract class TestInvoker<TContext>
 	where TContext : TestInvokerContext
 {
-	static MethodInfo? fSharpStartAsTaskOpenGenericMethod;
-
 	/// <summary>
 	/// This method is called just after the test method has finished executing.
 	/// This method should NEVER throw; any exceptions should be placed into the aggregator in <paramref name="ctxt"/>.
@@ -126,53 +122,6 @@ public abstract class TestInvoker<TContext>
 		Activator.CreateInstance(ctxt.TestClass, ctxt.ConstructorArguments);
 
 	/// <summary>
-	/// Given an object, will attempt to convert instances of <see cref="Task"/> or
-	/// <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/> into <see cref="ValueTask"/>
-	/// as appropriate. Will return <c>null</c> if the object is not a task of any supported type.
-	/// </summary>
-	/// <param name="obj">The object to convert</param>
-	protected static ValueTask? GetValueTaskFromResult(object? obj)
-	{
-		if (obj == null)
-			return null;
-
-		if (obj is Task task)
-		{
-			if (task.Status == TaskStatus.Created)
-				throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
-
-			return new(task);
-		}
-
-		if (obj is ValueTask valueTask)
-			return valueTask;
-
-		var type = obj.GetType();
-		if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
-		{
-			if (fSharpStartAsTaskOpenGenericMethod == null)
-			{
-				fSharpStartAsTaskOpenGenericMethod =
-					type
-						.Assembly
-						.GetType("Microsoft.FSharp.Control.FSharpAsync")?
-						.GetRuntimeMethods()
-						.FirstOrDefault(m => m.Name == "StartAsTask");
-
-				if (fSharpStartAsTaskOpenGenericMethod == null)
-					throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
-			}
-
-			if (fSharpStartAsTaskOpenGenericMethod
-					.MakeGenericMethod(type.GetGenericArguments()[0])
-					.Invoke(null, new[] { obj, null, null }) is Task fsharpTask)
-				return new(fsharpTask);
-		}
-
-		return null;
-	}
-
-	/// <summary>
 	/// Invokes the test method on the given test class instance. This method sets up support for "async void"
 	/// test methods, ensures that the test method has the correct number of arguments, then calls <see cref="CallTestMethod"/>
 	/// to do the actual method invocation. It ensure that any async test method is fully completed before returning, and
@@ -191,7 +140,7 @@ public abstract class TestInvoker<TContext>
 
 		try
 		{
-			if (ctxt.TestMethod.IsAsyncVoid())
+			if (AsyncUtility.IsAsyncVoid(ctxt.TestMethod))
 			{
 				oldSyncContext = SynchronizationContext.Current;
 				asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
@@ -215,7 +164,7 @@ public abstract class TestInvoker<TContext>
 						else
 						{
 							var result = CallTestMethod(ctxt, testClassInstance);
-							var valueTask = GetValueTaskFromResult(result);
+							var valueTask = AsyncUtility.TryConvertToValueTask(result);
 							if (valueTask.HasValue)
 								await valueTask.Value;
 							else if (asyncSyncContext != null)
