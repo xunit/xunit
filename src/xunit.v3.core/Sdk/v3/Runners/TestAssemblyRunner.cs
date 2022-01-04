@@ -109,14 +109,13 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
-
-		var totalSummary = new RunSummary();
-
 		await ctxt.InitializeAsync();
 
 		try
 		{
+			SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+			var totalSummary = new RunSummary();
 
 			try
 			{
@@ -176,13 +175,13 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 					ctxt.MessageBus.QueueMessage(assemblyFinished);
 				}
 			}
+
+			return totalSummary;
 		}
 		finally
 		{
 			await ctxt.DisposeAsync();
 		}
-
-		return totalSummary;
 	}
 
 	/// <summary>

@@ -106,71 +106,80 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
-
-		var classSummary = new RunSummary();
-		var testCollection = ctxt.TestCases.First().TestCollection;
-		var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
-		var testCollectionUniqueID = testCollection.UniqueID;
-		var testClassUniqueID = ctxt.TestClass?.UniqueID;
-
-		if (ctxt.TestClass != null)
-		{
-			var classStarting = new _TestClassStarting
-			{
-				AssemblyUniqueID = testAssemblyUniqueID,
-				TestClass = ctxt.TestClass.Class.Name,
-				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID
-			};
-
-			if (!ctxt.MessageBus.QueueMessage(classStarting))
-			{
-				ctxt.CancellationTokenSource.Cancel();
-				return classSummary;
-			}
-		}
+		await ctxt.InitializeAsync();
 
 		try
 		{
-			await AfterTestClassStartingAsync(ctxt);
+			SetTestContext(ctxt, TestEngineStatus.Initializing);
 
-			SetTestContext(ctxt, TestEngineStatus.Running);
+			var classSummary = new RunSummary();
+			var testCollection = ctxt.TestCases.First().TestCollection;
+			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = testCollection.UniqueID;
+			var testClassUniqueID = ctxt.TestClass?.UniqueID;
 
-			classSummary = await RunTestMethodsAsync(ctxt);
-
-			SetTestContext(ctxt, TestEngineStatus.CleaningUp);
-
-			ctxt.Aggregator.Clear();
-			await BeforeTestClassFinishedAsync(ctxt);
-
-			if (ctxt.Aggregator.HasExceptions)
+			if (ctxt.TestClass != null)
 			{
-				var classCleanupFailure = _TestClassCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
-				if (!ctxt.MessageBus.QueueMessage(classCleanupFailure))
+				var classStarting = new _TestClassStarting
+				{
+					AssemblyUniqueID = testAssemblyUniqueID,
+					TestClass = ctxt.TestClass.Class.Name,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID
+				};
+
+				if (!ctxt.MessageBus.QueueMessage(classStarting))
+				{
 					ctxt.CancellationTokenSource.Cancel();
+					return classSummary;
+				}
 			}
 
-			return classSummary;
+			try
+			{
+				await AfterTestClassStartingAsync(ctxt);
+
+				SetTestContext(ctxt, TestEngineStatus.Running);
+
+				classSummary = await RunTestMethodsAsync(ctxt);
+
+				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+				ctxt.Aggregator.Clear();
+				await BeforeTestClassFinishedAsync(ctxt);
+
+				if (ctxt.Aggregator.HasExceptions)
+				{
+					var classCleanupFailure = _TestClassCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
+					if (!ctxt.MessageBus.QueueMessage(classCleanupFailure))
+						ctxt.CancellationTokenSource.Cancel();
+				}
+
+				return classSummary;
+			}
+			finally
+			{
+				if (ctxt.TestClass != null)
+				{
+					var classFinished = new _TestClassFinished
+					{
+						AssemblyUniqueID = testAssemblyUniqueID,
+						ExecutionTime = classSummary.Time,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestsFailed = classSummary.Failed,
+						TestsRun = classSummary.Total,
+						TestsSkipped = classSummary.Skipped
+					};
+
+					if (!ctxt.MessageBus.QueueMessage(classFinished))
+						ctxt.CancellationTokenSource.Cancel();
+				}
+			}
 		}
 		finally
 		{
-			if (ctxt.TestClass != null)
-			{
-				var classFinished = new _TestClassFinished
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					ExecutionTime = classSummary.Time,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestsFailed = classSummary.Failed,
-					TestsRun = classSummary.Total,
-					TestsSkipped = classSummary.Skipped
-				};
-
-				if (!ctxt.MessageBus.QueueMessage(classFinished))
-					ctxt.CancellationTokenSource.Cancel();
-			}
+			await ctxt.DisposeAsync();
 		}
 	}
 

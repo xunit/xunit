@@ -193,54 +193,83 @@ public abstract class TestInvoker<TContext>
 	/// <param name="ctxt">The invoker context</param>
 	/// <returns>Returns the time (in seconds) spent creating the test class, running
 	/// the test, and disposing of the test class.</returns>
-	protected ValueTask<decimal> RunAsync(TContext ctxt)
+	protected async ValueTask<decimal> RunAsync(TContext ctxt)
 	{
-		return ctxt.Aggregator.RunAsync(async () =>
+		await ctxt.InitializeAsync();
+
+		try
 		{
-			if (ctxt.CancellationTokenSource.IsCancellationRequested)
-				return 0m;
-
-			SetTestContext(ctxt, TestEngineStatus.Initializing);
-
-			object? testClassInstance = null;
-			var elapsedTime = ExecutionTimer.Measure(() => { testClassInstance = CreateTestClass(ctxt); });
-
-			var asyncDisposable = testClassInstance as IAsyncDisposable;
-			var disposable = testClassInstance as IDisposable;
-
-			var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
-			var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
-			var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
-			var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
-			var testUniqueID = ctxt.Test.UniqueID;
-
-			try
+			return await ctxt.Aggregator.RunAsync(async () =>
 			{
-				if (testClassInstance is IAsyncLifetime asyncLifetime)
-					elapsedTime += await ExecutionTimer.MeasureAsync(asyncLifetime.InitializeAsync);
+				if (ctxt.CancellationTokenSource.IsCancellationRequested)
+					return 0m;
+
+				SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+				object? testClassInstance = null;
+				var elapsedTime = ExecutionTimer.Measure(() => { testClassInstance = CreateTestClass(ctxt); });
+
+				var asyncDisposable = testClassInstance as IAsyncDisposable;
+				var disposable = testClassInstance as IDisposable;
+
+				var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
+				var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
+				var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
+				var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
+				var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
+				var testUniqueID = ctxt.Test.UniqueID;
 
 				try
 				{
-					if (!ctxt.CancellationTokenSource.IsCancellationRequested)
+					if (testClassInstance is IAsyncLifetime asyncLifetime)
+						elapsedTime += await ExecutionTimer.MeasureAsync(asyncLifetime.InitializeAsync);
+
+					try
 					{
-						elapsedTime += await ExecutionTimer.MeasureAsync(() => BeforeTestMethodInvokedAsync(ctxt));
+						if (!ctxt.CancellationTokenSource.IsCancellationRequested)
+						{
+							elapsedTime += await ExecutionTimer.MeasureAsync(() => BeforeTestMethodInvokedAsync(ctxt));
 
-						SetTestContext(ctxt, TestEngineStatus.Running);
+							SetTestContext(ctxt, TestEngineStatus.Running);
 
-						if (!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions)
-							await InvokeTestMethodAsync(ctxt, testClassInstance);
+							if (!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions)
+								await InvokeTestMethodAsync(ctxt, testClassInstance);
 
-						SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestState.FromException((decimal)elapsedTime.TotalSeconds, ctxt.Aggregator.ToException()));
+							SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestState.FromException((decimal)elapsedTime.TotalSeconds, ctxt.Aggregator.ToException()));
 
-						elapsedTime += await ExecutionTimer.MeasureAsync(() => AfterTestMethodInvokedAsync(ctxt));
+							elapsedTime += await ExecutionTimer.MeasureAsync(() => AfterTestMethodInvokedAsync(ctxt));
+						}
+					}
+					finally
+					{
+						if (asyncDisposable != null || disposable != null)
+						{
+							var testClassDisposeStarting = new _TestClassDisposeStarting
+							{
+								AssemblyUniqueID = testAssemblyUniqueID,
+								TestCaseUniqueID = testCaseUniqueID,
+								TestClassUniqueID = testClassUniqueID,
+								TestCollectionUniqueID = testCollectionUniqueID,
+								TestMethodUniqueID = testMethodUniqueID,
+								TestUniqueID = testUniqueID
+							};
+
+							if (!ctxt.MessageBus.QueueMessage(testClassDisposeStarting))
+								ctxt.CancellationTokenSource.Cancel();
+						}
+
+						if (asyncDisposable != null)
+							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(asyncDisposable.DisposeAsync));
 					}
 				}
 				finally
 				{
+					if (disposable != null)
+						elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(disposable.Dispose));
+
 					if (asyncDisposable != null || disposable != null)
 					{
-						var testClassDisposeStarting = new _TestClassDisposeStarting
+						var testClassDisposeFinished = new _TestClassDisposeFinished
 						{
 							AssemblyUniqueID = testAssemblyUniqueID,
 							TestCaseUniqueID = testCaseUniqueID,
@@ -250,38 +279,18 @@ public abstract class TestInvoker<TContext>
 							TestUniqueID = testUniqueID
 						};
 
-						if (!ctxt.MessageBus.QueueMessage(testClassDisposeStarting))
+						if (!ctxt.MessageBus.QueueMessage(testClassDisposeFinished))
 							ctxt.CancellationTokenSource.Cancel();
 					}
-
-					if (asyncDisposable != null)
-						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(asyncDisposable.DisposeAsync));
 				}
-			}
-			finally
-			{
-				if (disposable != null)
-					elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(disposable.Dispose));
 
-				if (asyncDisposable != null || disposable != null)
-				{
-					var testClassDisposeFinished = new _TestClassDisposeFinished
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						TestCaseUniqueID = testCaseUniqueID,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestMethodUniqueID = testMethodUniqueID,
-						TestUniqueID = testUniqueID
-					};
-
-					if (!ctxt.MessageBus.QueueMessage(testClassDisposeFinished))
-						ctxt.CancellationTokenSource.Cancel();
-				}
-			}
-
-			return (decimal)elapsedTime.TotalSeconds;
-		}, 0m);
+				return (decimal)elapsedTime.TotalSeconds;
+			}, 0m);
+		}
+		finally
+		{
+			await ctxt.DisposeAsync();
+		}
 	}
 
 	[SecuritySafeCritical]

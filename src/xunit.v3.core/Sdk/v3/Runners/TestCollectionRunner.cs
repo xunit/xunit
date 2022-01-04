@@ -46,62 +46,71 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
+		await ctxt.InitializeAsync();
 
-		var collectionSummary = new RunSummary();
-		var testAssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID;
-		var testCollectionUniqueID = ctxt.TestCollection.UniqueID;
-
-		var collectionStarting = new _TestCollectionStarting
+		try
 		{
-			AssemblyUniqueID = testAssemblyUniqueID,
-			TestCollectionClass = ctxt.TestCollection.CollectionDefinition?.Name,
-			TestCollectionDisplayName = ctxt.TestCollection.DisplayName,
-			TestCollectionUniqueID = testCollectionUniqueID
-		};
+			SetTestContext(ctxt, TestEngineStatus.Initializing);
 
-		if (!ctxt.MessageBus.QueueMessage(collectionStarting))
-			ctxt.CancellationTokenSource.Cancel();
-		else
-		{
-			try
+			var collectionSummary = new RunSummary();
+			var testAssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = ctxt.TestCollection.UniqueID;
+
+			var collectionStarting = new _TestCollectionStarting
 			{
-				await AfterTestCollectionStartingAsync(ctxt);
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestCollectionClass = ctxt.TestCollection.CollectionDefinition?.Name,
+				TestCollectionDisplayName = ctxt.TestCollection.DisplayName,
+				TestCollectionUniqueID = testCollectionUniqueID
+			};
 
-				SetTestContext(ctxt, TestEngineStatus.Running);
-
-				collectionSummary = await RunTestClassesAsync(ctxt);
-
-				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
-
-				ctxt.Aggregator.Clear();
-				await BeforeTestCollectionFinishedAsync(ctxt);
-
-				if (ctxt.Aggregator.HasExceptions)
+			if (!ctxt.MessageBus.QueueMessage(collectionStarting))
+				ctxt.CancellationTokenSource.Cancel();
+			else
+			{
+				try
 				{
-					var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID);
-					if (!ctxt.MessageBus.QueueMessage(collectionCleanupFailure))
+					await AfterTestCollectionStartingAsync(ctxt);
+
+					SetTestContext(ctxt, TestEngineStatus.Running);
+
+					collectionSummary = await RunTestClassesAsync(ctxt);
+
+					SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+					ctxt.Aggregator.Clear();
+					await BeforeTestCollectionFinishedAsync(ctxt);
+
+					if (ctxt.Aggregator.HasExceptions)
+					{
+						var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID);
+						if (!ctxt.MessageBus.QueueMessage(collectionCleanupFailure))
+							ctxt.CancellationTokenSource.Cancel();
+					}
+				}
+				finally
+				{
+					var collectionFinished = new _TestCollectionFinished
+					{
+						AssemblyUniqueID = testAssemblyUniqueID,
+						ExecutionTime = collectionSummary.Time,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestsFailed = collectionSummary.Failed,
+						TestsRun = collectionSummary.Total,
+						TestsSkipped = collectionSummary.Skipped
+					};
+
+					if (!ctxt.MessageBus.QueueMessage(collectionFinished))
 						ctxt.CancellationTokenSource.Cancel();
 				}
 			}
-			finally
-			{
-				var collectionFinished = new _TestCollectionFinished
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					ExecutionTime = collectionSummary.Time,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestsFailed = collectionSummary.Failed,
-					TestsRun = collectionSummary.Total,
-					TestsSkipped = collectionSummary.Skipped
-				};
 
-				if (!ctxt.MessageBus.QueueMessage(collectionFinished))
-					ctxt.CancellationTokenSource.Cancel();
-			}
+			return collectionSummary;
 		}
-
-		return collectionSummary;
+		finally
+		{
+			await ctxt.DisposeAsync();
+		}
 	}
 
 	/// <summary>

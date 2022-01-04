@@ -48,159 +48,168 @@ public abstract class TestRunner<TContext>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
+		await ctxt.InitializeAsync();
 
-		var runSummary = new RunSummary { Total = 1 };
-		var output = string.Empty;
-
-		var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
-		var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
-		var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
-		var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
-		var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
-		var testUniqueID = ctxt.Test.UniqueID;
-
-		var testStarting = new _TestStarting
+		try
 		{
-			AssemblyUniqueID = testAssemblyUniqueID,
-			TestCaseUniqueID = testCaseUniqueID,
-			TestClassUniqueID = testClassUniqueID,
-			TestCollectionUniqueID = testCollectionUniqueID,
-			TestDisplayName = ctxt.Test.DisplayName,
-			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
-		};
+			SetTestContext(ctxt, TestEngineStatus.Initializing);
 
-		if (!ctxt.MessageBus.QueueMessage(testStarting))
-			ctxt.CancellationTokenSource.Cancel();
-		else
-		{
-			AfterTestStarting(ctxt);
+			var runSummary = new RunSummary { Total = 1 };
+			var output = string.Empty;
 
-			_TestResultMessage testResult;
+			var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
+			var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
+			var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
+			var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
+			var testUniqueID = ctxt.Test.UniqueID;
 
-			if (!string.IsNullOrEmpty(ctxt.SkipReason))
+			var testStarting = new _TestStarting
 			{
-				runSummary.Skipped++;
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestDisplayName = ctxt.Test.DisplayName,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
+			};
 
-				testResult = new _TestSkipped
+			if (!ctxt.MessageBus.QueueMessage(testStarting))
+				ctxt.CancellationTokenSource.Cancel();
+			else
+			{
+				AfterTestStarting(ctxt);
+
+				_TestResultMessage testResult;
+
+				if (!string.IsNullOrEmpty(ctxt.SkipReason))
+				{
+					runSummary.Skipped++;
+
+					testResult = new _TestSkipped
+					{
+						AssemblyUniqueID = testAssemblyUniqueID,
+						ExecutionTime = 0m,
+						Output = "",
+						Reason = ctxt.SkipReason,
+						TestCaseUniqueID = testCaseUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID
+					};
+				}
+				else
+				{
+					if (!ctxt.Aggregator.HasExceptions)
+					{
+						var tuple = await ctxt.Aggregator.RunAsync(() => InvokeTestAsync(ctxt), (0m, string.Empty));
+						if (tuple.HasValue)
+						{
+							runSummary.Time = tuple.Value.ExecutionTime;
+							output = tuple.Value.Output;
+						}
+					}
+
+					var exception = ctxt.Aggregator.ToException();
+
+					if (exception == null)
+					{
+						testResult = new _TestPassed
+						{
+							AssemblyUniqueID = testAssemblyUniqueID,
+							ExecutionTime = runSummary.Time,
+							Output = output,
+							TestCaseUniqueID = testCaseUniqueID,
+							TestClassUniqueID = testClassUniqueID,
+							TestCollectionUniqueID = testCollectionUniqueID,
+							TestMethodUniqueID = testMethodUniqueID,
+							TestUniqueID = testUniqueID
+						};
+					}
+					// We don't want a strongly typed contract here; any exception can be a dynamically
+					// skipped exception so long as its message starts with the special token.
+					else if (exception.Message.StartsWith(DynamicSkipToken.Value))
+					{
+						testResult = new _TestSkipped
+						{
+							AssemblyUniqueID = testAssemblyUniqueID,
+							ExecutionTime = runSummary.Time,
+							Output = output,
+							Reason = exception.Message.Substring(DynamicSkipToken.Value.Length),
+							TestCaseUniqueID = testCaseUniqueID,
+							TestClassUniqueID = testClassUniqueID,
+							TestCollectionUniqueID = testCollectionUniqueID,
+							TestMethodUniqueID = testMethodUniqueID,
+							TestUniqueID = testUniqueID
+						};
+						runSummary.Skipped++;
+					}
+					else
+					{
+						testResult = _TestFailed.FromException(
+							exception,
+							testAssemblyUniqueID,
+							testCollectionUniqueID,
+							testClassUniqueID,
+							testMethodUniqueID,
+							testCaseUniqueID,
+							testUniqueID,
+							runSummary.Time,
+							output
+						);
+						runSummary.Failed++;
+					}
+				}
+
+				SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestState.FromTestResult(testResult));
+
+				if (!ctxt.CancellationTokenSource.IsCancellationRequested)
+					if (!ctxt.MessageBus.QueueMessage(testResult))
+						ctxt.CancellationTokenSource.Cancel();
+
+				ctxt.Aggregator.Clear();
+				BeforeTestFinished(ctxt);
+
+				if (ctxt.Aggregator.HasExceptions)
+				{
+					var testCleanupFailure = _TestCleanupFailure.FromException(
+						ctxt.Aggregator.ToException()!,
+						testAssemblyUniqueID,
+						testCollectionUniqueID,
+						testClassUniqueID,
+						testMethodUniqueID,
+						testCaseUniqueID,
+						testUniqueID
+					);
+
+					if (!ctxt.MessageBus.QueueMessage(testCleanupFailure))
+						ctxt.CancellationTokenSource.Cancel();
+				}
+
+				var testFinished = new _TestFinished
 				{
 					AssemblyUniqueID = testAssemblyUniqueID,
-					ExecutionTime = 0m,
-					Output = "",
-					Reason = ctxt.SkipReason,
+					ExecutionTime = runSummary.Time,
+					Output = output,
 					TestCaseUniqueID = testCaseUniqueID,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
 					TestMethodUniqueID = testMethodUniqueID,
 					TestUniqueID = testUniqueID
 				};
-			}
-			else
-			{
-				if (!ctxt.Aggregator.HasExceptions)
-				{
-					var tuple = await ctxt.Aggregator.RunAsync(() => InvokeTestAsync(ctxt), (0m, string.Empty));
-					if (tuple.HasValue)
-					{
-						runSummary.Time = tuple.Value.ExecutionTime;
-						output = tuple.Value.Output;
-					}
-				}
 
-				var exception = ctxt.Aggregator.ToException();
-
-				if (exception == null)
-				{
-					testResult = new _TestPassed
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = runSummary.Time,
-						Output = output,
-						TestCaseUniqueID = testCaseUniqueID,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestMethodUniqueID = testMethodUniqueID,
-						TestUniqueID = testUniqueID
-					};
-				}
-				// We don't want a strongly typed contract here; any exception can be a dynamically
-				// skipped exception so long as its message starts with the special token.
-				else if (exception.Message.StartsWith(DynamicSkipToken.Value))
-				{
-					testResult = new _TestSkipped
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = runSummary.Time,
-						Output = output,
-						Reason = exception.Message.Substring(DynamicSkipToken.Value.Length),
-						TestCaseUniqueID = testCaseUniqueID,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestMethodUniqueID = testMethodUniqueID,
-						TestUniqueID = testUniqueID
-					};
-					runSummary.Skipped++;
-				}
-				else
-				{
-					testResult = _TestFailed.FromException(
-						exception,
-						testAssemblyUniqueID,
-						testCollectionUniqueID,
-						testClassUniqueID,
-						testMethodUniqueID,
-						testCaseUniqueID,
-						testUniqueID,
-						runSummary.Time,
-						output
-					);
-					runSummary.Failed++;
-				}
-			}
-
-			SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestState.FromTestResult(testResult));
-
-			if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-				if (!ctxt.MessageBus.QueueMessage(testResult))
-					ctxt.CancellationTokenSource.Cancel();
-
-			ctxt.Aggregator.Clear();
-			BeforeTestFinished(ctxt);
-
-			if (ctxt.Aggregator.HasExceptions)
-			{
-				var testCleanupFailure = _TestCleanupFailure.FromException(
-					ctxt.Aggregator.ToException()!,
-					testAssemblyUniqueID,
-					testCollectionUniqueID,
-					testClassUniqueID,
-					testMethodUniqueID,
-					testCaseUniqueID,
-					testUniqueID
-				);
-
-				if (!ctxt.MessageBus.QueueMessage(testCleanupFailure))
+				if (!ctxt.MessageBus.QueueMessage(testFinished))
 					ctxt.CancellationTokenSource.Cancel();
 			}
 
-			var testFinished = new _TestFinished
-			{
-				AssemblyUniqueID = testAssemblyUniqueID,
-				ExecutionTime = runSummary.Time,
-				Output = output,
-				TestCaseUniqueID = testCaseUniqueID,
-				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID,
-				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
-			};
-
-			if (!ctxt.MessageBus.QueueMessage(testFinished))
-				ctxt.CancellationTokenSource.Cancel();
+			return runSummary;
 		}
-
-		return runSummary;
+		finally
+		{
+			await ctxt.DisposeAsync();
+		}
 	}
 
 	/// <summary>
