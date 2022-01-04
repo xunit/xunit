@@ -13,9 +13,6 @@ public class ContextBase : IAsyncLifetime
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ContextBase"/> class.
 	/// </summary>
-	/// <param name="messageBus"></param>
-	/// <param name="aggregator"></param>
-	/// <param name="cancellationTokenSource"></param>
 	public ContextBase(
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,

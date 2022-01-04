@@ -191,8 +191,8 @@ namespace Xunit.Internal
 		/// </summary>
 		/// <typeparam name="T">The value type</typeparam>
 		/// <param name="message">The exception message to use when the value is not valid</param>
-		/// <param name="value"></param>
-		/// <returns></returns>
+		/// <param name="value">The value to test for null</param>
+		/// <returns>The value as a non-null value</returns>
 		/// <exception cref="InvalidOperationException">Thrown when the value is not valid</exception>
 		public static T NotNull<T>(
 			string message,

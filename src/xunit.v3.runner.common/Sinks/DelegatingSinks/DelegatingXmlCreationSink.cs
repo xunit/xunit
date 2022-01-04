@@ -26,8 +26,8 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DelegatingXmlCreationSink"/> class.
 		/// </summary>
-		/// <param name="innerSink"></param>
-		/// <param name="assemblyElement"></param>
+		/// <param name="innerSink">The inner sink to delegate messages to</param>
+		/// <param name="assemblyElement">The assembly XML element to add report nodes to</param>
 		public DelegatingXmlCreationSink(
 			IExecutionSink innerSink,
 			XElement assemblyElement)

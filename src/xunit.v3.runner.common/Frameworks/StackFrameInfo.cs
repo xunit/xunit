@@ -16,8 +16,8 @@ namespace Xunit.Runner.Common
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StackFrameInfo"/> class.
 		/// </summary>
-		/// <param name="fileName"></param>
-		/// <param name="lineNumber"></param>
+		/// <param name="fileName">The file name from the stack frame</param>
+		/// <param name="lineNumber">The line number from the stack frame</param>
 		public StackFrameInfo(
 			string? fileName,
 			int lineNumber)
