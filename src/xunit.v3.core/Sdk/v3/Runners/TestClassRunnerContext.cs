@@ -17,8 +17,8 @@ public class TestClassRunnerContext<TTestCase> : ContextBase
 	/// Initializes a new instancew of the <see cref="TestClassRunnerContext{TTestCase}"/> class.
 	/// </summary>
 	public TestClassRunnerContext(
-		_ITestClass? testClass,
-		_IReflectionTypeInfo? @class,
+		_ITestClass testClass,
+		_IReflectionTypeInfo @class,
 		IReadOnlyCollection<TTestCase> testCases,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
@@ -26,16 +26,16 @@ public class TestClassRunnerContext<TTestCase> : ContextBase
 		CancellationTokenSource cancellationTokenSource) :
 			base(messageBus, aggregator, cancellationTokenSource)
 	{
-		TestClass = testClass;
-		Class = @class;
+		TestClass = Guard.ArgumentNotNull(testClass);
+		Class = Guard.ArgumentNotNull(@class);
 		TestCases = Guard.ArgumentNotNull(testCases);
 		this.testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
 	}
 
 	/// <summary>
-	/// Gets the type that maps to this test class.
+	/// Gets the type information for this test class.
 	/// </summary>
-	public _IReflectionTypeInfo? Class { get; }
+	public _IReflectionTypeInfo Class { get; }
 
 	/// <summary>
 	/// Gets or sets the orderer used to order the test cases.
@@ -54,5 +54,5 @@ public class TestClassRunnerContext<TTestCase> : ContextBase
 	/// <summary>
 	/// Gets the test class that is being executed.
 	/// </summary>
-	public _ITestClass? TestClass { get; }
+	public _ITestClass TestClass { get; }
 }

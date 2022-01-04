@@ -14,34 +14,33 @@ public class TestMethodRunnerContext<TTestCase> : ContextBase
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestMethodRunnerContext{TTestCase}"/> class.
 	/// </summary>
-	// TODO: Why are method and class nullable here?
 	public TestMethodRunnerContext(
-		_ITestClass? testClass,
-		_ITestMethod? testMethod,
-		_IReflectionTypeInfo? @class,
-		_IReflectionMethodInfo? method,
+		_ITestClass testClass,
+		_ITestMethod testMethod,
+		_IReflectionTypeInfo @class,
+		_IReflectionMethodInfo method,
 		IReadOnlyCollection<TTestCase> testCases,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
 			base(messageBus, aggregator, cancellationTokenSource)
 	{
-		TestClass = testClass;
-		TestMethod = testMethod;
-		Class = @class;
-		Method = method;
+		TestClass = Guard.ArgumentNotNull(testClass);
+		TestMethod = Guard.ArgumentNotNull(testMethod);
+		Class = Guard.ArgumentNotNull(@class);
+		Method = Guard.ArgumentNotNull(method);
 		TestCases = Guard.ArgumentNotNull(testCases);
 	}
 
 	/// <summary>
-	/// Gets the class that this test method is associated with.
+	/// Gets the type information for this test class.
 	/// </summary>
-	public _IReflectionTypeInfo? Class { get; }
+	public _IReflectionTypeInfo Class { get; }
 
 	/// <summary>
-	/// Gets the method that this test method derives from.
+	/// Gets the method information for this test method.
 	/// </summary>
-	public _IReflectionMethodInfo? Method { get; }
+	public _IReflectionMethodInfo Method { get; }
 
 	/// <summary>
 	/// Gets the test cases that are derived from this test method.
@@ -49,12 +48,12 @@ public class TestMethodRunnerContext<TTestCase> : ContextBase
 	public IReadOnlyCollection<TTestCase> TestCases { get; }
 
 	/// <summary>
-	/// Gets the test class.
+	/// Gets the test class that this test method belongs to.
 	/// </summary>
-	public _ITestClass? TestClass { get; }
+	public _ITestClass TestClass { get; }
 
 	/// <summary>
-	/// Gets the test method.
+	/// Gets the test method that is being executed.
 	/// </summary>
-	public _ITestMethod? TestMethod { get; }
+	public _ITestMethod TestMethod { get; }
 }

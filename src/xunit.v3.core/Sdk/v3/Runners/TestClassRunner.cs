@@ -35,8 +35,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>The test class constructor arguments.</returns>
 	protected virtual object?[] CreateTestClassConstructorArguments(TContext ctxt)
 	{
-		var isStaticClass = ctxt.Class == null || (ctxt.Class.Type.IsAbstract && ctxt.Class.Type.IsSealed);
-		if (ctxt.Class != null && !isStaticClass)
+		var isStaticClass = ctxt.Class.Type.IsAbstract && ctxt.Class.Type.IsSealed;
+		if (!isStaticClass)
 		{
 			var ctor = SelectTestClassConstructor(ctxt);
 			if (ctor != null)
@@ -116,23 +116,20 @@ public abstract class TestClassRunner<TContext, TTestCase>
 			var testCollection = ctxt.TestCases.First().TestCollection;
 			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = testCollection.UniqueID;
-			var testClassUniqueID = ctxt.TestClass?.UniqueID;
+			var testClassUniqueID = ctxt.TestClass.UniqueID;
 
-			if (ctxt.TestClass != null)
+			var classStarting = new _TestClassStarting
 			{
-				var classStarting = new _TestClassStarting
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					TestClass = ctxt.TestClass.Class.Name,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID
-				};
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestClass = ctxt.TestClass.Class.Name,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID
+			};
 
-				if (!ctxt.MessageBus.QueueMessage(classStarting))
-				{
-					ctxt.CancellationTokenSource.Cancel();
-					return classSummary;
-				}
+			if (!ctxt.MessageBus.QueueMessage(classStarting))
+			{
+				ctxt.CancellationTokenSource.Cancel();
+				return classSummary;
 			}
 
 			try
@@ -159,22 +156,19 @@ public abstract class TestClassRunner<TContext, TTestCase>
 			}
 			finally
 			{
-				if (ctxt.TestClass != null)
+				var classFinished = new _TestClassFinished
 				{
-					var classFinished = new _TestClassFinished
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = classSummary.Time,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestsFailed = classSummary.Failed,
-						TestsRun = classSummary.Total,
-						TestsSkipped = classSummary.Skipped
-					};
+					AssemblyUniqueID = testAssemblyUniqueID,
+					ExecutionTime = classSummary.Time,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestsFailed = classSummary.Failed,
+					TestsRun = classSummary.Total,
+					TestsSkipped = classSummary.Skipped
+				};
 
-					if (!ctxt.MessageBus.QueueMessage(classFinished))
-						ctxt.CancellationTokenSource.Cancel();
-				}
+				if (!ctxt.MessageBus.QueueMessage(classFinished))
+					ctxt.CancellationTokenSource.Cancel();
 			}
 		}
 		finally
@@ -261,10 +255,6 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>The constructor to be used for creating the test class.</returns>
 	protected virtual ConstructorInfo? SelectTestClassConstructor(TContext ctxt)
 	{
-		// This should never happen, but we'll be safe here just in case
-		if (ctxt.Class == null)
-			return null;
-
 		var result = ctxt.Class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
 		if (result == null)
 			ctxt.Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
@@ -280,11 +270,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <param name="testClassStatus">The current test class status.</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
-		TestEngineStatus testClassStatus)
-	{
-		if (ctxt.TestClass != null)
+		TestEngineStatus testClassStatus) =>
 			TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token);
-	}
 
 	/// <summary>
 	/// Tries to supply a test class constructor argument. By default, always fails. Override to

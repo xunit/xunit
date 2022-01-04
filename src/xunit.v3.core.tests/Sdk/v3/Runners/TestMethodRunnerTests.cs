@@ -212,12 +212,12 @@ public class TestMethodRunnerTests
 	class TestableTestMethodRunner : TestMethodRunner<TestMethodRunnerContext<_ITestCase>, _ITestCase>
 	{
 		readonly bool cancelInRunTestCaseAsync;
-		readonly _IReflectionTypeInfo? @class;
+		readonly _IReflectionTypeInfo @class;
 		readonly IMessageBus messageBus;
-		readonly _IReflectionMethodInfo? method;
+		readonly _IReflectionMethodInfo method;
 		readonly RunSummary result;
 		readonly IReadOnlyCollection<_ITestCase> testCases;
-		readonly _ITestClass? testClass;
+		readonly _ITestClass testClass;
 
 		public readonly ExceptionAggregator Aggregator;
 		public bool AfterTestMethodStarting_Called;
@@ -228,16 +228,16 @@ public class TestMethodRunnerTests
 		public Action<ExceptionAggregator> BeforeTestMethodFinished_Callback = _ => { };
 		public Exception? RunTestCaseAsync_AggregatorResult;
 		public TestContext? RunTestCaseAsync_Context;
-		public readonly _ITestMethod? TestMethod;
+		public readonly _ITestMethod TestMethod;
 		public readonly CancellationTokenSource TokenSource;
 
 		public List<_ITestCase> TestCasesRun = new();
 
 		TestableTestMethodRunner(
-			_ITestClass? testClass,
-			_ITestMethod? testMethod,
-			_IReflectionTypeInfo? @class,
-			_IReflectionMethodInfo? method,
+			_ITestClass testClass,
+			_ITestMethod testMethod,
+			_IReflectionTypeInfo @class,
+			_IReflectionMethodInfo method,
 			IReadOnlyCollection<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
@@ -274,10 +274,10 @@ public class TestMethodRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestMethodRunner(
-				firstTestCase.TestClass,
-				firstTestCase.TestMethod,
-				firstTestCase.TestClass?.Class as _IReflectionTypeInfo,
-				firstTestCase.TestMethod?.Method as _IReflectionMethodInfo,
+				firstTestCase.TestClass ?? throw new InvalidOperationException("testCase.TestClass must not be null"),
+				firstTestCase.TestMethod ?? throw new InvalidOperationException("testCase.TestMethod must not be null"),
+				firstTestCase.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
+				firstTestCase.TestMethod.Method as _IReflectionMethodInfo ?? throw new InvalidOperationException("testCase.TestMethod.Method must be based on reflection"),
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				aggregator,

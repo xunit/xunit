@@ -387,7 +387,7 @@ public class TestClassRunnerTests
 		readonly ExceptionAggregator aggregator;
 		readonly object[] availableArguments;
 		readonly bool cancelInRunTestMethodAsync;
-		readonly _IReflectionTypeInfo? @class;
+		readonly _IReflectionTypeInfo @class;
 		readonly ConstructorInfo? constructor;
 		readonly IMessageBus messageBus;
 		readonly RunSummary result;
@@ -403,12 +403,12 @@ public class TestClassRunnerTests
 		public List<Tuple<_IReflectionMethodInfo?, IReadOnlyCollection<_ITestCase>, object?[]>> MethodsRun = new();
 		public Exception? RunTestMethodAsync_AggregatorResult;
 		public TestContext? RunTestMethodAsync_Context;
-		public readonly _ITestClass? TestClass;
+		public readonly _ITestClass TestClass;
 		public readonly CancellationTokenSource TokenSource;
 
 		TestableTestClassRunner(
-			_ITestClass? testClass,
-			_IReflectionTypeInfo? @class,
+			_ITestClass testClass,
+			_IReflectionTypeInfo @class,
 			IReadOnlyCollection<_ITestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -454,8 +454,8 @@ public class TestClassRunnerTests
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
-				firstTest.TestClass,
-				firstTest.TestClass?.Class as _IReflectionTypeInfo,
+				firstTest.TestClass ?? throw new InvalidOperationException("testCase.TestClass must not be null"),
+				firstTest.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
 				testCases,
 				messageBus ?? new SpyMessageBus(),
 				orderer ?? new MockTestCaseOrderer(),

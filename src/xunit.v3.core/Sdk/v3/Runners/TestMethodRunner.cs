@@ -53,25 +53,22 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 			var testCollection = ctxt.TestCases.First().TestCollection;
 			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
 			var testCollectionUniqueID = testCollection.UniqueID;
-			var testClassUniqueID = ctxt.TestClass?.UniqueID;
-			var testMethodUniqueID = ctxt.TestMethod?.UniqueID;
+			var testClassUniqueID = ctxt.TestClass.UniqueID;
+			var testMethodUniqueID = ctxt.TestMethod.UniqueID;
 
-			if (ctxt.TestMethod != null)
+			var methodStarting = new _TestMethodStarting
 			{
-				var methodStarting = new _TestMethodStarting
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestMethod = ctxt.TestMethod.Method.Name,
-					TestMethodUniqueID = testMethodUniqueID
-				};
+				AssemblyUniqueID = testAssemblyUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethod = ctxt.TestMethod.Method.Name,
+				TestMethodUniqueID = testMethodUniqueID
+			};
 
-				if (!ctxt.MessageBus.QueueMessage(methodStarting))
-				{
-					ctxt.CancellationTokenSource.Cancel();
-					return methodSummary;
-				}
+			if (!ctxt.MessageBus.QueueMessage(methodStarting))
+			{
+				ctxt.CancellationTokenSource.Cancel();
+				return methodSummary;
 			}
 
 			try
@@ -98,23 +95,20 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 			}
 			finally
 			{
-				if (ctxt.TestMethod != null)
+				var testMethodFinished = new _TestMethodFinished
 				{
-					var testMethodFinished = new _TestMethodFinished
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = methodSummary.Time,
-						TestClassUniqueID = testClassUniqueID,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestMethodUniqueID = testMethodUniqueID,
-						TestsFailed = methodSummary.Failed,
-						TestsRun = methodSummary.Total,
-						TestsSkipped = methodSummary.Skipped
-					};
+					AssemblyUniqueID = testAssemblyUniqueID,
+					ExecutionTime = methodSummary.Time,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestMethodUniqueID = testMethodUniqueID,
+					TestsFailed = methodSummary.Failed,
+					TestsRun = methodSummary.Total,
+					TestsSkipped = methodSummary.Skipped
+				};
 
-					if (!ctxt.MessageBus.QueueMessage(testMethodFinished))
-						ctxt.CancellationTokenSource.Cancel();
-				}
+				if (!ctxt.MessageBus.QueueMessage(testMethodFinished))
+					ctxt.CancellationTokenSource.Cancel();
 			}
 		}
 		finally
@@ -160,9 +154,6 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 	/// <param name="testMethodStatus">The current test method status.</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
-		TestEngineStatus testMethodStatus)
-	{
-		if (ctxt.TestMethod != null)
+		TestEngineStatus testMethodStatus) =>
 			TestContext.SetForTestMethod(ctxt.TestMethod, testMethodStatus, ctxt.CancellationTokenSource.Token);
-	}
 }

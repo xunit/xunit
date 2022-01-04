@@ -15,8 +15,8 @@ public class XunitTestClassRunnerContext : TestClassRunnerContext<IXunitTestCase
 	/// Initializes a new instance of the <see cref="XunitTestClassRunnerContext"/> record.
 	/// </summary>
 	public XunitTestClassRunnerContext(
-		_ITestClass? testClass,
-		_IReflectionTypeInfo? @class,
+		_ITestClass testClass,
+		_IReflectionTypeInfo @class,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,

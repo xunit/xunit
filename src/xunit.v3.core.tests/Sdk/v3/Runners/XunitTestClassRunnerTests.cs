@@ -405,12 +405,12 @@ public class XunitTestClassRunnerTests
 		readonly ExceptionAggregator aggregator;
 		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
 		readonly CancellationTokenSource cancellationTokenSource;
-		readonly _IReflectionTypeInfo? @class;
+		readonly _IReflectionTypeInfo @class;
 		readonly IReadOnlyDictionary<Type, object> collectionFixtureMappings;
 		readonly IMessageBus messageBus;
 		readonly ITestCaseOrderer testCaseOrderer;
 		readonly IReadOnlyCollection<IXunitTestCase> testCases;
-		readonly _ITestClass? testClass;
+		readonly _ITestClass testClass;
 
 		public List<object?[]> ConstructorArguments = new();
 		public Exception? RunTestMethodAsync_AggregatorResult;
@@ -418,8 +418,8 @@ public class XunitTestClassRunnerTests
 		public ITestCaseOrderer? RunTestMethodsAsync_TestCaseOrderer;
 
 		TestableXunitTestClassRunner(
-			_ITestClass? testClass,
-			_IReflectionTypeInfo? @class,
+			_ITestClass testClass,
+			_IReflectionTypeInfo @class,
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			IMessageBus messageBus,
 			ITestCaseOrderer testCaseOrderer,
@@ -443,8 +443,8 @@ public class XunitTestClassRunnerTests
 			IXunitTestCase testCase,
 			params object[] collectionFixtures) =>
 				new(
-					testCase.TestClass,
-					testCase.TestClass?.Class as _IReflectionTypeInfo,
+					testCase.TestClass ?? throw new InvalidOperationException("testCase.TestClass cannot be null"),
+					testCase.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
 					new[] { testCase },
 					new SpyMessageBus(),
 					new MockTestCaseOrderer(),

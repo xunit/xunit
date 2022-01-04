@@ -13,10 +13,10 @@ public class XunitTestMethodRunnerContext : TestMethodRunnerContext<IXunitTestCa
 	/// Initializes a new instance of the <see cref="XunitTestMethodRunnerContext"/> record.
 	/// </summary>
 	public XunitTestMethodRunnerContext(
-		_ITestClass? testClass,
-		_ITestMethod? testMethod,
-		_IReflectionTypeInfo? @class,
-		_IReflectionMethodInfo? method,
+		_ITestClass testClass,
+		_ITestMethod testMethod,
+		_IReflectionTypeInfo @class,
+		_IReflectionMethodInfo method,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,

@@ -29,9 +29,6 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <inheritdoc/>
 	protected override ValueTask AfterTestClassStartingAsync(XunitTestClassRunnerContext ctxt)
 	{
-		if (ctxt.TestClass == null || ctxt.Class == null)
-			return default;
-
 		var ordererAttribute = ctxt.Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
 		if (ordererAttribute != null)
 		{
@@ -77,9 +74,9 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		foreach (var interfaceType in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
 			createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(ctxt, interfaceType.GenericTypeArguments.Single()).AsTask());
 
-		if (ctxt.TestClass.TestCollection.CollectionDefinition != null)
+		if (ctxt.TestClass.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
 		{
-			var declarationType = ((_IReflectionTypeInfo)ctxt.TestClass.TestCollection.CollectionDefinition).Type;
+			var declarationType = collectionDefinition.Type;
 			foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
 				createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(ctxt, interfaceType.GenericTypeArguments.Single()).AsTask());
 		}
@@ -223,10 +220,8 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <summary>
 	/// Runs the test class.
 	/// </summary>
-	/// <param name="testClass">The test class to be run. May be <c>null</c> for test cases that do not support classes
-	/// and methods.</param>
-	/// <param name="class">The test class that contains the tests to be run. May be <c>null</c> for test cases that do not
-	/// support classes and methods.</param>
+	/// <param name="testClass">The test class to be run.</param>
+	/// <param name="class">The type information about the test class.</param>
 	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
@@ -236,8 +231,8 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 	/// <returns></returns>
 	public ValueTask<RunSummary> RunAsync(
-		_ITestClass? testClass,
-		_IReflectionTypeInfo? @class,
+		_ITestClass testClass,
+		_IReflectionTypeInfo @class,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
@@ -261,8 +256,10 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		_ITestMethod? testMethod,
 		_IReflectionMethodInfo? method,
 		IReadOnlyCollection<IXunitTestCase> testCases,
-		object?[] constructorArguments) =>
-			XunitTestMethodRunner.Instance.RunAsync(
+		object?[] constructorArguments)
+	{
+		if (testMethod != null && method != null)
+			return XunitTestMethodRunner.Instance.RunAsync(
 				ctxt.TestClass,
 				testMethod,
 				ctxt.Class,
@@ -274,12 +271,12 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 				constructorArguments
 			);
 
+		return new(XunitRunnerHelper.FailTestCases(ctxt.TestCases, ctxt.MessageBus, "Test case {0} does not have an associated method and cannot be run by XunitTestMethodRunner"));
+	}
+
 	/// <inheritdoc/>
 	protected override ConstructorInfo? SelectTestClassConstructor(XunitTestClassRunnerContext ctxt)
 	{
-		if (ctxt.Class == null)
-			return null;
-
 		var ctors =
 			ctxt.Class
 				.Type

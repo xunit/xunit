@@ -241,8 +241,10 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		XunitTestCollectionRunnerContext ctxt,
 		_ITestClass? testClass,
 		_IReflectionTypeInfo? @class,
-		IReadOnlyCollection<IXunitTestCase> testCases) =>
-			XunitTestClassRunner.Instance.RunAsync(
+		IReadOnlyCollection<IXunitTestCase> testCases)
+	{
+		if (testClass != null && @class != null)
+			return XunitTestClassRunner.Instance.RunAsync(
 				testClass,
 				@class,
 				testCases,
@@ -253,4 +255,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 				ctxt.AssemblyFixtureMappings,
 				ctxt.CollectionFixtureMappings
 			);
+
+		return new(XunitRunnerHelper.FailTestCases(ctxt.TestCases, ctxt.MessageBus, "Test case {0} does not have an associated class and cannot be run by XunitTestClassRunner"));
+	}
 }
