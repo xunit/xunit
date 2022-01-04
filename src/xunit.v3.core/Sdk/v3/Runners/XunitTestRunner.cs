@@ -32,7 +32,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 		if (testOutputHelper != null)
 			testOutputHelper.Initialize(ctxt.MessageBus, ctxt.Test);
 
-		var executionTime = await InvokeTestMethodAsync(ctxt, testOutputHelper);
+		var executionTime = await InvokeTestMethodAsync(ctxt);
 
 		if (testOutputHelper != null)
 		{
@@ -47,22 +47,19 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 	/// Override this method to invoke the test method.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="testOutputHelper"></param>
 	/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-	protected virtual ValueTask<decimal> InvokeTestMethodAsync(
-		XunitTestRunnerContext ctxt,
-		_ITestOutputHelper? testOutputHelper) =>
-			XunitTestInvoker.Instance.RunAsync(
-				ctxt.Test,
-				ctxt.TestClass,
-				ctxt.ConstructorArguments,
-				ctxt.TestMethod,
-				ctxt.TestMethodArguments,
-				ctxt.BeforeAfterTestAttributes,
-				ctxt.MessageBus,
-				ctxt.Aggregator,
-				ctxt.CancellationTokenSource
-			);
+	protected virtual ValueTask<decimal> InvokeTestMethodAsync(XunitTestRunnerContext ctxt) =>
+		XunitTestInvoker.Instance.RunAsync(
+			ctxt.Test,
+			ctxt.TestClass,
+			ctxt.ConstructorArguments,
+			ctxt.TestMethod,
+			ctxt.TestMethodArguments,
+			ctxt.BeforeAfterTestAttributes,
+			ctxt.MessageBus,
+			ctxt.Aggregator,
+			ctxt.CancellationTokenSource
+		);
 
 	/// <summary>
 	/// Runs the test.
