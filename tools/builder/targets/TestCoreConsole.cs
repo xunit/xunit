@@ -86,7 +86,7 @@ public static class TestCoreConsole
 		{
 			var fileName = Path.GetFileName(v3x86TestDll);
 			var folder = Path.GetDirectoryName(v3x86TestDll);
-			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3x86TestDll) + "-" + Path.GetFileName(folder));
+			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3x86TestDll) + "-" + Path.GetFileName(folder) + "-x86");
 
 			await context.Exec(x86Dotnet, $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
 		}

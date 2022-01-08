@@ -245,6 +245,7 @@ dotnet_diagnostic.CA1710.severity  = none  # Identifiers should have correct suf
 dotnet_diagnostic.CA1711.severity  = none  # Identifiers should not have incorrect suffix
 dotnet_diagnostic.CA1716.severity  = none  # Rename virtual/interface member so that it no longer conflicts with the reserved language keyword
 dotnet_diagnostic.CA1720.severity  = none  # Identifier contains type name
+dotnet_diagnostic.CA1724.severity  = none  # Type names should not match namespaces
 dotnet_diagnostic.CA1810.severity  = none  # Do not use static constructors
 dotnet_diagnostic.CA1815.severity  = none  # Override equals and operator equals on value types
 dotnet_diagnostic.CA1819.severity  = none  # Properties should not return arrays

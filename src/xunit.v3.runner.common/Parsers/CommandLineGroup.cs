@@ -10,6 +10,9 @@ public enum CommandLineGroup
 	General,
 
 	/// <summary/>
+	Interactive,
+
+	/// <summary/>
 	NetFramework,
 
 	/// <summary/>

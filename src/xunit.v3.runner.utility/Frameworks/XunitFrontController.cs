@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.Runner.v3;
 using Xunit.v3;
 
 #if NETFRAMEWORK
@@ -18,7 +19,7 @@ namespace Xunit;
 
 /// <summary>
 /// Default implementation of <see cref="IFrontController"/> which supports running tests from
-/// both xUnit.net v1 and v2.
+/// xUnit.net v1, v2, and v3.
 /// </summary>
 public class XunitFrontController : IFrontController
 {
@@ -132,18 +133,23 @@ public class XunitFrontController : IFrontController
 		var innerDiscoverer = default(IFrontControllerDiscoverer);
 		var assemblyFileName = projectAssembly.AssemblyFileName;
 
-		var v2PathPattern = new Regex(@"^xunit\.execution\..*\.dll$");
-		var v2ExecutionReference = referenceList.FirstOrDefault(reference => v2PathPattern.IsMatch(Path.GetFileNameWithoutExtension(reference)));
-		if (v2ExecutionReference is not null)
-			innerDiscoverer = Xunit2.ForDiscovery(assemblyInfo, projectAssembly, v2ExecutionReference, sourceInformationProvider, diagnosticMessageSink);
+		if (referenceList.Any(reference => Path.GetFileNameWithoutExtension(reference) == "xunit.v3.core"))
+			innerDiscoverer = Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
+		else
+		{
+			var v2PathPattern = new Regex(@"^xunit\.execution\..*\$");
+			var v2ExecutionReference = referenceList.FirstOrDefault(reference => v2PathPattern.IsMatch(Path.GetFileNameWithoutExtension(reference)));
+			if (v2ExecutionReference is not null)
+				innerDiscoverer = Xunit2.ForDiscovery(assemblyInfo, projectAssembly, v2ExecutionReference, sourceInformationProvider, diagnosticMessageSink);
+		}
 
 #if NETFRAMEWORK
-		if (referenceList.Any(reference => Path.GetFileNameWithoutExtension(reference) == "xunit.dll"))
+		if (innerDiscoverer is null && referenceList.Any(reference => Path.GetFileNameWithoutExtension(reference) == "xunit"))
 			innerDiscoverer = Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
 #endif
 
 		if (innerDiscoverer is null)
-			throw new InvalidOperationException("Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in assembly reference list");
+			throw new InvalidOperationException("Unknown test framework: could not find xunit.dll (v1), xunit.execution.*.dll (v2), or xunit.v3.core (v3) in assembly reference list");
 
 		return new XunitFrontController(innerDiscoverer);
 	}
@@ -165,24 +171,26 @@ public class XunitFrontController : IFrontController
 		var assemblyFileName = projectAssembly.AssemblyFileName;
 		var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
-#if NETFRAMEWORK
+		// TODO: How to support dynamic assemblies?
 		if (assemblyFolder is not null)
 		{
-			if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
+			var xunit3Path = Path.Combine(assemblyFolder, "xunit.v3.core.dll");
+			if (File.Exists(xunit3Path))
+				innerController = Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
+			else if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
 				innerController = Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
+#if NETFRAMEWORK
 			else
 			{
 				var xunitPath = Path.Combine(assemblyFolder, "xunit.dll");
 				if (File.Exists(xunitPath))
 					innerController = Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
 			}
-		}
-#else
-		innerController = Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
 #endif
+		}
 
 		if (innerController is null)
-			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {0}", assemblyFolder ?? "<unknown assembly folder>"));
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Unknown test framework: could not find xunit.dll (v1), xunit.execution.*.dll (v2), or xunit.v3.core (v3) in {0}", assemblyFolder ?? "<unknown assembly folder>"));
 
 		return new XunitFrontController(innerController);
 	}

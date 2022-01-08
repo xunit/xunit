@@ -104,6 +104,12 @@ public class TestProjectConfiguration
 	public bool PauseOrDefault => Pause ?? false;
 
 	/// <summary>
+	/// Gets or sets the TCP port to use for IPC. Will only be set and consumed by the in-process runner.
+	/// Valid values are integers between 1024 and 65535.
+	/// </summary>
+	public int? TcpPort { get; set; }
+
+	/// <summary>
 	/// Gets or sets a flag indicating that the test runner should pause after all tests
 	/// have run.
 	/// </summary>

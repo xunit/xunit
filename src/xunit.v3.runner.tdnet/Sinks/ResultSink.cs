@@ -13,14 +13,12 @@ namespace Xunit.Runner.TdNet;
 public class ResultSink : TestMessageSink
 {
 	readonly MessageMetadataCache metadataCache = new();
-	readonly int totalTests;
+	volatile int totalTests;
 
 	public ResultSink(
 		ITestListener listener,
-		object listenerLock,
-		int totalTests)
+		object listenerLock)
 	{
-		this.totalTests = totalTests;
 		TestListener = listener;
 		TestListenerLock = listenerLock;
 		TestRunState = TestRunState.NoTests;
@@ -32,8 +30,7 @@ public class ResultSink : TestMessageSink
 			args => metadataCache.TryRemove(args.Message);
 		Execution.TestPassedEvent += HandleTestPassed;
 		Execution.TestSkippedEvent += HandleTestSkipped;
-		Execution.TestStartingEvent +=
-			args => metadataCache.Set(args.Message);
+		Execution.TestStartingEvent += HandleTestStarting;
 
 		Diagnostics.ErrorMessageEvent +=
 			args => ReportError(args.Message, "Fatal Error");
@@ -90,7 +87,7 @@ public class ResultSink : TestMessageSink
 		TestRunState = TestRunState.Failure;
 
 		var testFailed = args.Message;
-		var testResult = ToTdNetTestResult(testFailed, TestState.Failed, totalTests);
+		var testResult = ToTdNetTestResult(testFailed, TestState.Failed);
 		testResult.Message = ExceptionUtility.CombineMessages(testFailed);
 		testResult.StackTrace = ExceptionUtility.CombineStackTraces(testFailed);
 
@@ -106,7 +103,7 @@ public class ResultSink : TestMessageSink
 			TestRunState = TestRunState.Success;
 
 		var testPassed = args.Message;
-		var testResult = ToTdNetTestResult(testPassed, TestState.Passed, totalTests);
+		var testResult = ToTdNetTestResult(testPassed, TestState.Passed);
 
 		lock (TestListenerLock)
 			TestListener.TestFinished(testResult);
@@ -120,11 +117,17 @@ public class ResultSink : TestMessageSink
 			TestRunState = TestRunState.Success;
 
 		var testSkipped = args.Message;
-		var testResult = ToTdNetTestResult(testSkipped, TestState.Ignored, totalTests);
+		var testResult = ToTdNetTestResult(testSkipped, TestState.Ignored);
 		testResult.Message = testSkipped.Reason;
 
 		lock (TestListenerLock)
 			TestListener.TestFinished(testResult);
+	}
+
+	void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
+	{
+		Interlocked.Increment(ref totalTests);
+		metadataCache.Set(args.Message);
 	}
 
 	void ReportError(
@@ -155,8 +158,7 @@ public class ResultSink : TestMessageSink
 
 	TestResult ToTdNetTestResult(
 		_TestResultMessage testResult,
-		TestState testState,
-		int testCount)
+		TestState testState)
 	{
 		var testClassMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot get test class metadata for ID {0}", testResult.TestClassUniqueID), metadataCache.TryGetClassMetadata(testResult));
 		var testClass = Type.GetType(testClassMetadata.TestClass);
@@ -171,7 +173,7 @@ public class ResultSink : TestMessageSink
 			Name = testMetadata.TestDisplayName,
 			State = testState,
 			TimeSpan = new TimeSpan((long)(10000.0M * testResult.ExecutionTime)),
-			TotalTests = testCount,
+			TotalTests = totalTests,
 		};
 	}
 

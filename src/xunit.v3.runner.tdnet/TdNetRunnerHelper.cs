@@ -1,19 +1,19 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TestDriven.Framework;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
+using Xunit.Runner.v3;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.TdNet;
 
+// This class does not use XunitFrontController, because the reference to xunit.runner.tdnet comes via
+// the NuGet package for the specific version of xUnit.net your tests are written against. So this only
+// needs to be written against the current version of xUnit.net.
 public class TdNetRunnerHelper : IAsyncDisposable
 {
 	bool disposed;
@@ -62,53 +62,11 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		disposalTracker.Add(diagnosticMessageSink);
 #pragma warning restore CA2000
 
-		frontController = Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: diagnosticMessageSink);
+		frontController = Xunit3.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: diagnosticMessageSink);
 		disposalTracker.Add(frontController);
 	}
 
-	public virtual IReadOnlyList<_TestCaseDiscovered> Discover()
-	{
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.frontController", GetType().FullName), frontController);
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.projectAssembly", GetType().FullName), projectAssembly);
-
-		var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
-		return Discover(sink => frontController.Find(sink, settings));
-	}
-
-	IReadOnlyList<_TestCaseDiscovered> Discover(Type? type)
-	{
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.frontController", GetType().FullName), frontController);
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.projectAssembly", GetType().FullName), projectAssembly);
-
-		if (type is null || type.FullName is null)
-			return Array.Empty<_TestCaseDiscovered>();
-
-		var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
-		settings.Filters.IncludedClasses.Add(type.FullName);
-
-		return Discover(sink => frontController.Find(sink, settings));
-	}
-
-	IReadOnlyList<_TestCaseDiscovered> Discover(Action<_IMessageSink> discoveryAction)
-	{
-		try
-		{
-			using var sink = new TestDiscoverySink();
-			disposalTracker.Add(sink);
-			discoveryAction(sink);
-			sink.Finished.WaitOne();
-			return sink.TestCases.ToList();
-		}
-		catch (Exception ex)
-		{
-			lock (testListenerLock)
-				testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
-
-			return Array.Empty<_TestCaseDiscovered>();
-		}
-	}
-
-	public ValueTask DisposeAsync()
+	public virtual ValueTask DisposeAsync()
 	{
 		if (disposed)
 			return default;
@@ -120,31 +78,26 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		return disposalTracker.DisposeAsync();
 	}
 
-	public virtual TestRunState Run(
-		IReadOnlyList<_TestCaseDiscovered>? testCases = null,
-		TestRunState initialRunState = TestRunState.NoTests,
-		ExplicitOption? explicitOption = null)
+	TestRunState FindAndRun(
+		TestRunState initialRunState,
+		XunitFilters? filters = null)
 	{
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.testListener", GetType().FullName), testListener);
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.frontController", GetType().FullName), frontController);
-		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.projectAssembly", GetType().FullName), projectAssembly);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0} (testListener is null)", GetType().FullName), testListener);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0} (frontController is null)", GetType().FullName), frontController);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0} (projectAssembly is null)", GetType().FullName), projectAssembly);
 
 		// TODO: This does not yet support fail-on-skip or reporting long-running tests. The fact that these are done via
 		// delegating implementations of IExecutionSink is a design problem for this runner.
 
 		try
 		{
-			testCases ??= Discover();
-
-			var resultSink = new ResultSink(testListener, testListenerLock, testCases.Count) { TestRunState = initialRunState };
+			var resultSink = new ResultSink(testListener, testListenerLock) { TestRunState = initialRunState };
 			disposalTracker.Add(resultSink);
 
+			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration);
 			var executionOptions = _TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
-			if (explicitOption.HasValue)
-				executionOptions.SetExplicitOption(explicitOption);
-
-			var settings = new FrontControllerRunSettings(executionOptions, testCases.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
-			frontController.Run(resultSink, settings);
+			var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, filters);
+			frontController.FindAndRun(resultSink, settings);
 
 			resultSink.Finished.WaitOne();
 
@@ -159,52 +112,47 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		}
 	}
 
+	public virtual TestRunState RunAll(
+		TestRunState initialRunState = TestRunState.NoTests) =>
+			FindAndRun(initialRunState);
+
 	public virtual TestRunState RunClass(
 		Type type,
 		TestRunState initialRunState = TestRunState.NoTests)
 	{
-		Guard.ArgumentNotNull(type);
+		if (type is null || type.FullName is null)
+			return initialRunState;
 
-		var state = Run(Discover(type), initialRunState);
-
-		foreach (var memberInfo in type.GetMembers())
-		{
-			var childType = memberInfo as Type;
-			if (childType is not null)
-				state = RunClass(childType, state);
-		}
-
-		return state;
+		var filters = new XunitFilters();
+		filters.IncludedClasses.Add(type.FullName);
+		return FindAndRun(initialRunState, filters);
 	}
 
 	public virtual TestRunState RunMethod(
 		MethodInfo method,
 		TestRunState initialRunState = TestRunState.NoTests)
 	{
-		Guard.ArgumentNotNull(method);
+		if (method is null)
+			return initialRunState;
 
-		var testCases = Discover(method.ReflectedType).Where(tc =>
-		{
-			if (tc.TestClassNameWithNamespace is null || tc.TestMethodName is null)
-				return false;
+		var type = method.ReflectedType ?? method.DeclaringType;
+		if (type is null || type.FullName is null)
+			return initialRunState;
 
-			var typeInfo = Type.GetType(tc.TestClassNameWithNamespace);
-			if (typeInfo is null)
-				return false;
+		var filters = new XunitFilters();
+		filters.IncludedMethods.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", type.FullName, method.Name));
+		return FindAndRun(initialRunState, filters);
+	}
 
-			var methodInfo = typeInfo.GetMethod(tc.TestMethodName, BindingFlags.Public);
-			if (methodInfo is null)
-				return false;
+	public virtual TestRunState RunNamespace(
+		string @namespace,
+		TestRunState initialRunState = TestRunState.NoTests)
+	{
+		if (string.IsNullOrWhiteSpace(@namespace))
+			return initialRunState;
 
-			if (methodInfo == method)
-				return true;
-
-			if (methodInfo.IsGenericMethod)
-				return methodInfo.GetGenericMethodDefinition() == method;
-
-			return false;
-		}).ToList();
-
-		return Run(testCases, initialRunState, ExplicitOption.On);
+		var filters = new XunitFilters();
+		filters.IncludedNamespaces.Add(@namespace);
+		return FindAndRun(initialRunState, filters);
 	}
 }

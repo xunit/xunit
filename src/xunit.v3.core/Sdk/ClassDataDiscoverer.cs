@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.v3;
@@ -19,7 +20,7 @@ public class ClassDataDiscoverer : DataDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 
 		var @class = Guard.NotNull(
-			() => $"Attribute {nameof(ClassDataAttribute)} has been provided without a class type assigned to it.",
+			() => string.Format(CultureInfo.CurrentCulture, "Attribute {0} has been provided without a class type assigned to it.", nameof(ClassDataAttribute)),
 			dataAttribute.GetConstructorArguments().FirstOrDefault() as Type
 		);
 

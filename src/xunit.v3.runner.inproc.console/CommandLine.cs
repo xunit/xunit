@@ -32,6 +32,17 @@ public class CommandLine : CommandLineParserBase
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
+		AddParser(
+			"tcp", OnTcp, CommandLineGroup.General, "<port>",
+			"launches in v3 child process mode, connecting to the given",
+			"TCP port (on localhost) for IPC"
+		);
+
+		// Move options that aren't compatible with -tcp
+		ChangeParserGroup("debug", CommandLineGroup.Interactive);
+		ChangeParserGroup("noautoreporters", CommandLineGroup.Interactive);
+		ChangeParserGroup("pause", CommandLineGroup.Interactive);
+		ChangeParserGroup("wait", CommandLineGroup.Interactive);
 	}
 
 	void AddAssembly(
@@ -67,6 +78,18 @@ public class CommandLine : CommandLineParserBase
 #else
 		Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
 #endif
+
+	/// <summary/>
+	protected void OnTcp(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -tcp");
+
+		if (!int.TryParse(option.Value, out var port) || port < 1024 || port > 65535)
+			throw new ArgumentException("incorrect argument value for -tcp (must be an integer between 1024 and 65535)");
+
+		Project.Configuration.TcpPort = port;
+	}
 
 	/// <summary/>
 	public XunitProject Parse()

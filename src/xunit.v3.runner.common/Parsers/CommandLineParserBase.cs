@@ -159,9 +159,7 @@ public abstract class CommandLineParserBase
 	{
 		get
 		{
-			if (runnerReporters is null)
-				runnerReporters = GetAvailableRunnerReporters();
-
+			runnerReporters ??= GetAvailableRunnerReporters();
 			return runnerReporters;
 		}
 	}
@@ -181,6 +179,18 @@ public abstract class CommandLineParserBase
 		string? argumentDisplay,
 		params string[] descriptions) =>
 			parsers[@switch] = (group, argumentDisplay, descriptions, handler);
+
+	/// <summary/>
+	protected void ChangeParserGroup(
+		string @switch,
+		CommandLineGroup group)
+	{
+		if (parsers.TryGetValue(@switch, out var parser))
+		{
+			parsers.Remove(@switch);
+			parsers.Add(@switch, (group, parser.ArgumentDisplay, parser.Descriptions, parser.Handler));
+		}
+	}
 
 	static void EnsurePathExists(string path)
 	{
@@ -625,14 +635,17 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	public void PrintUsage()
 	{
+		var hasTcpSwitch = parsers.ContainsKey("tcp");
+
 		PrintUsageGroup(CommandLineGroup.General, "General options");
+		PrintUsageGroup(CommandLineGroup.Interactive, "Interactive options (not valid with -tcp)");
 		PrintUsageGroup(CommandLineGroup.NetFramework, "Options for .NET Framework projects (v1 or v2 only)");
 		PrintUsageGroup(CommandLineGroup.Filter, "Filtering (optional, choose one or more)", "If more than one filter type is specified, cross-filter type filters act as an AND operation");
 
 		if (RunnerReporters.Count > 0)
 		{
 			Console.WriteLine();
-			Console.WriteLine("Reporters (optional, choose only one)");
+			Console.WriteLine("Reporters (optional, choose only one{0})", hasTcpSwitch ? "; not valid with -tcp" : "");
 			Console.WriteLine();
 
 			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
@@ -647,7 +660,7 @@ public abstract class CommandLineParserBase
 		if (TransformFactory.AvailableTransforms.Count != 0)
 		{
 			Console.WriteLine();
-			Console.WriteLine("Result formats (optional, choose one or more)");
+			Console.WriteLine("Result formats (optional, choose one or more{0})", hasTcpSwitch ? "; not valid with -tcp" : "");
 			Console.WriteLine();
 
 			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
