@@ -10,6 +10,7 @@ public class TestContextTests
 		Assert.NotNull(context);
 		// Test
 		Assert.Equal(TestEngineStatus.Running, context.TestStatus);
+		Assert.Equal(TestPipelineStage.TestExecution, context.PipelineStage);
 		var test = context.Test;
 		Assert.NotNull(test);
 		Assert.Equal($"{nameof(TestContextTests)}.{nameof(AmbientTestContextIsAvailableInTest)}", test.DisplayName);

@@ -209,6 +209,7 @@ public class TestInvokerTests
 			Assert.Equal(TestEngineStatus.Running, context.TestMethodStatus);
 			Assert.Equal(TestEngineStatus.Running, context.TestCaseStatus);
 			Assert.Equal(TestEngineStatus.Initializing, context.TestStatus);
+			Assert.Equal(TestPipelineStage.TestExecution, context.PipelineStage);
 			var test = context.Test;
 			Assert.NotNull(test);
 			Assert.Equal("Test display name", test.DisplayName);

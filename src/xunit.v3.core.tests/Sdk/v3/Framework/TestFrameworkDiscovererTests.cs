@@ -38,6 +38,20 @@ public class TestFrameworkDiscovererTests
 			Assert.StartsWith($"Exception during discovery:{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", message.Message);
 		}
 
+		[Fact]
+		public async void TestContextVisibility()
+		{
+			var mockType = Mocks.TypeInfo("MockType");
+			var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
+
+			await discoverer.Find();
+
+			var context = discoverer.FindTestsForType_Context;
+			Assert.NotNull(context);
+			Assert.Equal(TestEngineStatus.Discovering, context.TestAssemblyStatus);
+			Assert.Equal(TestPipelineStage.Discovery, context.PipelineStage);
+		}
+
 		public class ByAssembly
 		{
 			[Fact]
@@ -165,6 +179,7 @@ public class TestFrameworkDiscovererTests
 
 	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<_ITestCase>
 	{
+		public TestContext? FindTestsForType_Context;
 		public CultureInfo? FindTestsForType_CurrentCulture;
 		public Exception? FindTestsForType_Exception = null;
 		public readonly List<_ITestClass> FindTestsForType_TestClasses = new();
@@ -198,6 +213,7 @@ public class TestFrameworkDiscovererTests
 			_ITestFrameworkDiscoveryOptions discoveryOptions,
 			Func<_ITestCase, ValueTask<bool>> discoveryCallback)
 		{
+			FindTestsForType_Context = TestContext.Current;
 			FindTestsForType_CurrentCulture = CultureInfo.CurrentCulture;
 			FindTestsForType_TestClasses.Add(testClass);
 

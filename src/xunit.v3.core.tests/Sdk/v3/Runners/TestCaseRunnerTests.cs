@@ -168,6 +168,7 @@ public class TestCaseRunnerTests
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCaseStarting_Context.TestClassStatus);
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCaseStarting_Context.TestMethodStatus);
 		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestCaseStarting_Context.TestCaseStatus);
+		Assert.Equal(TestPipelineStage.TestCaseExecution, runner.AfterTestCaseStarting_Context.PipelineStage);
 		Assert.Null(runner.AfterTestCaseStarting_Context.TestStatus);
 		Assert.Same(runner.TestCase, runner.AfterTestCaseStarting_Context.TestCase);
 

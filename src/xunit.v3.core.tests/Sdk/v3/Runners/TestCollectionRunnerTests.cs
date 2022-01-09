@@ -212,6 +212,7 @@ public class TestCollectionRunnerTests
 		Assert.NotNull(runner.AfterTestCollectionStarting_Context);
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestCollectionStarting_Context.TestAssemblyStatus);
 		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestCollectionStarting_Context.TestCollectionStatus);
+		Assert.Equal(TestPipelineStage.TestCollectionExecution, runner.AfterTestCollectionStarting_Context.PipelineStage);
 		Assert.Null(runner.AfterTestCollectionStarting_Context.TestClassStatus);
 		Assert.Null(runner.AfterTestCollectionStarting_Context.TestMethodStatus);
 		Assert.Null(runner.AfterTestCollectionStarting_Context.TestCaseStatus);

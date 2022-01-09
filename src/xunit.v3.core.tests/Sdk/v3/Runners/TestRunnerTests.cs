@@ -63,6 +63,7 @@ public class TestRunnerTests
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestMethodStatus);
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestStarting_Context.TestCaseStatus);
 		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestStarting_Context.TestStatus);
+		Assert.Equal(TestPipelineStage.TestExecution, runner.AfterTestStarting_Context.PipelineStage);
 		Assert.NotNull(runner.BeforeTestFinished_Context);
 		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestAssemblyStatus);
 		Assert.Equal(TestEngineStatus.Running, runner.BeforeTestFinished_Context.TestCollectionStatus);

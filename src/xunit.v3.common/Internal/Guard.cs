@@ -22,7 +22,7 @@ namespace Xunit.Internal
 		/// <param name="validValues">The list of valid values</param>
 		/// <param name="argName">The name of the argument</param>
 		/// <exception cref="ArgumentException"></exception>
-		public static void ArgumentEnumValid<T>(
+		public static T ArgumentEnumValid<T>(
 			T argValue,
 			HashSet<T> validValues,
 			[CallerArgumentExpression("argValue")] string? argName = null)
@@ -30,6 +30,8 @@ namespace Xunit.Internal
 		{
 			if (!validValues.Contains(argValue))
 				throw new ArgumentException($"Enum value {argValue} not in valid set: [{string.Join(",", validValues)}]", argName?.TrimStart('@'));
+
+			return argValue;
 		}
 
 		/// <summary>

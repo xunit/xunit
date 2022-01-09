@@ -215,6 +215,7 @@ public class TestClassRunnerTests
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestClassStarting_Context.TestAssemblyStatus);
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestClassStarting_Context.TestCollectionStatus);
 		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestClassStarting_Context.TestClassStatus);
+		Assert.Equal(TestPipelineStage.TestClassExecution, runner.AfterTestClassStarting_Context.PipelineStage);
 		Assert.Null(runner.AfterTestClassStarting_Context.TestMethodStatus);
 		Assert.Null(runner.AfterTestClassStarting_Context.TestCaseStatus);
 		Assert.Null(runner.AfterTestClassStarting_Context.TestStatus);

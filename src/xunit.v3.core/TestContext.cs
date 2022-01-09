@@ -21,14 +21,12 @@ namespace Xunit
 			CancellationToken cancellationToken,
 			_IMessageSink? diagnosticMessageSink,
 			_IMessageSink? internalDiagnosticMessageSink,
-			_ITestAssembly? testAssembly = null,
-			TestEngineStatus? testAssemblyStatus = null)
+			TestPipelineStage pipelineStage)
 		{
 			CancellationToken = cancellationToken;
 			DiagnosticMessageSink = diagnosticMessageSink;
 			InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
-			TestAssembly = testAssembly;
-			TestAssemblyStatus = testAssemblyStatus;
+			PipelineStage = pipelineStage;
 		}
 
 		/// <summary>
@@ -49,6 +47,11 @@ namespace Xunit
 		internal _IMessageSink? DiagnosticMessageSink { get; set; }
 
 		internal _IMessageSink? InternalDiagnosticMessageSink { get; set; }
+
+		/// <summary>
+		/// Gets the current test pipeline stage.
+		/// </summary>
+		public TestPipelineStage PipelineStage { get; private set; }
 
 		/// <summary>
 		/// Gets the current test, if the engine is currently in the process of running a test;
@@ -201,7 +204,7 @@ namespace Xunit
 			_IMessageSink? diagnosticMessageSink,
 			_IMessageSink? internalDiagnosticMessageSink)
 		{
-			local.Value = new TestContext(default, diagnosticMessageSink, internalDiagnosticMessageSink);
+			local.Value = new TestContext(default, diagnosticMessageSink, internalDiagnosticMessageSink, TestPipelineStage.Initialization);
 		}
 
 		/// <summary>
@@ -234,7 +237,7 @@ namespace Xunit
 			if (Current.TestOutputHelper == null)
 				Guard.ArgumentNotNull(testOutputHelper);
 
-			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, test.TestCase.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution)
 			{
 				Test = test,
 				TestStatus = testStatus,
@@ -252,6 +255,9 @@ namespace Xunit
 
 				TestCollection = test.TestCase.TestCollection,
 				TestCollectionStatus = TestEngineStatus.Running,
+
+				TestAssembly = test.TestCase.TestCollection.TestAssembly,
+				TestAssemblyStatus = TestEngineStatus.Running,
 			};
 		}
 
@@ -270,7 +276,16 @@ namespace Xunit
 			Guard.ArgumentNotNull(testAssembly);
 			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testAssembly, testAssemblyStatus);
+			var pipelineStage =
+				testAssemblyStatus == TestEngineStatus.Discovering
+					? TestPipelineStage.Discovery
+					: TestPipelineStage.TestAssemblyExecution;
+
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, pipelineStage)
+			{
+				TestAssembly = testAssembly,
+				TestAssemblyStatus = testAssemblyStatus,
+			};
 		}
 
 		/// <summary>
@@ -290,7 +305,7 @@ namespace Xunit
 			Guard.ArgumentEnumValid(testCaseStatus, validExecutionStatuses);
 			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testCase.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCaseExecution)
 			{
 				TestCase = testCase,
 				TestCaseStatus = testCaseStatus,
@@ -303,6 +318,9 @@ namespace Xunit
 
 				TestCollection = testCase.TestCollection,
 				TestCollectionStatus = TestEngineStatus.Running,
+
+				TestAssembly = testCase.TestCollection.TestAssembly,
+				TestAssemblyStatus = TestEngineStatus.Running,
 			};
 		}
 
@@ -323,13 +341,16 @@ namespace Xunit
 			Guard.ArgumentEnumValid(testClassStatus, validExecutionStatuses);
 			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testClass.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestClassExecution)
 			{
 				TestClass = testClass,
 				TestClassStatus = testClassStatus,
 
 				TestCollection = testClass.TestCollection,
 				TestCollectionStatus = TestEngineStatus.Running,
+
+				TestAssembly = testClass.TestCollection.TestAssembly,
+				TestAssemblyStatus = TestEngineStatus.Running,
 			};
 		}
 
@@ -350,10 +371,13 @@ namespace Xunit
 			Guard.ArgumentEnumValid(testCollectionStatus, validExecutionStatuses);
 			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCollectionExecution)
 			{
 				TestCollection = testCollection,
 				TestCollectionStatus = testCollectionStatus,
+
+				TestAssembly = testCollection.TestAssembly,
+				TestAssemblyStatus = TestEngineStatus.Running,
 			};
 		}
 
@@ -374,7 +398,7 @@ namespace Xunit
 			Guard.ArgumentEnumValid(testMethodStatus, validExecutionStatuses);
 			Guard.NotNull("TestContext.Current must be non-null", Current);
 
-			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, testMethod.TestClass.TestCollection.TestAssembly, TestEngineStatus.Running)
+			local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestMethodExecution)
 			{
 				TestMethod = testMethod,
 				TestMethodStatus = testMethodStatus,
@@ -384,6 +408,9 @@ namespace Xunit
 
 				TestCollection = testMethod.TestClass.TestCollection,
 				TestCollectionStatus = TestEngineStatus.Running,
+
+				TestAssembly = testMethod.TestClass.TestCollection.TestAssembly,
+				TestAssemblyStatus = TestEngineStatus.Running,
 			};
 		}
 	}

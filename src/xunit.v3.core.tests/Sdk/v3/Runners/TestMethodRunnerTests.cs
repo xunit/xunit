@@ -177,6 +177,7 @@ public class TestMethodRunnerTests
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestMethodStarting_Context.TestCollectionStatus);
 		Assert.Equal(TestEngineStatus.Running, runner.AfterTestMethodStarting_Context.TestClassStatus);
 		Assert.Equal(TestEngineStatus.Initializing, runner.AfterTestMethodStarting_Context.TestMethodStatus);
+		Assert.Equal(TestPipelineStage.TestMethodExecution, runner.AfterTestMethodStarting_Context.PipelineStage);
 		Assert.Null(runner.AfterTestMethodStarting_Context.TestCaseStatus);
 		Assert.Null(runner.AfterTestMethodStarting_Context.TestStatus);
 		Assert.Same(runner.TestMethod, runner.AfterTestMethodStarting_Context.TestMethod);
