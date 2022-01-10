@@ -130,48 +130,53 @@ namespace Xunit.Sdk
 
         private static object TryConvertObject(object argumentValue, Type parameterType)
         {
-            var argumentValueType = argumentValue?.GetType();
-
-            // We don't need to check if we're passing null to a value type here, as MethodInfo.Invoke does this
-            if (argumentValueType == null)
-                return argumentValue;
+            if (argumentValue == null)
+                return null;
 
             // No need to perform conversion
-            if (parameterType.IsAssignableFrom(argumentValueType))
+            if (parameterType.IsAssignableFrom(argumentValue.GetType()))
                 return argumentValue;
 
-            // Implicit & explicit conversions to/from a type can be declared on either side of the relationship
-            // We need to check both possibilities.
-            return PerformDefinedConversions(argumentValue, parameterType)
-                ?? PerformDefinedConversions(argumentValue, argumentValueType)
-                ?? argumentValue;
+            return PerformDefinedConversions(argumentValue, parameterType) ?? argumentValue;
         }
 
         private static object PerformDefinedConversions(object argumentValue,
-                                                        Type conversionDeclaringType)
+                                                        Type parameterType)
         {
             // argumentValue is known to not be null when we're called from TryConvertObject
             var argumentValueType = argumentValue.GetType();
-
-            var methodTypes = new Type[] { argumentValueType };
             var methodArguments = new object[] { argumentValue };
 
-            // Check if we can implicitly convert the argument type to the parameter type
-            var implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
-            if (implicitMethod != null && implicitMethod.IsStatic && !IsByRefLikeType(implicitMethod.ReturnType))
-                return implicitMethod.Invoke(null, methodArguments);
+            bool isMatchingOperator(MethodInfo m, string name) =>
+                m.Name.Equals(name) &&
+                m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
+                m.IsStatic &&
+                !IsByRefLikeType(m.ReturnType) &&
+                m.GetParameters().Length == 1 &&
+                m.GetParameters()[0].ParameterType == argumentValueType &&
+                parameterType.IsAssignableFrom(m.ReturnType);
 
-            // Check if we can explicitly convert the argument type to the parameter type
-            var explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
-            if (explicitMethod != null && explicitMethod.IsStatic && !IsByRefLikeType(explicitMethod.ReturnType))
-                return explicitMethod.Invoke(null, methodArguments);
+            // Implicit & explicit conversions to/from a type can be declared on either side of the relationship.
+            // We need to check both possibilities.
+            foreach (var conversionDeclaringType in new[] { parameterType, argumentValueType })
+            {
+                var runtimeMethods = conversionDeclaringType.GetRuntimeMethods();
+
+                var implicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Implicit"));
+                if (implicitMethod != null)
+                    return implicitMethod.Invoke(null, methodArguments);
+
+                var explicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Explicit"));
+                if (explicitMethod != null)
+                    return explicitMethod.Invoke(null, methodArguments);
+            }
 
             return null;
         }
 
         private static bool IsByRefLikeType(Type type)
         {
-            object val = type.GetType().GetRuntimeProperty("IsByRefLike")?.GetValue(type);
+            var val = type.GetType().GetRuntimeProperty("IsByRefLike")?.GetValue(type);
             if (val is bool isByRefLike)
                 return isByRefLike;
 

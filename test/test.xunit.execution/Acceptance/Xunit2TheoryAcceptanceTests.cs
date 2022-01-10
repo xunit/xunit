@@ -264,6 +264,8 @@ public class Xunit2TheoryAcceptanceTests
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredImplicitConversion(value: ""abc"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.DecimalToInt(value: 43)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToDecimal(value: 43)", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversion(e: Explicit { Value = ""abc"" })", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
@@ -323,6 +325,27 @@ public class Xunit2TheoryAcceptanceTests
             public void UIntToULong(ulong i)
             {
                 Assert.Equal(1UL, i);
+            }
+
+            public static IEnumerable<object[]> DecimalArgument()
+            {
+                yield return new object[] { 43M };
+            }
+
+            // Decimal type offers multiple explicit conversions
+            [Theory]
+            [MemberData(nameof(DecimalArgument))]
+            public void DecimalToInt(int value)
+            {
+                Assert.Equal(43, value);
+            }
+
+            // Decimal type offers multiple implicit conversions
+            [Theory]
+            [InlineData(43)]
+            public void IntToDecimal(decimal value)
+            {
+                Assert.Equal(43M, value);
             }
 
             public class Explicit
