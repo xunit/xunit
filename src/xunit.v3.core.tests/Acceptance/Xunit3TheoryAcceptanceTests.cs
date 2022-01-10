@@ -266,6 +266,8 @@ public class Xunit3TheoryAcceptanceTests
 				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredImplicitConversion(value: ""abc"")", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.DecimalToInt(value: 43)", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToDecimal(value: 43)", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversion(e: Explicit { Value = ""abc"" })", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", displayName),
@@ -327,6 +329,27 @@ public class Xunit3TheoryAcceptanceTests
 			public void UIntToULong(ulong i)
 			{
 				Assert.Equal(1UL, i);
+			}
+
+			public static IEnumerable<object[]> DecimalArgument()
+			{
+				yield return new object[] { 43M };
+			}
+
+			// Decimal type offers multiple explicit conversions
+			[Theory]
+			[MemberData(nameof(DecimalArgument))]
+			public void DecimalToInt(int value)
+			{
+				Assert.Equal(43, value);
+			}
+
+			// Decimal type offers multiple implicit conversions
+			[Theory]
+			[InlineData(43)]
+			public void IntToDecimal(decimal value)
+			{
+				Assert.Equal(43M, value);
 			}
 
 			public class Explicit
