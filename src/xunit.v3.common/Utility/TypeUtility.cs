@@ -161,31 +161,31 @@ namespace Xunit.Sdk
 		{
 			// argumentValue is known to not be null when we're called from TryConvertObject
 			var argumentValueType = argumentValue.GetType();
-
 			var methodArguments = new object[] { argumentValue };
 
-			// Implicit & explicit conversions to/from a type can be declared on either side of the relationship
+			bool isMatchingOperator(
+				MethodInfo m,
+				string name) =>
+					m.Name.Equals(name) &&
+					m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
+					m.IsStatic &&
+					!IsByRefLikeType(m.ReturnType) &&
+					m.GetParameters().Length == 1 &&
+					m.GetParameters()[0].ParameterType == argumentValueType &&
+					parameterType.IsAssignableFrom(m.ReturnType);
+
+			// Implicit & explicit conversions to/from a type can be declared on either side of the relationship.
 			// We need to check both possibilities.
 			foreach (var conversionDeclaringType in new[] { parameterType, argumentValueType })
 			{
-				// Check if we can implicitly convert the argument type to the parameter type
-				var implicitMethod = conversionDeclaringType.GetRuntimeMethods()
-					.Where(m => m.Name.Equals("op_Implicit") &&
-								m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
-								m.GetParameters()[0].ParameterType == argumentValueType &&
-								parameterType.IsAssignableFrom(m.ReturnType))
-					.FirstOrDefault();
-				if (implicitMethod != null && implicitMethod.IsStatic && !IsByRefLikeType(implicitMethod.ReturnType))
+				var runtimeMethods = conversionDeclaringType.GetRuntimeMethods();
+
+				var implicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Implicit"));
+				if (implicitMethod != null)
 					return implicitMethod.Invoke(null, methodArguments);
 
-				// Check if we can explicitly convert the argument type to the parameter type
-				var explicitMethod = conversionDeclaringType.GetRuntimeMethods()
-					.Where(m => m.Name.Equals("op_Explicit") &&
-								m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
-								m.GetParameters()[0].ParameterType == argumentValueType &&
-								parameterType.IsAssignableFrom(m.ReturnType))
-					.FirstOrDefault();
-				if (explicitMethod != null && explicitMethod.IsStatic && !IsByRefLikeType(explicitMethod.ReturnType))
+				var explicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Explicit"));
+				if (explicitMethod != null)
 					return explicitMethod.Invoke(null, methodArguments);
 			}
 
