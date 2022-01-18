@@ -930,9 +930,9 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void EnumeratesOnlyOnce()
 		{
-            var expected = new [] { 1, 2, 3, 4, 5 };
+			var expected = new[] { 1, 2, 3, 4, 5 };
 			var actual = new RunOnceEnumerable<int>(expected);
-            Assert.Equal(expected, actual);
+			Assert.Equal(expected, actual);
 		}
 	}
 
@@ -1358,7 +1358,7 @@ public class CollectionAssertsTests
 			Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained 2 matching elements.", ex.Message);
 		}
 	}
-	
+
 	sealed class RunOnceEnumerable<T> : IEnumerable<T>
 	{
 		private readonly IEnumerable<T> _source;
