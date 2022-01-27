@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Runtime.Versioning;
 using Mono.Cecil;
 using Xunit.Internal;
@@ -20,8 +21,7 @@ namespace Xunit
 		/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
 		public static string GetTargetFramework(string assemblyFileName)
 		{
-			// TODO: Should we use File.Exists?
-			if (!string.IsNullOrWhiteSpace(assemblyFileName))
+			if (!string.IsNullOrWhiteSpace(assemblyFileName) && File.Exists(assemblyFileName))
 			{
 				try
 				{
