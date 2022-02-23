@@ -13,7 +13,7 @@ cleanup () {
 trap cleanup EXIT ERR INT TERM
 
 if which dotnet > /dev/null; then
-    if which mono > /dev/null; then
+    if [ `uname -o` = Msys ] || [ which mono > /dev/null ] ; then
         pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
         PUSHED=1
 
