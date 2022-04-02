@@ -84,7 +84,7 @@ public class XunitTestAssemblyRunnerTests
 
 			return new TestableXunitTestAssemblyRunner(
 				assembly ?? testCases.First().TestCollection.TestAssembly,
-				testCases ?? new IXunitTestCase[0],
+				testCases,
 				SpyMessageSink.Create(),
 				executionOptions ?? _TestFrameworkOptions.ForExecution()
 			);
