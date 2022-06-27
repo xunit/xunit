@@ -111,7 +111,7 @@ public class UniqueIDGeneratorTests
 		{
 			var actual = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, configFilePath);
 
-			Assert.Equal<object>(expected, actual);
+			Assert.Equal(expected, actual);
 		}
 
 		[Fact]

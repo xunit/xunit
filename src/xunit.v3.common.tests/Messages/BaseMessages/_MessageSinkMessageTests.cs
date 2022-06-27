@@ -55,7 +55,7 @@ public class _MessageSinkMessageTests
 
 		var result = Encoding.UTF8.GetString(msg.ToJson());
 
-		Assert.Equal<object>(
+		Assert.Equal(
 			@"{" +
 				@"""$type"":""TestMessageWithEnum""," +
 				@"""Cause"":""Assertion""" +
