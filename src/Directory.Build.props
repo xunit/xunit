@@ -24,7 +24,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.244">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.107">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -100,7 +100,7 @@
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="NSubstitute" Version="4.2.2" />
+        <PackageReference Include="NSubstitute" Version="4.3.0" />
         <PackageReference Include="System.CodeDom" Version="6.0.0" />
         <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
       </ItemGroup>

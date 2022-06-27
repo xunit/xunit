@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="Moq" Version="4.17.2" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="xunit.extensions" Version="1.9.2" />
   </ItemGroup>
 

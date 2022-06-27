@@ -23,8 +23,8 @@
 
   <ItemGroup>
     <!-- Required for F# acceptance tests -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.1" />
-    <PackageReference Include="System.Reflection.Metadata" Version="6.0.0" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.5" />
+    <PackageReference Include="System.Reflection.Metadata" Version="6.0.1" />
   </ItemGroup>
 
   <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
