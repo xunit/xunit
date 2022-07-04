@@ -16,447 +16,446 @@ using Xunit.Sdk;
 using Xunit.v3;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
-namespace Xunit.Runner.MSBuild
+namespace Xunit.Runner.MSBuild;
+
+public class xunit : MSBuildTask, ICancelableTask
 {
-	public class xunit : MSBuildTask, ICancelableTask
+	volatile bool cancel;
+	readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
+	bool? diagnosticMessages;
+	bool? failSkips;
+	XunitFilters? filters;
+	bool? internalDiagnosticMessages;
+	IRunnerLogger? logger;
+	int? maxThreadCount;
+	bool? parallelizeAssemblies;
+	bool? parallelizeTestCollections;
+	bool? preEnumerateTheories;
+	_IMessageSink? reporterMessageHandler;
+	bool? shadowCopy;
+	bool? stopOnFail;
+
+	public string? AppDomains { get; set; }
+
+	[Required]
+	public ITaskItem[]? Assemblies { get; set; }
+
+	public string? Culture { get; set; }
+
+	public bool DiagnosticMessages { set { diagnosticMessages = value; } }
+
+	public string? ExcludeTraits { get; set; }
+
+	[Output]
+	public int ExitCode { get; protected set; }
+
+	public bool FailSkips { set { failSkips = value; } }
+
+	protected XunitFilters Filters
 	{
-		volatile bool cancel;
-		readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
-		bool? diagnosticMessages;
-		bool? failSkips;
-		XunitFilters? filters;
-		bool? internalDiagnosticMessages;
-		IRunnerLogger? logger;
-		int? maxThreadCount;
-		bool? parallelizeAssemblies;
-		bool? parallelizeTestCollections;
-		bool? preEnumerateTheories;
-		_IMessageSink? reporterMessageHandler;
-		bool? shadowCopy;
-		bool? stopOnFail;
-
-		public string? AppDomains { get; set; }
-
-		[Required]
-		public ITaskItem[]? Assemblies { get; set; }
-
-		public string? Culture { get; set; }
-
-		public bool DiagnosticMessages { set { diagnosticMessages = value; } }
-
-		public string? ExcludeTraits { get; set; }
-
-		[Output]
-		public int ExitCode { get; protected set; }
-
-		public bool FailSkips { set { failSkips = value; } }
-
-		protected XunitFilters Filters
+		get
 		{
-			get
+			if (filters == null)
 			{
-				if (filters == null)
-				{
-					var traitParser = new TraitParser(msg => Log.LogWarning(msg));
-					filters = new XunitFilters();
-					traitParser.Parse(IncludeTraits, filters.IncludedTraits);
-					traitParser.Parse(ExcludeTraits, filters.ExcludedTraits);
-				}
-
-				return filters;
+				var traitParser = new TraitParser(msg => Log.LogWarning(msg));
+				filters = new XunitFilters();
+				traitParser.Parse(IncludeTraits, filters.IncludedTraits);
+				traitParser.Parse(ExcludeTraits, filters.ExcludedTraits);
 			}
+
+			return filters;
+		}
+	}
+
+	public ITaskItem? Html { get; set; }
+
+	public bool IgnoreFailures { get; set; }
+
+	public string? IncludeTraits { get; set; }
+
+	public bool InternalDiagnosticMessages { set { internalDiagnosticMessages = value; } }
+
+	public ITaskItem? JUnit { get; set; }
+
+	public string? MaxParallelThreads { get; set; }
+
+	protected bool NeedsXml =>
+		Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
+
+	public bool NoAutoReporters { get; set; }
+
+	public bool NoLogo { get; set; }
+
+	public ITaskItem? NUnit { get; set; }
+
+	public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
+
+	public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
+
+	public bool PreEnumerateTheories { set { preEnumerateTheories = value; } }
+
+	public string? Reporter { get; set; }
+
+	public bool ShadowCopy { set { shadowCopy = value; } }
+
+	public bool StopOnFail { set { stopOnFail = value; } }
+
+	public string? WorkingFolder { get; set; }
+
+	public ITaskItem? Xml { get; set; }
+
+	public ITaskItem? XmlV1 { get; set; }
+
+	public void Cancel()
+	{
+		cancel = true;
+	}
+
+	public override bool Execute()
+	{
+		Guard.ArgumentNotNull(Assemblies);
+
+		RemotingUtility.CleanUpRegisteredChannels();
+
+		XElement? assembliesElement = null;
+
+		if (NeedsXml)
+			assembliesElement = new XElement("assemblies");
+
+		var appDomains = default(AppDomainSupport?);
+		switch (AppDomains?.ToLowerInvariant())
+		{
+			case null:
+				break;
+
+			case "ifavailable":
+				appDomains = AppDomainSupport.IfAvailable;
+				break;
+
+			case "true":
+			case "required":
+				appDomains = AppDomainSupport.Required;
+				break;
+
+			case "false":
+			case "denied":
+				appDomains = AppDomainSupport.Denied;
+				break;
+
+			default:
+				Log.LogError("AppDomains value '{0}' is invalid: must be 'ifavailable', 'required', or 'denied'", AppDomains);
+				return false;
 		}
 
-		public ITaskItem? Html { get; set; }
-
-		public bool IgnoreFailures { get; set; }
-
-		public string? IncludeTraits { get; set; }
-
-		public bool InternalDiagnosticMessages { set { internalDiagnosticMessages = value; } }
-
-		public ITaskItem? JUnit { get; set; }
-
-		public string? MaxParallelThreads { get; set; }
-
-		protected bool NeedsXml =>
-			Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
-
-		public bool NoAutoReporters { get; set; }
-
-		public bool NoLogo { get; set; }
-
-		public ITaskItem? NUnit { get; set; }
-
-		public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
-
-		public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
-
-		public bool PreEnumerateTheories { set { preEnumerateTheories = value; } }
-
-		public string? Reporter { get; set; }
-
-		public bool ShadowCopy { set { shadowCopy = value; } }
-
-		public bool StopOnFail { set { stopOnFail = value; } }
-
-		public string? WorkingFolder { get; set; }
-
-		public ITaskItem? Xml { get; set; }
-
-		public ITaskItem? XmlV1 { get; set; }
-
-		public void Cancel()
+		switch (MaxParallelThreads)
 		{
-			cancel = true;
-		}
+			case null:
+			case "default":
+			case "0":
+				break;
 
-		public override bool Execute()
-		{
-			Guard.ArgumentNotNull(Assemblies);
+			case "unlimited":
+			case "-1":
+				maxThreadCount = -1;
+				break;
 
-			RemotingUtility.CleanUpRegisteredChannels();
-
-			XElement? assembliesElement = null;
-
-			if (NeedsXml)
-				assembliesElement = new XElement("assemblies");
-
-			var appDomains = default(AppDomainSupport?);
-			switch (AppDomains?.ToLowerInvariant())
-			{
-				case null:
-					break;
-
-				case "ifavailable":
-					appDomains = AppDomainSupport.IfAvailable;
-					break;
-
-				case "true":
-				case "required":
-					appDomains = AppDomainSupport.Required;
-					break;
-
-				case "false":
-				case "denied":
-					appDomains = AppDomainSupport.Denied;
-					break;
-
-				default:
-					Log.LogError("AppDomains value '{0}' is invalid: must be 'ifavailable', 'required', or 'denied'", AppDomains);
-					return false;
-			}
-
-			switch (MaxParallelThreads)
-			{
-				case null:
-				case "default":
-				case "0":
-					break;
-
-				case "unlimited":
-				case "-1":
-					maxThreadCount = -1;
-					break;
-
-				default:
-					var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
-					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
-						maxThreadCount = (int)(maxThreadMultiplier * Environment.ProcessorCount);
-					else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
-						maxThreadCount = threadValue;
-					else
-					{
-						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
-						return false;
-					}
-
-					break;
-			}
-
-			var originalWorkingFolder = Directory.GetCurrentDirectory();
-			var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, internalDiagnosticMessages ?? false);
-
-			using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), internalDiagnosticsMessageSink))
-			{
-				var reporter = GetReporter();
-				if (reporter == null)
-					return false;
-
-				logger = new MSBuildLogger(Log);
-				reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
-
-				if (!NoLogo)
-					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
-
-				var project = new XunitProject();
-				foreach (var assembly in Assemblies)
-				{
-					var assemblyFileName = assembly.GetMetadata("FullPath");
-					var configFileName = assembly.GetMetadata("ConfigFile");
-					if (configFileName != null && configFileName.Length == 0)
-						configFileName = null;
-
-					var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
-					var projectAssembly = new XunitProjectAssembly(project)
-					{
-						AssemblyFileName = assemblyFileName,
-						ConfigFileName = configFileName,
-						TargetFramework = targetFramework
-					};
-
-					ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
-
-					if (Culture != null)
-						projectAssembly.Configuration.Culture = Culture switch
-						{
-							"default" => null,
-							"invariant" => string.Empty,
-							_ => Culture,
-						};
-
-					if (shadowCopy.HasValue)
-						projectAssembly.Configuration.ShadowCopy = shadowCopy;
-
-					project.Add(projectAssembly);
-				}
-
-				if (WorkingFolder != null)
-					Directory.SetCurrentDirectory(WorkingFolder);
-
-				var clockTime = Stopwatch.StartNew();
-
-				if (!parallelizeAssemblies.HasValue)
-					parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
-
-				if (parallelizeAssemblies.GetValueOrDefault())
-				{
-					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
-					var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-					foreach (var assemblyElement in results.WhereNotNull())
-						assembliesElement!.Add(assemblyElement);
-				}
+			default:
+				var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
+				if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+					maxThreadCount = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+				else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
+					maxThreadCount = threadValue;
 				else
 				{
-					foreach (var assembly in project.Assemblies)
-					{
-						var assemblyElement = ExecuteAssembly(assembly, appDomains);
-						if (assemblyElement != null)
-							assembliesElement!.Add(assemblyElement);
-					}
+					Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
+					return false;
 				}
 
-				clockTime.Stop();
-
-				if (assembliesElement != null)
-					assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
-				if (completionMessages.Count > 0)
-				{
-					var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
-					foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
-						summaries.Add(completionMessage.Key, completionMessage.Value);
-					reporterMessageHandler.OnMessage(summaries);
-				}
-			}
-
-			Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
-
-			if (NeedsXml && assembliesElement != null)
-			{
-				if (Xml != null)
-					TransformFactory.Transform("xml", assembliesElement, Xml.GetMetadata("FullPath"));
-
-				if (XmlV1 != null)
-					TransformFactory.Transform("xmlv1", assembliesElement, XmlV1.GetMetadata("FullPath"));
-
-				if (Html != null)
-					TransformFactory.Transform("html", assembliesElement, Html.GetMetadata("FullPath"));
-
-				if (NUnit != null)
-					TransformFactory.Transform("nunit", assembliesElement, NUnit.GetMetadata("FullPath"));
-
-				if (JUnit != null)
-					TransformFactory.Transform("junit", assembliesElement, JUnit.GetMetadata("FullPath"));
-			}
-
-			// ExitCode is set to 1 for test failures and -1 for Exceptions.
-			return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
+				break;
 		}
 
-		protected virtual async ValueTask<XElement?> ExecuteAssembly(
-			XunitProjectAssembly assembly,
-			AppDomainSupport? appDomains)
-		{
-			if (cancel)
-				return null;
+		var originalWorkingFolder = Directory.GetCurrentDirectory();
+		var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, internalDiagnosticMessages ?? false);
 
-			var assemblyElement = NeedsXml ? new XElement("assembly") : null;
+		using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), internalDiagnosticsMessageSink))
+		{
+			var reporter = GetReporter();
+			if (reporter == null)
+				return false;
+
+			logger = new MSBuildLogger(Log);
+			reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
+
+			if (!NoLogo)
+				Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+
+			var project = new XunitProject();
+			foreach (var assembly in Assemblies)
+			{
+				var assemblyFileName = assembly.GetMetadata("FullPath");
+				var configFileName = assembly.GetMetadata("ConfigFile");
+				if (configFileName != null && configFileName.Length == 0)
+					configFileName = null;
+
+				var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
+				var projectAssembly = new XunitProjectAssembly(project)
+				{
+					AssemblyFileName = assemblyFileName,
+					ConfigFileName = configFileName,
+					TargetFramework = targetFramework
+				};
+
+				ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+
+				if (Culture != null)
+					projectAssembly.Configuration.Culture = Culture switch
+					{
+						"default" => null,
+						"invariant" => string.Empty,
+						_ => Culture,
+					};
+
+				if (shadowCopy.HasValue)
+					projectAssembly.Configuration.ShadowCopy = shadowCopy;
+
+				project.Add(projectAssembly);
+			}
+
+			if (WorkingFolder != null)
+				Directory.SetCurrentDirectory(WorkingFolder);
+
+			var clockTime = Stopwatch.StartNew();
+
+			if (!parallelizeAssemblies.HasValue)
+				parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
+
+			if (parallelizeAssemblies.GetValueOrDefault())
+			{
+				var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
+				var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
+				foreach (var assemblyElement in results.WhereNotNull())
+					assembliesElement!.Add(assemblyElement);
+			}
+			else
+			{
+				foreach (var assembly in project.Assemblies)
+				{
+					var assemblyElement = ExecuteAssembly(assembly, appDomains);
+					if (assemblyElement != null)
+						assembliesElement!.Add(assemblyElement);
+				}
+			}
+
+			clockTime.Stop();
+
+			if (assembliesElement != null)
+				assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
+			if (completionMessages.Count > 0)
+			{
+				var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
+				foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
+					summaries.Add(completionMessage.Key, completionMessage.Value);
+				reporterMessageHandler.OnMessage(summaries);
+			}
+		}
+
+		Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
+
+		if (NeedsXml && assembliesElement != null)
+		{
+			if (Xml != null)
+				TransformFactory.Transform("xml", assembliesElement, Xml.GetMetadata("FullPath"));
+
+			if (XmlV1 != null)
+				TransformFactory.Transform("xmlv1", assembliesElement, XmlV1.GetMetadata("FullPath"));
+
+			if (Html != null)
+				TransformFactory.Transform("html", assembliesElement, Html.GetMetadata("FullPath"));
+
+			if (NUnit != null)
+				TransformFactory.Transform("nunit", assembliesElement, NUnit.GetMetadata("FullPath"));
+
+			if (JUnit != null)
+				TransformFactory.Transform("junit", assembliesElement, JUnit.GetMetadata("FullPath"));
+		}
+
+		// ExitCode is set to 1 for test failures and -1 for Exceptions.
+		return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
+	}
+
+	protected virtual async ValueTask<XElement?> ExecuteAssembly(
+		XunitProjectAssembly assembly,
+		AppDomainSupport? appDomains)
+	{
+		if (cancel)
+			return null;
+
+		var assemblyElement = NeedsXml ? new XElement("assembly") : null;
+
+		try
+		{
+			if (preEnumerateTheories.HasValue)
+				assembly.Configuration.PreEnumerateTheories = preEnumerateTheories.Value;
+			if (diagnosticMessages.HasValue)
+				assembly.Configuration.DiagnosticMessages = diagnosticMessages.Value;
+			if (internalDiagnosticMessages.HasValue)
+				assembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages.Value;
+			if (failSkips.HasValue)
+				assembly.Configuration.FailSkips = failSkips.Value;
+
+			if (appDomains.HasValue)
+				assembly.Configuration.AppDomain = appDomains;
+
+			// Setup discovery and execution options with command-line overrides
+			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
+			if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
+				executionOptions.SetMaxParallelThreads(maxThreadCount);
+			if (parallelizeTestCollections.HasValue)
+				executionOptions.SetDisableParallelization(!parallelizeTestCollections);
+			if (stopOnFail.HasValue)
+				executionOptions.SetStopOnTestFail(stopOnFail);
+
+			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
+			var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
+			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
+			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+
+			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
+
+			var executionStarting = new TestAssemblyExecutionStarting
+			{
+				Assembly = assembly,
+				ExecutionOptions = executionOptions
+			};
+			reporterMessageHandler!.OnMessage(executionStarting);
+
+			IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
+			if (assemblyElement != null)
+				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+			if (longRunningSeconds > 0)
+				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
+			if (assembly.Configuration.FailSkipsOrDefault)
+				resultsSink = new DelegatingFailSkipSink(resultsSink);
+
+			using (resultsSink)
+			{
+				var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
+				controller.FindAndRun(resultsSink, settings);
+				resultsSink.Finished.WaitOne();
+
+				var executionFinished = new TestAssemblyExecutionFinished
+				{
+					Assembly = assembly,
+					ExecutionOptions = executionOptions,
+					ExecutionSummary = resultsSink.ExecutionSummary
+				};
+				reporterMessageHandler!.OnMessage(executionFinished);
+
+				if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
+				{
+					ExitCode = 1;
+					if (stopOnFail == true)
+					{
+						Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+						Cancel();
+					}
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			var e = ex;
+
+			while (e != null)
+			{
+				Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
+
+				if (e.StackTrace != null)
+					foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+						Log.LogError(stackLine);
+
+				e = e.InnerException;
+			}
+
+			ExitCode = -1;
+		}
+
+		return assemblyElement;
+	}
+
+	protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
+	{
+		var result = new List<IRunnerReporter>();
+		var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
+
+		foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+		{
+			Type?[] types;
 
 			try
 			{
-				if (preEnumerateTheories.HasValue)
-					assembly.Configuration.PreEnumerateTheories = preEnumerateTheories.Value;
-				if (diagnosticMessages.HasValue)
-					assembly.Configuration.DiagnosticMessages = diagnosticMessages.Value;
-				if (internalDiagnosticMessages.HasValue)
-					assembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages.Value;
-				if (failSkips.HasValue)
-					assembly.Configuration.FailSkips = failSkips.Value;
-
-				if (appDomains.HasValue)
-					assembly.Configuration.AppDomain = appDomains;
-
-				// Setup discovery and execution options with command-line overrides
-				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-				var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
-				if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
-					executionOptions.SetMaxParallelThreads(maxThreadCount);
-				if (parallelizeTestCollections.HasValue)
-					executionOptions.SetDisableParallelization(!parallelizeTestCollections);
-				if (stopOnFail.HasValue)
-					executionOptions.SetStopOnTestFail(stopOnFail);
-
-				var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
-				var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
-				var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
-				var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
-				var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
-
-				await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
-
-				var executionStarting = new TestAssemblyExecutionStarting
-				{
-					Assembly = assembly,
-					ExecutionOptions = executionOptions
-				};
-				reporterMessageHandler!.OnMessage(executionStarting);
-
-				IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
-				if (assemblyElement != null)
-					resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-				if (longRunningSeconds > 0)
-					resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-				if (assembly.Configuration.FailSkipsOrDefault)
-					resultsSink = new DelegatingFailSkipSink(resultsSink);
-
-				using (resultsSink)
-				{
-					var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
-					controller.FindAndRun(resultsSink, settings);
-					resultsSink.Finished.WaitOne();
-
-					var executionFinished = new TestAssemblyExecutionFinished
-					{
-						Assembly = assembly,
-						ExecutionOptions = executionOptions,
-						ExecutionSummary = resultsSink.ExecutionSummary
-					};
-					reporterMessageHandler!.OnMessage(executionFinished);
-
-					if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
-					{
-						ExitCode = 1;
-						if (stopOnFail == true)
-						{
-							Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
-							Cancel();
-						}
-					}
-				}
+				var assembly = Assembly.LoadFile(dllFile);
+				types = assembly.GetTypes();
 			}
-			catch (Exception ex)
+			catch (ReflectionTypeLoadException ex)
 			{
-				var e = ex;
-
-				while (e != null)
-				{
-					Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
-
-					if (e.StackTrace != null)
-						foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
-							Log.LogError(stackLine);
-
-					e = e.InnerException;
-				}
-
-				ExitCode = -1;
+				types = ex.Types;
+			}
+			catch
+			{
+				continue;
 			}
 
-			return assemblyElement;
-		}
-
-		protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
-		{
-			var result = new List<IRunnerReporter>();
-			var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
-
-			foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+			foreach (var type in types)
 			{
-				Type?[] types;
+				if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+					continue;
 
-				try
+				var ctor = type.GetConstructor(new Type[0]);
+				if (ctor == null)
 				{
-					var assembly = Assembly.LoadFile(dllFile);
-					types = assembly.GetTypes();
-				}
-				catch (ReflectionTypeLoadException ex)
-				{
-					types = ex.Types;
-				}
-				catch
-				{
+					Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
 					continue;
 				}
 
-				foreach (var type in types)
-				{
-					if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-						continue;
-
-					var ctor = type.GetConstructor(new Type[0]);
-					if (ctor == null)
-					{
-						Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
-						continue;
-					}
-
-					result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
-				}
+				result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
 			}
-
-			return result;
 		}
 
-		protected IRunnerReporter? GetReporter()
+		return result;
+	}
+
+	protected IRunnerReporter? GetReporter()
+	{
+		var reporters = GetAvailableRunnerReporters();
+		IRunnerReporter? reporter = null;
+		if (!NoAutoReporters)
+			reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+
+		if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
 		{
-			var reporters = GetAvailableRunnerReporters();
-			IRunnerReporter? reporter = null;
-			if (!NoAutoReporters)
-				reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
-
-			if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
+			reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
+			if (reporter == null)
 			{
-				reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
-				if (reporter == null)
-				{
-					var switchableReporters =
-						reporters
-							.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch))
-							.Select(r => r.RunnerSwitch!.ToLowerInvariant())
-							.OrderBy(x => x)
-							.ToList();
+				var switchableReporters =
+					reporters
+						.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch))
+						.Select(r => r.RunnerSwitch!.ToLowerInvariant())
+						.OrderBy(x => x)
+						.ToList();
 
-					if (switchableReporters.Count == 0)
-						Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
-					else
-						Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
+				if (switchableReporters.Count == 0)
+					Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
+				else
+					Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
 
-					return null;
-				}
+				return null;
 			}
-
-			return reporter ?? new DefaultRunnerReporter();
 		}
+
+		return reporter ?? new DefaultRunnerReporter();
 	}
 }
