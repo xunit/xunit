@@ -1,11 +1,10 @@
 ﻿#nullable disable  // TODO: This code is moving to the VSTest adapter
 
-namespace Xunit
-{
-	class DiaNavigationData
-	{
-		public string FileName { get; set; }
+namespace Xunit;
 
-		public int LineNumber { get; set; }
-	}
+class DiaNavigationData
+{
+	public string FileName { get; set; }
+
+	public int LineNumber { get; set; }
 }

@@ -2,34 +2,33 @@
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.v2
+namespace Xunit.Runner.v2;
+
+/// <summary>
+/// An implementation of xUnit.net v2's <see cref="ITestFrameworkDiscoveryOptions"/> and
+/// <see cref="ITestFrameworkExecutionOptions"/>, which delegates calls to an xUnit.net v3
+/// implementation of <see cref="_ITestFrameworkOptions"/>.
+/// </summary>
+public class Xunit2Options : LongLivedMarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
 {
+	private readonly _ITestFrameworkOptions v3Options;
+
 	/// <summary>
-	/// An implementation of xUnit.net v2's <see cref="ITestFrameworkDiscoveryOptions"/> and
-	/// <see cref="ITestFrameworkExecutionOptions"/>, which delegates calls to an xUnit.net v3
-	/// implementation of <see cref="_ITestFrameworkOptions"/>.
+	/// Initializes a new instance of the <see cref="Xunit2Options"/> class.
 	/// </summary>
-	public class Xunit2Options : LongLivedMarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
+	/// <param name="v3Options">The v3 options object to delegate all the calls to.</param>
+	public Xunit2Options(_ITestFrameworkOptions v3Options)
 	{
-		private readonly _ITestFrameworkOptions v3Options;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Xunit2Options"/> class.
-		/// </summary>
-		/// <param name="v3Options">The v3 options object to delegate all the calls to.</param>
-		public Xunit2Options(_ITestFrameworkOptions v3Options)
-		{
-			this.v3Options = Guard.ArgumentNotNull(v3Options);
-		}
-
-		/// <inheritdoc/>
-		public TValue? GetValue<TValue>(string name) =>
-			v3Options.GetValue<TValue>(name);
-
-		/// <inheritdoc/>
-		public void SetValue<TValue>(
-			string name,
-			TValue value) =>
-				v3Options.SetValue(name, value);
+		this.v3Options = Guard.ArgumentNotNull(v3Options);
 	}
+
+	/// <inheritdoc/>
+	public TValue? GetValue<TValue>(string name) =>
+		v3Options.GetValue<TValue>(name);
+
+	/// <inheritdoc/>
+	public void SetValue<TValue>(
+		string name,
+		TValue value) =>
+			v3Options.SetValue(name, value);
 }

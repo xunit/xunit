@@ -3,67 +3,66 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Xunit.Internal;
 
-namespace Xunit
+namespace Xunit;
+
+class AppDomainManager_NoAppDomain : IAppDomainManager
 {
-	class AppDomainManager_NoAppDomain : IAppDomainManager
+	public bool HasAppDomain => false;
+
+	public TObject? CreateObject<TObject>(
+		AssemblyName assemblyName,
+		string typeName,
+		params object?[]? args)
+			where TObject : class
 	{
-		public bool HasAppDomain => false;
+		Guard.ArgumentNotNull(assemblyName);
+		Guard.ArgumentNotNullOrEmpty(typeName);
 
-		public TObject? CreateObject<TObject>(
-			AssemblyName assemblyName,
-			string typeName,
-			params object?[]? args)
-				where TObject : class
+		try
 		{
-			Guard.ArgumentNotNull(assemblyName);
-			Guard.ArgumentNotNullOrEmpty(typeName);
-
-			try
-			{
 #if NETFRAMEWORK
-				var type = Assembly.Load(assemblyName).GetType(typeName, throwOnError: true);
+			var type = Assembly.Load(assemblyName).GetType(typeName, throwOnError: true);
 #else
-				var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
+			var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
 #endif
-				if (type == null)
-					return default;
-
-				return (TObject?)Activator.CreateInstance(type, args);
-			}
-			catch (TargetInvocationException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
+			if (type == null)
 				return default;
-			}
+
+			return (TObject?)Activator.CreateInstance(type, args);
 		}
+		catch (TargetInvocationException ex)
+		{
+			ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
+			return default;
+		}
+	}
 
 #if NETFRAMEWORK
-		public TObject? CreateObjectFrom<TObject>(
-			string assemblyLocation,
-			string typeName,
-			params object?[]? args)
-				where TObject : class
+	public TObject? CreateObjectFrom<TObject>(
+		string assemblyLocation,
+		string typeName,
+		params object?[]? args)
+			where TObject : class
+	{
+		Guard.ArgumentNotNullOrEmpty(assemblyLocation);
+		Guard.ArgumentNotNullOrEmpty(typeName);
+
+		try
 		{
-			Guard.ArgumentNotNullOrEmpty(assemblyLocation);
-			Guard.ArgumentNotNullOrEmpty(typeName);
-
-			try
-			{
-				var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName, throwOnError: true);
-				if (type == null)
-					return default;
-
-				return (TObject?)Activator.CreateInstance(type, args);
-			}
-			catch (TargetInvocationException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
+			var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName, throwOnError: true);
+			if (type == null)
 				return default;
-			}
+
+			return (TObject?)Activator.CreateInstance(type, args);
 		}
+		catch (TargetInvocationException ex)
+		{
+			ExceptionDispatchInfo.Capture(ex.InnerException!).Throw();
+			return default;
+		}
+	}
 #endif
 
-		public void Dispose()
-		{ }
-	}
+	public void Dispose()
+	{ }
 }
