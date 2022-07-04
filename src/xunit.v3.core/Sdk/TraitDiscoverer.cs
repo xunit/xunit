@@ -3,26 +3,25 @@ using System.Linq;
 using Xunit.Internal;
 using Xunit.v3;
 
-namespace Xunit.Sdk
+namespace Xunit.Sdk;
+
+/// <summary>
+/// The implementation of <see cref="ITraitDiscoverer"/> which returns the trait values
+/// for <see cref="TraitAttribute"/>.
+/// </summary>
+public class TraitDiscoverer : ITraitDiscoverer
 {
-	/// <summary>
-	/// The implementation of <see cref="ITraitDiscoverer"/> which returns the trait values
-	/// for <see cref="TraitAttribute"/>.
-	/// </summary>
-	public class TraitDiscoverer : ITraitDiscoverer
+	/// <inheritdoc/>
+	public virtual IReadOnlyCollection<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
 	{
-		/// <inheritdoc/>
-		public virtual IReadOnlyCollection<KeyValuePair<string, string>> GetTraits(_IAttributeInfo traitAttribute)
-		{
-			Guard.ArgumentNotNull(traitAttribute);
+		Guard.ArgumentNotNull(traitAttribute);
 
-			var ctorArgs =
-				traitAttribute
-					.GetConstructorArguments()
-					.Cast<string>()
-					.ToList();
+		var ctorArgs =
+			traitAttribute
+				.GetConstructorArguments()
+				.Cast<string>()
+				.ToList();
 
-			return new[] { new KeyValuePair<string, string>(ctorArgs[0], ctorArgs[1]) };
-		}
+		return new[] { new KeyValuePair<string, string>(ctorArgs[0], ctorArgs[1]) };
 	}
 }

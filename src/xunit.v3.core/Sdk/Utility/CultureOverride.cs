@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Xunit.Sdk
+namespace Xunit.Sdk;
+
+class CultureOverride : IDisposable
 {
-	class CultureOverride : IDisposable
+	readonly CultureInfo lastCulture;
+	readonly CultureInfo lastUICulture;
+
+	public CultureOverride(string? culture)
 	{
-		readonly CultureInfo lastCulture;
-		readonly CultureInfo lastUICulture;
+		lastCulture = CultureInfo.CurrentCulture;
+		lastUICulture = CultureInfo.CurrentUICulture;
 
-		public CultureOverride(string? culture)
+		if (culture != null)
 		{
-			lastCulture = CultureInfo.CurrentCulture;
-			lastUICulture = CultureInfo.CurrentUICulture;
-
-			if (culture != null)
-			{
-				var newCulture = new CultureInfo(culture, useUserOverride: false);
-				CultureInfo.CurrentCulture = newCulture;
-				CultureInfo.CurrentUICulture = newCulture;
-			}
+			var newCulture = new CultureInfo(culture, useUserOverride: false);
+			CultureInfo.CurrentCulture = newCulture;
+			CultureInfo.CurrentUICulture = newCulture;
 		}
+	}
 
-		public void Dispose()
-		{
-			CultureInfo.CurrentCulture = lastCulture;
-			CultureInfo.CurrentUICulture = lastUICulture;
-		}
+	public void Dispose()
+	{
+		CultureInfo.CurrentCulture = lastCulture;
+		CultureInfo.CurrentUICulture = lastUICulture;
 	}
 }

@@ -9,13 +9,7 @@ namespace Xunit.Internal;
 /// </summary>
 public static class IAssemblyInfoExtensions
 {
-	/// <summary>
-	/// Gets the target framework name for the given assembly.
-	/// </summary>
-	/// <param name="assembly">The assembly.</param>
-	/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
-	/// or ".NETCoreApp,Version=v3.1"). If the target framework type is unknown (missing file,
-	/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
+	/// <summary/>
 	public static string GetTargetFramework(this _IAssemblyInfo assembly)
 	{
 		Guard.ArgumentNotNull(assembly);

@@ -18,6 +18,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	/// </summary>
 	protected XunitDelayEnumeratedTheoryTestCaseRunner()
 	{ }
+
 	/// <summary>
 	/// Gets the singleton instance of the <see cref="XunitDelayEnumeratedTheoryTestCaseRunner"/> class.
 	/// </summary>

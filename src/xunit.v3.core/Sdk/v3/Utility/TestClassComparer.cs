@@ -1,31 +1,32 @@
 ﻿using System.Collections.Generic;
 
-namespace Xunit.v3
+namespace Xunit.v3;
+
+/// <summary>
+/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestClass"/>.
+/// Compares the fully qualified names of the types.
+/// </summary>
+public class TestClassComparer : IEqualityComparer<_ITestClass?>
 {
 	/// <summary>
-	/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestClass"/>.
-	/// Compares the fully qualified names of the types.
+	/// The singleton instance of the comparer.
 	/// </summary>
-	public class TestClassComparer : IEqualityComparer<_ITestClass?>
+	public static readonly TestClassComparer Instance = new();
+
+	/// <inheritdoc/>
+	public bool Equals(
+		_ITestClass? x,
+		_ITestClass? y)
 	{
-		/// <summary>
-		/// The singleton instance of the comparer.
-		/// </summary>
-		public static readonly TestClassComparer Instance = new();
+		if (x == null && y == null)
+			return true;
+		if (x == null || y == null)
+			return false;
 
-		/// <inheritdoc/>
-		public bool Equals(_ITestClass? x, _ITestClass? y)
-		{
-			if (x == null && y == null)
-				return true;
-			if (x == null || y == null)
-				return false;
-
-			return x.UniqueID == y.UniqueID;
-		}
-
-		/// <inheritdoc/>
-		public int GetHashCode(_ITestClass? obj) =>
-			obj == null ? 0 : obj.Class.Name.GetHashCode();
+		return x.UniqueID == y.UniqueID;
 	}
+
+	/// <inheritdoc/>
+	public int GetHashCode(_ITestClass? obj) =>
+		obj == null ? 0 : obj.Class.Name.GetHashCode();
 }
