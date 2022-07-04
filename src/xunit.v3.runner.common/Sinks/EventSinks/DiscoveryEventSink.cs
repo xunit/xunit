@@ -1,37 +1,36 @@
 ﻿using Xunit.Internal;
 using Xunit.v3;
 
-namespace Xunit.Runner.Common
+namespace Xunit.Runner.Common;
+
+/// <summary>
+/// Class that maps test framework discovery messages to events.
+/// </summary>
+public class DiscoveryEventSink : _IMessageSink
 {
 	/// <summary>
-	/// Class that maps test framework discovery messages to events.
+	/// Occurs when a <see cref="_DiscoveryComplete"/> message is received.
 	/// </summary>
-	public class DiscoveryEventSink : _IMessageSink
+	public event MessageHandler<_DiscoveryComplete>? DiscoveryCompleteEvent;
+
+	/// <summary>
+	/// Occurs when a <see cref="_DiscoveryStarting"/> message is received.
+	/// </summary>
+	public event MessageHandler<_DiscoveryStarting>? DiscoveryStartingEvent;
+
+	/// <summary>
+	/// Occurs when a <see cref="_TestCaseDiscovered"/> message is received.
+	/// </summary>
+	public event MessageHandler<_TestCaseDiscovered>? TestCaseDiscoveredEvent;
+
+	/// <inheritdoc/>
+	public bool OnMessage(_MessageSinkMessage message)
 	{
-		/// <summary>
-		/// Occurs when a <see cref="_DiscoveryComplete"/> message is received.
-		/// </summary>
-		public event MessageHandler<_DiscoveryComplete>? DiscoveryCompleteEvent;
+		Guard.ArgumentNotNull(message);
 
-		/// <summary>
-		/// Occurs when a <see cref="_DiscoveryStarting"/> message is received.
-		/// </summary>
-		public event MessageHandler<_DiscoveryStarting>? DiscoveryStartingEvent;
-
-		/// <summary>
-		/// Occurs when a <see cref="_TestCaseDiscovered"/> message is received.
-		/// </summary>
-		public event MessageHandler<_TestCaseDiscovered>? TestCaseDiscoveredEvent;
-
-		/// <inheritdoc/>
-		public bool OnMessage(_MessageSinkMessage message)
-		{
-			Guard.ArgumentNotNull(message);
-
-			return
-				message.DispatchWhen(TestCaseDiscoveredEvent) &&
-				message.DispatchWhen(DiscoveryCompleteEvent) &&
-				message.DispatchWhen(DiscoveryStartingEvent);
-		}
+		return
+			message.DispatchWhen(TestCaseDiscoveredEvent) &&
+			message.DispatchWhen(DiscoveryCompleteEvent) &&
+			message.DispatchWhen(DiscoveryStartingEvent);
 	}
 }

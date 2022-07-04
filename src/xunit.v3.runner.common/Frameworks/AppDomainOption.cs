@@ -1,24 +1,23 @@
-﻿namespace Xunit.Runner.Common
+﻿namespace Xunit.Runner.Common;
+
+/// <summary>
+/// Indicates the current level of app domain support that's in effect,
+/// for use by runner reporters.
+/// </summary>
+public enum AppDomainOption
 {
 	/// <summary>
-	/// Indicates the current level of app domain support that's in effect,
-	/// for use by runner reporters.
+	/// App domains are not supported by the current platform
 	/// </summary>
-	public enum AppDomainOption
-	{
-		/// <summary>
-		/// App domains are not supported by the current platform
-		/// </summary>
-		NotAvailable,
+	NotAvailable,
 
-		/// <summary>
-		/// App domains are supported, but currently disabled
-		/// </summary>
-		Disabled,
+	/// <summary>
+	/// App domains are supported, but currently disabled
+	/// </summary>
+	Disabled,
 
-		/// <summary>
-		/// App domains are supported and currently enabled
-		/// </summary>
-		Enabled,
-	}
+	/// <summary>
+	/// App domains are supported and currently enabled
+	/// </summary>
+	Enabled,
 }

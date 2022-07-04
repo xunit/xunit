@@ -10,170 +10,169 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.v3
+namespace Xunit.Runner.v3;
+
+/// <summary>
+/// Provides a line-oriented read/write wrapper over top of a TCP socket.
+/// </summary>
+public class BufferedTcpClient : IAsyncDisposable
 {
+	bool disposed = false;
+	readonly DisposalTracker disposalTracker = new();
+	Exception? fault;
+	readonly TaskCompletionSource<int> finishedSource = new();
+	readonly Action<ReadOnlyMemory<byte>> receiveHandler;
+	readonly Socket socket;
+	readonly List<Task> tasks = new();
+	readonly AutoResetEvent writeEvent = new(initialState: false);
+	readonly ConcurrentQueue<byte[]> writeQueue = new();
+
 	/// <summary>
-	/// Provides a line-oriented read/write wrapper over top of a TCP socket.
+	/// Initializes a new instance of the <see cref="BufferedTcpClient"/> class.
 	/// </summary>
-	public class BufferedTcpClient : IAsyncDisposable
+	/// <param name="socket">The TCP socket that is read from/written to.</param>
+	/// <param name="receiveHandler">The handler that is called for each received line of text.</param>
+	public BufferedTcpClient(
+		Socket socket,
+		Action<ReadOnlyMemory<byte>> receiveHandler)
 	{
-		bool disposed = false;
-		readonly DisposalTracker disposalTracker = new();
-		Exception? fault;
-		readonly TaskCompletionSource<int> finishedSource = new();
-		readonly Action<ReadOnlyMemory<byte>> receiveHandler;
-		readonly Socket socket;
-		readonly List<Task> tasks = new();
-		readonly AutoResetEvent writeEvent = new(initialState: false);
-		readonly ConcurrentQueue<byte[]> writeQueue = new();
+		this.socket = Guard.ArgumentNotNull(socket);
+		this.receiveHandler = Guard.ArgumentNotNull(receiveHandler);
+	}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="BufferedTcpClient"/> class.
-		/// </summary>
-		/// <param name="socket">The TCP socket that is read from/written to.</param>
-		/// <param name="receiveHandler">The handler that is called for each received line of text.</param>
-		public BufferedTcpClient(
-			Socket socket,
-			Action<ReadOnlyMemory<byte>> receiveHandler)
+	/// <inheritdoc/>
+	public async ValueTask DisposeAsync()
+	{
+		if (disposed)
+			throw new ObjectDisposedException(typeof(BufferedTcpClient).FullName);
+
+		if (fault != null)
 		{
-			this.socket = Guard.ArgumentNotNull(socket);
-			this.receiveHandler = Guard.ArgumentNotNull(receiveHandler);
+			var tcs = new TaskCompletionSource<int>();
+			tcs.SetException(fault);
+			await tcs.Task;
 		}
 
-		/// <inheritdoc/>
-		public async ValueTask DisposeAsync()
-		{
-			if (disposed)
-				throw new ObjectDisposedException(typeof(BufferedTcpClient).FullName);
+		disposed = true;
 
-			if (fault != null)
+		finishedSource.TrySetResult(0);
+		writeEvent.Set();
+
+		await Task.WhenAll(tasks);
+		await disposalTracker.DisposeAsync();
+	}
+
+	/// <summary>
+	/// Sends bytes to the other side of the connection.
+	/// </summary>
+	/// <param name="bytes">The bytes to send to the other side of the connection.</param>
+	public void Send(byte[] bytes)
+	{
+		if (disposed)
+			throw new ObjectDisposedException(typeof(BufferedTcpClient).FullName);
+
+		writeQueue.Enqueue(bytes);
+		writeEvent.Set();
+	}
+
+	/// <summary>
+	/// Starts the read/write background workers.
+	/// </summary>
+	public void Start()
+	{
+		if (tasks.Count != 0)
+			throw new InvalidOperationException("Cannot call Start more the one time");
+
+		tasks.Add(Task.Run(StartSocketPipeReader));
+		tasks.Add(Task.Run(StartSocketPipeWriter));
+	}
+
+	async Task StartSocketPipeReader()
+	{
+		var stream = new NetworkStream(socket);
+		disposalTracker.Add(stream);
+
+		var reader = PipeReader.Create(stream);
+
+		try
+		{
+			while (true)
 			{
-				var tcs = new TaskCompletionSource<int>();
-				tcs.SetException(fault);
-				await tcs.Task;
-			}
-
-			disposed = true;
-
-			finishedSource.TrySetResult(0);
-			writeEvent.Set();
-
-			await Task.WhenAll(tasks);
-			await disposalTracker.DisposeAsync();
-		}
-
-		/// <summary>
-		/// Sends bytes to the other side of the connection.
-		/// </summary>
-		/// <param name="bytes">The bytes to send to the other side of the connection.</param>
-		public void Send(byte[] bytes)
-		{
-			if (disposed)
-				throw new ObjectDisposedException(typeof(BufferedTcpClient).FullName);
-
-			writeQueue.Enqueue(bytes);
-			writeEvent.Set();
-		}
-
-		/// <summary>
-		/// Starts the read/write background workers.
-		/// </summary>
-		public void Start()
-		{
-			if (tasks.Count != 0)
-				throw new InvalidOperationException("Cannot call Start more the one time");
-
-			tasks.Add(Task.Run(StartSocketPipeReader));
-			tasks.Add(Task.Run(StartSocketPipeWriter));
-		}
-
-		async Task StartSocketPipeReader()
-		{
-			var stream = new NetworkStream(socket);
-			disposalTracker.Add(stream);
-
-			var reader = PipeReader.Create(stream);
-
-			try
-			{
-				while (true)
+				var readTask = reader.ReadAsync().AsTask();
+				var completedTask = await Task.WhenAny(readTask, finishedSource.Task);
+				if (completedTask == finishedSource.Task)
 				{
-					var readTask = reader.ReadAsync().AsTask();
-					var completedTask = await Task.WhenAny(readTask, finishedSource.Task);
-					if (completedTask == finishedSource.Task)
+					reader.CancelPendingRead();
+					break;
+				}
+
+				var result = await readTask;
+				var buffer = result.Buffer;
+
+				while (TryFindCommand(ref buffer, out var line))
+					try
 					{
-						reader.CancelPendingRead();
-						break;
+						receiveHandler(line);
 					}
+					catch { }  // Ignore the handler throwing; that's their problem, not ours.
 
-					var result = await readTask;
-					var buffer = result.Buffer;
+				reader.AdvanceTo(buffer.Start, buffer.End);
 
-					while (TryFindCommand(ref buffer, out var line))
-						try
-						{
-							receiveHandler(line);
-						}
-						catch { }  // Ignore the handler throwing; that's their problem, not ours.
-
-					reader.AdvanceTo(buffer.Start, buffer.End);
-
-					if (result.IsCompleted)
-						break;
-				}
+				if (result.IsCompleted)
+					break;
 			}
-			catch (Exception ex)
-			{
-				fault = ex;
-			}
-
-			await reader.CompleteAsync();
 		}
-
-		async Task StartSocketPipeWriter()
+		catch (Exception ex)
 		{
-			var stream = new NetworkStream(socket);
-			disposalTracker.Add(stream);
-
-			var writer = PipeWriter.Create(stream);
-
-			try
-			{
-				while (true)
-				{
-					writeEvent.WaitOne();
-
-					while (writeQueue.TryDequeue(out var bytes))
-						await writer.WriteAsync(bytes);
-
-					if (finishedSource.Task.IsCompleted)
-						break;
-				}
-			}
-			catch (Exception ex)
-			{
-				fault = ex;
-			}
-
-			await writer.CompleteAsync();
-			await writer.FlushAsync();
+			fault = ex;
 		}
 
-		bool TryFindCommand(
-			ref ReadOnlySequence<byte> buffer,
-			out byte[]? line)
+		await reader.CompleteAsync();
+	}
+
+	async Task StartSocketPipeWriter()
+	{
+		var stream = new NetworkStream(socket);
+		disposalTracker.Add(stream);
+
+		var writer = PipeWriter.Create(stream);
+
+		try
 		{
-			var position = buffer.PositionOf(TcpEngineMessages.EndOfMessage[0]);
-
-			if (position == null)
+			while (true)
 			{
-				line = default;
-				return false;
-			}
+				writeEvent.WaitOne();
 
-			line = buffer.Slice(0, position.Value).ToArray();
-			buffer = buffer.Slice(buffer.GetPosition(1, position.Value));
-			return true;
+				while (writeQueue.TryDequeue(out var bytes))
+					await writer.WriteAsync(bytes);
+
+				if (finishedSource.Task.IsCompleted)
+					break;
+			}
 		}
+		catch (Exception ex)
+		{
+			fault = ex;
+		}
+
+		await writer.CompleteAsync();
+		await writer.FlushAsync();
+	}
+
+	bool TryFindCommand(
+		ref ReadOnlySequence<byte> buffer,
+		out byte[]? line)
+	{
+		var position = buffer.PositionOf(TcpEngineMessages.EndOfMessage[0]);
+
+		if (position == null)
+		{
+			line = default;
+			return false;
+		}
+
+		line = buffer.Slice(0, position.Value).ToArray();
+		buffer = buffer.Slice(buffer.GetPosition(1, position.Value));
+		return true;
 	}
 }

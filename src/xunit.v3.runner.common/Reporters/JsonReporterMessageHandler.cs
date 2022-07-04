@@ -1,31 +1,30 @@
 using System.Text;
 using Xunit.v3;
 
-namespace Xunit.Runner.Common
+namespace Xunit.Runner.Common;
+
+/// <summary>
+/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="JsonReporter" />.
+/// </summary>
+public class JsonReporterMessageHandler : _IMessageSink
 {
+	readonly IRunnerLogger logger;
+
 	/// <summary>
-	/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="JsonReporter" />.
+	/// Initializes a new instance of the <see cref="JsonReporterMessageHandler" /> class.
 	/// </summary>
-	public class JsonReporterMessageHandler : _IMessageSink
+	/// <param name="logger">The logger used to report messages</param>
+	public JsonReporterMessageHandler(IRunnerLogger logger)
 	{
-		readonly IRunnerLogger logger;
+		this.logger = logger;
+	}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="JsonReporterMessageHandler" /> class.
-		/// </summary>
-		/// <param name="logger">The logger used to report messages</param>
-		public JsonReporterMessageHandler(IRunnerLogger logger)
-		{
-			this.logger = logger;
-		}
+	/// <inheritdoc/>
+	public bool OnMessage(_MessageSinkMessage message)
+	{
+		if (message is _MessageSinkMessage v3Message)
+			logger.LogImportantMessage(Encoding.UTF8.GetString(v3Message.ToJson()));
 
-		/// <inheritdoc/>
-		public bool OnMessage(_MessageSinkMessage message)
-		{
-			if (message is _MessageSinkMessage v3Message)
-				logger.LogImportantMessage(Encoding.UTF8.GetString(v3Message.ToJson()));
-
-			return true;
-		}
+		return true;
 	}
 }

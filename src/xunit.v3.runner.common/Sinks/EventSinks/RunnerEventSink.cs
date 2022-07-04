@@ -1,49 +1,48 @@
 ﻿using Xunit.Internal;
 using Xunit.v3;
 
-namespace Xunit.Runner.Common
+namespace Xunit.Runner.Common;
+
+/// <summary>
+/// Class that maps test runner messages to events.
+/// </summary>
+public class RunnerEventSink : _IMessageSink
 {
 	/// <summary>
-	/// Class that maps test runner messages to events.
+	/// Occurs when the runner is starting discovery for a given test assembly.
 	/// </summary>
-	public class RunnerEventSink : _IMessageSink
+	public event MessageHandler<TestAssemblyDiscoveryFinished>? TestAssemblyDiscoveryFinishedEvent;
+
+	/// <summary>
+	/// Occurs when the runner has finished discovery for a given test assembly.
+	/// </summary>
+	public event MessageHandler<TestAssemblyDiscoveryStarting>? TestAssemblyDiscoveryStartingEvent;
+
+	/// <summary>
+	/// Occurs when the runner has finished executing the given test assembly.
+	/// </summary>
+	public event MessageHandler<TestAssemblyExecutionFinished>? TestAssemblyExecutionFinishedEvent;
+
+	/// <summary>
+	/// Occurs when the runner is starting to execution the given test assembly.
+	/// </summary>
+	public event MessageHandler<TestAssemblyExecutionStarting>? TestAssemblyExecutionStartingEvent;
+
+	/// <summary>
+	/// Occurs when the runner has finished executing all test assemblies.
+	/// </summary>
+	public event MessageHandler<TestExecutionSummaries>? TestExecutionSummariesEvent;
+
+	/// <inheritdoc/>
+	public bool OnMessage(_MessageSinkMessage message)
 	{
-		/// <summary>
-		/// Occurs when the runner is starting discovery for a given test assembly.
-		/// </summary>
-		public event MessageHandler<TestAssemblyDiscoveryFinished>? TestAssemblyDiscoveryFinishedEvent;
+		Guard.ArgumentNotNull(message);
 
-		/// <summary>
-		/// Occurs when the runner has finished discovery for a given test assembly.
-		/// </summary>
-		public event MessageHandler<TestAssemblyDiscoveryStarting>? TestAssemblyDiscoveryStartingEvent;
-
-		/// <summary>
-		/// Occurs when the runner has finished executing the given test assembly.
-		/// </summary>
-		public event MessageHandler<TestAssemblyExecutionFinished>? TestAssemblyExecutionFinishedEvent;
-
-		/// <summary>
-		/// Occurs when the runner is starting to execution the given test assembly.
-		/// </summary>
-		public event MessageHandler<TestAssemblyExecutionStarting>? TestAssemblyExecutionStartingEvent;
-
-		/// <summary>
-		/// Occurs when the runner has finished executing all test assemblies.
-		/// </summary>
-		public event MessageHandler<TestExecutionSummaries>? TestExecutionSummariesEvent;
-
-		/// <inheritdoc/>
-		public bool OnMessage(_MessageSinkMessage message)
-		{
-			Guard.ArgumentNotNull(message);
-
-			return
-				message.DispatchWhen(TestAssemblyDiscoveryFinishedEvent) &&
-				message.DispatchWhen(TestAssemblyDiscoveryStartingEvent) &&
-				message.DispatchWhen(TestAssemblyExecutionFinishedEvent) &&
-				message.DispatchWhen(TestAssemblyExecutionStartingEvent) &&
-				message.DispatchWhen(TestExecutionSummariesEvent);
-		}
+		return
+			message.DispatchWhen(TestAssemblyDiscoveryFinishedEvent) &&
+			message.DispatchWhen(TestAssemblyDiscoveryStartingEvent) &&
+			message.DispatchWhen(TestAssemblyExecutionFinishedEvent) &&
+			message.DispatchWhen(TestAssemblyExecutionStartingEvent) &&
+			message.DispatchWhen(TestExecutionSummariesEvent);
 	}
 }

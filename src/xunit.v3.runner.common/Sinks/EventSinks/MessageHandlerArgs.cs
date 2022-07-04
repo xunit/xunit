@@ -1,44 +1,43 @@
 ﻿using Xunit.Internal;
 
-namespace Xunit.Runner.Common
+namespace Xunit.Runner.Common;
+
+/// <summary>
+/// Allows cancellation during message handling.
+/// </summary>
+public abstract class MessageHandlerArgs
 {
 	/// <summary>
-	/// Allows cancellation during message handling.
+	/// Gets a value to indicate whether stop has been requested.
 	/// </summary>
-	public abstract class MessageHandlerArgs
-	{
-		/// <summary>
-		/// Gets a value to indicate whether stop has been requested.
-		/// </summary>
-		public bool IsStopped { get; private set; }
+	public bool IsStopped { get; private set; }
 
-		/// <summary>
-		/// Call to indicate that execution should stop.
-		/// </summary>
-		public void Stop() => IsStopped = true;
+	/// <summary>
+	/// Call to indicate that execution should stop.
+	/// </summary>
+	public void Stop() => IsStopped = true;
+}
+
+/// <summary>
+/// Wraps a message with the ability to cancel execution.
+/// </summary>
+/// <typeparam name="TMessage">The type of the message to be handled.</typeparam>
+public class MessageHandlerArgs<TMessage> : MessageHandlerArgs
+	where TMessage : class
+{
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MessageHandlerArgs{TMessage}"/> class.
+	/// </summary>
+	/// <param name="message">The message to be handled.</param>
+	public MessageHandlerArgs(TMessage message)
+	{
+		Guard.ArgumentNotNull(message);
+
+		Message = message;
 	}
 
 	/// <summary>
-	/// Wraps a message with the ability to cancel execution.
+	/// Gets the message.
 	/// </summary>
-	/// <typeparam name="TMessage">The type of the message to be handled.</typeparam>
-	public class MessageHandlerArgs<TMessage> : MessageHandlerArgs
-		where TMessage : class
-	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MessageHandlerArgs{TMessage}"/> class.
-		/// </summary>
-		/// <param name="message">The message to be handled.</param>
-		public MessageHandlerArgs(TMessage message)
-		{
-			Guard.ArgumentNotNull(message);
-
-			Message = message;
-		}
-
-		/// <summary>
-		/// Gets the message.
-		/// </summary>
-		public TMessage Message { get; }
-	}
+	public TMessage Message { get; }
 }

@@ -3,42 +3,41 @@ using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
-namespace Xunit.Runner.Common
+namespace Xunit.Runner.Common;
+
+/// <summary>
+/// Reports that runner is about to start execution for a test assembly.
+/// </summary>
+public class TestAssemblyExecutionFinished : _MessageSinkMessage
 {
+	XunitProjectAssembly? assembly;
+	_ITestFrameworkExecutionOptions? executionOptions;
+	ExecutionSummary? executionSummary;
+
 	/// <summary>
-	/// Reports that runner is about to start execution for a test assembly.
+	/// Gets information about the assembly being executed.
 	/// </summary>
-	public class TestAssemblyExecutionFinished : _MessageSinkMessage
+	public XunitProjectAssembly Assembly
 	{
-		XunitProjectAssembly? assembly;
-		_ITestFrameworkExecutionOptions? executionOptions;
-		ExecutionSummary? executionSummary;
+		get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
+		set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
+	}
 
-		/// <summary>
-		/// Gets information about the assembly being executed.
-		/// </summary>
-		public XunitProjectAssembly Assembly
-		{
-			get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-			set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
-		}
+	/// <summary>
+	/// Gets the options that was used during execution.
+	/// </summary>
+	public _ITestFrameworkExecutionOptions ExecutionOptions
+	{
+		get => executionOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionOptions)} on an uninitialized '{GetType().FullName}' object");
+		set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
+	}
 
-		/// <summary>
-		/// Gets the options that was used during execution.
-		/// </summary>
-		public _ITestFrameworkExecutionOptions ExecutionOptions
-		{
-			get => executionOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionOptions)} on an uninitialized '{GetType().FullName}' object");
-			set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
-		}
-
-		/// <summary>
-		/// Gets the summary of the execution results for the test assembly.
-		/// </summary>
-		public ExecutionSummary ExecutionSummary
-		{
-			get => executionSummary ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionSummary)} on an uninitialized '{GetType().FullName}' object");
-			set => executionSummary = Guard.ArgumentNotNull(value, nameof(ExecutionSummary));
-		}
+	/// <summary>
+	/// Gets the summary of the execution results for the test assembly.
+	/// </summary>
+	public ExecutionSummary ExecutionSummary
+	{
+		get => executionSummary ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionSummary)} on an uninitialized '{GetType().FullName}' object");
+		set => executionSummary = Guard.ArgumentNotNull(value, nameof(ExecutionSummary));
 	}
 }
