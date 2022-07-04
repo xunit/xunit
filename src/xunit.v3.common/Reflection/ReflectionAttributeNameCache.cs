@@ -2,17 +2,16 @@
 using System.Collections.Concurrent;
 using Xunit.Internal;
 
-namespace Xunit.Sdk
+namespace Xunit.Sdk;
+
+class ReflectionAttributeNameCache
 {
-	class ReflectionAttributeNameCache
+	static readonly ConcurrentDictionary<string, Type?> attributeTypeCache = new();
+
+	internal static Type? GetType(string assemblyQualifiedAttributeTypeName)
 	{
-		static readonly ConcurrentDictionary<string, Type?> attributeTypeCache = new();
+		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
-		internal static Type? GetType(string assemblyQualifiedAttributeTypeName)
-		{
-			Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
-
-			return attributeTypeCache.GetOrAdd(assemblyQualifiedAttributeTypeName, name => SerializationHelper.GetType(name));
-		}
+		return attributeTypeCache.GetOrAdd(assemblyQualifiedAttributeTypeName, name => SerializationHelper.GetType(name));
 	}
 }

@@ -1,18 +1,17 @@
-namespace Xunit.v3
+namespace Xunit.v3;
+
+/// <summary>
+/// Indicates the default display name format for test methods.
+/// </summary>
+public enum TestMethodDisplay
 {
 	/// <summary>
-	/// Indicates the default display name format for test methods.
+	/// Use a fully qualified name (namespace + class + method)
 	/// </summary>
-	public enum TestMethodDisplay
-	{
-		/// <summary>
-		/// Use a fully qualified name (namespace + class + method)
-		/// </summary>
-		ClassAndMethod = 1,
+	ClassAndMethod = 1,
 
-		/// <summary>
-		/// Use just the method name (without class)
-		/// </summary>
-		Method = 2
-	}
+	/// <summary>
+	/// Use just the method name (without class)
+	/// </summary>
+	Method = 2
 }

@@ -3,33 +3,32 @@ using System.Reflection;
 using Xunit.Internal;
 using Xunit.v3;
 
-namespace Xunit.Sdk
+namespace Xunit.Sdk;
+
+/// <summary>
+/// Reflection-based implementation of <see cref="_IReflectionParameterInfo"/>.
+/// </summary>
+public class ReflectionParameterInfo : _IReflectionParameterInfo
 {
+	readonly Lazy<_ITypeInfo> parameterType;
+
 	/// <summary>
-	/// Reflection-based implementation of <see cref="_IReflectionParameterInfo"/>.
+	/// Initializes a new instance of the <see cref="ReflectionParameterInfo"/> class.
 	/// </summary>
-	public class ReflectionParameterInfo : _IReflectionParameterInfo
+	/// <param name="parameterInfo">The parameter to be wrapped.</param>
+	public ReflectionParameterInfo(ParameterInfo parameterInfo)
 	{
-		readonly Lazy<_ITypeInfo> parameterType;
+		ParameterInfo = Guard.ArgumentNotNull(parameterInfo);
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ReflectionParameterInfo"/> class.
-		/// </summary>
-		/// <param name="parameterInfo">The parameter to be wrapped.</param>
-		public ReflectionParameterInfo(ParameterInfo parameterInfo)
-		{
-			ParameterInfo = Guard.ArgumentNotNull(parameterInfo);
-
-			parameterType = new(() => Reflector.Wrap(ParameterInfo.ParameterType));
-		}
-
-		/// <inheritdoc/>
-		public string Name => ParameterInfo.Name!;
-
-		/// <inheritdoc/>
-		public ParameterInfo ParameterInfo { get; }
-
-		/// <inheritdoc/>
-		public _ITypeInfo ParameterType => parameterType.Value;
+		parameterType = new(() => Reflector.Wrap(ParameterInfo.ParameterType));
 	}
+
+	/// <inheritdoc/>
+	public string Name => ParameterInfo.Name!;
+
+	/// <inheritdoc/>
+	public ParameterInfo ParameterInfo { get; }
+
+	/// <inheritdoc/>
+	public _ITypeInfo ParameterType => parameterType.Value;
 }
