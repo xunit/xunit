@@ -5,44 +5,43 @@ using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
-namespace Xunit
+namespace Xunit;
+
+public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 {
-	public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
+	public ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
+		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		_ITestMethod testMethod,
+		_IAttributeInfo factAttribute)
 	{
-		public ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestMethod testMethod,
-			_IAttributeInfo factAttribute)
-		{
-			var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
-			var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();
+		var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
+		var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();
 
-			if (cultures == null || cultures.Length == 0)
-				cultures = new[] { "en-US", "fr-FR" };
+		if (cultures == null || cultures.Length == 0)
+			cultures = new[] { "en-US", "fr-FR" };
 
-			var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
-			var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
+		var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
+		var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
 
-			var result =
-				cultures
-					.Select(culture => CreateTestCase(testMethod, culture, methodDisplay, methodDisplayOptions))
-					.CastOrToReadOnlyCollection();
+		var result =
+			cultures
+				.Select(culture => CreateTestCase(testMethod, culture, methodDisplay, methodDisplayOptions))
+				.CastOrToReadOnlyCollection();
 
-			return new(result);
-		}
+		return new(result);
+	}
 
-		CulturedXunitTestCase CreateTestCase(
-			_ITestMethod testMethod,
-			string culture,
-			TestMethodDisplay methodDisplay,
-			TestMethodDisplayOptions methodDisplayOptions)
-		{
-			return new CulturedXunitTestCase(
-				methodDisplay,
-				methodDisplayOptions,
-				testMethod,
-				culture
-			);
-		}
+	CulturedXunitTestCase CreateTestCase(
+		_ITestMethod testMethod,
+		string culture,
+		TestMethodDisplay methodDisplay,
+		TestMethodDisplayOptions methodDisplayOptions)
+	{
+		return new CulturedXunitTestCase(
+			methodDisplay,
+			methodDisplayOptions,
+			testMethod,
+			culture
+		);
 	}
 }

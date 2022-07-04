@@ -1,10 +1,9 @@
 ﻿using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit;
+
+[XunitTestCaseDiscoverer(typeof(CulturedTheoryAttributeDiscoverer))]
+public sealed class CulturedTheoryAttribute : TheoryAttribute
 {
-	[XunitTestCaseDiscoverer(typeof(CulturedTheoryAttributeDiscoverer))]
-	public sealed class CulturedTheoryAttribute : TheoryAttribute
-	{
-		public CulturedTheoryAttribute(params string[] cultures) { }
-	}
+	public CulturedTheoryAttribute(params string[] cultures) { }
 }

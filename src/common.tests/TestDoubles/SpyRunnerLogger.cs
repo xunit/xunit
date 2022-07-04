@@ -7,7 +7,7 @@ public class SpyRunnerLogger : IRunnerLogger
 {
 	static readonly string currentDirectory = Directory.GetCurrentDirectory();
 
-	public List<string> Messages = new List<string>();
+	public List<string> Messages = new();
 
 	public SpyRunnerLogger()
 	{
@@ -16,27 +16,38 @@ public class SpyRunnerLogger : IRunnerLogger
 
 	public object LockObject { get; private set; }
 
-	public void LogError(StackFrameInfo stackFrame, string message)
+	public void LogError(
+		StackFrameInfo stackFrame,
+		string message)
 	{
 		AddMessage("Err", stackFrame, message);
 	}
 
-	public void LogImportantMessage(StackFrameInfo stackFrame, string message)
+	public void LogImportantMessage(
+		StackFrameInfo stackFrame,
+		string message)
 	{
 		AddMessage("Imp", stackFrame, message);
 	}
 
-	public void LogMessage(StackFrameInfo stackFrame, string message)
+	public void LogMessage(
+		StackFrameInfo stackFrame,
+		string message)
 	{
 		AddMessage("---", stackFrame, message);
 	}
 
-	public void LogWarning(StackFrameInfo stackFrame, string message)
+	public void LogWarning(
+		StackFrameInfo stackFrame,
+		string message)
 	{
 		AddMessage("Wrn", stackFrame, message);
 	}
 
-	void AddMessage(string category, StackFrameInfo stackFrame, string message)
+	void AddMessage(
+		string category,
+		StackFrameInfo stackFrame,
+		string message)
 	{
 		var result = new StringBuilder();
 		result.Append($"[{category}");

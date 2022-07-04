@@ -1,10 +1,9 @@
 ﻿using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit;
+
+[XunitTestCaseDiscoverer(typeof(CulturedFactAttributeDiscoverer))]
+public sealed class CulturedFactAttribute : FactAttribute
 {
-	[XunitTestCaseDiscoverer(typeof(CulturedFactAttributeDiscoverer))]
-	public sealed class CulturedFactAttribute : FactAttribute
-	{
-		public CulturedFactAttribute(params string[] cultures) { }
-	}
+	public CulturedFactAttribute(params string[] cultures) { }
 }
