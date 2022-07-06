@@ -921,8 +921,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: [Foo, 16]" + Environment.NewLine +
-				"In:       [[Foo, 42], [Bar, 2112]]",
+				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
+				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
 				ex.Message
 			);
 		}
@@ -938,8 +938,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: [Foo, 16]" + Environment.NewLine +
-				"In:       [[Foo, 42], [Bar, 2112]]",
+				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
+				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
 				ex.Message
 			);
 		}
@@ -976,8 +976,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: [Foo, 16]" + Environment.NewLine +
-				"In:       [[Foo, 42], [Bar, 2112]]",
+				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
+				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
 				ex.Message
 			);
 		}
@@ -993,8 +993,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
-				"Expected: [[Bar, 2112], [Foo, 42]]" + Environment.NewLine +
-				"Actual:   [[Biff, 2600]] left over from [[Foo, 42], [Biff, 2600], [Bar, 2112]]",
+				"Expected: [[\"Bar\"] = 2112, [\"Foo\"] = 42]" + Environment.NewLine +
+				"Actual:   [[\"Biff\"] = 2600] left over from [[\"Foo\"] = 42, [\"Biff\"] = 2600, [\"Bar\"] = 2112]",
 				ex.Message
 			);
 		}
@@ -1010,8 +1010,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: [Foo, 16]" + Environment.NewLine +
-				"In:       [[Foo, 42], [Bar, 2112]]",
+				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
+				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
 				ex.Message
 			);
 		}
@@ -1027,8 +1027,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
-				"Expected: [[Bar, 2112], [Foo, 42]]" + Environment.NewLine +
-				"Actual:   [[Biff, 2600]] left over from [[Foo, 42], [Biff, 2600], [Bar, 2112]]",
+				"Expected: [[\"Bar\"] = 2112, [\"Foo\"] = 42]" + Environment.NewLine +
+				"Actual:   [[\"Biff\"] = 2600] left over from [[\"Foo\"] = 42, [\"Biff\"] = 2600, [\"Bar\"] = 2112]",
 				ex.Message
 			);
 		}
