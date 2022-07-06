@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -730,6 +731,165 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class ListOfObjects_NotStrict
+	{
+		[Fact]
+		public void Success()
+		{
+			var expected = new[] { new { Foo = "Bar" } }.ToList();
+			var actual = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList();
+
+			Assert.Equivalent(expected, actual, strict: false);
+		}
+
+		[Fact]
+		public void Success_EmbeddedArray()
+		{
+			var expected = new { x = new[] { new { Foo = "Bar" } }.ToList() };
+			var actual = new { x = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList() };
+
+			Assert.Equivalent(expected, actual, strict: false);
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var expected = new[] { new { Foo = "Biff" } }.ToList();
+			var actual = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList();
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: { Foo = Biff }" + Environment.NewLine +
+				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_EmbeddedArray()
+		{
+			var expected = new { x = new[] { new { Foo = "Biff" } }.ToList() };
+			var actual = new { x = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList() };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Expected: { Foo = Biff }" + Environment.NewLine +
+				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				ex.Message
+			);
+		}
+	}
+
+	public class ListOfObjects_Strict
+	{
+		[Fact]
+		public void Success()
+		{
+			var expected = new[] { new { Foo = "Bar" }, new { Foo = "Baz" } }.ToList();
+			var actual = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList();
+
+			Assert.Equivalent(expected, actual, strict: true);
+		}
+
+		[Fact]
+		public void Success_EmbeddedList()
+		{
+			var expected = new { x = new[] { new { Foo = "Bar" }, new { Foo = "Baz" } }.ToList() };
+			var actual = new { x = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList() };
+
+			Assert.Equivalent(expected, actual, strict: true);
+		}
+
+		[Fact]
+		public void Failure_ValueNotFoundInActual()
+		{
+			var expected = new[] { new { Foo = "Biff" } }.ToList();
+			var actual = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList();
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: { Foo = Biff }" + Environment.NewLine +
+				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_ExtraValueInActual()
+		{
+			var expected = new[] { new { Foo = "Bar" } }.ToList();
+			var actual = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList();
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
+				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
+				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_EmbeddedArray_ValueNotFoundInActual()
+		{
+			var expected = new { x = new[] { new { Foo = "Biff" } }.ToList() };
+			var actual = new { x = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList() };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Expected: { Foo = Biff }" + Environment.NewLine +
+				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_EmbeddedArray_ExtraValueInActual()
+		{
+			var expected = new { x = new[] { new { Foo = "Bar" } }.ToList() };
+			var actual = new { x = new[] { new { Foo = "Baz" }, new { Foo = "Bar" } }.ToList() };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
+				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				ex.Message
+			);
+		}
+	}
+
+	public class ArraysAndListsAreEquivalent
+	{
+		[Fact]
+		public void ArrayIsEquivalentToList()
+		{
+			Assert.Equivalent(new[] { 1, 2, 3 }, new List<int> { 1, 2, 3 });
+		}
+
+		[Fact]
+		public void ListIsEquivalentToArray()
+		{
+			Assert.Equivalent(new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 });
+		}
+	}
+
 	public class Dictionaries_NotStrict
 	{
 		[Fact]
@@ -940,8 +1100,3 @@ public class EquivalenceAssertsTests
 		public SelfReferential Other { get; }
 	}
 }
-
-
-
-
-
