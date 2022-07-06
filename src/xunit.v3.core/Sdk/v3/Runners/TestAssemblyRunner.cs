@@ -54,7 +54,7 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 		defaultTestCaseOrderer.Value;
 
 	/// <summary>
-	/// Orderride this to provide the default test collection order for ordering collections in the assembly.
+	/// Override this to provide the default test collection order for ordering collections in the assembly.
 	/// Defaults to an instance of <see cref="DefaultTestCollectionOrderer"/>.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test assembly</param>

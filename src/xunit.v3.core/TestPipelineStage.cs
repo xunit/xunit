@@ -22,32 +22,32 @@ public enum TestPipelineStage
 	Discovery,
 
 	/// <summary>
-	/// Inidicates that the test pipeline is executing a test assembly.
+	/// Indicates that the test pipeline is executing a test assembly.
 	/// </summary>
 	TestAssemblyExecution,
 
 	/// <summary>
-	/// Inidicates that the test pipeline is executing a test collection.
+	/// Indicates that the test pipeline is executing a test collection.
 	/// </summary>
 	TestCollectionExecution,
 
 	/// <summary>
-	/// Inidicates that the test pipeline is executing a test class.
+	/// Indicates that the test pipeline is executing a test class.
 	/// </summary>
 	TestClassExecution,
 
 	/// <summary>
-	/// Inidicates that the test pipeline is executing a test method.
+	/// Indicates that the test pipeline is executing a test method.
 	/// </summary>
 	TestMethodExecution,
 
 	/// <summary>
-	/// Inidicates that the test pipeline is executing a test case.
+	/// Indicates that the test pipeline is executing a test case.
 	/// </summary>
 	TestCaseExecution,
 
 	/// <summary>
-	/// Inidicates that the test pipeline is executing a test.
+	/// Indicates that the test pipeline is executing a test.
 	/// </summary>
 	TestExecution,
 }

@@ -50,7 +50,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	protected _IMessageSink ExecutionMessageSink { get; }
 
 	/// <summary>
-	/// Gets the execution options provuded by the runner.
+	/// Gets the execution options provided by the runner.
 	/// </summary>
 	protected _ITestFrameworkExecutionOptions ExecutionOptions { get; }
 

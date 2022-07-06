@@ -12,7 +12,7 @@ public class ErrorMessageInfo
 		string? exceptionMessage,
 		string? exceptionStackTrace)
 	{
-		MesssageType = messageType;
+		MessageType = messageType;
 		ExceptionType = exceptionType;
 		ExceptionMessage = exceptionMessage;
 		ExceptionStackTrace = exceptionStackTrace;
@@ -21,7 +21,7 @@ public class ErrorMessageInfo
 	/// <summary>
 	/// The type of error condition that was encountered.
 	/// </summary>
-	public ErrorMessageType MesssageType { get; }
+	public ErrorMessageType MessageType { get; }
 
 	/// <summary>
 	/// The exception that caused the test failure.

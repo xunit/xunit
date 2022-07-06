@@ -32,7 +32,7 @@ public interface _ITestCaseMetadata
 	string TestCaseDisplayName { get; }
 
 	/// <summary>
-	/// Gets the name of the class where the test is defined. If the test did not originiate
+	/// Gets the name of the class where the test is defined. If the test did not originate
 	/// in a class, will return <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethodName))]
@@ -47,14 +47,14 @@ public interface _ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the fully qualified type name (without assembly) of the class where the test is defined.
-	/// If the test did not originiate in a class, will return <c>null</c>.
+	/// If the test did not originate in a class, will return <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestClassName))]
 	public string? TestClassNameWithNamespace { get; }
 
 	/// <summary>
 	/// Gets the method name where the test is defined, in the <see cref="TestClassName"/> class.
-	/// If the test did not originiate in a method, will return <c>null</c>.
+	/// If the test did not originate in a method, will return <c>null</c>.
 	/// </summary>
 	public string? TestMethodName { get; }
 

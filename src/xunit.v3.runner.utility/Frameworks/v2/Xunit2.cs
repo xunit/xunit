@@ -188,8 +188,8 @@ public class Xunit2 : IFrontController
 
 		try
 		{
-			var asssemblyName = typeof(OptimizedRemoteMessageSink).Assembly.GetName();
-			var optimizedSink = AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName!, v2MessageSink);
+			var assemblyName = typeof(OptimizedRemoteMessageSink).Assembly.GetName();
+			var optimizedSink = AppDomain.CreateObject<IMessageSink>(assemblyName, typeof(OptimizedRemoteMessageSink).FullName!, v2MessageSink);
 			if (optimizedSink != null)
 				return optimizedSink;
 		}

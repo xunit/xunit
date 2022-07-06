@@ -50,7 +50,7 @@ public class TraitParserTests
 		}
 
 		[Fact]
-		public void IgnoresExtraTraitSeperatorsAndWhitespace()
+		public void IgnoresExtraTraitSeparatorAndWhitespace()
 		{
 			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -67,7 +67,7 @@ public class TraitParserTests
 		}
 
 		[Fact]
-		public void IncludesExtraKeyValueSeperatorsInValue()
+		public void IncludesExtraKeyValueSeparatorInValue()
 		{
 			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -84,7 +84,7 @@ public class TraitParserTests
 		}
 
 		[Fact]
-		public void IgnoresMissingKeyValueSeperator()
+		public void IgnoresMissingKeyValueSeparator()
 		{
 			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 

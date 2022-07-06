@@ -14,7 +14,7 @@ public class TestClassRunnerContext<TTestCase> : ContextBase
 	ITestCaseOrderer testCaseOrderer;
 
 	/// <summary>
-	/// Initializes a new instancew of the <see cref="TestClassRunnerContext{TTestCase}"/> class.
+	/// Initializes a new instance of the <see cref="TestClassRunnerContext{TTestCase}"/> class.
 	/// </summary>
 	public TestClassRunnerContext(
 		_ITestClass testClass,

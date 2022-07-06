@@ -47,7 +47,7 @@ public class _TestCaseCleanupFailure : _TestCaseMessage, _IErrorMetadata
 	/// </summary>
 	/// <param name="ex">The exception to use</param>
 	/// <param name="assemblyUniqueID">The unique ID of the assembly</param>
-	/// <param name="testCollectionUniqueID">The unique ID of the test collectioon</param>
+	/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 	/// <param name="testClassUniqueID">The (optional) unique ID of the test class</param>
 	/// <param name="testMethodUniqueID">The (optional) unique ID of the test method</param>
 	/// <param name="testCaseUniqueID">The unique ID of the test case</param>
