@@ -902,6 +902,24 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
+		public void SuccessWithArrayValues()
+		{
+			var expected = new Dictionary<string, int[]> { ["Foo"] = new[] { 42 } };
+			var actual = new Dictionary<string, int[]> { ["Foo"] = new[] { 42 }, ["Bar"] = new[] { 2112 } };
+
+			Assert.Equivalent(expected, actual, strict: false);
+		}
+
+		[Fact]
+		public void SuccessWithListValues()
+		{
+			var expected = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 42 } };
+			var actual = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 42 }, ["Bar"] = new List<int> { 2112 } };
+
+			Assert.Equivalent(expected, actual, strict: false);
+		}
+
+		[Fact]
 		public void Success_EmbeddedDictionary()
 		{
 			var expected = new { x = new Dictionary<string, int> { ["Foo"] = 42 } };
@@ -923,6 +941,40 @@ public class EquivalenceAssertsTests
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
 				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
 				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void FailureWithArrayValues()
+		{
+			var expected = new Dictionary<string, int[]> { ["Foo"] = new[] { 16 } };
+			var actual = new Dictionary<string, int[]> { ["Foo"] = new[] { 42 }, ["Bar"] = new[] { 2112 } };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: [\"Foo\"] = [16]" + Environment.NewLine +
+				"In:       [[\"Foo\"] = [42], [\"Bar\"] = [2112]]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void FailureWithListValues()
+		{
+			var expected = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 16 } };
+			var actual = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 42 }, ["Bar"] = new List<int> { 2112 } };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: [\"Foo\"] = [16]" + Environment.NewLine +
+				"In:       [[\"Foo\"] = [42], [\"Bar\"] = [2112]]",
 				ex.Message
 			);
 		}
@@ -1034,6 +1086,98 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class KeyValuePairs_NotStrict
+	{
+		[Fact]
+		public void Success()
+		{
+			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
+			var actual = new KeyValuePair<int, int[]>(42, new[] { 9, 4, 1 });
+
+			Assert.Equivalent(expected, actual, strict: false);
+		}
+
+		[Fact]
+		public void Failure_Key()
+		{
+			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
+			var actual = new KeyValuePair<int, int[]>(41, new[] { 9, 4, 1 });
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Key'" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   41",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_Value()
+		{
+			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 6 });
+			var actual = new KeyValuePair<int, int[]>(42, new[] { 9, 4, 1 });
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found in member 'Value'" + Environment.NewLine +
+				"Expected: 6" + Environment.NewLine +
+				"In:       [9, 4, 1]",
+				ex.Message
+			);
+		}
+	}
+
+	public class KeyValuePairs_Strict
+	{
+		[Fact]
+		public void Success()
+		{
+			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
+			var actual = new KeyValuePair<int, int[]>(42, new[] { 4, 1 });
+
+			Assert.Equivalent(expected, actual, strict: true);
+		}
+
+		[Fact]
+		public void Failure_Key()
+		{
+			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
+			var actual = new KeyValuePair<int, int[]>(41, new[] { 4, 1 });
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Key'" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   41",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_Value()
+		{
+			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 6 });
+			var actual = new KeyValuePair<int, int[]>(42, new[] { 4, 1 });
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found in member 'Value'" + Environment.NewLine +
+				"Expected: 6" + Environment.NewLine +
+				"In:       [4, 1]",
+				ex.Message
+			);
+		}
+	}
+
 	public class CircularReferences
 	{
 		[Fact]
@@ -1100,8 +1244,3 @@ public class EquivalenceAssertsTests
 		public SelfReferential Other { get; }
 	}
 }
-
-
-
-
-
