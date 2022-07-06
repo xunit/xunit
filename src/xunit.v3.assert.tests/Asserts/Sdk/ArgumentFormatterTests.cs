@@ -237,6 +237,18 @@ public class ArgumentFormatterTests
 		}
 	}
 
+	public class KeyValuePair
+	{
+		[CulturedFact]
+		public static void KeyValuePairValue()
+		{
+			var kvp = new KeyValuePair<object, List<object>>(42, new() { 21.12M, "2600" });
+			var expected = $"[42] = [{21.12M}, \"2600\"]";
+
+			Assert.Equal(expected, ArgumentFormatter.Format(kvp));
+		}
+	}
+
 	public class Enumerables
 	{
 		[CulturedFact]
@@ -245,6 +257,19 @@ public class ArgumentFormatterTests
 			var expected = $"[1, {2.3M}, \"Hello, world!\"]";
 
 			Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
+		}
+
+		[CulturedFact]
+		public static void DictionaryValue()
+		{
+			var value = new Dictionary<object, List<object>>
+			{
+				{ 42, new() { 21.12M, "2600" } },
+				{ "123", new() { } },
+			};
+			var expected = $"[[42] = [{21.12M}, \"2600\"], [\"123\"] = []]";
+
+			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
 		[CulturedFact]
