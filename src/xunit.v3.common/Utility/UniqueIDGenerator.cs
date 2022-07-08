@@ -150,7 +150,7 @@ public class UniqueIDGenerator : IDisposable
 
 		if (testMethodGenericTypes != null)
 			for (var idx = 0; idx < testMethodGenericTypes.Length; idx++)
-				generator.Add(TypeUtility.ConvertToSimpleTypeName(testMethodGenericTypes[idx]));
+				generator.Add(testMethodGenericTypes[idx].ToSimpleTypeName());
 
 		return generator.Compute();
 	}
