@@ -11,7 +11,15 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class TypeUtility
 {
-	readonly static _ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
+	/// <summary>
+	/// Gets an instance of <see cref="_ITypeInfo"/> that represents <see cref="object"/>.
+	/// </summary>
+	public static _ITypeInfo TypeInfo_Object { get; } = Reflector.Wrap(typeof(object));
+
+	/// <summary>
+	/// Gets an instance of <see cref="_ITypeInfo"/> that represents <see cref="ParamArrayAttribute"/>.
+	/// </summary>
+	public static _ITypeInfo TypeInfo_ParamArrayAttribute { get; } = Reflector.Wrap(typeof(ParamArrayAttribute));
 
 	/// <summary>
 	/// Converts a type into a name string.
@@ -43,6 +51,7 @@ public static class TypeUtility
 
 		return $"{baseTypeName}<{string.Join(", ", simpleNames)}>";
 	}
+
 
 	/// <summary>
 	/// Resolves argument values for the test method, including support for optional method
@@ -141,7 +150,7 @@ public static class TypeUtility
 		return newArguments;
 	}
 
-	static object? TryConvertObject(
+	internal static object? TryConvertObject(
 		object? argumentValue,
 		Type parameterType)
 	{
@@ -201,6 +210,23 @@ public static class TypeUtility
 		// The type can't be a byreflike type if the property doesn't exist.
 		return false;
 	}
+
+	///// <summary>
+	///// Formulates the extended portion of the display name for a test method. For tests with no arguments, this will
+	///// return just the base name; for tests with arguments, attempts to format the arguments and appends the argument
+	///// list to the test name.
+	///// </summary>
+	///// <param name="method">The test method</param>
+	///// <param name="baseDisplayName">The base part of the display name</param>
+	///// <param name="arguments">The test method arguments</param>
+	///// <param name="genericTypes">The test method's generic types</param>
+	///// <returns>The full display name for the test method</returns>
+	//public static string GetDisplayNameWithArguments(
+	//	this _IMethodInfo method,
+	//	string baseDisplayName,
+	//	ArgumentList? arguments,
+	//	_ITypeInfo[]? genericTypes) =>
+	//		GetDisplayNameWithArguments(method, baseDisplayName, arguments?.ToArgumentValueArray(), genericTypes);
 
 	/// <summary>
 	/// Formulates the extended portion of the display name for a test method. For tests with no arguments, this will
@@ -284,8 +310,8 @@ public static class TypeUtility
 	static bool ResolveGenericParameter(
 		this _ITypeInfo genericType,
 		_ITypeInfo methodParameterType,
-		Type? passedParameterType,
-		ref Type? resultType)
+		_ITypeInfo? passedParameterType,
+		ref _ITypeInfo? resultType)
 	{
 		// Is a parameter a generic array, e.g. T[] or List<T>[]
 		var isGenericArray = false;
@@ -335,7 +361,7 @@ public static class TypeUtility
 		{
 			if (resultType == null)
 				resultType = passedParameterType;
-			else if (resultType.Name != passedParameterType?.FullName)
+			else if (!resultType.Equal(passedParameterType))
 				resultType = null;
 		}
 
@@ -347,7 +373,7 @@ public static class TypeUtility
 	/// </summary>
 	/// <param name="type">The type to get the ElementType of.</param>
 	/// <returns>If type is an array, the ElementType of the type, else the original type.</returns>
-	static Type? GetArrayElementTypeOrThis(Type? type) =>
+	static _ITypeInfo? GetArrayElementTypeOrThis(_ITypeInfo? type) =>
 		type?.IsArray == true ? type.GetElementType() : type;
 
 	/// <summary>
@@ -380,9 +406,9 @@ public static class TypeUtility
 	/// <returns>True if resolving was successful, else false.</returns>
 	static bool ResolveMismatchedGenericArguments(
 		this _ITypeInfo genericType,
-		Type? passedParameterType,
+		_ITypeInfo? passedParameterType,
 		_ITypeInfo[] methodGenericTypeArguments,
-		ref Type? resultType)
+		ref _ITypeInfo? resultType)
 	{
 		// Do we have Class : BaseClass<T>, Class: BaseClass<T, U> etc.
 		var baseType = passedParameterType?.BaseType;
@@ -402,7 +428,7 @@ public static class TypeUtility
 
 		// Do we have Class : Interface<T>, Class : Interface<T, U> etc.
 		if (passedParameterType != null)
-			foreach (var interfaceType in passedParameterType.GetInterfaces().Where(i => i.IsGenericType))
+			foreach (var interfaceType in passedParameterType.Interfaces.Where(i => i.IsGenericType))
 			{
 				var interfaceGenericArguments = interfaceType.GetGenericArguments();
 				for (var i = 0; i < interfaceGenericArguments.Length; i++)
@@ -437,14 +463,14 @@ public static class TypeUtility
 		for (var idx = 0; idx < parameterInfos.Length; ++idx)
 		{
 			var methodParameterType = parameterInfos[idx].ParameterType;
-			var passedParameterType = parameters[idx]?.GetType();
-			Type? matchedType = null;
+			var passedParameterType = Reflector.Wrap(parameters[idx]?.GetType());
+			_ITypeInfo? matchedType = null;
 
 			if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType) && matchedType != null)
-				return Reflector.Wrap(matchedType);
+				return matchedType;
 		}
 
-		return ObjectTypeInfo;
+		return TypeInfo_Object;
 	}
 
 	/// <summary>

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -11,31 +10,19 @@ namespace Xunit.v3;
 /// <summary>
 /// The default implementation of <see cref="_ITestAssembly"/>.
 /// </summary>
-[Serializable]
 [DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
-public class TestAssembly : _ITestAssembly, ISerializable
+public class TestAssembly : _ITestAssembly, IXunitSerializable
 {
 	_IAssemblyInfo? assembly;
-	readonly string? uniqueID;
+	string? uniqueID;
+	Version? version;
 
 	/// <summary>
-	/// Used for de-serialization.
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
 	/// </summary>
-	protected TestAssembly(
-		SerializationInfo info,
-		StreamingContext context)
-	{
-		Version = Guard.NotNull("Could not retrieve Version from serialization", info.GetValue<Version>("Version"));
-		ConfigFileName = info.GetValue<string>("ConfigFileName");
-
-		var assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("AssemblyPath"));
-		var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-		var assembly = System.Reflection.Assembly.Load(new AssemblyName { Name = assemblyName, Version = Version });
-
-		Assembly = Reflector.Wrap(assembly);
-
-		uniqueID = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, ConfigFileName);
-	}
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public TestAssembly()
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestAssembly"/> class.
@@ -50,41 +37,51 @@ public class TestAssembly : _ITestAssembly, ISerializable
 		Version? version = null,
 		string? uniqueID = null)
 	{
-		Assembly = Guard.ArgumentNotNull(assembly);
+		this.assembly = Guard.ArgumentNotNull(assembly);
 		ConfigFileName = configFileName;
 
 		this.uniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assembly.Name, assembly.AssemblyPath, configFileName);
-		Version =
+		this.version =
 			version
 			?? (assembly as _IReflectionAssemblyInfo)?.Assembly?.GetName()?.Version
 			?? new Version(0, 0, 0, 0);
 	}
 
 	/// <inheritdoc/>
-	public _IAssemblyInfo Assembly
+	public _IAssemblyInfo Assembly =>
+		assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
+
+	/// <inheritdoc/>
+	public string? ConfigFileName { get; private set; }
+
+	/// <inheritdoc/>
+	public string UniqueID =>
+		uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+
+	/// <inheritdoc/>
+	public Version Version =>
+		version ?? throw new InvalidOperationException($"Attempted to get {nameof(Version)} on an uninitialized '{GetType().FullName}' object");
+
+	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{
-		get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
-		set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
+		var versionString = Guard.NotNull("Could not retrieve Version from serialization", info.GetValue<string>("v"));
+		version = new Version(versionString);
+
+		ConfigFileName = info.GetValue<string>("cfn");
+
+		var assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("ap"));
+		var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+		var assembly = System.Reflection.Assembly.Load(new AssemblyName { Name = assemblyName, Version = Version });
+
+		this.assembly = Reflector.Wrap(assembly);
+
+		uniqueID = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, ConfigFileName);
 	}
 
-	/// <inheritdoc/>
-	public string? ConfigFileName { get; set; }
-
-	/// <inheritdoc/>
-	public string UniqueID => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
-
-	/// <summary>
-	/// Gets the assembly version.
-	/// </summary>
-	public Version Version { get; }
-
-	/// <inheritdoc/>
-	public virtual void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
 	{
-		info.AddValue("AssemblyPath", Assembly.AssemblyPath);
-		info.AddValue("ConfigFileName", ConfigFileName);
-		info.AddValue("Version", Version);
+		info.AddValue("ap", Assembly.AssemblyPath);
+		info.AddValue("cfn", ConfigFileName);
+		info.AddValue("v", Version.ToString());
 	}
 }

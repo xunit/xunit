@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -9,33 +8,19 @@ namespace Xunit.v3;
 /// <summary>
 /// The default implementation of <see cref="_ITestClass"/>.
 /// </summary>
-[Serializable]
 [DebuggerDisplay(@"\{ class = {Class.Name} \}")]
-public class TestClass : _ITestClass, ISerializable
+public class TestClass : _ITestClass, IXunitSerializable
 {
-	_ITypeInfo @class;
-	_ITestCollection testCollection;
-	string uniqueID;
+	_ITypeInfo? @class;
+	_ITestCollection? testCollection;
+	string? uniqueID;
 
 	/// <summary>
-	/// Used for de-serialization.
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
 	/// </summary>
-	protected TestClass(
-		SerializationInfo info,
-		StreamingContext context)
-	{
-		testCollection = Guard.NotNull("Could not retrieve TestCollection from serialization", info.GetValue<_ITestCollection>("TestCollection"));
-		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("UniqueID"));
-
-		var assemblyName = Guard.NotNull("Could not retrieve ClassAssemblyName from serialization", info.GetValue<string>("ClassAssemblyName"));
-		var typeName = Guard.NotNull("Could not retrieve ClassTypeName from serialization", info.GetValue<string>("ClassTypeName"));
-
-		var type = SerializationHelper.GetType(assemblyName, typeName);
-		if (type == null)
-			throw new InvalidOperationException($"Failed to deserialize type '{typeName}' in assembly '{assemblyName}'");
-
-		@class = Reflector.Wrap(type);
-	}
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public TestClass()
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestClass"/> class.
@@ -54,34 +39,37 @@ public class TestClass : _ITestClass, ISerializable
 	}
 
 	/// <inheritdoc/>
-	public _ITypeInfo Class
-	{
-		get => @class;
-		set => @class = Guard.ArgumentNotNull(value, nameof(Class));
-	}
+	public _ITypeInfo Class =>
+		@class ?? throw new InvalidOperationException($"Attempted to get {nameof(Class)} on an uninitialized '{GetType().FullName}' object");
 
 	/// <inheritdoc/>
-	public _ITestCollection TestCollection
-	{
-		get => testCollection;
-		set => testCollection = Guard.ArgumentNotNull(value, nameof(TestCollection));
-	}
+	public _ITestCollection TestCollection =>
+		testCollection ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCollection)} on an uninitialized '{GetType().FullName}' object");
 
 	/// <inheritdoc/>
-	public string UniqueID
+	public string UniqueID =>
+		uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+
+	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{
-		get => uniqueID;
-		set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
+		testCollection = Guard.NotNull("Could not retrieve TestCollection from serialization", info.GetValue<_ITestCollection>("tc"));
+		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
+
+		var assemblyName = Guard.NotNull("Could not retrieve ClassAssemblyName from serialization", info.GetValue<string>("can"));
+		var typeName = Guard.NotNull("Could not retrieve ClassTypeName from serialization", info.GetValue<string>("ctn"));
+
+		var type = TypeHelper.GetType(assemblyName, typeName);
+		if (type == null)
+			throw new InvalidOperationException($"Failed to deserialize type '{typeName}' in assembly '{assemblyName}'");
+
+		@class = Reflector.Wrap(type);
 	}
 
-	/// <inheritdoc/>
-	public virtual void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
 	{
-		info.AddValue("TestCollection", TestCollection);
-		info.AddValue("ClassAssemblyName", Class.Assembly.Name);
-		info.AddValue("ClassTypeName", Class.Name);
-		info.AddValue("UniqueID", UniqueID);
+		info.AddValue("tc", TestCollection);
+		info.AddValue("can", Class.Assembly.Name);
+		info.AddValue("ctn", Class.Name);
+		info.AddValue("id", UniqueID);
 	}
 }

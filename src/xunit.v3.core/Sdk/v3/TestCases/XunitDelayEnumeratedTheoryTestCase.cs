@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Sdk;
@@ -11,14 +10,13 @@ namespace Xunit.v3;
 /// Represents a test case which runs multiple tests for theory data, either because the
 /// data was not enumerable or because the data was not serializable.
 /// </summary>
-[Serializable]
 public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 {
-	/// <inheritdoc/>
-	protected XunitDelayEnumeratedTheoryTestCase(
-		SerializationInfo info,
-		StreamingContext context) :
-			base(info, context)
+	/// <summary>
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
+	/// </summary>
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public XunitDelayEnumeratedTheoryTestCase()
 	{ }
 
 	/// <summary>

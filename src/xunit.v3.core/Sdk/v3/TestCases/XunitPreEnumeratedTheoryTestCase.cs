@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Xunit.v3;
 
 /// <summary>
 /// Represents a test case which runs a single row of pre-enumerated data as a single test.
 /// </summary>
-[Serializable]
 public class XunitPreEnumeratedTheoryTestCase : XunitTestCase
 {
-	/// <inheritdoc/>
-	protected XunitPreEnumeratedTheoryTestCase(
-		SerializationInfo info,
-		StreamingContext context) :
-			base(info, context)
+	/// <summary>
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
+	/// </summary>
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public XunitPreEnumeratedTheoryTestCase()
 	{ }
 
 	/// <summary>

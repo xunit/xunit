@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
@@ -19,8 +18,9 @@ public class TestMethodTestCaseTests
 				() => new TestableTestMethodTestCase(testMethod, new object[] { new XunitTestCaseTests() })
 			);
 
-			Assert.IsType<SerializationException>(ex);
-			Assert.Equal($"Type '{typeof(XunitTestCaseTests).FullName}' in Assembly '{typeof(XunitTestCaseTests).Assembly.FullName}' is not marked as serializable.", ex.Message);
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.Equal("value", argEx.ParamName);
+			Assert.StartsWith("Cannot serialize a value of type 'XunitTestCaseTests': unsupported type for serialization", argEx.Message);
 		}
 
 		[Fact]
@@ -144,16 +144,20 @@ public class TestMethodTestCaseTests
 			Assert.True(asyncDisposable.DisposeAsyncCalled);
 		}
 
-		[Serializable]
-		class SerializableDisposable : IDisposable
+		class SerializableDisposable : IXunitSerializable, IDisposable
 		{
 			public bool DisposeCalled = false;
 
 			public void Dispose() => DisposeCalled = true;
+
+			void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+			{ }
+
+			void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+			{ }
 		}
 
-		[Serializable]
-		class SerializableAsyncDisposable : IAsyncDisposable
+		class SerializableAsyncDisposable : IXunitSerializable, IAsyncDisposable
 		{
 			public bool DisposeAsyncCalled = false;
 
@@ -162,12 +166,18 @@ public class TestMethodTestCaseTests
 				DisposeAsyncCalled = true;
 				return default;
 			}
+
+			void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+			{ }
+
+			void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+			{ }
 		}
 	}
 
 	public class Method : AcceptanceTestV3
 	{
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[InlineData(42, typeof(int))]
 		[InlineData("Hello world", typeof(string))]
 		[InlineData(null, typeof(object))]
@@ -193,14 +203,13 @@ public class TestMethodTestCaseTests
 		{
 			var method = TestData.TestMethod<ClassUnderTest>("NonGeneric");
 
-			var testCase = new TestableTestMethodTestCase(method, new[] { new ClassUnderTest() });
+			var testCase = new TestableTestMethodTestCase(method, new object?[] { 42L });
 
 			Assert.NotNull(testCase.InitializationException);
 			Assert.IsType<InvalidOperationException>(testCase.InitializationException);
-			Assert.Equal("The arguments for this test method did not match the parameters: [ClassUnderTest { }]", testCase.InitializationException.Message);
+			Assert.Equal("The arguments for this test method did not match the parameters: [42]", testCase.InitializationException.Message);
 		}
 
-		[Serializable]
 		class ClassUnderTest
 		{
 			[Theory]
@@ -308,9 +317,9 @@ public class TestMethodTestCaseTests
 			var uniqueIDHelloWorld = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { "Hello, world!" }).UniqueID;
 			var uniqueIDNull = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { null }).UniqueID;
 
-			Assert.Equal("738d958f58f29698b62aa50479dcbb465fc18a500073f46947e60842e79e3e3b", uniqueID42);
-			Assert.Equal("7ed69c84a3b325b79c2fd6a8a808033ac0c3f7bdda1a7575c882e69a5dc7ff9a", uniqueIDHelloWorld);
-			Assert.Equal("e104382e5370a800728ffb748e92f65ffa3925eb888c4f48238d24c180b8bd48", uniqueIDNull);
+			Assert.Equal("23b8d1d415bbd79b87e92e1756a596c7a7758df6cdc82d4fecabab5c4a3dfd60", uniqueID42);
+			Assert.Equal("31d0cd91618af87d367976cdb5791467415b768c950dfc0a3bded433db896b7d", uniqueIDHelloWorld);
+			Assert.Equal("e0381765c78e63e673aa41c6aab505b3965fbedeab12d2378924e16b1a6a6b58", uniqueIDNull);
 		}
 
 		class ClassUnderTest
@@ -320,13 +329,10 @@ public class TestMethodTestCaseTests
 		}
 	}
 
-	[Serializable]
 	class TestableTestMethodTestCase : TestMethodTestCase
 	{
-		protected TestableTestMethodTestCase(
-			SerializationInfo info,
-			StreamingContext context) :
-				base(info, context)
+		[Obsolete("For deserialization purposes only")]
+		public TestableTestMethodTestCase()
 		{ }
 
 		public TestableTestMethodTestCase(

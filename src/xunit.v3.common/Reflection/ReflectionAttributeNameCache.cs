@@ -12,6 +12,6 @@ class ReflectionAttributeNameCache
 	{
 		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
-		return attributeTypeCache.GetOrAdd(assemblyQualifiedAttributeTypeName, name => SerializationHelper.GetType(name));
+		return attributeTypeCache.GetOrAdd(assemblyQualifiedAttributeTypeName, name => TypeHelper.GetType(name));
 	}
 }

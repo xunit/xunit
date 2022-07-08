@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -12,8 +11,7 @@ namespace Xunit.Runner.v1;
 /// <summary>
 /// Contains the data required to serialize a test case for xUnit.net v1.
 /// </summary>
-[Serializable]
-public class Xunit1TestCase : ISerializable
+public class Xunit1TestCase : IXunitSerializable
 {
 	string? assemblyUniqueID;
 	string? testCollectionUniqueID;
@@ -34,27 +32,6 @@ public class Xunit1TestCase : ISerializable
 	/// <summary>
 	/// Deserialization constructor.
 	/// </summary>
-	protected Xunit1TestCase(
-		SerializationInfo info,
-		StreamingContext context)
-	{
-		AssemblyUniqueID = Guard.NotNull("Could not retrieve AssemblyUniqueID from serialization", info.GetString("AssemblyUniqueID"));
-		SkipReason = info.GetString("SkipReason");
-		SourceFilePath = info.GetString("SourceFilePath");
-		TestCollectionUniqueID = Guard.NotNull("Could not retrieve TestCollectionUniqueID from serialization", info.GetString("TestCollectionUniqueID"));
-		TestCaseDisplayName = Guard.NotNull("Could not retrieve TestCaseDisplayName from serialization", info.GetString("TestCaseDisplayName"));
-		TestCaseUniqueID = Guard.NotNull("Could not retrieve TestCaseUniqueID from serialization", info.GetString("TestCaseUniqueID"));
-		TestClass = Guard.NotNull("Could not retrieve TestClass from serialization", info.GetString("TestClass"));
-		TestClassUniqueID = Guard.NotNull("Could not retrieve TestClassUniqueID from serialization", info.GetString("TestClassUniqueID"));
-		TestMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetString("TestMethod"));
-		TestMethodUniqueID = Guard.NotNull("Could not retrieve TestMethodUniqueID from serialization", info.GetString("TestMethodUniqueID"));
-		Traits = SerializationHelper.DeserializeTraits(info);
-
-		var sourceLineNumberText = info.GetString("SourceLineNumber");
-		if (sourceLineNumberText != null)
-			SourceLineNumber = int.Parse(sourceLineNumberText);
-	}
-
 	/// <summary>
 	/// Gets the unique ID for the test assembly.
 	/// </summary>
@@ -159,22 +136,42 @@ public class Xunit1TestCase : ISerializable
 		}
 	}
 
-	void ISerializable.GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+
+	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{
-		info.AddValue("AssemblyUniqueID", AssemblyUniqueID);
-		info.AddValue("SkipReason", SkipReason);
-		info.AddValue("SourceFilePath", SourceFilePath);
-		info.AddValue("SourceLineNumber", SourceLineNumber?.ToString());
-		info.AddValue("TestCollectionUniqueID", TestCollectionUniqueID);
-		info.AddValue("TestCaseDisplayName", TestCaseDisplayName);
-		info.AddValue("TestCaseUniqueID", TestCaseUniqueID);
-		info.AddValue("TestClass", TestClass);
-		info.AddValue("TestClassUniqueID", TestClassUniqueID);
-		info.AddValue("TestMethod", TestMethod);
-		info.AddValue("TestMethodUniqueID", TestMethodUniqueID);
-		SerializationHelper.SerializeTraits(info, Traits);
+		AssemblyUniqueID = Guard.NotNull("Could not retrieve AssemblyUniqueID from serialization", info.GetValue<string>("id"));
+		SkipReason = info.GetValue<string>("sr");
+		SourceFilePath = info.GetValue<string>("sp");
+		TestCollectionUniqueID = Guard.NotNull("Could not retrieve TestCollectionUniqueID from serialization", info.GetValue<string>("coid"));
+		TestCaseDisplayName = Guard.NotNull("Could not retrieve TestCaseDisplayName from serialization", info.GetValue<string>("cadn"));
+		TestCaseUniqueID = Guard.NotNull("Could not retrieve TestCaseUniqueID from serialization", info.GetValue<string>("caid"));
+		TestClass = Guard.NotNull("Could not retrieve TestClass from serialization", info.GetValue<string>("cl"));
+		TestClassUniqueID = Guard.NotNull("Could not retrieve TestClassUniqueID from serialization", info.GetValue<string>("clid"));
+		TestMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<string>("me"));
+		TestMethodUniqueID = Guard.NotNull("Could not retrieve TestMethodUniqueID from serialization", info.GetValue<string>("meid"));
+
+		var traits = Guard.NotNull("Could not retrieve Traits from serialization", info.GetValue<Dictionary<string, List<string>>>("tr"));
+		Traits = traits.ToReadOnly();
+
+		var sourceLineNumberText = info.GetValue<string>("SourceLineNumber");
+		if (sourceLineNumberText != null)
+			SourceLineNumber = int.Parse(sourceLineNumberText);
+	}
+
+	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+	{
+		info.AddValue("id", AssemblyUniqueID);
+		info.AddValue("sr", SkipReason);
+		info.AddValue("sp", SourceFilePath);
+		info.AddValue("sl", SourceLineNumber?.ToString());
+		info.AddValue("coid", TestCollectionUniqueID);
+		info.AddValue("cadn", TestCaseDisplayName);
+		info.AddValue("caid", TestCaseUniqueID);
+		info.AddValue("cl", TestClass);
+		info.AddValue("clid", TestClassUniqueID);
+		info.AddValue("me", TestMethod);
+		info.AddValue("meid", TestMethodUniqueID);
+		info.AddValue("tr", traits.ToReadWrite(StringComparer.OrdinalIgnoreCase));
 	}
 
 	/// <summary>
@@ -220,7 +217,7 @@ public class Xunit1TestCase : ISerializable
 		};
 
 		if (includeSerialization)
-			result.Serialization = SerializationHelper.Serialize(this);
+			result.Serialization = SerializationHelper.Serialize(this)!;
 
 		return result;
 	}

@@ -5,7 +5,7 @@ using Xunit.v3;
 
 public class TestMessageSinkTests
 {
-	[Theory(DisableDiscoveryEnumeration = true)]
+	[Theory]
 
 	// Diagnostics
 	[InlineData(typeof(_DiagnosticMessage))]

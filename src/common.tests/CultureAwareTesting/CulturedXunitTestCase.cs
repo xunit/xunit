@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -9,17 +8,16 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-[Serializable]
 public class CulturedXunitTestCase : XunitTestCase
 {
-	/// <inheritdoc/>
-	protected CulturedXunitTestCase(
-		SerializationInfo info,
-		StreamingContext context) :
-			base(info, context)
-	{
-		Culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("Culture"));
-	}
+	string? culture;
+
+	/// <summary>
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
+	/// </summary>
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public CulturedXunitTestCase()
+	{ }
 
 	public CulturedXunitTestCase(
 		TestMethodDisplay defaultMethodDisplay,
@@ -31,7 +29,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		string? displayName = null)
 			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null, displayName)
 	{
-		Culture = Guard.ArgumentNotNull(culture);
+		this.culture = Guard.ArgumentNotNull(culture);
 
 		Traits.Add("Culture", Culture);
 
@@ -40,15 +38,14 @@ public class CulturedXunitTestCase : XunitTestCase
 		UniqueID += cultureDisplay;
 	}
 
-	public string Culture { get; }
+	public string Culture =>
+		culture ?? throw new InvalidOperationException($"Attempted to get {nameof(Culture)} on an uninitialized '{GetType().FullName}' object");
 
-	public override void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+	protected override void Deserialize(IXunitSerializationInfo info)
 	{
-		base.GetObjectData(info, context);
+		base.Deserialize(info);
 
-		info.AddValue("Culture", Culture);
+		culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("cul"));
 	}
 
 	public override async ValueTask<RunSummary> RunAsync(
@@ -73,5 +70,12 @@ public class CulturedXunitTestCase : XunitTestCase
 			CultureInfo.CurrentCulture = originalCulture;
 			CultureInfo.CurrentUICulture = originalUICulture;
 		}
+	}
+
+	protected override void Serialize(IXunitSerializationInfo info)
+	{
+		base.Serialize(info);
+
+		info.AddValue("cul", Culture);
 	}
 }

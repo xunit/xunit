@@ -21,6 +21,6 @@ public class TestFrameworkTypeDiscoverer : ITestFrameworkTypeDiscoverer
 			return (Type)args[0]!;
 
 		var stringArgs = args.Cast<string>().ToArray();
-		return SerializationHelper.GetType(stringArgs[1], stringArgs[0]);
+		return TypeHelper.GetType(stringArgs[1], stringArgs[0]);
 	}
 }

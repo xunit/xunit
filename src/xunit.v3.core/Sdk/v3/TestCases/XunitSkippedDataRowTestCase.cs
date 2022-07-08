@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -12,14 +11,13 @@ namespace Xunit.v3;
 /// <remarks>
 /// This class is only used if the discoverer is pre-enumerating theories and the data row is serializable.
 /// </remarks>
-[Serializable]
 public class XunitSkippedDataRowTestCase : XunitTestCase
 {
-	/// <inheritdoc/>
-	protected XunitSkippedDataRowTestCase(
-		SerializationInfo info,
-		StreamingContext context) :
-			base(info, context)
+	/// <summary>
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
+	/// </summary>
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public XunitSkippedDataRowTestCase()
 	{ }
 
 	/// <summary>

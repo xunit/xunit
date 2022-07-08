@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -174,7 +173,7 @@ public class XunitTestCaseTests
 				{ typeof(InheritedClassWithOwnMultipleTraitsAndMultipleBaseClassTrait), new[] { "One", "Two", "BaseOne", "BaseTwo" } }
 			};
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[MemberData(nameof(CustomAttributeTestCases))]
 		public void ReturnsCorrectCustomAttributes(Type classType, IEnumerable<string> expectedTraits)
 		{
@@ -283,13 +282,10 @@ public class XunitTestCaseTests
 		}
 	}
 
-	[Serializable]
 	class TestableXunitTestCase : XunitTestCase
 	{
-		protected TestableXunitTestCase(
-			SerializationInfo info,
-			StreamingContext context) :
-				base(info, context)
+		[Obsolete("For deserialization purposes only")]
+		public TestableXunitTestCase()
 		{ }
 
 		public TestableXunitTestCase(

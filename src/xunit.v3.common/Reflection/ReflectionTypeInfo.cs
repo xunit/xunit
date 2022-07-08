@@ -42,10 +42,22 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 	public bool IsAbstract => Type.IsAbstract;
 
 	/// <inheritdoc/>
+	public bool IsArray => Type.IsArray;
+
+	/// <inheritdoc/>
+	public bool IsEnum => Type.IsEnum;
+
+	/// <inheritdoc/>
 	public bool IsGenericParameter => Type.IsGenericParameter;
 
 	/// <inheritdoc/>
 	public bool IsGenericType => Type.IsGenericType;
+
+	/// <inheritdoc/>
+	public bool IsGenericTypeDefinition => Type.IsGenericTypeDefinition;
+
+	/// <inheritdoc/>
+	public bool IsInterface => Type.IsInterface;
 
 	/// <inheritdoc/>
 	public bool IsSealed => Type.IsSealed;
@@ -66,6 +78,10 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 	public Type Type { get; }
 
 	/// <inheritdoc/>
+	public int GetArrayRank() =>
+		Type.GetArrayRank();
+
+	/// <inheritdoc/>
 	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 	{
 		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
@@ -74,11 +90,19 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 	}
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_ITypeInfo> GetGenericArguments() =>
+	public _ITypeInfo? GetElementType() =>
+		Reflector.Wrap(Type.GetElementType());
+
+	/// <inheritdoc/>
+	public _ITypeInfo[] GetGenericArguments() =>
 		Type
 			.GenericTypeArguments
 			.Select(t => Reflector.Wrap(t))
-			.CastOrToReadOnlyCollection();
+			.CastOrToArray();
+
+	/// <inheritdoc/>
+	public _ITypeInfo GetGenericTypeDefinition() =>
+		Reflector.Wrap(Type.GetGenericTypeDefinition());
 
 	/// <inheritdoc/>
 	public _IMethodInfo? GetMethod(

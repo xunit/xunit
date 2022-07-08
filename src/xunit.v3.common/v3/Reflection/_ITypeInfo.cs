@@ -33,6 +33,16 @@ public interface _ITypeInfo
 	bool IsAbstract { get; }
 
 	/// <summary>
+	/// Gets a value indicating whether the type is an array.
+	/// </summary>
+	bool IsArray { get; }
+
+	/// <summary>
+	/// Gets a value indicating whether the type is an enum.
+	/// </summary>
+	bool IsEnum { get; }
+
+	/// <summary>
 	/// Gets a value indicating whether the type represents a generic parameter.
 	/// </summary>
 	bool IsGenericParameter { get; }
@@ -41,6 +51,17 @@ public interface _ITypeInfo
 	/// Gets a value indicating whether the type is a generic type.
 	/// </summary>
 	bool IsGenericType { get; }
+
+	/// <summary>
+	/// Gets a value indicating whether the type is a generic type definition (aka an "open generic"
+	/// like IEnumerable&lt;&gt;).
+	/// </summary>
+	bool IsGenericTypeDefinition { get; }
+
+	/// <summary>
+	/// Gets a value indicating whether the type is an interface.
+	/// </summary>
+	bool IsInterface { get; }
 
 	/// <summary>
 	/// Gets a value indicating whether the type is sealed.
@@ -72,6 +93,12 @@ public interface _ITypeInfo
 	string SimpleName { get; }
 
 	/// <summary>
+	/// Gets the number of dimensions in an array.
+	/// </summary>
+	/// <exception cref="ArgumentException">Thrown if the type is not an array.</exception>
+	int GetArrayRank();
+
+	/// <summary>
 	/// Gets all the custom attributes for the given type.
 	/// </summary>
 	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
@@ -79,10 +106,24 @@ public interface _ITypeInfo
 	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
 	/// <summary>
+	/// Returns the type of the object encompassed or referred to by the current array, pointer or reference type.
+	/// </summary>
+	/// <returns>The typeof the object encompassed or referred to by the current array, pointer, or reference type, or
+	/// null if the current System.Type is not an array or a pointer, or is not passed by reference, or represents a
+	/// generic type or a type parameter in the definition of a generic type or generic method.</returns>
+	_ITypeInfo? GetElementType();
+
+	/// <summary>
 	/// Gets the generic type arguments for a generic type.
 	/// </summary>
 	/// <returns>The list of generic types.</returns>
-	IReadOnlyCollection<_ITypeInfo> GetGenericArguments();
+	_ITypeInfo[] GetGenericArguments();
+
+	/// <summary>
+	/// Returns a type that represents a generic type definition from which the current generic type can be constructed.
+	/// </summary>
+	/// <exception cref="InvalidOperationException">The current type is not a generic type.</exception>
+	_ITypeInfo GetGenericTypeDefinition();
 
 	/// <summary>
 	/// Gets a specific method.

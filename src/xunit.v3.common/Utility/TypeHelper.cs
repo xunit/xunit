@@ -1,61 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
 /// <summary>
-/// Serializes and de-serializes objects
+/// Utility methods related to <see cref="Type"/>.
 /// </summary>
-public static class SerializationHelper
+public class TypeHelper
 {
-	static readonly BinaryFormatter formatter = new();
-
-	/// <summary>
-	/// De-serializes an object.
-	/// </summary>
-	/// <typeparam name="T">The type of the object</typeparam>
-	/// <param name="serializedValue">The object's serialized value</param>
-	/// <returns>The de-serialized object</returns>
-	public static T Deserialize<T>(string serializedValue)
-		where T : class
-	{
-		Guard.ArgumentNotNull(serializedValue);
-
-		try
-		{
-			using var stream = new MemoryStream(Convert.FromBase64String(serializedValue));
-			return (T)formatter.Deserialize(stream);
-		}
-		catch (Exception ex)
-		{
-			throw new ArgumentException($"Could not deserialize value: {serializedValue}", nameof(serializedValue), ex);
-		}
-	}
-
-	/// <summary>
-	/// Deserializes a traits dictionary from <see cref="SerializationInfo"/>.
-	/// </summary>
-	/// <param name="info">The <see cref="SerializationInfo"/> to deserialize from.</param>
-	public static Dictionary<string, IReadOnlyList<string>> DeserializeTraits(SerializationInfo info)
-	{
-		var result = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
-		var keys = Guard.NotNull("Could not retrieve 'Traits.Keys' from serialization", info.GetValue<string[]>("Traits.Keys"));
-
-		foreach (var key in keys)
-		{
-			var value = Guard.NotNull($"Could not retrieve 'Traits[{key}]' from serialization", info.GetValue<string[]>($"Traits[{key}]"));
-			result.Add(key, value.ToList());
-		}
-
-		return result;
-	}
-
 	/// <summary>
 	/// Converts an assembly qualified type name into a <see cref="Type"/> object.
 	/// </summary>
@@ -169,65 +123,6 @@ public static class SerializationHelper
 		return assembly.GetType(typeName);
 	}
 
-	/// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
-	/// <param name="value">The object to test for serializability.</param>
-	/// <returns>true if the object can be serialized; otherwise, false.</returns>
-	public static bool IsSerializable(object? value) =>
-		value == null || value.GetType().IsSerializable;
-
-	/// <summary>
-	/// Serializes an object.
-	/// </summary>
-	/// <param name="value">The value to serialize</param>
-	/// <returns>The serialized value</returns>
-	public static string Serialize(object value)
-	{
-		Guard.ArgumentNotNull(value);
-
-		using var stream = new MemoryStream();
-		formatter.Serialize(stream, value);
-		stream.Position = 0;
-		return Convert.ToBase64String(stream.GetBuffer());
-	}
-
-	/// <summary>
-	/// Serializes a traits dictionary into <see cref="SerializationInfo"/>.
-	/// </summary>
-	/// <param name="info">The <see cref="SerializationInfo"/> to serialize into.</param>
-	/// <param name="traits">The traits dictionary to serialize.</param>
-	public static void SerializeTraits(
-		SerializationInfo info,
-		Dictionary<string, List<string>>? traits)
-	{
-		if (traits == null || traits.Count == 0)
-			info.AddValue("Traits.Keys", new string[0]);
-		else
-		{
-			info.AddValue("Traits.Keys", traits.Keys.ToArray());
-			foreach (var key in traits.Keys)
-				info.AddValue($"Traits[{key}]", traits[key].ToArray());
-		}
-	}
-
-	/// <summary>
-	/// Serializes a traits dictionary into <see cref="SerializationInfo"/>.
-	/// </summary>
-	/// <param name="info">The <see cref="SerializationInfo"/> to serialize into.</param>
-	/// <param name="traits">The traits dictionary to serialize.</param>
-	public static void SerializeTraits(
-		SerializationInfo info,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits)
-	{
-		if (traits == null || traits.Count == 0)
-			info.AddValue("Traits.Keys", new string[0]);
-		else
-		{
-			info.AddValue("Traits.Keys", traits.Keys.ToArray());
-			foreach (var key in traits.Keys)
-				info.AddValue($"Traits[{key}]", traits[key].ToArray());
-		}
-	}
-
 	static IList<string> SplitAtOuterCommas(
 		string value,
 		bool trimWhitespace = false)
@@ -277,7 +172,10 @@ public static class SerializationHelper
 		return results;
 	}
 
-	static string SubstringTrim(string str, int startIndex, int length)
+	static string SubstringTrim(
+		string str,
+		int startIndex,
+		int length)
 	{
 		var endIndex = startIndex + length;
 

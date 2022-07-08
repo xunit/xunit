@@ -77,16 +77,15 @@ public class DisposalTracker : IAsyncDisposable
 	/// Add a collection of objects to be disposed. They may optionally support <see cref="IDisposable"/>
 	/// and/or <see cref="IAsyncDisposable"/>.
 	/// </summary>
-	/// <param name="objects">The objects to be disposed.</param>
-	public void AddRange(object?[]? objects)
+	/// <param name="collection">The objects to be disposed.</param>
+	public void AddRange(IEnumerable<object?> collection)
 	{
 		lock (trackedObjects)
 		{
 			GuardNotDisposed();
 
-			if (objects != null)
-				foreach (var @object in objects)
-					AddInternal(@object);
+			foreach (var @object in collection)
+				AddInternal(@object);
 		}
 	}
 

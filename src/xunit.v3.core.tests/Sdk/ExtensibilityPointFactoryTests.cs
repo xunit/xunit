@@ -180,7 +180,7 @@ public class ExtensibilityPointFactoryTests
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[InlineData(CollectionBehavior.CollectionPerAssembly, typeof(CollectionPerAssemblyTestCollectionFactory))]
 		[InlineData(CollectionBehavior.CollectionPerClass, typeof(CollectionPerClassTestCollectionFactory))]
 		public void UserCanChooseFromBuiltInCollectionFactories_NonParallel(CollectionBehavior behavior, Type expectedType)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -11,40 +10,22 @@ namespace Xunit.v3;
 /// A base class implementation of <see cref="_ITestCase"/> which is based on test cases being
 /// related directly to test methods.
 /// </summary>
-[Serializable]
-public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisposable
+public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyncDisposable
 {
-	string displayName;
+	string? displayName;
 	readonly DisposalTracker disposalTracker = new();
-	readonly DisplayNameFormatter formatter;
-	string uniqueID;
+	DisplayNameFormatter? formatter;
+	_IMethodInfo? method;
+	_ITestMethod? testMethod;
+	Dictionary<string, List<string>>? traits;
+	string? uniqueID;
 
 	/// <summary>
-	/// Used for de-serialization.
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
 	/// </summary>
-	protected TestMethodTestCase(
-		SerializationInfo info,
-		StreamingContext context)
-	{
-		DefaultMethodDisplay = info.GetValue<TestMethodDisplay>("DefaultMethodDisplay");
-		DefaultMethodDisplayOptions = info.GetValue<TestMethodDisplayOptions>("DefaultMethodDisplayOptions");
-		displayName = Guard.NotNull("Could not retrieve DisplayName from serialization", info.GetValue<string>("DisplayName"));
-		SkipReason = info.GetValue<string>("SkipReason");
-		TestMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<_ITestMethod>("TestMethod"));
-		TestMethodArguments = info.GetValue<object[]>("TestMethodArguments");
-		Traits = SerializationHelper.DeserializeTraits(info).ToReadWrite(StringComparer.OrdinalIgnoreCase);
-		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("UniqueID"));
-
-		formatter = new DisplayNameFormatter(DefaultMethodDisplay, DefaultMethodDisplayOptions);
-
-		var initResults = Initialize(BaseDisplayName, TestMethod, TestMethodArguments);
-
-		InitializationException = initResults.initException;
-		Method = initResults.method;
-		MethodGenericTypes = initResults.methodGenericTypes;
-
-		disposalTracker.AddRange(TestMethodArguments);
-	}
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	protected TestMethodTestCase()
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
@@ -70,13 +51,13 @@ public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisp
 		DefaultMethodDisplay = defaultMethodDisplay;
 		DefaultMethodDisplayOptions = defaultMethodDisplayOptions;
 		SkipReason = skipReason;
-		TestMethod = Guard.ArgumentNotNull(testMethod);
+		this.testMethod = Guard.ArgumentNotNull(testMethod);
 		TestMethodArguments = testMethodArguments;
 
 		if (traits != null)
-			Traits = new Dictionary<string, List<string>>(traits, StringComparer.OrdinalIgnoreCase);
+			this.traits = new Dictionary<string, List<string>>(traits, StringComparer.OrdinalIgnoreCase);
 		else
-			Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			this.traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
 		formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
 
@@ -85,11 +66,13 @@ public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisp
 
 		this.displayName = initResults.displayName;
 		InitializationException = initResults.initException;
-		Method = initResults.method;
+		method = initResults.method;
 		MethodGenericTypes = initResults.methodGenericTypes;
 		this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestCase(TestMethod.UniqueID, MethodGenericTypes, TestMethodArguments);
 
-		disposalTracker.AddRange(TestMethodArguments);
+		if (TestMethodArguments != null)
+			foreach (var testMethodArgument in TestMethodArguments)
+				disposalTracker.Add(testMethodArgument);
 	}
 
 	static (string displayName, Exception? initException, _IMethodInfo method, _ITypeInfo[]? methodGenericTypes) Initialize(
@@ -142,43 +125,43 @@ public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisp
 		get
 		{
 			if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-				return formatter.Format($"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}");
+				return Formatter.Format($"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}");
 
-			return formatter.Format(TestMethod.Method.Name);
+			return Formatter.Format(TestMethod.Method.Name);
 		}
 	}
 
 	/// <summary>
 	/// Returns the default method display to use (when not customized).
 	/// </summary>
-	protected internal TestMethodDisplay DefaultMethodDisplay { get; }
+	protected internal TestMethodDisplay DefaultMethodDisplay { get; private set; }
 
 	/// <summary>
 	/// Returns the default method display options to use (when not customized).
 	/// </summary>
-	protected internal TestMethodDisplayOptions DefaultMethodDisplayOptions { get; }
+	protected internal TestMethodDisplayOptions DefaultMethodDisplayOptions { get; private set; }
 
-	/// <inheritdoc/>
-	public string TestCaseDisplayName
-	{
-		get => displayName;
-		protected set => displayName = Guard.ArgumentNotNull(value, nameof(TestCaseDisplayName));
-	}
+	/// <summary>
+	/// Returns the display name formatter used to format the display name.
+	/// </summary>
+	protected DisplayNameFormatter Formatter =>
+		formatter ?? throw new InvalidOperationException($"Attempted to get {nameof(Formatter)} on an uninitialized '{GetType().FullName}' object");
 
 	/// <summary>
 	/// Gets or sets the exception that happened during initialization. When this is set, then
 	/// the test execution should fail with this exception.
 	/// </summary>
-	public Exception? InitializationException { get; }
+	public Exception? InitializationException { get; private set; }
 
 	/// <inheritdoc/>
-	public _IMethodInfo Method { get; }
+	public _IMethodInfo Method =>
+		method ?? throw new InvalidOperationException($"Attempted to get {nameof(Method)} on an uninitialized '{GetType().FullName}' object");
 
 	/// <summary>
 	/// Gets the generic types that were used to close the generic test method, if
 	/// applicable; <c>null</c>, if the test method was not an open generic.
 	/// </summary>
-	protected _ITypeInfo[]? MethodGenericTypes { get; }
+	protected _ITypeInfo[]? MethodGenericTypes { get; private set; }
 
 	/// <inheritdoc/>
 	public string? SkipReason { get; protected set; }
@@ -188,6 +171,13 @@ public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisp
 
 	/// <inheritdoc/>
 	public int? SourceLineNumber { get; set; }
+
+	/// <inheritdoc/>
+	public string TestCaseDisplayName
+	{
+		get => displayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		protected set => displayName = Guard.ArgumentNotNull(value, nameof(TestCaseDisplayName));
+	}
 
 	/// <inheritdoc/>
 	public _ITestCollection TestCollection =>
@@ -207,16 +197,18 @@ public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisp
 		TestMethod.TestClass.Class.Name;
 
 	/// <inheritdoc/>
-	public _ITestMethod TestMethod { get; }
+	public _ITestMethod TestMethod =>
+		testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
 
 	string _ITestCaseMetadata.TestMethodName =>
 		TestMethod.Method.Name;
 
 	/// <inheritdoc/>
-	public object?[]? TestMethodArguments { get; }
+	public object?[]? TestMethodArguments { get; private set; }
 
 	/// <inheritdoc/>
-	public Dictionary<string, List<string>> Traits { get; }
+	public Dictionary<string, List<string>> Traits =>
+		traits ?? throw new InvalidOperationException($"Attempted to get {nameof(Traits)} on an uninitialized '{GetType().FullName}' object");
 
 	IReadOnlyDictionary<string, IReadOnlyList<string>> _ITestCaseMetadata.Traits =>
 		Traits.ToReadOnly();
@@ -224,27 +216,55 @@ public abstract class TestMethodTestCase : _ITestCase, ISerializable, IAsyncDisp
 	/// <inheritdoc/>
 	public virtual string UniqueID
 	{
-		get => uniqueID;
+		get => uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
 		protected set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
 	}
+
+	/// <inheritdoc/>
+	protected virtual void Deserialize(IXunitSerializationInfo info)
+	{
+		DefaultMethodDisplay = info.GetValue<TestMethodDisplay>("dmd");
+		DefaultMethodDisplayOptions = info.GetValue<TestMethodDisplayOptions>("dmo");
+		displayName = Guard.NotNull("Could not retrieve DisplayName from serialization", info.GetValue<string>("dn"));
+		SkipReason = info.GetValue<string>("sr");
+		testMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<_ITestMethod>("tm"));
+		TestMethodArguments = info.GetValue<object[]>("tma");
+		traits = info.GetValue<Dictionary<string, List<string>>>("tr") ?? new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
+
+		formatter = new DisplayNameFormatter(DefaultMethodDisplay, DefaultMethodDisplayOptions);
+
+		var initResults = Initialize(BaseDisplayName, TestMethod, TestMethodArguments);
+
+		InitializationException = initResults.initException;
+		method = initResults.method;
+		MethodGenericTypes = initResults.methodGenericTypes;
+
+		if (TestMethodArguments != null)
+			foreach (var testMethodArgument in TestMethodArguments)
+				disposalTracker.Add(testMethodArgument);
+	}
+
+	void IXunitSerializable.Deserialize(IXunitSerializationInfo info) =>
+		Deserialize(info);
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync() =>
 		disposalTracker.DisposeAsync();
 
 	/// <inheritdoc/>
-	public virtual void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+	protected virtual void Serialize(IXunitSerializationInfo info)
 	{
-		info.AddValue("DefaultMethodDisplay", DefaultMethodDisplay);
-		info.AddValue("DefaultMethodDisplayOptions", DefaultMethodDisplayOptions);
-		info.AddValue("DisplayName", TestCaseDisplayName);
-		info.AddValue("SkipReason", SkipReason);
-		info.AddValue("TestMethod", TestMethod);
-		info.AddValue("TestMethodArguments", TestMethodArguments);
-		info.AddValue("UniqueID", UniqueID);
-
-		SerializationHelper.SerializeTraits(info, Traits);
+		info.AddValue("dmd", DefaultMethodDisplay);
+		info.AddValue("dmo", DefaultMethodDisplayOptions);
+		info.AddValue("dn", TestCaseDisplayName);
+		info.AddValue("sr", SkipReason);
+		info.AddValue("tm", TestMethod);
+		info.AddValue("tma", TestMethodArguments);
+		info.AddValue("tr", Traits);
+		info.AddValue("id", UniqueID);
 	}
+
+	void IXunitSerializable.Serialize(IXunitSerializationInfo info) =>
+		Serialize(info);
 }

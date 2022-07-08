@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -9,37 +8,19 @@ namespace Xunit.v3;
 /// <summary>
 /// The default implementation of <see cref="_ITestCollection"/>.
 /// </summary>
-[Serializable]
 [DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
-public class TestCollection : _ITestCollection, ISerializable
+public class TestCollection : _ITestCollection, IXunitSerializable
 {
-	string displayName;
-	_ITestAssembly testAssembly;
-	string uniqueID;
+	string? displayName;
+	_ITestAssembly? testAssembly;
+	string? uniqueID;
 
 	/// <summary>
-	/// Used for de-serialization.
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
 	/// </summary>
-	protected TestCollection(
-		SerializationInfo info,
-		StreamingContext context)
-	{
-		displayName = Guard.NotNull("Could not retrieve DisplayName from serialization", info.GetValue<string>("DisplayName"));
-		testAssembly = Guard.NotNull("Could not retrieve TestAssembly from serialization", info.GetValue<_ITestAssembly>("TestAssembly"));
-		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("UniqueID"));
-
-		var assemblyName = info.GetValue<string>("DeclarationAssemblyName");
-		var typeName = info.GetValue<string>("DeclarationTypeName");
-
-		if (!string.IsNullOrWhiteSpace(assemblyName) && !string.IsNullOrWhiteSpace(typeName))
-		{
-			var type = SerializationHelper.GetType(assemblyName, typeName);
-			if (type == null)
-				throw new InvalidOperationException($"Failed to deserialize type '{typeName}' in assembly '{assemblyName}'");
-
-			CollectionDefinition = Reflector.Wrap(type);
-		}
-	}
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public TestCollection()
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestCollection"/> class.
@@ -62,47 +43,49 @@ public class TestCollection : _ITestCollection, ISerializable
 	}
 
 	/// <inheritdoc/>
-	public _ITypeInfo? CollectionDefinition { get; set; }
+	public _ITypeInfo? CollectionDefinition { get; private set; }
 
 	/// <inheritdoc/>
-	public string DisplayName
+	public string DisplayName =>
+		displayName ?? throw new InvalidOperationException($"Attempted to get {nameof(DisplayName)} on an uninitialized '{GetType().FullName}' object");
+
+	/// <inheritdoc/>
+	public _ITestAssembly TestAssembly =>
+		testAssembly ?? throw new InvalidOperationException($"Attempted to get {nameof(TestAssembly)} on an uninitialized '{GetType().FullName}' object");
+
+	/// <inheritdoc/>
+	public string UniqueID =>
+		uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+
+	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{
-		get => displayName;
-		set => displayName = Guard.ArgumentNotNull(value, nameof(DisplayName));
+		displayName = Guard.NotNull("Could not retrieve DisplayName from serialization", info.GetValue<string>("dn"));
+		testAssembly = Guard.NotNull("Could not retrieve TestAssembly from serialization", info.GetValue<_ITestAssembly>("ta"));
+		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
+
+		var definitionAssemblyName = info.GetValue<string>("dan");
+		var definitionTypeName = info.GetValue<string>("dtn");
+
+		if (!string.IsNullOrWhiteSpace(definitionAssemblyName) && !string.IsNullOrWhiteSpace(definitionTypeName))
+		{
+			var type = TypeHelper.GetType(definitionAssemblyName, definitionTypeName);
+			if (type == null)
+				throw new InvalidOperationException($"Failed to deserialize type '{definitionTypeName}' in assembly '{definitionAssemblyName}'");
+
+			CollectionDefinition = Reflector.Wrap(type);
+		}
 	}
 
-	/// <inheritdoc/>
-	public _ITestAssembly TestAssembly
+	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
 	{
-		get => testAssembly;
-		set => testAssembly = Guard.ArgumentNotNull(value, nameof(TestAssembly));
-	}
-
-	/// <inheritdoc/>
-	public string UniqueID
-	{
-		get => uniqueID;
-		set => uniqueID = Guard.ArgumentNotNull(value, nameof(UniqueID));
-	}
-
-	/// <inheritdoc/>
-	public virtual void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
-	{
-		info.AddValue("DisplayName", DisplayName);
-		info.AddValue("TestAssembly", TestAssembly);
-		info.AddValue("UniqueID", UniqueID);
+		info.AddValue("dn", DisplayName);
+		info.AddValue("ta", TestAssembly);
+		info.AddValue("id", UniqueID);
 
 		if (CollectionDefinition != null)
 		{
-			info.AddValue("DeclarationAssemblyName", CollectionDefinition.Assembly.Name);
-			info.AddValue("DeclarationTypeName", CollectionDefinition.Name);
-		}
-		else
-		{
-			info.AddValue("DeclarationAssemblyName", null);
-			info.AddValue("DeclarationTypeName", null);
+			info.AddValue("dan", CollectionDefinition.Assembly.Name);
+			info.AddValue("dtn", CollectionDefinition.Name);
 		}
 	}
 }

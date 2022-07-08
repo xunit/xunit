@@ -275,7 +275,7 @@ public class TestRunnerTests
 		Assert.False(runner.BeforeTestFinished_Called);
 	}
 
-	[Theory(DisableDiscoveryEnumeration = true)]
+	[Theory]
 	[InlineData(typeof(_TestPassed), true, null)]
 	[InlineData(typeof(_TestFailed), false, null)]
 	[InlineData(typeof(_TestSkipped), false, "Please skip me")]

@@ -295,7 +295,7 @@ public static class ExtensibilityPointFactory
 		}
 		else if (ctorArgs.Count == 2 && ctorArgs[0] is string typeName && ctorArgs[1] is string assemblyName)
 		{
-			var result = SerializationHelper.GetType(assemblyName, typeName);
+			var result = TypeHelper.GetType(assemblyName, typeName);
 			if (result == null)
 				TestContext.Current?.SendDiagnosticMessage("Unable to create test collection factory type '{0}, {1}'", assemblyName, typeName);
 			else
@@ -341,7 +341,7 @@ public static class ExtensibilityPointFactory
 			return type;
 
 		if (ctorArgs.Length == 2 && ctorArgs[0] is string typeName && ctorArgs[1] is string assemblyName)
-			return SerializationHelper.GetType(assemblyName, typeName);
+			return TypeHelper.GetType(assemblyName, typeName);
 
 		return null;
 	}

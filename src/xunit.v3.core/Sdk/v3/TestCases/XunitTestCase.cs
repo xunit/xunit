@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -16,21 +15,18 @@ namespace Xunit.v3;
 /// <see cref="FactAttribute"/>. Test methods decorated with derived attributes may use this as a base class
 /// to build from.
 /// </summary>
-[Serializable]
 [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {TestCaseDisplayName}, skip = {SkipReason} \}")]
 public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 {
 	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 
-	/// <inheritdoc/>
-	protected XunitTestCase(
-		SerializationInfo info,
-		StreamingContext context) :
-			base(info, context)
-	{
-		Timeout = info.GetValue<int>("Timeout");
-	}
+	/// <summary>
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
+	/// </summary>
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public XunitTestCase()
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
@@ -107,6 +103,14 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	/// <inheritdoc/>
 	public int Timeout { get; protected set; }
 
+	/// <inheritdoc/>
+	protected override void Deserialize(IXunitSerializationInfo info)
+	{
+		base.Deserialize(info);
+
+		Timeout = info.GetValue<int>("to");
+	}
+
 	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
 	{
 		Guard.ArgumentNotNull(assembly);
@@ -156,12 +160,10 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	}
 
 	/// <inheritdoc/>
-	public override void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+	protected override void Serialize(IXunitSerializationInfo info)
 	{
-		base.GetObjectData(info, context);
+		base.Serialize(info);
 
-		info.AddValue("Timeout", Timeout);
+		info.AddValue("to", Timeout);
 	}
 }

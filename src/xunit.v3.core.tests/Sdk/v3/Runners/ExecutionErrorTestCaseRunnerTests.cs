@@ -56,7 +56,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 		);
 	}
 
-	[Theory(DisableDiscoveryEnumeration = true)]
+	[Theory]
 	[InlineData(typeof(_TestStarting))]
 	[InlineData(typeof(_TestFailed))]
 	[InlineData(typeof(_TestFinished))]

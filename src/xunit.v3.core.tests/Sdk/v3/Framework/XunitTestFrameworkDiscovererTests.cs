@@ -235,7 +235,7 @@ public class XunitTestFrameworkDiscovererTests
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[InlineData(CollectionBehavior.CollectionPerAssembly, typeof(CollectionPerAssemblyTestCollectionFactory))]
 		[InlineData(CollectionBehavior.CollectionPerClass, typeof(CollectionPerClassTestCollectionFactory))]
 		public static void AssemblyAttributeOverride(

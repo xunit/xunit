@@ -257,7 +257,7 @@ namespace Xunit.Runner.v2
 			result.SkipReason.Returns(skipReason);
 			result.SourceInformation.Returns(sourceInformation);
 			result.TestMethod.Returns(testMethod);
-			result.Traits.Returns(traits ?? new Dictionary<string, List<string>>());
+			result.Traits.Returns(traits ?? new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase));
 			result.UniqueID.Returns(uniqueID);
 			return result;
 		}

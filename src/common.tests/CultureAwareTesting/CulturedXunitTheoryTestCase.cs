@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -7,17 +6,16 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-[Serializable]
 public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 {
-	/// <inheritdoc/>
-	protected CulturedXunitTheoryTestCase(
-		SerializationInfo info,
-		StreamingContext context) :
-			base(info, context)
-	{
-		Culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("Culture"));
-	}
+	string? culture;
+
+	/// <summary>
+	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
+	/// </summary>
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public CulturedXunitTheoryTestCase()
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CulturedXunitTheoryTestCase"/> class.
@@ -32,7 +30,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		string culture)
 			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
 	{
-		Culture = Guard.ArgumentNotNull(culture);
+		this.culture = Guard.ArgumentNotNull(culture);
 
 		Traits.Add("Culture", Culture);
 
@@ -41,15 +39,14 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		UniqueID += cultureDisplay;
 	}
 
-	public string Culture { get; }
+	public string Culture =>
+		culture ?? throw new InvalidOperationException($"Attempted to get {nameof(Culture)} on an uninitialized '{GetType().FullName}' object");
 
-	public override void GetObjectData(
-		SerializationInfo info,
-		StreamingContext context)
+	protected override void Deserialize(IXunitSerializationInfo info)
 	{
-		base.GetObjectData(info, context);
+		base.Deserialize(info);
 
-		info.AddValue("Culture", Culture);
+		culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("cul"));
 	}
 
 	public override ValueTask<RunSummary> RunAsync(
@@ -67,4 +64,10 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 				constructorArguments,
 				TestMethodArguments
 			);
+	protected override void Serialize(IXunitSerializationInfo info)
+	{
+		base.Serialize(info);
+
+		info.AddValue("cul", Culture);
+	}
 }

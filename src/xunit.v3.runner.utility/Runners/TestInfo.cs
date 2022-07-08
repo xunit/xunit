@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -23,7 +24,7 @@ public abstract class TestInfo
 
 		TypeName = typeName;
 		MethodName = methodName;
-		Traits = traits ?? new Dictionary<string, List<string>>();
+		Traits = traits ?? new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 		TestDisplayName = testDisplayName;
 		TestCollectionDisplayName = testCollectionDisplayName;
 	}

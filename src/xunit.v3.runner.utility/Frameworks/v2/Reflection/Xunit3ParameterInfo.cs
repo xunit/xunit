@@ -21,6 +21,9 @@ public class Xunit3ParameterInfo : _IParameterInfo
 	}
 
 	/// <inheritdoc/>
+	public bool IsOptional => false;  // New for v3
+
+	/// <inheritdoc/>
 	public string Name => V2ParameterInfo.Name;
 
 	/// <inheritdoc/>
@@ -30,4 +33,8 @@ public class Xunit3ParameterInfo : _IParameterInfo
 	/// Gets the underlying xUnit.net v2 <see cref="IParameterInfo"/> that this class is wrapping.
 	/// </summary>
 	public IParameterInfo V2ParameterInfo { get; }
+
+	/// <inheritdoc/>
+	public _IAttributeInfo? GetCustomAttribute(_ITypeInfo attributeType) =>
+		null;  // New for v3
 }

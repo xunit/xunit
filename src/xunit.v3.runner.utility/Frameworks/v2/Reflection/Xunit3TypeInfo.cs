@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -51,10 +52,22 @@ public class Xunit3TypeInfo : _ITypeInfo
 	public bool IsAbstract => V2TypeInfo.IsAbstract;
 
 	/// <inheritdoc/>
+	public bool IsArray => false;  // New for v3
+
+	/// <inheritdoc/>
+	public bool IsEnum => false;  // New for v3
+
+	/// <inheritdoc/>
 	public bool IsGenericParameter => V2TypeInfo.IsGenericParameter;
 
 	/// <inheritdoc/>
 	public bool IsGenericType => V2TypeInfo.IsGenericType;
+
+	/// <inheritdoc/>
+	public bool IsGenericTypeDefinition => false;  // New for v3
+
+	/// <inheritdoc/>
+	public bool IsInterface => false;  // New for v3
 
 	/// <inheritdoc/>
 	public bool IsSealed => V2TypeInfo.IsSealed;
@@ -77,12 +90,24 @@ public class Xunit3TypeInfo : _ITypeInfo
 	public ITypeInfo V2TypeInfo { get; }
 
 	/// <inheritdoc/>
+	public int GetArrayRank() =>
+		throw new NotImplementedException();  // New in v3; should never be called since IsArray always returns false
+
+	/// <inheritdoc/>
 	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
 		V2TypeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_ITypeInfo> GetGenericArguments() =>
-		V2TypeInfo.GetGenericArguments().Select(t => new Xunit3TypeInfo(t)).CastOrToReadOnlyCollection();
+	public _ITypeInfo? GetElementType() =>
+		null;  // New for v3, shouldn't ever be called because IsArray always returns false
+
+	/// <inheritdoc/>
+	public _ITypeInfo[] GetGenericArguments() =>
+		V2TypeInfo.GetGenericArguments().Select(t => new Xunit3TypeInfo(t)).ToArray();
+
+	/// <inheritdoc/>
+	public _ITypeInfo GetGenericTypeDefinition() =>
+		throw new NotImplementedException();  // New for v3
 
 	/// <inheritdoc/>
 	public _IMethodInfo? GetMethod(
