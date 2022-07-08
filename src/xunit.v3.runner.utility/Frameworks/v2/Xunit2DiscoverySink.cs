@@ -31,7 +31,7 @@ public class Xunit2DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IM
 	/// <summary>
 	/// Gets an event which is signaled once discovery is finished.
 	/// </summary>
-	public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
+	public AutoResetEvent Finished { get; } = new(initialState: false);
 
 	/// <summary>
 	/// The list of discovered test cases.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -218,17 +219,25 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(settings);
 
 		var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
-		var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
+		using var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
+		var remoteMessageSink = CreateOptimizedRemoteMessageSink(filteringMessageSink);
+		var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.Options);
 
-		// TODO: We're missing a potential optimization where we could determine that the filter
-		// is exactly 1 (or maybe only?) "include class" filters, and then call the version of
-		// Find on the remote discoverer that takes a type name.
 		SendDiscoveryStartingMessage(messageSink);
-		remoteDiscoverer.Find(
-			includeSourceInformation,
-			CreateOptimizedRemoteMessageSink(filteringMessageSink),
-			Xunit2OptionsAdapter.Adapt(settings.Options)
-		);
+
+		if (settings.Filters.IncludedClasses.Count == 0)
+		{
+			remoteDiscoverer.Find(includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
+			filteringMessageSink.Finished.WaitOne();
+		}
+		else
+			foreach (var includedClass in settings.Filters.IncludedClasses)
+			{
+				remoteDiscoverer.Find(includedClass, includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
+				filteringMessageSink.Finished.WaitOne();
+			}
+
+		SendDiscoveryCompleteMessage(messageSink);
 	}
 
 	/// <inheritdoc/>
@@ -253,12 +262,19 @@ public class Xunit2 : IFrontController
 		}
 
 		using var discoverySink = new Xunit2DiscoverySink(settings.Filters);
-		remoteDiscoverer.Find(
-			includeSourceInformation: false,
-			discoverySink,
-			Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions)
-		);
-		discoverySink.Finished.WaitOne();
+		var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions);
+
+		if (settings.Filters.IncludedClasses.Count == 0)
+		{
+			remoteDiscoverer.Find(includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
+			discoverySink.Finished.WaitOne();
+		}
+		else
+			foreach (var includedClass in settings.Filters.IncludedClasses)
+			{
+				remoteDiscoverer.Find(includedClass, includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
+				discoverySink.Finished.WaitOne();
+			}
 
 		remoteExecutor.RunTests(
 			discoverySink.TestCases,
@@ -362,9 +378,22 @@ public class Xunit2 : IFrontController
 			AssemblyName = assemblyInfo.Name,
 			AssemblyPath = assemblyInfo.AssemblyPath,
 			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.Name, assemblyInfo.AssemblyPath, configFileName),
-			ConfigFilePath = configFileName
+			ConfigFilePath = configFileName,
 		};
+
 		messageSink.OnMessage(discoveryStarting);
+	}
+
+	void SendDiscoveryCompleteMessage(_IMessageSink messageSink)
+	{
+		// We optimize discovery when filtering by class, so we filter out discovery complete
+		// messages, and need to send a single one when we're finished.
+		var discoveryComplete = new _DiscoveryComplete
+		{
+			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.Name, assemblyInfo.AssemblyPath, configFileName),
+		};
+
+		messageSink.OnMessage(discoveryComplete);
 	}
 
 	// Factory methods
@@ -462,7 +491,7 @@ public class Xunit2 : IFrontController
 		public void Callback(List<KeyValuePair<string?, ITestCase?>> results) => Results = results;
 	}
 
-	class FilteringMessageSink : _IMessageSink
+	class FilteringMessageSink : _IMessageSink, IDisposable
 	{
 		readonly Predicate<_TestCaseDiscovered> filter;
 		readonly _IMessageSink innerMessageSink;
@@ -475,8 +504,21 @@ public class Xunit2 : IFrontController
 			this.filter = filter;
 		}
 
+		public AutoResetEvent Finished { get; } = new AutoResetEvent(initialState: false);
+
+		public void Dispose() =>
+			Finished.Dispose();
+
 		public bool OnMessage(_MessageSinkMessage message)
 		{
+			// Filter out discovery complete (and make it an event) so we can run multiple discoveries
+			// while reporting a single complete message after they're all done
+			if (message is _DiscoveryComplete)
+			{
+				Finished.Set();
+				return true;
+			}
+
 			if (message is _TestCaseDiscovered discovered)
 				if (!filter(discovered))
 					return true;
