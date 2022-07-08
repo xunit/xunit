@@ -421,10 +421,18 @@ public class Xunit2 : IFrontController
 
 		Guard.ArgumentNotNull(assemblyInfo);
 
+		if (diagnosticMessageSink == null)
+			diagnosticMessageSink = _NullMessageSink.Instance;
+
+#if NETFRAMEWORK
+		if (sourceInformationProvider == null && assemblyInfo.AssemblyPath != null)
+			sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyInfo.AssemblyPath, diagnosticMessageSink);
+#endif
+
 		return new Xunit2(
 			diagnosticMessageSink ?? _NullMessageSink.Instance,
 			appDomainSupport,
-			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,  // TODO: Need to find a way to be able to use VisualStudioSourceInformationProvider
+			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
 			assemblyInfo,
 			assemblyFileName: null,
 			xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
