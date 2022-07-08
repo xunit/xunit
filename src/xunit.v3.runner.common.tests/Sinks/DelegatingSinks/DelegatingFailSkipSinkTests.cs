@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class DelegatingFailSkipSinkTests
@@ -25,12 +26,52 @@ public class DelegatingFailSkipSinkTests
 		sink.OnMessage(skippedMessage);
 
 		var outputMessage = Assert.Single(innerSink.Messages.OfType<_TestFailed>());
-		Assert.Equal(0M, skippedMessage.ExecutionTime);
-		Assert.Empty(skippedMessage.Output);
+		Assert.Equal(FailureCause.Other, outputMessage.Cause);
+		Assert.Equal(0M, outputMessage.ExecutionTime);
+		Assert.Empty(outputMessage.Output);
 		Assert.Equal("FAIL_SKIP", outputMessage.ExceptionTypes.Single());
 		Assert.Equal("The skip reason", outputMessage.Messages.Single());
 		var stackTrace = Assert.Single(outputMessage.StackTraces);
 		Assert.Equal("", stackTrace);
+	}
+
+	[Fact]
+	public void OnTestCaseFinished_CountsSkipsAsFails()
+	{
+		var inputMessage = TestData.TestCaseFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
+
+		sink.OnMessage(inputMessage);
+
+		var outputMessage = Assert.Single(innerSink.Messages.OfType<_TestCaseFinished>());
+		Assert.Equal(24, outputMessage.TestsRun);
+		Assert.Equal(11, outputMessage.TestsFailed);
+		Assert.Equal(0, outputMessage.TestsSkipped);
+	}
+
+	[Fact]
+	public void OnTestMethodFinished_CountsSkipsAsFails()
+	{
+		var inputMessage = TestData.TestMethodFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
+
+		sink.OnMessage(inputMessage);
+
+		var outputMessage = Assert.Single(innerSink.Messages.OfType<_TestMethodFinished>());
+		Assert.Equal(24, outputMessage.TestsRun);
+		Assert.Equal(11, outputMessage.TestsFailed);
+		Assert.Equal(0, outputMessage.TestsSkipped);
+	}
+
+	[Fact]
+	public void OnTestClassFinished_CountsSkipsAsFails()
+	{
+		var inputMessage = TestData.TestClassFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
+
+		sink.OnMessage(inputMessage);
+
+		var outputMessage = Assert.Single(innerSink.Messages.OfType<_TestClassFinished>());
+		Assert.Equal(24, outputMessage.TestsRun);
+		Assert.Equal(11, outputMessage.TestsFailed);
+		Assert.Equal(0, outputMessage.TestsSkipped);
 	}
 
 	[Fact]
