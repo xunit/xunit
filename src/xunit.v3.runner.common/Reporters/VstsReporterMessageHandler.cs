@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -78,17 +77,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		base.HandleTestAssemblyStarting(args);
 
 		lock (clientLock)
-		{
 			assembliesInFlight++;
-
-			// Use the TFM attrib to disambiguate
-			var tfm = args.Message.TargetFramework;
-			var assemblyFileName = Path.GetFileName(args.Message.AssemblyPath) ?? "<unknown filename>";
-			if (!string.IsNullOrWhiteSpace(tfm))
-				assemblyFileName = $"{assemblyFileName} ({tfm})";
-
-			// TODO: What's going on here? ^ assemblyFileName is a throw-away.
-		}
 	}
 
 	/// <inheritdoc/>

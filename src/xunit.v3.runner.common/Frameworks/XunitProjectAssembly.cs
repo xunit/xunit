@@ -25,7 +25,6 @@ public class XunitProjectAssembly
 	/// Gets or sets the assembly under test. May be <c>null</c> when the test assembly is not
 	/// loaded into the current app domain.
 	/// </summary>
-	// TODO: Nobody is consuming this. Who should? Or should we delete it?
 	public Assembly? Assembly { get; set; }
 
 	/// <summary>

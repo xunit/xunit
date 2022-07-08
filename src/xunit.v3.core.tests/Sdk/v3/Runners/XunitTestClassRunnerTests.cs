@@ -450,7 +450,7 @@ public class XunitTestClassRunnerTests
 					new MockTestCaseOrderer(),
 					new ExceptionAggregator(),
 					new CancellationTokenSource(),
-					new Dictionary<Type, object>(),  // TODO: Do we need this as an additional argument for testing purposes?
+					new Dictionary<Type, object>(),
 					collectionFixtures.ToDictionary(fixture => fixture.GetType())
 				);
 
