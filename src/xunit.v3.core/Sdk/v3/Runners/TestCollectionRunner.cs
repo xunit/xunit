@@ -124,15 +124,12 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 
 		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance))
 		{
-			summary.Aggregate(
-				await RunTestClassAsync(
-					ctxt,
-					testCasesByClass.Key,
-					// TODO: This will throw for non-reflection-based type info. Should it raise a warning instead?
-					(_IReflectionTypeInfo?)testCasesByClass.Key?.Class,
-					testCasesByClass.CastOrToReadOnlyCollection()
-				)
-			);
+			if (testCasesByClass.Key == null)
+				TestContext.Current?.SendDiagnosticMessage("TestCollectionRunner was given a null type to run for test case(s): {0}", string.Join(", ", testCasesByClass.Select(tcc => $"'{tcc.TestCaseDisplayName}'")));
+			else if (testCasesByClass.Key.Class is not _IReflectionTypeInfo reflectionTypeInfo)
+				TestContext.Current?.SendDiagnosticMessage("TestCollectionRunner was given a non-reflection-backed type to run ('{0}') for test case(s): {1}", testCasesByClass.Key.Class.Name, string.Join(", ", testCasesByClass.Select(tcc => $"'{tcc.TestCaseDisplayName}'")));
+			else
+				summary.Aggregate(await RunTestClassAsync(ctxt, testCasesByClass.Key, reflectionTypeInfo, testCasesByClass.CastOrToReadOnlyCollection()));
 
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;

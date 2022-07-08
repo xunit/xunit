@@ -49,6 +49,54 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
+	public static async void NonClassBaseTest_ReportsWarning()
+	{
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
+		var collection = Mocks.TestCollection();
+		var testCase1 = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
+		testCase1.TestCaseDisplayName.Returns("Test Case 1");
+		testCase1.TestClass.Returns(default(_ITestClass));
+		testCase1.TestCollection.Returns(collection);
+		var testCase2 = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
+		testCase2.TestCaseDisplayName.Returns("Test Case 2");
+		testCase2.TestClass.Returns(default(_ITestClass));
+		testCase2.TestCollection.Returns(collection);
+		var runner = TestableTestCollectionRunner.Create(testCases: new[] { testCase1, testCase2 });
+
+		await runner.RunAsync();
+
+		var message = Assert.Single(spy.Messages);
+		var diagnosticMessage = Assert.IsType<_DiagnosticMessage>(message);
+		Assert.Equal("TestCollectionRunner was given a null type to run for test case(s): 'Test Case 1', 'Test Case 2'", diagnosticMessage.Message);
+	}
+
+	[Fact]
+	public static async void NonReflectionClassBaseTest_ReportsWarning()
+	{
+		var spy = SpyMessageSink.Capture();
+		TestContext.Current!.DiagnosticMessageSink = spy;
+		var collection = Mocks.TestCollection();
+		var testClass = Substitute.For<_ITestClass, InterfaceProxy<_ITestClass>>();
+		testClass.Class.Name.Returns("TestClassName");
+		var testCase1 = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
+		testCase1.TestCaseDisplayName.Returns("Test Case 1");
+		testCase1.TestClass.Returns(testClass);
+		testCase1.TestCollection.Returns(collection);
+		var testCase2 = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
+		testCase2.TestCaseDisplayName.Returns("Test Case 2");
+		testCase2.TestClass.Returns(testClass);
+		testCase2.TestCollection.Returns(collection);
+		var runner = TestableTestCollectionRunner.Create(testCases: new[] { testCase1, testCase2 });
+
+		await runner.RunAsync();
+
+		var message = Assert.Single(spy.Messages);
+		var diagnosticMessage = Assert.IsType<_DiagnosticMessage>(message);
+		Assert.Equal("TestCollectionRunner was given a non-reflection-backed type to run ('TestClassName') for test case(s): 'Test Case 1', 'Test Case 2'", diagnosticMessage.Message);
+	}
+
+	[Fact]
 	public static async void FailureInQueueOfTestCollectionStarting_DoesNotQueueTestCollectionFinished_DoesNotRunTestClasses()
 	{
 		var messages = new List<_MessageSinkMessage>();
