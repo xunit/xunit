@@ -145,7 +145,7 @@ public class TestContext
 	/// Gets the current state of the test. Will only be available when <see cref="TestStatus"/>
 	/// is <see cref="TestEngineStatus.CleaningUp"/>.
 	/// </summary>
-	public TestState? TestState { get; private set; }
+	public TestResultState? TestState { get; private set; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test. Will only be available when <see cref="Test"/>
@@ -224,7 +224,7 @@ public class TestContext
 		_ITest test,
 		TestEngineStatus testStatus,
 		CancellationToken cancellationToken,
-		TestState? testState = null,
+		TestResultState? testState = null,
 		_ITestOutputHelper? testOutputHelper = null)
 	{
 		Guard.ArgumentNotNull(test);

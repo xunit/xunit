@@ -235,7 +235,7 @@ public abstract class TestInvoker<TContext>
 							if (!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions)
 								await InvokeTestMethodAsync(ctxt, testClassInstance);
 
-							SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestState.FromException((decimal)elapsedTime.TotalSeconds, ctxt.Aggregator.ToException()));
+							SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestResultState.FromException((decimal)elapsedTime.TotalSeconds, ctxt.Aggregator.ToException()));
 
 							elapsedTime += await ExecutionTimer.MeasureAsync(() => AfterTestMethodInvokedAsync(ctxt));
 						}
@@ -306,6 +306,6 @@ public abstract class TestInvoker<TContext>
 	protected virtual void SetTestContext(
 		TContext ctxt,
 		TestEngineStatus testStatus,
-		TestState? testState = null) =>
+		TestResultState? testState = null) =>
 			TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState);
 }

@@ -4,13 +4,12 @@ using Xunit.v3;
 
 namespace Xunit;
 
-// TODO: Don't like this name exactly, since now it's all about the result
 /// <summary>
 /// Represents information about the current state of a test after it has run.
 /// </summary>
-public class TestState
+public class TestResultState
 {
-	TestState()
+	TestResultState()
 	{ }
 
 	/// <summary>
@@ -61,11 +60,11 @@ public class TestState
 	/// </summary>
 	/// <param name="executionTime">The time spent executing the test</param>
 	/// <param name="exception">The exception, if the test failed</param>
-	public static TestState FromException(
+	public static TestResultState FromException(
 		decimal executionTime,
 		Exception? exception)
 	{
-		var result = new TestState { ExecutionTime = executionTime };
+		var result = new TestResultState { ExecutionTime = executionTime };
 
 		if (exception == null)
 			result.Result = TestResult.Passed;
@@ -85,9 +84,9 @@ public class TestState
 	}
 
 	/// <summary/>
-	public static TestState FromTestResult(_TestResultMessage testResult)
+	public static TestResultState FromTestResult(_TestResultMessage testResult)
 	{
-		var result = new TestState { ExecutionTime = testResult.ExecutionTime };
+		var result = new TestResultState { ExecutionTime = testResult.ExecutionTime };
 
 		if (testResult is _TestPassed)
 			result.Result = TestResult.Passed;

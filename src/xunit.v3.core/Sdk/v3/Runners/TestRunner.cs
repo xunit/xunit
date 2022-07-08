@@ -163,7 +163,7 @@ public abstract class TestRunner<TContext>
 					}
 				}
 
-				SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestState.FromTestResult(testResult));
+				SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestResultState.FromTestResult(testResult));
 
 				if (!ctxt.CancellationTokenSource.IsCancellationRequested)
 					if (!ctxt.MessageBus.QueueMessage(testResult))
@@ -221,6 +221,6 @@ public abstract class TestRunner<TContext>
 	protected virtual void SetTestContext(
 		TContext ctxt,
 		TestEngineStatus testStatus,
-		TestState? testState = null) =>
+		TestResultState? testState = null) =>
 			TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState);
 }

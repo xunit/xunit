@@ -92,7 +92,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 	protected override void SetTestContext(
 		XunitTestRunnerContext ctxt,
 		TestEngineStatus testStatus,
-		TestState? testState = null) =>
+		TestResultState? testState = null) =>
 			TestContext.SetForTest(
 				ctxt.Test,
 				testStatus,
