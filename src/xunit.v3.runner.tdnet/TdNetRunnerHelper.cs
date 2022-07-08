@@ -18,18 +18,15 @@ public class TdNetRunnerHelper : IAsyncDisposable
 	bool disposed;
 	readonly DisposalTracker disposalTracker = new();
 	readonly IFrontController? frontController;
-	readonly XunitProjectAssembly projectAssembly;
+	readonly XunitProjectAssembly? projectAssembly;
 	readonly ITestListener? testListener;
 
 	/// <summary>
 	/// This constructor is for unit testing purposes only.
 	/// </summary>
+	[Obsolete("For unit testing purposes only")]
 	protected TdNetRunnerHelper()
-	{
-		// TODO: Where do these come from?
-		var project = new XunitProject();
-		projectAssembly = new(project);
-	}
+	{ }
 
 	public TdNetRunnerHelper(
 		Assembly assembly,
@@ -55,7 +52,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 
 	public virtual IReadOnlyList<_TestCaseDiscovered> Discover()
 	{
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", frontController);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
 
 		var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
 		return Discover(sink => frontController.Find(sink, settings));
@@ -63,7 +61,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 
 	IReadOnlyList<_TestCaseDiscovered> Discover(Type? type)
 	{
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", frontController);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
 
 		if (type == null || type.FullName == null)
 			return new _TestCaseDiscovered[0];
@@ -105,13 +104,12 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		IReadOnlyList<_TestCaseDiscovered>? testCases = null,
 		TestRunState initialRunState = TestRunState.NoTests)
 	{
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", testListener);
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}", frontController);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.testListener", testListener);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
+		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
 
 		try
 		{
-			// TODO: This should be able to be converted to FindAndRun, but we need test case
-			// count for the results sink...?
 			if (testCases == null)
 				testCases = Discover();
 
