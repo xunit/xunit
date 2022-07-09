@@ -47,7 +47,7 @@ public class _TestCollectionCleanupFailure : _TestCollectionMessage, _IErrorMeta
 	/// </summary>
 	/// <param name="ex">The exception to use</param>
 	/// <param name="assemblyUniqueID">The unique ID of the assembly</param>
-	/// <param name="testCollectionUniqueID">The unique ID of the test collectioon</param>
+	/// <param name="testCollectionUniqueID">The unique ID of the test collection</param>
 	public static _TestCollectionCleanupFailure FromException(
 		Exception ex,
 		string assemblyUniqueID,

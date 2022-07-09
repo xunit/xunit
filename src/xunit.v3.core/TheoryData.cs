@@ -53,7 +53,7 @@ public abstract class TheoryData : IReadOnlyCollection<object?[]>
 public class TheoryData<T> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<T> values)
@@ -64,7 +64,7 @@ public class TheoryData<T> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params T[] values) =>
@@ -94,7 +94,7 @@ public class TheoryData<T> : TheoryData
 public class TheoryData<T1, T2> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2)> values)
@@ -105,7 +105,7 @@ public class TheoryData<T1, T2> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2)[] values) =>
@@ -152,7 +152,7 @@ public class TheoryData<T1, T2, T3> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3)[] values) =>
@@ -201,7 +201,7 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4)[] values) =>
@@ -241,7 +241,7 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5)> values)
@@ -252,7 +252,7 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5)[] values) =>
@@ -294,7 +294,7 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6)> values)
@@ -305,7 +305,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6)[] values) =>
@@ -360,7 +360,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7)[] values) =>
@@ -406,7 +406,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> values)
@@ -417,7 +417,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7, T8)[] values) =>
@@ -465,7 +465,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> values)
@@ -476,7 +476,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7, T8, T9)[] values) =>
@@ -526,7 +526,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> values)
@@ -537,7 +537,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)[] values) =>

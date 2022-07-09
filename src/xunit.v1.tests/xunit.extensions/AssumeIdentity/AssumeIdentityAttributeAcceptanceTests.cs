@@ -19,7 +19,7 @@ namespace Xunit1.Extensions
 		{
 			// Mono does not appear to properly support PrincipalPermission
 			if (!EnvironmentHelper.IsMono)
-				Assert.Throws<SecurityException>(() => DefeatVillian());
+				Assert.Throws<SecurityException>(() => DefeatVillain());
 		}
 
 		[Fact, AssumeIdentity("Q")]
@@ -27,7 +27,7 @@ namespace Xunit1.Extensions
 		{
 			// Mono does not appear to properly support PrincipalPermission
 			if (!EnvironmentHelper.IsMono)
-				Assert.Throws<SecurityException>(() => DefeatVillian());
+				Assert.Throws<SecurityException>(() => DefeatVillain());
 		}
 
 		[Fact, AssumeIdentity("007")]
@@ -35,10 +35,10 @@ namespace Xunit1.Extensions
 		{
 			// Mono does not appear to properly support PrincipalPermission
 			if (!EnvironmentHelper.IsMono)
-				Assert.DoesNotThrow(() => DefeatVillian());
+				Assert.DoesNotThrow(() => DefeatVillain());
 		}
 
 		[PrincipalPermission(SecurityAction.Demand, Role = "007")]
-		public void DefeatVillian() { }
+		public void DefeatVillain() { }
 	}
 }

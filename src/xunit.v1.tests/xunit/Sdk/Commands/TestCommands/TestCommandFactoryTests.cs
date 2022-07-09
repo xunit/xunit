@@ -8,7 +8,7 @@ namespace Xunit1
 	public class TestCommandFactoryTests
 	{
 		[Fact]
-		public void CallsTestClassCommandToGetTestCommandsAndWrapsTheminTimedCommands()
+		public void CallsTestClassCommandToGetTestCommandsAndWrapsThemInTimedCommands()
 		{
 			MethodInfo method = typeof(TestCommandFactoryTests).GetMethod("PublicTestMethod");
 			List<ITestCommand> testCommands = new List<ITestCommand>();

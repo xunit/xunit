@@ -95,7 +95,7 @@ namespace Xunit1
 		}
 
 		[Fact]
-		public void ClassFinishExceptionSupercedesClassStartException()
+		public void ClassFinishExceptionSupersedesClassStartException()
 		{
 			StubTestClassCommand command = new StubTestClassCommand(typeof(VarietyTestClass));
 			command.ClassStart__Result = new NotImplementedException();

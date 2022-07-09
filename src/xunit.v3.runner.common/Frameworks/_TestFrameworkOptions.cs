@@ -83,7 +83,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// </summary>
 	/// <param name="culture">Optional value to indicate the culture used for test execution</param>
 	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
-	/// <param name="diableParallelization">Optional flag to disable test parallelization</param>
+	/// <param name="disableParallelization">Optional flag to disable test parallelization</param>
 	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
 	/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
 	/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
@@ -91,7 +91,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	public static _ITestFrameworkExecutionOptions ForExecution(
 		string? culture = null,
 		bool? diagnosticMessages = null,
-		bool? diableParallelization = null,
+		bool? disableParallelization = null,
 		bool? internalDiagnosticMessages = null,
 		int? maxParallelThreads = null,
 		bool? stopOnFail = null)
@@ -100,7 +100,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetDisableParallelization(diableParallelization);
+		result.SetDisableParallelization(disableParallelization);
 		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
 		result.SetMaxParallelThreads(maxParallelThreads);
 		result.SetStopOnTestFail(stopOnFail);
