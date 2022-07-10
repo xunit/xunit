@@ -72,10 +72,6 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 	}
 
 	/// <inheritdoc/>
-	public T? GetValue<T>(string key) =>
-		(T?)GetValue(key);
-
-	/// <inheritdoc/>
 	public object? GetValue(string key)
 	{
 		if (data.TryGetValue(key, out var value))

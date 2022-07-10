@@ -762,10 +762,7 @@ public static class SerializationHelper
 
 			int i = 0;
 			foreach (object obj in array)
-			{
-				info.AddValue($"i{i}", obj, obj?.GetType() ?? elementType);
-				i++;
-			}
+				info.AddValue($"i{i++}", obj, obj?.GetType() ?? elementType);
 		}
 	}
 
