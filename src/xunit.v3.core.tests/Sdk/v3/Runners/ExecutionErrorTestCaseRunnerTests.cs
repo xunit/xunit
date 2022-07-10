@@ -49,9 +49,10 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 			{
 				var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(msg);
 				Assert.Equal(0m, testCaseFinished.ExecutionTime);
-				Assert.Equal(1, testCaseFinished.TestsRun);
 				Assert.Equal(1, testCaseFinished.TestsFailed);
+				Assert.Equal(0, testCaseFinished.TestsNotRun);
 				Assert.Equal(0, testCaseFinished.TestsSkipped);
+				Assert.Equal(1, testCaseFinished.TestsTotal);
 			}
 		);
 	}

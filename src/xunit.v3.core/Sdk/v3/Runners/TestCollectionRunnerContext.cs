@@ -19,11 +19,12 @@ public class TestCollectionRunnerContext<TTestCase> : ContextBase
 	public TestCollectionRunnerContext(
 		_ITestCollection testCollection,
 		IReadOnlyCollection<TTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
-			base(messageBus, aggregator, cancellationTokenSource)
+			base(explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		TestCollection = Guard.ArgumentNotNull(testCollection);
 		TestCases = Guard.ArgumentNotNull(testCases);

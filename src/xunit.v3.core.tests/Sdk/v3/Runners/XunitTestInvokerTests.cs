@@ -352,7 +352,7 @@ public class XunitTestInvokerTests
 		}
 
 		public ValueTask<decimal> RunAsync() =>
-			RunAsync(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, beforeAfterAttributes, messageBus, Aggregator, TokenSource);
+			RunAsync(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, beforeAfterAttributes, ExplicitOption.Off, messageBus, Aggregator, TokenSource);
 	}
 
 	class ClassUnderTest

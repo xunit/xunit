@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -41,6 +42,17 @@ public class TestAssemblyConfiguration
 	/// value (<c>false</c>).
 	/// </summary>
 	public bool DiagnosticMessagesOrDefault => DiagnosticMessages ?? false;
+
+	/// <summary>
+	/// Gets or sets a flag indicating how explicit tests should be handled.
+	/// </summary>
+	public ExplicitOption? ExplicitOption { get; set; }
+
+	/// <summary>
+	/// Gets a flag indicating how explicit tests should be handled. If the flag
+	/// isn't set, returns the default value (<see cref="ExplicitOption.Off"/>).
+	/// </summary>
+	public ExplicitOption ExplicitOptionOrDefault => ExplicitOption ?? Sdk.ExplicitOption.Off;
 
 	/// <summary>
 	/// Gets or sets a flag indicating that skipped tests should be converted into

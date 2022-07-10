@@ -240,6 +240,7 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 	/// <param name="testMethod">The method that the test belongs to</param>
 	/// <param name="testMethodArguments">The arguments for the test method</param>
 	/// <param name="beforeAfterTestAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to this test</param>
+	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to send execution messages to</param>
 	/// <param name="aggregator">The aggregator used to </param>
 	/// <param name="cancellationTokenSource">The cancellation token source used to cancel test execution</param>
@@ -252,8 +253,9 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) =>
-			RunAsync(new(test, testClass, constructorArguments, testMethod, testMethodArguments, messageBus, aggregator, cancellationTokenSource, beforeAfterTestAttributes));
+			RunAsync(new(test, testClass, constructorArguments, testMethod, testMethodArguments, explicitOption, messageBus, aggregator, cancellationTokenSource, beforeAfterTestAttributes));
 }

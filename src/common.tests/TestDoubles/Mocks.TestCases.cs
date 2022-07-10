@@ -174,6 +174,7 @@ public static partial class Mocks
 		string? typeName = null,
 		string? methodName = null,
 		string? displayName = null,
+		bool? @explicit = null,
 		string? skip = null,
 		int timeout = 0,
 		_IParameterInfo[]? parameters = null,
@@ -190,7 +191,7 @@ public static partial class Mocks
 		var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.Attribute.GetType()));
 		if (factAttribute == null)
 		{
-			factAttribute = FactAttribute(displayName, skip, timeout);
+			factAttribute = FactAttribute(displayName, @explicit, skip, timeout);
 			methodAttributes = methodAttributes.Concat(new[] { factAttribute }).ToArray();
 		}
 

@@ -139,6 +139,11 @@ public class ExecutionEventSink : _IMessageSink
 	public event MessageHandler<_TestMethodStarting>? TestMethodStartingEvent;
 
 	/// <summary>
+	/// Occurs when a <see cref="_TestNotRun"/> message is received.
+	/// </summary>
+	public event MessageHandler<_TestNotRun>? TestNotRunEvent;
+
+	/// <summary>
 	/// Occurs when a <see cref="_TestOutput"/> message is received.
 	/// </summary>
 	public event MessageHandler<_TestOutput>? TestOutputEvent;
@@ -190,6 +195,7 @@ public class ExecutionEventSink : _IMessageSink
 			message.DispatchWhen(TestMethodCleanupFailureEvent) &&
 			message.DispatchWhen(TestMethodFinishedEvent) &&
 			message.DispatchWhen(TestMethodStartingEvent) &&
+			message.DispatchWhen(TestNotRunEvent) &&
 			message.DispatchWhen(TestOutputEvent) &&
 			message.DispatchWhen(TestPassedEvent) &&
 			message.DispatchWhen(TestSkippedEvent) &&

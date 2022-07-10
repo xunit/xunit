@@ -35,6 +35,19 @@ public class XunitTestCaseTests
 			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.TestCaseDisplayName);
 		}
 
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public static void Explicit(bool @explicit)
+		{
+			var factAttribute = Mocks.FactAttribute(@explicit: @explicit);
+			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
+
+			var testCase = new TestableXunitTestCase(testMethod);
+
+			Assert.Equal(@explicit, testCase.Explicit);
+		}
+
 		[Fact]
 		public static void SkipReason()
 		{
@@ -291,7 +304,7 @@ public class XunitTestCaseTests
 		public TestableXunitTestCase(
 			_ITestMethod testMethod,
 			object?[]? testMethodArguments = null) :
-				base(TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, testMethodArguments, null, null, null, null, null)
+				base(TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, testMethodArguments, null, null, null, null, null, null)
 		{ }
 	}
 }

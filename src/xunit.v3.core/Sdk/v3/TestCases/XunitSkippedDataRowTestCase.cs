@@ -28,6 +28,7 @@ public class XunitSkippedDataRowTestCase : XunitTestCase
 	/// <param name="testMethod">The test method this test case belongs to.</param>
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
 	/// <param name="skipReason">The reason that this test case will be skipped.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
 	/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 	/// <param name="displayName">The optional display name for the test</param>
@@ -37,6 +38,7 @@ public class XunitSkippedDataRowTestCase : XunitTestCase
 		_ITestMethod testMethod,
 		object?[] testMethodArguments,
 		string skipReason,
+		bool? @explicit = null,
 		Dictionary<string, List<string>>? traits = null,
 		string? uniqueID = null,
 		string? displayName = null) :
@@ -46,6 +48,7 @@ public class XunitSkippedDataRowTestCase : XunitTestCase
 				testMethod,
 				testMethodArguments,
 				Guard.ArgumentNotNull(skipReason),
+				@explicit,
 				traits,
 				timeout: null,
 				uniqueID,

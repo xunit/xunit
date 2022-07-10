@@ -18,11 +18,12 @@ public class XunitTestMethodRunnerContext : TestMethodRunnerContext<IXunitTestCa
 		_IReflectionTypeInfo @class,
 		_IReflectionMethodInfo method,
 		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		object?[] constructorArguments) :
-			base(testClass, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+			base(testClass, testMethod, @class, method, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		ConstructorArguments = constructorArguments;
 	}

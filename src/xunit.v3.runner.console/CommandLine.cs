@@ -36,7 +36,7 @@ public class CommandLine : CommandLineParserBase
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
 			"  none        - turn off all parallelization",
-			"  collections - only parallelize collections",
+			"  collections - only parallelize collections [default]",
 			"  assemblies  - only parallelize assemblies",
 			"  all         - parallelize assemblies & collections"
 		);
@@ -47,7 +47,7 @@ public class CommandLine : CommandLineParserBase
 			"choose an app domain mode",
 			"  required    - force app domains on",
 			"  denied      - force app domains off",
-			"  ifavailable - use app domains if they're available"
+			"  ifavailable - use app domains if they're available [default]"
 		);
 		AddParser("noshadow", OnNoShadow, CommandLineGroup.NetFramework, null, "do not shadow copy assemblies");
 

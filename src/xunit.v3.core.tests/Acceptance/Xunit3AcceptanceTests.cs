@@ -23,9 +23,10 @@ public class Xunit3AcceptanceTests
 				message =>
 				{
 					var finished = Assert.IsAssignableFrom<_TestAssemblyFinished>(message);
-					Assert.Equal(0, finished.TestsRun);
 					Assert.Equal(0, finished.TestsFailed);
+					Assert.Equal(0, finished.TestsNotRun);
 					Assert.Equal(0, finished.TestsSkipped);
+					Assert.Equal(0, finished.TestsTotal);
 				}
 			);
 		}
@@ -168,9 +169,10 @@ public class Xunit3AcceptanceTests
 					Assert.Equal(observedClassID, testCaseFinished.TestClassUniqueID);
 					Assert.Equal(observedCollectionID, testCaseFinished.TestCollectionUniqueID);
 					Assert.Equal(observedMethodID, testCaseFinished.TestMethodUniqueID);
-					Assert.Equal(1, testCaseFinished.TestsRun);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
+					Assert.Equal(0, testCaseFinished.TestsNotRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
+					Assert.Equal(1, testCaseFinished.TestsTotal);
 				},
 				message =>
 				{
@@ -181,8 +183,9 @@ public class Xunit3AcceptanceTests
 					Assert.Equal(observedCollectionID, testMethodFinished.TestCollectionUniqueID);
 					Assert.Equal(observedMethodID, testMethodFinished.TestMethodUniqueID);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
-					Assert.Equal(1, testMethodFinished.TestsRun);
+					Assert.Equal(0, testMethodFinished.TestsNotRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
+					Assert.Equal(1, testMethodFinished.TestsTotal);
 				},
 				message =>
 				{
@@ -192,8 +195,9 @@ public class Xunit3AcceptanceTests
 					Assert.Equal(observedClassID, classFinished.TestClassUniqueID);
 					Assert.Equal(observedCollectionID, classFinished.TestCollectionUniqueID);
 					Assert.Equal(0, classFinished.TestsFailed);
-					Assert.Equal(1, classFinished.TestsRun);
+					Assert.Equal(0, classFinished.TestsNotRun);
 					Assert.Equal(0, classFinished.TestsSkipped);
+					Assert.Equal(1, classFinished.TestsTotal);
 				},
 				message =>
 				{
@@ -202,8 +206,9 @@ public class Xunit3AcceptanceTests
 					Assert.NotEqual(0M, collectionFinished.ExecutionTime);
 					Assert.Equal(observedCollectionID, collectionFinished.TestCollectionUniqueID);
 					Assert.Equal(0, collectionFinished.TestsFailed);
-					Assert.Equal(1, collectionFinished.TestsRun);
+					Assert.Equal(0, collectionFinished.TestsNotRun);
 					Assert.Equal(0, collectionFinished.TestsSkipped);
+					Assert.Equal(1, collectionFinished.TestsTotal);
 				},
 				message =>
 				{
@@ -211,8 +216,9 @@ public class Xunit3AcceptanceTests
 					Assert.Equal(observedAssemblyID, assemblyFinished.AssemblyUniqueID);
 					Assert.NotEqual(0M, assemblyFinished.ExecutionTime);
 					Assert.Equal(0, assemblyFinished.TestsFailed);
-					Assert.Equal(1, assemblyFinished.TestsRun);
+					Assert.Equal(0, assemblyFinished.TestsNotRun);
 					Assert.Equal(0, assemblyFinished.TestsSkipped);
+					Assert.Equal(1, assemblyFinished.TestsTotal);
 				}
 			);
 		}
@@ -235,6 +241,56 @@ public class Xunit3AcceptanceTests
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<_TestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+		}
+	}
+
+	public class ExplicitTests : AcceptanceTestV3
+	{
+		[Theory]
+		[InlineData(new object?[] { null })]
+		[InlineData(ExplicitOption.Off)]
+		public async ValueTask OnlyRunNonExplicit(ExplicitOption? @explicit)
+		{
+			var results = await RunForResultsAsync(typeof(ClassWithExplicitTest), explicitOption: @explicit);
+
+			Assert.Equal(2, results.Count);
+			var passed = Assert.Single(results.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+ExplicitTests+ClassWithExplicitTest.NonExplicitTest", passed.TestDisplayName);
+			var notRun = Assert.Single(results.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+ExplicitTests+ClassWithExplicitTest.ExplicitTest", notRun.TestDisplayName);
+		}
+
+		[Fact]
+		public async ValueTask OnlyRunExplicit()
+		{
+			var results = await RunForResultsAsync(typeof(ClassWithExplicitTest), explicitOption: ExplicitOption.Only);
+
+			Assert.Equal(2, results.Count);
+			var notRun = Assert.Single(results.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+ExplicitTests+ClassWithExplicitTest.NonExplicitTest", notRun.TestDisplayName);
+			var failed = Assert.Single(results.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+ExplicitTests+ClassWithExplicitTest.ExplicitTest", failed.TestDisplayName);
+		}
+
+		[Fact]
+		public async ValueTask RunEverything()
+		{
+			var results = await RunForResultsAsync(typeof(ClassWithExplicitTest), explicitOption: ExplicitOption.On);
+
+			Assert.Equal(2, results.Count);
+			var passed = Assert.Single(results.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+ExplicitTests+ClassWithExplicitTest.NonExplicitTest", passed.TestDisplayName);
+			var failed = Assert.Single(results.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3AcceptanceTests+ExplicitTests+ClassWithExplicitTest.ExplicitTest", failed.TestDisplayName);
+		}
+
+		class ClassWithExplicitTest
+		{
+			[Fact]
+			public void NonExplicitTest() => Assert.True(true);
+
+			[Fact(Explicit = true)]
+			public void ExplicitTest() => Assert.True(false);
 		}
 	}
 

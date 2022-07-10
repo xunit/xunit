@@ -16,12 +16,13 @@ public class XunitTestCollectionRunnerContext : TestCollectionRunnerContext<IXun
 	public XunitTestCollectionRunnerContext(
 		_ITestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyDictionary<Type, object> assemblyFixtureMappings) :
-			base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+			base(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 	{
 		AssemblyFixtureMappings = assemblyFixtureMappings;
 	}

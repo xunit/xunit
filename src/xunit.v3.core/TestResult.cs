@@ -19,4 +19,11 @@ public enum TestResult
 	/// The test was skipped.
 	/// </summary>
 	Skipped,
+
+	/// <summary>
+	/// The test was not run because it was excluded (either because it was marked as explicit
+	/// and explicit tests weren't run, or because it was marked as not explicit as only explicit
+	/// tests were run).
+	/// </summary>
+	NotRun,
 }

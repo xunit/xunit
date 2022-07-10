@@ -83,6 +83,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			&& message.DispatchWhen<_TestFailed>(HandleTestFailed)
 			&& message.DispatchWhen<_TestFinished>(HandleTestFinished)
 			&& message.DispatchWhen<_TestPassed>(HandleTestPassed)
+			&& message.DispatchWhen<_TestNotRun>(HandleTestNotRun)
 			&& message.DispatchWhen<_TestSkipped>(HandleTestSkipped)
 			&& message.DispatchWhen<_TestStarting>(HandleTestStarting)
 
@@ -196,9 +197,10 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		assemblyElement.Add(
 			new XAttribute("total", ExecutionSummary.Total),
-			new XAttribute("passed", ExecutionSummary.Total - ExecutionSummary.Failed - ExecutionSummary.Skipped),
+			new XAttribute("passed", ExecutionSummary.Total - ExecutionSummary.Failed - ExecutionSummary.Skipped - ExecutionSummary.NotRun),
 			new XAttribute("failed", ExecutionSummary.Failed),
 			new XAttribute("skipped", ExecutionSummary.Skipped),
+			new XAttribute("not-run", ExecutionSummary.NotRun),
 			new XAttribute("time", ExecutionSummary.Time.ToString("0.000", CultureInfo.InvariantCulture)),
 			new XAttribute("errors", ExecutionSummary.Errors)
 		);
@@ -281,10 +283,11 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		var testCollectionFinished = args.Message;
 		var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollectionUniqueID);
 		collectionElement.Add(
-			new XAttribute("total", testCollectionFinished.TestsRun),
-			new XAttribute("passed", testCollectionFinished.TestsRun - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped),
+			new XAttribute("total", testCollectionFinished.TestsTotal),
+			new XAttribute("passed", testCollectionFinished.TestsTotal - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped - testCollectionFinished.TestsNotRun),
 			new XAttribute("failed", testCollectionFinished.TestsFailed),
 			new XAttribute("skipped", testCollectionFinished.TestsSkipped),
+			new XAttribute("not-run", testCollectionFinished.TestsNotRun),
 			new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
 		);
 
@@ -328,6 +331,9 @@ public class DelegatingXmlCreationSink : IExecutionSink
 
 	void HandleTestPassed(MessageHandlerArgs<_TestPassed> args) =>
 		CreateTestResultElement(args.Message, "Pass");
+
+	void HandleTestNotRun(MessageHandlerArgs<_TestNotRun> args) =>
+		CreateTestResultElement(args.Message, "NotRun");
 
 	void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 	{

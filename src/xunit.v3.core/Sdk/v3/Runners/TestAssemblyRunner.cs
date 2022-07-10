@@ -168,8 +168,9 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 						AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
 						ExecutionTime = totalSummary.Time,
 						TestsFailed = totalSummary.Failed,
-						TestsRun = totalSummary.Total,
-						TestsSkipped = totalSummary.Skipped
+						TestsNotRun = totalSummary.NotRun,
+						TestsSkipped = totalSummary.Skipped,
+						TestsTotal = totalSummary.Total,
 					};
 
 					ctxt.MessageBus.QueueMessage(assemblyFinished);

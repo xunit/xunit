@@ -221,6 +221,31 @@ public static class TestFrameworkOptionsReadExtensions
 	}
 
 	/// <summary>
+	/// Gets a flag that indicates how to handle explicit tests.
+	/// </summary>
+	public static ExplicitOption? ExplicitOption(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		var explicitText = executionOptions.GetValue<string?>(TestOptionsNames.Execution.ExplicitOption);
+		if (Enum.TryParse<ExplicitOption>(explicitText, out var result))
+			return result;
+
+		return null;
+	}
+
+	/// <summary>
+	/// Gets a flag that indicates how to handle explicit tests. If the flag is not present, returns the
+	/// default value (<see cref="ExplicitOption.Off"/>).
+	/// </summary>
+	public static ExplicitOption ExplicitOptionOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.ExplicitOption() ?? Sdk.ExplicitOption.Off;
+	}
+
+	/// <summary>
 	/// Gets the maximum number of threads to use when running tests in parallel.
 	/// </summary>
 	public static int? MaxParallelThreads(this _ITestFrameworkExecutionOptions executionOptions)

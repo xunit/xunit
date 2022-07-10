@@ -102,7 +102,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 
 	public virtual TestRunState Run(
 		IReadOnlyList<_TestCaseDiscovered>? testCases = null,
-		TestRunState initialRunState = TestRunState.NoTests)
+		TestRunState initialRunState = TestRunState.NoTests,
+		ExplicitOption? explicitOption = null)
 	{
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.testListener", testListener);
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
@@ -117,6 +118,9 @@ public class TdNetRunnerHelper : IAsyncDisposable
 			disposalTracker.Add(resultSink);
 
 			var executionOptions = _TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
+			if (explicitOption.HasValue)
+				executionOptions.SetExplicitOption(explicitOption);
+
 			var settings = new FrontControllerRunSettings(executionOptions, testCases.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
 			frontController.Run(resultSink, settings);
 
@@ -173,6 +177,6 @@ public class TdNetRunnerHelper : IAsyncDisposable
 			return false;
 		}).ToList();
 
-		return Run(testCases, initialRunState);
+		return Run(testCases, initialRunState, ExplicitOption.On);
 	}
 }

@@ -46,6 +46,8 @@ public class xunit : MSBuildTask, ICancelableTask
 
 	public string? ExcludeTraits { get; set; }
 
+	public string? Explicit { get; set; }
+
 	[Output]
 	public int ExitCode { get; protected set; }
 
@@ -213,6 +215,15 @@ public class xunit : MSBuildTask, ICancelableTask
 						"default" => null,
 						"invariant" => string.Empty,
 						_ => Culture,
+					};
+
+				if (Explicit != null)
+					projectAssembly.Configuration.ExplicitOption = Explicit.ToLowerInvariant() switch
+					{
+						"off" => ExplicitOption.Off,
+						"on" => ExplicitOption.On,
+						"only" => ExplicitOption.Only,
+						_ => throw new ArgumentException($"Invalid value for Explicit ('{Explicit}'); valid values are 'off', 'on', and 'only'"),
 					};
 
 				if (shadowCopy.HasValue)

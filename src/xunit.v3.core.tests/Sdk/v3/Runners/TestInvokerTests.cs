@@ -464,6 +464,6 @@ public class TestInvokerTests
 		}
 
 		public ValueTask<decimal> RunAsync() =>
-			RunAsync(new(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, messageBus, Aggregator, TokenSource));
+			RunAsync(new(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, ExplicitOption.Off, messageBus, Aggregator, TokenSource));
 	}
 }

@@ -22,9 +22,10 @@ public class TestRunnerContext : ContextBase
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
 		string? skipReason,
+		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
-			base(messageBus, aggregator, cancellationTokenSource)
+			base(explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		Test = Guard.ArgumentNotNull(test);
 		TestClass = Guard.ArgumentNotNull(testClass);

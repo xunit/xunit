@@ -13,7 +13,7 @@ public class TestCaseRunnerTests
 	[Fact]
 	public static async void Messages()
 	{
-		var summary = new RunSummary { Total = 4, Failed = 2, Skipped = 1, Time = 21.12m };
+		var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestCaseRunner.Create(messageBus, result: summary);
 
@@ -28,9 +28,10 @@ public class TestCaseRunnerTests
 			{
 				var testCaseFinished = Assert.IsAssignableFrom<_TestCaseFinished>(msg);
 				Assert.Equal(21.12m, testCaseFinished.ExecutionTime);
-				Assert.Equal(4, testCaseFinished.TestsRun);
 				Assert.Equal(2, testCaseFinished.TestsFailed);
+				Assert.Equal(3, testCaseFinished.TestsNotRun);
 				Assert.Equal(1, testCaseFinished.TestsSkipped);
+				Assert.Equal(9, testCaseFinished.TestsTotal);
 			}
 		);
 	}
@@ -260,7 +261,7 @@ public class TestCaseRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync()
-			=> RunAsync(new(TestCase, messageBus, aggregator, TokenSource));
+			=> RunAsync(new(TestCase, ExplicitOption.Off, messageBus, aggregator, TokenSource));
 
 		protected override ValueTask<RunSummary> RunTestsAsync(TestCaseRunnerContext<_ITestCase> ctxt)
 		{

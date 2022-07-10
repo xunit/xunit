@@ -50,6 +50,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 	}
 
 	public override ValueTask<RunSummary> RunAsync(
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
@@ -61,9 +62,11 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 				cancellationTokenSource,
 				TestCaseDisplayName,
 				SkipReason,
+				explicitOption,
 				constructorArguments,
 				TestMethodArguments
 			);
+
 	protected override void Serialize(IXunitSerializationInfo info)
 	{
 		base.Serialize(info);

@@ -17,6 +17,7 @@ public static class TestData
 	public const int DefaultCountFailed = 42;
 	public const int DefaultCountRun = 2112;
 	public const int DefaultCountSkipped = 6;
+	public const int DefaultCountNotRun = 3;
 	public static int[] DefaultExceptionParentIndices = new[] { -1 };
 	public static string[] DefaultExceptionMessages = new[] { "Attempted to divide by zero. Did you really think that was going to work?" };
 	public static string?[] DefaultExceptionTypes = new[] { typeof(DivideByZeroException).FullName };
@@ -72,13 +73,15 @@ public static class TestData
 		decimal executionTime = DefaultExecutionTime,
 		int testsFailed = DefaultCountFailed,
 		int testsRun = DefaultCountRun,
-		int testsSkipped = DefaultCountSkipped) =>
+		int testsSkipped = DefaultCountSkipped,
+		int testsNotRun = DefaultCountNotRun) =>
 			new _TestAssemblyFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
 				TestsFailed = testsFailed,
-				TestsRun = testsRun,
+				TestsNotRun = testsNotRun,
+				TestsTotal = testsRun,
 				TestsSkipped = testsSkipped
 			};
 
@@ -206,7 +209,8 @@ public static class TestData
 		int testsErrored = 95,
 		int testsFailed = DefaultCountFailed,
 		int testsRun = DefaultCountRun,
-		int testsSkipped = DefaultCountSkipped)
+		int testsSkipped = DefaultCountSkipped,
+		int testsNotRun = DefaultCountNotRun)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project)
@@ -227,6 +231,7 @@ public static class TestData
 		{
 			Errors = testsErrored,
 			Failed = testsFailed,
+			NotRun = testsNotRun,
 			Skipped = testsSkipped,
 			Time = executionTime,
 			Total = testsRun
@@ -247,7 +252,8 @@ public static class TestData
 		bool diagnosticMessages = false,
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
-		bool parallelizeTestCollections = false)
+		bool parallelizeTestCollections = false,
+		ExplicitOption? explicitOption = null)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project)
@@ -260,6 +266,7 @@ public static class TestData
 		var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
 		{
 			DiagnosticMessages = diagnosticMessages,
+			ExplicitOption = explicitOption,
 			InternalDiagnosticMessages = internalDiagnosticMessages,
 			MaxParallelThreads = maxParallelThreads,
 			ParallelizeTestCollections = parallelizeTestCollections
@@ -348,7 +355,8 @@ public static class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		int testsFailed = DefaultCountFailed,
 		int testsRun = DefaultCountRun,
-		int testsSkipped = DefaultCountSkipped) =>
+		int testsSkipped = DefaultCountSkipped,
+		int testsNotRun = DefaultCountNotRun) =>
 			new _TestCaseFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -358,7 +366,8 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestsFailed = testsFailed,
-				TestsRun = testsRun,
+				TestsNotRun = testsNotRun,
+				TestsTotal = testsRun,
 				TestsSkipped = testsSkipped
 			};
 
@@ -394,7 +403,8 @@ public static class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int testsFailed = DefaultCountFailed,
 		int testsRun = DefaultCountRun,
-		int testsSkipped = DefaultCountSkipped) =>
+		int testsSkipped = DefaultCountSkipped,
+		int testsNotRun = DefaultCountNotRun) =>
 			new _TestClassFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -402,7 +412,8 @@ public static class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testsFailed,
-				TestsRun = testsRun,
+				TestsNotRun = testsNotRun,
+				TestsTotal = testsRun,
 				TestsSkipped = testsSkipped
 			};
 
@@ -431,15 +442,17 @@ public static class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int testsFailed = DefaultCountFailed,
 		int testsRun = DefaultCountRun,
-		int testsSkipped = DefaultCountSkipped) =>
+		int testsSkipped = DefaultCountSkipped,
+		int testsNotRun = DefaultCountNotRun) =>
 			new _TestCollectionFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testsFailed,
-				TestsRun = testsRun,
-				TestsSkipped = testsSkipped
+				TestsNotRun = testsNotRun,
+				TestsTotal = testsRun,
+				TestsSkipped = testsSkipped,
 			};
 
 	public static _TestCollectionStarting TestCollectionStarting(
@@ -553,7 +566,8 @@ public static class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		int testsFailed = DefaultCountFailed,
 		int testsRun = DefaultCountRun,
-		int testsSkipped = DefaultCountSkipped) =>
+		int testsSkipped = DefaultCountSkipped,
+		int testsNotRun = DefaultCountNotRun) =>
 			new _TestMethodFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -562,7 +576,8 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestsFailed = testsFailed,
-				TestsRun = testsRun,
+				TestsNotRun = testsNotRun,
+				TestsTotal = testsRun,
 				TestsSkipped = testsSkipped
 			};
 
@@ -579,6 +594,25 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethod = testMethod,
 				TestMethodUniqueID = testMethodUniqueID
+			};
+
+	public static _TestNotRun TestNotRun(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new _TestNotRun
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = 0m,
+				Output = "",
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID
 			};
 
 	public static _TestPassed TestPassed(
@@ -604,8 +638,6 @@ public static class TestData
 
 	public static _TestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		decimal executionTime = 0m,
-		string output = "",
 		string reason = "skip-reason",
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -615,8 +647,8 @@ public static class TestData
 			new _TestSkipped
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = executionTime,
-				Output = output,
+				ExecutionTime = 0m,
+				Output = "",
 				Reason = reason,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
@@ -650,13 +682,14 @@ public static class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
+		bool? @explicit = null,
 		Dictionary<string, List<string>>? traits = null,
 		int? timeout = null,
 		string? uniqueID = null)
 	{
 		var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-		return new XunitDelayEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, skipReason, traits, timeout, uniqueID);
+		return new XunitDelayEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, skipReason, @explicit, traits, timeout, uniqueID);
 	}
 
 	public static XunitPreEnumeratedTheoryTestCase XunitPreEnumeratedTheoryTestCase<TClassUnderTest>(
@@ -666,13 +699,14 @@ public static class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
+		bool? @explicit = null,
 		Dictionary<string, List<string>>? traits = null,
 		int? timeout = null,
 		string? uniqueID = null)
 	{
 		var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-		return new XunitPreEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, methodArguments, skipReason, traits, timeout, uniqueID);
+		return new XunitPreEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, methodArguments, skipReason, @explicit, traits, timeout, uniqueID);
 	}
 
 	public static XunitTestCase XunitTestCase<TClassUnderTest>(
@@ -681,11 +715,12 @@ public static class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
+		bool? @explicit = null,
 		int? timeout = null,
 		string? uniqueID = null)
 	{
 		var method = TestMethod<TClassUnderTest>(methodName, collection);
 
-		return new XunitTestCase(methodDisplay, methodDisplayOptions, method, skipReason, timeout, uniqueID);
+		return new XunitTestCase(methodDisplay, methodDisplayOptions, method, skipReason, @explicit, timeout, uniqueID);
 	}
 }

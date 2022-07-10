@@ -21,6 +21,11 @@ public class RunSummary
 	public int Skipped;
 
 	/// <summary>
+	/// The number of tests that were not run.
+	/// </summary>
+	public int NotRun;
+
+	/// <summary>
 	/// The total time taken to run the tests, in seconds.
 	/// </summary>
 	public decimal Time;
@@ -34,6 +39,7 @@ public class RunSummary
 		Total += other.Total;
 		Failed += other.Failed;
 		Skipped += other.Skipped;
+		NotRun += other.NotRun;
 		Time += other.Time;
 	}
 }

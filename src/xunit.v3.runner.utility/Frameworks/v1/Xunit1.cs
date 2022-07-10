@@ -236,7 +236,8 @@ public class Xunit1 : IFrontController
 	protected void FindAndRun(
 		_IMessageSink messageSink,
 		bool includeSourceInformation,
-		Predicate<_TestCaseDiscovered>? filter)
+		Predicate<_TestCaseDiscovered>? filter,
+		bool markAllAsNotRun)
 	{
 		Guard.ArgumentNotNull(messageSink);
 
@@ -256,7 +257,7 @@ public class Xunit1 : IFrontController
 				testCases.Add(testCase);
 		});
 
-		Run(testCases, messageSink);
+		Run(testCases, messageSink, markAllAsNotRun);
 	}
 
 	/// <inheritdoc/>
@@ -271,7 +272,8 @@ public class Xunit1 : IFrontController
 		FindAndRun(
 			messageSink,
 			settings.DiscoveryOptions.GetIncludeSourceInformationOrDefault(),
-			settings.Filters.Empty ? null : settings.Filters.Filter
+			settings.Filters.Empty ? null : settings.Filters.Filter,
+			settings.ExecutionOptions.GetExplicitOptionOrDefault() == ExplicitOption.Only
 		);
 	}
 
@@ -280,7 +282,8 @@ public class Xunit1 : IFrontController
 	/// </summary>
 	protected void Run(
 		IReadOnlyCollection<Xunit1TestCase> testCases,
-		_IMessageSink messageSink)
+		_IMessageSink messageSink,
+		bool markAllAsNotRun)
 	{
 		var results = new Xunit1RunSummary();
 		var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
@@ -302,7 +305,7 @@ public class Xunit1 : IFrontController
 			try
 			{
 				if (testCasesList.Count != 0)
-					results = RunTestCollection(testCasesList, messageSink);
+					results = RunTestCollection(testCasesList, messageSink, markAllAsNotRun);
 			}
 			catch (Exception ex)
 			{
@@ -323,7 +326,8 @@ public class Xunit1 : IFrontController
 					AssemblyUniqueID = testAssemblyStartingMessage.AssemblyUniqueID,
 					ExecutionTime = results.Time,
 					TestsFailed = results.Failed,
-					TestsRun = results.Total,
+					TestsNotRun = results.NotRun,
+					TestsTotal = results.Total,
 					TestsSkipped = results.Skipped
 				};
 
@@ -347,12 +351,13 @@ public class Xunit1 : IFrontController
 				.WhereNotNull()
 				.CastOrToReadOnlyCollection();
 
-		Run(testCases, messageSink);
+		Run(testCases, messageSink, settings.Options.GetExplicitOptionOrDefault() == ExplicitOption.Only);
 	}
 
 	Xunit1RunSummary RunTestCollection(
 		IList<Xunit1TestCase> testCases,
-		_IMessageSink messageSink)
+		_IMessageSink messageSink,
+		bool markAllAsNotRun)
 	{
 		Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
@@ -374,7 +379,7 @@ public class Xunit1 : IFrontController
 			if (results.Continue)
 				foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestClass))
 				{
-					var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
+					var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink, markAllAsNotRun);
 					results.Aggregate(classResults);
 					if (!classResults.Continue)
 						break;
@@ -388,7 +393,8 @@ public class Xunit1 : IFrontController
 				ExecutionTime = results.Time,
 				TestCollectionUniqueID = collectionStarting.TestCollectionUniqueID,
 				TestsFailed = results.Failed,
-				TestsRun = results.Total,
+				TestsNotRun = results.NotRun,
+				TestsTotal = results.Total,
 				TestsSkipped = results.Skipped
 			};
 
@@ -401,7 +407,8 @@ public class Xunit1 : IFrontController
 	Xunit1RunSummary RunTestClass(
 		string typeName,
 		IList<Xunit1TestCase> testCases,
-		_IMessageSink messageSink)
+		_IMessageSink messageSink,
+		bool markAllAsNotRun)
 	{
 		Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
@@ -421,9 +428,28 @@ public class Xunit1 : IFrontController
 		{
 			if (results.Continue)
 			{
-				var methodNames = testCases.Select(tc => tc.TestMethod).ToList();
-				Executor.RunTests(typeName, methodNames, handler);
-				handler.LastNodeArrived.WaitOne();
+				if (markAllAsNotRun)
+				{
+					foreach (var testCase in testCases)
+					{
+						results.NotRun++;
+						results.Total++;
+
+						messageSink.OnMessage(testCase.ToTestMethodStarting());
+						messageSink.OnMessage(testCase.ToTestCaseStarting());
+						messageSink.OnMessage(testCase.ToTestStarting(testCase.TestClass, -1));  // We don't know the test display name because it's on the other side of the app domain
+						messageSink.OnMessage(testCase.ToTestNotRun(-1));
+						messageSink.OnMessage(testCase.ToTestFinishedNotRun(-1));
+						messageSink.OnMessage(testCase.ToTestCaseFinishedNotRun());
+						messageSink.OnMessage(testCase.ToTestMethodFinishedNotRun());
+					}
+				}
+				else
+				{
+					var methodNames = testCases.Select(tc => tc.TestMethod).ToList();
+					Executor.RunTests(typeName, methodNames, handler);
+					handler.LastNodeArrived.WaitOne();
+				}
 			}
 		}
 		finally
@@ -435,7 +461,8 @@ public class Xunit1 : IFrontController
 				TestClassUniqueID = testClassStarting.TestClassUniqueID,
 				TestCollectionUniqueID = testClassStarting.TestCollectionUniqueID,
 				TestsFailed = results.Failed,
-				TestsRun = results.Total,
+				TestsNotRun = results.NotRun,
+				TestsTotal = results.Total,
 				TestsSkipped = results.Skipped
 			};
 

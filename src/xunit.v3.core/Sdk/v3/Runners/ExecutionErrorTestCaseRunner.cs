@@ -34,7 +34,7 @@ public class ExecutionErrorTestCaseRunner : TestCaseRunner<TestCaseRunnerContext
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) =>
-			RunAsync(new(testCase, messageBus, aggregator, cancellationTokenSource));
+			RunAsync(new(testCase, ExplicitOption.Off, messageBus, aggregator, cancellationTokenSource));
 
 	/// <inheritdoc/>
 	protected override ValueTask<RunSummary> RunTestsAsync(TestCaseRunnerContext<ExecutionErrorTestCase> ctxt)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class Xunit2AcceptanceTests
@@ -240,6 +241,41 @@ let TestMethod (x:int) =
 			Assert.Empty(sink.Messages.OfType<_TestSkipped>());
 		}
 
+		[Fact]
+		public async ValueTask DoesNotRunTestsWhenExplicitOnly()
+		{
+			var code = @"
+using System;
+using Xunit;
+
+public class TestClass
+{
+	[Theory]
+	[InlineData(42)]
+	[InlineData(2112)]
+	public void TestMethod(int x) { Assert.Equal(2112, x); }
+}";
+
+			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
+			var controller = TestableXunit2.Create(assembly.FileName, null, true);
+			var settings = new FrontControllerFindAndRunSettings(_TestFrameworkOptions.ForDiscovery(), _TestFrameworkOptions.ForExecution(explicitOption: ExplicitOption.Only));
+			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
+
+			controller.FindAndRun(sink, settings);
+			sink.Finished.WaitOne();
+
+			Assert.Empty(sink.Messages.OfType<_TestPassed>());
+			Assert.Empty(sink.Messages.OfType<_TestFailed>());
+			Assert.Empty(sink.Messages.OfType<_TestSkipped>());
+			var notRunTests = sink.Messages.OfType<_TestNotRun>();
+			var notRunTestDisplayNames = notRunTests.Select(t => sink.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == t.TestUniqueID).TestDisplayName);
+			Assert.Collection(
+				notRunTestDisplayNames.OrderBy(x => x),
+				displayName => Assert.Equal("TestClass.TestMethod(x: 2112)", displayName),
+				displayName => Assert.Equal("TestClass.TestMethod(x: 42)", displayName)
+			);
+		}
+
 		public class CSharp
 		{
 			[Fact]
@@ -461,6 +497,49 @@ let AsyncFailing() =
 			Assert.Empty(sink.Messages.OfType<_TestPassed>());
 			Assert.Empty(sink.Messages.OfType<_TestFailed>());
 			Assert.Empty(sink.Messages.OfType<_TestSkipped>());
+		}
+
+		[Fact]
+		public async ValueTask DoesNotRunTestsWhenExplicitOnly()
+		{
+			var code = @"
+using System;
+using Xunit;
+
+public class TestClass
+{
+	[Theory]
+	[InlineData(42)]
+	[InlineData(2112)]
+	public void TestMethod(int x) { Assert.Equal(2112, x); }
+}";
+
+			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
+			var controller = TestableXunit2.Create(assembly.FileName, null, true);
+			var findSettings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery());
+			using var discoverySink = SpyMessageSink<_DiscoveryComplete>.Create();
+
+			controller.Find(discoverySink, findSettings);
+			discoverySink.Finished.WaitOne();
+
+			using var executionSink = SpyMessageSink<_TestAssemblyFinished>.Create();
+			var serializedTestCases = discoverySink.Messages.OfType<_TestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
+			Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+			var runSettings = new FrontControllerRunSettings(_TestFrameworkOptions.ForExecution(explicitOption: ExplicitOption.Only), serializedTestCases);
+
+			controller.Run(executionSink, runSettings);
+			executionSink.Finished.WaitOne();
+
+			Assert.Empty(executionSink.Messages.OfType<_TestPassed>());
+			Assert.Empty(executionSink.Messages.OfType<_TestFailed>());
+			Assert.Empty(executionSink.Messages.OfType<_TestSkipped>());
+			var notRunTests = executionSink.Messages.OfType<_TestNotRun>();
+			var notRunTestDisplayNames = notRunTests.Select(t => executionSink.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == t.TestUniqueID).TestDisplayName);
+			Assert.Collection(
+				notRunTestDisplayNames.OrderBy(x => x),
+				displayName => Assert.Equal("TestClass.TestMethod(x: 2112)", displayName),
+				displayName => Assert.Equal("TestClass.TestMethod(x: 42)", displayName)
+			);
 		}
 
 		public class CSharp

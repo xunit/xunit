@@ -10,8 +10,9 @@ public class _TestCollectionFinished : _TestCollectionMessage, _IExecutionSummar
 {
 	decimal? executionTime;
 	int? testsFailed;
-	int? testsRun;
+	int? testsNotRun;
 	int? testsSkipped;
+	int? testsTotal;
 
 	/// <inheritdoc/>
 	public decimal ExecutionTime
@@ -28,10 +29,10 @@ public class _TestCollectionFinished : _TestCollectionMessage, _IExecutionSummar
 	}
 
 	/// <inheritdoc/>
-	public int TestsRun
+	public int TestsNotRun
 	{
-		get => testsRun ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsRun)} on an uninitialized '{GetType().FullName}' object");
-		set => testsRun = value;
+		get => testsNotRun ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsNotRun)} on an uninitialized '{GetType().FullName}' object");
+		set => testsNotRun = value;
 	}
 
 	/// <inheritdoc/>
@@ -39,5 +40,12 @@ public class _TestCollectionFinished : _TestCollectionMessage, _IExecutionSummar
 	{
 		get => testsSkipped ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsSkipped)} on an uninitialized '{GetType().FullName}' object");
 		set => testsSkipped = value;
+	}
+
+	/// <inheritdoc/>
+	public int TestsTotal
+	{
+		get => testsTotal ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsTotal)} on an uninitialized '{GetType().FullName}' object");
+		set => testsTotal = value;
 	}
 }

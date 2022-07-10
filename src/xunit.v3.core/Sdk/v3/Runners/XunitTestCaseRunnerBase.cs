@@ -80,6 +80,7 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 			ctxt.TestMethod,
 			ctxt.TestMethodArguments,
 			ctxt.SkipReason,
+			ctxt.ExplicitOption,
 			ctxt.Aggregator,
 			ctxt.CancellationTokenSource,
 			ctxt.BeforeAfterTestAttributes

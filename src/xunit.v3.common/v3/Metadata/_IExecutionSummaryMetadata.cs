@@ -18,12 +18,18 @@ public interface _IExecutionSummaryMetadata
 	int TestsFailed { get; }
 
 	/// <summary>
-	/// The total number of tests run.
+	/// The number of tests that were not run. This includes explicit tests when explicit tests are not run,
+	/// or non-expicit tests when non-explicit tests are not run.
 	/// </summary>
-	int TestsRun { get; }
+	int TestsNotRun { get; }
 
 	/// <summary>
 	/// The number of skipped tests.
 	/// </summary>
 	int TestsSkipped { get; }
+
+	/// <summary>
+	/// The total number of tests run and not run.
+	/// </summary>
+	int TestsTotal { get; }
 }

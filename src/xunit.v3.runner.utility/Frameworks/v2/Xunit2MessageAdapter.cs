@@ -94,7 +94,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _AfterTestFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			AttributeName = message.AttributeName,
@@ -102,7 +102,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -114,7 +114,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _AfterTestStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			AttributeName = message.AttributeName,
@@ -122,7 +122,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -134,7 +134,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _BeforeTestFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			AttributeName = message.AttributeName,
@@ -142,7 +142,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -154,7 +154,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _BeforeTestStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			AttributeName = message.AttributeName,
@@ -162,7 +162,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -178,7 +178,7 @@ public class Xunit2MessageAdapter
 			ExceptionParentIndices = message.ExceptionParentIndices,
 			ExceptionTypes = message.ExceptionTypes,
 			Messages = message.Messages,
-			StackTraces = message.StackTraces
+			StackTraces = message.StackTraces,
 		};
 
 	_TestAssemblyCleanupFailure AdaptTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure message) =>
@@ -188,7 +188,7 @@ public class Xunit2MessageAdapter
 			ExceptionParentIndices = message.ExceptionParentIndices,
 			ExceptionTypes = message.ExceptionTypes,
 			Messages = message.Messages,
-			StackTraces = message.StackTraces
+			StackTraces = message.StackTraces,
 		};
 
 	_TestAssemblyFinished AdaptTestAssemblyFinished(ITestAssemblyFinished message) =>
@@ -197,8 +197,9 @@ public class Xunit2MessageAdapter
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
 			TestsFailed = message.TestsFailed,
-			TestsRun = message.TestsRun,
-			TestsSkipped = message.TestsSkipped
+			TestsNotRun = 0,
+			TestsSkipped = message.TestsSkipped,
+			TestsTotal = message.TestsRun,
 		};
 
 	_TestAssemblyStarting AdaptTestAssemblyStarting(ITestAssemblyStarting message)
@@ -206,7 +207,7 @@ public class Xunit2MessageAdapter
 		var targetFrameworkAttribute = message.TestAssembly.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute).FullName).FirstOrDefault();
 		var targetFramework = targetFrameworkAttribute?.GetConstructorArguments().Cast<string>().Single();
 
-		return new _TestAssemblyStarting
+		return new()
 		{
 			AssemblyName = message.TestAssembly.Assembly.Name,
 			AssemblyPath = message.TestAssembly.Assembly.AssemblyPath,
@@ -215,7 +216,7 @@ public class Xunit2MessageAdapter
 			StartTime = message.StartTime,
 			TargetFramework = targetFramework,
 			TestEnvironment = message.TestEnvironment,
-			TestFrameworkDisplayName = message.TestFrameworkDisplayName
+			TestFrameworkDisplayName = message.TestFrameworkDisplayName,
 		};
 	}
 
@@ -225,7 +226,7 @@ public class Xunit2MessageAdapter
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		return new _TestCaseCleanupFailure
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = message.ExceptionParentIndices,
@@ -287,7 +288,7 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodName = testCase.TestMethod?.Method.Name,
 			TestMethodUniqueID = testMethodUniqueID,
-			Traits = testCase.Traits.ToReadOnly()
+			Traits = testCase.Traits.ToReadOnly(),
 		};
 
 		if (discoverer != null)
@@ -307,7 +308,7 @@ public class Xunit2MessageAdapter
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 		var testCaseUniqueID = message.TestCase.UniqueID;
 
-		return new _TestCaseFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
@@ -316,8 +317,9 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestsFailed = message.TestsFailed,
-			TestsRun = message.TestsRun,
-			TestsSkipped = message.TestsSkipped
+			TestsNotRun = 0,
+			TestsSkipped = message.TestsSkipped,
+			TestsTotal = message.TestsRun,
 		};
 	}
 
@@ -327,7 +329,12 @@ public class Xunit2MessageAdapter
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		return new _TestCaseStarting
+		var testClassNameWithNamespace = message.TestCase.TestMethod?.TestClass.Class.Name;
+		var lastDotIdx = testClassNameWithNamespace?.LastIndexOf('.') ?? -1;
+		var testClassNamespace = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(0, lastDotIdx) : null;
+		var testClassName = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(lastDotIdx + 1) : testClassNameWithNamespace;
+
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			SkipReason = message.TestCase.SkipReason,
@@ -335,10 +342,14 @@ public class Xunit2MessageAdapter
 			SourceLineNumber = message.TestCase.SourceInformation?.LineNumber,
 			TestCaseDisplayName = message.TestCase.DisplayName,
 			TestCaseUniqueID = message.TestCase.UniqueID,
+			TestClassName = testClassName,
+			TestClassNamespace = testClassNamespace,
+			TestClassNameWithNamespace = testClassNameWithNamespace,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
+			TestMethodName = message.TestCase.TestMethod?.Method.Name,
 			TestMethodUniqueID = testMethodUniqueID,
-			Traits = message.TestCase.Traits.ToReadOnly()
+			Traits = message.TestCase.Traits.ToReadOnly(),
 		};
 	}
 
@@ -347,7 +358,7 @@ public class Xunit2MessageAdapter
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
-		return new _TestClassCleanupFailure
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = message.ExceptionParentIndices,
@@ -355,7 +366,7 @@ public class Xunit2MessageAdapter
 			Messages = message.Messages,
 			StackTraces = message.StackTraces,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			TestClassUniqueID = testClassUniqueID
+			TestClassUniqueID = testClassUniqueID,
 		};
 	}
 
@@ -367,14 +378,14 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestClassConstructionFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -386,14 +397,14 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestClassConstructionStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -405,14 +416,14 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestClassDisposeFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -424,14 +435,14 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestClassDisposeStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -440,15 +451,16 @@ public class Xunit2MessageAdapter
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
-		return new _TestClassFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestsFailed = message.TestsFailed,
-			TestsRun = message.TestsRun,
-			TestsSkipped = message.TestsSkipped
+			TestsNotRun = 0,
+			TestsSkipped = message.TestsSkipped,
+			TestsTotal = message.TestsRun,
 		};
 	}
 
@@ -457,12 +469,12 @@ public class Xunit2MessageAdapter
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 
-		return new _TestClassStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestClass = message.TestClass.Class.Name,
 			TestClassUniqueID = testClassUniqueID,
-			TestCollectionUniqueID = testCollectionUniqueID
+			TestCollectionUniqueID = testCollectionUniqueID,
 		};
 	}
 
@@ -474,7 +486,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestCleanupFailure
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = message.ExceptionParentIndices,
@@ -485,7 +497,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -493,14 +505,14 @@ public class Xunit2MessageAdapter
 	{
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
-		return new _TestCollectionCleanupFailure
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = message.ExceptionParentIndices,
 			ExceptionTypes = message.ExceptionTypes,
 			Messages = message.Messages,
 			StackTraces = message.StackTraces,
-			TestCollectionUniqueID = testCollectionUniqueID
+			TestCollectionUniqueID = testCollectionUniqueID,
 		};
 	}
 
@@ -508,14 +520,15 @@ public class Xunit2MessageAdapter
 	{
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
-		return new _TestCollectionFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestsFailed = message.TestsFailed,
-			TestsRun = message.TestsRun,
-			TestsSkipped = message.TestsSkipped
+			TestsNotRun = 0,
+			TestsSkipped = message.TestsSkipped,
+			TestsTotal = message.TestsRun,
 		};
 	}
 
@@ -523,12 +536,12 @@ public class Xunit2MessageAdapter
 	{
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 
-		return new _TestCollectionStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCollectionClass = message.TestCollection.CollectionDefinition?.Name,
 			TestCollectionDisplayName = message.TestCollection.DisplayName,
-			TestCollectionUniqueID = testCollectionUniqueID
+			TestCollectionUniqueID = testCollectionUniqueID,
 		};
 	}
 
@@ -540,9 +553,10 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestFailed
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			Cause = FailureCause.Assertion,  // We don't know in v2, so we just assume it's an assertion failure
 			ExceptionParentIndices = message.ExceptionParentIndices,
 			ExceptionTypes = message.ExceptionTypes,
 			ExecutionTime = message.ExecutionTime,
@@ -553,7 +567,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -565,7 +579,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
@@ -574,7 +588,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -584,7 +598,7 @@ public class Xunit2MessageAdapter
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		return new _TestMethodCleanupFailure
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = message.ExceptionParentIndices,
@@ -603,7 +617,7 @@ public class Xunit2MessageAdapter
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		return new _TestMethodFinished
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
@@ -611,8 +625,9 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestsFailed = message.TestsFailed,
-			TestsRun = message.TestsRun,
-			TestsSkipped = message.TestsSkipped
+			TestsNotRun = 0,
+			TestsSkipped = message.TestsSkipped,
+			TestsTotal = message.TestsRun,
 		};
 	}
 
@@ -622,7 +637,7 @@ public class Xunit2MessageAdapter
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		return new _TestMethodStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
@@ -640,7 +655,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestOutput
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			Output = message.Output,
@@ -648,7 +663,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -660,7 +675,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestPassed
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
@@ -669,7 +684,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -681,7 +696,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestSkipped
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
@@ -691,7 +706,7 @@ public class Xunit2MessageAdapter
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 
@@ -703,7 +718,7 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = message.TestCase.UniqueID;
 		var testUniqueID = UniqueIDForTest(testCaseUniqueID, message.Test);
 
-		return new _TestStarting
+		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCaseUniqueID = testCaseUniqueID,
@@ -711,7 +726,7 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestDisplayName = message.Test.DisplayName,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = testUniqueID
+			TestUniqueID = testUniqueID,
 		};
 	}
 

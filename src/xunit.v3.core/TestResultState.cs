@@ -92,6 +92,8 @@ public class TestResultState
 			result.Result = TestResult.Passed;
 		else if (testResult is _TestSkipped)
 			result.Result = TestResult.Skipped;
+		else if (testResult is _TestNotRun)
+			result.Result = TestResult.NotRun;
 		else if (testResult is _TestFailed testFailed)
 		{
 			result.ExceptionMessages = testFailed.Messages;

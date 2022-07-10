@@ -15,10 +15,11 @@ public class TestCaseRunnerContext<TTestCase> : ContextBase
 	/// </summary>
 	public TestCaseRunnerContext(
 		TTestCase testCase,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
-			base(messageBus, aggregator, cancellationTokenSource)
+			base(explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		TestCase = Guard.GenericArgumentNotNull(testCase);
 	}

@@ -55,6 +55,11 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	protected _ITestFrameworkExecutionOptions ExecutionOptions { get; }
 
 	/// <summary>
+	/// Gets a flag which indicates how explicit tests should be handled.
+	/// </summary>
+	public ExplicitOption ExplicitOption => ExecutionOptions.ExplicitOptionOrDefault();
+
+	/// <summary>
 	/// Gets the message bus to send execution engine messages to.
 	/// </summary>
 	public IMessageBus MessageBus =>

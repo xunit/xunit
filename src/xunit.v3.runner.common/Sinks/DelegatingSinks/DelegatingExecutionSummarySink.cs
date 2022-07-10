@@ -65,8 +65,9 @@ public class DelegatingExecutionSummarySink : IExecutionSink
 
 	void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 	{
-		ExecutionSummary.Total = args.Message.TestsRun;
+		ExecutionSummary.Total = args.Message.TestsTotal;
 		ExecutionSummary.Failed = args.Message.TestsFailed;
+		ExecutionSummary.NotRun = args.Message.TestsNotRun;
 		ExecutionSummary.Skipped = args.Message.TestsSkipped;
 		ExecutionSummary.Time = args.Message.ExecutionTime;
 		ExecutionSummary.Errors = errors;

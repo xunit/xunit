@@ -241,7 +241,8 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		{
 			Total = summaries.Sum(s => s.Total),
 			Failed = summaries.Sum(s => s.Failed),
-			Skipped = summaries.Sum(s => s.Skipped)
+			NotRun = summaries.Sum(s => s.NotRun),
+			Skipped = summaries.Sum(s => s.Skipped),
 		};
 	}
 
@@ -253,6 +254,7 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 			XunitTestCollectionRunner.Instance.RunAsync(
 				testCollection,
 				testCases,
+				ctxt.ExplicitOption,
 				ctxt.MessageBus,
 				GetTestCaseOrderer(ctxt),
 				ctxt.Aggregator.Clone(),

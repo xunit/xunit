@@ -96,12 +96,14 @@ public static partial class Mocks
 
 	public static _IReflectionAttributeInfo FactAttribute(
 		string? displayName = null,
+		bool? @explicit = null,
 		string? skip = null,
 		int timeout = 0)
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
 		result.GetNamedArgument<string?>("DisplayName").Returns(displayName);
+		result.GetNamedArgument<bool>("Explicit").Returns(@explicit ?? false);
 		result.GetNamedArgument<string?>("Skip").Returns(skip);
 		result.GetNamedArgument<int>("Timeout").Returns(timeout);
 		return result;

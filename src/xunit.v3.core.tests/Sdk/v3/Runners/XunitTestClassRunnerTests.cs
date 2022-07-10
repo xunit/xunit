@@ -465,7 +465,7 @@ public class XunitTestClassRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings);
+			RunAsync(testClass, @class, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings);
 
 		protected override ValueTask<RunSummary> RunTestMethodAsync(
 			XunitTestClassRunnerContext ctxt,

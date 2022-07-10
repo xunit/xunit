@@ -21,6 +21,11 @@ public class ExecutionSummary
 	public int Skipped { get; set; }
 
 	/// <summary>
+	/// Gets or sets the number of tests not run.
+	/// </summary>
+	public int NotRun { get; set; }
+
+	/// <summary>
 	/// Gets or sets the total execution time for the tests.
 	/// </summary>
 	public decimal Time { get; set; }

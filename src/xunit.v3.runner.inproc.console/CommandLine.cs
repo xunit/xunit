@@ -29,7 +29,7 @@ public class CommandLine : CommandLineParserBase
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
 			"  none        - turn off all parallelization",
-			"  collections - only parallelize collections"
+			"  collections - only parallelize collections [default]"
 		);
 	}
 

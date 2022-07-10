@@ -17,7 +17,7 @@ public class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask Messages()
 		{
-			var summary = new RunSummary { Total = 4, Failed = 2, Skipped = 1, Time = 21.12m };
+			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
 			var messages = new List<_MessageSinkMessage>();
 			var messageSink = SpyMessageSink.Create(messages: messages);
 			var runner = TestableTestAssemblyRunner.Create(messageSink, summary);
@@ -25,9 +25,10 @@ public class TestAssemblyRunnerTests
 
 			var result = await runner.RunAsync();
 
-			Assert.Equal(4, result.Total);
 			Assert.Equal(2, result.Failed);
+			Assert.Equal(3, result.NotRun);
 			Assert.Equal(1, result.Skipped);
+			Assert.Equal(9, result.Total);
 			Assert.NotEqual(21.12m, result.Time);  // Uses clock time, not result time
 			Assert.Collection(
 				messages,
@@ -52,8 +53,9 @@ public class TestAssemblyRunnerTests
 					Assert.Equal("assembly-id", finished.AssemblyUniqueID);
 					Assert.Equal(result.Time, finished.ExecutionTime);
 					Assert.Equal(2, finished.TestsFailed);
-					Assert.Equal(4, finished.TestsRun);
+					Assert.Equal(3, finished.TestsNotRun);
 					Assert.Equal(1, finished.TestsSkipped);
+					Assert.Equal(9, finished.TestsTotal);
 				}
 			);
 		}

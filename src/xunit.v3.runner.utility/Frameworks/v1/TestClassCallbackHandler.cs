@@ -102,7 +102,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			startSeen = true;
 			Interlocked.Increment(ref currentTestIndex);
 			var testDisplayName = xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}";
-			result = messageSink.OnMessage(ToTestStarting(testCase, testDisplayName)) && result;
+			result = messageSink.OnMessage(testCase.ToTestStarting(testDisplayName, currentTestIndex)) && result;
 		}
 
 		return result;
@@ -132,31 +132,31 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			switch (xml.Attributes?["result"]?.Value)
 			{
 				case "Pass":
-					resultMessage = ToTestPassed(testCase, time, output);
+					resultMessage = testCase.ToTestPassed(time, output, currentTestIndex);
 					break;
 
 				case "Fail":
 					testCaseResults.Failed++;
 					var failureNode = xml.SelectSingleNode("failure");
 					if (failureNode != null)
-						resultMessage = ToTestFailed(testCase, time, output, failureNode);
+						resultMessage = testCase.ToTestFailed(time, output, failureNode, currentTestIndex);
 					break;
 
 				case "Skip":
 					testCaseResults.Skipped++;
-					resultMessage = ToTestSkipped(testCase, xml.SelectSingleNode("reason/message")?.InnerText ?? "<unknown skip reason>");
+					resultMessage = testCase.ToTestSkipped(xml.SelectSingleNode("reason/message")?.InnerText ?? "<unknown skip reason>", currentTestIndex);
 					break;
 			}
 
 			// Since we don't get live output from xUnit.net v1, we just send a single output message just before
 			// the result message (if there was any output).
 			if (!string.IsNullOrEmpty(output))
-				@continue = messageSink.OnMessage(ToTestOutput(testCase, output)) && @continue;
+				@continue = messageSink.OnMessage(testCase.ToTestOutput(output, currentTestIndex)) && @continue;
 
 			if (resultMessage != null)
 				@continue = messageSink.OnMessage(resultMessage) && @continue;
 
-			@continue = messageSink.OnMessage(ToTestFinished(testCase, time, output)) && @continue;
+			@continue = messageSink.OnMessage(testCase.ToTestFinished(time, output, currentTestIndex)) && @continue;
 			startSeen = false;
 		}
 
@@ -179,18 +179,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 
 		if (current != lastTestCase && lastTestCase != null)
 		{
-			var testCaseFinished = new _TestCaseFinished
-			{
-				AssemblyUniqueID = lastTestCase.AssemblyUniqueID,
-				ExecutionTime = testCaseResults.Time,
-				TestCaseUniqueID = lastTestCase.TestCaseUniqueID,
-				TestClassUniqueID = lastTestCase.TestClassUniqueID,
-				TestCollectionUniqueID = lastTestCase.TestCollectionUniqueID,
-				TestMethodUniqueID = lastTestCase.TestMethodUniqueID,
-				TestsFailed = testCaseResults.Failed,
-				TestsRun = testCaseResults.Total,
-				TestsSkipped = testCaseResults.Skipped
-			};
+			var testCaseFinished = lastTestCase.ToTestCaseFinished(testCaseResults);
 
 			results.Continue = messageSink.OnMessage(testCaseFinished) && results.Continue;
 			testMethodResults.Aggregate(testCaseResults);
@@ -198,18 +187,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 
 			if (current == null || lastTestCase.TestMethod != current.TestMethod)
 			{
-				var testMethodFinished = new _TestMethodFinished
-				{
-					AssemblyUniqueID = lastTestCase.AssemblyUniqueID,
-					ExecutionTime = testMethodResults.Time,
-					TestClassUniqueID = lastTestCase.TestClassUniqueID,
-					TestCollectionUniqueID = lastTestCase.TestCollectionUniqueID,
-					TestMethodUniqueID = lastTestCase.TestMethodUniqueID,
-					TestsFailed = testMethodResults.Failed,
-					TestsRun = testMethodResults.Total,
-					TestsSkipped = testMethodResults.Skipped
-				};
-
+				var testMethodFinished = lastTestCase.ToTestMethodFinished(testMethodResults);
 				results.Continue = messageSink.OnMessage(testMethodFinished) && results.Continue;
 
 				testMethodResults.Reset();
@@ -221,147 +199,16 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			// Dispatch TestMethodStarting if we've moved onto a new method
 			if (lastTestCase == null || lastTestCase.TestMethod != current.TestMethod)
 			{
-				var testMethodStarting = new _TestMethodStarting
-				{
-					AssemblyUniqueID = current.AssemblyUniqueID,
-					TestClassUniqueID = current.TestClassUniqueID,
-					TestCollectionUniqueID = current.TestCollectionUniqueID,
-					TestMethod = current.TestMethod,
-					TestMethodUniqueID = current.TestMethodUniqueID
-				};
+				var testMethodStarting = current.ToTestMethodStarting();
 				results.Continue = messageSink.OnMessage(testMethodStarting) && results.Continue;
 			}
 
 			// Dispatch TestCaseStarting
-			var testCaseStarting = new _TestCaseStarting
-			{
-				AssemblyUniqueID = current.AssemblyUniqueID,
-				SkipReason = current.SkipReason,
-				SourceFilePath = current.SourceFilePath,
-				SourceLineNumber = current.SourceLineNumber,
-				TestCaseDisplayName = current.TestCaseDisplayName,
-				TestCaseUniqueID = current.TestCaseUniqueID,
-				TestClassUniqueID = current.TestClassUniqueID,
-				TestCollectionUniqueID = current.TestCollectionUniqueID,
-				TestMethodUniqueID = current.TestMethodUniqueID,
-				Traits = current.Traits
-			};
-
+			var testCaseStarting = current.ToTestCaseStarting();
 			results.Continue = messageSink.OnMessage(testCaseStarting) && results.Continue;
 		}
 
 		lastTestCase = current;
-	}
-
-	_TestFailed ToTestFailed(
-		Xunit1TestCase testCase,
-		decimal executionTime,
-		string output,
-		XmlNode failure)
-	{
-		var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failure);
-
-		return new _TestFailed
-		{
-			AssemblyUniqueID = testCase.AssemblyUniqueID,
-			ExceptionParentIndices = exceptionParentIndices,
-			ExceptionTypes = exceptionTypes,
-			ExecutionTime = executionTime,
-			Messages = messages,
-			Output = output,
-			StackTraces = stackTraces,
-			TestCaseUniqueID = testCase.TestCaseUniqueID,
-			TestClassUniqueID = testCase.TestClassUniqueID,
-			TestCollectionUniqueID = testCase.TestCollectionUniqueID,
-			TestMethodUniqueID = testCase.TestMethodUniqueID,
-			TestUniqueID = UniqueIDGenerator.ForTest(testCase.TestCaseUniqueID, currentTestIndex)
-		};
-	}
-
-	_TestFinished ToTestFinished(
-		Xunit1TestCase testCase,
-		decimal executionTime,
-		string output)
-	{
-		return new _TestFinished
-		{
-			AssemblyUniqueID = testCase.AssemblyUniqueID,
-			ExecutionTime = executionTime,
-			Output = output,
-			TestCaseUniqueID = testCase.TestCaseUniqueID,
-			TestClassUniqueID = testCase.TestClassUniqueID,
-			TestCollectionUniqueID = testCase.TestCollectionUniqueID,
-			TestMethodUniqueID = testCase.TestMethodUniqueID,
-			TestUniqueID = UniqueIDGenerator.ForTest(testCase.TestCaseUniqueID, currentTestIndex)
-		};
-	}
-
-	_TestOutput ToTestOutput(
-		Xunit1TestCase testCase,
-		string output)
-	{
-		return new _TestOutput
-		{
-			AssemblyUniqueID = testCase.AssemblyUniqueID,
-			Output = output,
-			TestCaseUniqueID = testCase.TestCaseUniqueID,
-			TestClassUniqueID = testCase.TestClassUniqueID,
-			TestCollectionUniqueID = testCase.TestCollectionUniqueID,
-			TestMethodUniqueID = testCase.TestMethodUniqueID,
-			TestUniqueID = UniqueIDGenerator.ForTest(testCase.TestCaseUniqueID, currentTestIndex)
-		};
-	}
-
-	_TestPassed ToTestPassed(
-		Xunit1TestCase testCase,
-		decimal executionTime,
-		string output)
-	{
-		return new _TestPassed
-		{
-			AssemblyUniqueID = testCase.AssemblyUniqueID,
-			ExecutionTime = executionTime,
-			Output = output,
-			TestCaseUniqueID = testCase.TestCaseUniqueID,
-			TestClassUniqueID = testCase.TestClassUniqueID,
-			TestCollectionUniqueID = testCase.TestCollectionUniqueID,
-			TestMethodUniqueID = testCase.TestMethodUniqueID,
-			TestUniqueID = UniqueIDGenerator.ForTest(testCase.TestCaseUniqueID, currentTestIndex)
-		};
-	}
-
-	_TestSkipped ToTestSkipped(
-		Xunit1TestCase testCase,
-		string reason)
-	{
-		return new _TestSkipped
-		{
-			AssemblyUniqueID = testCase.AssemblyUniqueID,
-			ExecutionTime = 0m,
-			Output = "",
-			Reason = reason,
-			TestCaseUniqueID = testCase.TestCaseUniqueID,
-			TestClassUniqueID = testCase.TestClassUniqueID,
-			TestCollectionUniqueID = testCase.TestCollectionUniqueID,
-			TestMethodUniqueID = testCase.TestMethodUniqueID,
-			TestUniqueID = UniqueIDGenerator.ForTest(testCase.TestCaseUniqueID, currentTestIndex)
-		};
-	}
-
-	_TestStarting ToTestStarting(
-		Xunit1TestCase testCase,
-		string testDisplayName)
-	{
-		return new _TestStarting
-		{
-			AssemblyUniqueID = testCase.AssemblyUniqueID,
-			TestCaseUniqueID = testCase.TestCaseUniqueID,
-			TestClassUniqueID = testCase.TestClassUniqueID,
-			TestCollectionUniqueID = testCase.TestCollectionUniqueID,
-			TestDisplayName = testDisplayName,
-			TestMethodUniqueID = testCase.TestMethodUniqueID,
-			TestUniqueID = UniqueIDGenerator.ForTest(testCase.TestCaseUniqueID, currentTestIndex)
-		};
 	}
 }
 

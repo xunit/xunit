@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -250,7 +251,9 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		if (settings.Filters.Empty)
+		var explicitOption = settings.ExecutionOptions.GetExplicitOptionOrDefault();
+
+		if (settings.Filters.Empty && explicitOption != ExplicitOption.Only)
 		{
 			remoteExecutor.RunAll(
 				CreateOptimizedRemoteMessageSink(messageSink),
@@ -276,11 +279,14 @@ public class Xunit2 : IFrontController
 				discoverySink.Finished.WaitOne();
 			}
 
-		remoteExecutor.RunTests(
-			discoverySink.TestCases,
-			CreateOptimizedRemoteMessageSink(messageSink),
-			Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
-		);
+		if (explicitOption == ExplicitOption.Only)
+			ReportTestCasesAsNotRun(discoverySink.TestCases, messageSink);
+		else
+			remoteExecutor.RunTests(
+				discoverySink.TestCases,
+				CreateOptimizedRemoteMessageSink(messageSink),
+				Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
+			);
 	}
 
 	static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)
@@ -353,6 +359,189 @@ public class Xunit2 : IFrontController
 		executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
 #endif
 
+	void ReportTestCasesAsNotRun(
+		IReadOnlyList<ITestCase?> testCases,
+		_IMessageSink messageSink)
+	{
+		messageSink.OnMessage(new _TestAssemblyStarting
+		{
+			AssemblyName = assemblyInfo.Name,
+			AssemblyPath = assemblyInfo.AssemblyPath,
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			ConfigFilePath = configFileName,
+			StartTime = DateTimeOffset.Now,
+			TargetFramework = TargetFramework,
+			TestEnvironment = $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}",  // This may not be exactly right, but without the remote app domain, we don't know for sure
+			TestFrameworkDisplayName = TestFrameworkDisplayName,
+		});
+
+		// For reporting purposes, assume all tests are in the same collection
+		var testCollectionDisplayName = "Not-run tests";
+		var testCollectionUniqueID = UniqueIDGenerator.ForTestCollection(TestAssemblyUniqueID, testCollectionDisplayName, null);
+		messageSink.OnMessage(new _TestCollectionStarting
+		{
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			TestCollectionClass = null,
+			TestCollectionDisplayName = testCollectionDisplayName,
+			TestCollectionUniqueID = testCollectionUniqueID,
+		});
+
+		foreach (var testCasesByClass in testCases.WhereNotNull().GroupBy(tc => tc.TestMethod?.TestClass.Class.Name))
+		{
+			var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testCasesByClass.Key);
+			var classTestCases = testCasesByClass.ToArray();
+
+			if (testCasesByClass.Key != null)
+				messageSink.OnMessage(new _TestClassStarting
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					TestClass = testCasesByClass.Key,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+				});
+
+			foreach (var testCasesByMethod in classTestCases.GroupBy(tc => tc.TestMethod?.Method.Name))
+			{
+				var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, testCasesByMethod.Key);
+				var methodTestCases = testCasesByMethod.ToArray();
+
+				if (testCasesByMethod.Key != null)
+					messageSink.OnMessage(new _TestMethodStarting
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethod = testCasesByMethod.Key,
+						TestMethodUniqueID = testMethodUniqueID,
+					});
+
+				var currentTestIdx = 0;
+
+				foreach (var testCase in methodTestCases)
+				{
+					var testClassNameWithNamespace = testCasesByClass.Key;
+					var lastDotIdx = testClassNameWithNamespace?.LastIndexOf('.') ?? -1;
+					var testClassNamespace = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(0, lastDotIdx) : null;
+					var testClassName = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(lastDotIdx + 1) : testClassNameWithNamespace;
+
+					messageSink.OnMessage(new _TestCaseStarting
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						TestCaseDisplayName = testCase.DisplayName,
+						TestCaseUniqueID = testCase.UniqueID,
+						TestClassName = testClassName,
+						TestClassNamespace = testClassNamespace,
+						TestClassNameWithNamespace = testClassNameWithNamespace,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodName = testCasesByMethod.Key,
+						TestMethodUniqueID = testMethodUniqueID,
+						Traits = testCase.Traits.ToReadOnly(),
+					});
+
+					var testUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, currentTestIdx++);
+
+					messageSink.OnMessage(new _TestStarting
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						TestCaseUniqueID = testCase.UniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestDisplayName = testCase.DisplayName,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID,
+					});
+
+					messageSink.OnMessage(new _TestNotRun
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = 0m,
+						Output = "",
+						TestCaseUniqueID = testCase.UniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID,
+					});
+
+					messageSink.OnMessage(new _TestFinished
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = 0m,
+						Output = "",
+						TestCaseUniqueID = testCase.UniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID,
+					});
+
+					messageSink.OnMessage(new _TestCaseFinished
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = 0m,
+						TestCaseUniqueID = testCase.UniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestsFailed = 0,
+						TestsNotRun = 1,
+						TestsSkipped = 0,
+						TestsTotal = 1,
+					});
+				}
+
+				if (testCasesByMethod.Key != null)
+					messageSink.OnMessage(new _TestMethodFinished
+					{
+						AssemblyUniqueID = TestAssemblyUniqueID,
+						ExecutionTime = 0m,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestsFailed = 0,
+						TestsNotRun = methodTestCases.Length,
+						TestsSkipped = 0,
+						TestsTotal = methodTestCases.Length,
+					});
+			}
+
+			if (testCasesByClass.Key != null)
+				messageSink.OnMessage(new _TestClassFinished
+				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
+					ExecutionTime = 0m,
+					TestClassUniqueID = testClassUniqueID,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestsFailed = 0,
+					TestsNotRun = classTestCases.Length,
+					TestsSkipped = 0,
+					TestsTotal = classTestCases.Length,
+				});
+		}
+
+		messageSink.OnMessage(new _TestCollectionFinished
+		{
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			ExecutionTime = 0m,
+			TestCollectionUniqueID = testCollectionUniqueID,
+			TestsFailed = 0,
+			TestsNotRun = testCases.Count,
+			TestsSkipped = 0,
+			TestsTotal = testCases.Count,
+		});
+
+		messageSink.OnMessage(new _TestAssemblyFinished
+		{
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			ExecutionTime = 0m,
+			TestsFailed = 0,
+			TestsNotRun = testCases.Count,
+			TestsSkipped = 0,
+			TestsTotal = testCases.Count
+		});
+	}
+
 	/// <inheritdoc/>
 	public void Run(
 		_IMessageSink messageSink,
@@ -363,11 +552,16 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		remoteExecutor.RunTests(
-			BulkDeserialize(settings.SerializedTestCases.ToList()).Select(kvp => kvp.Value).ToList(),
-			CreateOptimizedRemoteMessageSink(messageSink),
-			Xunit2OptionsAdapter.Adapt(settings.Options)
-		);
+		var testCases = BulkDeserialize(settings.SerializedTestCases.ToList()).Select(kvp => kvp.Value).ToList();
+
+		if (settings.Options.GetExplicitOptionOrDefault() == ExplicitOption.Only)
+			ReportTestCasesAsNotRun(testCases, messageSink);
+		else
+			remoteExecutor.RunTests(
+				testCases,
+				CreateOptimizedRemoteMessageSink(messageSink),
+				Xunit2OptionsAdapter.Adapt(settings.Options)
+			);
 	}
 
 	void SendDiscoveryStartingMessage(_IMessageSink messageSink)

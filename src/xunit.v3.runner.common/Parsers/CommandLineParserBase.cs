@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 
 namespace Xunit.Internal;
 
@@ -40,6 +41,13 @@ public abstract class CommandLineParserBase
 		);
 		AddParser("debug", OnDebug, CommandLineGroup.General, null, "launch the debugger to debug the tests");
 		AddParser("diagnostics", OnDiagnostics, CommandLineGroup.General, null, "enable diagnostics messages for all test assemblies");
+		AddParser(
+			"explicit", OnExplicit, CommandLineGroup.General, "<option>",
+			"change the way explicit tests are handled",
+			"  on   - run both explicit and non-explicit tests",
+			"  off  - run only non-explicit tests [default]",
+			"  only - run only explicit tests"
+		);
 		AddParser("failskips", OnFailSkips, CommandLineGroup.General, null, "convert skipped tests into failures");
 		AddParser("ignorefailures", OnIgnoreFailures, CommandLineGroup.General, null, "if tests fail, do not return a failure exit code");
 		AddParser("internaldiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
@@ -366,6 +374,23 @@ public abstract class CommandLineParserBase
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.DiagnosticMessages = true;
+	}
+
+	void OnExplicit(KeyValuePair<string, string?> option)
+	{
+		if (option.Value == null)
+			throw new ArgumentException("missing argument for -explicit");
+
+		var explicitOption = option.Value.ToLowerInvariant() switch
+		{
+			"off" => ExplicitOption.Off,
+			"on" => ExplicitOption.On,
+			"only" => ExplicitOption.Only,
+			_ => throw new ArgumentException("invalid argument for -explicit"),
+		};
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.ExplicitOption = explicitOption;
 	}
 
 	void OnFailSkips(KeyValuePair<string, string?> option)

@@ -21,12 +21,13 @@ public class XunitTestCaseRunnerContext : TestCaseRunnerContext<IXunitTestCase>
 		CancellationTokenSource cancellationTokenSource,
 		string displayName,
 		string? skipReason,
+		ExplicitOption explicitOption,
 		Type testClass,
 		object?[] constructorArguments,
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes) :
-			base(testCase, messageBus, aggregator, cancellationTokenSource)
+			base(testCase, explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		DisplayName = displayName;
 		SkipReason = skipReason;

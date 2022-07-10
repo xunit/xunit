@@ -96,7 +96,8 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 						ExecutionTime = collectionSummary.Time,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestsFailed = collectionSummary.Failed,
-						TestsRun = collectionSummary.Total,
+						TestsNotRun = collectionSummary.NotRun,
+						TestsTotal = collectionSummary.Total,
 						TestsSkipped = collectionSummary.Skipped
 					};
 

@@ -32,7 +32,7 @@ public class FactDiscovererTests
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
+		await testCase.RunAsync(ExplicitOption.Off, messageBus, new object[0], aggregator, cancellationTokenSource);
 		Assert.Single(messageBus.Messages.OfType<_TestPassed>());
 	}
 
@@ -45,7 +45,7 @@ public class FactDiscovererTests
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
+		await testCase.RunAsync(ExplicitOption.Off, messageBus, new object[0], aggregator, cancellationTokenSource);
 		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, failed.ExceptionTypes.Single());
 		Assert.Equal("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?", failed.Messages.Single());
@@ -60,7 +60,7 @@ public class FactDiscovererTests
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
+		await testCase.RunAsync(ExplicitOption.Off, messageBus, new object[0], aggregator, cancellationTokenSource);
 		var failed = Assert.Single(messageBus.Messages.OfType<_TestFailed>());
 		Assert.Equal(typeof(InvalidOperationException).FullName, failed.ExceptionTypes.Single());
 		Assert.Equal("[Fact] methods are not allowed to be generic.", failed.Messages.Single());

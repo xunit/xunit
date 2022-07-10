@@ -40,6 +40,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 	/// <param name="testMethod">The test method this test case belongs to.</param>
 	/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 	/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 	/// <param name="displayName">The optional display name for the test</param>
@@ -48,10 +49,11 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 		TestMethodDisplayOptions defaultMethodDisplayOptions,
 		_ITestMethod testMethod,
 		string? skipReason = null,
+		bool? @explicit = null,
 		int? timeout = null,
 		string? uniqueID = null,
 		string? displayName = null)
-			: this(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, null, timeout, uniqueID, displayName)
+			: this(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, @explicit, null, timeout, uniqueID, displayName)
 	{ }
 
 	/// <summary>
@@ -62,6 +64,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	/// <param name="testMethod">The test method this test case belongs to.</param>
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
 	/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
 	/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
 	/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
@@ -72,6 +75,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 		_ITestMethod testMethod,
 		object?[]? testMethodArguments,
 		string? skipReason,
+		bool? @explicit,
 		Dictionary<string, List<string>>? traits,
 		int? timeout,
 		string? uniqueID,
@@ -83,6 +87,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 
 		TestCaseDisplayName = TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
 		SkipReason ??= factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
+		Explicit = @explicit ?? factAttribute.GetNamedArgument<bool>(nameof(FactAttribute.Explicit));
 		Timeout = timeout ?? factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
 
 		foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
@@ -99,6 +104,9 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 				TestContext.Current?.SendDiagnosticMessage("Trait attribute on '{0}' did not have [TraitDiscoverer]", TestCaseDisplayName);
 		}
 	}
+
+	/// <inheritdoc/>
+	public bool Explicit { get; protected set; }
 
 	/// <inheritdoc/>
 	public int Timeout { get; protected set; }
@@ -138,6 +146,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 
 	/// <inheritdoc/>
 	public virtual ValueTask<RunSummary> RunAsync(
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
@@ -154,6 +163,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 			cancellationTokenSource,
 			TestCaseDisplayName,
 			SkipReason,
+			explicitOption,
 			constructorArguments,
 			TestMethodArguments
 		);

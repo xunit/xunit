@@ -305,7 +305,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 		{
 			var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
 			var threadCountText = threadCount < 0 ? "unlimited" : threadCount.ToString();
-			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText})");
+			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
+			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit})");
 		}
 		else
 			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");
@@ -522,7 +523,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 	{
 		Guard.ArgumentNotNull(args);
 
-		//MetadataCache.TryRemove(args.Message);
+		MetadataCache.TryRemove(args.Message);
 	}
 
 	/// <summary>
@@ -653,12 +654,14 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 		var totalTestsRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Total);
 		var totalTestsFailed = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Failed);
 		var totalTestsSkipped = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Skipped);
+		var totalTestsNotRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.NotRun);
 		var totalTime = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Time).ToString("0.000s");
 		var totalErrors = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Errors);
 		var longestAssemblyName = summariesWithDisplayName.Max(summary => summary.AssemblyDisplayName.Length);
 		var longestTotal = totalTestsRun.ToString().Length;
 		var longestFailed = totalTestsFailed.ToString().Length;
 		var longestSkipped = totalTestsSkipped.ToString().Length;
+		var longestNotRun = totalTestsNotRun.ToString().Length;
 		var longestTime = totalTime.Length;
 		var longestErrors = totalErrors.ToString().Length;
 
@@ -667,13 +670,13 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 			if (summary.Total == 0)
 				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(longestTotal)}");
 			else
-				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {summary.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Skipped.ToString().PadLeft(longestSkipped)}, Time: {summary.Time.ToString("0.000s").PadLeft(longestTime)}");
+				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {summary.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Skipped.ToString().PadLeft(longestSkipped)}, Not Run: {summary.NotRun.ToString().PadLeft(longestNotRun)}, Time: {summary.Time.ToString("0.000s").PadLeft(longestTime)}");
 		}
 
 		if (summaries.SummariesByAssemblyUniqueID.Count > 1)
 		{
-			logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(longestTotal, '-')}          {"-".PadRight(longestErrors, '-')}          {"-".PadRight(longestFailed, '-')}           {"-".PadRight(longestSkipped, '-')}        {"-".PadRight(longestTime, '-')}");
-			logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}        {totalTime} ({summaries.ElapsedClockTime.TotalSeconds:0.000s})");
+			logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(longestTotal, '-')}          {"-".PadRight(longestErrors, '-')}          {"-".PadRight(longestFailed, '-')}           {"-".PadRight(longestSkipped, '-')}           {"-".PadRight(longestNotRun, '-')}        {"-".PadRight(longestTime, '-')}");
+			logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}           {totalTestsNotRun}        {totalTime} ({summaries.ElapsedClockTime.TotalSeconds:0.000s})");
 		}
 	}
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class DefaultRunnerReporterMessageHandlerTests
@@ -298,12 +299,12 @@ public class DefaultRunnerReporterMessageHandlerTests
 	{
 		[Theory]
 		[InlineData(false, "[Imp] =>   Starting:    test-assembly")]
-		[InlineData(true, "[Imp] =>   Starting:    test-assembly (parallel test collections = on, max threads = 42)")]
+		[InlineData(true, "[Imp] =>   Starting:    test-assembly (parallel test collections = on, max threads = 42, explicit = only)")]
 		public static void LogsMessage(
 			bool diagnosticMessages,
 			string expectedResult)
 		{
-			var message = TestData.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages, parallelizeTestCollections: true, maxParallelThreads: 42);
+			var message = TestData.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages, parallelizeTestCollections: true, maxParallelThreads: 42, explicitOption: ExplicitOption.Only);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(message);
@@ -319,7 +320,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		public void SingleAssembly()
 		{
 			var clockTime = TimeSpan.FromSeconds(12.3456);
-			var summary = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
+			var summary = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, NotRun = 3, Time = 1.2345M };
 			var assemblyStartingMessage = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-id", assemblyName: "assembly");
 			var summaryMessage = TestData.TestExecutionSummaries(clockTime, "asm-id", summary);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
@@ -329,7 +330,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
-				msg => Assert.Equal("[Imp] =>    assembly  Total: 2112, Errors: 6, Failed: 42, Skipped: 8, Time: 1.235s", msg)
+				msg => Assert.Equal("[Imp] =>    assembly  Total: 2112, Errors: 6, Failed: 42, Skipped: 8, Not Run: 3, Time: 1.235s", msg)
 			);
 		}
 
@@ -337,9 +338,9 @@ public class DefaultRunnerReporterMessageHandlerTests
 		public void MultipleAssemblies()
 		{
 			var clockTime = TimeSpan.FromSeconds(12.3456);
-			var @short = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
+			var @short = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, NotRun = 3, Time = 1.2345M };
 			var nothing = new ExecutionSummary { Total = 0 };
-			var longerName = new ExecutionSummary { Total = 10240, Errors = 7, Failed = 96, Skipped = 4, Time = 3.4567M };
+			var longerName = new ExecutionSummary { Total = 10240, Errors = 7, Failed = 96, Skipped = 4, NotRun = 7, Time = 3.4567M };
 			var assemblyShortStarting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-short", assemblyName: "short");
 			var assemblyNothingStarting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-nothing", assemblyName: "nothing");
 			var assemblyLongerStarting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm-longer", assemblyName: "longerName");
@@ -353,11 +354,11 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
-				msg => Assert.Equal("[Imp] =>    longerName  Total: 10240, Errors:  7, Failed:  96, Skipped:  4, Time: 3.457s", msg),
+				msg => Assert.Equal("[Imp] =>    longerName  Total: 10240, Errors:  7, Failed:  96, Skipped:  4, Not Run:  7, Time: 3.457s", msg),
 				msg => Assert.Equal("[Imp] =>    nothing     Total:     0", msg),
-				msg => Assert.Equal("[Imp] =>    short       Total:  2112, Errors:  6, Failed:  42, Skipped:  8, Time: 1.235s", msg),
-				msg => Assert.Equal("[Imp] =>                       -----          --          ---           --        ------", msg),
-				msg => Assert.Equal("[Imp] =>          GRAND TOTAL: 12352          13          138           12        4.691s (12.346s)", msg)
+				msg => Assert.Equal("[Imp] =>    short       Total:  2112, Errors:  6, Failed:  42, Skipped:  8, Not Run:  3, Time: 1.235s", msg),
+				msg => Assert.Equal("[Imp] =>                       -----          --          ---           --           --        ------", msg),
+				msg => Assert.Equal("[Imp] =>          GRAND TOTAL: 12352          13          138           12           10        4.691s (12.346s)", msg)
 			);
 		}
 	}

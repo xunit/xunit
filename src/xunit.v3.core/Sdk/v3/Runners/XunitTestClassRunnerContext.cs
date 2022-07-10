@@ -18,13 +18,14 @@ public class XunitTestClassRunnerContext : TestClassRunnerContext<IXunitTestCase
 		_ITestClass testClass,
 		_IReflectionTypeInfo @class,
 		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
 		IReadOnlyDictionary<Type, object> collectionFixtureMappings) :
-			base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+			base(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 	{
 		AssemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
 		CollectionFixtureMappings = Guard.ArgumentNotNull(collectionFixtureMappings);

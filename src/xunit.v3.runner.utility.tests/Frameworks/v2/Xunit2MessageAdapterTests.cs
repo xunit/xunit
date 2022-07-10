@@ -63,7 +63,7 @@ public class Xunit2MessageAdapterTests
 			TestCollectionDefinition.Name
 		);
 
-		TestClassType = Xunit2Mocks.TypeInfo();
+		TestClassType = Xunit2Mocks.TypeInfo("TestNamespace.TestClass+EmbeddedClass");
 		TestClass = Xunit2Mocks.TestClass(TestCollection, TestClassType);
 		TestClassUniqueID = UniqueIDGenerator.ForTestClass(
 			TestCollectionUniqueID,
@@ -288,8 +288,9 @@ public class Xunit2MessageAdapterTests
 			Assert.NotEmpty(v3Message.AssemblyUniqueID);
 			Assert.Equal(123.4567m, v3Message.ExecutionTime);
 			Assert.Equal(42, v3Message.TestsFailed);
-			Assert.Equal(2112, v3Message.TestsRun);
+			Assert.Equal(0, v3Message.TestsNotRun);
 			Assert.Equal(6, v3Message.TestsSkipped);
+			Assert.Equal(2112, v3Message.TestsTotal);
 		}
 
 		[Fact]
@@ -368,8 +369,9 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
 			Assert.Equal(42, v3Message.TestsFailed);
-			Assert.Equal(2112, v3Message.TestsRun);
+			Assert.Equal(0, v3Message.TestsNotRun);
 			Assert.Equal(404, v3Message.TestsSkipped);
+			Assert.Equal(2112, v3Message.TestsTotal);
 		}
 
 		[Fact]
@@ -386,10 +388,14 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal("source-file", v3Message.SourceFilePath);
 			Assert.Equal(2112, v3Message.SourceLineNumber);
 			Assert.Equal("test-case-display-name", v3Message.TestCaseDisplayName);
+			Assert.Equal("test-case-id", v3Message.TestCaseUniqueID);
+			Assert.Equal("TestClass+EmbeddedClass", v3Message.TestClassName);
+			Assert.Equal("TestNamespace", v3Message.TestClassNamespace);
+			Assert.Equal("TestNamespace.TestClass+EmbeddedClass", v3Message.TestClassNameWithNamespace);
 			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
+			Assert.Equal("MyTestMethod", v3Message.TestMethodName);
 			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
-			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);
 			Assert.Collection(
 				v3Message.Traits.OrderBy(kvp => kvp.Key),
 				trait =>
@@ -448,8 +454,9 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(42, v3Message.TestsFailed);
-			Assert.Equal(2112, v3Message.TestsRun);
+			Assert.Equal(0, v3Message.TestsNotRun);
 			Assert.Equal(404, v3Message.TestsSkipped);
+			Assert.Equal(2112, v3Message.TestsTotal);
 		}
 
 		[Fact]
@@ -503,8 +510,9 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(42, v3Message.TestsFailed);
-			Assert.Equal(2112, v3Message.TestsRun);
+			Assert.Equal(0, v3Message.TestsNotRun);
 			Assert.Equal(404, v3Message.TestsSkipped);
+			Assert.Equal(2112, v3Message.TestsTotal);
 		}
 
 		[Fact]
@@ -562,8 +570,9 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal(TestMethodUniqueID, v3Message.TestMethodUniqueID);
 			Assert.Equal(42, v3Message.TestsFailed);
-			Assert.Equal(2112, v3Message.TestsRun);
+			Assert.Equal(0, v3Message.TestsNotRun);
 			Assert.Equal(404, v3Message.TestsSkipped);
+			Assert.Equal(2112, v3Message.TestsTotal);
 		}
 
 		[Fact]
@@ -700,6 +709,7 @@ public class Xunit2MessageAdapterTests
 
 			var v3Message = Assert.IsType<_TestFailed>(adapted);
 			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
+			Assert.Equal(FailureCause.Assertion, v3Message.Cause);
 			Assert.Equal(123.4567m, v3Message.ExecutionTime);
 			Assert.Equal("abc123", v3Message.Output);
 			Assert.Equal(TestCaseUniqueID, v3Message.TestCaseUniqueID);

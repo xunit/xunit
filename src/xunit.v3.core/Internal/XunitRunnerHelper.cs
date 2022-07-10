@@ -93,8 +93,9 @@ public static class XunitRunnerHelper
 				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
 				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
 				TestsFailed = 1,
-				TestsRun = 1,
-				TestsSkipped = 0
+				TestsNotRun = 0,
+				TestsSkipped = 0,
+				TestsTotal = 1,
 			};
 			messageBus.QueueMessage(caseFinished);
 

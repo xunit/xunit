@@ -14,10 +14,12 @@ public class ContextBase : IAsyncLifetime
 	/// Initializes a new instance of the <see cref="ContextBase"/> class.
 	/// </summary>
 	public ContextBase(
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource)
 	{
+		ExplicitOption = explicitOption;
 		MessageBus = Guard.ArgumentNotNull(messageBus);
 		Aggregator = aggregator;
 		CancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
@@ -32,6 +34,11 @@ public class ContextBase : IAsyncLifetime
 	/// Gets the cancellation token source used for cancelling test execution.
 	/// </summary>
 	public CancellationTokenSource CancellationTokenSource { get; }
+
+	/// <summary>
+	/// Gets a flag which indicates how explicit tests should be handled.
+	/// </summary>
+	public ExplicitOption ExplicitOption { get; }
 
 	/// <summary>
 	/// Gets the message bus to send execution engine messages to.

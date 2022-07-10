@@ -32,5 +32,16 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			else
 				Logger.LogMessage($"    <unknown test> [FINISHED] Time: {args.Message.ExecutionTime}s");
 		};
+
+		Execution.TestNotRunEvent += args =>
+		{
+			Guard.ArgumentNotNull(args);
+
+			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
+			if (metadata != null)
+				Logger.LogMessage($"    {Escape(metadata.TestDisplayName)} [NOT RUN]");
+			else
+				Logger.LogMessage($"    <unknown test> [NOT RUN]");
+		};
 	}
 }

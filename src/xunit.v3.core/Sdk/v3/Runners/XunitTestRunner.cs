@@ -56,6 +56,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 			ctxt.TestMethod,
 			ctxt.TestMethodArguments,
 			ctxt.BeforeAfterTestAttributes,
+			ctxt.ExplicitOption,
 			ctxt.MessageBus,
 			ctxt.Aggregator,
 			ctxt.CancellationTokenSource
@@ -71,6 +72,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 	/// <param name="testMethod">The test method that will be invoked.</param>
 	/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
 	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
+	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test.</param>
@@ -83,10 +85,11 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
 		string? skipReason,
+		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterAttributes) =>
-			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource, beforeAfterAttributes));
+			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, explicitOption, aggregator, cancellationTokenSource, beforeAfterAttributes));
 
 	/// <inheritdoc/>
 	protected override void SetTestContext(

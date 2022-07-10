@@ -212,6 +212,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// </summary>
 	/// <param name="testCollection">The test collection to be run.</param>
 	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
+	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="testCaseOrderer">The test case orderer that was applied at the assembly level.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
@@ -220,6 +221,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	public ValueTask<RunSummary> RunAsync(
 		_ITestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
@@ -233,7 +235,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		Guard.ArgumentNotNull(cancellationTokenSource);
 		Guard.ArgumentNotNull(assemblyFixtureMappings);
 
-		return RunAsync(new(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings));
+		return RunAsync(new(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings));
 	}
 
 	/// <inheritdoc/>
@@ -248,6 +250,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 				testClass,
 				@class,
 				testCases,
+				ctxt.ExplicitOption,
 				ctxt.MessageBus,
 				ctxt.TestCaseOrderer,
 				ctxt.Aggregator.Clone(),

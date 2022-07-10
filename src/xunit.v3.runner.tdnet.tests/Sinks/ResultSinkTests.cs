@@ -423,14 +423,14 @@ public class ResultSinkTests
 			sink.OnMessage(TestData.TestMethodStarting(testMethod: nameof(object.GetHashCode)));
 			sink.OnMessage(TestData.TestStarting(testDisplayName: "Display Name"));
 
-			sink.OnMessage(TestData.TestSkipped(reason: "I forgot how to run", executionTime: 123.45m));
+			sink.OnMessage(TestData.TestSkipped(reason: "I forgot how to run"));
 
 			Assert.NotNull(testResult);
 			Assert.Same(typeof(object), testResult.FixtureType);
 			Assert.Equal(nameof(object.GetHashCode), testResult.Method.Name);
 			Assert.Equal("Display Name", testResult.Name);
 			Assert.Equal(TestState.Ignored, testResult.State);
-			Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
+			Assert.Equal(0.0, testResult.TimeSpan.TotalMilliseconds);
 			Assert.Equal(42, testResult.TotalTests);
 			Assert.Equal("I forgot how to run", testResult.Message);
 		}

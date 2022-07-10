@@ -23,10 +23,11 @@ public class XunitTestRunnerContext : TestRunnerContext
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
 		string? skipReason,
+		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes) :
-			base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
+			base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, explicitOption, aggregator, cancellationTokenSource)
 	{
 		BeforeAfterTestAttributes = Guard.ArgumentNotNull(beforeAfterTestAttributes);
 	}

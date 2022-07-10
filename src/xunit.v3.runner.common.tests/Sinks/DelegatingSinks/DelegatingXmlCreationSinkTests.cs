@@ -75,6 +75,7 @@ public class DelegatingXmlCreationSinkTests
 		executionSummary.Total = 2112;
 		executionSummary.Failed = 42;
 		executionSummary.Skipped = 6;
+		executionSummary.NotRun = 3;
 		executionSummary.Time = 123.4567M;
 		executionSummary.Errors = 1;
 
@@ -92,9 +93,10 @@ public class DelegatingXmlCreationSinkTests
 		sink.OnMessage(assemblyFinished);
 
 		Assert.Equal("2112", assemblyElement.Attribute("total")!.Value);
-		Assert.Equal("2064", assemblyElement.Attribute("passed")!.Value);
+		Assert.Equal("2061", assemblyElement.Attribute("passed")!.Value);
 		Assert.Equal("42", assemblyElement.Attribute("failed")!.Value);
 		Assert.Equal("6", assemblyElement.Attribute("skipped")!.Value);
+		Assert.Equal("3", assemblyElement.Attribute("not-run")!.Value);
 		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), assemblyElement.Attribute("time")!.Value);
 		Assert.Equal("1", assemblyElement.Attribute("errors")!.Value);
 	}
@@ -104,7 +106,7 @@ public class DelegatingXmlCreationSinkTests
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCollectionStarted = TestData.TestCollectionStarting(testCollectionDisplayName: "Collection Name", testCollectionUniqueID: "abc123");
-		var testCollectionFinished = TestData.TestCollectionFinished(testsRun: 2112, testsFailed: 42, testsSkipped: 6, executionTime: 123.4567m, testCollectionUniqueID: "abc123");
+		var testCollectionFinished = TestData.TestCollectionFinished(testsRun: 2112, testsFailed: 42, testsSkipped: 6, testsNotRun: 3, executionTime: 123.4567m, testCollectionUniqueID: "abc123");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
@@ -116,9 +118,10 @@ public class DelegatingXmlCreationSinkTests
 		var collectionElement = Assert.Single(assemblyElement.Elements("collection"));
 		Assert.Equal("Collection Name", collectionElement.Attribute("name")!.Value);
 		Assert.Equal("2112", collectionElement.Attribute("total")!.Value);
-		Assert.Equal("2064", collectionElement.Attribute("passed")!.Value);
+		Assert.Equal("2061", collectionElement.Attribute("passed")!.Value);
 		Assert.Equal("42", collectionElement.Attribute("failed")!.Value);
 		Assert.Equal("6", collectionElement.Attribute("skipped")!.Value);
+		Assert.Equal("3", collectionElement.Attribute("not-run")!.Value);
 		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), collectionElement.Attribute("time")!.Value);
 	}
 
@@ -314,6 +317,39 @@ public class DelegatingXmlCreationSinkTests
 		Assert.Empty(testElement.Elements("failure"));
 	}
 
+	[CulturedFact]
+	public void AddsNotRunTestElementToXml()
+	{
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testNotRun = TestData.TestNotRun();
+
+		var assemblyElement = new XElement("assembly");
+		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
+
+		sink.OnMessage(assemblyStarting);
+		sink.OnMessage(collectionStarting);
+		sink.OnMessage(classStarting);
+		sink.OnMessage(methodStarting);
+		sink.OnMessage(caseStarting);
+		sink.OnMessage(testStarting);
+		sink.OnMessage(testNotRun);
+		sink.OnMessage(assemblyFinished);
+
+		var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
+		Assert.Equal("Test Display Name", testElement.Attribute("name")!.Value);
+		Assert.Equal("DelegatingXmlCreationSinkTests+ClassUnderTest", testElement.Attribute("type")!.Value);
+		Assert.Equal("TestMethod", testElement.Attribute("method")!.Value);
+		Assert.Equal("NotRun", testElement.Attribute("result")!.Value);
+		Assert.Equal(0m.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")!.Value);
+		Assert.Empty(testElement.Elements("failure"));
+	}
+
 	[Fact]
 	public void TestElementSourceInfoIsPlacedInXmlWhenPresent()
 	{
@@ -434,9 +470,9 @@ public class DelegatingXmlCreationSinkTests
 		var outputXml = writer.ToString();
 		Assert.Equal(
 			@"<?xml version=""1.0"" encoding=""utf-16""?>" +
-			@"<assembly name=""./test-assembly.dll"" environment=""test-environment"" test-framework=""test-framework"" run-date=""2021-01-20"" run-time=""17:00:00"" config-file=""./test-assembly.json"" target-framework="".NETMagic,Version=v98.76.54"" total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0"">" +
+			@"<assembly name=""./test-assembly.dll"" environment=""test-environment"" test-framework=""test-framework"" run-date=""2021-01-20"" run-time=""17:00:00"" config-file=""./test-assembly.json"" target-framework="".NETMagic,Version=v98.76.54"" total=""0"" passed=""0"" failed=""0"" skipped=""0"" not-run=""0"" time=""0.000"" errors=""0"">" +
 				@"<errors />" +
-				@"<collection name=""test-collection-display-name"" total=""2112"" passed=""2064"" failed=""42"" skipped=""6"" time=""123.457"">" +
+				@"<collection name=""test-collection-display-name"" total=""2112"" passed=""2061"" failed=""42"" skipped=""6"" not-run=""3"" time=""123.457"">" +
 					$@"<test name=""{outputName}"" type=""DelegatingXmlCreationSinkTests+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"">" +
 						@"<reason><![CDATA[Bad\0\r\nString]]></reason>" +
 					@"</test>" +

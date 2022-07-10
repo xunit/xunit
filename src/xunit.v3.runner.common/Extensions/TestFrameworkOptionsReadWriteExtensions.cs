@@ -314,13 +314,28 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
+	/// Gets a flag that indicates how explicit tests should be handled.
 	/// </summary>
-	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
+	public static ExplicitOption? GetExplicitOption(this _ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(executionOptions);
 
-		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.InternalDiagnosticMessages);
+		var explicitText = executionOptions.GetValue<string?>(TestOptionsNames.Execution.ExplicitOption);
+		if (Enum.TryParse<ExplicitOption>(explicitText, out var result))
+			return result;
+
+		return null;
+	}
+
+	/// <summary>
+	/// Gets a flag that indicates how explicit tests should be handled. If the flag is not present,
+	/// returns the default value (<see cref="ExplicitOption.Off"/>).
+	/// </summary>
+	public static ExplicitOption GetExplicitOptionOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetExplicitOption() ?? ExplicitOption.Off;
 	}
 
 	/// <summary>
@@ -332,6 +347,16 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		return executionOptions.GetDiagnosticMessages() ?? false;
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
+	/// </summary>
+	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.InternalDiagnosticMessages);
 	}
 
 	/// <summary>
@@ -475,6 +500,18 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.DisableParallelization, value);
+	}
+
+	/// <summary>
+	/// Sets a flag to describe how explicit tests should be handled.
+	/// </summary>
+	public static void SetExplicitOption(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		ExplicitOption? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.ExplicitOption, value?.ToString());
 	}
 
 	/// <summary>

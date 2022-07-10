@@ -163,7 +163,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
 					TestsFailed = classSummary.Failed,
-					TestsRun = classSummary.Total,
+					TestsNotRun = classSummary.NotRun,
+					TestsTotal = classSummary.Total,
 					TestsSkipped = classSummary.Skipped
 				};
 

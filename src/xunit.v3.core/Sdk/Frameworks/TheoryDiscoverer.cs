@@ -73,7 +73,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			testMethod,
 			dataRow,
 			skipReason,
-			traits,
+			traits: traits,
 			displayName: displayName
 		);
 
@@ -95,11 +95,11 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		_IAttributeInfo theoryAttribute,
 		string skipReason)
 	{
-		// TODO: Skip reason should be passed down into the test case
 		var testCase = new XunitTestCase(
 			discoveryOptions.MethodDisplayOrDefault(),
 			discoveryOptions.MethodDisplayOptionsOrDefault(),
-			testMethod
+			testMethod,
+			skipReason: skipReason
 		);
 
 		return new(new[] { testCase });

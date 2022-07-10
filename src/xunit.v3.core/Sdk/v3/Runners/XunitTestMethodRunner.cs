@@ -24,6 +24,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 	/// <param name="class">The CLR class that contains the test method.</param>
 	/// <param name="method">The test method that contains the tests to be run.</param>
 	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
+	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
@@ -34,6 +35,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 		_IReflectionTypeInfo @class,
 		_IReflectionMethodInfo method,
 		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
@@ -43,7 +45,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 		Guard.ArgumentNotNull(messageBus);
 		Guard.ArgumentNotNull(constructorArguments);
 
-		return RunAsync(new(testClass, testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource, constructorArguments));
+		return RunAsync(new(testClass, testMethod, @class, method, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments));
 	}
 
 	/// <inheritdoc/>
@@ -51,6 +53,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 		XunitTestMethodRunnerContext ctxt,
 		IXunitTestCase testCase) =>
 			testCase.RunAsync(
+				ctxt.ExplicitOption,
 				ctxt.MessageBus,
 				ctxt.ConstructorArguments,
 				ctxt.Aggregator,

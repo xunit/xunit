@@ -20,10 +20,11 @@ public class TestMethodRunnerContext<TTestCase> : ContextBase
 		_IReflectionTypeInfo @class,
 		_IReflectionMethodInfo method,
 		IReadOnlyCollection<TTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
-			base(messageBus, aggregator, cancellationTokenSource)
+			base(explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		TestClass = Guard.ArgumentNotNull(testClass);
 		TestMethod = Guard.ArgumentNotNull(testMethod);

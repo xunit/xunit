@@ -28,6 +28,11 @@ public class Xunit1RunSummary
 	public int Skipped;
 
 	/// <summary>
+	/// The number of tests that were not run.
+	/// </summary>
+	public int NotRun;
+
+	/// <summary>
 	/// The time spent running the tests.
 	/// </summary>
 	public decimal Time;
@@ -41,6 +46,7 @@ public class Xunit1RunSummary
 		Total += other.Total;
 		Failed += other.Failed;
 		Skipped += other.Skipped;
+		NotRun += other.NotRun;
 		Time += other.Time;
 		Continue &= other.Continue;
 	}
@@ -53,6 +59,7 @@ public class Xunit1RunSummary
 		Total = 0;
 		Failed = 0;
 		Skipped = 0;
+		NotRun = 0;
 		Time = 0M;
 	}
 }

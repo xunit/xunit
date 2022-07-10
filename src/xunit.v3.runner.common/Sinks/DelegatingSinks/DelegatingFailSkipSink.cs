@@ -81,7 +81,8 @@ public class DelegatingFailSkipSink : IExecutionSink
 				TestCollectionUniqueID = testCaseFinished.TestCollectionUniqueID,
 				TestMethodUniqueID = testCaseFinished.TestMethodUniqueID,
 				TestsFailed = testCaseFinished.TestsFailed + testCaseFinished.TestsSkipped,
-				TestsRun = testCaseFinished.TestsRun,
+				TestsNotRun = testCaseFinished.TestsNotRun,
+				TestsTotal = testCaseFinished.TestsTotal,
 				TestsSkipped = 0,
 			};
 
@@ -98,7 +99,8 @@ public class DelegatingFailSkipSink : IExecutionSink
 				TestCollectionUniqueID = testMethodFinished.TestCollectionUniqueID,
 				TestMethodUniqueID = testMethodFinished.TestMethodUniqueID,
 				TestsFailed = testMethodFinished.TestsFailed + testMethodFinished.TestsSkipped,
-				TestsRun = testMethodFinished.TestsRun,
+				TestsNotRun = testMethodFinished.TestsNotRun,
+				TestsTotal = testMethodFinished.TestsTotal,
 				TestsSkipped = 0,
 			};
 
@@ -114,7 +116,8 @@ public class DelegatingFailSkipSink : IExecutionSink
 				TestClassUniqueID = testClassFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testClassFinished.TestCollectionUniqueID,
 				TestsFailed = testClassFinished.TestsFailed + testClassFinished.TestsSkipped,
-				TestsRun = testClassFinished.TestsRun,
+				TestsNotRun = testClassFinished.TestsNotRun,
+				TestsTotal = testClassFinished.TestsTotal,
 				TestsSkipped = 0,
 			};
 
@@ -129,7 +132,8 @@ public class DelegatingFailSkipSink : IExecutionSink
 				ExecutionTime = testCollectionFinished.ExecutionTime,
 				TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
 				TestsFailed = testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
-				TestsRun = testCollectionFinished.TestsRun,
+				TestsNotRun = testCollectionFinished.TestsNotRun,
+				TestsTotal = testCollectionFinished.TestsTotal,
 				TestsSkipped = 0,
 			};
 
@@ -143,7 +147,8 @@ public class DelegatingFailSkipSink : IExecutionSink
 				AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
 				ExecutionTime = assemblyFinished.ExecutionTime,
 				TestsFailed = assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
-				TestsRun = assemblyFinished.TestsRun,
+				TestsNotRun = assemblyFinished.TestsNotRun,
+				TestsTotal = assemblyFinished.TestsTotal,
 				TestsSkipped = 0,
 			};
 

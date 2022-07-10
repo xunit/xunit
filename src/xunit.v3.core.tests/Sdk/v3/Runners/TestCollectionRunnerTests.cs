@@ -13,7 +13,7 @@ public class TestCollectionRunnerTests
 	[Fact]
 	public static async void Messages()
 	{
-		var summary = new RunSummary { Total = 4, Failed = 2, Skipped = 1, Time = 21.12m };
+		var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
 		var messageBus = new SpyMessageBus();
 		var testCase = Mocks.TestCase<ClassUnderTest>("Passing");
 		var runner = TestableTestCollectionRunner.Create(messageBus, new[] { testCase }, summary);
@@ -42,8 +42,9 @@ public class TestCollectionRunnerTests
 				Assert.Equal(21.12m, finished.ExecutionTime);
 				Assert.Equal("collection-id", finished.TestCollectionUniqueID);
 				Assert.Equal(2, finished.TestsFailed);
-				Assert.Equal(4, finished.TestsRun);
+				Assert.Equal(3, finished.TestsNotRun);
 				Assert.Equal(1, finished.TestsSkipped);
+				Assert.Equal(9, finished.TestsTotal);
 			}
 		);
 	}
@@ -381,7 +382,7 @@ public class TestCollectionRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(TestCollection, testCases, messageBus, testCaseOrderer, aggregator, TokenSource));
+			RunAsync(new(TestCollection, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, TokenSource));
 
 		protected override ValueTask<RunSummary> RunTestClassAsync(
 			TestCollectionRunnerContext<_ITestCase> ctxt,

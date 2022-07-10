@@ -112,8 +112,9 @@ public abstract class TestCaseRunner<TContext, TTestCase>
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
 						TestsFailed = summary.Failed,
-						TestsRun = summary.Total,
-						TestsSkipped = summary.Skipped
+						TestsNotRun = summary.NotRun,
+						TestsSkipped = summary.Skipped,
+						TestsTotal = summary.Total,
 					};
 
 					if (!ctxt.MessageBus.QueueMessage(testCaseFinished))

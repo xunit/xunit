@@ -13,6 +13,11 @@ public interface _ITest
 	string DisplayName { get; }
 
 	/// <summary>
+	/// Gets a flag indicating whether this test was marked as explicit or not.
+	/// </summary>
+	bool Explicit { get; }
+
+	/// <summary>
 	/// Gets the test case this test belongs to.
 	/// </summary>
 	_ITestCase TestCase { get; }

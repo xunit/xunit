@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -179,7 +180,6 @@ public class Xunit1TestCase : IXunitSerializable
 	/// serialization of the test case.
 	/// </summary>
 	/// <param name="includeSerialization">A flag to indicate whether serialization is needed.</param>
-	/// <returns>The converted test case</returns>
 	public _TestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
 	{
 		string? @namespace = null;
@@ -221,6 +221,269 @@ public class Xunit1TestCase : IXunitSerializable
 
 		return result;
 	}
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestCaseFinished"/>.
+	/// </summary>
+	public _TestCaseFinished ToTestCaseFinished(Xunit1RunSummary testCaseResults) =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			ExecutionTime = testCaseResults.Time,
+			TestCaseUniqueID = TestCaseUniqueID,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestsFailed = testCaseResults.Failed,
+			TestsNotRun = 0,
+			TestsTotal = testCaseResults.Total,
+			TestsSkipped = testCaseResults.Skipped,
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestCaseFinished"/> for a not-run test case.
+	/// </summary>
+	public _TestCaseFinished ToTestCaseFinishedNotRun() =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			ExecutionTime = 0m,
+			TestCaseUniqueID = TestCaseUniqueID,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestsFailed = 0,
+			TestsNotRun = 1,
+			TestsTotal = 1,
+			TestsSkipped = 0,
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestCaseStarting"/>.
+	/// </summary>
+	public _TestCaseStarting ToTestCaseStarting()
+	{
+		var lastDotIdx = TestClass.LastIndexOf('.');
+		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
+		var testClassWithoutNamespace = lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass;
+
+		return new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			SkipReason = SkipReason,
+			SourceFilePath = SourceFilePath,
+			SourceLineNumber = SourceLineNumber,
+			TestCaseDisplayName = TestCaseDisplayName,
+			TestCaseUniqueID = TestCaseUniqueID,
+			TestClassName = testClassWithoutNamespace,
+			TestClassNamespace = @namespace,
+			TestClassNameWithNamespace = TestClass,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodName = TestMethod,
+			TestMethodUniqueID = TestMethodUniqueID,
+			Traits = Traits,
+		};
+	}
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestFailed"/>.
+	/// </summary>
+	public _TestFailed ToTestFailed(
+		decimal executionTime,
+		string output,
+		XmlNode failure,
+		int currentTestIndex)
+	{
+		var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failure);
+
+		return new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			Cause = FailureCause.Assertion,  // We don't know in v1, so we just assume it's an assertion failure
+			ExceptionParentIndices = exceptionParentIndices,
+			ExceptionTypes = exceptionTypes,
+			ExecutionTime = executionTime,
+			Messages = messages,
+			Output = output,
+			StackTraces = stackTraces,
+			TestCaseUniqueID = TestCaseUniqueID,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+		};
+	}
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestFinished"/>.
+	/// </summary>
+	public _TestFinished ToTestFinished(
+		decimal executionTime,
+		string output,
+		int currentTestIndex) =>
+			new()
+			{
+				AssemblyUniqueID = AssemblyUniqueID,
+				ExecutionTime = executionTime,
+				Output = output,
+				TestCaseUniqueID = TestCaseUniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestFinished"/> for a not-run test.
+	/// </summary>
+	public _TestFinished ToTestFinishedNotRun(int currentTestIndex) =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			ExecutionTime = 0m,
+			Output = "",
+			TestCaseUniqueID = TestCaseUniqueID,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestMethodFinished"/>.
+	/// </summary>
+	public _TestMethodFinished ToTestMethodFinished(Xunit1RunSummary testMethodResults) =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			ExecutionTime = testMethodResults.Time,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestsFailed = testMethodResults.Failed,
+			TestsNotRun = 0,
+			TestsTotal = testMethodResults.Total,
+			TestsSkipped = testMethodResults.Skipped
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestMethodFinished"/> for a not-run test.
+	/// </summary>
+	public _TestMethodFinished ToTestMethodFinishedNotRun() =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			ExecutionTime = 0m,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestsFailed = 0,
+			TestsNotRun = 1,
+			TestsTotal = 1,
+			TestsSkipped = 0,
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestMethodStarting"/>.
+	/// </summary>
+	public _TestMethodStarting ToTestMethodStarting() =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethod = TestMethod,
+			TestMethodUniqueID = TestMethodUniqueID,
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestNotRun"/>.
+	/// </summary>
+	public _TestNotRun ToTestNotRun(int currentTestIndex) =>
+		new()
+		{
+			AssemblyUniqueID = AssemblyUniqueID,
+			ExecutionTime = 0m,
+			Output = "",
+			TestCaseUniqueID = TestCaseUniqueID,
+			TestClassUniqueID = TestClassUniqueID,
+			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodUniqueID = TestMethodUniqueID,
+			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+		};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestOutput"/>.
+	/// </summary>
+	public _TestOutput ToTestOutput(
+		string output,
+		int currentTestIndex) =>
+			new()
+			{
+				AssemblyUniqueID = AssemblyUniqueID,
+				Output = output,
+				TestCaseUniqueID = TestCaseUniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestPassed"/>.
+	/// </summary>
+	public _TestPassed ToTestPassed(
+		decimal executionTime,
+		string output,
+		int currentTestIndex) =>
+			new()
+			{
+				AssemblyUniqueID = AssemblyUniqueID,
+				ExecutionTime = executionTime,
+				Output = output,
+				TestCaseUniqueID = TestCaseUniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestSkipped"/>.
+	/// </summary>
+	public _TestSkipped ToTestSkipped(
+		string reason,
+		int currentTestIndex) =>
+			new()
+			{
+				AssemblyUniqueID = AssemblyUniqueID,
+				ExecutionTime = 0m,
+				Output = "",
+				Reason = reason,
+				TestCaseUniqueID = TestCaseUniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			};
+
+	/// <summary>
+	/// Converts the test case to <see cref="_TestStarting"/>.
+	/// </summary>
+	public _TestStarting ToTestStarting(
+		string testDisplayName,
+		int currentTestIndex) =>
+			new()
+			{
+				AssemblyUniqueID = AssemblyUniqueID,
+				TestCaseUniqueID = TestCaseUniqueID,
+				TestClassUniqueID = TestClassUniqueID,
+				TestCollectionUniqueID = TestCollectionUniqueID,
+				TestDisplayName = testDisplayName,
+				TestMethodUniqueID = TestMethodUniqueID,
+				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			};
 }
 
 #endif

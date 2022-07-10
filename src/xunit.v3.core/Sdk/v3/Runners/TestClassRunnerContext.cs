@@ -20,11 +20,12 @@ public class TestClassRunnerContext<TTestCase> : ContextBase
 		_ITestClass testClass,
 		_IReflectionTypeInfo @class,
 		IReadOnlyCollection<TTestCase> testCases,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
-			base(messageBus, aggregator, cancellationTokenSource)
+			base(explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		TestClass = Guard.ArgumentNotNull(testClass);
 		Class = Guard.ArgumentNotNull(@class);

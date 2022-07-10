@@ -245,6 +245,6 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 				new(TestData.XunitTestCase<TClassUnderTest>(methodName), displayName, messageBus);
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(testCase, messageBus, new ExceptionAggregator(), new CancellationTokenSource(), displayName, null, Array.Empty<object>(), Array.Empty<object>());
+			RunAsync(testCase, messageBus, new ExceptionAggregator(), new CancellationTokenSource(), displayName, skipReason: null, ExplicitOption.Off, Array.Empty<object>(), Array.Empty<object>());
 	}
 }

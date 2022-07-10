@@ -83,7 +83,30 @@ public abstract class TestRunner<TContext>
 
 				_TestResultMessage testResult;
 
-				if (!string.IsNullOrEmpty(ctxt.SkipReason))
+				var shouldRun = ctxt.ExplicitOption switch
+				{
+					ExplicitOption.Only => ctxt.Test.Explicit,
+					ExplicitOption.Off => !ctxt.Test.Explicit,
+					_ => true,
+				};
+
+				if (!shouldRun)
+				{
+					runSummary.NotRun++;
+
+					testResult = new _TestNotRun
+					{
+						AssemblyUniqueID = testAssemblyUniqueID,
+						ExecutionTime = 0m,
+						Output = "",
+						TestCaseUniqueID = testCaseUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID,
+					};
+				}
+				else if (!string.IsNullOrEmpty(ctxt.SkipReason))
 				{
 					runSummary.Skipped++;
 

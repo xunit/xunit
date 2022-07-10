@@ -133,6 +133,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
 	/// <param name="displayName">The display name of the test case.</param>
 	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
+	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
@@ -143,6 +144,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 		CancellationTokenSource cancellationTokenSource,
 		string displayName,
 		string? skipReason,
+		ExplicitOption explicitOption,
 		object?[] constructorArguments,
 		object?[]? testMethodArguments)
 	{
@@ -152,7 +154,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 
 		var (testClass, testMethod, beforeAfterTestAttributes) = Initialize(testCase, ref testMethodArguments);
 
-		return RunAsync(new(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes));
+		return RunAsync(new(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes));
 	}
 
 	/// <inheritdoc/>
@@ -173,6 +175,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 					discoveredTest.TestMethod,
 					discoveredTest.TestMethodArguments,
 					discoveredTest.SkipReason,
+					ctxt.ExplicitOption,
 					ctxt.Aggregator,
 					ctxt.CancellationTokenSource,
 					ctxt.BeforeAfterTestAttributes

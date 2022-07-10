@@ -363,7 +363,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 
 		if (DispatchMessage<_TestAssemblyFinished>(message, messageTypes, assemblyFinished =>
 		{
-			OnExecutionComplete?.Invoke(new ExecutionCompleteInfo(assemblyFinished.TestsRun, assemblyFinished.TestsFailed, assemblyFinished.TestsSkipped, assemblyFinished.ExecutionTime));
+			OnExecutionComplete?.Invoke(new ExecutionCompleteInfo(assemblyFinished.TestsTotal, assemblyFinished.TestsFailed, assemblyFinished.TestsSkipped, assemblyFinished.TestsNotRun, assemblyFinished.ExecutionTime));
 			executionCompleteEvent.Set();
 		}))
 			return !cancelled;

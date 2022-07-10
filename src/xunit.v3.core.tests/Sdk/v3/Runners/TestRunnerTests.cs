@@ -417,6 +417,6 @@ public class TestRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, TokenSource));
+			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, ExplicitOption.Off, aggregator, TokenSource));
 	}
 }

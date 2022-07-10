@@ -21,11 +21,12 @@ public class XunitTestInvokerContext : TestInvokerContext
 		object?[] constructorArguments,
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes) :
-			base(test, testClass, constructorArguments, testMethod, testMethodArguments, messageBus, aggregator, cancellationTokenSource)
+			base(test, testClass, constructorArguments, testMethod, testMethodArguments, explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		BeforeAfterTestAttributes = Guard.ArgumentNotNull(beforeAfterTestAttributes);
 	}

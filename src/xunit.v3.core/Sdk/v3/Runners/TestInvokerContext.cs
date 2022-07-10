@@ -20,10 +20,11 @@ public class TestInvokerContext : ContextBase
 		object?[] constructorArguments,
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) :
-			base(messageBus, aggregator, cancellationTokenSource)
+			base(explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
 		Test = Guard.ArgumentNotNull(test);
 		TestClass = Guard.ArgumentNotNull(testClass);

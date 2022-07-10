@@ -26,6 +26,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 	/// <param name="testMethod">The method under test.</param>
 	/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+	/// <param name="explicit">A flag to indicate whether the test was marked as explicit.</param>
 	/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
 	/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
@@ -34,14 +35,16 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 		TestMethodDisplayOptions defaultMethodDisplayOptions,
 		_ITestMethod testMethod,
 		string? skipReason = null,
+		bool? @explicit = null,
 		Dictionary<string, List<string>>? traits = null,
 		int? timeout = null,
 		string? uniqueID = null)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, traits, timeout, uniqueID, null)
+			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, @explicit, traits, timeout, uniqueID, null)
 	{ }
 
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunAsync(
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
@@ -53,6 +56,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 				cancellationTokenSource,
 				TestCaseDisplayName,
 				SkipReason,
+				explicitOption,
 				constructorArguments,
 				TestMethodArguments
 			);

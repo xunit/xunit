@@ -27,7 +27,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		object?[]? testMethodArguments = null,
 		Dictionary<string, List<string>>? traits = null,
 		string? displayName = null)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, traits, null, null, displayName)
+			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, null, traits, null, null, displayName)
 	{
 		this.culture = Guard.ArgumentNotNull(culture);
 
@@ -49,6 +49,7 @@ public class CulturedXunitTestCase : XunitTestCase
 	}
 
 	public override async ValueTask<RunSummary> RunAsync(
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
@@ -63,7 +64,7 @@ public class CulturedXunitTestCase : XunitTestCase
 			CultureInfo.CurrentCulture = cultureInfo;
 			CultureInfo.CurrentUICulture = cultureInfo;
 
-			return await base.RunAsync(messageBus, constructorArguments, aggregator, cancellationTokenSource);
+			return await base.RunAsync(explicitOption, messageBus, constructorArguments, aggregator, cancellationTokenSource);
 		}
 		finally
 		{

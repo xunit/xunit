@@ -21,12 +21,13 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerContext : XunitTestCaseRunn
 		CancellationTokenSource cancellationTokenSource,
 		string displayName,
 		string? skipReason,
+		ExplicitOption explicitOption,
 		Type testClass,
 		object?[] constructorArguments,
 		MethodInfo testMethod,
 		object?[]? testMethodArguments,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes) :
-			base(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes)
+			base(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes)
 	{ }
 
 	/// <summary>

@@ -40,6 +40,9 @@ public class XunitTest : _ITest
 	/// <inheritdoc/>
 	public string DisplayName { get; }
 
+	/// <inheritdoc/>
+	public bool Explicit => TestCase.Explicit;
+
 	/// <summary>
 	/// Gets the xUnit v3 test case.
 	/// </summary>

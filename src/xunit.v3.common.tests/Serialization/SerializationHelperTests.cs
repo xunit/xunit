@@ -227,7 +227,7 @@ public class SerializationHelperTests
 		{
 			var result = SerializationHelper.Serialize(value);
 
-			Assert.Equal<object>(expectedSerialization, result);
+			Assert.Equal(expectedSerialization, result);
 		}
 
 		public static TheoryData<object?, Type, string?> FailureData()

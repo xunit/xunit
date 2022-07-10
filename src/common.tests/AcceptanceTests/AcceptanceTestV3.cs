@@ -15,14 +15,16 @@ public class AcceptanceTestV3
 	public Task<List<_MessageSinkMessage>> RunAsync(
 		Type type,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
-			RunAsync(new[] { type }, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+			RunAsync(new[] { type }, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 
 	public Task<List<_MessageSinkMessage>> RunAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
@@ -44,7 +46,7 @@ public class AcceptanceTestV3
 
 				using var runSink = SpyMessageSink<_TestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(assemblyInfo);
-				await executor.RunTestCases(testCases, runSink, _TestFrameworkOptions.ForExecution());
+				await executor.RunTestCases(testCases, runSink, _TestFrameworkOptions.ForExecution(explicitOption: explicitOption));
 
 				tcs.TrySetResult(runSink.Messages.ToList());
 			}
@@ -60,43 +62,47 @@ public class AcceptanceTestV3
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(
 		Type type,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(type, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+		var results = await RunAsync(type, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public async Task<List<TMessageType>> RunAsync<TMessageType>(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TMessageType : _MessageSinkMessage
 	{
-		var results = await RunAsync(types, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+		var results = await RunAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TMessageType>().ToList();
 	}
 
 	public Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type type,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
-			RunForResultsAsync(new[] { type }, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+			RunForResultsAsync(new[] { type }, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 
 	public async Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 	{
-		var results = await RunAsync(types, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+		var results = await RunAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return
 			results
 				.OfType<_TestResultMessage>()
@@ -108,24 +114,26 @@ public class AcceptanceTestV3
 	public async Task<List<TResult>> RunForResultsAsync<TResult>(
 		Type type,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TResult : ITestResultWithDisplayName
 	{
-		var results = await RunForResultsAsync(type, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+		var results = await RunForResultsAsync(type, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TResult>().ToList();
 	}
 
 	public async Task<List<TResult>> RunForResultsAsync<TResult>(
 		Type[] types,
 		bool preEnumerateTheories = true,
+		ExplicitOption? explicitOption = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		_IMessageSink? internalDiagnosticMessageSink = null,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes)
 			where TResult : ITestResultWithDisplayName
 	{
-		var results = await RunForResultsAsync(types, preEnumerateTheories, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
+		var results = await RunForResultsAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 		return results.OfType<TResult>().ToList();
 	}
 
@@ -139,6 +147,8 @@ public class AcceptanceTestV3
 			return new TestFailedWithDisplayName(failed, testDisplayName);
 		if (result is _TestSkipped skipped)
 			return new TestSkippedWithDisplayName(skipped, testDisplayName);
+		if (result is _TestNotRun notRun)
+			return new TestNotRunWithDisplayName(notRun, testDisplayName);
 
 		return null;
 	}

@@ -54,6 +54,7 @@ public class ExecutionErrorTestCase : XunitTestCase
 
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunAsync(
+		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,

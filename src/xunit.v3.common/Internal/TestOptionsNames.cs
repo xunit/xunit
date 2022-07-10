@@ -34,6 +34,8 @@ public static class TestOptionsNames
 		/// <summary/>
 		public static readonly string DiagnosticMessages = "xunit.execution.DiagnosticMessages";
 		/// <summary/>
+		public static readonly string ExplicitOption = "xunit.execution.ExplicitOption";
+		/// <summary/>
 		public static readonly string StopOnFail = "xunit.execution.StopOnFail";
 		/// <summary/>
 		public static readonly string InternalDiagnosticMessages = "xunit.execution.InternalDiagnosticMessages";
