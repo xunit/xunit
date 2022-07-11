@@ -21,6 +21,9 @@ public class TheoryDataRow : ITheoryDataRow
 	}
 
 	/// <inheritdoc/>
+	public bool? Explicit { get; set; }
+
+	/// <inheritdoc/>
 	public string? Skip { get; set; }
 
 	/// <inheritdoc/>

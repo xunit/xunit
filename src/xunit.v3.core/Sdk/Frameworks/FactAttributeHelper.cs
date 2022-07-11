@@ -167,6 +167,9 @@ public static class FactAttributeHelper
 		if (dataRow.Skip != null)
 			result.SkipReason = dataRow.Skip;
 
+		if (dataRow.Explicit.HasValue)
+			result.Explicit = dataRow.Explicit.Value;
+
 		if (dataRow.Traits != null)
 			foreach (var kvp in dataRow.Traits)
 				result.Traits.Add(kvp.Key, kvp.Value);

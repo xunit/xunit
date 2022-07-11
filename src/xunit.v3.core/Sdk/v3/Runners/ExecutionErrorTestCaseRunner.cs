@@ -40,7 +40,7 @@ public class ExecutionErrorTestCaseRunner : TestCaseRunner<TestCaseRunnerContext
 	protected override ValueTask<RunSummary> RunTestsAsync(TestCaseRunnerContext<ExecutionErrorTestCase> ctxt)
 	{
 		// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
-		var test = new XunitTest(ctxt.TestCase, ctxt.TestCase.TestCaseDisplayName, testIndex: -1);
+		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.TestCase.TestCaseDisplayName, testIndex: -1);
 		var summary = new RunSummary { Total = 1 };
 
 		var testAssemblyUniqueID = ctxt.TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;

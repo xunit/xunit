@@ -102,7 +102,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 					convertedDataRow = Reflector.ConvertArguments(convertedDataRow, parameterTypes);
 
 					var theoryDisplayName = ctxt.TestCase.TestMethod.Method.GetDisplayNameWithArguments(ctxt.DisplayName, convertedDataRow, resolvedTypes);
-					var test = CreateTest(ctxt, theoryDisplayName, testIndex++);
+					var test = CreateTest(ctxt, dataRow.Explicit, theoryDisplayName, testIndex++);
 					var skipReason = ctxt.SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip") ?? dataRow.Skip;
 
 					ctxt.DiscoveredTests.Add((test, methodToRun, convertedDataRow, skipReason));
@@ -204,7 +204,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	RunSummary RunTest_DataDiscoveryException(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
 		// Use -1 for the index here so we don't collide with any legitimate test IDs that might've been used
-		var test = new XunitTest(ctxt.TestCase, ctxt.DisplayName, testIndex: -1);
+		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.DisplayName, testIndex: -1);
 
 		var testAssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID;
 		var testCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID;

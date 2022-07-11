@@ -60,20 +60,22 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 	/// of the <see cref="XunitTest"/> class.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test case</param>
+	/// <param name="explicit">A flag to indicate the test was marked as explicit; if not set, will fall back to the test case</param>
 	/// <param name="displayName">The display name for the test; if <c>null</c>is passed, defaults to
 	/// the DisplayName value from <paramref name="ctxt"/>.</param>
 	/// <param name="testIndex">The test index for the test. Multiple test per test case scenarios will need
 	/// to use the test index to help construct the test unique ID.</param>
 	protected virtual _ITest CreateTest(
 		TContext ctxt,
+		bool? @explicit,
 		string? displayName,
 		int testIndex) =>
-			new XunitTest(ctxt.TestCase, displayName ?? ctxt.DisplayName, testIndex);
+			new XunitTest(ctxt.TestCase, @explicit, displayName ?? ctxt.DisplayName, testIndex);
 
 	/// <inheritdoc/>
 	protected override ValueTask<RunSummary> RunTestsAsync(TContext ctxt) =>
 		XunitTestRunner.Instance.RunAsync(
-			CreateTest(ctxt, null, testIndex: 0),
+			CreateTest(ctxt, @explicit: null, displayName: null, testIndex: 0),
 			ctxt.MessageBus,
 			ctxt.TestClass,
 			ctxt.ConstructorArguments,

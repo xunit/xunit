@@ -8,6 +8,12 @@ namespace Xunit;
 public interface ITheoryDataRow
 {
 	/// <summary>
+	/// Gets a flag that indicates that the data row should only be run explicitly. If the value is <c>null</c>,
+	/// then it inherits its explicitness from the value of <see cref="FactAttribute.Explicit"/>.
+	/// </summary>
+	bool? Explicit { get; }
+
+	/// <summary>
 	/// Gets the reason for skipping this row of data; if <c>null</c> is returned, then the data
 	/// row isn't skipped.
 	/// </summary>

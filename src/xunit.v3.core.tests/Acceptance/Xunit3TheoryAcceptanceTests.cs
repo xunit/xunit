@@ -691,34 +691,78 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Theory]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable))]
-		[InlineData(typeof(ClassUnderTest_IEnumerable))]
-		public async ValueTask AcceptanceTest(Type classUnderTest)
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), true)]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), false)]
+		[InlineData(typeof(ClassUnderTest_IEnumerable), true)]
+		[InlineData(typeof(ClassUnderTest_IEnumerable), false)]
+		public async ValueTask AcceptanceTest_ExplicitOff(
+			Type classUnderTest,
+			bool preEnumerateTheories)
 		{
-			var testMessages = await RunAsync(classUnderTest);
+			var testMessages = await RunForResultsAsync(classUnderTest, preEnumerateTheories: preEnumerateTheories, explicitOption: ExplicitOption.Off);
 
 			Assert.Collection(
-				testMessages
-					.OfType<_TestPassed>()
-					.Select(tp => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tp.TestUniqueID).TestDisplayName)
-					.OrderBy(x => x),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", passed),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", passed)
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", passed.TestDisplayName),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", passed.TestDisplayName)
 			);
 
-			var failed = Assert.Single(
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName)
-			);
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", failed);
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", failed.TestDisplayName);
 
-			var skipped = Assert.Single(
-				testMessages
-					.OfType<_TestSkipped>()
-					.Select(ts => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == ts.TestUniqueID).TestDisplayName)
+			var skipped = Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", skipped.TestDisplayName);
+
+			var notRun = Assert.Single(testMessages.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"I only run explicitly\", _: 9600)", notRun.TestDisplayName);
+		}
+
+		[Theory]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), true)]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), false)]
+		[InlineData(typeof(ClassUnderTest_IEnumerable), true)]
+		[InlineData(typeof(ClassUnderTest_IEnumerable), false)]
+		public async ValueTask AcceptanceTest_ExplicitOn(
+			Type classUnderTest,
+			bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(classUnderTest, preEnumerateTheories: preEnumerateTheories, explicitOption: ExplicitOption.On);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", passed.TestDisplayName),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", passed.TestDisplayName),
+				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"I only run explicitly\", _: 9600)", passed.TestDisplayName)
 			);
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", skipped);
+
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", failed.TestDisplayName);
+
+			var skipped = Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", skipped.TestDisplayName);
+		}
+
+		[Theory]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), true)]
+		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), false)]
+		[InlineData(typeof(ClassUnderTest_IEnumerable), true)]
+		[InlineData(typeof(ClassUnderTest_IEnumerable), false)]
+		public async ValueTask AcceptanceTest_ExplicitOnly(
+			Type classUnderTest,
+			bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(classUnderTest, preEnumerateTheories: preEnumerateTheories, explicitOption: ExplicitOption.Only);
+
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"I only run explicitly\", _: 9600)", passed.TestDisplayName);
+
+			Assert.Collection(
+				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", notRun.TestDisplayName)
+			);
 		}
 
 		class ClassDataSource
@@ -730,6 +774,7 @@ public class Xunit3TheoryAcceptanceTests
 					Tuple.Create("Hello from Tuple", 42),
 					("Class source will fail", 2112),
 					new TheoryDataRow("Class source would fail if I ran", 96) { Skip = "Do not run" },
+					new TheoryDataRow("I only run explicitly", 9600) { Explicit = true },
 				};
 		}
 
