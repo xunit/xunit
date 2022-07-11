@@ -8,6 +8,10 @@ if ($null -eq (Get-Command "dotnet" -ErrorAction Ignore)) {
     throw "Could not find 'dotnet'; please install the  .NET Core SDK"
 }
 
+if ($null -eq (Get-Command "msbuild.exe" -ErrorAction Ignore)) {
+    throw "Could not find 'msbuild.exe'; please run this from a Visual Studio developer shell"
+}
+
 Push-Location (Split-Path $MyInvocation.MyCommand.Definition)
 
 try {
