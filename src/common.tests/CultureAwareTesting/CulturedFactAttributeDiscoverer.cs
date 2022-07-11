@@ -20,28 +20,24 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 		if (cultures == null || cultures.Length == 0)
 			cultures = new[] { "en-US", "fr-FR" };
 
-		var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
-		var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
-
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 		var result =
 			cultures
-				.Select(culture => CreateTestCase(testMethod, culture, methodDisplay, methodDisplayOptions))
+				.Select(
+					// TODO: How do we get source information in here?
+					culture => new CulturedXunitTestCase(
+						culture,
+						details.ResolvedTestMethod,
+						details.TestCaseDisplayName,
+						details.UniqueID,
+						details.Explicit,
+						details.SkipReason,
+						details.Traits,
+						timeout: details.Timeout
+					)
+				)
 				.CastOrToReadOnlyCollection();
 
 		return new(result);
-	}
-
-	CulturedXunitTestCase CreateTestCase(
-		_ITestMethod testMethod,
-		string culture,
-		TestMethodDisplay methodDisplay,
-		TestMethodDisplayOptions methodDisplayOptions)
-	{
-		return new CulturedXunitTestCase(
-			methodDisplay,
-			methodDisplayOptions,
-			testMethod,
-			culture
-		);
 	}
 }

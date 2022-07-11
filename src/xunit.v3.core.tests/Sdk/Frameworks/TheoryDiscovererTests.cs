@@ -480,13 +480,15 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
-				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
+				Assert.Null(testCase.SkipReason);
 				Assert.Equal($"{typeof(ClassWithSkippedTheoryDataRows).FullName}.{nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows)}(x: 2112)", testCase.TestCaseDisplayName);
 				Assert.Null(testCase.SkipReason);
 			},
 			testCase =>
 			{
-				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
+				Assert.Equal("Do not run this test", testCase.SkipReason);
 				Assert.Equal($"{typeof(ClassWithSkippedTheoryDataRows).FullName}.{nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows)}(x: 42)", testCase.TestCaseDisplayName);
 				Assert.Equal("Do not run this test", testCase.SkipReason);
 			}
@@ -513,7 +515,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void CanAddTraitsFromTheoryDataRow_Preenumerated()
+	public async void CanAddTraitsFromTheoryDataRow_PreEnumerated()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>(nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits));
@@ -525,7 +527,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
-				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
+				Assert.Equal("I am skipped", testCase.SkipReason);
 				Assert.Equal($"{typeof(ClassWithTraitsOnTheoryDataRows).FullName}.{nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits)}(x: 2112)", testCase.TestCaseDisplayName);
 				Assert.Collection(
 					testCase.Traits.OrderBy(kvp => kvp.Key),
@@ -557,7 +560,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			},
 			testCase =>
 			{
-				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
 				Assert.Equal($"{typeof(ClassWithTraitsOnTheoryDataRows).FullName}.{nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits)}(x: 42)", testCase.TestCaseDisplayName);
 				Assert.Collection(
 					testCase.Traits.OrderBy(kvp => kvp.Key),
@@ -621,17 +624,20 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
-				Assert.IsType<XunitSkippedDataRowTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
+				Assert.Equal("I am skipped", testCase.SkipReason);
 				Assert.Equal("I am a skipped test(x: 2600)", testCase.TestCaseDisplayName);
 			},
 			testCase =>
 			{
-				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
+				Assert.Null(testCase.SkipReason);
 				Assert.Equal("I am a special test(x: 42)", testCase.TestCaseDisplayName);
 			},
 			testCase =>
 			{
-				Assert.IsType<XunitPreEnumeratedTheoryTestCase>(testCase);
+				Assert.IsType<XunitTestCase>(testCase);
+				Assert.Null(testCase.SkipReason);
 				Assert.Equal($"{typeof(ClassWithDisplayNameOnTheoryDataRows).FullName}.{nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName)}(x: 2112)", testCase.TestCaseDisplayName);
 			}
 		);

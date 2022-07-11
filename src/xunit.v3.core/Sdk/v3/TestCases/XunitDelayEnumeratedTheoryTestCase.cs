@@ -22,24 +22,26 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCase"/> class.
 	/// </summary>
-	/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
-	/// <param name="testMethod">The method under test.</param>
-	/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
-	/// <param name="explicit">A flag to indicate whether the test was marked as explicit.</param>
-	/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
-	/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+	/// <param name="testMethod">The test method this test case belongs to.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
+	/// <param name="skipReason">The optional reason for skipping the test.</param>
+	/// <param name="traits">The optional traits list.</param>
+	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
+	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
+	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	public XunitDelayEnumeratedTheoryTestCase(
-		TestMethodDisplay defaultMethodDisplay,
-		TestMethodDisplayOptions defaultMethodDisplayOptions,
 		_ITestMethod testMethod,
+		string testCaseDisplayName,
+		string uniqueID,
+		bool @explicit,
 		string? skipReason = null,
-		bool? @explicit = null,
 		Dictionary<string, List<string>>? traits = null,
-		int? timeout = null,
-		string? uniqueID = null)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, @explicit, traits, timeout, uniqueID, null)
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		int? timeout = null)
+			: base(testMethod, testCaseDisplayName, uniqueID, @explicit, skipReason, traits, testMethodArguments: null, sourceFilePath, sourceLineNumber, timeout)
 	{ }
 
 	/// <inheritdoc/>

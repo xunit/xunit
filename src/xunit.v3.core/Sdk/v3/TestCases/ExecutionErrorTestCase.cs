@@ -24,16 +24,16 @@ public class ExecutionErrorTestCase : XunitTestCase
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ExecutionErrorTestCase"/> class.
 	/// </summary>
-	/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 	/// <param name="testMethod">The test method.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
+	/// <param name="uniqueID">The unique ID for the test case.</param>
 	/// <param name="errorMessage">The error message to report for the test.</param>
 	public ExecutionErrorTestCase(
-		TestMethodDisplay defaultMethodDisplay,
-		TestMethodDisplayOptions defaultMethodDisplayOptions,
 		_ITestMethod testMethod,
+		string testCaseDisplayName,
+		string uniqueID,
 		string errorMessage)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+			: base(testMethod, testCaseDisplayName, uniqueID, @explicit: false)
 	{
 		this.errorMessage = Guard.ArgumentNotNull(errorMessage);
 	}

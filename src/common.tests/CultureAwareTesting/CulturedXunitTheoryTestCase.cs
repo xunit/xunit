@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -20,23 +21,32 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CulturedXunitTheoryTestCase"/> class.
 	/// </summary>
-	/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
-	/// <param name="testMethod">The method under test.</param>
+	/// <param name="culture">The culture to run the theory under.</param>
+	/// <param name="testMethod">The test method this test case belongs to.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
+	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
+	/// <param name="skipReason">The optional reason for skipping the test.</param>
+	/// <param name="traits">The optional traits list.</param>
+	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
+	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
+	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	public CulturedXunitTheoryTestCase(
-		TestMethodDisplay defaultMethodDisplay,
-		TestMethodDisplayOptions defaultMethodDisplayOptions,
+		string culture,
 		_ITestMethod testMethod,
-		string culture)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
+		string testCaseDisplayName,
+		string uniqueID,
+		bool @explicit,
+		string? skipReason = null,
+		Dictionary<string, List<string>>? traits = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		int? timeout = null)
+			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, skipReason, traits, sourceFilePath, sourceLineNumber, timeout)
 	{
 		this.culture = Guard.ArgumentNotNull(culture);
 
 		Traits.Add("Culture", Culture);
-
-		var cultureDisplay = $"[{Culture}]";
-		TestCaseDisplayName += cultureDisplay;
-		UniqueID += cultureDisplay;
 	}
 
 	public string Culture =>

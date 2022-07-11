@@ -28,7 +28,7 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 	{
 		// TODO: This means XunitTestFramework can never run test cases without a class & method
 		var testClass = testCase.TestClass?.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestClass.Class does not map to a Type object", nameof(testCase));
-		var testMethod = testCase.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod does not map to a MethodInfo object", nameof(testCase));
+		var testMethod = testCase.TestMethod?.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod.Method does not map to a MethodInfo object", nameof(testCase));
 
 		var parameters = testMethod.GetParameters();
 		var parameterTypes = new Type[parameters.Length];

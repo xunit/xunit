@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -18,9 +16,6 @@ namespace Xunit.v3;
 [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {TestCaseDisplayName}, skip = {SkipReason} \}")]
 public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 {
-	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
-	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
-
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
 	/// </summary>
@@ -31,117 +26,46 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
 	/// </summary>
-	/// <remarks>
-	/// This constructor is intended to be used by test methods which are decorated directly with <see cref="FactAttribute"/>
-	/// (and not any derived attribute). Developers creating custom attributes derived from <see cref="FactAttribute"/>
-	/// should create their own test case class (derived from this) and use the protected constructor instead.
-	/// </remarks>
-	/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
 	/// <param name="testMethod">The test method this test case belongs to.</param>
-	/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
-	/// <param name="explicit">Indicates whether the test case was marked as explicit; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
-	/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
-	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
-	/// <param name="displayName">The optional display name for the test</param>
-	public XunitTestCase(
-		TestMethodDisplay defaultMethodDisplay,
-		TestMethodDisplayOptions defaultMethodDisplayOptions,
-		_ITestMethod testMethod,
-		string? skipReason = null,
-		bool? @explicit = null,
-		int? timeout = null,
-		string? uniqueID = null,
-		string? displayName = null)
-			: this(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, null, skipReason, @explicit, null, timeout, uniqueID, displayName)
-	{ }
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
-	/// </summary>
-	/// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-	/// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
-	/// <param name="testMethod">The test method this test case belongs to.</param>
-	/// <param name="testMethodArguments">The arguments for the test method.</param>
-	/// <param name="skipReason">The optional reason for skipping the test; if not provided, will be read from the <see cref="FactAttribute"/>.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
+	/// <param name="uniqueID">The unique ID for the test case.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
-	/// <param name="traits">The optional traits list; if not provided, will be read from trait attributes.</param>
-	/// <param name="timeout">The optional timeout (in milliseconds); if not provided, will be read from the <see cref="FactAttribute"/>.</param>
-	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
-	/// <param name="displayName">The optional display name for the test</param>
-	protected XunitTestCase(
-		TestMethodDisplay defaultMethodDisplay,
-		TestMethodDisplayOptions defaultMethodDisplayOptions,
+	/// <param name="skipReason">The optional reason for skipping the test.</param>
+	/// <param name="traits">The optional traits list.</param>
+	/// <param name="testMethodArguments">The optional arguments for the test method.</param>
+	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
+	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
+	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
+	public XunitTestCase(
 		_ITestMethod testMethod,
-		object?[]? testMethodArguments,
-		string? skipReason,
-		bool? @explicit,
-		Dictionary<string, List<string>>? traits,
-		int? timeout,
-		string? uniqueID,
-		string? displayName)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID, displayName)
+		string testCaseDisplayName,
+		string uniqueID,
+		bool @explicit,
+		string? skipReason = null,
+		Dictionary<string, List<string>>? traits = null,
+		object?[]? testMethodArguments = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		int? timeout = null)
+			: base(testMethod, testCaseDisplayName, uniqueID, skipReason, traits, testMethodArguments, sourceFilePath, sourceLineNumber)
 	{
-		var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
-		var baseDisplayName = displayName ?? factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
-
-		TestCaseDisplayName = TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
-		SkipReason ??= factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
-		Explicit = @explicit ?? factAttribute.GetNamedArgument<bool>(nameof(FactAttribute.Explicit));
-		Timeout = timeout ?? factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
-
-		foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
-		{
-			var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
-			if (discovererAttribute != null)
-			{
-				var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
-				if (discoverer != null)
-					foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
-						Traits.Add(keyValuePair.Key, keyValuePair.Value);
-			}
-			else
-				TestContext.Current?.SendDiagnosticMessage("Trait attribute on '{0}' did not have [TraitDiscoverer]", TestCaseDisplayName);
-		}
+		Explicit = @explicit;
+		Timeout = timeout ?? 0;
 	}
 
 	/// <inheritdoc/>
-	public bool Explicit { get; protected set; }
+	public bool Explicit { get; private set; }
 
 	/// <inheritdoc/>
-	public int Timeout { get; protected set; }
+	public int Timeout { get; private set; }
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IXunitSerializationInfo info)
 	{
 		base.Deserialize(info);
 
+		Explicit = info.GetValue<bool>("ex");
 		Timeout = info.GetValue<int>("to");
-	}
-
-	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
-	{
-		Guard.ArgumentNotNull(assembly);
-
-		return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
-	}
-
-	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
-	{
-		Guard.ArgumentNotNull(type);
-
-		return typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
-	}
-
-	static IReadOnlyCollection<_IAttributeInfo> GetTraitAttributesData(_ITestMethod testMethod)
-	{
-		Guard.ArgumentNotNull(testMethod);
-
-		return
-			GetCachedTraitAttributes(testMethod.TestClass.Class.Assembly)
-				.Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
-				.Concat(GetCachedTraitAttributes(testMethod.TestClass.Class))
-				.CastOrToReadOnlyCollection();
 	}
 
 	/// <inheritdoc/>
@@ -174,6 +98,7 @@ public class XunitTestCase : TestMethodTestCase, IXunitTestCase
 	{
 		base.Serialize(info);
 
+		info.AddValue("ex", Explicit);
 		info.AddValue("to", Timeout);
 	}
 }

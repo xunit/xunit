@@ -32,7 +32,7 @@ public interface _ITestCase : _ITestCaseMetadata
 	/// <summary>
 	/// Gets the arguments that will be passed to the test method.
 	/// </summary>
-	object?[]? TestMethodArguments { get; }
+	object?[] TestMethodArguments { get; }
 
 	/// <summary>
 	/// Gets a unique identifier for the test case.

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -14,17 +13,6 @@ public interface IXunitTestCase : _ITestCase
 	/// Gets a flag indicating whether this test case was marked as explicit or not.
 	/// </summary>
 	bool Explicit { get; }
-
-	/// <summary>
-	/// Gets the exception that happened during initialization. When this is set, then
-	/// the test execution should fail with this exception.
-	/// </summary>
-	Exception? InitializationException { get; }
-
-	/// <summary>
-	/// Gets the method to be run. Generic argument types will have been closed based on the arguments.
-	/// </summary>
-	_IMethodInfo Method { get; }
 
 	/// <summary>
 	/// Gets the timeout of the test, in milliseconds; if zero or negative, means the test case has no timeout.

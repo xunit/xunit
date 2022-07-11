@@ -71,16 +71,14 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 		Assert.True(tokenSource.IsCancellationRequested);
 	}
 
-	public static ExecutionErrorTestCase ExecutionErrorTestCase(
-		string message,
-		_IMessageSink? diagnosticMessageSink = null)
+	public static ExecutionErrorTestCase ExecutionErrorTestCase(string message)
 	{
 		var testMethod = Mocks.TestMethod();
 
 		return new(
-			TestMethodDisplay.ClassAndMethod,
-			TestMethodDisplayOptions.None,
 			testMethod,
+			"test-case-display-name",
+			"test-case-unique-id",
 			message
 		);
 	}

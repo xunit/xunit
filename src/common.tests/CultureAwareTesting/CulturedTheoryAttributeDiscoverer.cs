@@ -13,20 +13,24 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
-		string? displayName,
-		Dictionary<string, List<string>>? traits,
-		object?[] dataRow)
+		ITheoryDataRow dataRow,
+		object?[] testMethodArguments)
 	{
 		var cultures = GetCultures(theoryAttribute);
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments: testMethodArguments, theoryAttribute);
 		var result = cultures.Select(
+			// TODO: How do we get source information in here?
 			culture => new CulturedXunitTestCase(
-				discoveryOptions.MethodDisplayOrDefault(),
-				discoveryOptions.MethodDisplayOptionsOrDefault(),
-				testMethod,
 				culture,
-				dataRow,
-				traits,
-				displayName)
+				details.ResolvedTestMethod,
+				details.TestCaseDisplayName,
+				details.UniqueID,
+				details.Explicit,
+				details.SkipReason,
+				details.Traits,
+				testMethodArguments,
+				timeout: details.Timeout
+			)
 		).CastOrToReadOnlyCollection();
 
 		return new(result);
@@ -38,14 +42,24 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		_IAttributeInfo theoryAttribute)
 	{
 		var cultures = GetCultures(theoryAttribute);
-		var result = cultures.Select(
-			culture => new CulturedXunitTheoryTestCase(
-				discoveryOptions.MethodDisplayOrDefault(),
-				discoveryOptions.MethodDisplayOptionsOrDefault(),
-				testMethod,
-				culture
-			)
-		).CastOrToReadOnlyCollection();
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
+		var result =
+			cultures
+				.Select(
+					// TODO: How do we get source information in here?
+					culture => new CulturedXunitTheoryTestCase(
+						culture,
+						details.ResolvedTestMethod,
+						details.TestCaseDisplayName,
+						details.UniqueID,
+						details.Explicit,
+						details.SkipReason,
+						details.Traits,
+						timeout: details.Timeout
+					)
+				)
+				.CastOrToReadOnlyCollection();
 
 		return new(result);
 	}

@@ -5,4 +5,8 @@
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" />
+  </ItemGroup>
+
 </Project>

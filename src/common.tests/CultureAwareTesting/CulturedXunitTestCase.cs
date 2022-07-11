@@ -20,22 +20,22 @@ public class CulturedXunitTestCase : XunitTestCase
 	{ }
 
 	public CulturedXunitTestCase(
-		TestMethodDisplay defaultMethodDisplay,
-		TestMethodDisplayOptions defaultMethodDisplayOptions,
-		_ITestMethod testMethod,
 		string culture,
-		object?[]? testMethodArguments = null,
+		_ITestMethod testMethod,
+		string testCaseDisplayName,
+		string uniqueID,
+		bool @explicit,
+		string? skipReason = null,
 		Dictionary<string, List<string>>? traits = null,
-		string? displayName = null)
-			: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, null, null, traits, null, null, displayName)
+		object?[]? testMethodArguments = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		int? timeout = null)
+			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, skipReason, traits, testMethodArguments, sourceFilePath, sourceLineNumber, timeout)
 	{
 		this.culture = Guard.ArgumentNotNull(culture);
 
 		Traits.Add("Culture", Culture);
-
-		var cultureDisplay = $"[{Culture}]";
-		TestCaseDisplayName += cultureDisplay;
-		UniqueID += cultureDisplay;
 	}
 
 	public string Culture =>

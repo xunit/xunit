@@ -106,7 +106,7 @@ public class DelegatingXmlCreationSinkTests
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCollectionStarted = TestData.TestCollectionStarting(testCollectionDisplayName: "Collection Name", testCollectionUniqueID: "abc123");
-		var testCollectionFinished = TestData.TestCollectionFinished(testsRun: 2112, testsFailed: 42, testsSkipped: 6, testsNotRun: 3, executionTime: 123.4567m, testCollectionUniqueID: "abc123");
+		var testCollectionFinished = TestData.TestCollectionFinished(testsTotal: 2112, testsFailed: 42, testsSkipped: 6, testsNotRun: 3, executionTime: 123.4567m, testCollectionUniqueID: "abc123");
 
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);

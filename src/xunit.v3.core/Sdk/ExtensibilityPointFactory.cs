@@ -22,11 +22,14 @@ public static class ExtensibilityPointFactory
 		}
 		catch (MissingMemberException)
 		{
-			TestContext.Current?.SendDiagnosticMessage(
-				"Could not find constructor for '{0}' with arguments type(s): {1}",
-				type.FullName,
-				string.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))
-			);
+			if (ctorArgs.Length == 0)
+				TestContext.Current?.SendDiagnosticMessage("Could not find empty constructor for '{0}'", type.FullName);
+			else
+				TestContext.Current?.SendDiagnosticMessage(
+					"Could not find constructor for '{0}' with arguments type(s): {1}",
+					type.FullName,
+					string.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))
+				);
 
 			throw;
 		}

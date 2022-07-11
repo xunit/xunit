@@ -7,127 +7,6 @@ using Xunit.v3;
 
 public class TestMethodTestCaseTests
 {
-	public class Ctor
-	{
-		[Fact]
-		public static void NonSerializableArgumentsThrows()
-		{
-			var testMethod = Mocks.TestMethod("MockType", "MockMethod");
-
-			var ex = Record.Exception(
-				() => new TestableTestMethodTestCase(testMethod, new object[] { new XunitTestCaseTests() })
-			);
-
-			var argEx = Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("value", argEx.ParamName);
-			Assert.StartsWith("Cannot serialize a value of type 'XunitTestCaseTests': unsupported type for serialization", argEx.Message);
-		}
-
-		[Fact]
-		public static void DefaultBehavior()
-		{
-			var testMethod = Mocks.TestMethod("MockType", "MockMethod");
-
-			var testCase = new TestableTestMethodTestCase(testMethod);
-
-			Assert.Equal("MockType.MockMethod", testCase.TestCaseDisplayName);
-			Assert.Null(testCase.InitializationException);
-			Assert.Same(testMethod.Method, testCase.Method);
-			Assert.Null(testCase.SkipReason);
-			Assert.Null(testCase.SourceFilePath);
-			Assert.Null(testCase.SourceLineNumber);
-			Assert.Same(testMethod, testCase.TestMethod);
-			Assert.Null(testCase.TestMethodArguments);
-			Assert.Empty(testCase.Traits);
-			Assert.Equal("4428bc4e444a8f5294832dc06425f20fc994bdc44788f03219b7237f892bffe0", testCase.UniqueID);
-		}
-
-		[Fact]
-		public static void Overrides()
-		{
-			var testMethod = Mocks.TestMethod("MockType", "Mock_Method");
-			var arguments = new object[] { 42, 21.12, "Hello world!" };
-			var traits = new Dictionary<string, List<string>> { { "FOO", new List<string> { "BAR" } } };
-
-			var testCase = new TestableTestMethodTestCase(
-				testMethod,
-				arguments,
-				TestMethodDisplay.Method,
-				TestMethodDisplayOptions.ReplaceUnderscoreWithSpace,
-				"Skip me!",
-				traits,
-				"test-case-custom-id"
-			);
-
-			Assert.Equal($"Mock Method(???: 42, ???: {21.12:G17}, ???: \"Hello world!\")", testCase.TestCaseDisplayName);
-			Assert.Equal("Skip me!", testCase.SkipReason);
-			Assert.Same(arguments, testCase.TestMethodArguments);
-			Assert.Collection(
-				testCase.Traits,
-				kvp =>
-				{
-					Assert.Equal("FOO", kvp.Key);
-					Assert.Equal("BAR", Assert.Single(kvp.Value));
-				}
-			);
-			Assert.Equal("test-case-custom-id", testCase.UniqueID);
-		}
-	}
-
-	public class DisplayName
-	{
-		[Fact]
-		public static void CorrectNumberOfTestArguments()
-		{
-			var param1 = Mocks.ParameterInfo("p1");
-			var param2 = Mocks.ParameterInfo("p2");
-			var param3 = Mocks.ParameterInfo("p3");
-			var testMethod = Mocks.TestMethod(parameters: new[] { param1, param2, param3 });
-			var arguments = new object[] { 42, "Hello, world!", 'A' };
-
-			var testCase = new TestableTestMethodTestCase(testMethod, arguments);
-
-			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.TestCaseDisplayName);
-		}
-
-		[Fact]
-		public static void NotEnoughTestArguments()
-		{
-			var param = Mocks.ParameterInfo("p1");
-			var testMethod = Mocks.TestMethod(parameters: new[] { param });
-
-			var testCase = new TestableTestMethodTestCase(testMethod, new object[0]);
-
-			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: ???)", testCase.TestCaseDisplayName);
-		}
-
-		[CulturedFact]
-		public static void TooManyTestArguments()
-		{
-			var param = Mocks.ParameterInfo("p1");
-			var testMethod = Mocks.TestMethod(parameters: new[] { param });
-			var arguments = new object[] { 42, 21.12M };
-
-			var testCase = new TestableTestMethodTestCase(testMethod, arguments);
-
-			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, ???: {21.12})", testCase.TestCaseDisplayName);
-		}
-
-		[Theory]
-		[InlineData(TestMethodDisplay.ClassAndMethod, "TestMethodTestCaseTests+DisplayName.OverrideDefaultMethodDisplay")]
-		[InlineData(TestMethodDisplay.Method, "OverrideDefaultMethodDisplay")]
-		public static void OverrideDefaultMethodDisplay(
-			TestMethodDisplay methodDisplay,
-			string expectedDisplayName)
-		{
-			var testMethod = Mocks.TestMethod<DisplayName>("OverrideDefaultMethodDisplay");
-
-			var testCase = new TestableTestMethodTestCase(testMethod, defaultMethodDisplay: methodDisplay);
-
-			Assert.Equal(expectedDisplayName, testCase.TestCaseDisplayName);
-		}
-	}
-
 	public class DisposeAsync
 	{
 		[Fact]
@@ -136,12 +15,13 @@ public class TestMethodTestCaseTests
 			var disposable = new SerializableDisposable();
 			var asyncDisposable = new SerializableAsyncDisposable();
 			var testMethod = Mocks.TestMethod();
-			var testCase = new TestableTestMethodTestCase(testMethod, new object[] { disposable, asyncDisposable });
+			var testCase = new TestableTestMethodTestCase(testMethod, testMethodArguments: new object[] { disposable, asyncDisposable });
 
 			await testCase.DisposeAsync();
 
 			Assert.True(disposable.DisposeCalled);
 			Assert.True(asyncDisposable.DisposeAsyncCalled);
+			Assert.False(asyncDisposable.DisposeCalled);  // Don't double-dispose
 		}
 
 		class SerializableDisposable : IXunitSerializable, IDisposable
@@ -157,9 +37,15 @@ public class TestMethodTestCaseTests
 			{ }
 		}
 
-		class SerializableAsyncDisposable : IXunitSerializable, IAsyncDisposable
+		class SerializableAsyncDisposable : IXunitSerializable, IAsyncDisposable, IDisposable
 		{
 			public bool DisposeAsyncCalled = false;
+			public bool DisposeCalled = false;
+
+			public void Dispose()
+			{
+				DisposeAsyncCalled = true;
+			}
 
 			public ValueTask DisposeAsync()
 			{
@@ -172,51 +58,6 @@ public class TestMethodTestCaseTests
 
 			void IXunitSerializable.Serialize(IXunitSerializationInfo info)
 			{ }
-		}
-	}
-
-	public class Method : AcceptanceTestV3
-	{
-		[Theory]
-		[InlineData(42, typeof(int))]
-		[InlineData("Hello world", typeof(string))]
-		[InlineData(null, typeof(object))]
-		public void OpenGenericIsClosedByArguments(
-			object? testArg,
-			Type expectedGenericType)
-		{
-			var method = TestData.TestMethod<ClassUnderTest>("OpenGeneric");
-			var testCase = new TestableTestMethodTestCase(method, new[] { testArg });
-
-			var closedMethod = testCase.Method;
-
-			var methodInfo = Assert.IsAssignableFrom<_IReflectionMethodInfo>(method.Method).MethodInfo;
-			Assert.True(methodInfo.IsGenericMethodDefinition);
-			var closedMethodInfo = Assert.IsAssignableFrom<_IReflectionMethodInfo>(closedMethod).MethodInfo;
-			Assert.False(closedMethodInfo.IsGenericMethodDefinition);
-			var genericType = Assert.Single(closedMethodInfo.GetGenericArguments());
-			Assert.Same(expectedGenericType, genericType);
-		}
-
-		[Fact]
-		public void IncompatibleArgumentsSetsInitializationException()
-		{
-			var method = TestData.TestMethod<ClassUnderTest>("NonGeneric");
-
-			var testCase = new TestableTestMethodTestCase(method, new object?[] { 42L });
-
-			Assert.NotNull(testCase.InitializationException);
-			Assert.IsType<InvalidOperationException>(testCase.InitializationException);
-			Assert.Equal("The arguments for this test method did not match the parameters: [42]", testCase.InitializationException.Message);
-		}
-
-		class ClassUnderTest
-		{
-			[Theory]
-			public void OpenGeneric<T>(T value) { }
-
-			[Theory]
-			public void NonGeneric(params int[] values) { }
 		}
 	}
 
@@ -271,64 +112,6 @@ public class TestMethodTestCaseTests
 		}
 	}
 
-	public class Traits
-	{
-		[Fact]
-		public void TraitNamesAreCaseInsensitive_AddedAfter()
-		{
-			var testMethod = Mocks.TestMethod();
-			var testCase = new TestableTestMethodTestCase(testMethod);
-			testCase.Traits.Add("FOO", new List<string> { "BAR" });
-
-			var fooTraitValues = testCase.Traits["foo"];
-
-			var fooTraitValue = Assert.Single(fooTraitValues);
-			Assert.Equal("BAR", fooTraitValue);
-		}
-
-		[Fact]
-		public void TraitNamesAreCaseInsensitive_PreSeeded()
-		{
-			var traits = new Dictionary<string, List<string>> { { "FOO", new List<string> { "BAR" } } };
-			var testMethod = Mocks.TestMethod();
-			var testCase = new TestableTestMethodTestCase(testMethod, traits: traits);
-
-			var fooTraitValues = testCase.Traits["foo"];
-
-			var fooTraitValue = Assert.Single(fooTraitValues);
-			Assert.Equal("BAR", fooTraitValue);
-		}
-	}
-
-	public class UniqueID
-	{
-		[Fact]
-		public static void UniqueID_NoArguments()
-		{
-			var uniqueID = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod").UniqueID;
-
-			Assert.Equal("4428bc4e444a8f5294832dc06425f20fc994bdc44788f03219b7237f892bffe0", uniqueID);
-		}
-
-		[Fact]
-		public static void UniqueID_Arguments()
-		{
-			var uniqueID42 = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { 42 }).UniqueID;
-			var uniqueIDHelloWorld = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { "Hello, world!" }).UniqueID;
-			var uniqueIDNull = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { null }).UniqueID;
-
-			Assert.Equal("23b8d1d415bbd79b87e92e1756a596c7a7758df6cdc82d4fecabab5c4a3dfd60", uniqueID42);
-			Assert.Equal("31d0cd91618af87d367976cdb5791467415b768c950dfc0a3bded433db896b7d", uniqueIDHelloWorld);
-			Assert.Equal("e0381765c78e63e673aa41c6aab505b3965fbedeab12d2378924e16b1a6a6b58", uniqueIDNull);
-		}
-
-		class ClassUnderTest
-		{
-			[Fact]
-			public static void TestMethod() { }
-		}
-	}
-
 	class TestableTestMethodTestCase : TestMethodTestCase
 	{
 		[Obsolete("For deserialization purposes only")]
@@ -337,13 +120,11 @@ public class TestMethodTestCaseTests
 
 		public TestableTestMethodTestCase(
 			_ITestMethod testMethod,
-			object?[]? testMethodArguments = null,
-			TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod,
-			TestMethodDisplayOptions defaultMethodDisplayOptions = TestMethodDisplayOptions.None,
+			string? uniqueID = null,
 			string? skipReason = null,
 			Dictionary<string, List<string>>? traits = null,
-			string? uniqueID = null)
-				: base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments, skipReason, traits, uniqueID)
+			object?[]? testMethodArguments = null)
+				: base(testMethod, "test-case-display-name", uniqueID ?? "unique-id", skipReason, traits, testMethodArguments)
 		{ }
 
 		public static TestableTestMethodTestCase Create<TClass>(
@@ -351,7 +132,7 @@ public class TestMethodTestCaseTests
 			object?[]? testMethodArguments = null)
 		{
 			var testMethod = TestData.TestMethod<TClass>(methodName);
-			return new TestableTestMethodTestCase(testMethod, testMethodArguments);
+			return new TestableTestMethodTestCase(testMethod, testMethodArguments: testMethodArguments);
 		}
 	}
 }

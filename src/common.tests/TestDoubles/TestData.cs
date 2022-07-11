@@ -15,19 +15,29 @@ public static class TestData
 	public const string DefaultAssemblyUniqueID = "assembly-id";
 	public const string DefaultConfigFilePath = "./test-assembly.json";
 	public const int DefaultCountFailed = 42;
-	public const int DefaultCountRun = 2112;
+	public const int DefaultCountTotal = 2112;
 	public const int DefaultCountSkipped = 6;
 	public const int DefaultCountNotRun = 3;
 	public static int[] DefaultExceptionParentIndices = new[] { -1 };
 	public static string[] DefaultExceptionMessages = new[] { "Attempted to divide by zero. Did you really think that was going to work?" };
 	public static string?[] DefaultExceptionTypes = new[] { typeof(DivideByZeroException).FullName };
 	public const decimal DefaultExecutionTime = 123.4567m;
+	public const string DefaultSkipReason = "skip-reason";
 	public static string?[] DefaultStackTraces = new[] { $"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod" };
 	public const string DefaultTargetFramework = ".NETMagic,Version=v98.76.54";
+	public const string DefaultTestCaseDisplayName = "test-case-display-name";
 	public const string DefaultTestCaseUniqueID = "test-case-id";
 	public const string DefaultTestCaseSerialization = "test-case-serialization";
+	public const string DefaultTestClassName = "test-class-name";
+	public const string DefaultTestClassNamespace = "test-class-namespace";
 	public const string DefaultTestClassUniqueID = "test-class-id";
+	public const string DefaultTestCollectionClass = "test-collection-class";
+	public const string DefaultTestCollectionDisplayName = "test-collection-display-name";
 	public const string DefaultTestCollectionUniqueID = "test-collection-id";
+	public const string DefaultTestDisplayName = "test-display-name";
+	public const string DefaultTestEnvironment = "test-environment";
+	public const string DefaultTestFrameworkDisplayName = "test-framework";
+	public const string DefaultTestMethodName = "test-method";
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
 
@@ -36,12 +46,12 @@ public static class TestData
 		string?[] exceptionTypes,
 		string[] messages,
 		string?[] stackTraces) =>
-			new _ErrorMessage
+			new()
 			{
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
 				Messages = messages,
-				StackTraces = stackTraces
+				StackTraces = stackTraces,
 			};
 
 	static IReadOnlyDictionary<string, IReadOnlyList<string>> GetTraits(MethodInfo method)
@@ -61,28 +71,28 @@ public static class TestData
 		Assembly assembly,
 		string? configFileName = null,
 		Version? version = null) =>
-			new TestAssembly(Reflector.Wrap(assembly), configFileName, version);
+			new(Reflector.Wrap(assembly), configFileName, version);
 
 	public static TestAssembly TestAssembly<TClassUnderTest>(
 		string? configFileName = null,
 		Version? version = null) =>
-			new TestAssembly(Reflector.Wrap(typeof(TClassUnderTest).Assembly), configFileName, version);
+			new(Reflector.Wrap(typeof(TClassUnderTest).Assembly), configFileName, version);
 
 	public static _TestAssemblyFinished TestAssemblyFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		int testsFailed = DefaultCountFailed,
-		int testsRun = DefaultCountRun,
+		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsNotRun = DefaultCountNotRun) =>
-			new _TestAssemblyFinished
+		int testsTotal = DefaultCountTotal) =>
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
 				TestsFailed = testsFailed,
 				TestsNotRun = testsNotRun,
-				TestsTotal = testsRun,
-				TestsSkipped = testsSkipped
+				TestsSkipped = testsSkipped,
+				TestsTotal = testsTotal,
 			};
 
 	public static _TestAssemblyStarting TestAssemblyStarting(
@@ -92,9 +102,9 @@ public static class TestData
 		string? configFilePath = DefaultConfigFilePath,
 		DateTimeOffset? startTime = null,
 		string targetFramework = DefaultTargetFramework,
-		string testEnvironment = "test-environment",
-		string testFrameworkDisplayName = "test-framework") =>
-			new _TestAssemblyStarting
+		string testEnvironment = DefaultTestEnvironment,
+		string testFrameworkDisplayName = DefaultTestFrameworkDisplayName) =>
+			new()
 			{
 				AssemblyName = assemblyName,
 				AssemblyPath = assemblyPath,
@@ -103,7 +113,7 @@ public static class TestData
 				StartTime = startTime ?? new DateTimeOffset(2021, 1, 20, 17, 0, 0, TimeSpan.Zero),
 				TargetFramework = targetFramework,
 				TestEnvironment = testEnvironment,
-				TestFrameworkDisplayName = testFrameworkDisplayName
+				TestFrameworkDisplayName = testFrameworkDisplayName,
 			};
 
 	public static _TestAssemblyCleanupFailure TestAssemblyCleanupFailure(
@@ -112,7 +122,7 @@ public static class TestData
 		string?[]? exceptionTypes = null,
 		string[]? messages = null,
 		string?[]? stackTraces = null) =>
-			new _TestAssemblyCleanupFailure
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -150,12 +160,12 @@ public static class TestData
 			PreEnumerateTheories = preEnumerateTheories
 		});
 
-		return new TestAssemblyDiscoveryFinished
+		return new()
 		{
 			Assembly = assembly,
 			DiscoveryOptions = discoveryOptions,
 			TestCasesDiscovered = testCasesDiscovered,
-			TestCasesToRun = testCasesToRun
+			TestCasesToRun = testCasesToRun,
 		};
 	}
 
@@ -188,12 +198,12 @@ public static class TestData
 			PreEnumerateTheories = preEnumerateTheories
 		});
 
-		return new TestAssemblyDiscoveryStarting
+		return new()
 		{
 			AppDomain = appDomain,
 			Assembly = assembly,
 			DiscoveryOptions = discoveryOptions,
-			ShadowCopy = shadowCopy
+			ShadowCopy = shadowCopy,
 		};
 	}
 
@@ -208,9 +218,9 @@ public static class TestData
 		bool parallelizeTestCollections = false,
 		int testsErrored = 95,
 		int testsFailed = DefaultCountFailed,
-		int testsRun = DefaultCountRun,
+		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsNotRun = DefaultCountNotRun)
+		int testsTotal = DefaultCountTotal)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project)
@@ -234,14 +244,14 @@ public static class TestData
 			NotRun = testsNotRun,
 			Skipped = testsSkipped,
 			Time = executionTime,
-			Total = testsRun
+			Total = testsTotal
 		};
 
-		return new TestAssemblyExecutionFinished
+		return new()
 		{
 			Assembly = assembly,
 			ExecutionOptions = executionOptions,
-			ExecutionSummary = executionSummary
+			ExecutionSummary = executionSummary,
 		};
 	}
 
@@ -272,10 +282,10 @@ public static class TestData
 			ParallelizeTestCollections = parallelizeTestCollections
 		});
 
-		return new TestAssemblyExecutionStarting
+		return new()
 		{
 			Assembly = assembly,
-			ExecutionOptions = executionOptions
+			ExecutionOptions = executionOptions,
 		};
 	}
 
@@ -317,7 +327,7 @@ public static class TestData
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
-		string testCaseDisplayName = "test-case-display-name",
+		string testCaseDisplayName = DefaultTestCaseDisplayName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClass = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -327,7 +337,7 @@ public static class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string? testNamespace = null,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
-			new _TestCaseDiscovered
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Serialization = serialization,
@@ -343,7 +353,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodName = testMethod,
 				TestMethodUniqueID = testMethodUniqueID,
-				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
+				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>(),
 			};
 
 	public static _TestCaseFinished TestCaseFinished(
@@ -354,10 +364,10 @@ public static class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		int testsFailed = DefaultCountFailed,
-		int testsRun = DefaultCountRun,
+		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsNotRun = DefaultCountNotRun) =>
-			new _TestCaseFinished
+		int testsTotal = DefaultCountTotal) =>
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -367,8 +377,8 @@ public static class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 				TestsFailed = testsFailed,
 				TestsNotRun = testsNotRun,
-				TestsTotal = testsRun,
-				TestsSkipped = testsSkipped
+				TestsSkipped = testsSkipped,
+				TestsTotal = testsTotal,
 			};
 
 	public static _TestCaseStarting TestCaseStarting(
@@ -376,13 +386,17 @@ public static class TestData
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
-		string testCaseDisplayName = "test-case-display-name",
+		string testCaseDisplayName = DefaultTestCaseDisplayName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testClassName = DefaultTestClassName,
+		string testClassNamespace = DefaultTestClassNamespace,
+		string? testClassNameWithNamespace = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testMethodName = DefaultTestMethodName,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
-			new _TestCaseStarting
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				SkipReason = skipReason,
@@ -390,22 +404,26 @@ public static class TestData
 				SourceLineNumber = sourceLineNumber,
 				TestCaseDisplayName = testCaseDisplayName,
 				TestCaseUniqueID = testCaseUniqueID,
+				TestClassName = testClassName,
+				TestClassNamespace = testClassNamespace,
+				TestClassNameWithNamespace = testClassNameWithNamespace ?? $"{(string.IsNullOrWhiteSpace(testClassNamespace) ? "" : testClassNamespace + ".")}{testClassName}",
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodName = testMethodName,
 				TestMethodUniqueID = testMethodUniqueID,
-				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
+				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>(),
 			};
 
 	public static _TestClassFinished TestClassFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		decimal executionTime = 123.4567m,
+		decimal executionTime = DefaultExecutionTime,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int testsFailed = DefaultCountFailed,
-		int testsRun = DefaultCountRun,
+		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsNotRun = DefaultCountNotRun) =>
-			new _TestClassFinished
+		int testsTotal = DefaultCountTotal) =>
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -413,59 +431,59 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testsFailed,
 				TestsNotRun = testsNotRun,
-				TestsTotal = testsRun,
-				TestsSkipped = testsSkipped
+				TestsSkipped = testsSkipped,
+				TestsTotal = testsTotal,
 			};
 
 	public static _TestClassStarting TestClassStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		string testClass = "test-class",
+		string testClass = DefaultTestClassName,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID) =>
-			new _TestClassStarting
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestClass = testClass,
 				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID
+				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
 	public static TestCollection TestCollection(
 		_ITestAssembly assembly,
 		_ITypeInfo? collectionDefinition = null,
 		string? displayName = null) =>
-			new TestCollection(assembly, collectionDefinition, displayName ?? $"[Unit Test] Collection for '{assembly.Assembly.Name}'");
+			new(assembly, collectionDefinition, displayName ?? $"[Unit Test] Collection for '{assembly.Assembly.Name}'");
 
 	public static _TestCollectionFinished TestCollectionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int testsFailed = DefaultCountFailed,
-		int testsRun = DefaultCountRun,
+		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsNotRun = DefaultCountNotRun) =>
-			new _TestCollectionFinished
+		int testsTotal = DefaultCountTotal) =>
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testsFailed,
 				TestsNotRun = testsNotRun,
-				TestsTotal = testsRun,
 				TestsSkipped = testsSkipped,
+				TestsTotal = testsTotal,
 			};
 
 	public static _TestCollectionStarting TestCollectionStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		string? testCollectionClass = "test-collection-class",
-		string testCollectionDisplayName = "test-collection-display-name",
+		string? testCollectionClass = DefaultTestCollectionClass,
+		string testCollectionDisplayName = DefaultTestCollectionDisplayName,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID) =>
-			new _TestCollectionStarting
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCollectionClass = testCollectionClass,
 				TestCollectionDisplayName = testCollectionDisplayName,
-				TestCollectionUniqueID = testCollectionUniqueID
+				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
 	public static TestExecutionSummaries TestExecutionSummaries(
@@ -489,7 +507,7 @@ public static class TestData
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
-		decimal executionTime = 123.4567m,
+		decimal executionTime = DefaultExecutionTime,
 		string[]? messages = null,
 		string output = "",
 		string?[]? stackTraces = null,
@@ -497,10 +515,12 @@ public static class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		string testUniqueID = DefaultTestUniqueID) =>
-			new _TestFailed
+		string testUniqueID = DefaultTestUniqueID,
+		FailureCause cause = FailureCause.Assertion) =>
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Cause = cause,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
 				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
 				ExecutionTime = executionTime,
@@ -511,19 +531,19 @@ public static class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 
 	public static _TestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		decimal executionTime = 123.4567m,
+		decimal executionTime = DefaultExecutionTime,
 		string output = "",
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new _TestFinished
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -532,14 +552,14 @@ public static class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 
 	public static TestMethod TestMethod(
 		_ITestClass testClass,
 		_IMethodInfo methodInfo,
 		string? uniqueID = null) =>
-			new TestMethod(testClass, methodInfo, uniqueID);
+			new(testClass, methodInfo, uniqueID);
 
 	public static TestMethod TestMethod<TClass>(
 		string methodName,
@@ -555,20 +575,20 @@ public static class TestData
 		Guard.ArgumentNotNull($"Could not find method '{methodName}' on type '{typeof(TClass).FullName}'", method, nameof(methodName));
 		var methodInfo = Reflector.Wrap(method);
 
-		return new TestMethod(testClass, methodInfo, uniqueID ?? "method-id");
+		return new(testClass, methodInfo, uniqueID ?? "method-id");
 	}
 
 	public static _TestMethodFinished TestMethodFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		decimal executionTime = 123.4567m,
+		decimal executionTime = DefaultExecutionTime,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		int testsFailed = DefaultCountFailed,
-		int testsRun = DefaultCountRun,
+		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsNotRun = DefaultCountNotRun) =>
-			new _TestMethodFinished
+		int testsTotal = DefaultCountTotal) =>
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -577,23 +597,23 @@ public static class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 				TestsFailed = testsFailed,
 				TestsNotRun = testsNotRun,
-				TestsTotal = testsRun,
-				TestsSkipped = testsSkipped
+				TestsSkipped = testsSkipped,
+				TestsTotal = testsTotal,
 			};
 
 	public static _TestMethodStarting TestMethodStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
-		string testMethod = "test-method",
+		string testMethod = DefaultTestMethodName,
 		string testMethodUniqueID = DefaultTestMethodUniqueID) =>
-			new _TestMethodStarting
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethod = testMethod,
-				TestMethodUniqueID = testMethodUniqueID
+				TestMethodUniqueID = testMethodUniqueID,
 			};
 
 	public static _TestNotRun TestNotRun(
@@ -603,7 +623,7 @@ public static class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new _TestNotRun
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -612,19 +632,19 @@ public static class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 
 	public static _TestPassed TestPassed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		decimal executionTime = 123.4567m,
+		decimal executionTime = DefaultExecutionTime,
 		string output = "",
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new _TestPassed
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -633,18 +653,18 @@ public static class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 
 	public static _TestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		string reason = "skip-reason",
+		string reason = DefaultSkipReason,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new _TestSkipped
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -654,7 +674,7 @@ public static class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 
 	public static _TestStarting TestStarting(
@@ -662,10 +682,10 @@ public static class TestData
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
-		string testDisplayName = "test-display-name",
+		string testDisplayName = DefaultTestDisplayName,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new _TestStarting
+			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,
@@ -673,7 +693,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestDisplayName = testDisplayName,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 
 	public static XunitDelayEnumeratedTheoryTestCase XunitDelayEnumeratedTheoryTestCase<TClassUnderTest>(
@@ -682,31 +702,25 @@ public static class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
-		bool? @explicit = null,
+		bool @explicit = false,
 		Dictionary<string, List<string>>? traits = null,
-		int? timeout = null,
+		int timeout = 0,
 		string? uniqueID = null)
 	{
-		var method = TestMethod<TClassUnderTest>(methodName, collection);
+		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
+		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, skip: skipReason, timeout: timeout);
+		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
-		return new XunitDelayEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, skipReason, @explicit, traits, timeout, uniqueID);
-	}
-
-	public static XunitPreEnumeratedTheoryTestCase XunitPreEnumeratedTheoryTestCase<TClassUnderTest>(
-		string methodName,
-		object?[] methodArguments,
-		_ITestCollection? collection = null,
-		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
-		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
-		string? skipReason = null,
-		bool? @explicit = null,
-		Dictionary<string, List<string>>? traits = null,
-		int? timeout = null,
-		string? uniqueID = null)
-	{
-		var method = TestMethod<TClassUnderTest>(methodName, collection);
-
-		return new XunitPreEnumeratedTheoryTestCase(methodDisplay, methodDisplayOptions, method, methodArguments, skipReason, @explicit, traits, timeout, uniqueID);
+		return new(
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			uniqueID ?? details.UniqueID,
+			@explicit,
+			skipReason,
+			traits ?? details.Traits,
+			timeout: timeout
+		);
 	}
 
 	public static XunitTestCase XunitTestCase<TClassUnderTest>(
@@ -715,12 +729,26 @@ public static class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
-		bool? @explicit = null,
-		int? timeout = null,
+		bool @explicit = false,
+		Dictionary<string, List<string>>? traits = null,
+		object?[]? testMethodArguments = null,
+		int timeout = 0,
 		string? uniqueID = null)
 	{
-		var method = TestMethod<TClassUnderTest>(methodName, collection);
+		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
-		return new XunitTestCase(methodDisplay, methodDisplayOptions, method, skipReason, @explicit, timeout, uniqueID);
+		return new(
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			uniqueID ?? details.UniqueID,
+			@explicit,
+			skipReason,
+			traits ?? details.Traits,
+			testMethodArguments,
+			timeout: timeout
+		);
 	}
 }

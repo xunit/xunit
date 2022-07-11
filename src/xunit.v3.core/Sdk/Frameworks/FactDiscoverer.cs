@@ -27,10 +27,17 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(factAttribute);
 
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+
+		// TODO: How do we get source information in here?
 		return new XunitTestCase(
-			discoveryOptions.MethodDisplayOrDefault(),
-			discoveryOptions.MethodDisplayOptionsOrDefault(),
-			testMethod
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			details.UniqueID,
+			details.Explicit,
+			details.SkipReason,
+			details.Traits,
+			timeout: details.Timeout
 		);
 	}
 
@@ -55,9 +62,9 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 		IXunitTestCase testCase;
 
 		if (testMethod.Method.GetParameters().Any())
-			testCase = ErrorTestCase(discoveryOptions, testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
+			testCase = ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
 		else if (testMethod.Method.IsGenericMethodDefinition)
-			testCase = ErrorTestCase(discoveryOptions, testMethod, "[Fact] methods are not allowed to be generic.");
+			testCase = ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to be generic.");
 		else
 			testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
@@ -67,11 +74,20 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 	ExecutionErrorTestCase ErrorTestCase(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
-		string message) =>
-			new(
-				discoveryOptions.MethodDisplayOrDefault(),
-				discoveryOptions.MethodDisplayOptionsOrDefault(),
-				testMethod,
-				message
-			);
+		_IAttributeInfo factAttribute,
+		string message)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(factAttribute);
+
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+
+		return new(
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			details.UniqueID,
+			message
+		);
+	}
 }

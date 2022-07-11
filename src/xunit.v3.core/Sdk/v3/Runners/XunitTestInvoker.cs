@@ -201,13 +201,6 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 	{
 		var testCase = (IXunitTestCase)ctxt.Test.TestCase;
 
-		if (testCase.InitializationException != null)
-		{
-			var tcs = new TaskCompletionSource<decimal>();
-			tcs.SetException(testCase.InitializationException);
-			return new(tcs.Task);
-		}
-
 		return
 			testCase.Timeout > 0
 				? InvokeTimeoutTestMethodAsync(ctxt, testClassInstance, testCase.Timeout)

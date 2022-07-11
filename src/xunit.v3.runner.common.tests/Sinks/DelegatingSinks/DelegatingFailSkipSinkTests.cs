@@ -38,7 +38,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnTestCaseFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = TestData.TestCaseFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
+		var inputMessage = TestData.TestCaseFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
 
 		sink.OnMessage(inputMessage);
 
@@ -52,7 +52,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnTestMethodFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = TestData.TestMethodFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
+		var inputMessage = TestData.TestMethodFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
 
 		sink.OnMessage(inputMessage);
 
@@ -66,7 +66,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnTestClassFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = TestData.TestClassFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
+		var inputMessage = TestData.TestClassFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
 
 		sink.OnMessage(inputMessage);
 
@@ -80,7 +80,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnTestCollectionFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = TestData.TestCollectionFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
+		var inputMessage = TestData.TestCollectionFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
 
 		sink.OnMessage(inputMessage);
 
@@ -94,7 +94,7 @@ public class DelegatingFailSkipSinkTests
 	[Fact]
 	public void OnTestAssemblyFinished_CountsSkipsAsFails()
 	{
-		var inputMessage = TestData.TestAssemblyFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
+		var inputMessage = TestData.TestAssemblyFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1);
 
 		sink.OnMessage(inputMessage);
 

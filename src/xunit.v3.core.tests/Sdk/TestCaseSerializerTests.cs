@@ -43,7 +43,7 @@ public class TestCaseSerializerTests
 			Assert.Equal(testCase.TestCaseDisplayName, result.TestCaseDisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);
-			Assert.Null(result.TestMethodArguments);
+			Assert.Empty(result.TestMethodArguments);
 			Assert.Collection(
 				result.Traits.Keys,
 				key =>
@@ -59,14 +59,11 @@ public class TestCaseSerializerTests
 			);
 			Assert.Equal(testCase.UniqueID, result.UniqueID);
 		}
-	}
 
-	public class WithXunitPreEnumeratedTheoryTestCase
-	{
 		[Fact]
 		public static void DeserializedTestWithSerializableArgumentsPreservesArguments()
 		{
-			var testCase = TestData.XunitPreEnumeratedTheoryTestCase<ClassUnderTest>("FactMethod", new object[] { 42, 21.12, "Hello world" });
+			var testCase = TestData.XunitTestCase<ClassUnderTest>("FactMethod", testMethodArguments: new object[] { 42, 21.12, "Hello world" });
 			var serialized = SerializationHelper.Serialize(testCase);
 
 			var result = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
@@ -111,7 +108,7 @@ public class TestCaseSerializerTests
 			Assert.Equal(testCase.TestCaseDisplayName, result.TestCaseDisplayName);
 			Assert.Equal(testCase.SkipReason, result.SkipReason);
 			Assert.Equal(testCase.Timeout, result.Timeout);
-			Assert.Null(result.TestMethodArguments);
+			Assert.Empty(result.TestMethodArguments);
 			Assert.Collection(
 				result.Traits.Keys,
 				key =>

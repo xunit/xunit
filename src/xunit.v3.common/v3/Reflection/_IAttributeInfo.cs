@@ -33,4 +33,3 @@ public interface _IAttributeInfo
 	[return: MaybeNull]
 	TValue GetNamedArgument<TValue>(string argumentName);
 }
-

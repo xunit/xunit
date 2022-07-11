@@ -194,6 +194,7 @@ public static partial class Mocks
 
 	public static _IReflectionAttributeInfo TheoryAttribute(
 		string? displayName = null,
+		bool @explicit = false,
 		string? skip = null,
 		int timeout = 0)
 	{
@@ -204,6 +205,7 @@ public static partial class Mocks
 		result.GetNamedArgument<string>("DisplayName").Returns(displayName);
 		result.GetNamedArgument<string>("Skip").Returns(skip);
 		result.GetNamedArgument<int>("Timeout").Returns(timeout);
+		result.GetNamedArgument<bool>("Explicit").Returns(@explicit);
 		return result;
 	}
 

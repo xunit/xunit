@@ -20,61 +20,74 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
-	/// <param name="displayName">The optional display name for the test</param>
-	/// <param name="traits">The traits associated with the test case.</param>
-	/// <param name="dataRow">The row of data for this test case.</param>
+	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
+	/// <param name="testMethodArguments">The arguments for the test method.</param>
 	/// <returns>The test cases</returns>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
-		string? displayName,
-		Dictionary<string, List<string>>? traits,
-		object?[] dataRow)
+		ITheoryDataRow dataRow,
+		object?[] testMethodArguments)
 	{
-		var testCase = new XunitPreEnumeratedTheoryTestCase(
-			discoveryOptions.MethodDisplayOrDefault(),
-			discoveryOptions.MethodDisplayOptionsOrDefault(),
-			testMethod,
-			dataRow,
-			traits: traits,
-			displayName: displayName
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(theoryAttribute);
+		Guard.ArgumentNotNull(dataRow);
+		Guard.ArgumentNotNull(testMethodArguments);
+
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute);
+
+		// TODO: How do we get source information in here?
+		var testCase = new XunitTestCase(
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			details.UniqueID,
+			details.Explicit,
+			details.SkipReason,
+			details.Traits,
+			testMethodArguments,
+			timeout: details.Timeout
 		);
 
 		return new(new[] { testCase });
 	}
 
 	/// <summary>
-	/// Creates test cases for a single row of skipped data. By default, returns a single instance of <see cref="XunitSkippedDataRowTestCase"/>
-	/// with the data row inside of it.
+	/// Creates test cases for a single row of skipped data. By default, returns a single instance
+	/// of <see cref="XunitTestCase"/> with the data row inside of it.
 	/// </summary>
-	/// <remarks>If this method is overridden, the implementation will have to override <see cref="TestMethodTestCase.SkipReason"/> otherwise
-	/// the default behavior will look at the <see cref="TheoryAttribute"/> and the test case will not be skipped.</remarks>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
-	/// <param name="displayName">The optional display name for the test</param>
-	/// <param name="traits">The traits associated with the test case.</param>
-	/// <param name="dataRow">The row of data for this test case.</param>
-	/// <param name="skipReason">The reason this test case is to be skipped</param>
+	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
+	/// <param name="testMethodArguments">The arguments for the test method.</param>
+	/// <param name="skipReason">The reason this test case is to be skipped.</param>
 	/// <returns>The test cases</returns>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForSkippedDataRow(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
-		string? displayName,
-		Dictionary<string, List<string>>? traits,
-		object?[] dataRow,
+		ITheoryDataRow dataRow,
+		object?[] testMethodArguments,
 		string skipReason)
 	{
-		var testCase = new XunitSkippedDataRowTestCase(
-			discoveryOptions.MethodDisplayOrDefault(),
-			discoveryOptions.MethodDisplayOptionsOrDefault(),
-			testMethod,
-			dataRow,
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(theoryAttribute);
+
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute);
+
+		// TODO: How do we get source information in here?
+		var testCase = new XunitTestCase(
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			details.UniqueID,
+			details.Explicit,
 			skipReason,
-			traits: traits,
-			displayName: displayName
+			details.Traits,
+			testMethodArguments,
+			timeout: details.Timeout
 		);
 
 		return new(new[] { testCase });
@@ -95,11 +108,21 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		_IAttributeInfo theoryAttribute,
 		string skipReason)
 	{
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(theoryAttribute);
+
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
+		// TODO: How do we get source information in here?
 		var testCase = new XunitTestCase(
-			discoveryOptions.MethodDisplayOrDefault(),
-			discoveryOptions.MethodDisplayOptionsOrDefault(),
-			testMethod,
-			skipReason: skipReason
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			details.UniqueID,
+			details.Explicit,
+			skipReason,
+			details.Traits,
+			timeout: details.Timeout
 		);
 
 		return new(new[] { testCase });
@@ -108,8 +131,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <summary>
 	/// Creates test cases for the entire theory. This is used when one or more of the theory data items
 	/// are not serializable, or if the user has requested to skip theory pre-enumeration. By default,
-	/// returns a single instance of <see cref="XunitDelayEnumeratedTheoryTestCase"/>, which performs the data discovery
-	/// at runtime.
+	/// returns a single instance of <see cref="XunitDelayEnumeratedTheoryTestCase"/>, which performs the
+	/// data discovery at runtime.
 	/// </summary>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
@@ -120,10 +143,21 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute)
 	{
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(theoryAttribute);
+
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
+		// TODO: How do we get source information in here?
 		var testCase = new XunitDelayEnumeratedTheoryTestCase(
-			discoveryOptions.MethodDisplayOrDefault(),
-			discoveryOptions.MethodDisplayOptionsOrDefault(),
-			testMethod
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			details.UniqueID,
+			details.Explicit,
+			details.SkipReason,
+			details.Traits,
+			timeout: details.Timeout
 		);
 
 		return new(new[] { testCase });
@@ -134,8 +168,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// </summary>
 	/// <remarks>
 	/// This method performs the following steps:
-	/// - If the theory attribute is marked with Skip, returns the single test case from <see cref="CreateTestCasesForSkippedTheory"/>;
-	/// - If pre-enumeration is off, or any of the test data is non serializable, returns the single test case from <see cref="CreateTestCasesForTheory"/>;
+	/// - If the theory attribute is marked with Skip, returns the result of <see cref="CreateTestCasesForSkippedTheory"/>;
+	/// - If pre-enumeration is off, or any of the test data is non serializable, returns the result of <see cref="CreateTestCasesForTheory"/>;
 	/// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;
 	/// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow"/> or <see cref="CreateTestCasesForSkippedDataRow"/> if the data attribute has a skip reason.
 	/// </remarks>
@@ -154,9 +188,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 		// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped test may
 		// not actually have any data (which is quasi-legal, since it's skipped).
-		var skipReason = theoryAttribute.GetNamedArgument<string>("Skip");
-		if (skipReason != null)
-			return await CreateTestCasesForSkippedTheory(discoveryOptions, testMethod, theoryAttribute, skipReason);
+		var theoryAttributeSkipReason = theoryAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
+		if (theoryAttributeSkipReason != null)
+			return await CreateTestCasesForSkippedTheory(discoveryOptions, testMethod, theoryAttribute, theoryAttributeSkipReason);
 
 		var preEnumerate =
 			discoveryOptions.PreEnumerateTheoriesOrDefault()
@@ -179,21 +213,23 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					}
 					catch (InvalidCastException)
 					{
+						var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							results.Add(
 								new ExecutionErrorTestCase(
-									discoveryOptions.MethodDisplayOrDefault(),
-									discoveryOptions.MethodDisplayOptionsOrDefault(),
-									testMethod,
+									details.ResolvedTestMethod,
+									details.TestCaseDisplayName,
+									details.UniqueID,
 									$"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
 								)
 							);
 						else
 							results.Add(
 								new ExecutionErrorTestCase(
-									discoveryOptions.MethodDisplayOrDefault(),
-									discoveryOptions.MethodDisplayOptionsOrDefault(),
 									testMethod,
+									details.TestCaseDisplayName,
+									details.UniqueID,
 									$"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
 								)
 							);
@@ -203,21 +239,23 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 					if (discoverer == null)
 					{
+						var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							results.Add(
 								new ExecutionErrorTestCase(
-									discoveryOptions.MethodDisplayOrDefault(),
-									discoveryOptions.MethodDisplayOptionsOrDefault(),
-									testMethod,
+									details.ResolvedTestMethod,
+									details.TestCaseDisplayName,
+									details.UniqueID,
 									$"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
 								)
 							);
 						else
 							results.Add(
 								new ExecutionErrorTestCase(
-									discoveryOptions.MethodDisplayOrDefault(),
-									discoveryOptions.MethodDisplayOptionsOrDefault(),
 									testMethod,
+									details.TestCaseDisplayName,
+									details.UniqueID,
 									$"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
 								)
 							);
@@ -225,25 +263,27 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						continue;
 					}
 
-					skipReason = dataAttribute.GetNamedArgument<string>("Skip");
-
 					if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
 						return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 
 					var data = await discoverer.GetData(dataAttribute, testMethod.Method);
 					if (data == null)
 					{
+						var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
 						results.Add(
 							new ExecutionErrorTestCase(
-								discoveryOptions.MethodDisplayOrDefault(),
-								discoveryOptions.MethodDisplayOptionsOrDefault(),
-								testMethod,
+								details.ResolvedTestMethod,
+								details.TestCaseDisplayName,
+								details.UniqueID,
 								$"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."
 							)
 						);
 
 						continue;
 					}
+
+					var dataAttributeSkipReason = dataAttribute.GetNamedArgument<string>("Skip");
 
 					foreach (var dataRow in data)
 					{
@@ -254,7 +294,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						// the incoming data might be serializable but the actual parameter value that it gets converted
 						// to might not be, and serialization uses the resolved argument and not the input argument.
 						var resolvedData = dataRow.GetData();
-						var dataRowSkipReason = skipReason ?? dataRow.Skip;
+						var dataRowSkipReason = dataAttributeSkipReason ?? dataRow.Skip;
 						if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
 							resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(resolvedData);
 
@@ -281,8 +321,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						{
 							var testCases =
 								dataRowSkipReason != null
-									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData, dataRowSkipReason)
-									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow.TestDisplayName, dataRow.Traits, resolvedData);
+									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData, dataRowSkipReason)
+									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData);
 
 							results.AddRange(await testCases);
 						}
@@ -301,14 +341,18 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				}
 
 				if (results.Count == 0)
+				{
+					var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+
 					results.Add(
 						new ExecutionErrorTestCase(
-							discoveryOptions.MethodDisplayOrDefault(),
-							discoveryOptions.MethodDisplayOptionsOrDefault(),
-							testMethod,
+							details.ResolvedTestMethod,
+							details.TestCaseDisplayName,
+							details.UniqueID,
 							$"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"
 						)
 					);
+				}
 
 				return results;
 			}
