@@ -426,22 +426,81 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void Skipped()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithSkippedTheory));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithSkips));
 
-			var skipped = Assert.Single(testMessages.OfType<_TestSkipped>());
-			var skippedStarting = Assert.Single(testMessages.OfType<_TestStarting>().Where(s => s.TestUniqueID == skipped.TestUniqueID));
-			Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkippedTheory.TestMethod", skippedStarting.TestDisplayName);
-			Assert.Equal("Don't run this!", skipped.Reason);
+			Assert.Collection(
+				testMessages.OfType<TestSkippedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				skipped =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedDataRow(x: 0, y: null)", skipped.TestDisplayName);
+					Assert.Equal("Don't run this!", skipped.Reason);
+				},
+				skipped =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedInlineData(x: 0, y: null)", skipped.TestDisplayName);
+					Assert.Equal("Don't run this!", skipped.Reason);
+				},
+				skipped =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedMemberData(x: 0, y: null)", skipped.TestDisplayName);
+					Assert.Equal("Don't run this!", skipped.Reason);
+				},
+				skipped =>
+				{
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedTheory", skipped.TestDisplayName);
+					Assert.Equal("Don't run this!", skipped.Reason);
+				}
+			);
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedDataRow(x: 42, y: \"Hello, world!\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedInlineData(x: 42, y: \"Hello, world!\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedMemberData(x: 42, y: \"Hello, world!\")", passed.TestDisplayName)
+			);
 		}
 
-		class ClassWithSkippedTheory
+		class ClassWithSkips
 		{
 			[Theory(Skip = "Don't run this!")]
-			[InlineData(42, 21.12, "Hello, world!")]
-			[InlineData(0, 0.0, null)]
-			public void TestMethod(int x, double y, string z)
+			[InlineData(42, "Hello, world!")]
+			[InlineData(0, null)]
+			public void SkippedTheory(int x, string y)
 			{
-				Assert.NotNull(z);
+				Assert.NotNull(y);
+			}
+
+			[Theory]
+			[InlineData(42, "Hello, world!")]
+			[InlineData(0, null, Skip = "Don't run this!")]
+			public void SkippedInlineData(int x, string y)
+			{
+				Assert.NotNull(y);
+			}
+
+			[Theory]
+			[InlineData(42, "Hello, world!")]
+			[MemberData(nameof(MemberDataSource), Skip = "Don't run this!")]
+			public void SkippedMemberData(int x, string y)
+			{
+				Assert.NotNull(y);
+			}
+
+			public static IEnumerable<object?[]> MemberDataSource()
+			{
+				yield return new object?[] { 0, null };
+			}
+
+			[Theory]
+			[MemberData(nameof(DataRowSource))]
+			public void SkippedDataRow(int x, string y)
+			{
+				Assert.NotNull(y);
+			}
+
+			public static IEnumerable<ITheoryDataRow> DataRowSource()
+			{
+				yield return new TheoryDataRow(42, "Hello, world!");
+				yield return new TheoryDataRow(0, null) { Skip = "Don't run this!" };
 			}
 		}
 
