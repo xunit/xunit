@@ -17,10 +17,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact(Skip = "Flaky")]
 		public async void OptionalParameters_Valid()
 		{
-			var results = await RunAsync(typeof(ClassWithOptionalParameters));
+			var results = await RunForResultsAsync(typeof(ClassWithOptionalParameters));
 
 			Assert.Collection(
-				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_NonePassed(s: null)", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNonNullPassed(s: ""abc"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNullPassed(s: null)", displayName),
@@ -124,11 +124,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void ParamsParameters_Valid()
 		{
-			var results = await RunAsync(typeof(ClassWithParamsParameters));
-			var orderedResults = results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+			var results = await RunForResultsAsync(typeof(ClassWithParamsParameters));
 
 			Assert.Collection(
-				orderedResults,
+				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x, StringComparer.OrdinalIgnoreCase),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_ManyPassed(array: [1, 2, 3, 4, 5, ...])", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_NonePassed(array: [])", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_MatchingArray(array: [1])", displayName),
@@ -260,10 +259,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void ImplicitExplicitConversions()
 		{
-			var results = await RunAsync(typeof(ClassWithOperatorConversions));
+			var results = await RunForResultsAsync(typeof(ClassWithOperatorConversions));
 
 			Assert.Collection(
-				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredImplicitConversion(value: ""abc"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.DecimalToInt(value: 43)", displayName),
@@ -386,10 +385,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void GenericParameter_Func_Valid()
 		{
-			var results = await RunAsync(typeof(ClassWithFuncMethod));
+			var results = await RunForResultsAsync(typeof(ClassWithFuncMethod));
 
 			Assert.Collection(
-				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Double>(source: [4, 5, 6, 7], ", displayName),
 				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
 				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
@@ -555,9 +554,9 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void GenericTheoryWithNonSerializableData()
 		{
-			var results = await RunAsync(typeof(GenericWithNonSerializableData));
+			var results = await RunForResultsAsync(typeof(GenericWithNonSerializableData));
 
-			var displayName = Assert.Single(results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x));
+			var displayName = Assert.Single(results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName));
 			Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", displayName);
 		}
 
@@ -581,14 +580,12 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void RunsForEachDataElement()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest));
 
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)", failed.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -606,11 +603,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void SingleNullValuesWork()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTestForNullValues));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForNullValues));
 
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passing.TestUniqueID).Single();
-			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passingStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passed.TestDisplayName);
 		}
 
 		class ClassUnderTestForNullValues
@@ -623,11 +619,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void ArraysWork()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTestForArrays));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForArrays));
 
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passing.TestUniqueID).Single();
-			Assert.Contains("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForArrays.TestMethod", passingStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Contains("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForArrays.TestMethod", passed.TestDisplayName);
 		}
 
 		class ClassUnderTestForArrays
@@ -640,11 +635,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void ValueArraysWithObjectParameterInjectCorrectType()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTestForValueArraysWithObjectParameter));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForValueArraysWithObjectParameter));
 
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passing.TestUniqueID).Single();
-			Assert.Contains("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForValueArraysWithObjectParameter.TestMethod", passingStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Contains("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForValueArraysWithObjectParameter.TestMethod", passed.TestDisplayName);
 		}
 
 		class ClassUnderTestForValueArraysWithObjectParameter
@@ -660,10 +654,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void AsyncTaskMethod_MultipleInlineDataAttributes()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithAsyncTaskMethod));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithAsyncTaskMethod));
 
 			Assert.Collection(
-				testMessages.OfType<_TestPassed>().Select(passed => testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+				testMessages.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: A)", displayName),
 				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: B)", displayName)
 			);
@@ -691,22 +685,18 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask IncompatibleDataReturnType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest_IncompatibleReturnType));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_IncompatibleReturnType));
 
-			var result = Assert.Single(
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
-			);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType.TestMethod", result.DisplayName);
-			Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
+			var result = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType.TestMethod", result.TestDisplayName);
+			Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
 			Assert.Equal(
 				"'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleReturnType' must implement one of the following interfaces to be used as ClassData for the test method named 'TestMethod' on 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType':" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IAsyncEnumerable<object[]>",
-				result.Failed.Messages.Single()
+				result.Messages.Single()
 			);
 		}
 
@@ -722,16 +712,12 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask IncompatibleDataValueType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest_IncomptableValueData));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_IncomptableValueData));
 
-			var results =
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName));
-			var result = Assert.Single(results);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncomptableValueData.TestMethod", result.DisplayName);
-			Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-			Assert.Equal("Class 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+			var result = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncomptableValueData.TestMethod", result.TestDisplayName);
+			Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+			Assert.Equal("Class 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
 		}
 
 		class ClassWithIncompatibleValueData : IEnumerable
@@ -880,11 +866,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void MissingDataThrows()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithMissingData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithMissingData));
 
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failedStarting.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failed.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Could not find public static member (property, field, or method) named 'Foo' on Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData", failed.Messages.Single());
 		}
@@ -902,11 +887,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void IncompatibleDataThrows()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithIncompatibleData));
 
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failedStarting.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failed.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Object of type 'System.String' cannot be converted to type 'System.Int32'.", failed.Messages.Single());
 		}
@@ -921,11 +905,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void ImplicitlyConvertibleDataPasses()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithImplicitlyConvertibleData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithImplicitlyConvertibleData));
 
-			var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passedStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passed.TestDisplayName);
 		}
 
 		class ClassWithImplicitlyConvertibleData
@@ -938,11 +921,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void IConvertibleDataPasses()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithIConvertibleData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithIConvertibleData));
 
-			var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(x: 42)", passedStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(x: 42)", passed.TestDisplayName);
 		}
 
 		class MyConvertible : IConvertible
@@ -1052,30 +1034,27 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask NonStaticData_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithNonStaticData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithNonStaticData));
 
 			Assert.Collection(
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
-					.OrderBy(x => x.DisplayName),
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.FieldTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Could not find public static member (property, field, or method) named 'FieldDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.FieldTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'FieldDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Messages.Single());
 				},
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.MethodTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Could not find public static member (property, field, or method) named 'MethodDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.MethodTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'MethodDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Messages.Single());
 				},
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.PropertyTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Could not find public static member (property, field, or method) named 'PropertyDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.PropertyTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'PropertyDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Messages.Single());
 				}
 			);
 		}
@@ -1104,7 +1083,7 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask IncompatibleDataReturnType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleReturnType));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithIncompatibleReturnType));
 			var exceptionEpilogue =
 				" must return data in one of the following formats:" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
@@ -1121,27 +1100,24 @@ public class Xunit3TheoryAcceptanceTests
 				"- ValueTask<IAsyncEnumerable<object[]>>";
 
 			Assert.Collection(
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
-					.OrderBy(x => x.DisplayName),
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.FieldTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleField' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.FieldTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleField' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Messages.Single());
 				},
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.MethodTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleMethod' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.MethodTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleMethod' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Messages.Single());
 				},
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.PropertyTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleProperty' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType.PropertyTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleProperty' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleReturnType'" + exceptionEpilogue, result.Messages.Single());
 				}
 			);
 		}
@@ -1170,30 +1146,27 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask IncompatibleDataValueType_Throws()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithIncompatibleValueData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithIncompatibleValueData));
 
 			Assert.Collection(
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => (Failed: tf, DisplayName: testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName))
-					.OrderBy(x => x.DisplayName),
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.FieldTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.FieldTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
 				},
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.MethodTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.MethodTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
 				},
 				result =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.PropertyTestMethod", result.DisplayName);
-					Assert.Equal("System.ArgumentException", result.Failed.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Failed.Messages.Single());
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.PropertyTestMethod", result.TestDisplayName);
+					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+					Assert.Equal("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
 				}
 			);
 		}
@@ -1228,13 +1201,10 @@ public class Xunit3TheoryAcceptanceTests
 		[InlineData(typeof(ClassUnderTest_ValueTaskOfIEnumerable))]
 		public async ValueTask AcceptanceTest(Type classUnderTest)
 		{
-			var testMessages = await RunAsync(classUnderTest);
+			var testMessages = await RunForResultsAsync(classUnderTest);
 
 			Assert.Collection(
-				testMessages
-					.OfType<_TestPassed>()
-					.Select(tp => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tp.TestUniqueID).TestDisplayName)
-					.OrderBy(x => x),
+				testMessages.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Hello from base\")", displayName),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Hello from other source\")", displayName),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Hello, world!\")", displayName),
@@ -1246,10 +1216,7 @@ public class Xunit3TheoryAcceptanceTests
 				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Hello, world!\")", displayName)
 			);
 			Assert.Collection(
-				testMessages
-					.OfType<_TestFailed>()
-					.Select(tf => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == tf.TestUniqueID).TestDisplayName)
-					.OrderBy(x => x),
+				testMessages.OfType<TestFailedWithDisplayName>().Select(failed => failed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Base will fail\")", displayName),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"I will fail\")", displayName),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Other source will fail\")", displayName),
@@ -1261,10 +1228,7 @@ public class Xunit3TheoryAcceptanceTests
 				displayName => Assert.Equal($"{classUnderTest.FullName}.PropertyTestMethod(z: \"Other source will fail\")", displayName)
 			);
 			Assert.Collection(
-				testMessages
-					.OfType<_TestSkipped>()
-					.Select(ts => testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == ts.TestUniqueID).TestDisplayName)
-					.OrderBy(x => x),
+				testMessages.OfType<TestSkippedWithDisplayName>().Select(skipped => skipped.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Base would fail if I ran\")", displayName),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"I would fail if I ran\")", displayName),
 				displayName => Assert.Equal($"{classUnderTest.FullName}.FieldTestMethod(z: \"Other source would fail if I ran\")", displayName),
@@ -1568,11 +1532,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void NonMatchingMethodInputDataThrows()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithMismatchedMethodData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithMismatchedMethodData));
 
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData.TestViaMethodData", failedStarting.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData.TestViaMethodData", failed.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData with parameter types: System.Double", failed.Messages.Single());
 		}
@@ -1589,11 +1552,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void SubTypeInheritsTestsFromBaseType()
 		{
-			var testMessages = await RunAsync(typeof(SubClassWithNoTests));
+			var testMessages = await RunForResultsAsync(typeof(SubClassWithNoTests));
 
-			var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+SubClassWithNoTests.Test(x: 42)", passedStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+SubClassWithNoTests.Test(x: 42)", passed.TestDisplayName);
 		}
 
 		public abstract class BaseClassWithTestAndData
@@ -1616,14 +1578,12 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void CanPassParametersToDataMethod()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithParameterizedMethodData));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithParameterizedMethodData));
 
-			var passing = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passingStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == passing.TestUniqueID);
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passingStarting.TestDisplayName);
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
-			var failedStarting = testMessages.OfType<_TestStarting>().Single(s => s.TestUniqueID == failed.TestUniqueID);
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failedStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -1668,11 +1628,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void CanUseMethodDataInSubTypeFromTestInBaseType()
 		{
-			var testMessages = await RunAsync(typeof(SubClassWithTestData));
+			var testMessages = await RunForResultsAsync(typeof(SubClassWithTestData));
 
-			var passed = Assert.Single(testMessages.OfType<_TestPassed>());
-			var passedStarting = testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+SubClassWithTestData.Test(x: 42)", passedStarting.TestDisplayName);
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+SubClassWithTestData.Test(x: 42)", passed.TestDisplayName);
 		}
 
 		public abstract class BaseClassWithTestWithoutData
@@ -1699,15 +1658,15 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void TestDataWithInternalConstructor_ReturnsTwoPassingTheories()
 		{
-			var testMessages = await RunAsync(typeof(ClassWithCustomDataWithInternalDataCtor));
+			var testMessages = await RunForResultsAsync(typeof(ClassWithCustomDataWithInternalDataCtor));
 
 			Assert.Collection(
-				testMessages.OfType<_TestPassed>().Select(passed => testMessages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+				testMessages.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 2112)", displayName),
 				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 42)", displayName)
 			);
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 		}
 
 		internal class MyCustomData : DataAttribute
@@ -1766,10 +1725,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void MemberDataAttributeBaseSubclass_Success()
 		{
-			var results = await RunAsync(typeof(ClassWithMemberDataAttributeBase));
+			var results = await RunForResultsAsync(typeof(ClassWithMemberDataAttributeBase));
 
 			Assert.Collection(
-				results.OfType<_TestPassed>().Select(passed => results.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single().TestDisplayName).OrderBy(x => x),
+				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""3"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""4"")", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: 1)", displayName),
@@ -1823,14 +1782,12 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async void EachTheoryHasIndividualExceptionMessage()
 		{
-			var testMessages = await RunAsync(typeof(ClassUnderTest));
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest));
 
-			var equalStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == $"Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: ClassUnderTest {{ }})");
-			var equalFailure = Assert.Single(testMessages.OfType<_TestFailed>(), msg => msg.TestUniqueID == equalStarting.TestUniqueID);
+			var equalFailure = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>(), msg => msg.TestDisplayName == $"Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: ClassUnderTest {{ }})");
 			Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-			var notNullStarting = Assert.Single(testMessages.OfType<_TestStarting>(), msg => msg.TestDisplayName == "Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)");
-			var notNullFailure = Assert.Single(testMessages.OfType<_TestFailed>(), msg => msg.TestUniqueID == notNullStarting.TestUniqueID);
+			var notNullFailure = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>(), msg => msg.TestDisplayName == "Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)");
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
 
