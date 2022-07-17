@@ -157,7 +157,7 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public static void WhenUsingReflectionMethodInfo_ReturnsExistingMethodInfo()
 		{
-			var methodInfo = Mocks.MethodInfo<ToRuntimeMethod>("WhenUsingReflectionMethodInfo_ReturnsExistingMethodInfo");
+			var methodInfo = TestData.MethodInfo<ToRuntimeMethod>("WhenUsingReflectionMethodInfo_ReturnsExistingMethodInfo");
 
 			var result = methodInfo.ToRuntimeMethod();
 
@@ -198,7 +198,7 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public static void WhenUsingReflectionTypeInfo_ReturnsExistingType()
 		{
-			var typeInfo = Mocks.TypeInfo<ToRuntimeType>();
+			var typeInfo = TestData.TypeInfo<ToRuntimeType>();
 
 			var result = typeInfo.ToRuntimeType();
 

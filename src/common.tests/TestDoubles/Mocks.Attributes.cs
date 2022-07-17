@@ -20,6 +20,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new AssemblyFixtureAttribute(fixtureType));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(AssemblyFixtureAttribute)));
 		result.GetConstructorArguments().Returns(new[] { fixtureType });
 		return result;
 	}
@@ -28,6 +29,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new CollectionAttribute(collectionName));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(CollectionAttribute)));
 		result.GetConstructorArguments().Returns(new[] { collectionName });
 		return result;
 	}
@@ -65,6 +67,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(CollectionBehaviorAttribute)));
 		result.GetConstructorArguments().Returns(constructorArguments);
 		result.GetNamedArgument<bool>(nameof(Xunit.CollectionBehaviorAttribute.DisableTestParallelization)).Returns(disableTestParallelization);
 		result.GetNamedArgument<int>(nameof(Xunit.CollectionBehaviorAttribute.MaxParallelThreads)).Returns(maxParallelThreads);
@@ -75,21 +78,30 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new CollectionDefinitionAttribute(collectionName));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(CollectionDefinitionAttribute)));
 		result.GetConstructorArguments().Returns(new[] { collectionName });
 		return result;
 	}
 
 	// TODO: Need a version which also accepts ITheoryDataRow
 	public static _IReflectionAttributeInfo DataAttribute(
-		IEnumerable<object[]>? data = null,
+		IEnumerable<object?[]>? data = null,
 		string? skip = null)
 	{
+		data ??= Array.Empty<object?[]>();
+
+		var dataRows =
+			data
+				.Select(d => new TheoryDataRow(d))
+				.CastOrToReadOnlyCollection();
+
 		var dataAttribute = Substitute.For<DataAttribute>();
 		dataAttribute.Skip.Returns(skip);
-		dataAttribute.GetData(null!).ReturnsForAnyArgs((data ?? Array.Empty<object[]>()).Select(d => new TheoryDataRow(d)).CastOrToReadOnlyCollection());
+		dataAttribute.GetData(null!).ReturnsForAnyArgs(dataRows);
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(dataAttribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(DataAttribute)));
 		result.GetNamedArgument<string?>(nameof(Xunit.Sdk.DataAttribute.Skip)).Returns(skip);
 		return result;
 	}
@@ -102,6 +114,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
+		result.AttributeType.Returns(Reflector.Wrap(typeof(FactAttribute)));
 		result.GetNamedArgument<string?>(nameof(Xunit.FactAttribute.DisplayName)).Returns(displayName);
 		result.GetNamedArgument<bool>(nameof(Xunit.FactAttribute.Explicit)).Returns(@explicit ?? false);
 		result.GetNamedArgument<string?>(nameof(Xunit.FactAttribute.Skip)).Returns(skip);
@@ -109,9 +122,9 @@ public static partial class Mocks
 		return result;
 	}
 
-	static IReadOnlyCollection<_IReflectionAttributeInfo> LookupAttribute(
+	static IReadOnlyCollection<_IAttributeInfo> LookupAttribute(
 		string fullyQualifiedTypeName,
-		_IReflectionAttributeInfo[]? attributes)
+		_IAttributeInfo[]? attributes)
 	{
 		if (attributes == null)
 			return EmptyAttributeInfos;
@@ -122,7 +135,7 @@ public static partial class Mocks
 
 		return
 			attributes
-				.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType()))
+				.Where(attribute => attributeType.IsAssignableFrom(attribute.AttributeType))
 				.CastOrToReadOnlyCollection();
 	}
 
@@ -140,6 +153,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new TestCaseOrdererAttribute(typeName, assemblyName));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TestCaseOrdererAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 		return result;
 	}
@@ -148,6 +162,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new TestCaseOrdererAttribute(type));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TestCaseOrdererAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { type });
 		return result;
 	}
@@ -160,6 +175,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new TestCollectionOrdererAttribute(typeName, assemblyName));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TestCollectionOrdererAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 		return result;
 	}
@@ -168,6 +184,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new TestCollectionOrdererAttribute(type));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TestCollectionOrdererAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { type });
 		return result;
 	}
@@ -183,6 +200,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TTestFrameworkAttribute)));
 		result.GetCustomAttributes(null!).ReturnsForAnyArgs(
 			callInfo => LookupAttribute(
 				callInfo.Arg<string>(),
@@ -202,6 +220,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TheoryAttribute)));
 		result.GetNamedArgument<string>(nameof(Xunit.FactAttribute.DisplayName)).Returns(displayName);
 		result.GetNamedArgument<string>(nameof(Xunit.FactAttribute.Skip)).Returns(skip);
 		result.GetNamedArgument<int>(nameof(Xunit.FactAttribute.Timeout)).Returns(timeout);
@@ -218,6 +237,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TraitAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { name, value });
 		result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
 		return result;
@@ -231,6 +251,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TTraitAttribute)));
 		result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
 		return result;
 	}
@@ -243,6 +264,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TraitDiscovererAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
 		return result;
 	}
@@ -254,6 +276,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TraitDiscovererAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { typeof(TTraitDiscoverer) });
 		return result;
 	}

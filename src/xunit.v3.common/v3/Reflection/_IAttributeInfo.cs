@@ -10,6 +10,11 @@ namespace Xunit.v3;
 public interface _IAttributeInfo
 {
 	/// <summary>
+	/// Gets the type of the attribute.
+	/// </summary>
+	_ITypeInfo AttributeType { get; }
+
+	/// <summary>
 	/// Gets the arguments passed to the constructor.
 	/// </summary>
 	/// <returns>The constructor arguments, in order</returns>

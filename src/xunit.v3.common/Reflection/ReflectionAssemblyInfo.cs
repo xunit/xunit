@@ -60,7 +60,7 @@ public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 
 		return
 			additionalAssemblyAttributes
-				.Where(customAttribute => attributeType.IsAssignableFrom(customAttribute.Attribute.GetType()))
+				.Where(customAttribute => attributeType.IsAssignableFrom(customAttribute.AttributeType))
 				.Concat(
 					Assembly
 						.CustomAttributes

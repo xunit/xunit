@@ -6,7 +6,6 @@ using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
-using Xunit.Sdk;
 using Xunit.v3;
 
 // This file contains mocks of reflection abstractions.
@@ -14,7 +13,7 @@ public static partial class Mocks
 {
 	public static _IAssemblyInfo AssemblyInfo(
 		_ITypeInfo[]? types = null,
-		_IReflectionAttributeInfo[]? attributes = null,
+		_IAttributeInfo[]? attributes = null,
 		string? assemblyFileName = null)
 	{
 		attributes ??= EmptyAttributeInfos;
@@ -29,9 +28,6 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _IReflectionAssemblyInfo AssemblyInfo(Assembly assembly) =>
-		Reflector.Wrap(assembly);
-
 	static IReadOnlyDictionary<string, IReadOnlyList<string>> GetTraits(_IMethodInfo method)
 	{
 		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -45,16 +41,9 @@ public static partial class Mocks
 		return result.ToReadOnly();
 	}
 
-	public static _IReflectionMethodInfo MethodInfo<TClass>(string methodName) =>
-		Guard.ArgumentNotNull(
-			$"Could not find method '{methodName}' on '{typeof(TClass).FullName}'",
-			Reflector.Wrap(typeof(TClass).GetMethod(methodName)),
-			nameof(methodName)
-		);
-
 	public static _IMethodInfo MethodInfo(
 		string? methodName = null,
-		_IReflectionAttributeInfo[]? attributes = null,
+		_IAttributeInfo[]? attributes = null,
 		_IParameterInfo[]? parameters = null,
 		_ITypeInfo? type = null,
 		_ITypeInfo? returnType = null,
@@ -98,13 +87,10 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _IReflectionTypeInfo TypeInfo<TClass>() =>
-		Reflector.Wrap(typeof(TClass));
-
 	public static _ITypeInfo TypeInfo(
 		string? name = null,
 		_IMethodInfo[]? methods = null,
-		_IReflectionAttributeInfo[]? attributes = null,
+		_IAttributeInfo[]? attributes = null,
 		_ITypeInfo? baseType = null,
 		_ITypeInfo[]? interfaces = null,
 		bool isAbstract = false,

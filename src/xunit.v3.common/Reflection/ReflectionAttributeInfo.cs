@@ -34,6 +34,9 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	/// <inheritdoc/>
 	public CustomAttributeData AttributeData { get; }
 
+	/// <inheritdoc/>
+	public _ITypeInfo AttributeType => Reflector.Wrap(AttributeData.AttributeType);
+
 	internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
 	{
 		// Can't have a strong type reference because this is part of xunit.v3.core, but this is required for issue #1958.
@@ -55,7 +58,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	{
 		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
 
-		return GetCustomAttributes(Attribute.GetType(), assemblyQualifiedAttributeTypeName);
+		return GetCustomAttributes(AttributeData.AttributeType, assemblyQualifiedAttributeTypeName);
 	}
 
 	internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using NSubstitute;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -115,7 +116,7 @@ public static partial class Mocks
 		_ITestCollection? collection = null,
 		string? uniqueID = null) =>
 			TestClass(
-				TypeInfo<TClassUnderTest>(),
+				TestData.TypeInfo<TClassUnderTest>(),
 				collection,
 				uniqueID
 			);
@@ -188,7 +189,7 @@ public static partial class Mocks
 		methodAttributes ??= EmptyAttributeInfos;
 
 		// Ensure that there's a FactAttribute, or else it's not technically a test method
-		var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.Attribute.GetType()));
+		var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.AttributeType));
 		if (factAttribute == null)
 		{
 			factAttribute = FactAttribute(displayName, @explicit, skip, timeout);
@@ -205,7 +206,7 @@ public static partial class Mocks
 		string methodName,
 		_ITestCollection? collection = null,
 		string? uniqueID = null) =>
-			TestMethod(MethodInfo<TClassUnderTest>(methodName), TestClass<TClassUnderTest>(collection), uniqueID);
+			TestMethod(TestData.MethodInfo<TClassUnderTest>(methodName), TestClass<TClassUnderTest>(collection), uniqueID);
 
 	public static _ITestMethod TestMethod(
 		_IMethodInfo methodInfo,

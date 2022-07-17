@@ -41,6 +41,9 @@ public static class TestData
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
 
+	public static _IReflectionAssemblyInfo AssemblyInfo(Assembly assembly) =>
+		Reflector.Wrap(assembly);
+
 	public static _ErrorMessage ErrorMessage(
 		int[] exceptionParentIndices,
 		string?[] exceptionTypes,
@@ -66,6 +69,13 @@ public static class TestData
 
 		return result.ToReadOnly();
 	}
+
+	public static _IReflectionMethodInfo MethodInfo<TClass>(string methodName) =>
+		Guard.ArgumentNotNull(
+			$"Could not find method '{methodName}' on '{typeof(TClass).FullName}'",
+			Reflector.Wrap(typeof(TClass).GetMethod(methodName)),
+			nameof(methodName)
+		);
 
 	public static TestAssembly TestAssembly(
 		Assembly assembly,
@@ -695,6 +705,9 @@ public static class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
 			};
+
+	public static _IReflectionTypeInfo TypeInfo<TClass>() =>
+		Reflector.Wrap(typeof(TClass));
 
 	public static XunitDelayEnumeratedTheoryTestCase XunitDelayEnumeratedTheoryTestCase<TClassUnderTest>(
 		string methodName,

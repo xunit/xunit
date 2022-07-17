@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
@@ -19,6 +20,10 @@ public class Xunit3AttributeInfo : _IAttributeInfo
 	{
 		V2AttributeInfo = Guard.ArgumentNotNull(v2AttributeInfo);
 	}
+
+	/// <inheritdoc/>
+	public _ITypeInfo AttributeType =>
+		throw new NotImplementedException("This is only available on v3 attributes");
 
 	/// <summary>
 	/// Gets the underlying xUnit.net v2 <see cref="IAttributeInfo"/> that this class is wrapping.
