@@ -16,16 +16,14 @@ public class ReflectionAttributeInfoTests
 			class ClassWithAttribute { }
 
 			[Fact]
-			public void Throws()
+			public void ReturnsNull()
 			{
 				var attributeData = CustomAttributeData.GetCustomAttributes(typeof(ClassWithAttribute)).Single(cad => cad.AttributeType == typeof(AttributeUnderTest));
 				var attributeInfo = new ReflectionAttributeInfo(attributeData);
 
-				var ex = Record.Exception(() => attributeInfo.GetNamedArgument<int>("IntValue"));
+				var result = attributeInfo.GetNamedArgument<int?>("IntValue");
 
-				var argEx = Assert.IsType<ArgumentException>(ex);
-				Assert.StartsWith("Could not find property or field named 'IntValue' on instance of 'ReflectionAttributeInfoTests+GetNamedArgument+NamedValueDoesNotExist+AttributeUnderTest'", argEx.Message);
-				Assert.Equal("argumentName", argEx.ParamName);
+				Assert.Null(result);
 			}
 		}
 

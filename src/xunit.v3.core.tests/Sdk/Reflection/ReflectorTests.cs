@@ -1232,6 +1232,7 @@ public class ReflectorTests
 		public void ValueTypeArray()
 		{
 			var expected = new[] { 1, 2, 3 };
+
 			var result =
 				typeof(ArrayTypesFromAttribute)
 					.GetMethods()

@@ -13,6 +13,7 @@ namespace Xunit.Sdk;
 /// </summary>
 public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 {
+	readonly Lazy<Attribute> attribute;
 	static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new();
 	static readonly AttributeUsageAttribute defaultAttributeUsageAttribute = new(AttributeTargets.All);
 	static readonly AttributeUsageAttribute traitAttributeUsageAttribute = new(AttributeTargets.All) { AllowMultiple = true };
@@ -20,38 +21,18 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
 	/// </summary>
-	/// <param name="attribute">The attribute to be wrapped.</param>
-	public ReflectionAttributeInfo(CustomAttributeData attribute)
+	/// <param name="attributeData">The attribute to be wrapped.</param>
+	public ReflectionAttributeInfo(CustomAttributeData attributeData)
 	{
-		AttributeData = Guard.ArgumentNotNull(attribute);
-		Attribute = Instantiate(AttributeData);
+		AttributeData = Guard.ArgumentNotNull(attributeData);
+		attribute = new(() => Instantiate(AttributeData));
 	}
 
 	/// <inheritdoc/>
-	public Attribute Attribute { get; }
+	public Attribute Attribute => attribute.Value;
 
 	/// <inheritdoc/>
 	public CustomAttributeData AttributeData { get; }
-
-	static IEnumerable<object?> Convert(IEnumerable<CustomAttributeTypedArgument> arguments)
-	{
-		foreach (var argument in arguments)
-		{
-			var value = argument.Value;
-
-			// Collections are recursively IEnumerable<CustomAttributeTypedArgument> rather than
-			// being the exact matching type, so the inner values must be converted.
-			if (value is IEnumerable<CustomAttributeTypedArgument> valueAsEnumerable)
-				value = Convert(valueAsEnumerable).ToArray();
-			else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsEnum)
-				value = Enum.Parse(argument.ArgumentType, value.ToString()!);
-
-			if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsArray)
-				value = Reflector.ConvertArgument(value, argument.ArgumentType);
-
-			yield return value;
-		}
-	}
 
 	internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
 	{
@@ -67,7 +48,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<object?> GetConstructorArguments() =>
-		Convert(AttributeData.ConstructorArguments).CastOrToReadOnlyCollection();
+		(object?[])Reflector.ConvertAttributeArgumentCollection(AttributeData.ConstructorArguments.CastOrToReadOnlyCollection(), typeof(object));
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
@@ -102,9 +83,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 			{
 				if (attributeType.IsAssignableFrom(attr.AttributeType))
 				{
-					if (list == null)
-						list = new List<ReflectionAttributeInfo>();
-
+					list ??= new List<ReflectionAttributeInfo>();
 					list.Add(new ReflectionAttributeInfo(attr));
 				}
 			}
@@ -122,17 +101,16 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	}
 
 	/// <inheritdoc/>
-	public TValue GetNamedArgument<TValue>(string argumentName)
+	public TValue? GetNamedArgument<TValue>(string argumentName)
 	{
-		foreach (var propInfo in Attribute.GetType().GetRuntimeProperties())
-			if (propInfo.Name == argumentName)
-				return (TValue)propInfo.GetValue(Attribute)!;
+		foreach (var namedArgument in AttributeData.NamedArguments)
+			if (namedArgument.MemberName.Equals(argumentName, StringComparison.Ordinal))
+			{
+				var result = Reflector.ConvertArgument(namedArgument.TypedValue.Value, typeof(TValue));
+				return result == null ? default : (TValue)result;
+			}
 
-		foreach (var fieldInfo in Attribute.GetType().GetRuntimeFields())
-			if (fieldInfo.Name == argumentName)
-				return (TValue)fieldInfo.GetValue(Attribute)!;
-
-		throw new ArgumentException($"Could not find property or field named '{argumentName}' on instance of '{Attribute.GetType().FullName}'", nameof(argumentName));
+		return default;
 	}
 
 	Attribute Instantiate(CustomAttributeData attributeData)
@@ -155,7 +133,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 		for (var i = 0; i < attributeData.NamedArguments.Count; i++)
 		{
 			var namedArg = attributeData.NamedArguments[i];
-			var typedValue = GetTypedValue(namedArg.TypedValue);
+			var typedValue = Reflector.ConvertArgument(namedArg.TypedValue.Value, namedArg.TypedValue.ArgumentType);
 			var memberName = namedArg.MemberName;
 
 			var propInfo = attributeType.GetRuntimeProperty(memberName);
@@ -172,25 +150,6 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 		}
 
 		return attribute;
-	}
-
-	object? GetTypedValue(CustomAttributeTypedArgument arg)
-	{
-		if (arg.Value is not IReadOnlyCollection<CustomAttributeTypedArgument> collect)
-			return arg.Value;
-
-		var argType = arg.ArgumentType.GetElementType();
-		if (argType == null)
-			throw new ArgumentException("Could not determine array element type", nameof(arg));
-
-		var destinationArray = Array.CreateInstance(argType, collect.Count);
-
-		if (argType.IsEnum)
-			Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value!)).ToArray(), destinationArray, collect.Count);
-		else
-			Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);
-
-		return destinationArray;
 	}
 
 	/// <inheritdoc/>

@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Xunit.v3;
 
@@ -14,6 +16,8 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class Reflector
 {
+	static readonly ConcurrentDictionary<(Type enumType, Type valueType), Delegate> enumConverters = new();
+
 	internal readonly static object?[] EmptyArgs = new object?[0];
 	internal readonly static Type[] EmptyTypes = new Type[0];
 
@@ -34,6 +38,67 @@ public static class Reflector
 				&& m.GetParameters()[0].ParameterType.IsGenericType
 				&& m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
 			);
+
+	/// <summary>
+	/// Converts an argument into its target type. Can be particularly useful when pulling attribute
+	/// constructor arguments, whose types may not strictly match the parameter type.
+	/// </summary>
+	/// <param name="arg">The argument to be converted.</param>
+	/// <param name="type">The target type for the conversion.</param>
+	/// <returns>The converted argument.</returns>
+	public static object? ConvertArgument(
+		object? arg,
+		Type type)
+	{
+		if (arg != null && !type.IsAssignableFrom(arg.GetType()))
+		{
+			try
+			{
+				if (type.IsArray)
+				{
+					var elementType = type.GetElementType();
+					if (elementType == null)
+						throw new ArgumentException("Could not determine array element type", nameof(type));
+
+					if (arg is IReadOnlyCollection<CustomAttributeTypedArgument> attributeArguments)
+						return ConvertAttributeArgumentCollection(attributeArguments, elementType);
+
+					var enumerable = (IEnumerable<object>)arg;
+					var castMethod = EnumerableCast.MakeGenericMethod(elementType);
+					var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
+					return toArrayMethod.Invoke(null, new object?[] { castMethod.Invoke(null, new object[] { enumerable }) });
+				}
+				else if (type.IsEnum)
+				{
+					var valueType = arg.GetType();
+					var enumConverter = enumConverters.GetOrAdd((type, valueType), _ =>
+					{
+						var parameter = Expression.Parameter(valueType);
+						var funcType = typeof(Func<,>).MakeGenericType(valueType, type);
+						var dynamicMethod = Expression.Lambda(funcType, Expression.Convert(parameter, type), parameter);
+						return dynamicMethod.Compile();
+					});
+					return enumConverter.DynamicInvoke(arg);
+				}
+				else
+				{
+					if (type == typeof(Guid))
+						return Guid.Parse(arg.ToString()!);
+
+					if (type == typeof(DateTime))
+						return DateTime.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
+
+					if (type == typeof(DateTimeOffset))
+						return DateTimeOffset.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
+
+					return Convert.ChangeType(arg, type);
+				}
+			}
+			catch { } // Eat conversion-related exceptions; they'll get re-surfaced during execution
+		}
+
+		return arg;
+	}
 
 	/// <summary>
 	/// Converts arguments into their target types. Can be particularly useful when pulling attribute
@@ -58,43 +123,23 @@ public static class Reflector
 		return args;
 	}
 
-	internal static object? ConvertArgument(
-		object? arg,
-		Type type)
+	/// <summary>
+	/// Converts an argument collection from an attribute initializer into an array of the raw values.
+	/// </summary>
+	/// <param name="collection">The attribute argument collection.</param>
+	/// <param name="elementType">The element type of the array.</param>
+	/// <returns>The collection of the raw attribute values.</returns>
+	public static Array ConvertAttributeArgumentCollection(
+		IReadOnlyCollection<CustomAttributeTypedArgument> collection,
+		Type elementType)
 	{
-		if (arg != null && !type.IsAssignableFrom(arg.GetType()))
-		{
-			try
-			{
-				if (type.IsArray)
-				{
-					var elementType = type.GetElementType();
-					if (elementType == null)
-						throw new ArgumentException("Could not determine array element type", nameof(type));
+		var result = Array.CreateInstance(elementType, collection.Count);
+		var idx = 0;
 
-					var enumerable = (IEnumerable<object>)arg;
-					var castMethod = EnumerableCast.MakeGenericMethod(elementType);
-					var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
-					return toArrayMethod.Invoke(null, new object?[] { castMethod.Invoke(null, new object[] { enumerable }) });
-				}
-				else
-				{
-					if (type == typeof(Guid))
-						return Guid.Parse(arg.ToString()!);
+		foreach (var item in collection)
+			result.SetValue(ConvertArgument(item.Value, item.ArgumentType), idx++);
 
-					if (type == typeof(DateTime))
-						return DateTime.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
-
-					if (type == typeof(DateTimeOffset))
-						return DateTimeOffset.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
-
-					return Convert.ChangeType(arg, type);
-				}
-			}
-			catch { } // Eat conversion-related exceptions; they'll get re-surfaced during execution
-		}
-
-		return arg;
+		return result;
 	}
 
 	/// <summary>
