@@ -283,7 +283,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						continue;
 					}
 
-					var dataAttributeSkipReason = dataAttribute.GetNamedArgument<string>("Skip");
+					var dataAttributeSkipReason = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip));
 
 					foreach (var dataRow in data)
 					{

@@ -16,6 +16,6 @@ public class MemberDataDiscoverer : DataDiscoverer
 		Guard.ArgumentNotNull(dataAttribute);
 		Guard.ArgumentNotNull(testMethod);
 
-		return !dataAttribute.GetNamedArgument<bool>("DisableDiscoveryEnumeration");
+		return !dataAttribute.GetNamedArgument<bool>(nameof(MemberDataAttributeBase.DisableDiscoveryEnumeration));
 	}
 }

@@ -103,7 +103,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 
 					var theoryDisplayName = ctxt.TestCase.TestMethod.Method.GetDisplayNameWithArguments(ctxt.DisplayName, convertedDataRow, resolvedTypes);
 					var test = CreateTest(ctxt, dataRow.Explicit, theoryDisplayName, testIndex++);
-					var skipReason = ctxt.SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip") ?? dataRow.Skip;
+					var skipReason = ctxt.SkipReason ?? dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip)) ?? dataRow.Skip;
 
 					ctxt.DiscoveredTests.Add((test, methodToRun, convertedDataRow, skipReason));
 				}

@@ -66,8 +66,8 @@ public static partial class Mocks
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
 		result.GetConstructorArguments().Returns(constructorArguments);
-		result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
-		result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
+		result.GetNamedArgument<bool>(nameof(Xunit.CollectionBehaviorAttribute.DisableTestParallelization)).Returns(disableTestParallelization);
+		result.GetNamedArgument<int>(nameof(Xunit.CollectionBehaviorAttribute.MaxParallelThreads)).Returns(maxParallelThreads);
 		return result;
 	}
 
@@ -90,7 +90,7 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(dataAttribute);
-		result.GetNamedArgument<string?>("Skip").Returns(skip);
+		result.GetNamedArgument<string?>(nameof(Xunit.Sdk.DataAttribute.Skip)).Returns(skip);
 		return result;
 	}
 
@@ -102,10 +102,10 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
-		result.GetNamedArgument<string?>("DisplayName").Returns(displayName);
-		result.GetNamedArgument<bool>("Explicit").Returns(@explicit ?? false);
-		result.GetNamedArgument<string?>("Skip").Returns(skip);
-		result.GetNamedArgument<int>("Timeout").Returns(timeout);
+		result.GetNamedArgument<string?>(nameof(Xunit.FactAttribute.DisplayName)).Returns(displayName);
+		result.GetNamedArgument<bool>(nameof(Xunit.FactAttribute.Explicit)).Returns(@explicit ?? false);
+		result.GetNamedArgument<string?>(nameof(Xunit.FactAttribute.Skip)).Returns(skip);
+		result.GetNamedArgument<int>(nameof(Xunit.FactAttribute.Timeout)).Returns(timeout);
 		return result;
 	}
 
@@ -202,10 +202,10 @@ public static partial class Mocks
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
-		result.GetNamedArgument<string>("DisplayName").Returns(displayName);
-		result.GetNamedArgument<string>("Skip").Returns(skip);
-		result.GetNamedArgument<int>("Timeout").Returns(timeout);
-		result.GetNamedArgument<bool>("Explicit").Returns(@explicit);
+		result.GetNamedArgument<string>(nameof(Xunit.FactAttribute.DisplayName)).Returns(displayName);
+		result.GetNamedArgument<string>(nameof(Xunit.FactAttribute.Skip)).Returns(skip);
+		result.GetNamedArgument<int>(nameof(Xunit.FactAttribute.Timeout)).Returns(timeout);
+		result.GetNamedArgument<bool>(nameof(Xunit.FactAttribute.Explicit)).Returns(@explicit);
 		return result;
 	}
 

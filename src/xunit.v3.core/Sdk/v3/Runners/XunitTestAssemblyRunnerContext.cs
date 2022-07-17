@@ -93,8 +93,8 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 		collectionBehaviorAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
 		if (collectionBehaviorAttribute != null)
 		{
-			DisableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
-			MaxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>("MaxParallelThreads");
+			DisableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>(nameof(CollectionBehaviorAttribute.DisableTestParallelization));
+			MaxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>(nameof(CollectionBehaviorAttribute.MaxParallelThreads));
 		}
 
 		DisableParallelization = ExecutionOptions.DisableParallelization() ?? DisableParallelization;

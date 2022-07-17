@@ -33,7 +33,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 			: base(assemblyInfo)
 	{
 		var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-		var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+		var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>(nameof(CollectionBehaviorAttribute.DisableTestParallelization));
 
 		testAssembly = new TestAssembly(assemblyInfo, configFileName);
 		TestCollectionFactory =
