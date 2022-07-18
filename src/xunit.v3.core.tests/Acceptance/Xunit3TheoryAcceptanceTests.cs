@@ -717,7 +717,7 @@ public class Xunit3TheoryAcceptanceTests
 			var result = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncomptableValueData.TestMethod", result.TestDisplayName);
 			Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-			Assert.Equal("Class 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
+			Assert.StartsWith("Class 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleValueData' yielded an item of type 'System.Int32' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", result.Messages.Single());
 		}
 
 		class ClassWithIncompatibleValueData : IEnumerable
@@ -857,6 +857,97 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(string z, int _)
 			{
 				Assert.DoesNotContain("fail", z);
+			}
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ExplicitOverridesViaDataAttribute_ExplicitOff(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTests_ExplicitOverrides), preEnumerateTheories, ExplicitOption.Off);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Collection(
+				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 0, y: null)", notRun.TestDisplayName),
+				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 0, y: null)", notRun.TestDisplayName),
+				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 42, y: \"Inherited explicit\")", notRun.TestDisplayName)
+			);
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ExplicitOverridesViaDataAttribute_ExplicitOn(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTests_ExplicitOverrides), preEnumerateTheories, ExplicitOption.On);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName)
+			);
+			Assert.Collection(
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 0, y: null)", failed.TestDisplayName),
+				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 0, y: null)", failed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestNotRunWithDisplayName>());
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ExplicitOverridesViaDataAttribute_ExplicitOnly(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTests_ExplicitOverrides), preEnumerateTheories, ExplicitOption.Only);
+
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName);
+			Assert.Collection(
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 0, y: null)", failed.TestDisplayName),
+				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 0, y: null)", failed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Collection(
+				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 2112, y: \"Explicit forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 42, y: \"Inherited explicit\")", notRun.TestDisplayName),
+				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 2112, y: \"Explicit forced false\")", notRun.TestDisplayName)
+			);
+		}
+
+		class ClassUnderTests_ExplicitOverrides
+		{
+			[Theory]
+			[InlineData(42, "Inherited explicit")]
+			[InlineData(0, null, Explicit = true)]
+			[InlineData(2112, "Explicit forced false", Explicit = false)]
+			public void TestWithTheoryExplicitFalse(int x, string y)
+			{
+				Assert.NotNull(y);
+			}
+
+			[Theory(Explicit = true)]
+			[InlineData(42, "Inherited explicit")]
+			[InlineData(0, null, Explicit = true)]
+			[InlineData(2112, "Explicit forced false", Explicit = false)]
+
+			public void TestWithTheoryExplicitTrue(int x, string y)
+			{
+				Assert.NotNull(y);
 			}
 		}
 	}
@@ -1154,19 +1245,19 @@ public class Xunit3TheoryAcceptanceTests
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.FieldTestMethod", result.TestDisplayName);
 					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
+					Assert.StartsWith("Member 'IncompatibleFieldData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item of type 'System.Int32' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", result.Messages.Single());
 				},
 				result =>
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.MethodTestMethod", result.TestDisplayName);
 					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
+					Assert.StartsWith("Member 'IncompatibleMethodData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item of type 'System.Int32' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", result.Messages.Single());
 				},
 				result =>
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.PropertyTestMethod", result.TestDisplayName);
 					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-					Assert.Equal("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'", result.Messages.Single());
+					Assert.StartsWith("Member 'IncompatiblePropertyData' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData' yielded an item of type 'System.Int32' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", result.Messages.Single());
 				}
 			);
 		}
@@ -1738,12 +1829,16 @@ public class Xunit3TheoryAcceptanceTests
 
 		private class SingleMemberDataAttribute : MemberDataAttributeBase
 		{
-			public SingleMemberDataAttribute(string memberName, params object?[] parameters) : base(memberName, parameters) { }
+			public SingleMemberDataAttribute(
+				string memberName,
+				params object?[] parameters) :
+					base(memberName, parameters)
+			{ }
 
-			protected override ITheoryDataRow ConvertDataItem(MethodInfo testMethod, object? item)
-			{
-				return new TheoryDataRow(item);
-			}
+			protected override ITheoryDataRow ConvertDataRow(
+				MethodInfo testMethod,
+				object dataRow) =>
+					new TheoryDataRow(dataRow);
 		}
 
 		private class ClassWithMemberDataAttributeBase

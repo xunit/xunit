@@ -114,17 +114,17 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
 			new(
-				new[]
+				new ITheoryDataRow[]
 				{
-					new TheoryDataRow(42),
-					new TheoryDataRow(2112)
+					ConvertDataRow(testMethod, new object?[] { 42 }),
+					ConvertDataRow(testMethod, new object?[] { 2112 }),
 				}
 			);
 	}
 
 	class MultipleDataClass
 	{
-		[Theory, MultipleDataAttribute]
+		[Theory, MultipleData]
 		public void TheoryMethod(int x) { }
 	}
 
@@ -612,7 +612,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void CanSetDisplayNameFromTheoryDataRow_Preenumerated()
+	public async void CanSetDisplayNameFromTheoryDataRow_PreEnumerated()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>(nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName));

@@ -30,11 +30,22 @@ public class ClassDataAttribute : DataAttribute
 	public Type Class { get; private set; }
 
 	/// <inheritdoc/>
-	protected override ITheoryDataRow ConvertDataItem(
+	protected override ITheoryDataRow ConvertDataRow(
 		MethodInfo testMethod,
-		object? item) =>
-			base.ConvertDataItem(testMethod, item)
-				?? throw new ArgumentException($"Class '{Class.FullName}' yielded an item that is not an 'ITheoryDataRow' or 'object?[]'");
+		object dataRow)
+	{
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(dataRow);
+
+		try
+		{
+			return base.ConvertDataRow(testMethod, dataRow);
+		}
+		catch (ArgumentException)
+		{
+			throw new ArgumentException($"Class '{Class.FullName}' yielded an item of type '{dataRow?.GetType().SafeName()}' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", nameof(dataRow));
+		}
+	}
 
 	/// <inheritdoc/>
 	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
@@ -44,8 +55,11 @@ public class ClassDataAttribute : DataAttribute
 		if (classInstance is IEnumerable dataItems)
 		{
 			var result = new List<ITheoryDataRow>();
+
 			foreach (var dataItem in dataItems)
-				result.Add(ConvertDataItem(testMethod, dataItem));
+				if (dataItem != null)
+					result.Add(ConvertDataRow(testMethod, dataItem));
+
 			return new(result.CastOrToReadOnlyCollection());
 		}
 
@@ -60,8 +74,11 @@ public class ClassDataAttribute : DataAttribute
 		if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
 		{
 			var result = new List<ITheoryDataRow>();
+
 			await foreach (var dataItem in asyncDataItems)
-				result.Add(ConvertDataItem(testMethod, dataItem));
+				if (dataItem != null)
+					result.Add(ConvertDataRow(testMethod, dataItem));
+
 			return result.CastOrToReadOnlyCollection();
 		}
 

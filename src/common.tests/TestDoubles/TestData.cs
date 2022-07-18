@@ -714,14 +714,13 @@ public static class TestData
 		_ITestCollection? collection = null,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
-		string? skipReason = null,
 		bool @explicit = false,
 		Dictionary<string, List<string>>? traits = null,
 		int timeout = 0,
 		string? uniqueID = null)
 	{
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
-		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, skip: skipReason, timeout: timeout);
+		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, timeout: timeout);
 		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
@@ -730,7 +729,6 @@ public static class TestData
 			details.TestCaseDisplayName,
 			uniqueID ?? details.UniqueID,
 			@explicit,
-			skipReason,
 			traits ?? details.Traits,
 			timeout: timeout
 		);

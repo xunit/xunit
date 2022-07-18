@@ -68,9 +68,9 @@ public static class FactAttributeHelper
 			throw new ArgumentException($"Could not locate the FactAttribute on test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'", nameof(testMethod));
 
 		baseDisplayName ??= factAttribute.GetNamedArgument<string?>(nameof(FactAttribute.DisplayName));
-		var @explicit = factAttribute.GetNamedArgument<bool>(nameof(FactAttribute.Explicit));
-		var skipReason = factAttribute.GetNamedArgument<string?>(nameof(FactAttribute.Skip));
-		var timeout = factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
+		var factExplicit = factAttribute.GetNamedArgument<bool>(nameof(FactAttribute.Explicit));
+		var factSkipReason = factAttribute.GetNamedArgument<string?>(nameof(FactAttribute.Skip));
+		var factTimeout = factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
 
 		if (baseDisplayName == null)
 		{
@@ -132,19 +132,19 @@ public static class FactAttributeHelper
 				traits.Add(kvp.Key, kvp.Value);
 		}
 
-		return (testCaseDisplayName, @explicit, skipReason, traits, timeout, uniqueID, testMethod);
+		return (testCaseDisplayName, factExplicit, factSkipReason, traits, factTimeout, uniqueID, testMethod);
 	}
 
 	/// <summary>
-	/// Retrieve the details for a test case that is a test method decorated with an
-	/// instance of <see cref="FactAttribute"/> (or derived). The data row is used to augment
-	/// the returned information (traits, skip reason, etc.).
+	/// Retrieve the details for a test case that is a test method decorated with an instance
+	/// of <see cref="TheoryAttribute"/> (or derived) when you have a data row. The data row
+	/// is used to augment the returned information (traits, skip reason, etc.).
 	/// </summary>
 	/// <param name="discoveryOptions">The options used for discovery.</param>
 	/// <param name="testMethod">The test method.</param>
 	/// <param name="dataRow">The data row for the test.</param>
 	/// <param name="testMethodArguments">The test method arguments obtained from the <paramref name="dataRow"/> after being type-resolved.</param>
-	/// <param name="factAttribute">The optional fact attribute that decorates the test method; if not provided, will be found via reflection.</param>
+	/// <param name="theoryAttribute">The optional theory attribute that decorates the test method; if not provided, will be found via reflection.</param>
 	/// <param name="traitAttributes">The optional trait attributes that decorate the test method; if not provided, will be found via reflection.</param>
 	public static (
 		string TestCaseDisplayName,
@@ -159,10 +159,10 @@ public static class FactAttributeHelper
 		_ITestMethod testMethod,
 		ITheoryDataRow dataRow,
 		object?[] testMethodArguments,
-		_IAttributeInfo? factAttribute = null,
+		_IAttributeInfo? theoryAttribute = null,
 		_IAttributeInfo[]? traitAttributes = null)
 	{
-		var result = GetTestCaseDetails(discoveryOptions, testMethod, factAttribute, traitAttributes, testMethodArguments, dataRow.TestDisplayName);
+		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, traitAttributes, testMethodArguments, dataRow.TestDisplayName);
 
 		if (dataRow.Skip != null)
 			result.SkipReason = dataRow.Skip;

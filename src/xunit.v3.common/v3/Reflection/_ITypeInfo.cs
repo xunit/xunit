@@ -75,9 +75,8 @@ public interface _ITypeInfo
 
 	/// <summary>
 	/// Gets the fully qualified type name (for non-generic parameters), or the
-	/// simple type name (for generic parameters). This maps to
-	/// <see cref="Type"/>.<see cref="Type.FullName"/>, except that it will
-	/// return <see cref="Type"/>.<see cref="MemberInfo.Name"/> rather <c>null</c>.
+	/// simple type name (for generic parameters). This maps to <see cref="Type.FullName"/>,
+	/// except that it will	return <see cref="MemberInfo.Name"/> rather <c>null</c>.
 	/// </summary>
 	string Name { get; }
 

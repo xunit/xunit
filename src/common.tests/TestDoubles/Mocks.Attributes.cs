@@ -83,9 +83,9 @@ public static partial class Mocks
 		return result;
 	}
 
-	// TODO: Need a version which also accepts ITheoryDataRow
 	public static _IReflectionAttributeInfo DataAttribute(
 		IEnumerable<object?[]>? data = null,
+		bool? @explicit = null,
 		string? skip = null)
 	{
 		data ??= Array.Empty<object?[]>();
@@ -96,13 +96,28 @@ public static partial class Mocks
 				.CastOrToReadOnlyCollection();
 
 		var dataAttribute = Substitute.For<DataAttribute>();
-		dataAttribute.Skip.Returns(skip);
+		dataAttribute.Explicit = @explicit.GetValueOrDefault();
+		dataAttribute.Skip = skip;
 		dataAttribute.GetData(null!).ReturnsForAnyArgs(dataRows);
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(dataAttribute);
 		result.AttributeType.Returns(Reflector.Wrap(typeof(DataAttribute)));
+		result.GetNamedArgument<bool?>(nameof(Xunit.Sdk.DataAttribute.Explicit)).Returns(@explicit);
 		result.GetNamedArgument<string?>(nameof(Xunit.Sdk.DataAttribute.Skip)).Returns(skip);
+		return result;
+	}
+
+	public static _IReflectionAttributeInfo DataAttribute(params ITheoryDataRow[] data)
+	{
+		var dataAttribute = Substitute.For<DataAttribute>();
+		dataAttribute.GetData(null!).ReturnsForAnyArgs(data.CastOrToReadOnlyCollection());
+
+		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
+		result.Attribute.Returns(dataAttribute);
+		result.AttributeType.Returns(Reflector.Wrap(typeof(DataAttribute)));
+		result.GetNamedArgument<bool?>(nameof(Xunit.Sdk.DataAttribute.Explicit)).Returns(default(bool?));
+		result.GetNamedArgument<string?>(nameof(Xunit.Sdk.DataAttribute.Skip)).Returns(default(string));
 		return result;
 	}
 

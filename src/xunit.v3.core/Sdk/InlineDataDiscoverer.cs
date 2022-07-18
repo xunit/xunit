@@ -22,10 +22,16 @@ public class InlineDataDiscoverer : IDataDiscoverer
 		//
 		// In addition, [InlineData(null)] gets translated into passing a null array, not a single array with a null
 		// value in it, which is why the null coalesce operator is required (this is covered by the acceptance test
-		// in Xunit2TheoryAcceptanceTests.InlineDataTests.SingleNullValuesWork).
+		// in Xunit3TheoryAcceptanceTests.InlineDataTests.SingleNullValuesWork).
 
 		var args = dataAttribute.GetConstructorArguments().Single() as IEnumerable<object?> ?? new object?[] { null };
-		return new(new[] { new TheoryDataRow(args.ToArray()) });
+		var theoryDataRow = new TheoryDataRow(args.ToArray())
+		{
+			Explicit = dataAttribute.GetNamedArgument<bool?>(nameof(DataAttribute.Explicit)),
+			Skip = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip)),
+		};
+
+		return new(new[] { theoryDataRow });
 	}
 
 	/// <inheritdoc/>

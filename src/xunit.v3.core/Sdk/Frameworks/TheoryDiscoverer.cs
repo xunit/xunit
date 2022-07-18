@@ -54,85 +54,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	}
 
 	/// <summary>
-	/// Creates test cases for a single row of skipped data. By default, returns a single instance
-	/// of <see cref="XunitTestCase"/> with the data row inside of it.
-	/// </summary>
-	/// <param name="discoveryOptions">The discovery options to be used.</param>
-	/// <param name="testMethod">The test method the test cases belong to.</param>
-	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
-	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
-	/// <param name="testMethodArguments">The arguments for the test method.</param>
-	/// <param name="skipReason">The reason this test case is to be skipped.</param>
-	/// <returns>The test cases</returns>
-	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForSkippedDataRow(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestMethod testMethod,
-		_IAttributeInfo theoryAttribute,
-		ITheoryDataRow dataRow,
-		object?[] testMethodArguments,
-		string skipReason)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-		Guard.ArgumentNotNull(testMethod);
-		Guard.ArgumentNotNull(theoryAttribute);
-
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute);
-
-		// TODO: How do we get source information in here?
-		var testCase = new XunitTestCase(
-			details.ResolvedTestMethod,
-			details.TestCaseDisplayName,
-			details.UniqueID,
-			details.Explicit,
-			skipReason,
-			details.Traits,
-			testMethodArguments,
-			timeout: details.Timeout
-		);
-
-		return new(new[] { testCase });
-	}
-
-	/// <summary>
-	/// Creates test cases for a skipped theory. By default, returns a single instance of <see cref="XunitTestCase"/>
-	/// (which inherently discovers the skip reason via the fact attribute).
-	/// </summary>
-	/// <param name="discoveryOptions">The discovery options to be used.</param>
-	/// <param name="testMethod">The test method the test cases belong to.</param>
-	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
-	/// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
-	/// <returns>The test cases</returns>
-	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForSkippedTheory(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestMethod testMethod,
-		_IAttributeInfo theoryAttribute,
-		string skipReason)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-		Guard.ArgumentNotNull(testMethod);
-		Guard.ArgumentNotNull(theoryAttribute);
-
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
-
-		// TODO: How do we get source information in here?
-		var testCase = new XunitTestCase(
-			details.ResolvedTestMethod,
-			details.TestCaseDisplayName,
-			details.UniqueID,
-			details.Explicit,
-			skipReason,
-			details.Traits,
-			timeout: details.Timeout
-		);
-
-		return new(new[] { testCase });
-	}
-
-	/// <summary>
 	/// Creates test cases for the entire theory. This is used when one or more of the theory data items
-	/// are not serializable, or if the user has requested to skip theory pre-enumeration. By default,
-	/// returns a single instance of <see cref="XunitDelayEnumeratedTheoryTestCase"/>, which performs the
-	/// data discovery at runtime.
+	/// are not serializable, or if the user has requested to skip theory pre-enumeration, or if the user
+	/// has requested the entire theory be skipped. By default, returns a single instance
+	/// of <see cref="XunitDelayEnumeratedTheoryTestCase"/> (which performs the
+	/// data discovery at runtime, for non-skipped theories) or <see cref="XunitTestCase"/>
+	/// (for skipped theories).
 	/// </summary>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
@@ -149,16 +76,28 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
+		IXunitTestCase testCase;
+
 		// TODO: How do we get source information in here?
-		var testCase = new XunitDelayEnumeratedTheoryTestCase(
-			details.ResolvedTestMethod,
-			details.TestCaseDisplayName,
-			details.UniqueID,
-			details.Explicit,
-			details.SkipReason,
-			details.Traits,
-			timeout: details.Timeout
-		);
+		if (details.SkipReason != null)
+			testCase = new XunitTestCase(
+				details.ResolvedTestMethod,
+				details.TestCaseDisplayName,
+				details.UniqueID,
+				details.Explicit,
+				details.SkipReason,
+				details.Traits,
+				timeout: details.Timeout
+			);
+		else
+			testCase = new XunitDelayEnumeratedTheoryTestCase(
+				details.ResolvedTestMethod,
+				details.TestCaseDisplayName,
+				details.UniqueID,
+				details.Explicit,
+				details.Traits,
+				timeout: details.Timeout
+			);
 
 		return new(new[] { testCase });
 	}
@@ -167,11 +106,10 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// Discover test cases from a test method.
 	/// </summary>
 	/// <remarks>
-	/// This method performs the following steps:
-	/// - If the theory attribute is marked with Skip, returns the result of <see cref="CreateTestCasesForSkippedTheory"/>;
-	/// - If pre-enumeration is off, or any of the test data is non serializable, returns the result of <see cref="CreateTestCasesForTheory"/>;
-	/// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;
-	/// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow"/> or <see cref="CreateTestCasesForSkippedDataRow"/> if the data attribute has a skip reason.
+	/// This method performs the following steps:<br/>
+	/// - If the theory attribute is marked with Skip, or pre-enumeration is off, or any of the test data is non serializable, returns the result of <see cref="CreateTestCasesForTheory"/>;<br/>
+	/// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;<br/>
+	/// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow"/>.
 	/// </remarks>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
@@ -186,11 +124,11 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(theoryAttribute);
 
-		// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped test may
+		// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped theory may
 		// not actually have any data (which is quasi-legal, since it's skipped).
 		var theoryAttributeSkipReason = theoryAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
 		if (theoryAttributeSkipReason != null)
-			return await CreateTestCasesForSkippedTheory(discoveryOptions, testMethod, theoryAttribute, theoryAttributeSkipReason);
+			return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 
 		var preEnumerate =
 			discoveryOptions.PreEnumerateTheoriesOrDefault()
@@ -283,8 +221,6 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						continue;
 					}
 
-					var dataAttributeSkipReason = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip));
-
 					foreach (var dataRow in data)
 					{
 						// Determine whether we can serialize the test case, since we need a way to uniquely
@@ -294,7 +230,6 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						// the incoming data might be serializable but the actual parameter value that it gets converted
 						// to might not be, and serialization uses the resolved argument and not the input argument.
 						var resolvedData = dataRow.GetData();
-						var dataRowSkipReason = dataAttributeSkipReason ?? dataRow.Skip;
 						if (testMethod.Method is _IReflectionMethodInfo reflectionMethodInfo)
 							resolvedData = reflectionMethodInfo.MethodInfo.ResolveMethodArguments(resolvedData);
 
@@ -319,12 +254,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 						try
 						{
-							var testCases =
-								dataRowSkipReason != null
-									? CreateTestCasesForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData, dataRowSkipReason)
-									: CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData);
-
-							results.AddRange(await testCases);
+							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData));
 						}
 						catch (Exception ex)
 						{

@@ -54,7 +54,6 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 						details.TestCaseDisplayName,
 						details.UniqueID,
 						details.Explicit,
-						details.SkipReason,
 						details.Traits,
 						timeout: details.Timeout
 					)
