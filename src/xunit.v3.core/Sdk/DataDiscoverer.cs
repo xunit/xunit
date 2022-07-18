@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
@@ -21,26 +20,8 @@ public class DataDiscoverer : IDataDiscoverer
 		Guard.ArgumentNotNull(dataAttribute);
 		Guard.ArgumentNotNull(testMethod);
 
-		if (dataAttribute is _IReflectionAttributeInfo reflectionDataAttribute &&
-			testMethod is _IReflectionMethodInfo reflectionTestMethod)
-		{
-			var attribute = (DataAttribute)reflectionDataAttribute.Attribute;
-
-			try
-			{
-				return attribute.GetData(reflectionTestMethod.MethodInfo);
-			}
-			catch (ArgumentException)
-			{
-				// If we couldn't find the data on the base type, check if it is in current type.
-				// This allows base classes to specify data that exists on a sub type, but not on the base type.
-				var reflectionTestMethodType = (_IReflectionTypeInfo)reflectionTestMethod.Type;
-				if (attribute is MemberDataAttribute memberDataAttribute && memberDataAttribute.MemberType == null)
-					memberDataAttribute.MemberType = reflectionTestMethodType.Type;
-
-				return attribute.GetData(reflectionTestMethod.MethodInfo);
-			}
-		}
+		if (dataAttribute is _IReflectionAttributeInfo reflectionDataAttribute && testMethod is _IReflectionMethodInfo reflectionTestMethod)
+			return ((DataAttribute)reflectionDataAttribute.Attribute).GetData(reflectionTestMethod.MethodInfo);
 
 		return new(default(IReadOnlyCollection<ITheoryDataRow>));
 	}
