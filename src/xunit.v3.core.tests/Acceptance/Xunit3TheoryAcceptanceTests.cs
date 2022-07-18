@@ -575,6 +575,128 @@ public class Xunit3TheoryAcceptanceTests
 		}
 	}
 
+	public class DataAttributeTests : AcceptanceTestV3
+	{
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ExplicitAcceptanceTest_ExplicitOff(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ExplicitAcceptanceTests), preEnumerateTheories, ExplicitOption.Off);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Collection(
+				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Inline forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Member forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Inline forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Member forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, y: \"Inline inherited\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, y: \"Member inherited\")", notRun.TestDisplayName)
+			);
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ExplicitAcceptanceTest_ExplicitOn(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ExplicitAcceptanceTests), preEnumerateTheories, ExplicitOption.On);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName)
+			);
+			Assert.Collection(
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestNotRunWithDisplayName>());
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ExplicitAcceptanceTest_ExplicitOnly(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ExplicitAcceptanceTests), preEnumerateTheories, ExplicitOption.Only);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName)
+			);
+			Assert.Collection(
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Collection(
+				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, y: \"Inline forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, y: \"Member forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, y: \"Inline inherited\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, y: \"Member inherited\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, y: \"Inline forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, y: \"Member forced false\")", notRun.TestDisplayName)
+			);
+		}
+
+		class ClassUnderTest_ExplicitAcceptanceTests
+		{
+			public static List<TheoryDataRow> MemberDataSource = new()
+			{
+				new(43, "Member inherited"),
+				new(0, "Member forced true") { Explicit = true },
+				new(2113, "Member forced false") { Explicit = false },
+			};
+
+			[Theory]
+			[InlineData(42, "Inline inherited")]
+			[InlineData(0, "Inline forced true", Explicit = true)]
+			[InlineData(2112, "Inline forced false", Explicit = false)]
+			[MemberData(nameof(MemberDataSource))]
+			public void TestWithTheoryExplicitFalse(int x, string y)
+			{
+				Assert.NotEqual(0, x);
+			}
+
+			[Theory(Explicit = true)]
+			[InlineData(42, "Inline inherited")]
+			[InlineData(0, "Inline forced true", Explicit = true)]
+			[InlineData(2112, "Inline forced false", Explicit = false)]
+			[MemberData(nameof(MemberDataSource))]
+			public void TestWithTheoryExplicitTrue(int x, string y)
+			{
+				Assert.NotEqual(0, x);
+			}
+		}
+	}
+
 	public class InlineDataTests : AcceptanceTestV3
 	{
 		[Fact]
@@ -735,81 +857,6 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(int z) { }
 		}
 
-		[Theory]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), true)]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), false)]
-		[InlineData(typeof(ClassUnderTest_IEnumerable), true)]
-		[InlineData(typeof(ClassUnderTest_IEnumerable), false)]
-		public async ValueTask AcceptanceTest_ExplicitOff(
-			Type classUnderTest,
-			bool preEnumerateTheories)
-		{
-			var testMessages = await RunForResultsAsync(classUnderTest, preEnumerateTheories: preEnumerateTheories, explicitOption: ExplicitOption.Off);
-
-			Assert.Collection(
-				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", passed.TestDisplayName),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", passed.TestDisplayName)
-			);
-
-			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", failed.TestDisplayName);
-
-			var skipped = Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", skipped.TestDisplayName);
-
-			var notRun = Assert.Single(testMessages.OfType<TestNotRunWithDisplayName>());
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"I only run explicitly\", _: 9600)", notRun.TestDisplayName);
-		}
-
-		[Theory]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), true)]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), false)]
-		[InlineData(typeof(ClassUnderTest_IEnumerable), true)]
-		[InlineData(typeof(ClassUnderTest_IEnumerable), false)]
-		public async ValueTask AcceptanceTest_ExplicitOn(
-			Type classUnderTest,
-			bool preEnumerateTheories)
-		{
-			var testMessages = await RunForResultsAsync(classUnderTest, preEnumerateTheories: preEnumerateTheories, explicitOption: ExplicitOption.On);
-
-			Assert.Collection(
-				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", passed.TestDisplayName),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", passed.TestDisplayName),
-				passed => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"I only run explicitly\", _: 9600)", passed.TestDisplayName)
-			);
-
-			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", failed.TestDisplayName);
-
-			var skipped = Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", skipped.TestDisplayName);
-		}
-
-		[Theory]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), true)]
-		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable), false)]
-		[InlineData(typeof(ClassUnderTest_IEnumerable), true)]
-		[InlineData(typeof(ClassUnderTest_IEnumerable), false)]
-		public async ValueTask AcceptanceTest_ExplicitOnly(
-			Type classUnderTest,
-			bool preEnumerateTheories)
-		{
-			var testMessages = await RunForResultsAsync(classUnderTest, preEnumerateTheories: preEnumerateTheories, explicitOption: ExplicitOption.Only);
-
-			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"I only run explicitly\", _: 9600)", passed.TestDisplayName);
-
-			Assert.Collection(
-				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source will fail\", _: 2112)", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Class source would fail if I ran\", _: 96)", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from class source\", _: 2600)", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{classUnderTest.FullName}.TestMethod(z: \"Hello from Tuple\", _: 42)", notRun.TestDisplayName)
-			);
-		}
-
 		class ClassDataSource
 		{
 			public static readonly object[] Data =
@@ -857,97 +904,6 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(string z, int _)
 			{
 				Assert.DoesNotContain("fail", z);
-			}
-		}
-
-		[Theory]
-		[InlineData(true)]
-		[InlineData(false)]
-		public async ValueTask ExplicitOverridesViaDataAttribute_ExplicitOff(bool preEnumerateTheories)
-		{
-			var testMessages = await RunForResultsAsync(typeof(ClassUnderTests_ExplicitOverrides), preEnumerateTheories, ExplicitOption.Off);
-
-			Assert.Collection(
-				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName)
-			);
-			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
-			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
-			Assert.Collection(
-				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 0, y: null)", notRun.TestDisplayName),
-				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 0, y: null)", notRun.TestDisplayName),
-				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 42, y: \"Inherited explicit\")", notRun.TestDisplayName)
-			);
-		}
-
-		[Theory]
-		[InlineData(true)]
-		[InlineData(false)]
-		public async ValueTask ExplicitOverridesViaDataAttribute_ExplicitOn(bool preEnumerateTheories)
-		{
-			var testMessages = await RunForResultsAsync(typeof(ClassUnderTests_ExplicitOverrides), preEnumerateTheories, ExplicitOption.On);
-
-			Assert.Collection(
-				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 2112, y: \"Explicit forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName)
-			);
-			Assert.Collection(
-				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 0, y: null)", failed.TestDisplayName),
-				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 0, y: null)", failed.TestDisplayName)
-			);
-			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
-			Assert.Empty(testMessages.OfType<TestNotRunWithDisplayName>());
-		}
-
-		[Theory]
-		[InlineData(true)]
-		[InlineData(false)]
-		public async ValueTask ExplicitOverridesViaDataAttribute_ExplicitOnly(bool preEnumerateTheories)
-		{
-			var testMessages = await RunForResultsAsync(typeof(ClassUnderTests_ExplicitOverrides), preEnumerateTheories, ExplicitOption.Only);
-
-			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 42, y: \"Inherited explicit\")", passed.TestDisplayName);
-			Assert.Collection(
-				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 0, y: null)", failed.TestDisplayName),
-				failed => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 0, y: null)", failed.TestDisplayName)
-			);
-			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
-			Assert.Collection(
-				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 2112, y: \"Explicit forced false\")", notRun.TestDisplayName),
-				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitFalse(x: 42, y: \"Inherited explicit\")", notRun.TestDisplayName),
-				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTests_ExplicitOverrides.TestWithTheoryExplicitTrue(x: 2112, y: \"Explicit forced false\")", notRun.TestDisplayName)
-			);
-		}
-
-		class ClassUnderTests_ExplicitOverrides
-		{
-			[Theory]
-			[InlineData(42, "Inherited explicit")]
-			[InlineData(0, null, Explicit = true)]
-			[InlineData(2112, "Explicit forced false", Explicit = false)]
-			public void TestWithTheoryExplicitFalse(int x, string y)
-			{
-				Assert.NotNull(y);
-			}
-
-			[Theory(Explicit = true)]
-			[InlineData(42, "Inherited explicit")]
-			[InlineData(0, null, Explicit = true)]
-			[InlineData(2112, "Explicit forced false", Explicit = false)]
-
-			public void TestWithTheoryExplicitTrue(int x, string y)
-			{
-				Assert.NotNull(y);
 			}
 		}
 	}
