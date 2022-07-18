@@ -699,6 +699,65 @@ public class Xunit3TheoryAcceptanceTests
 		[Theory]
 		[InlineData(true)]
 		[InlineData(false)]
+		public async ValueTask SkipAcceptanceTest(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_SkipTests), preEnumerateTheories);
+
+			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 42)", passed.TestDisplayName);
+			Assert.Collection(
+				testMessages.OfType<TestSkippedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				// Skip per data row
+				skipped =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 2112)", skipped.TestDisplayName);
+					Assert.Equal("Skip from InlineData", skipped.Reason);
+				},
+				skipped =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 2113)", skipped.TestDisplayName);
+					Assert.Equal("Skip from theory data row", skipped.Reason);
+				},
+				skipped =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 43)", skipped.TestDisplayName);
+					Assert.Equal("Skip from MemberData", skipped.Reason);
+				},
+				// Single skipped theory, not one per data row
+				skipped =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithSkipOnTheory)}", skipped.TestDisplayName);
+					Assert.Equal("Skip from theory", skipped.Reason);
+				}
+			);
+		}
+
+		class ClassUnderTest_SkipTests
+		{
+			public static List<TheoryDataRow> DataSource = new()
+			{
+				new(43),
+				new(2113) { Skip = "Skip from theory data row" }
+			};
+
+			[Theory]
+			[InlineData(42)]
+			[InlineData(2112, Skip = "Skip from InlineData")]
+			[MemberData(nameof(DataSource), Skip = "Skip from MemberData")]
+			public void TestWithNoSkipOnTheory(int x)
+			{ }
+
+			[Theory(Skip = "Skip from theory")]
+			[InlineData(42)]
+			[InlineData(2112, Skip = "Skip from InlineData")]
+			[MemberData(nameof(DataSource), Skip = "Skip from MemberData")]
+			public void TestWithSkipOnTheory(int x)
+			{ }
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
 		public async ValueTask TestDisplayNameAcceptanceTest(bool preEnumerateTheories)
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_TestDisplayNameTests), preEnumerateTheories);
