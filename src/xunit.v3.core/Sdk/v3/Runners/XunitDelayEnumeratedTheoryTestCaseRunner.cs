@@ -101,11 +101,11 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 					var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();
 					convertedDataRow = Reflector.ConvertArguments(convertedDataRow, parameterTypes);
 
-					var theoryDisplayName = ctxt.TestCase.TestMethod.Method.GetDisplayNameWithArguments(ctxt.DisplayName, convertedDataRow, resolvedTypes);
+					var baseDisplayName = dataRow.TestDisplayName ?? dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName)) ?? ctxt.DisplayName;
+					var theoryDisplayName = ctxt.TestCase.TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, convertedDataRow, resolvedTypes);
 					var test = CreateTest(ctxt, dataRow.Explicit, theoryDisplayName, testIndex++);
-					var skipReason = ctxt.SkipReason ?? dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip)) ?? dataRow.Skip;
+					var skipReason = dataRow.Skip ?? dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip)) ?? ctxt.SkipReason;
 
-					// TODO: Shouldn't this also record explicit? How would that be exposed?
 					ctxt.DiscoveredTests.Add((test, methodToRun, convertedDataRow, skipReason));
 				}
 			}

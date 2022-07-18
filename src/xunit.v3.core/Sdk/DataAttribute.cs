@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Sdk;
 
@@ -67,6 +68,14 @@ public abstract class DataAttribute : Attribute
 	/// and not the skip reason from the data attribute.
 	/// </remarks>
 	public string? Skip { get; set; }
+
+	/// <summary>
+	/// Gets or sets the display name for the test (replacing the default behavior, which would be to
+	/// use <see cref="FactAttribute.DisplayName"/>, or falling back to the default test display name
+	/// based on <see cref="TestMethodDisplay"/> and <see cref="TestMethodDisplayOptions"/> in the
+	/// configuration file).
+	/// </summary>
+	public string? TestDisplayName { get; set; }
 
 	/// <summary>
 	/// Converts an item yielded by the data attribute to an <see cref="ITheoryDataRow"/>, for return

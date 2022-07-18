@@ -146,6 +146,7 @@ public static class FactAttributeHelper
 	/// <param name="testMethodArguments">The test method arguments obtained from the <paramref name="dataRow"/> after being type-resolved.</param>
 	/// <param name="theoryAttribute">The optional theory attribute that decorates the test method; if not provided, will be found via reflection.</param>
 	/// <param name="traitAttributes">The optional trait attributes that decorate the test method; if not provided, will be found via reflection.</param>
+	/// <param name="baseDisplayName">The optional base display name (typically from the data attribute)</param>
 	public static (
 		string TestCaseDisplayName,
 		bool Explicit,
@@ -160,9 +161,10 @@ public static class FactAttributeHelper
 		ITheoryDataRow dataRow,
 		object?[] testMethodArguments,
 		_IAttributeInfo? theoryAttribute = null,
-		_IAttributeInfo[]? traitAttributes = null)
+		_IAttributeInfo[]? traitAttributes = null,
+		string? baseDisplayName = null)
 	{
-		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, traitAttributes, testMethodArguments, dataRow.TestDisplayName);
+		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, traitAttributes, testMethodArguments, dataRow.TestDisplayName ?? baseDisplayName);
 
 		if (dataRow.Skip != null)
 			result.SkipReason = dataRow.Skip;

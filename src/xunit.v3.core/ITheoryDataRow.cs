@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit;
 
@@ -20,8 +22,10 @@ public interface ITheoryDataRow
 	string? Skip { get; }
 
 	/// <summary>
-	/// Gets the display name for the test (replacing the default behavior, which would be to use the DisplayName
-	/// from <see cref="FactAttribute"/>, or falling back to the class &amp; method name).
+	/// Gets the display name for the test (replacing the default behavior, which would be to
+	/// use <see cref="DataAttribute.TestDisplayName"/> or <see cref="FactAttribute.DisplayName"/>,
+	/// or falling back to the default test display name based on <see cref="TestMethodDisplay"/>
+	/// and <see cref="TestMethodDisplayOptions"/> in the configuration file).
 	/// </summary>
 	string? TestDisplayName { get; }
 

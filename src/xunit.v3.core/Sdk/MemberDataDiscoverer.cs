@@ -36,6 +36,7 @@ public class MemberDataDiscoverer : DataDiscoverer
 					Explicit = memberDataAttribute.Explicit,
 					MemberType = reflectionTestMethodType.Type,
 					Skip = memberDataAttribute.Skip,
+					TestDisplayName = memberDataAttribute.TestDisplayName,
 				};
 
 				return newMemberDataAttribute.GetData(reflectionTestMethod.MethodInfo);

@@ -695,6 +695,55 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.NotEqual(0, x);
 			}
 		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask TestDisplayNameAcceptanceTest(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_TestDisplayNameTests), preEnumerateTheories);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal("Default Member Test(x: 43)", passed.TestDisplayName),
+				passed => Assert.Equal("One Test Default (Member)(x: 1)", passed.TestDisplayName),
+				passed => Assert.Equal("Override Member Test(x: 45)", passed.TestDisplayName),
+				passed => Assert.Equal("Theory Display Name(x: 44)", passed.TestDisplayName),
+				passed => Assert.Equal("Three Test Override (Member)(x: 3)", passed.TestDisplayName),
+				passed => Assert.Equal("Two Test Override (Inline)(x: 2)", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_TestDisplayNameTests).FullName}.{nameof(ClassUnderTest_TestDisplayNameTests.TestWithDefaultName)}(x: 42)", passed.TestDisplayName),
+				passed => Assert.Equal("Zero Test Default (Inline)(x: 0)", passed.TestDisplayName)
+			);
+		}
+
+		class ClassUnderTest_TestDisplayNameTests
+		{
+			public static List<TheoryDataRow> DefaultMemberDataSource = new()
+			{
+				new(43),
+				new(1) { TestDisplayName = "One Test Default (Member)" },
+			};
+
+			[Theory]
+			[InlineData(42)]
+			[InlineData(0, TestDisplayName = "Zero Test Default (Inline)")]
+			[MemberData(nameof(DefaultMemberDataSource), TestDisplayName = "Default Member Test")]
+			public void TestWithDefaultName(int x)
+			{ }
+
+			public static List<TheoryDataRow> OverrideMemberDataSource = new()
+			{
+				new(45),
+				new(3) { TestDisplayName = "Three Test Override (Member)" },
+			};
+
+			[Theory(DisplayName = "Theory Display Name")]
+			[InlineData(44)]
+			[InlineData(2, TestDisplayName = "Two Test Override (Inline)")]
+			[MemberData(nameof(OverrideMemberDataSource), TestDisplayName = "Override Member Test")]
+			public void TestWithOverriddenName(int x)
+			{ }
+		}
 	}
 
 	public class InlineDataTests : AcceptanceTestV3

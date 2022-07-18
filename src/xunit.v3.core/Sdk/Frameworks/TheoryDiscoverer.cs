@@ -22,13 +22,15 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
+	/// <param name="dataAttributeDisplayName">The test display name from the data attribute.</param>
 	/// <returns>The test cases</returns>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
 		ITheoryDataRow dataRow,
-		object?[] testMethodArguments)
+		object?[] testMethodArguments,
+		string? dataAttributeDisplayName)
 	{
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(testMethod);
@@ -36,7 +38,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(dataRow);
 		Guard.ArgumentNotNull(testMethodArguments);
 
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute);
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute, baseDisplayName: dataAttributeDisplayName);
 
 		// TODO: How do we get source information in here?
 		var testCase = new XunitTestCase(
@@ -254,7 +256,10 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 						try
 						{
-							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData));
+							var dataAttributeDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
+							var testCases = await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData, dataAttributeDisplayName);
+
+							results.AddRange(testCases);
 						}
 						catch (Exception ex)
 						{

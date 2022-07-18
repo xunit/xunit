@@ -14,10 +14,11 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
 		ITheoryDataRow dataRow,
-		object?[] testMethodArguments)
+		object?[] testMethodArguments,
+		string? dataAttributeDisplayName)
 	{
 		var cultures = GetCultures(theoryAttribute);
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments: testMethodArguments, theoryAttribute);
+		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute, baseDisplayName: dataAttributeDisplayName);
 		var result = cultures.Select(
 			// TODO: How do we get source information in here?
 			culture => new CulturedXunitTestCase(
