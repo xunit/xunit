@@ -721,12 +721,14 @@ public class Xunit2MessageAdapter
 		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			Explicit = false,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestDisplayName = message.Test.DisplayName,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Traits = message.TestCase.Traits.ToReadOnly(),
 		};
 	}
 

@@ -423,6 +423,7 @@ public class Xunit2 : IFrontController
 					var lastDotIdx = testClassNameWithNamespace?.LastIndexOf('.') ?? -1;
 					var testClassNamespace = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(0, lastDotIdx) : null;
 					var testClassName = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(lastDotIdx + 1) : testClassNameWithNamespace;
+					var testCaseTraits = testCase.Traits.ToReadOnly();
 
 					messageSink.OnMessage(new _TestCaseStarting
 					{
@@ -436,7 +437,7 @@ public class Xunit2 : IFrontController
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodName = testCasesByMethod.Key,
 						TestMethodUniqueID = testMethodUniqueID,
-						Traits = testCase.Traits.ToReadOnly(),
+						Traits = testCaseTraits,
 					});
 
 					var testUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, currentTestIdx++);
@@ -444,12 +445,14 @@ public class Xunit2 : IFrontController
 					messageSink.OnMessage(new _TestStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
+						Explicit = false,
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestDisplayName = testCase.DisplayName,
 						TestMethodUniqueID = testMethodUniqueID,
 						TestUniqueID = testUniqueID,
+						Traits = testCaseTraits,
 					});
 
 					messageSink.OnMessage(new _TestNotRun

@@ -27,7 +27,8 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(factAttribute);
 
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		// TODO: How do we get source information in here?
 		return new XunitTestCase(
@@ -36,7 +37,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 			details.UniqueID,
 			details.Explicit,
 			details.SkipReason,
-			details.Traits,
+			traits,
 			timeout: details.Timeout
 		);
 	}
@@ -81,7 +82,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(factAttribute);
 
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
 		return new(
 			details.ResolvedTestMethod,

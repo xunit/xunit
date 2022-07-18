@@ -21,7 +21,7 @@ public static partial class Mocks
 		uniqueID ??= "test-id";
 
 		var result = Substitute.For<_ITest, InterfaceProxy<_ITest>>();
-		result.DisplayName.Returns(displayName);
+		result.TestDisplayName.Returns(displayName);
 		result.TestCase.Returns(testCase);
 		result.UniqueID.Returns(uniqueID);
 		return result;

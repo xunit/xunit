@@ -13,12 +13,15 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
+		_IAttributeInfo dataAttribute,
 		ITheoryDataRow dataRow,
-		object?[] testMethodArguments,
-		string? dataAttributeDisplayName)
+		object?[] testMethodArguments)
 	{
 		var cultures = GetCultures(theoryAttribute);
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute, baseDisplayName: dataAttributeDisplayName);
+		var dataAttributeDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments, baseDisplayName: dataAttributeDisplayName);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataAttribute, dataRow);
+
 		var result = cultures.Select(
 			// TODO: How do we get source information in here?
 			culture => new CulturedXunitTestCase(
@@ -28,7 +31,7 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 				details.UniqueID,
 				details.Explicit,
 				details.SkipReason,
-				details.Traits,
+				traits,
 				testMethodArguments,
 				timeout: details.Timeout
 			)
@@ -43,7 +46,8 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		_IAttributeInfo theoryAttribute)
 	{
 		var cultures = GetCultures(theoryAttribute);
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		var result =
 			cultures
@@ -55,7 +59,7 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 						details.TestCaseDisplayName,
 						details.UniqueID,
 						details.Explicit,
-						details.Traits,
+						traits,
 						timeout: details.Timeout
 					)
 				)

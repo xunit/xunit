@@ -722,14 +722,16 @@ public static class TestData
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
 		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, timeout: timeout);
 		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		if (traits == null)
+			traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		return new(
 			details.ResolvedTestMethod,
 			details.TestCaseDisplayName,
 			uniqueID ?? details.UniqueID,
 			@explicit,
-			traits ?? details.Traits,
+			traits,
 			timeout: timeout
 		);
 	}
@@ -749,7 +751,9 @@ public static class TestData
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		if (traits == null)
+			traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		return new(
 			details.ResolvedTestMethod,
@@ -757,7 +761,7 @@ public static class TestData
 			uniqueID ?? details.UniqueID,
 			@explicit,
 			skipReason,
-			traits ?? details.Traits,
+			traits,
 			testMethodArguments,
 			timeout: timeout
 		);

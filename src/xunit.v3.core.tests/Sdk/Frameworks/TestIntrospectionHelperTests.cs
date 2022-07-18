@@ -2,12 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class FactAttributeHelperTests
+public class TestIntrospectionHelperTests
 {
+	// Simplified signature that auto-looks up the FactAttribute
+	static (
+		string TestCaseDisplayName,
+		bool Explicit,
+		string? SkipReason,
+		int Timeout,
+		string UniqueID,
+		_ITestMethod ResolvedTestMethod
+	) _GetTestCaseDetails(
+		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		_ITestMethod testMethod,
+		object?[]? testMethodArguments = null)
+	{
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+		if (factAttribute == null)
+			throw new ArgumentException($"Could not locate the FactAttribute on test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'", nameof(testMethod));
+
+		return TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute, testMethodArguments);
+	}
+
 	public class GuardClauses
 	{
 		_ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
@@ -15,7 +36,7 @@ public class FactAttributeHelperTests
 		[Fact]
 		public void NullDiscoveryOptionsThrows()
 		{
-			var ex = Record.Exception(() => FactAttributeHelper.GetTestCaseDetails(null!, Mocks.TestMethod()));
+			var ex = Record.Exception(() => TestIntrospectionHelper.GetTestCaseDetails(null!, Mocks.TestMethod(), Mocks.FactAttribute()));
 
 			var argnEx = Assert.IsType<ArgumentNullException>(ex);
 			Assert.Equal("discoveryOptions", argnEx.ParamName);
@@ -24,26 +45,23 @@ public class FactAttributeHelperTests
 		[Fact]
 		public void NullTestMethodThrows()
 		{
-			var ex = Record.Exception(() => FactAttributeHelper.GetTestCaseDetails(discoveryOptions, null!));
+			var ex = Record.Exception(() => TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, null!, Mocks.FactAttribute()));
 
 			var argnEx = Assert.IsType<ArgumentNullException>(ex);
 			Assert.Equal("testMethod", argnEx.ParamName);
 		}
 
 		[Fact]
-		public void TestMethodWithoutFactAttributeThrows()
+		public void NullFactAttributeThrows()
 		{
-			var testMethod = Mocks.TestMethod<object>(nameof(object.ToString));
+			var ex = Record.Exception(() => TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, Mocks.TestMethod(), null!));
 
-			var ex = Record.Exception(() => FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod));
-
-			var argEx = Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("testMethod", argEx.ParamName);
-			Assert.StartsWith($"Could not locate the FactAttribute on test method '{typeof(object).FullName}.{nameof(object.ToString)}'", argEx.Message);
+			var argEx = Assert.IsType<ArgumentNullException>(ex);
+			Assert.Equal("factAttribute", argEx.ParamName);
 		}
 	}
 
-	public class FactAttributeValues
+	public class GetTestCaseDetails
 	{
 		_ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
 
@@ -52,7 +70,7 @@ public class FactAttributeHelperTests
 		{
 			var testMethod = Mocks.TestMethod("type-name", "method-name");
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal("type-name.method-name", details.TestCaseDisplayName);
 		}
@@ -67,7 +85,7 @@ public class FactAttributeHelperTests
 		{
 			var testMethod = TestData.TestMethod<ClassWithGenericTestMethod>(nameof(ClassWithGenericTestMethod.OpenGeneric));
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethodArguments: new[] { testArg });
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod, new[] { testArg });
 
 			Assert.Equal($"{typeof(ClassWithGenericTestMethod).FullName}.{nameof(ClassWithGenericTestMethod.OpenGeneric)}<{expectedGenericType.Name}>(value: {ArgumentFormatter.Format(testArg)})", details.TestCaseDisplayName);
 			var closedMethod = details.ResolvedTestMethod;
@@ -84,7 +102,7 @@ public class FactAttributeHelperTests
 			var testMethod = Mocks.TestMethod("type-name", "method-name");
 			discoveryOptions.SetMethodDisplay(TestMethodDisplay.Method);
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal("method-name", details.TestCaseDisplayName);
 		}
@@ -95,7 +113,7 @@ public class FactAttributeHelperTests
 			var testMethod = Mocks.TestMethod("With_an_empty_stack", "count_eq_0X21");
 			discoveryOptions.SetMethodDisplayOptions(TestMethodDisplayOptions.All);
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal("With an empty stack, count = 0!", details.TestCaseDisplayName);
 		}
@@ -106,7 +124,7 @@ public class FactAttributeHelperTests
 			var factAttribute = Mocks.FactAttribute(displayName: "Custom Display Name");
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal("Custom Display Name", details.TestCaseDisplayName);
 		}
@@ -121,7 +139,7 @@ public class FactAttributeHelperTests
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute }, parameters: new[] { param1, param2, param3 });
 			var arguments = new object[] { 42, "Hello, world!", 'A' };
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethodArguments: arguments);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod, arguments);
 
 			Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", details.TestCaseDisplayName);
 		}
@@ -132,7 +150,7 @@ public class FactAttributeHelperTests
 			var param = Mocks.ParameterInfo("p1");
 			var testMethod = Mocks.TestMethod(parameters: new[] { param });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethodArguments: Array.Empty<object?>());
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod, Array.Empty<object?>());
 
 			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: ???)", details.TestCaseDisplayName);
 		}
@@ -144,7 +162,7 @@ public class FactAttributeHelperTests
 			var testMethod = Mocks.TestMethod(parameters: new[] { param });
 			var arguments = new object[] { 42, 21.12M };
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethodArguments: arguments);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod, arguments);
 
 			Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, ???: {21.12})", details.TestCaseDisplayName);
 		}
@@ -157,7 +175,7 @@ public class FactAttributeHelperTests
 			var factAttribute = Mocks.FactAttribute(@explicit: @explicit);
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal(@explicit, details.Explicit);
 		}
@@ -168,7 +186,7 @@ public class FactAttributeHelperTests
 			var factAttribute = Mocks.FactAttribute(skip: "Skip Reason");
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal("Skip Reason", details.SkipReason);
 		}
@@ -179,7 +197,7 @@ public class FactAttributeHelperTests
 			var factAttribute = Mocks.FactAttribute(timeout: 42);
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { factAttribute });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal(42, details.Timeout);
 		}
@@ -191,10 +209,8 @@ public class FactAttributeHelperTests
 		}
 	}
 
-	public class Traits
+	public class GetTraits
 	{
-		_ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
-
 		[Fact]
 		public void TraitsOnTestMethod()
 		{
@@ -202,10 +218,10 @@ public class FactAttributeHelperTests
 			var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
 			var testMethod = Mocks.TestMethod(methodAttributes: new[] { trait1, trait2 });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
-			Assert.Equal("Value1", Assert.Single(details.Traits["Trait1"]));
-			Assert.Equal("Value2", Assert.Single(details.Traits["Trait2"]));
+			Assert.Equal("Value1", Assert.Single(traits["Trait1"]));
+			Assert.Equal("Value2", Assert.Single(traits["Trait2"]));
 		}
 
 		[Fact]
@@ -215,10 +231,10 @@ public class FactAttributeHelperTests
 			var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait1, trait2 });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
-			Assert.Equal("Value1", Assert.Single(details.Traits["Trait1"]));
-			Assert.Equal("Value2", Assert.Single(details.Traits["Trait2"]));
+			Assert.Equal("Value1", Assert.Single(traits["Trait1"]));
+			Assert.Equal("Value2", Assert.Single(traits["Trait2"]));
 		}
 
 		[Fact]
@@ -226,10 +242,10 @@ public class FactAttributeHelperTests
 		{
 			var testMethod = TestData.TestMethod<ClassWithCustomTraitTest>(nameof(ClassWithCustomTraitTest.BugFix));
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 			Assert.Collection(
-				details.Traits.OrderBy(x => x.Key),
+				traits.OrderBy(x => x.Key),
 				namedTrait =>
 				{
 					Assert.Equal("Assembly", namedTrait.Key);
@@ -259,12 +275,12 @@ public class FactAttributeHelperTests
 			var trait = Mocks.TraitAttribute<BadTraitAttribute>();
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
-			Assert.Empty(details.Traits);
+			Assert.Empty(traits);
 			var diagnosticMessages = spy.Messages.OfType<_DiagnosticMessage>();
 			var diagnosticMessage = Assert.Single(diagnosticMessages);
-			Assert.Equal($"Trait attribute '{typeof(BadTraitAttribute).FullName}' on test method '{details.TestCaseDisplayName}' does not have [TraitDiscoverer]", diagnosticMessage.Message);
+			Assert.Equal($"Trait attribute '{typeof(BadTraitAttribute).FullName}' on test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' does not have [TraitDiscoverer]", diagnosticMessage.Message);
 		}
 
 		[Fact]
@@ -275,9 +291,9 @@ public class FactAttributeHelperTests
 			var trait = Mocks.TraitAttribute<TraitWithDiscovererWithBadCtorAttribute>();
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
-			Assert.Empty(details.Traits);
+			Assert.Empty(traits);
 			var diagnosticMessages = spy.Messages.OfType<_DiagnosticMessage>();
 			var diagnosticMessage = Assert.Single(diagnosticMessages);
 			Assert.Equal($"Could not find empty constructor for '{typeof(TraitDiscovererWithBadCtor).FullName}'", diagnosticMessage.Message);
@@ -291,9 +307,9 @@ public class FactAttributeHelperTests
 			var trait = Mocks.TraitAttribute<TraitWithInvalidDiscovererTypeSpecification>();
 			var testMethod = Mocks.TestMethod(classAttributes: new[] { trait });
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
-			Assert.Empty(details.Traits);
+			Assert.Empty(traits);
 			var diagnosticMessages = spy.Messages.OfType<_DiagnosticMessage>();
 			var diagnosticMessage = Assert.Single(diagnosticMessages);
 			Assert.Equal($"Discoverer on trait attribute '{typeof(TraitWithInvalidDiscovererTypeSpecification).FullName}' appears to be malformed (invalid type reference?)", diagnosticMessage.Message);
@@ -310,9 +326,9 @@ public class FactAttributeHelperTests
 			var methodInfo = new ReflectionMethodInfo(classType.GetMethod("TraitsTest")!);
 			var testMethod = new TestMethod(testClass, methodInfo);
 
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod);
+			var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
-			var testTraits = details.Traits["Test"];
+			var testTraits = traits["Test"];
 			foreach (var expectedTrait in expectedTraits)
 				Assert.Contains(expectedTrait, testTraits);
 		}

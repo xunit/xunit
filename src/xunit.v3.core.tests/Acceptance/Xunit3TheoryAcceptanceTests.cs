@@ -803,6 +803,69 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestWithOverriddenName(int x)
 			{ }
 		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask TraitsAcceptanceTest(bool preEnumerateTheories)
+		{
+			var testMessages = await RunAsync(typeof(ClassUnderTests_TraitsTests), preEnumerateTheories);
+
+			Assert.Collection(
+				testMessages.OfType<_TestStarting>().OrderBy(x => x.TestDisplayName),
+				starting =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(x: 0)", starting.TestDisplayName);
+					Assert.Collection(
+						starting.Traits["Location"].OrderBy(x => x),
+						trait => Assert.Equal("Class", trait),
+						trait => Assert.Equal("InlineData", trait),
+						trait => Assert.Equal("Method", trait)
+					);
+					Assert.False(starting.Traits.ContainsKey("Discarded"));
+				},
+				starting =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(x: 2112)", starting.TestDisplayName);
+					Assert.Collection(
+						starting.Traits["Location"].OrderBy(x => x),
+						trait => Assert.Equal("Class", trait),
+						trait => Assert.Equal("MemberData", trait),
+						trait => Assert.Equal("Method", trait)
+					);
+					Assert.False(starting.Traits.ContainsKey("Discarded"));
+				},
+				starting =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(x: 42)", starting.TestDisplayName);
+					Assert.Collection(
+						starting.Traits["Location"].OrderBy(x => x),
+						trait => Assert.Equal("Class", trait),
+						trait => Assert.Equal("MemberData", trait),
+						trait => Assert.Equal("Method", trait),
+						trait => Assert.Equal("TheoryDataRow", trait)
+					);
+					Assert.False(starting.Traits.ContainsKey("Discarded"));
+				}
+			);
+		}
+
+		[Trait("Location", "Class")]
+		class ClassUnderTests_TraitsTests
+		{
+			public static List<TheoryDataRow> MemberDataSource = new()
+			{
+				new TheoryDataRow(2112),
+				new TheoryDataRow(42).WithTrait("Location", "TheoryDataRow"),
+			};
+
+			[Theory]
+			[Trait("Location", "Method")]
+			[InlineData(0, Traits = new[] { "Location", "InlineData", "Discarded" })]
+			[MemberData(nameof(MemberDataSource), Traits = new[] { "Location", "MemberData", "Discarded" })]
+			public void TestMethod(int x)
+			{ }
+		}
 	}
 
 	public class InlineDataTests : AcceptanceTestV3

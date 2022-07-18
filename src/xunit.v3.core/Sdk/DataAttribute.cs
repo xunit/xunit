@@ -78,6 +78,18 @@ public abstract class DataAttribute : Attribute
 	public string? TestDisplayName { get; set; }
 
 	/// <summary>
+	/// Gets or sets a set of traits for the associated data. The data is pushed as an array of
+	/// string that are key/value pairs (f.e., <c>new[] { "key1", "value1", "key2", "value2" }</c>).
+	/// </summary>
+	/// <remarks>
+	/// This is structured as an array because attribute initializers don't support dictionaries. Note:
+	/// Setting an odd number of values will throw away the unmatched key at the end of the list. If you
+	/// seem to be missing your a key/value pair or have misaligned keys and values, make sure you have
+	/// an even number of strings alternating between keys and values.
+	/// </remarks>
+	public string[]? Traits { get; set; }
+
+	/// <summary>
 	/// Converts an item yielded by the data attribute to an <see cref="ITheoryDataRow"/>, for return
 	/// from <see cref="GetData"/>. Items yielded will typically be <see cref="T:object[]"/>, <see cref="ITheoryDataRow"/>,
 	/// or <see cref="T:System.Runtime.CompilerServices.ITuple"/>, but this override will allow derived

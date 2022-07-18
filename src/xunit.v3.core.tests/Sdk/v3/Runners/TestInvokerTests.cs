@@ -212,7 +212,7 @@ public class TestInvokerTests
 			Assert.Equal(TestPipelineStage.TestExecution, context.PipelineStage);
 			var test = context.Test;
 			Assert.NotNull(test);
-			Assert.Equal("Test display name", test.DisplayName);
+			Assert.Equal("Test display name", test.TestDisplayName);
 			Assert.Null(context.TestState);
 		}
 
@@ -233,7 +233,7 @@ public class TestInvokerTests
 			Assert.Equal(TestEngineStatus.Running, context.TestStatus);
 			var test = context.Test;
 			Assert.NotNull(test);
-			Assert.Equal("Test display name", test.DisplayName);
+			Assert.Equal("Test display name", test.TestDisplayName);
 			Assert.Null(context.TestState);
 		}
 
@@ -254,7 +254,7 @@ public class TestInvokerTests
 			Assert.Equal(TestEngineStatus.CleaningUp, context.TestStatus);
 			var test = context.Test;
 			Assert.NotNull(test);
-			Assert.Equal("Test display name", test.DisplayName);
+			Assert.Equal("Test display name", test.TestDisplayName);
 			var testState = context.TestState;
 			Assert.NotNull(testState);
 			Assert.Null(testState.ExceptionMessages);
@@ -283,7 +283,7 @@ public class TestInvokerTests
 			Assert.Equal(TestEngineStatus.CleaningUp, context.TestStatus);
 			var test = context.Test;
 			Assert.NotNull(test);
-			Assert.Equal("Test display name", test.DisplayName);
+			Assert.Equal("Test display name", test.TestDisplayName);
 			var testState = context.TestState;
 			Assert.NotNull(testState);
 			Assert.Equal(
@@ -317,7 +317,7 @@ public class TestInvokerTests
 			Assert.Equal(TestEngineStatus.CleaningUp, context.TestStatus);
 			var test = context.Test;
 			Assert.NotNull(test);
-			Assert.Equal("Test display name", test.DisplayName);
+			Assert.Equal("Test display name", test.TestDisplayName);
 			var testState = context.TestState;
 			Assert.NotNull(testState);
 			Assert.Equal("The test method expected 1 parameter value, but 0 parameter values were provided.", Assert.Single(testState.ExceptionMessages!));

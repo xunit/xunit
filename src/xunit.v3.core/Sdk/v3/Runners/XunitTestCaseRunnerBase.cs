@@ -65,17 +65,19 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 	/// the DisplayName value from <paramref name="ctxt"/>.</param>
 	/// <param name="testIndex">The test index for the test. Multiple test per test case scenarios will need
 	/// to use the test index to help construct the test unique ID.</param>
+	/// <param name="traits">The traits for the test.</param>
 	protected virtual _ITest CreateTest(
 		TContext ctxt,
 		bool? @explicit,
 		string? displayName,
-		int testIndex) =>
-			new XunitTest(ctxt.TestCase, @explicit, displayName ?? ctxt.DisplayName, testIndex);
+		int testIndex,
+		IReadOnlyDictionary<string, IReadOnlyList<string>> traits) =>
+			new XunitTest(ctxt.TestCase, @explicit, displayName ?? ctxt.DisplayName, testIndex, traits);
 
 	/// <inheritdoc/>
 	protected override ValueTask<RunSummary> RunTestsAsync(TContext ctxt) =>
 		XunitTestRunner.Instance.RunAsync(
-			CreateTest(ctxt, @explicit: null, displayName: null, testIndex: 0),
+			CreateTest(ctxt, @explicit: null, displayName: null, testIndex: 0, ctxt.TestCase.Traits),
 			ctxt.MessageBus,
 			ctxt.TestClass,
 			ctxt.ConstructorArguments,

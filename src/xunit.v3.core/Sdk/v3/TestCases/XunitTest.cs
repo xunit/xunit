@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -8,6 +9,8 @@ namespace Xunit.v3;
 /// </summary>
 public class XunitTest : _ITest
 {
+	static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyDictionary = new Dictionary<string, IReadOnlyList<string>>();
+
 	readonly bool? @explicit;
 
 	/// <summary>
@@ -15,18 +18,27 @@ public class XunitTest : _ITest
 	/// </summary>
 	/// <param name="testCase">The test case this test belongs to.</param>
 	/// <param name="explicit">A flag to indicate the test was marked as explicit; if not set, will fall back to the test case</param>
-	/// <param name="displayName">The display name for this test.</param>
+	/// <param name="testDisplayName">The display name for this test.</param>
 	/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
+	/// <param name="traits">The traits for the given test.</param>
 	public XunitTest(
 		IXunitTestCase testCase,
 		bool? @explicit,
-		string displayName,
-		int testIndex)
+		string testDisplayName,
+		int testIndex,
+		IReadOnlyDictionary<string, IReadOnlyList<string>> traits)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		this.@explicit = @explicit;
-		DisplayName = Guard.ArgumentNotNull(displayName);
+		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
+
+		Guard.ArgumentNotNull(traits);
+
+		var result = new Dictionary<string, IReadOnlyList<string>>(traits.Count);
+		foreach (var kvp in traits)
+			result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
+		Traits = result;
 	}
 
 	/// <summary>
@@ -35,17 +47,25 @@ public class XunitTest : _ITest
 	public XunitTest(
 		IXunitTestCase testCase,
 		bool? @explicit,
-		string displayName,
-		string uniqueID)
+		string testDisplayName,
+		string uniqueID,
+		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		this.@explicit = @explicit;
-		DisplayName = Guard.ArgumentNotNull(displayName);
+		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
-	}
 
-	/// <inheritdoc/>
-	public string DisplayName { get; }
+		if (traits == null)
+			Traits = EmptyDictionary;
+		else
+		{
+			var result = new Dictionary<string, IReadOnlyList<string>>(traits.Count);
+			foreach (var kvp in traits)
+				result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
+			Traits = result;
+		}
+	}
 
 	/// <inheritdoc/>
 	public bool Explicit => @explicit ?? TestCase.Explicit;
@@ -57,6 +77,12 @@ public class XunitTest : _ITest
 
 	/// <inheritdoc/>
 	_ITestCase _ITest.TestCase => TestCase;
+
+	/// <inheritdoc/>
+	public string TestDisplayName { get; }
+
+	/// <inheritdoc/>
+	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
 
 	/// <inheritdoc/>
 	public string UniqueID { get; }

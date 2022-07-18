@@ -5,18 +5,8 @@ namespace Xunit.v3;
 /// but may contain many if circumstances warrant it (for example, test data for a theory cannot
 /// be pre-enumerated, so the theory yields a single test case with multiple tests).
 /// </summary>
-public interface _ITest
+public interface _ITest : _ITestMetadata
 {
-	/// <summary>
-	/// Gets the display name of the test.
-	/// </summary>
-	string DisplayName { get; }
-
-	/// <summary>
-	/// Gets a flag indicating whether this test was marked as explicit or not.
-	/// </summary>
-	bool Explicit { get; }
-
 	/// <summary>
 	/// Gets the test case this test belongs to.
 	/// </summary>

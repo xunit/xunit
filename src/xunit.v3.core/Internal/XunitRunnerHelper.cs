@@ -37,19 +37,21 @@ public static class XunitRunnerHelper
 				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
 				TestMethodName = testCase.TestMethod?.Method.Name,
 				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
-				Traits = testCase.Traits
+				Traits = testCase.Traits,
 			};
 			messageBus.QueueMessage(caseStarting);
 
 			var testStarting = new _TestStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = false,
 				TestCaseUniqueID = testCase.UniqueID,
 				TestClassUniqueID = testCase.TestClass?.UniqueID,
 				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
 				TestDisplayName = testCase.TestCaseDisplayName,
 				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
+				Traits = testCase.Traits,
 			};
 			messageBus.QueueMessage(testStarting);
 
@@ -67,7 +69,7 @@ public static class XunitRunnerHelper
 				TestClassUniqueID = testCase.TestClass?.UniqueID,
 				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
 				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 			messageBus.QueueMessage(failed);
 
@@ -80,7 +82,7 @@ public static class XunitRunnerHelper
 				TestClassUniqueID = testCase.TestClass?.UniqueID,
 				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
 				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
 			};
 			messageBus.QueueMessage(testFinished);
 

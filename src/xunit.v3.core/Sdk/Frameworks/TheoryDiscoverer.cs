@@ -20,25 +20,28 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+	/// <param name="dataAttribute">The data attribute that discovered the data.</param>
 	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
-	/// <param name="dataAttributeDisplayName">The test display name from the data attribute.</param>
 	/// <returns>The test cases</returns>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
+		_IAttributeInfo dataAttribute,
 		ITheoryDataRow dataRow,
-		object?[] testMethodArguments,
-		string? dataAttributeDisplayName)
+		object?[] testMethodArguments)
 	{
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(theoryAttribute);
+		Guard.ArgumentNotNull(dataAttribute);
 		Guard.ArgumentNotNull(dataRow);
 		Guard.ArgumentNotNull(testMethodArguments);
 
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, dataRow, testMethodArguments, theoryAttribute, baseDisplayName: dataAttributeDisplayName);
+		var dataAttributeDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments, dataAttributeDisplayName);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataAttribute, dataRow);
 
 		// TODO: How do we get source information in here?
 		var testCase = new XunitTestCase(
@@ -47,7 +50,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			details.UniqueID,
 			details.Explicit,
 			details.SkipReason,
-			details.Traits,
+			traits,
 			testMethodArguments,
 			timeout: details.Timeout
 		);
@@ -76,7 +79,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(theoryAttribute);
 
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		IXunitTestCase testCase;
 
@@ -88,7 +92,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				details.UniqueID,
 				details.Explicit,
 				details.SkipReason,
-				details.Traits,
+				traits,
 				timeout: details.Timeout
 			);
 		else
@@ -97,7 +101,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				details.TestCaseDisplayName,
 				details.UniqueID,
 				details.Explicit,
-				details.Traits,
+				traits,
 				timeout: details.Timeout
 			);
 
@@ -153,7 +157,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					}
 					catch (InvalidCastException)
 					{
-						var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							results.Add(
@@ -179,7 +183,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 					if (discoverer == null)
 					{
-						var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							results.Add(
@@ -209,7 +213,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					var data = await discoverer.GetData(dataAttribute, testMethod.Method);
 					if (data == null)
 					{
-						var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
 						results.Add(
 							new ExecutionErrorTestCase(
@@ -256,10 +260,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 						try
 						{
-							var dataAttributeDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
-							var testCases = await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData, dataAttributeDisplayName);
-
-							results.AddRange(testCases);
+							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataAttribute, dataRow, resolvedData));
 						}
 						catch (Exception ex)
 						{
@@ -277,7 +278,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 				if (results.Count == 0)
 				{
-					var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+					var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 
 					results.Add(
 						new ExecutionErrorTestCase(

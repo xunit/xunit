@@ -67,12 +67,14 @@ public abstract class TestRunner<TContext>
 			var testStarting = new _TestStarting
 			{
 				AssemblyUniqueID = testAssemblyUniqueID,
+				Explicit = ctxt.Test.Explicit,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
-				TestDisplayName = ctxt.Test.DisplayName,
+				TestDisplayName = ctxt.Test.TestDisplayName,
 				TestMethodUniqueID = testMethodUniqueID,
-				TestUniqueID = testUniqueID
+				TestUniqueID = testUniqueID,
+				Traits = ctxt.Test.Traits,
 			};
 
 			if (!ctxt.MessageBus.QueueMessage(testStarting))

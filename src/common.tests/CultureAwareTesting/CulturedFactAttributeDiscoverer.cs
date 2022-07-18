@@ -20,7 +20,9 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 		if (cultures == null || cultures.Length == 0)
 			cultures = new[] { "en-US", "fr-FR" };
 
-		var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod);
+
 		var result =
 			cultures
 				.Select(
@@ -32,7 +34,7 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 						details.UniqueID,
 						details.Explicit,
 						details.SkipReason,
-						details.Traits,
+						traits,
 						timeout: details.Timeout
 					)
 				)

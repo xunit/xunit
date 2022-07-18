@@ -8,12 +8,13 @@ using Xunit.v3;
 namespace Xunit.Sdk;
 
 /// <summary>
-/// Helper functions for retrieving and interpreting <see cref="FactAttribute"/> properties and
-/// computing values for use with <see cref="TestMethodTestCase"/> and derived types.
+/// Helper functions for retrieving and interpreting test and test case details from various sources
+/// (like <see cref="FactAttribute"/>, <see cref="DataAttribute"/>, and others).
 /// </summary>
-public static class FactAttributeHelper
+public static class TestIntrospectionHelper
 {
 	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> assemblyTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
+	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> methodTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 	static readonly ConcurrentDictionary<string, IReadOnlyCollection<_IAttributeInfo>> typeTraitAttributeCache = new(StringComparer.OrdinalIgnoreCase);
 
 	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IAssemblyInfo assembly)
@@ -21,6 +22,13 @@ public static class FactAttributeHelper
 		Guard.ArgumentNotNull(assembly);
 
 		return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
+	}
+
+	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IMethodInfo method)
+	{
+		Guard.ArgumentNotNull(method);
+
+		return methodTraitAttributeCache.GetOrAdd($"{method.Type.Name}.{method.Name}", () => method.GetCustomAttributes(typeof(ITraitAttribute)));
 	}
 
 	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
@@ -36,36 +44,30 @@ public static class FactAttributeHelper
 	/// </summary>
 	/// <param name="discoveryOptions">The options used for discovery.</param>
 	/// <param name="testMethod">The test method.</param>
-	/// <param name="factAttribute">The optional fact attribute that decorates the test method; if not provided, will be found via reflection.</param>
-	/// <param name="traitAttributes">The optional trait attributes that decorate the test method; if not provided, will be found via reflection.</param>
+	/// <param name="factAttribute">The fact attribute that decorates the test method.</param>
 	/// <param name="testMethodArguments">The optional test method arguments.</param>
 	/// <param name="baseDisplayName">The optional base display name for the test method.</param>
 	public static (
 		string TestCaseDisplayName,
 		bool Explicit,
 		string? SkipReason,
-		Dictionary<string, List<string>> Traits,
 		int Timeout,
 		string UniqueID,
 		_ITestMethod ResolvedTestMethod
 	) GetTestCaseDetails(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
-		_IAttributeInfo? factAttribute = null,
-		_IAttributeInfo[]? traitAttributes = null,
+		_IAttributeInfo factAttribute,
 		object?[]? testMethodArguments = null,
 		string? baseDisplayName = null)
 	{
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(factAttribute);
 
 		var defaultMethodDisplay = discoveryOptions.MethodDisplayOrDefault();
 		var defaultMethodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
 		var formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
-
-		factAttribute ??= testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
-		if (factAttribute == null)
-			throw new ArgumentException($"Could not locate the FactAttribute on test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'", nameof(testMethod));
 
 		baseDisplayName ??= factAttribute.GetNamedArgument<string?>(nameof(FactAttribute.DisplayName));
 		var factExplicit = factAttribute.GetNamedArgument<bool>(nameof(FactAttribute.Explicit));
@@ -91,8 +93,65 @@ public static class FactAttributeHelper
 		var testCaseDisplayName = testMethod.Method.GetDisplayNameWithArguments(baseDisplayName, testMethodArguments, methodGenericTypes);
 		var uniqueID = UniqueIDGenerator.ForTestCase(testMethod.UniqueID, methodGenericTypes, testMethodArguments);
 
-		traitAttributes ??= GetTraitAttributesData(testMethod);
-		var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+		return (testCaseDisplayName, factExplicit, factSkipReason, factTimeout, uniqueID, testMethod);
+	}
+
+	/// <summary>
+	/// Retrieve the details for a test case that is a test method decorated with an instance
+	/// of <see cref="TheoryAttribute"/> (or derived) when you have a data row. The data row
+	/// is used to augment the returned information (traits, skip reason, etc.).
+	/// </summary>
+	/// <param name="discoveryOptions">The options used for discovery.</param>
+	/// <param name="testMethod">The test method.</param>
+	/// <param name="theoryAttribute">The theory attribute that decorates the test method.</param>
+	/// <param name="dataRow">The data row for the test.</param>
+	/// <param name="testMethodArguments">The test method arguments obtained from the <paramref name="dataRow"/> after being type-resolved.</param>
+	/// <param name="baseDisplayName">The optional base display name (typically from the data attribute).</param>
+	public static (
+		string TestCaseDisplayName,
+		bool Explicit,
+		string? SkipReason,
+		int Timeout,
+		string UniqueID,
+		_ITestMethod ResolvedTestMethod
+	) GetTestCaseDetails(
+		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		_ITestMethod testMethod,
+		_IAttributeInfo theoryAttribute,
+		ITheoryDataRow dataRow,
+		object?[] testMethodArguments,
+		string? baseDisplayName = null)
+	{
+		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, testMethodArguments, dataRow.TestDisplayName ?? baseDisplayName);
+
+		if (dataRow.Skip != null)
+			result.SkipReason = dataRow.Skip;
+
+		if (dataRow.Explicit.HasValue)
+			result.Explicit = dataRow.Explicit.Value;
+
+		return result;
+	}
+
+	/// <summary>
+	///
+	/// </summary>
+	/// <returns>The traits dictionary</returns>
+	public static Dictionary<string, List<string>> GetTraits(
+		_ITestMethod testMethod,
+		_IAttributeInfo? dataAttribute = null,
+		ITheoryDataRow? dataRow = null)
+	{
+		Guard.ArgumentNotNull(testMethod);
+
+		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+		// Traits from the test assembly, test class, and test method
+		var traitAttributes =
+			GetCachedTraitAttributes(testMethod.TestClass.Class.Assembly)
+				.Concat(GetCachedTraitAttributes(testMethod.TestClass.Class))
+				.Concat(GetCachedTraitAttributes(testMethod.Method));
 
 		foreach (var traitAttribute in traitAttributes)
 		{
@@ -100,9 +159,10 @@ public static class FactAttributeHelper
 			if (traitDiscovererAttribute == null)
 			{
 				TestContext.Current?.SendDiagnosticMessage(
-					"Trait attribute '{0}' on test method '{1}' does not have [TraitDiscoverer]",
+					"Trait attribute '{0}' on test method '{1}.{2}' does not have [TraitDiscoverer]",
 					(traitAttribute as _IReflectionAttributeInfo)?.Attribute.GetType().FullName ?? "<unknown type>",
-					testCaseDisplayName
+					testMethod.TestClass.Class.Name,
+					testMethod.Method.Name
 				);
 				continue;
 			}
@@ -129,64 +189,27 @@ public static class FactAttributeHelper
 			}
 
 			foreach (var kvp in discoverer.GetTraits(traitAttribute))
-				traits.Add(kvp.Key, kvp.Value);
+				result.GetOrAdd(kvp.Key).Add(kvp.Value);
 		}
 
-		return (testCaseDisplayName, factExplicit, factSkipReason, traits, factTimeout, uniqueID, testMethod);
-	}
+		// Traits from the data attribute
+		var traitsArray = dataAttribute?.GetNamedArgument<string[]>(nameof(DataAttribute.Traits));
+		if (traitsArray != null)
+		{
+			var idx = 0;
 
-	/// <summary>
-	/// Retrieve the details for a test case that is a test method decorated with an instance
-	/// of <see cref="TheoryAttribute"/> (or derived) when you have a data row. The data row
-	/// is used to augment the returned information (traits, skip reason, etc.).
-	/// </summary>
-	/// <param name="discoveryOptions">The options used for discovery.</param>
-	/// <param name="testMethod">The test method.</param>
-	/// <param name="dataRow">The data row for the test.</param>
-	/// <param name="testMethodArguments">The test method arguments obtained from the <paramref name="dataRow"/> after being type-resolved.</param>
-	/// <param name="theoryAttribute">The optional theory attribute that decorates the test method; if not provided, will be found via reflection.</param>
-	/// <param name="traitAttributes">The optional trait attributes that decorate the test method; if not provided, will be found via reflection.</param>
-	/// <param name="baseDisplayName">The optional base display name (typically from the data attribute)</param>
-	public static (
-		string TestCaseDisplayName,
-		bool Explicit,
-		string? SkipReason,
-		Dictionary<string, List<string>> Traits,
-		int Timeout,
-		string UniqueID,
-		_ITestMethod ResolvedTestMethod
-	) GetTestCaseDetails(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestMethod testMethod,
-		ITheoryDataRow dataRow,
-		object?[] testMethodArguments,
-		_IAttributeInfo? theoryAttribute = null,
-		_IAttributeInfo[]? traitAttributes = null,
-		string? baseDisplayName = null)
-	{
-		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, traitAttributes, testMethodArguments, dataRow.TestDisplayName ?? baseDisplayName);
+			while (idx < traitsArray.Length - 1)
+			{
+				result.GetOrAdd(traitsArray[idx]).Add(traitsArray[idx + 1]);
+				idx += 2;
+			}
+		}
 
-		if (dataRow.Skip != null)
-			result.SkipReason = dataRow.Skip;
-
-		if (dataRow.Explicit.HasValue)
-			result.Explicit = dataRow.Explicit.Value;
-
-		if (dataRow.Traits != null)
+		// Traits from the data row
+		if (dataRow?.Traits != null)
 			foreach (var kvp in dataRow.Traits)
-				result.Traits.Add(kvp.Key, kvp.Value);
+				result.GetOrAdd(kvp.Key).AddRange(kvp.Value);
 
 		return result;
-	}
-
-	static _IAttributeInfo[] GetTraitAttributesData(_ITestMethod testMethod)
-	{
-		Guard.ArgumentNotNull(testMethod);
-
-		return
-			GetCachedTraitAttributes(testMethod.TestClass.Class.Assembly)
-				.Concat(GetCachedTraitAttributes(testMethod.TestClass.Class))
-				.Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
-				.CastOrToArray();
 	}
 }

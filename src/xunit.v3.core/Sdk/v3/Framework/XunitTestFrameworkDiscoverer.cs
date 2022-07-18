@@ -82,7 +82,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		if (factAttributes.Count > 1)
 		{
 			var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
-			var details = FactAttributeHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttributes[0]);
+			var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttributes[0]);
 			var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
 			return await discoveryCallback(testCase);
 		}

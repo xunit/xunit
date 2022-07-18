@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -40,7 +41,7 @@ public class ExecutionErrorTestCaseRunner : TestCaseRunner<TestCaseRunnerContext
 	protected override ValueTask<RunSummary> RunTestsAsync(TestCaseRunnerContext<ExecutionErrorTestCase> ctxt)
 	{
 		// Use -1 for the index here so we don't collide with any legitimate test case IDs that might've been used
-		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.TestCase.TestCaseDisplayName, testIndex: -1);
+		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.TestCase.TestCaseDisplayName, testIndex: -1, ctxt.TestCase.Traits.ToReadOnly());
 		var summary = new RunSummary { Total = 1 };
 
 		var testAssemblyUniqueID = ctxt.TestCase.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
@@ -52,12 +53,14 @@ public class ExecutionErrorTestCaseRunner : TestCaseRunner<TestCaseRunnerContext
 		var testStarting = new _TestStarting
 		{
 			AssemblyUniqueID = testAssemblyUniqueID,
+			Explicit = false,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			TestDisplayName = test.DisplayName,
+			TestDisplayName = test.TestDisplayName,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = test.UniqueID
+			TestUniqueID = test.UniqueID,
+			Traits = test.Traits,
 		};
 
 		if (!ctxt.MessageBus.QueueMessage(testStarting))

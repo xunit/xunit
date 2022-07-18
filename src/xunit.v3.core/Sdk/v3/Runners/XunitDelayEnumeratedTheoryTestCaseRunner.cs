@@ -103,7 +103,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 
 					var baseDisplayName = dataRow.TestDisplayName ?? dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName)) ?? ctxt.DisplayName;
 					var theoryDisplayName = ctxt.TestCase.TestMethod.Method.GetDisplayNameWithArguments(baseDisplayName, convertedDataRow, resolvedTypes);
-					var test = CreateTest(ctxt, dataRow.Explicit, theoryDisplayName, testIndex++);
+					var traits = TestIntrospectionHelper.GetTraits(ctxt.TestCase.TestMethod, dataAttribute, dataRow);
+					var test = CreateTest(ctxt, dataRow.Explicit, theoryDisplayName, testIndex++, traits.ToReadOnly());
 					var skipReason = dataRow.Skip ?? dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip)) ?? ctxt.SkipReason;
 
 					ctxt.DiscoveredTests.Add((test, methodToRun, convertedDataRow, skipReason));
@@ -205,7 +206,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	RunSummary RunTest_DataDiscoveryException(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
 		// Use -1 for the index here so we don't collide with any legitimate test IDs that might've been used
-		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.DisplayName, testIndex: -1);
+		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.DisplayName, testIndex: -1, ctxt.TestCase.Traits);
 
 		var testAssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID;
 		var testCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID;
@@ -216,12 +217,14 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 		var testStarting = new _TestStarting
 		{
 			AssemblyUniqueID = testAssemblyUniqueID,
+			Explicit = false,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			TestDisplayName = test.DisplayName,
+			TestDisplayName = test.TestDisplayName,
 			TestMethodUniqueID = testMethodUniqueID,
-			TestUniqueID = test.UniqueID
+			TestUniqueID = test.UniqueID,
+			Traits = test.Traits,
 		};
 
 		if (!ctxt.MessageBus.QueueMessage(testStarting))
