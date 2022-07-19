@@ -56,10 +56,10 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 		this.testCaseDisplayName = Guard.ArgumentNotNull(testCaseDisplayName);
 		this.uniqueID = Guard.ArgumentNotNull(uniqueID);
 
+		this.traits = new(StringComparer.OrdinalIgnoreCase);
 		if (traits != null)
-			this.traits = new Dictionary<string, List<string>>(traits, StringComparer.OrdinalIgnoreCase);
-		else
-			this.traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			foreach (var kvp in traits)
+				this.traits.GetOrAdd(kvp.Key).AddRange(kvp.Value);
 
 		foreach (var testMethodArgument in TestMethodArguments)
 			disposalTracker.Add(testMethodArgument);

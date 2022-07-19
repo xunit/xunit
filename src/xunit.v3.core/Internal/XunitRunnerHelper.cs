@@ -51,6 +51,7 @@ public static class XunitRunnerHelper
 				TestDisplayName = testCase.TestCaseDisplayName,
 				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
 				TestUniqueID = testUniqueID,
+				Timeout = 0,
 				Traits = testCase.Traits,
 			};
 			messageBus.QueueMessage(testStarting);

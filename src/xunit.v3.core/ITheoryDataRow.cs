@@ -30,6 +30,18 @@ public interface ITheoryDataRow
 	string? TestDisplayName { get; }
 
 	/// <summary>
+	/// A value greater than zero marks the test as having a timeout, and gets or sets the
+	/// timeout (in milliseconds). A non-<c>null</c> value here overrides any inherited value
+	/// from the <see cref="DataAttribute"/> or the <see cref="TheoryAttribute"/>.
+	/// </summary>
+	/// <remarks>
+	/// WARNING: Using this with parallelization turned on will result in undefined behavior.
+	/// Timeout is only supported when parallelization is disabled, either globally or with
+	/// a parallelization-disabled test collection.
+	/// </remarks>
+	int? Timeout { get; }
+
+	/// <summary>
 	/// Gets the trait values associated with this theory data row. If there are none, you may either
 	/// return a <c>null</c> or empty dictionary.
 	/// </summary>

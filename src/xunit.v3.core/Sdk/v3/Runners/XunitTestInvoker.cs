@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -199,11 +200,9 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		XunitTestInvokerContext ctxt,
 		object? testClassInstance)
 	{
-		var testCase = (IXunitTestCase)ctxt.Test.TestCase;
-
 		return
-			testCase.Timeout > 0
-				? InvokeTimeoutTestMethodAsync(ctxt, testClassInstance, testCase.Timeout)
+			ctxt.Test.Timeout > 0
+				? InvokeTimeoutTestMethodAsync(ctxt, testClassInstance, ctxt.Test.Timeout)
 				: base.InvokeTestMethodAsync(ctxt, testClassInstance);
 	}
 
@@ -212,16 +211,26 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		object? testClassInstance,
 		int timeout)
 	{
-		if (!AsyncUtility.IsAsync(ctxt.TestMethod))
-			throw TestTimeoutException.ForIncompatibleTest();
+		var stopwatch = Stopwatch.StartNew();
 
-		var baseTask = base.InvokeTestMethodAsync(ctxt, testClassInstance).AsTask();
-		var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
+		try
+		{
+			if (!AsyncUtility.IsAsync(ctxt.TestMethod))
+				throw TestTimeoutException.ForIncompatibleTest();
 
-		if (resultTask != baseTask)
-			throw TestTimeoutException.ForTimedOutTest(timeout);
+			var baseTask = base.InvokeTestMethodAsync(ctxt, testClassInstance).AsTask();
+			var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
 
-		return await baseTask;
+			if (resultTask != baseTask)
+				throw TestTimeoutException.ForTimedOutTest(timeout);
+
+			return await baseTask;
+		}
+		catch (Exception ex)
+		{
+			ctxt.Aggregator.Add(ex);
+			return (decimal)stopwatch.Elapsed.TotalSeconds;
+		}
 	}
 
 	/// <summary>

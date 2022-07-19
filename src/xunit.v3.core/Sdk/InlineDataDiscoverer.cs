@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,10 +26,20 @@ public class InlineDataDiscoverer : IDataDiscoverer
 		// in Xunit3TheoryAcceptanceTests.InlineDataTests.SingleNullValuesWork).
 
 		var args = dataAttribute.GetConstructorArguments().Single() as IEnumerable<object?> ?? new object?[] { null };
+		var testDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
+		var timeout = dataAttribute.GetNamedArgument<int?>(nameof(DataAttribute.Timeout));
+
+		var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var traitsArray = dataAttribute.GetNamedArgument<string[]>(nameof(DataAttribute.Traits));
+		TestIntrospectionHelper.MergeTraitsInto(traits, traitsArray);
+
 		var theoryDataRow = new TheoryDataRow(args.ToArray())
 		{
 			Explicit = dataAttribute.GetNamedArgument<bool?>(nameof(DataAttribute.Explicit)),
 			Skip = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.Skip)),
+			TestDisplayName = testDisplayName,
+			Timeout = timeout,
+			Traits = traits,
 		};
 
 		return new(new[] { theoryDataRow });

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -865,6 +866,56 @@ public class Xunit3TheoryAcceptanceTests
 			[MemberData(nameof(MemberDataSource), Traits = new[] { "Location", "MemberData", "Discarded" })]
 			public void TestMethod(int x)
 			{ }
+		}
+	}
+
+	[Collection("Timeout Tests")]
+	public class DataAttributeTimeoutTests : AcceptanceTestV3
+	{
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async void TimeoutAcceptanceTest(bool preEnumerateTheories)
+		{
+			var stopwatch = Stopwatch.StartNew();
+			var results = await RunForResultsAsync(typeof(ClassUnderTest), preEnumerateTheories);
+			stopwatch.Stop();
+
+			Assert.Collection(
+				results.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningTask)}(delay: 10)", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningTask)}(delay: 100)", passed.TestDisplayName)
+			);
+			Assert.Collection(
+				results.OfType<TestFailedWithDisplayName>().OrderBy(f => f.TestDisplayName),
+				failed =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningTask)}(delay: 10000)", failed.TestDisplayName);
+					Assert.Equal("Test execution timed out after 42 milliseconds", failed.Messages.Single());
+				},
+				failed =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningTask)}(delay: 11000)", failed.TestDisplayName);
+					Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
+				}
+			);
+
+			Assert.True(stopwatch.ElapsedMilliseconds < 10000, "Elapsed time should be less than 10 seconds");
+		}
+
+		class ClassUnderTest
+		{
+			public static List<TheoryDataRow> MemberDataSource = new()
+			{
+				new TheoryDataRow(11000),
+				new TheoryDataRow(100) { Timeout = 10000 },
+			};
+
+			[Theory(Timeout = 42)]
+			[InlineData(10000)]
+			[InlineData(10, Timeout = 10000)]
+			[MemberData(nameof(MemberDataSource), Timeout = 10)]
+			public Task LongRunningTask(int delay) => Task.Delay(delay);
 		}
 	}
 

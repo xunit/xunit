@@ -728,6 +728,7 @@ public class Xunit2MessageAdapter
 			TestDisplayName = message.Test.DisplayName,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Timeout = 0,
 			Traits = message.TestCase.Traits.ToReadOnly(),
 		};
 	}

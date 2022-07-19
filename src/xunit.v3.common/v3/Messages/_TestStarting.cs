@@ -23,6 +23,9 @@ public class _TestStarting : _TestMessage, _ITestMetadata
 	}
 
 	/// <inheritdoc/>
+	public int Timeout { get; set; }
+
+	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 	{
 		get => traits;

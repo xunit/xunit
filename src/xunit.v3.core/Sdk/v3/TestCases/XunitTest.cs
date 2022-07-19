@@ -21,17 +21,20 @@ public class XunitTest : _ITest
 	/// <param name="testDisplayName">The display name for this test.</param>
 	/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
 	/// <param name="traits">The traits for the given test.</param>
+	/// <param name="timeout">The timeout for the test.</param>
 	public XunitTest(
 		IXunitTestCase testCase,
 		bool? @explicit,
 		string testDisplayName,
 		int testIndex,
-		IReadOnlyDictionary<string, IReadOnlyList<string>> traits)
+		IReadOnlyDictionary<string, IReadOnlyList<string>> traits,
+		int timeout)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		this.@explicit = @explicit;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
+		Timeout = timeout;
 
 		Guard.ArgumentNotNull(traits);
 
@@ -49,12 +52,14 @@ public class XunitTest : _ITest
 		bool? @explicit,
 		string testDisplayName,
 		string uniqueID,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null)
+		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		int timeout = 0)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		this.@explicit = @explicit;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
+		Timeout = timeout;
 
 		if (traits == null)
 			Traits = EmptyDictionary;
@@ -80,6 +85,9 @@ public class XunitTest : _ITest
 
 	/// <inheritdoc/>
 	public string TestDisplayName { get; }
+
+	/// <inheritdoc/>
+	public int Timeout { get; }
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }

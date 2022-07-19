@@ -74,6 +74,7 @@ public abstract class TestRunner<TContext>
 				TestDisplayName = ctxt.Test.TestDisplayName,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Timeout = ctxt.Test.Timeout,
 				Traits = ctxt.Test.Traits,
 			};
 

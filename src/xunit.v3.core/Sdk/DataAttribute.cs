@@ -16,7 +16,6 @@ namespace Xunit.Sdk;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public abstract class DataAttribute : Attribute
 {
-	static readonly Dictionary<string, List<string>> emptyTraits = new();
 	static readonly MethodInfo? tupleIndexerGetter;
 	static readonly MethodInfo? tupleLengthGetter;
 	static readonly Type? tupleType;
@@ -78,6 +77,34 @@ public abstract class DataAttribute : Attribute
 	public string? TestDisplayName { get; set; }
 
 	/// <summary>
+	/// A value greater than zero marks the test as having a timeout, and gets or sets the
+	/// timeout (in milliseconds). Setting a value here overrides any inherited value
+	/// from the <see cref="TheoryAttribute"/>.
+	/// </summary>
+	/// <remarks>
+	/// WARNING: Using this with parallelization turned on will result in undefined behavior.
+	/// Timeout is only supported when parallelization is disabled, either globally or with
+	/// a parallelization-disabled test collection.
+	/// </remarks>
+	public int Timeout
+	{
+		get => TimeoutWithoutDefaultValue ?? 0;
+		set => TimeoutWithoutDefaultValue = value;
+	}
+
+	/// <summary>
+	/// Gets the value for <see cref="Timeout"/>, except that it keeps track of whether it has been set
+	/// or not, and returns <c>null</c> if it hasn't been set.
+	/// </summary>
+	/// <remarks>
+	/// Since attribute initializers cannot accept nullable integer values, this secondary attribute value
+	/// (that cannot be externally set) is required to keep track of whether <see cref="Timeout"/> has been
+	/// set by the user or not. At reflection time, we can peer into the <see cref="CustomAttributeData"/>,
+	/// but once the attribute instance has been created, this is the only way to know for sure.
+	/// </remarks>
+	protected int? TimeoutWithoutDefaultValue { get; set; }
+
+	/// <summary>
 	/// Gets or sets a set of traits for the associated data. The data is pushed as an array of
 	/// string that are key/value pairs (f.e., <c>new[] { "key1", "value1", "key2", "value2" }</c>).
 	/// </summary>
@@ -114,19 +141,36 @@ public abstract class DataAttribute : Attribute
 		Guard.ArgumentNotNull(dataRow);
 
 		if (dataRow is ITheoryDataRow theoryDataRow)
+		{
+			var dataRowTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+			if (theoryDataRow.Traits != null)
+				foreach (var kvp in theoryDataRow.Traits)
+					dataRowTraits.GetOrAdd(kvp.Key).AddRange(kvp.Value);
+
+			MergeTraitsInto(dataRowTraits);
+
 			return new TheoryDataRow(theoryDataRow.GetData())
 			{
 				Explicit = theoryDataRow.Explicit ?? ExplicitWithoutDefaultValue,
 				Skip = theoryDataRow.Skip ?? Skip,
-				TestDisplayName = theoryDataRow.TestDisplayName,
-				Traits = theoryDataRow.Traits ?? emptyTraits,
+				TestDisplayName = theoryDataRow.TestDisplayName ?? TestDisplayName,
+				Timeout = theoryDataRow.Timeout ?? TimeoutWithoutDefaultValue,
+				Traits = dataRowTraits,
 			};
+		}
+
+		var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		MergeTraitsInto(traits);
 
 		if (dataRow is object?[] array)
 			return new TheoryDataRow(array)
 			{
 				Explicit = ExplicitWithoutDefaultValue,
 				Skip = Skip,
+				TestDisplayName = TestDisplayName,
+				Timeout = TimeoutWithoutDefaultValue,
+				Traits = traits,
 			};
 
 		if (tupleType != null && tupleIndexerGetter != null && tupleLengthGetter != null)
@@ -145,6 +189,9 @@ public abstract class DataAttribute : Attribute
 					{
 						Explicit = ExplicitWithoutDefaultValue,
 						Skip = Skip,
+						TestDisplayName = TestDisplayName,
+						Timeout = TimeoutWithoutDefaultValue,
+						Traits = traits,
 					};
 				}
 			}
@@ -165,4 +212,7 @@ public abstract class DataAttribute : Attribute
 	/// <returns>One or more rows of theory data. Each invocation of the test method
 	/// is represented by a single instance of <see cref="ITheoryDataRow"/>.</returns>
 	public abstract ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod);
+
+	void MergeTraitsInto(Dictionary<string, List<string>> traits) =>
+		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
 }

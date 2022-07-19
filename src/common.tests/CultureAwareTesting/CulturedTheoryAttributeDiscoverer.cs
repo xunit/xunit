@@ -13,14 +13,12 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
-		_IAttributeInfo dataAttribute,
 		ITheoryDataRow dataRow,
 		object?[] testMethodArguments)
 	{
 		var cultures = GetCultures(theoryAttribute);
-		var dataAttributeDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
-		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments, baseDisplayName: dataAttributeDisplayName);
-		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataAttribute, dataRow);
+		var details = TestIntrospectionHelper.GetTestCaseDetailsForTheoryDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
 
 		var result = cultures.Select(
 			// TODO: How do we get source information in here?

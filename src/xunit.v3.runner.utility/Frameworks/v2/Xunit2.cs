@@ -452,6 +452,7 @@ public class Xunit2 : IFrontController
 						TestDisplayName = testCase.DisplayName,
 						TestMethodUniqueID = testMethodUniqueID,
 						TestUniqueID = testUniqueID,
+						Timeout = 0,
 						Traits = testCaseTraits,
 					});
 

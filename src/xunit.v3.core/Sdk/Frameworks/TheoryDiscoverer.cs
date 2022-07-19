@@ -20,7 +20,6 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
-	/// <param name="dataAttribute">The data attribute that discovered the data.</param>
 	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
 	/// <returns>The test cases</returns>
@@ -28,20 +27,17 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo theoryAttribute,
-		_IAttributeInfo dataAttribute,
 		ITheoryDataRow dataRow,
 		object?[] testMethodArguments)
 	{
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(theoryAttribute);
-		Guard.ArgumentNotNull(dataAttribute);
 		Guard.ArgumentNotNull(dataRow);
 		Guard.ArgumentNotNull(testMethodArguments);
 
-		var dataAttributeDisplayName = dataAttribute.GetNamedArgument<string>(nameof(DataAttribute.TestDisplayName));
-		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments, dataAttributeDisplayName);
-		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataAttribute, dataRow);
+		var details = TestIntrospectionHelper.GetTestCaseDetailsForTheoryDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, testMethodArguments);
+		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
 
 		// TODO: How do we get source information in here?
 		var testCase = new XunitTestCase(
@@ -260,7 +256,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 						try
 						{
-							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataAttribute, dataRow, resolvedData));
+							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData));
 						}
 						catch (Exception ex)
 						{

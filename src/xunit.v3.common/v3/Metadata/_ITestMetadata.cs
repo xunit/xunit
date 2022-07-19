@@ -18,6 +18,17 @@ public interface _ITestMetadata
 	string TestDisplayName { get; }
 
 	/// <summary>
+	/// A value greater than zero marks the test as having a timeout, and gets or sets the
+	/// timeout (in milliseconds).
+	/// </summary>
+	/// <remarks>
+	/// WARNING: Using this with parallelization turned on will result in undefined behavior.
+	/// Timeout is only supported when parallelization is disabled, either globally or with
+	/// a parallelization-disabled test collection.
+	/// </remarks>
+	int Timeout { get; }
+
+	/// <summary>
 	/// Gets the trait values associated with this test case. If
 	/// there are none, or the framework does not support traits,
 	/// this should return an empty dictionary (not <c>null</c>).
