@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
@@ -81,7 +82,7 @@ public class PropertyAssertsTests
 	{
 #pragma warning disable CS1998
 		[Fact]
-		public async void GuardClauses()
+		public async Task GuardClauses()
 		{
 			var ex1 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(null!, "propertyName", async delegate { }));
 			Assert.Equal("object", ex1.ParamName);
@@ -91,7 +92,7 @@ public class PropertyAssertsTests
 		}
 
 		[Fact]
-		public async void ExceptionThrownWhenPropertyNotChanged()
+		public async Task ExceptionThrownWhenPropertyNotChanged()
 		{
 			var obj = new NotifiedClass();
 
@@ -104,7 +105,7 @@ public class PropertyAssertsTests
 		}
 
 		[Fact]
-		public async void ExceptionThrownWhenWrongPropertyChangedAsync()
+		public async Task ExceptionThrownWhenWrongPropertyChangedAsync()
 		{
 			var obj = new NotifiedClass();
 
@@ -117,7 +118,7 @@ public class PropertyAssertsTests
 		}
 
 		[Fact]
-		public async void NoExceptionThrownWhenPropertyChangedAsync()
+		public async Task NoExceptionThrownWhenPropertyChangedAsync()
 		{
 			var obj = new NotifiedClass();
 
@@ -129,7 +130,7 @@ public class PropertyAssertsTests
 		}
 
 		[Fact]
-		public async void NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty()
+		public async Task NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty()
 		{
 			var obj = new NotifiedClass();
 

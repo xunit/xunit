@@ -550,7 +550,7 @@ public class CollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Distinct<int>(null!));
-			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(Array.Empty<object>(), null!));
+			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(new object[0], null!));
 		}
 
 		[Fact]

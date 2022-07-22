@@ -152,7 +152,7 @@ public class ExceptionAssertsTests
 	public class ThrowsAsync_Generic
 	{
 		[Fact]
-		public static async void ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			try
 			{
@@ -165,7 +165,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void ExpectExceptionButCodeThrowsDerivedException()
+		public static async Task ExpectExceptionButCodeThrowsDerivedException()
 		{
 			try
 			{
@@ -180,7 +180,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void UnexpectedExceptionCapturedAsyncAsInnerException()
+		public static async Task UnexpectedExceptionCapturedAsyncAsInnerException()
 		{
 			try
 			{
@@ -195,7 +195,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static Task testCode() => Task.Run(() => throw new ArgumentException());
 
@@ -209,7 +209,7 @@ public class ExceptionAssertsTests
 	public class ThrowsAsync_Generic_ValueTask
 	{
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			try
 			{
@@ -222,7 +222,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeThrowsDerivedException()
+		public static async Task ExpectExceptionButCodeThrowsDerivedException()
 		{
 			try
 			{
@@ -237,7 +237,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask UnexpectedExceptionCapturedAsyncAsInnerException()
+		public static async Task UnexpectedExceptionCapturedAsyncAsInnerException()
 		{
 			try
 			{
@@ -252,7 +252,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static ValueTask testCode() => throw new ArgumentException();
 
@@ -384,7 +384,7 @@ public class ExceptionAssertsTests
 	public class ThrowsAnyAsync_Generic
 	{
 		[Fact]
-		public static async void ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			try
 			{
@@ -397,7 +397,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static Task testCode() => Task.Run(() => throw new ArgumentException());
 
@@ -407,7 +407,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void GotDerivedException()
+		public static async Task GotDerivedException()
 		{
 			try
 			{
@@ -426,7 +426,7 @@ public class ExceptionAssertsTests
 	public class ThrowsAnyAsync_Generic_ValueTask
 	{
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			try
 			{
@@ -439,7 +439,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static ValueTask testCode() => throw new ArgumentException();
 
@@ -449,7 +449,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask GotDerivedException()
+		public static async Task GotDerivedException()
 		{
 			try
 			{
@@ -561,7 +561,7 @@ public class ExceptionAssertsTests
 	public class ThrowsAsync_NonGeneric
 	{
 		[Fact]
-		public static async void ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			try
 			{
@@ -576,7 +576,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void ExpectExceptionButCodeThrowsDerivedException()
+		public static async Task ExpectExceptionButCodeThrowsDerivedException()
 		{
 			try
 			{
@@ -591,7 +591,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static Task testCode() => Task.Run(() => throw new ArgumentException());
 
@@ -606,7 +606,7 @@ public class ExceptionAssertsTests
 	public class ThrowsAsync_NonGeneric_ValueTask
 	{
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			try
 			{
@@ -621,7 +621,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeThrowsDerivedException()
+		public static async Task ExpectExceptionButCodeThrowsDerivedException()
 		{
 			try
 			{
@@ -636,7 +636,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static ValueTask testCode() => throw new ArgumentException();
 
@@ -733,7 +733,7 @@ public class ExceptionAssertsTests
 	public class ThrowsArgumentAsync
 	{
 		[Fact]
-		public static async void ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			static Task testCode() => Task.Run(() => { });
 
@@ -744,7 +744,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void ExpectExceptionButCodeThrowsDerivedException()
+		public static async Task ExpectExceptionButCodeThrowsDerivedException()
 		{
 			static Task testCode() => Task.Run(() => throw new InvalidOperationException());
 
@@ -760,7 +760,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+		public static async Task StackTraceForThrowsIsOriginalThrowNotAssertThrows()
 		{
 			static Task testCode() => Task.Run(() => ThrowingMethod());
 
@@ -778,7 +778,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			var ex = await Assert.ThrowsAsync<ArgumentException>("paramName", () => Task.Run(() => { throw new ArgumentException("message", "paramName"); }));
 
@@ -786,7 +786,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void MismatchedParameterName()
+		public static async Task MismatchedParameterName()
 		{
 			static Task testCode() => Task.Run(() => { throw new ArgumentException("message", "paramName2"); });
 
@@ -802,7 +802,7 @@ public class ExceptionAssertsTests
 	public class ThrowsArgumentAsync_ValueTask
 	{
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeDoesNotThrow()
+		public static async Task ExpectExceptionButCodeDoesNotThrow()
 		{
 			static ValueTask testCode() => default;
 
@@ -813,7 +813,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ExpectExceptionButCodeThrowsDerivedException()
+		public static async Task ExpectExceptionButCodeThrowsDerivedException()
 		{
 			static ValueTask testCode() => throw new InvalidOperationException();
 
@@ -829,7 +829,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+		public static async Task StackTraceForThrowsIsOriginalThrowNotAssertThrows()
 		{
 			static ValueTask testCode() => ThrowingMethod();
 
@@ -847,7 +847,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask GotExpectedException()
+		public static async Task GotExpectedException()
 		{
 			static ValueTask testCode() => throw new ArgumentException("message", "paramName");
 
@@ -857,7 +857,7 @@ public class ExceptionAssertsTests
 		}
 
 		[Fact]
-		public static async void MismatchedParameterName()
+		public static async Task MismatchedParameterName()
 		{
 			static ValueTask testCode() => throw new ArgumentException("message", "paramName2");
 

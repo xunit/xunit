@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.v3;
 
@@ -16,7 +17,7 @@ public class SkipAssertsTests
 		}
 
 		[Fact]
-		public async void AcceptanceTest()
+		public async Task AcceptanceTest()
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
@@ -43,7 +44,7 @@ public class SkipAssertsTests
 		}
 
 		[Fact]
-		public async void AcceptanceTest()
+		public async Task AcceptanceTest()
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
@@ -81,7 +82,7 @@ public class SkipAssertsTests
 		}
 
 		[Fact]
-		public async void AcceptanceTest()
+		public async Task AcceptanceTest()
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
