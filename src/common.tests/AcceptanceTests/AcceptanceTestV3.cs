@@ -12,7 +12,7 @@ using Xunit.v3;
 
 public class AcceptanceTestV3
 {
-	public Task<List<_MessageSinkMessage>> RunAsync(
+	public ValueTask<List<_MessageSinkMessage>> RunAsync(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -21,7 +21,7 @@ public class AcceptanceTestV3
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
 			RunAsync(new[] { type }, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 
-	public Task<List<_MessageSinkMessage>> RunAsync(
+	public ValueTask<List<_MessageSinkMessage>> RunAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -56,10 +56,10 @@ public class AcceptanceTestV3
 			}
 		});
 
-		return tcs.Task;
+		return new(tcs.Task);
 	}
 
-	public async Task<List<TMessageType>> RunAsync<TMessageType>(
+	public async ValueTask<List<TMessageType>> RunAsync<TMessageType>(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -72,7 +72,7 @@ public class AcceptanceTestV3
 		return results.OfType<TMessageType>().ToList();
 	}
 
-	public async Task<List<TMessageType>> RunAsync<TMessageType>(
+	public async ValueTask<List<TMessageType>> RunAsync<TMessageType>(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -85,7 +85,7 @@ public class AcceptanceTestV3
 		return results.OfType<TMessageType>().ToList();
 	}
 
-	public Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
+	public ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -94,7 +94,7 @@ public class AcceptanceTestV3
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
 			RunForResultsAsync(new[] { type }, preEnumerateTheories, explicitOption, diagnosticMessageSink, internalDiagnosticMessageSink, additionalAssemblyAttributes);
 
-	public async Task<List<ITestResultWithDisplayName>> RunForResultsAsync(
+	public async ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -111,7 +111,7 @@ public class AcceptanceTestV3
 				.ToList();
 	}
 
-	public async Task<List<TResult>> RunForResultsAsync<TResult>(
+	public async ValueTask<List<TResult>> RunForResultsAsync<TResult>(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -124,7 +124,7 @@ public class AcceptanceTestV3
 		return results.OfType<TResult>().ToList();
 	}
 
-	public async Task<List<TResult>> RunForResultsAsync<TResult>(
+	public async ValueTask<List<TResult>> RunForResultsAsync<TResult>(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
