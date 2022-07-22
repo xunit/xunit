@@ -4,14 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner;
 using Xunit.Runner.Common;
 using Xunit.v3;
 
 public class DelegatingLongRunningTestDetectionSinkTests
 {
 	[Fact]
-	public async void ShortRunningTests_NoMessages()
+	public async ValueTask ShortRunningTests_NoMessages()
 	{
 		var events = new List<LongRunningTestsSummary>();
 
@@ -27,7 +26,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	}
 
 	[Fact]
-	public async void LongRunningTest_Once_WithCallback()
+	public async ValueTask LongRunningTest_Once_WithCallback()
 	{
 		var events = new List<LongRunningTestsSummary>();
 
@@ -48,7 +47,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	}
 
 	[Fact]
-	public async void OnlyIncludesLongRunningTests()
+	public async ValueTask OnlyIncludesLongRunningTests()
 	{
 		var events = new List<LongRunningTestsSummary>();
 
@@ -73,7 +72,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	}
 
 	[Fact]
-	public async void LongRunningTest_Twice_WithCallback()
+	public async ValueTask LongRunningTest_Twice_WithCallback()
 	{
 		var events = new List<LongRunningTestsSummary>();
 
@@ -108,7 +107,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	}
 
 	[Fact]
-	public async void LongRunningTest_Once_WithDiagnosticMessageSink()
+	public async ValueTask LongRunningTest_Once_WithDiagnosticMessageSink()
 	{
 		var events = new List<_DiagnosticMessage>();
 		var diagSink = Substitute.For<_IMessageSink>();
@@ -135,7 +134,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 	}
 
 	[Fact]
-	public async void LongRunningTest_Twice_WithDiagnosticMessageSink()
+	public async ValueTask LongRunningTest_Twice_WithDiagnosticMessageSink()
 	{
 		var events = new List<_DiagnosticMessage>();
 		var diagSink = Substitute.For<_IMessageSink>();
