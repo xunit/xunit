@@ -12,7 +12,7 @@ using TestState = TestDriven.Framework.TestState;
 public class ResultSinkTests
 {
 	[Fact]
-	public static async void SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
+	public static async ValueTask SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
 	{
 		var listener = Substitute.For<ITestListener>();
 		await using var sink = new ResultSink(listener, 42);
@@ -26,7 +26,7 @@ public class ResultSinkTests
 	public class RunState
 	{
 		[Fact]
-		public static async void DefaultRunStateIsNoTests()
+		public static async ValueTask DefaultRunStateIsNoTests()
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42);
@@ -38,7 +38,7 @@ public class ResultSinkTests
 		[InlineData(TestRunState.NoTests)]
 		[InlineData(TestRunState.Error)]
 		[InlineData(TestRunState.Success)]
-		public static async void FailureSetsStateToFailed(TestRunState initialState)
+		public static async ValueTask FailureSetsStateToFailed(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
@@ -52,7 +52,7 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static async void Success_MovesToSuccess()
+		public static async ValueTask Success_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
@@ -69,7 +69,7 @@ public class ResultSinkTests
 		[InlineData(TestRunState.Error)]
 		[InlineData(TestRunState.Failure)]
 		[InlineData(TestRunState.Success)]
-		public static async void Success_StaysInCurrentState(TestRunState initialState)
+		public static async ValueTask Success_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
@@ -83,7 +83,7 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static async void Skip_MovesToSuccess()
+		public static async ValueTask Skip_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
@@ -100,7 +100,7 @@ public class ResultSinkTests
 		[InlineData(TestRunState.Error)]
 		[InlineData(TestRunState.Failure)]
 		[InlineData(TestRunState.Success)]
-		public static async void Skip_StaysInCurrentState(TestRunState initialState)
+		public static async ValueTask Skip_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
 			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
@@ -343,7 +343,7 @@ public class ResultSinkTests
 	public class MessageConversion
 	{
 		[Fact]
-		public static async void ConvertsTestPassed()
+		public static async ValueTask ConvertsTestPassed()
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
@@ -367,7 +367,7 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static async void ConvertsTestFailed()
+		public static async ValueTask ConvertsTestFailed()
 		{
 			(string?[] ExceptionTypes, string[] Messages, string?[] StackTraces, int[] ExceptionParentIndices, FailureCause _) errorMetadata;
 
@@ -411,7 +411,7 @@ public class ResultSinkTests
 		}
 
 		[Fact]
-		public static async void ConvertsTestSkipped()
+		public static async ValueTask ConvertsTestSkipped()
 		{
 			TestResult? testResult = null;
 			var listener = Substitute.For<ITestListener>();
