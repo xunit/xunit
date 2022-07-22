@@ -156,7 +156,7 @@ public class ArgumentFormatterTests
 		}
 
 		[Fact]
-		public static async void TaskValue()
+		public static async Task TaskValue()
 		{
 			var task = Task.Run(() => { });
 			await task;
