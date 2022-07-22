@@ -12,7 +12,7 @@ public class XunitTestInvokerTests
 	public class Messages
 	{
 		[Fact]
-		public static async void Success()
+		public static async ValueTask Success()
 		{
 			var messageBus = new SpyMessageBus();
 			var attribute = new SpyBeforeAfterTest();
@@ -74,7 +74,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailedBefore()
+		public static async ValueTask FailedBefore()
 		{
 			var messageBus = new SpyMessageBus();
 			var attribute = new SpyBeforeAfterTest { ThrowInBefore = true };
@@ -93,7 +93,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailedAfter()
+		public static async ValueTask FailedAfter()
 		{
 			var messageBus = new SpyMessageBus();
 			var attribute = new SpyBeforeAfterTest { ThrowInAfter = true };
@@ -122,7 +122,7 @@ public class XunitTestInvokerTests
 	public class ExecutionOrder
 	{
 		[Fact]
-		public static async void Successful()
+		public static async ValueTask Successful()
 		{
 			var messages = new List<string>();
 			var attribute1 = new RecordingBeforeAfter(messages, 1);
@@ -144,7 +144,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailingBefore_First()
+		public static async ValueTask FailingBefore_First()
 		{
 			var messages = new List<string>();
 			var attribute1 = new RecordingBeforeAfter(messages, 1) { ThrowInBefore = true };
@@ -162,7 +162,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailingBefore_Second()
+		public static async ValueTask FailingBefore_Second()
 		{
 			var messages = new List<string>();
 			var attribute1 = new RecordingBeforeAfter(messages, 1);
@@ -183,7 +183,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailingAfter_First()
+		public static async ValueTask FailingAfter_First()
 		{
 			var messages = new List<string>();
 			var attribute1 = new RecordingBeforeAfter(messages, 1) { ThrowInAfter = true };
@@ -206,7 +206,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailingAfter_Second()
+		public static async ValueTask FailingAfter_Second()
 		{
 			var messages = new List<string>();
 			var attribute1 = new RecordingBeforeAfter(messages, 1);
@@ -229,7 +229,7 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public static async void FailingTest()
+		public static async ValueTask FailingTest()
 		{
 			var messages = new List<string>();
 			var attribute1 = new RecordingBeforeAfter(messages, 1);

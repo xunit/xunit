@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.v3;
 
 public class CollectionAcceptanceTests : AcceptanceTestV3
 {
 	[Fact]
-	public async void TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
+	public async ValueTask TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
 	{
 		var results = await RunAsync(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });
 

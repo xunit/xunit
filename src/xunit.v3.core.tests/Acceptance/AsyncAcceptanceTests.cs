@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class AsyncAcceptanceTests : AcceptanceTestV3
@@ -15,7 +16,7 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 		var results = await RunAsync<_TestFailed>(classUnderTest);
 
 		var failed = Assert.Single(results);
-		Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
+		Assert.Equal(typeof(EqualException).FullName, failed.ExceptionTypes.Single());
 	}
 
 	class ClassWithAsyncValueTask

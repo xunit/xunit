@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -18,7 +19,7 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 	}
 
 	[Fact]
-	public async void CanDiscoverTests()
+	public async ValueTask CanDiscoverTests()
 	{
 		Assert.SkipWhen(EnvironmentHelper.IsMono, "Mono does not fully support dynamic assemblies");
 
@@ -40,7 +41,7 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 	}
 
 	[Fact]
-	public async void CanRunTests()
+	public async ValueTask CanRunTests()
 	{
 		Assert.SkipWhen(EnvironmentHelper.IsMono, "Mono does not fully support dynamic assemblies");
 

@@ -11,7 +11,7 @@ using Xunit.v3;
 public class TestMethodRunnerTests
 {
 	[Fact]
-	public static async void Messages()
+	public static async ValueTask Messages()
 	{
 		var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
 		var messageBus = new SpyMessageBus();
@@ -45,7 +45,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInQueueOfTestMethodStarting_DoesNotQueueTestMethodFinished_DoesNotRunTestCases()
+	public static async ValueTask FailureInQueueOfTestMethodStarting_DoesNotQueueTestMethodFinished_DoesNotRunTestCases()
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
@@ -72,7 +72,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void RunTestCaseAsync_AggregatorIncludesPassedInExceptions()
+	public static async ValueTask RunTestCaseAsync_AggregatorIncludesPassedInExceptions()
 	{
 		var messageBus = new SpyMessageBus();
 		var ex = new DivideByZeroException();
@@ -85,7 +85,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInAfterTestMethodStarting_GivesErroredAggregatorToTestCaseRunner_NoCleanupFailureMessage()
+	public static async ValueTask FailureInAfterTestMethodStarting_GivesErroredAggregatorToTestCaseRunner_NoCleanupFailureMessage()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestMethodRunner.Create(messageBus);
@@ -99,7 +99,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInBeforeTestMethodFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestMethodStarting()
+	public static async ValueTask FailureInBeforeTestMethodFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestMethodStarting()
 	{
 		var messageBus = new SpyMessageBus();
 		var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
@@ -116,7 +116,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestMethodStarting_DoesNotCallExtensibilityMethods()
+	public static async ValueTask Cancellation_TestMethodStarting_DoesNotCallExtensibilityMethods()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodStarting));
 		var runner = TestableTestMethodRunner.Create(messageBus);
@@ -129,7 +129,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestMethodFinished_CallsExtensibilityMethods()
+	public static async ValueTask Cancellation_TestMethodFinished_CallsExtensibilityMethods()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodFinished));
 		var runner = TestableTestMethodRunner.Create(messageBus);
@@ -142,7 +142,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestMethodCleanupFailure_SetsCancellationToken()
+	public static async ValueTask Cancellation_TestMethodCleanupFailure_SetsCancellationToken()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestMethodCleanupFailure));
 		var runner = TestableTestMethodRunner.Create(messageBus);
@@ -154,7 +154,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void SignalingCancellationStopsRunningMethods()
+	public static async ValueTask SignalingCancellationStopsRunningMethods()
 	{
 		var passing = Mocks.TestCase<ClassUnderTest>("Passing");
 		var other = Mocks.TestCase<ClassUnderTest>("Other");
@@ -167,7 +167,7 @@ public class TestMethodRunnerTests
 	}
 
 	[Fact]
-	public static async void TestContextInspection()
+	public static async ValueTask TestContextInspection()
 	{
 		var runner = TestableTestMethodRunner.Create();
 

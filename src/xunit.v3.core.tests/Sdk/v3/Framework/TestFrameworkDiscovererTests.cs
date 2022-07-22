@@ -39,7 +39,7 @@ public class TestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public async void TestContextVisibility()
+		public async ValueTask TestContextVisibility()
 		{
 			var mockType = Mocks.TypeInfo("MockType");
 			var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);

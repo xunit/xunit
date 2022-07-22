@@ -10,7 +10,7 @@ using Xunit.v3;
 public class XunitTestClassRunnerTests
 {
 	[Fact]
-	public static async void ClassCannotBeDecoratedWithICollectionFixture()
+	public static async ValueTask ClassCannotBeDecoratedWithICollectionFixture()
 	{
 		var testCase = TestData.XunitTestCase<ClassWithCollectionFixture>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -28,7 +28,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void TestClassCannotHaveMoreThanOneConstructor()
+	public static async ValueTask TestClassCannotHaveMoreThanOneConstructor()
 	{
 		var testCase = TestData.XunitTestCase<ClassWithTwoConstructors>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -49,7 +49,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void TestClassCanHavePublicAndPrivateConstructor()
+	public static async ValueTask TestClassCanHavePublicAndPrivateConstructor()
 	{
 		var testCase = TestData.XunitTestCase<ClassWithMixedConstructors>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -69,7 +69,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void TestClassCanHaveStaticConstructor()
+	public static async ValueTask TestClassCanHaveStaticConstructor()
 	{
 		var testCase = TestData.XunitTestCase<ClassWithStaticConstructor>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -89,7 +89,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void CreatesFixturesFromClassAndCollection()
+	public static async ValueTask CreatesFixturesFromClassAndCollection()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
 		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing", collection);
@@ -106,7 +106,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposesFixtures()
+	public static async ValueTask DisposesFixtures()
 	{
 		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -119,7 +119,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
+	public static async ValueTask DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
 	{
 		var testCase = TestData.XunitTestCase<TestClassForFixtureAsyncDisposableUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -169,7 +169,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void MultiplePublicConstructorsOnClassFixture_ReturnsError()
+	public static async ValueTask MultiplePublicConstructorsOnClassFixture_ReturnsError()
 	{
 		var testCase = TestData.XunitTestCase<TestClassWithMultiCtorClassFixture>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -193,7 +193,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void UnresolvedConstructorParameterOnClassFixture_ReturnsError()
+	public static async ValueTask UnresolvedConstructorParameterOnClassFixture_ReturnsError()
 	{
 		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -205,7 +205,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void CanInjectCollectionFixtureIntoClassFixture()
+	public static async ValueTask CanInjectCollectionFixtureIntoClassFixture()
 	{
 		var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
 		var collectionFixture = new DependentCollectionFixture();
@@ -238,7 +238,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void CanInjectMessageSinkIntoClassFixture()
+	public static async ValueTask CanInjectMessageSinkIntoClassFixture()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -255,7 +255,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void CanLogSinkMessageFromClassFixture()
+	public static async ValueTask CanLogSinkMessageFromClassFixture()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -288,7 +288,7 @@ public class XunitTestClassRunnerTests
 	public class TestCaseOrderer
 	{
 		[Fact]
-		public static async void UsesCustomTestOrderer()
+		public static async ValueTask UsesCustomTestOrderer()
 		{
 			var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing");
 			var runner = TestableXunitTestClassRunner.Create(testCase);
@@ -299,7 +299,7 @@ public class XunitTestClassRunnerTests
 		}
 
 		[Fact]
-		public static async void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
+		public static async ValueTask SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
 			TestContext.Current!.DiagnosticMessageSink = spy;
@@ -321,7 +321,7 @@ public class XunitTestClassRunnerTests
 		}
 
 		[Fact]
-		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
+		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
 			TestContext.Current!.DiagnosticMessageSink = spy;
@@ -356,7 +356,7 @@ public class XunitTestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void PassesFixtureValuesToConstructor()
+	public static async ValueTask PassesFixtureValuesToConstructor()
 	{
 		var testCase = TestData.XunitTestCase<ClassUnderTest>("Passing");
 		var runner = TestableXunitTestClassRunner.Create(testCase, 42, "Hello, world!", 21.12m);

@@ -13,7 +13,7 @@ public class Xunit3AcceptanceTests
 	public class EndToEndMessageInspection : AcceptanceTestV3
 	{
 		[Fact]
-		public async void NoTests()
+		public async ValueTask NoTests()
 		{
 			var results = await RunAsync(typeof(NoTestsClass));
 
@@ -32,7 +32,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void SinglePassingTest()
+		public async ValueTask SinglePassingTest()
 		{
 			string? observedAssemblyID = default;
 			string? observedCollectionID = default;
@@ -227,7 +227,7 @@ public class Xunit3AcceptanceTests
 	public class SkippedTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void SingleSkippedTest()
+		public async ValueTask SingleSkippedTest()
 		{
 			var results = await RunAsync(typeof(SingleSkippedTestClass));
 
@@ -305,7 +305,7 @@ public class Xunit3AcceptanceTests
 		// a Core i7-7820HK, the execution time is ~ 400 milliseconds for what should be about 10 milliseconds of wait
 		// time. If this test becomes flaky, a higher value than 10000 could be considered.
 		[Fact]
-		public async void TimedOutTest()
+		public async ValueTask TimedOutTest()
 		{
 			var stopwatch = Stopwatch.StartNew();
 			var results = await RunForResultsAsync(typeof(ClassUnderTest));
@@ -348,7 +348,7 @@ public class Xunit3AcceptanceTests
 	public class NonStartedTasks : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestWithUnstartedTaskThrows()
+		public async ValueTask TestWithUnstartedTaskThrows()
 		{
 			var stopwatch = Stopwatch.StartNew();
 			var results = await RunAsync(typeof(ClassUnderTest));
@@ -370,7 +370,7 @@ public class Xunit3AcceptanceTests
 	public class FailingTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void SingleFailingTest()
+		public async ValueTask SingleFailingTest()
 		{
 			var results = await RunAsync(typeof(SingleFailingTestClass));
 
@@ -385,7 +385,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void SingleFailingTestReturningValueTask()
+		public async ValueTask SingleFailingTestReturningValueTask()
 		{
 			var results = await RunAsync(typeof(SingleFailingValueTaskTestClass));
 
@@ -403,7 +403,7 @@ public class Xunit3AcceptanceTests
 	public class ClassFailures : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestFailureResultsFromThrowingCtorInTestClass()
+		public async ValueTask TestFailureResultsFromThrowingCtorInTestClass()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_CtorFailure));
 
@@ -412,7 +412,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void TestFailureResultsFromThrowingDisposeInTestClass()
+		public async ValueTask TestFailureResultsFromThrowingDisposeInTestClass()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
@@ -421,7 +421,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
+		public async ValueTask CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
@@ -477,7 +477,7 @@ public class Xunit3AcceptanceTests
 	public class StaticClassSupport : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestsCanBeInStaticClasses()
+		public async ValueTask TestsCanBeInStaticClasses()
 		{
 			var testMessages = await RunAsync(typeof(StaticClassUnderTest));
 
@@ -496,7 +496,7 @@ public class Xunit3AcceptanceTests
 	public class ErrorAggregation : AcceptanceTestV3
 	{
 		[Fact]
-		public async void EachTestMethodHasIndividualExceptionMessage()
+		public async ValueTask EachTestMethodHasIndividualExceptionMessage()
 		{
 			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
@@ -528,7 +528,7 @@ public class Xunit3AcceptanceTests
 	public class TestOrdering : AcceptanceTestV3
 	{
 		[Fact]
-		public async void OverrideOfOrderingAtCollectionLevel()
+		public async ValueTask OverrideOfOrderingAtCollectionLevel()
 		{
 			var testMessages = await RunAsync(typeof(TestClassUsingCollection));
 
@@ -558,7 +558,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void OverrideOfOrderingAtClassLevel()
+		public async ValueTask OverrideOfOrderingAtClassLevel()
 		{
 			var testMessages = await RunAsync(typeof(TestClassWithoutCollection));
 
@@ -598,7 +598,7 @@ public class Xunit3AcceptanceTests
 	public class TestNonParallelOrdering : AcceptanceTestV3
 	{
 		[Fact]
-		public async void NonParallelCollectionsRunLast()
+		public async ValueTask NonParallelCollectionsRunLast()
 		{
 			var testMessages = await RunAsync(new[] {
 				typeof(TestClassNonParallelCollection),
@@ -646,7 +646,7 @@ public class Xunit3AcceptanceTests
 	public class CustomFacts : AcceptanceTestV3
 	{
 		[Fact]
-		public async void CanUseCustomFactAttribute()
+		public async ValueTask CanUseCustomFactAttribute()
 		{
 			var msgs = await RunAsync(typeof(ClassWithCustomFact));
 
@@ -664,7 +664,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void CanUseCustomFactWithArrayParameters()
+		public async ValueTask CanUseCustomFactWithArrayParameters()
 		{
 			var msgs = await RunAsync(typeof(ClassWithCustomArrayFact));
 
@@ -687,7 +687,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void CannotMixMultipleFactDerivedAttributes()
+		public async ValueTask CannotMixMultipleFactDerivedAttributes()
 		{
 			var msgs = await RunAsync<_TestFailed>(typeof(ClassWithMultipleFacts));
 
@@ -707,7 +707,7 @@ public class Xunit3AcceptanceTests
 	public class TestContextAccessor : AcceptanceTestV3
 	{
 		[Fact]
-		public async void CanInjectTestContextAccessor()
+		public async ValueTask CanInjectTestContextAccessor()
 		{
 			var msgs = await RunAsync(typeof(ClassUnderTest));
 
@@ -740,7 +740,7 @@ public class Xunit3AcceptanceTests
 	public class TestOutput : AcceptanceTestV3
 	{
 		[Fact]
-		public async void SendOutputMessages()
+		public async ValueTask SendOutputMessages()
 		{
 			var msgs = await RunAsync(typeof(ClassUnderTest));
 
@@ -799,7 +799,7 @@ public class Xunit3AcceptanceTests
 	public class AsyncLifetime : AcceptanceTestV3
 	{
 		[Fact]
-		public async void AsyncLifetimeAcceptanceTest()
+		public async ValueTask AsyncLifetimeAcceptanceTest()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithAsyncLifetime));
 
@@ -843,7 +843,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void AsyncDisposableAcceptanceTest()
+		public async ValueTask AsyncDisposableAcceptanceTest()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithAsyncDisposable));
 
@@ -881,7 +881,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void ThrowingConstructor()
+		public async ValueTask ThrowingConstructor()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingCtor));
 
@@ -899,7 +899,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void ThrowingInitializeAsync()
+		public async ValueTask ThrowingInitializeAsync()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
 
@@ -920,7 +920,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void ThrowingDisposeAsync()
+		public async ValueTask ThrowingDisposeAsync()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
 
@@ -941,7 +941,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void ThrowingDisposeAsync_Disposable()
+		public async ValueTask ThrowingDisposeAsync_Disposable()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncDisposable_ThrowingDisposeAsync));
 
@@ -962,7 +962,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[Fact]
-		public async void FailingTest()
+		public async ValueTask FailingTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
 

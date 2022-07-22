@@ -16,7 +16,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class TheoryTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void OptionalParameters_Valid()
+		public async ValueTask OptionalParameters_Valid()
 		{
 			var results = await RunForResultsAsync(typeof(ClassWithOptionalParameters));
 
@@ -123,7 +123,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void ParamsParameters_Valid()
+		public async ValueTask ParamsParameters_Valid()
 		{
 			var results = await RunForResultsAsync(typeof(ClassWithParamsParameters));
 
@@ -258,7 +258,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void ImplicitExplicitConversions()
+		public async ValueTask ImplicitExplicitConversions()
 		{
 			var results = await RunForResultsAsync(typeof(ClassWithOperatorConversions));
 
@@ -384,7 +384,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void GenericParameter_Func_Valid()
+		public async ValueTask GenericParameter_Func_Valid()
 		{
 			var results = await RunForResultsAsync(typeof(ClassWithFuncMethod));
 
@@ -424,7 +424,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void Skipped()
+		public async ValueTask Skipped()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithSkips));
 
@@ -505,7 +505,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void GenericTheoryWithSerializableData()
+		public async ValueTask GenericTheoryWithSerializableData()
 		{
 			var results = await RunForResultsAsync(typeof(GenericWithSerializableData));
 
@@ -553,7 +553,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void GenericTheoryWithNonSerializableData()
+		public async ValueTask GenericTheoryWithNonSerializableData()
 		{
 			var results = await RunForResultsAsync(typeof(GenericWithNonSerializableData));
 
@@ -875,7 +875,7 @@ public class Xunit3TheoryAcceptanceTests
 		[Theory]
 		[InlineData(true)]
 		[InlineData(false)]
-		public async void TimeoutAcceptanceTest(bool preEnumerateTheories)
+		public async ValueTask TimeoutAcceptanceTest(bool preEnumerateTheories)
 		{
 			var stopwatch = Stopwatch.StartNew();
 			var results = await RunForResultsAsync(typeof(ClassUnderTest), preEnumerateTheories);
@@ -922,7 +922,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class InlineDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void RunsForEachDataElement()
+		public async ValueTask RunsForEachDataElement()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest));
 
@@ -945,7 +945,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void SingleNullValuesWork()
+		public async ValueTask SingleNullValuesWork()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForNullValues));
 
@@ -961,7 +961,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void ArraysWork()
+		public async ValueTask ArraysWork()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForArrays));
 
@@ -977,7 +977,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void ValueArraysWithObjectParameterInjectCorrectType()
+		public async ValueTask ValueArraysWithObjectParameterInjectCorrectType()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForValueArraysWithObjectParameter));
 
@@ -996,7 +996,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void AsyncTaskMethod_MultipleInlineDataAttributes()
+		public async ValueTask AsyncTaskMethod_MultipleInlineDataAttributes()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithAsyncTaskMethod));
 
@@ -1133,7 +1133,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class MissingDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void MissingDataThrows()
+		public async ValueTask MissingDataThrows()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithMissingData));
 
@@ -1154,7 +1154,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class DataConversionTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void IncompatibleDataThrows()
+		public async ValueTask IncompatibleDataThrows()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithIncompatibleData));
 
@@ -1172,7 +1172,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void ImplicitlyConvertibleDataPasses()
+		public async ValueTask ImplicitlyConvertibleDataPasses()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithImplicitlyConvertibleData));
 
@@ -1188,7 +1188,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void IConvertibleDataPasses()
+		public async ValueTask IConvertibleDataPasses()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithIConvertibleData));
 
@@ -1799,7 +1799,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class MethodDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void NonMatchingMethodInputDataThrows()
+		public async ValueTask NonMatchingMethodInputDataThrows()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithMismatchedMethodData));
 
@@ -1819,7 +1819,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void SubTypeInheritsTestsFromBaseType()
+		public async ValueTask SubTypeInheritsTestsFromBaseType()
 		{
 			var testMessages = await RunForResultsAsync(typeof(SubClassWithNoTests));
 
@@ -1845,7 +1845,7 @@ public class Xunit3TheoryAcceptanceTests
 		public class SubClassWithNoTests : BaseClassWithTestAndData { }
 
 		[Fact]
-		public async void CanPassParametersToDataMethod()
+		public async ValueTask CanPassParametersToDataMethod()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithParameterizedMethodData));
 
@@ -1875,7 +1875,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void CanDowncastMethodData()
+		public async ValueTask CanDowncastMethodData()
 		{
 			var testMessages = await RunAsync(typeof(ClassWithDowncastedMethodData));
 
@@ -1895,7 +1895,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void CanUseMethodDataInSubTypeFromTestInBaseType()
+		public async ValueTask CanUseMethodDataInSubTypeFromTestInBaseType()
 		{
 			var testMessages = await RunForResultsAsync(typeof(SubClassWithTestData));
 
@@ -1925,7 +1925,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class CustomDataTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestDataWithInternalConstructor_ReturnsTwoPassingTheories()
+		public async ValueTask TestDataWithInternalConstructor_ReturnsTwoPassingTheories()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithCustomDataWithInternalDataCtor));
 
@@ -1960,7 +1960,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void CanSupportConstructorOverloadingWithDataAttribute()  // https://github.com/xunit/xunit/issues/1711
+		public async ValueTask CanSupportConstructorOverloadingWithDataAttribute()  // https://github.com/xunit/xunit/issues/1711
 		{
 			var testMessages = await RunAsync(typeof(DataConstructorOverloadExample));
 
@@ -1992,7 +1992,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		[Fact]
-		public async void MemberDataAttributeBaseSubclass_Success()
+		public async ValueTask MemberDataAttributeBaseSubclass_Success()
 		{
 			var results = await RunForResultsAsync(typeof(ClassWithMemberDataAttributeBase));
 
@@ -2053,7 +2053,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class ErrorAggregation : AcceptanceTestV3
 	{
 		[Fact]
-		public async void EachTheoryHasIndividualExceptionMessage()
+		public async ValueTask EachTheoryHasIndividualExceptionMessage()
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest));
 
@@ -2088,7 +2088,7 @@ public class Xunit3TheoryAcceptanceTests
 	public class OverloadedMethodTests : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestMethodMessagesOnlySentOnce()
+		public async ValueTask TestMethodMessagesOnlySentOnce()
 		{
 			var testMessages = await RunAsync(typeof(ClassUnderTest));
 

@@ -185,7 +185,7 @@ public class TestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static async void SignalingCancellationStopsRunningCollections()
+		public static async ValueTask SignalingCancellationStopsRunningCollections()
 		{
 			var collection1 = Mocks.TestCollection();
 			var testCase1 = TestCaseForTestCollection(collection1);
@@ -199,7 +199,7 @@ public class TestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static async void TestContextInspection()
+		public static async ValueTask TestContextInspection()
 		{
 			var runner = TestableTestAssemblyRunner.Create();
 

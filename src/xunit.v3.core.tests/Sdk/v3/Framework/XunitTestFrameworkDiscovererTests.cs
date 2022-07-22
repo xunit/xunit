@@ -28,7 +28,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static async void DefaultTestCollection()
+		public static async ValueTask DefaultTestCollection()
 		{
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
 			var type = Reflector.Wrap(typeof(ClassWithNoCollection));
@@ -48,7 +48,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static async void UndeclaredTestCollection()
+		public static async ValueTask UndeclaredTestCollection()
 		{
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
 			var type = Reflector.Wrap(typeof(ClassWithUndeclaredCollection));
@@ -71,7 +71,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static async void DefinedTestCollection()
+		public static async ValueTask DefinedTestCollection()
 		{
 			var type = Reflector.Wrap(typeof(ClassWithDefinedCollection));
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(type.Assembly);
@@ -155,7 +155,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static async void Theory_WithPreEnumeration_ReturnsOneTestCasePerDataRecord()
+		public static async ValueTask Theory_WithPreEnumeration_ReturnsOneTestCasePerDataRecord()
 		{
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
@@ -171,7 +171,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static async void Theory_WithoutPreEnumeration_ReturnsOneTestCase()
+		public static async ValueTask Theory_WithoutPreEnumeration_ReturnsOneTestCase()
 		{
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
@@ -192,7 +192,7 @@ public class XunitTestFrameworkDiscovererTests
 		}
 
 		[Fact]
-		public static async void AssemblyWithMultiLevelHierarchyWithFactOverridenInNonImmediateDerivedClass_ReturnsOneTestCase()
+		public static async ValueTask AssemblyWithMultiLevelHierarchyWithFactOverridenInNonImmediateDerivedClass_ReturnsOneTestCase()
 		{
 			var testClass = Mocks.TestClass<Child>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();

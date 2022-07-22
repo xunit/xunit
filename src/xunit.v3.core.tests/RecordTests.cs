@@ -32,7 +32,7 @@ public class RecordTests
 	public class MethodsReturningTask
 	{
 		[Fact]
-		public async void Exception()
+		public async ValueTask Exception()
 		{
 			static Task testCode() => Task.Run(() => throw new InvalidOperationException());
 
@@ -43,7 +43,7 @@ public class RecordTests
 		}
 
 		[Fact]
-		public async void NoException()
+		public async ValueTask NoException()
 		{
 			static Task testCode() => Task.Run(() => { });
 

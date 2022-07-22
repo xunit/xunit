@@ -10,7 +10,7 @@ public class FixtureAcceptanceTests
 	public class Constructors : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestClassMustHaveSinglePublicConstructor()
+		public async ValueTask TestClassMustHaveSinglePublicConstructor()
 		{
 			var messages = await RunAsync(typeof(ClassWithTooManyConstructors));
 
@@ -71,7 +71,7 @@ public class FixtureAcceptanceTests
 	public class ClassFixture : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithExtraCtorArg));
 
@@ -89,7 +89,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithMissingArgumentToConstructorIsAcceptable()
+		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithMissingCtorArg));
 
@@ -105,7 +105,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
@@ -125,7 +125,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureDisposeResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
@@ -145,7 +145,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void FixtureDataIsPassedToConstructor()
+		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
 
@@ -164,7 +164,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithDefaultParameter()
+		public async ValueTask TestClassWithDefaultParameter()
 		{
 			var messages = await RunAsync(typeof(ClassWithDefaultCtorArg));
 
@@ -186,7 +186,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithOptionalParameter()
+		public async ValueTask TestClassWithOptionalParameter()
 		{
 			var messages = await RunAsync(typeof(ClassWithOptionalCtorArg));
 
@@ -209,7 +209,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithParamsParameter()
+		public async ValueTask TestClassWithParamsParameter()
 		{
 			var messages = await RunAsync(typeof(ClassWithParamsArg));
 
@@ -234,7 +234,7 @@ public class FixtureAcceptanceTests
 	public class AsyncClassFixture : AcceptanceTestV3
 	{
 		[Fact]
-		public async void FixtureDataShouldHaveBeenSetup()
+		public async ValueTask FixtureDataShouldHaveBeenSetup()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
 
@@ -277,7 +277,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void ThrowingFixtureInitializeAsyncShouldResultInFailedTest()
+		public async ValueTask ThrowingFixtureInitializeAsyncShouldResultInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
 
@@ -299,7 +299,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
@@ -324,7 +324,7 @@ public class FixtureAcceptanceTests
 	public class CollectionFixture : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestClassCannotBeDecoratedWithICollectionFixture()
+		public async ValueTask TestClassCannotBeDecoratedWithICollectionFixture()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(TestClassWithCollectionFixture));
 
@@ -340,7 +340,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithExtraCtorArg));
 
@@ -364,7 +364,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithMissingArgumentToConstructorIsAcceptable()
+		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithMissingCtorArg));
 
@@ -381,7 +381,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
@@ -407,7 +407,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
@@ -433,7 +433,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void FixtureDataIsPassedToConstructor()
+		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
 
@@ -453,7 +453,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void FixtureDataIsSameInstanceAcrossClasses()
+		public async ValueTask FixtureDataIsSameInstanceAcrossClasses()
 		{
 			await RunAsync<_TestPassed>(new[] { typeof(FixtureSaver1), typeof(FixtureSaver2) });
 
@@ -487,7 +487,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void ClassFixtureOnCollectionDecorationWorks()
+		public async ValueTask ClassFixtureOnCollectionDecorationWorks()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy_ClassFixture));
 
@@ -510,7 +510,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
+		public async ValueTask ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
 		{
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithCountedFixture));
 
@@ -537,7 +537,7 @@ public class FixtureAcceptanceTests
 	public class AsyncCollectionFixture : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestClassWithThrowingCollectionFixtureSetupAsyncResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingCollectionFixtureSetupAsyncResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
 
@@ -561,7 +561,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
@@ -585,7 +585,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void CollectionFixtureAsyncSetupShouldOnlyRunOnce()
+		public async ValueTask CollectionFixtureAsyncSetupShouldOnlyRunOnce()
 		{
 			var results = await RunAsync<_TestPassed>(new[] { typeof(Fixture1), typeof(Fixture2) });
 			Assert.Equal(2, results.Count);
@@ -646,7 +646,7 @@ public class FixtureAcceptanceTests
 	public class AssemblyFixture : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithExtraCtorArg), additionalAssemblyAttributes: assemblyAttribute);
@@ -665,7 +665,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithMissingArgumentToConstructorIsAcceptable()
+		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
 			var emptyFixtureAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
 			var objectFixtureAttribute = Mocks.AssemblyFixtureAttribute(typeof(object));
@@ -683,7 +683,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingCtorFixture));
 			var messages = await RunAsync<_TestFailed>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
@@ -699,7 +699,7 @@ public class FixtureAcceptanceTests
 
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureDisposeResultsInFailedTest()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingDisposeFixture));
 			var messages = await RunAsync<_TestAssemblyCleanupFailure>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
@@ -720,7 +720,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void FixtureDataIsPassedToConstructor()
+		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
 			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy), additionalAssemblyAttributes: assemblyAttribute);
@@ -740,7 +740,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithDefaultParameter()
+		public async ValueTask TestClassWithDefaultParameter()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
 			var messages = await RunForResultsAsync<TestPassedWithDisplayName>(typeof(ClassWithDefaultCtorArg), additionalAssemblyAttributes: assemblyAttribute);
@@ -762,7 +762,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithOptionalParameter()
+		public async ValueTask TestClassWithOptionalParameter()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
 			var messages = await RunForResultsAsync<TestPassedWithDisplayName>(typeof(ClassWithOptionalCtorArg), additionalAssemblyAttributes: assemblyAttribute);
@@ -785,7 +785,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithParamsParameter()
+		public async ValueTask TestClassWithParamsParameter()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(EmptyFixtureData));
 			var messages = await RunForResultsAsync<TestPassedWithDisplayName>(typeof(ClassWithParamsArg), additionalAssemblyAttributes: assemblyAttribute);
@@ -810,7 +810,7 @@ public class FixtureAcceptanceTests
 	public class AsyncAssemblyFixture : AcceptanceTestV3
 	{
 		[Fact]
-		public async void TestClassWithThrowingFixtureInitializeAsyncResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureInitializeAsyncResultsInFailedTest()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingInitializeAsyncFixture));
 			var messages = await RunAsync<_TestFailed>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
@@ -825,7 +825,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void TestClassWithThrowingFixtureDisposeAsyncResultsInFailedTest()
+		public async ValueTask TestClassWithThrowingFixtureDisposeAsyncResultsInFailedTest()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ThrowingDisposeAsyncFixture));
 			var messages = await RunAsync<_TestAssemblyCleanupFailure>(typeof(PlainTestClass), additionalAssemblyAttributes: assemblyAttribute);
@@ -846,7 +846,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async void AssemblyFixtureAsyncSetupShouldOnlyRunOnce()
+		public async ValueTask AssemblyFixtureAsyncSetupShouldOnlyRunOnce()
 		{
 			var alphaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Alpha>));
 			var betaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Beta>));
@@ -903,7 +903,7 @@ public class FixtureAcceptanceTests
 	public class FixtureComposition : AcceptanceTestV3
 	{
 		[Fact]
-		public async void ClassFixtureComposition()
+		public async ValueTask ClassFixtureComposition()
 		{
 			var assemblyAttribute = Mocks.AssemblyFixtureAttribute(typeof(ComposedAssemblyFixture));
 			var messageSink = SpyMessageSink.Capture();

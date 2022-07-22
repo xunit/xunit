@@ -12,7 +12,7 @@ using Xunit.v3;
 public class TestRunnerTests
 {
 	[Fact]
-	public static async void Messages()
+	public static async ValueTask Messages()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestRunner.Create(messageBus, displayName: "Display Name", runTime: 21.12m);
@@ -39,7 +39,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void Passing()
+	public static async ValueTask Passing()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestRunner.Create(messageBus, displayName: "Display Name", runTime: 21.12m);
@@ -84,7 +84,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void Failing()
+	public static async ValueTask Failing()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestRunner.Create(messageBus, displayName: "Display Name", runTime: 21.12m, lambda: () => Assert.True(false));
@@ -131,7 +131,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void Skipping()
+	public static async ValueTask Skipping()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestRunner.Create(messageBus, displayName: "Display Name", skipReason: "Please don't run me", runTime: 21.12m, lambda: () => Assert.True(false));
@@ -178,7 +178,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void Output()
+	public static async ValueTask Output()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestRunner.Create(messageBus, output: "This is my text output");
@@ -190,7 +190,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInQueueOfTestStarting_DoesNotQueueTestFinished_DoesNotInvokeTest()
+	public static async ValueTask FailureInQueueOfTestStarting_DoesNotQueueTestFinished_DoesNotInvokeTest()
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
@@ -217,7 +217,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void WithPreSeededException_ReturnsTestFailed_NoCleanupFailureMessage()
+	public static async ValueTask WithPreSeededException_ReturnsTestFailed_NoCleanupFailureMessage()
 	{
 		var messageBus = new SpyMessageBus();
 		var ex = new DivideByZeroException();
@@ -231,7 +231,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInAfterTestStarting_ReturnsTestFailed_NoCleanupFailureMessage()
+	public static async ValueTask FailureInAfterTestStarting_ReturnsTestFailed_NoCleanupFailureMessage()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestRunner.Create(messageBus);
@@ -246,7 +246,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInBeforeTestFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestStarting()
+	public static async ValueTask FailureInBeforeTestFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestStarting()
 	{
 		var messageBus = new SpyMessageBus();
 		var testCase = Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages");
@@ -263,7 +263,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestStarting_DoesNotCallExtensibilityMethods()
+	public static async ValueTask Cancellation_TestStarting_DoesNotCallExtensibilityMethods()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestStarting));
 		var runner = TestableTestRunner.Create(messageBus);
@@ -280,7 +280,7 @@ public class TestRunnerTests
 	[InlineData(typeof(_TestFailed), false, null)]
 	[InlineData(typeof(_TestSkipped), false, "Please skip me")]
 	[InlineData(typeof(_TestFinished), true, null)]
-	public static async void Cancellation_AllOthers_CallsExtensibilityMethods(
+	public static async ValueTask Cancellation_AllOthers_CallsExtensibilityMethods(
 		Type messageTypeToCancelOn,
 		bool shouldTestPass,
 		string? skipReason = null)
@@ -296,7 +296,7 @@ public class TestRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestCleanupFailure_SetsCancellationToken()
+	public static async ValueTask Cancellation_TestCleanupFailure_SetsCancellationToken()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestCleanupFailure));
 		var runner = TestableTestRunner.Create(messageBus);

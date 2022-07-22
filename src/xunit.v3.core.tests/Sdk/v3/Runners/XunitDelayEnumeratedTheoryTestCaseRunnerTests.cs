@@ -12,7 +12,7 @@ using Xunit.v3;
 public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 {
 	[Fact]
-	public static async void EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
+	public static async ValueTask EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithData", messageBus, "Display Name");
@@ -31,7 +31,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	}
 
 	[Fact]
-	public static async void DiscovererWhichThrowsReturnsASingleFailedTest()
+	public static async ValueTask DiscovererWhichThrowsReturnsASingleFailedTest()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithThrowingData", messageBus, "Display Name");
@@ -50,7 +50,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposesArguments()
+	public static async ValueTask DisposesArguments()
 	{
 		ClassUnderTest.DataWasDisposed = false;
 		var messageBus = new SpyMessageBus();
@@ -62,7 +62,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	}
 
 	[Fact]
-	public static async void SkipsDataAttributesWithSkipReason()
+	public static async ValueTask SkipsDataAttributesWithSkipReason()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithSomeDataSkipped", messageBus, "Display Name");
@@ -91,7 +91,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	}
 
 	[Fact]
-	public async void ThrowingToString()
+	public async ValueTask ThrowingToString()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassWithThrowingToString>("Test", messageBus, "Display Name");
@@ -124,7 +124,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	}
 
 	[Fact]
-	public async void ThrowingEnumerator()
+	public async ValueTask ThrowingEnumerator()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableXunitDelayEnumeratedTheoryTestCaseRunner.Create<ClassWithThrowingEnumerator>("Test", messageBus, "Display Name");

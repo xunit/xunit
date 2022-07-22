@@ -11,7 +11,7 @@ using Xunit.v3;
 public class TestCollectionRunnerTests
 {
 	[Fact]
-	public static async void Messages()
+	public static async ValueTask Messages()
 	{
 		var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
 		var messageBus = new SpyMessageBus();
@@ -50,7 +50,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void NonClassBaseTest_ReportsWarning()
+	public static async ValueTask NonClassBaseTest_ReportsWarning()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -73,7 +73,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void NonReflectionClassBaseTest_ReportsWarning()
+	public static async ValueTask NonReflectionClassBaseTest_ReportsWarning()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -98,7 +98,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInQueueOfTestCollectionStarting_DoesNotQueueTestCollectionFinished_DoesNotRunTestClasses()
+	public static async ValueTask FailureInQueueOfTestCollectionStarting_DoesNotQueueTestCollectionFinished_DoesNotRunTestClasses()
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
@@ -125,7 +125,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void RunTestClassAsync_AggregatorIncludesPassedInExceptions()
+	public static async ValueTask RunTestClassAsync_AggregatorIncludesPassedInExceptions()
 	{
 		var messageBus = new SpyMessageBus();
 		var ex = new DivideByZeroException();
@@ -138,7 +138,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInAfterTestCollectionStarting_GivesErroredAggregatorToTestClassRunner_NoCleanupFailureMessage()
+	public static async ValueTask FailureInAfterTestCollectionStarting_GivesErroredAggregatorToTestClassRunner_NoCleanupFailureMessage()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestCollectionRunner.Create(messageBus);
@@ -152,7 +152,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInBeforeTestCollectionFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestCollectionStarting()
+	public static async ValueTask FailureInBeforeTestCollectionFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestCollectionStarting()
 	{
 		var messageBus = new SpyMessageBus();
 		var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
@@ -169,7 +169,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestCollectionStarting_DoesNotCallExtensibilityCallbacks()
+	public static async ValueTask Cancellation_TestCollectionStarting_DoesNotCallExtensibilityCallbacks()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestCollectionStarting));
 		var runner = TestableTestCollectionRunner.Create(messageBus);
@@ -182,7 +182,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestCollectionFinished_CallsExtensibilityCallbacks()
+	public static async ValueTask Cancellation_TestCollectionFinished_CallsExtensibilityCallbacks()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestCollectionFinished));
 		var runner = TestableTestCollectionRunner.Create(messageBus);
@@ -195,7 +195,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestCollectionCleanupFailure_SetsCancellationToken()
+	public static async ValueTask Cancellation_TestCollectionCleanupFailure_SetsCancellationToken()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestCollectionCleanupFailure));
 		var runner = TestableTestCollectionRunner.Create(messageBus);
@@ -207,7 +207,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void TestsAreGroupedByCollection()
+	public static async ValueTask TestsAreGroupedByCollection()
 	{
 		var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 		var other1 = Mocks.TestCase<ClassUnderTest>("Other");
@@ -239,7 +239,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void SignalingCancellationStopsRunningClasses()
+	public static async ValueTask SignalingCancellationStopsRunningClasses()
 	{
 		var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 		var passing2 = Mocks.TestCase<ClassUnderTest2>("Passing");
@@ -252,7 +252,7 @@ public class TestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void TestContextInspection()
+	public static async ValueTask TestContextInspection()
 	{
 		var runner = TestableTestCollectionRunner.Create();
 

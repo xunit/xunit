@@ -11,7 +11,7 @@ public class TestInvokerTests
 	public class Messages
 	{
 		[Fact]
-		public static async void Messages_StaticTestMethod()
+		public static async ValueTask Messages_StaticTestMethod()
 		{
 			var messageBus = new SpyMessageBus();
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("StaticPassing", messageBus);
@@ -24,7 +24,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void Messages_NonStaticTestMethod_NoDispose()
+		public static async ValueTask Messages_NonStaticTestMethod_NoDispose()
 		{
 			var messageBus = new SpyMessageBus();
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", messageBus, "Display Name");
@@ -39,7 +39,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void Messages_NonStaticTestMethod_WithDispose()
+		public static async ValueTask Messages_NonStaticTestMethod_WithDispose()
 		{
 			var messageBus = new SpyMessageBus();
 			var invoker = TestableTestInvoker.Create<DisposableClass>("Passing", messageBus, "Display Name");
@@ -56,7 +56,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void Messages_NonStaticTestMethod_WithDisposeAsync()
+		public static async ValueTask Messages_NonStaticTestMethod_WithDisposeAsync()
 		{
 			var messageBus = new SpyMessageBus();
 			var invoker = TestableTestInvoker.Create<AsyncDisposableClass>("Passing", messageBus, "Display Name");
@@ -73,7 +73,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void Messages_NonStaticTestMethod_WithDisposeAndDisposeAsync()
+		public static async ValueTask Messages_NonStaticTestMethod_WithDisposeAndDisposeAsync()
 		{
 			var messageBus = new SpyMessageBus();
 			var invoker = TestableTestInvoker.Create<BothDisposableClass>("Passing", messageBus, "Display Name");
@@ -93,7 +93,7 @@ public class TestInvokerTests
 	public class Execution
 	{
 		[Fact]
-		public static async void Passing()
+		public static async ValueTask Passing()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing");
 
@@ -104,7 +104,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void Failing()
+		public static async ValueTask Failing()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Failing");
 
@@ -127,7 +127,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void TooManyParameterValues()
+		public static async ValueTask TooManyParameterValues()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", testMethodArguments: new object[] { 42 });
 
@@ -138,7 +138,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void NotEnoughParameterValues()
+		public static async ValueTask NotEnoughParameterValues()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("FactWithParameter");
 
@@ -152,7 +152,7 @@ public class TestInvokerTests
 	public class Cancellation
 	{
 		[Fact]
-		public static async void CancellationRequested_DoesNotInvokeTestMethod()
+		public static async ValueTask CancellationRequested_DoesNotInvokeTestMethod()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Failing");
 			invoker.TokenSource.Cancel();
@@ -166,7 +166,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public static async void CancellationRequested_DisposeCalledIfClassConstructed()
+		public static async ValueTask CancellationRequested_DisposeCalledIfClassConstructed()
 		{
 			var classConstructed = false;
 
@@ -195,7 +195,7 @@ public class TestInvokerTests
 	public class TestContextVisibility
 	{
 		[Fact]
-		public async void Before_SeesInitializing()
+		public async ValueTask Before_SeesInitializing()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", displayName: "Test display name");
 
@@ -217,7 +217,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public async void Executing_SeesRunning()
+		public async ValueTask Executing_SeesRunning()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", displayName: "Test display name");
 
@@ -238,7 +238,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public async void After_Passing_SeesCleaningUp()
+		public async ValueTask After_Passing_SeesCleaningUp()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", displayName: "Test display name");
 
@@ -267,7 +267,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public async void After_Failing_SeesCleaningUp()
+		public async ValueTask After_Failing_SeesCleaningUp()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("Failing", displayName: "Test display name");
 
@@ -301,7 +301,7 @@ public class TestInvokerTests
 		}
 
 		[Fact]
-		public async void After_Exception_SeesCleaningUp()
+		public async ValueTask After_Exception_SeesCleaningUp()
 		{
 			var invoker = TestableTestInvoker.Create<NonDisposableClass>("FactWithParameter", displayName: "Test display name");
 

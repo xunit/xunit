@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -24,7 +25,7 @@ public class FactDiscovererTests
 	}
 
 	[Fact]
-	public async void FactWithoutParameters_ReturnsTestCaseThatRunsFact()
+	public async ValueTask FactWithoutParameters_ReturnsTestCaseThatRunsFact()
 	{
 		var discoverer = new FactDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithNoParameters");
@@ -37,7 +38,7 @@ public class FactDiscovererTests
 	}
 
 	[Fact]
-	public async void FactWithParameters_ReturnsTestCaseWhichThrows()
+	public async ValueTask FactWithParameters_ReturnsTestCaseWhichThrows()
 	{
 		var discoverer = new FactDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("FactWithParameters");
@@ -52,7 +53,7 @@ public class FactDiscovererTests
 	}
 
 	[Fact]
-	public async void GenericFact_ReturnsTestCaseWhichThrows()
+	public async ValueTask GenericFact_ReturnsTestCaseWhichThrows()
 	{
 		var discoverer = new FactDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassUnderTest>("GenericFact");

@@ -14,7 +14,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true);
 
 	[Fact]
-	public async void NoDataAttributes()
+	public async ValueTask NoDataAttributes()
 	{
 		var failures = await RunAsync<_TestFailed>(typeof(NoDataAttributesClass));
 
@@ -30,7 +30,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void NullMemberData_ThrowsInvalidOperationException()
+	public async ValueTask NullMemberData_ThrowsInvalidOperationException()
 	{
 		var results = await RunAsync<_TestFailed>(typeof(NullDataClass));
 
@@ -57,7 +57,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void EmptyTheoryData()
+	public async ValueTask EmptyTheoryData()
 	{
 		var failures = await RunAsync<_TestFailed>(typeof(EmptyTheoryDataClass));
 
@@ -79,7 +79,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
+	public async ValueTask DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = new TheoryDiscoverer();
@@ -96,7 +96,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTestCase()
+	public async ValueTask DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTestCase()
 	{
 		discoveryOptions.SetPreEnumerateTheories(false);
 		var discoverer = new TheoryDiscoverer();
@@ -129,7 +129,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
+	public async ValueTask DiscoveryOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
 	{
 		discoveryOptions.SetPreEnumerateTheories(true);
 		var discoverer = new TheoryDiscoverer();
@@ -160,7 +160,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void ThrowingData()
+	public async ValueTask ThrowingData()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -192,7 +192,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void DataDiscovererReturningNullYieldsSingleTheoryTestCase()
+	public async ValueTask DataDiscovererReturningNullYieldsSingleTheoryTestCase()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -211,7 +211,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void NonSerializableDataYieldsSingleTheoryTestCase()
+	public async ValueTask NonSerializableDataYieldsSingleTheoryTestCase()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -247,7 +247,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
+	public async ValueTask NoSuchDataDiscoverer_ThrowsInvalidOperationException()
 	{
 		var results = await RunAsync<_TestFailed>(typeof(NoSuchDataDiscovererClass));
 
@@ -273,7 +273,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void NotADataDiscoverer_ThrowsInvalidOperationException()
+	public async ValueTask NotADataDiscoverer_ThrowsInvalidOperationException()
 	{
 		var results = await RunAsync<_TestFailed>(typeof(NotADataDiscovererClass));
 
@@ -299,7 +299,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
+	public async ValueTask DiscoveryDisabledOnTheoryAttribute_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<NonDiscoveryOnTheoryAttribute>(nameof(NonDiscoveryOnTheoryAttribute.TheoryMethod));
@@ -324,7 +324,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
+	public async ValueTask DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<NonDiscoveryEnumeratedData>(nameof(NonDiscoveryEnumeratedData.TheoryMethod));
@@ -349,7 +349,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
+	public async ValueTask MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<MixedDiscoveryEnumeratedData>(nameof(MixedDiscoveryEnumeratedData.TheoryMethod));
@@ -374,7 +374,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void SkippedTheoryWithNoData()
+	public async ValueTask SkippedTheoryWithNoData()
 	{
 		var msgs = await RunAsync(typeof(SkippedWithNoData));
 
@@ -391,7 +391,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void SkippedTheoryWithData()
+	public async ValueTask SkippedTheoryWithData()
 	{
 		var msgs = await RunAsync(typeof(SkippedWithData));
 
@@ -410,7 +410,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
+	public async ValueTask TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
 	{
 		TestContext.Current!.DiagnosticMessageSink = SpyMessageSink.Capture();
 		var discoverer = new TheoryDiscoverer();
@@ -468,7 +468,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void CanSkipFromTheoryDataRow_Preenumerated()
+	public async ValueTask CanSkipFromTheoryDataRow_Preenumerated()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithSkippedTheoryDataRows>(nameof(ClassWithSkippedTheoryDataRows.TestWithSomeSkippedTheoryRows));
@@ -515,7 +515,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void CanAddTraitsFromTheoryDataRow_PreEnumerated()
+	public async ValueTask CanAddTraitsFromTheoryDataRow_PreEnumerated()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithTraitsOnTheoryDataRows>(nameof(ClassWithTraitsOnTheoryDataRows.TestWithTraits));
@@ -612,7 +612,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void CanSetDisplayNameFromTheoryDataRow_PreEnumerated()
+	public async ValueTask CanSetDisplayNameFromTheoryDataRow_PreEnumerated()
 	{
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = Mocks.TestMethod<ClassWithDisplayNameOnTheoryDataRows>(nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName));

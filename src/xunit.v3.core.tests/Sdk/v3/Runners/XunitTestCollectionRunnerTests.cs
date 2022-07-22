@@ -10,7 +10,7 @@ using Xunit.v3;
 public class XunitTestCollectionRunnerTests
 {
 	[Fact]
-	public static async void CreatesFixtures()
+	public static async ValueTask CreatesFixtures()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
 		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
@@ -27,7 +27,7 @@ public class XunitTestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposesFixtures()
+	public static async ValueTask DisposesFixtures()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
 		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
@@ -41,7 +41,7 @@ public class XunitTestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
+	public static async ValueTask DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionForFixtureAsyncDisposableUnderTest)), "Mock Test Collection");
 		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposeAndAsyncDisposableShouldBeCalledInTheRightOrder", collection);
@@ -89,7 +89,7 @@ public class XunitTestCollectionRunnerTests
 
 
 	[Fact]
-	public static async void MultiplePublicConstructorsOnCollectionFixture_ReturnsError()
+	public static async ValueTask MultiplePublicConstructorsOnCollectionFixture_ReturnsError()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionsWithMultiCtorCollectionFixture)), "Mock Test Collection");
 		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
@@ -110,7 +110,7 @@ public class XunitTestCollectionRunnerTests
 	class CollectionsWithMultiCtorCollectionFixture : ICollectionFixture<CollectionFixtureWithMultipleConstructors> { }
 
 	[Fact]
-	public static async void UnresolvedConstructorParameterOnCollectionFixture_ReturnsError()
+	public static async ValueTask UnresolvedConstructorParameterOnCollectionFixture_ReturnsError()
 	{
 		var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithDependency)), "Mock Test Collection");
 		var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
@@ -137,7 +137,7 @@ public class XunitTestCollectionRunnerTests
 	class CollectionWithCollectionFixtureWithDependency : ICollectionFixture<CollectionFixtureWithCollectionFixtureDependency> { }
 
 	[Fact]
-	public static async void CanInjectMessageSinkIntoCollectionFixture()
+	public static async ValueTask CanInjectMessageSinkIntoCollectionFixture()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -155,7 +155,7 @@ public class XunitTestCollectionRunnerTests
 	}
 
 	[Fact]
-	public static async void CanLogSinkMessageFromCollectionFixture()
+	public static async ValueTask CanLogSinkMessageFromCollectionFixture()
 	{
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current!.DiagnosticMessageSink = spy;
@@ -185,7 +185,7 @@ public class XunitTestCollectionRunnerTests
 	public class TestCaseOrderer
 	{
 		[Fact]
-		public static async void UsesCustomTestOrderer()
+		public static async ValueTask UsesCustomTestOrderer()
 		{
 			var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
 			var testCase = TestData.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
@@ -197,7 +197,7 @@ public class XunitTestCollectionRunnerTests
 		}
 
 		[Fact]
-		public static async void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
+		public static async ValueTask SettingUnknownTestCaseOrderLogsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
 			TestContext.Current!.DiagnosticMessageSink = spy;
@@ -216,7 +216,7 @@ public class XunitTestCollectionRunnerTests
 		class CollectionWithUnknownTestCaseOrderer { }
 
 		[Fact]
-		public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
+		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
 			TestContext.Current!.DiagnosticMessageSink = spy;

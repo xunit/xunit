@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.v3;
 
@@ -20,7 +21,7 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async void InvokesTestsForDataMatrix()
+	public async ValueTask InvokesTestsForDataMatrix()
 	{
 		var messages = await RunAsync(typeof(SampleUsage));
 

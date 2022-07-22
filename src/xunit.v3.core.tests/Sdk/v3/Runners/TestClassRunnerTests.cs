@@ -12,7 +12,7 @@ using Xunit.v3;
 public class TestClassRunnerTests
 {
 	[Fact]
-	public static async void Messages()
+	public static async ValueTask Messages()
 	{
 		var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
 		var messageBus = new SpyMessageBus();
@@ -52,7 +52,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInQueueOfTestClassStarting_DoesNotQueueTestClassFinished_DoesNotRunTestMethods()
+	public static async ValueTask FailureInQueueOfTestClassStarting_DoesNotQueueTestClassFinished_DoesNotRunTestMethods()
 	{
 		var messages = new List<_MessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
@@ -79,7 +79,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void RunTestMethodAsync_AggregatorIncludesPassedInExceptions()
+	public static async ValueTask RunTestMethodAsync_AggregatorIncludesPassedInExceptions()
 	{
 		var messageBus = new SpyMessageBus();
 		var ex = new DivideByZeroException();
@@ -92,7 +92,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInAfterTestClassStarting_GivesErroredAggregatorToTestMethodRunner_NoCleanupFailureMessage()
+	public static async ValueTask FailureInAfterTestClassStarting_GivesErroredAggregatorToTestMethodRunner_NoCleanupFailureMessage()
 	{
 		var messageBus = new SpyMessageBus();
 		var runner = TestableTestClassRunner.Create(messageBus);
@@ -106,7 +106,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void FailureInBeforeTestClassFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestClassStarting()
+	public static async ValueTask FailureInBeforeTestClassFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestClassStarting()
 	{
 		var messageBus = new SpyMessageBus();
 		var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
@@ -123,7 +123,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestClassStarting_DoesNotCallExtensibilityCallbacks()
+	public static async ValueTask Cancellation_TestClassStarting_DoesNotCallExtensibilityCallbacks()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassStarting));
 		var runner = TestableTestClassRunner.Create(messageBus);
@@ -136,7 +136,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestClassFinished_CallsExtensibilityCallbacks()
+	public static async ValueTask Cancellation_TestClassFinished_CallsExtensibilityCallbacks()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassFinished));
 		var runner = TestableTestClassRunner.Create(messageBus);
@@ -149,7 +149,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void Cancellation_TestClassCleanupFailure_SetsCancellationToken()
+	public static async ValueTask Cancellation_TestClassCleanupFailure_SetsCancellationToken()
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassCleanupFailure));
 		var runner = TestableTestClassRunner.Create(messageBus);
@@ -161,7 +161,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void TestsAreGroupedByMethod()
+	public static async ValueTask TestsAreGroupedByMethod()
 	{
 		var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 		var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
@@ -193,7 +193,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void SignalingCancellationStopsRunningMethods()
+	public static async ValueTask SignalingCancellationStopsRunningMethods()
 	{
 		var passing = Mocks.TestCase<ClassUnderTest>("Passing");
 		var other = Mocks.TestCase<ClassUnderTest>("Other");
@@ -206,7 +206,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void TestContextInspection()
+	public static async ValueTask TestContextInspection()
 	{
 		var runner = TestableTestClassRunner.Create();
 
@@ -244,7 +244,7 @@ public class TestClassRunnerTests
 	public class TestCaseOrderer
 	{
 		[Fact]
-		public static async void TestsOrdererIsUsedToDetermineRunOrder()
+		public static async ValueTask TestsOrdererIsUsedToDetermineRunOrder()
 		{
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
@@ -276,7 +276,7 @@ public class TestClassRunnerTests
 		}
 
 		[Fact]
-		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
 		{
 			var spy = SpyMessageSink.Capture();
 			TestContext.Current!.DiagnosticMessageSink = spy;
@@ -322,7 +322,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void TestClassMustHaveParameterlessConstructor()
+	public static async ValueTask TestClassMustHaveParameterlessConstructor()
 	{
 		var test = Mocks.TestCase<ClassWithConstructor>("Passing");
 		var runner = TestableTestClassRunner.Create(testCases: new[] { test });
@@ -334,7 +334,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void ConstructorWithMissingArguments()
+	public static async ValueTask ConstructorWithMissingArguments()
 	{
 		var test = Mocks.TestCase<ClassWithConstructor>("Passing");
 		var constructor = typeof(ClassWithConstructor).GetConstructors().Single();
@@ -348,7 +348,7 @@ public class TestClassRunnerTests
 	}
 
 	[Fact]
-	public static async void ConstructorWithMatchingArguments()
+	public static async ValueTask ConstructorWithMatchingArguments()
 	{
 		var test = Mocks.TestCase<ClassWithConstructor>("Passing");
 		var constructor = typeof(ClassWithConstructor).GetConstructors().Single();

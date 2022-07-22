@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -17,7 +18,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	}
 
 	[Fact]
-	public async void Messages()
+	public async ValueTask Messages()
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 
@@ -61,7 +62,7 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
 	[InlineData(typeof(_TestStarting))]
 	[InlineData(typeof(_TestFailed))]
 	[InlineData(typeof(_TestFinished))]
-	public async void Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
+	public async ValueTask Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
