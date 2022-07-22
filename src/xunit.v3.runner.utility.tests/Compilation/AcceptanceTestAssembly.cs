@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Internal;
 
 public abstract class AcceptanceTestAssembly : IDisposable
@@ -39,14 +40,20 @@ public abstract class AcceptanceTestAssembly : IDisposable
 			if (File.Exists(FileName))
 				File.Delete(FileName);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			TestContext.Current?.SendDiagnosticMessage("{0} could not clean up file '{1}': {2}", GetType().Name, FileName, ex.Message);
+		}
 
 		try
 		{
 			if (File.Exists(PdbName))
 				File.Delete(PdbName);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			TestContext.Current?.SendDiagnosticMessage("{0} could not clean up file '{1}': {2}", GetType().Name, PdbName, ex.Message);
+		}
 	}
 
 	protected abstract Task Compile(

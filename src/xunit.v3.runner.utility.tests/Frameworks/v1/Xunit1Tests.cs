@@ -1108,7 +1108,7 @@ public class Xunit1Tests
 	public class AcceptanceTests
 	{
 		[Fact]
-		public async void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
+		public async ValueTask AmbiguouslyNamedTestMethods_StillReturnAllMessages()
 		{
 			var code = @"
 using Xunit;
