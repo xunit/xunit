@@ -110,7 +110,7 @@ public class AsyncTestSyncContext : SynchronizationContext
 	/// <summary>
 	/// Returns a task which is signaled when all outstanding operations are complete.
 	/// </summary>
-	public async Task<Exception?> WaitForCompletionAsync()
+	public async ValueTask<Exception?> WaitForCompletionAsync()
 	{
 		await @event.WaitAsync();
 
