@@ -40,18 +40,18 @@ public class Record
 	public static Exception? Exception(Func<object?> testCode)
 	{
 		Guard.ArgumentNotNull(testCode);
-		Task? task;
+		object? testCodeResult;
 
 		try
 		{
-			task = testCode() as Task;
+			testCodeResult = testCode();
 		}
 		catch (Exception ex)
 		{
 			return ex;
 		}
 
-		if (task != null)
+		if (testCodeResult is Task || testCodeResult is ValueTask)
 			throw new InvalidOperationException("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.");
 
 		return null;
@@ -80,7 +80,7 @@ public class Record
 	/// </summary>
 	/// <param name="testCode">The task which may throw an exception.</param>
 	/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-	public static async Task<Exception?> ExceptionAsync(Func<Task> testCode)
+	public static async ValueTask<Exception?> ExceptionAsync(Func<Task> testCode)
 	{
 		Guard.ArgumentNotNull(testCode);
 
