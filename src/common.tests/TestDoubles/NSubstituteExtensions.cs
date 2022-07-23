@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
-using NSubstitute;
 using NSubstitute.Core;
 
 public static class NSubstituteExtensions
@@ -51,16 +49,6 @@ public static class NSubstituteExtensions
 			return ((MethodCallExpression)expr.Body).Method;
 
 		throw new Exception("Cannot find method.");
-	}
-
-	public static void Returns<T>(this Task<T> instance, T value)
-	{
-		instance.Returns(Task.FromResult<T>(value));
-	}
-
-	public static void ReturnsForAnyArgs<T>(this Task<T> instance, T value)
-	{
-		instance.ReturnsForAnyArgs(Task.FromResult<T>(value));
 	}
 
 	public static WhenCalledAny<T> WhenAny<T>(this T substitute, Action<T> substituteCall) where T : class
