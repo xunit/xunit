@@ -14,25 +14,27 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
 	protected override IEnumerable<string> GetStandardReferences() => Enumerable.Empty<string>();
 
-	protected override async Task Compile(
-		string code,
+	protected override async ValueTask Compile(
+		string[] code,
 		string[] references)
 	{
-		var sourcePath = Path.GetTempFileName() + ".fs";
-		File.WriteAllText(sourcePath, code);
+		var compilerArgs = new List<string> { "fsc" };
 
-		var compilerArgs =
-			new[] {
-				"fsc",
-				sourcePath,
-				$"--out:{FileName}",
-				$"--pdb:{PdbName}",
-				$"--lib:\"{BasePath}\"",
-				"--debug",
-				"--target:library"
-			}
-			.Concat(GetStandardReferences().Concat(references).Select(r => $"--reference:{r}"))
-			.ToArray();
+		foreach (var codeText in code)
+		{
+			var sourcePath = Path.GetTempFileName() + ".fs";
+			File.WriteAllText(sourcePath, codeText);
+			compilerArgs.Add(sourcePath);
+		}
+
+		compilerArgs.AddRange(new[] {
+			$"--out:{FileName}",
+			$"--pdb:{PdbName}",
+			$"--lib:\"{BasePath}\"",
+			"--debug",
+			"--target:library"
+		});
+		compilerArgs.AddRange(GetStandardReferences().Concat(references).Select(r => $"--reference:{r}"));
 
 		var checker = FSharpChecker.Create(
 			FSharpOption<int>.None,
@@ -48,7 +50,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 			FSharpOption<bool>.None
 		);
 
-		var resultFSharpAsync = checker.Compile(compilerArgs, FSharpOption<string>.None);
+		var resultFSharpAsync = checker.Compile(compilerArgs.ToArray(), FSharpOption<string>.None);
 		var result = await FSharpAsync.StartAsTask(resultFSharpAsync, FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
 		if (result.Item2 != 0)
 		{

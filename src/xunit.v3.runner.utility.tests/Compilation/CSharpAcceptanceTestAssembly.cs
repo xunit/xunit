@@ -10,8 +10,8 @@ using Xunit.Internal;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-	protected override Task Compile(
-		string code,
+	protected override ValueTask Compile(
+		string[] code,
 		string[] references)
 	{
 		var parameters = new CompilerParameters()
@@ -41,7 +41,7 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
 		}
 
-		return Task.CompletedTask;
+		return default;
 	}
 }
 
