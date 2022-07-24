@@ -4,7 +4,7 @@ using Xunit.Sdk;
 
 public class AsyncManualResetEventTests
 {
-	public class Wait
+	public class WaitAsync
 	{
 		[Fact]
 		public void NonSignaledEvent_ReturnsIncompleteValueTask()
