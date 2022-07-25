@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -32,6 +35,23 @@ namespace Xunit
         {
             return GetStackTrace(failureInfo, 0);
         }
+
+#if XUNIT_FRAMEWORK
+        static readonly ConcurrentDictionary<Type, PropertyInfo> innerExceptionsPropertyByType = new();
+
+        static IEnumerable<Exception> GetInnerExceptions(Exception ex)
+        {
+            if (ex is AggregateException aggEx)
+                return aggEx.InnerExceptions;
+
+            var prop = innerExceptionsPropertyByType.GetOrAdd(
+                ex.GetType(),
+                t => t.GetRuntimeProperties().FirstOrDefault(p => p.Name == "InnerExceptions" && p.CanRead)
+            );
+
+            return prop?.GetValue(ex) as IEnumerable<Exception>;
+        }
+#endif
 
         static bool ExcludeStackFrame(string stackFrame)
         {
@@ -176,9 +196,9 @@ namespace Xunit
             indices.Add(parentIndex);
 
 #if XUNIT_FRAMEWORK
-            var aggEx = ex as AggregateException;
-            if (aggEx != null)
-                foreach (var innerException in aggEx.InnerExceptions)
+            var innerExceptions = GetInnerExceptions(ex);
+            if (innerExceptions != null)
+                foreach (var innerException in innerExceptions)
                     ConvertExceptionToFailureInformation(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
             else
 #endif
@@ -193,6 +213,5 @@ namespace Xunit
             public string[] StackTraces { get; set; }
             public int[] ExceptionParentIndices { get; set; }
         }
-
     }
 }
