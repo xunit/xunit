@@ -36,13 +36,13 @@ breadcrumb: Release Notes
 <ul>
   <li>Added <code>Assert.Distinct</code>, which ensures that every item in a collection is distinct.</li>
   <li>
-    Updated <code>KeyValuePair&lt;TKey,TValue&lt;</code> argument formatting. Old format: <code>[Key, Value]</code>
+    Updated <code>KeyValuePair&lt;TKey,TValue&gt;</code> argument formatting. Old format: <code>[Key, Value]</code>
     New format: <code>[Key] = Value</code>. We also stopped special-casing dictionaries (they're just printed
     out as <code>KeyValuePair</code> collections). This is most obviously visible in <code>Assert.Equivalent</code>
     when dictionaries are missing entries (or contain extra entries in strict mode).
   </li>
   <li>
-    Updated <code>Assert.Equivalent</code> for <code>KeyValuePair&lt;TKey,TValue&lt;</code> to use equivalence for
+    Updated <code>Assert.Equivalent</code> for <code>KeyValuePair&lt;TKey,TValue&gt;</code> to use equivalence for
     key vs. key and value vs. value. This is most obviously visible when testing for dictionary equivalence when
     the key or value is a collection (now those are recursively called into <code>Assert.Equivalent</code>, whereas
     they were previously using simple equality tests).
