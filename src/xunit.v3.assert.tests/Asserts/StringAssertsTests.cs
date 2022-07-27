@@ -97,62 +97,66 @@ public class StringAssertsTests
 	{
 		[Theory]
 		// Null values
-		[InlineData(null, null, false, false, false)]
+		[InlineData(null, null, false, false, false, false)]
 		// Empty values
-		[InlineData("", "", false, false, false)]
+		[InlineData("", "", false, false, false, false)]
 		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
+		[InlineData("foo", "foo", false, false, false, false)]
 		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
+		[InlineData("foo", "FoO", true, false, false, false)]
 		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
+		[InlineData("foo \r\n bar", "foo \r bar", false, true, false, false)]
+		[InlineData("foo \r\n bar", "foo \n bar", false, true, false, false)]
+		[InlineData("foo \n bar", "foo \r bar", false, true, false, false)]
 		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
+		[InlineData(" ", "\t", false, false, true, false)]
+		[InlineData(" \t", "\t ", false, false, true, false)]
+		[InlineData("    ", "\t", false, false, true, false)]
+		[InlineData("", "  ", false, false, false, true)]
+		[InlineData("", "  ", false, false, true, true)]
+		[InlineData("", "\t", false, false, true, true)]
+		[InlineData("foobar", "foo bar", false, false, true, true)]
 #if XUNIT_SPAN
-		[InlineData(" ", " \u180E", false, false, true)]
-		[InlineData(" \u180E", "\u180E ", false, false, true)]
-		[InlineData("    ", "\u180E", false, false, true)]
-		[InlineData(" ", " \u200B", false, false, true)]
-		[InlineData(" \u200B", "\u200B ", false, false, true)]
-		[InlineData("    ", "\u200B", false, false, true)]
-		[InlineData(" ", " \u200B\uFEFF", false, false, true)]
-		[InlineData(" \u180E", "\u200B\u202F\u1680\u180E ", false, false, true)]
-		[InlineData("\u2001\u2002\u2003\u2006\u2009    ", "\u200B", false, false, true)]
-		[InlineData("\u00A0\u200A\u2009\u2006\u2009    ", "\u200B", false, false, true)]
+		[InlineData(" ", " \u180E", false, false, true, false)]
+		[InlineData(" \u180E", "\u180E ", false, false, true, false)]
+		[InlineData("    ", "\u180E", false, false, true, false)]
+		[InlineData(" ", " \u200B", false, false, true, false)]
+		[InlineData(" \u200B", "\u200B ", false, false, true, false)]
+		[InlineData("    ", "\u200B", false, false, true, false)]
+		[InlineData(" ", " \u200B\uFEFF", false, false, true, false)]
+		[InlineData(" \u180E", "\u200B\u202F\u1680\u180E ", false, false, true, false)]
+		[InlineData("\u2001\u2002\u2003\u2006\u2009    ", "\u200B", false, false, true, false)]
+		[InlineData("\u00A0\u200A\u2009\u2006\u2009    ", "\u200B", false, false, true, false)]
 		// The ogham space mark (\u1680) kind of looks like a faint dash, but Microsoft has put it
 		// inside the SpaceSeparator unicode category, so we also treat it as a space
-		[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true)]
-		[InlineData("\u1680", "\t", false, false, true)]
-		[InlineData("\u1680", "       ", false, false, true)]
+		[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true, false)]
+		[InlineData("\u1680", "\t", false, false, true, false)]
+		[InlineData("\u1680", "       ", false, false, true, false)]
 #endif
-		public void SuccessCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
+		public void SuccessCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1, value2, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2, value1, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
+			Assert.Equal(value1, value2, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2, value1, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 		}
 
 		[Theory]
 		// Null values
-		[InlineData(null, "", false, false, false, -1, -1)]
-		[InlineData("", null, false, false, false, -1, -1)]
+		[InlineData(null, "", false, false, false, false, -1, -1)]
+		[InlineData("", null, false, false, false, false, -1, -1)]
 		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
+		[InlineData("foo", "foo!", false, false, false, false, 3, 3)]
+		[InlineData("foo", "foo\0", false, false, false, false, 3, 3)]
 		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
+		[InlineData("foo bar", "foo   Bar", false, true, true, false, 4, 6)]
 		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
+		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, false, 4, 5)]
 		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
+		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, false, 5, 6)]
+		public void FailureCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace, int expectedIndex, int actualIndex)
 		{
 			var ex = Record.Exception(
-				() => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
+				() => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace)
 			);
 
 			var eqEx = Assert.IsType<EqualException>(ex);

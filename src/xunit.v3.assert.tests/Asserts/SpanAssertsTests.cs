@@ -234,65 +234,69 @@ public class SpanAssertsTests
 	{
 		[Theory]
 		// Null values
-		[InlineData(null, null, false, false, false)]
+		[InlineData(null, null, false, false, false, false)]
 		// Null ReadOnlySpan<char> acts like an empty string
-		[InlineData(null, "", false, false, false)]
-		[InlineData("", null, false, false, false)]
+		[InlineData(null, "", false, false, false, false)]
+		[InlineData("", null, false, false, false, false)]
 		// Empty values
-		[InlineData("", "", false, false, false)]
+		[InlineData("", "", false, false, false, false)]
 		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
+		[InlineData("foo", "foo", false, false, false, false)]
 		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
+		[InlineData("foo", "FoO", true, false, false, false)]
 		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
+		[InlineData("foo \r\n bar", "foo \r bar", false, true, false, false)]
+		[InlineData("foo \r\n bar", "foo \n bar", false, true, false, false)]
+		[InlineData("foo \n bar", "foo \r bar", false, true, false, false)]
 		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
-		public void SuccessReadOnlyCases(string? value1, string? value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
+		[InlineData(" ", "\t", false, false, true, false)]
+		[InlineData(" \t", "\t ", false, false, true, false)]
+		[InlineData("    ", "\t", false, false, true, false)]
+		[InlineData("", "  ", false, false, false, true)]
+		[InlineData("", "  ", false, false, true, true)]
+		[InlineData("", "\t", false, false, true, true)]
+		[InlineData("foobar", "foo bar", false, false, true, true)]
+		public void SuccessReadOnlyCases(string? value1, string? value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.AsSpan(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2.AsSpan(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
+			Assert.Equal(value1.AsSpan(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.AsSpan(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 		}
 
 		[Theory]
 		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
+		[InlineData("foo", "foo", false, false, false, false)]
 		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
+		[InlineData("foo", "FoO", true, false, false, false)]
 		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
+		[InlineData("foo \r\n bar", "foo \r bar", false, true, false, false)]
+		[InlineData("foo \r\n bar", "foo \n bar", false, true, false, false)]
+		[InlineData("foo \n bar", "foo \r bar", false, true, false, false)]
 		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
-		public void SuccessSpanCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
+		[InlineData(" ", "\t", false, false, true, false)]
+		[InlineData(" \t", "\t ", false, false, true, false)]
+		[InlineData("    ", "\t", false, false, true, false)]
+		public void SuccessSpanCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Spanify(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2.Spanify(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
+			Assert.Equal(value1.Spanify(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.Spanify(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 		}
 
 		[Theory]
 		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
+		[InlineData("foo", "foo!", false, false, false, false, 3, 3)]
+		[InlineData("foo", "foo\0", false, false, false, false, 3, 3)]
 		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
+		[InlineData("foo bar", "foo   Bar", false, true, true, false, 4, 6)]
 		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
+		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, false, 4, 5)]
 		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureReadOnlyCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
+		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, false, 5, 6)]
+		public void FailureReadOnlyCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace, int expectedIndex, int actualIndex)
 		{
 			var ex = Record.Exception(
-				() => Assert.Equal(expected.AsSpan(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
+				() => Assert.Equal(expected.AsSpan(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace)
 			);
 
 			var eqEx = Assert.IsType<EqualException>(ex);
@@ -302,18 +306,18 @@ public class SpanAssertsTests
 
 		[Theory]
 		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
+		[InlineData("foo", "foo!", false, false, false, false, 3, 3)]
+		[InlineData("foo", "foo\0", false, false, false, false, 3, 3)]
 		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
+		[InlineData("foo bar", "foo   Bar", false, true, true, false, 4, 6)]
 		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
+		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, false, 4, 5)]
 		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureSpanCases(string expected, string actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
+		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, false, 5, 6)]
+		public void FailureSpanCases(string expected, string actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace, int expectedIndex, int actualIndex)
 		{
 			var ex = Record.Exception(
-				() => Assert.Equal(expected.Spanify(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
+				() => Assert.Equal(expected.Spanify(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace)
 			);
 
 			var eqEx = Assert.IsType<EqualException>(ex);
