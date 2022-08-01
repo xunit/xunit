@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <!-- Supplement Nerdbank.GitVersioning version calculations -->
-  <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
+  <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <!-- AssemblyVersion and AssemblyFileVersion should be x.y.z.0 -->
       <AssemblyVersion>$(BuildVersionSimple)</AssemblyVersion>
