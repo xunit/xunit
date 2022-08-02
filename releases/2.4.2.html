@@ -281,3 +281,49 @@ breadcrumb: Release Notes
     <a class="issue-link" href="https://github.com/xunit/xunit/pull/2228">xunit/xunit#2228</a>
   </li>
 </ul>
+
+<h2>A note about <code>xunit.runner.visualstudio</code></h2>
+
+<p>
+  The <code>xunit.runner.visualstudio</code> package has a separate lifecycle and
+  separate minimum framework requirements from xUnit.net core. Use this table
+  to determine which version you should use (pick the <em>lowest version</em> of
+  the combination of target frameworks you're using):
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>2.4.1</th>
+      <th>2.4.3</th>
+      <th>2.4.5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>.NET Framework</th>
+      <td>4.5.2</td>
+      <td>4.5.2</td>
+      <td>4.6.2</td>
+    </tr>
+    <tr>
+      <th>.NET Core</th>
+      <td>1.0</td>
+      <td>2.1</td>
+      <td>3.1</td>
+    </tr>
+    <tr>
+      <th>UWP</th>
+      <td>10.0.10240</td>
+      <td>10.0.16299</td>
+      <td>10.0.16299</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Visual Studio does not allow mixed versions of this package in your solution, so do not mix versions; doing
+  so may cause problems running your projects that need the older version of the runner package. Choose the
+  lowest version of the package that applies to <em>all</em> of the test projects in your solution.
+</p>
