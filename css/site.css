@@ -54,6 +54,13 @@ h3, .h3 {
   margin: 0 0 15px 20px;
   padding: 2px 0;
 }
+h4 {
+  color: #336;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: bold;
+  margin-left: 20px;
+}
 h5 {
   color: #999;
   font-size: 12px;
@@ -130,6 +137,12 @@ table, .table {
   display: inline-block;
   margin-left: 15px;
   box-shadow: 3px 3px 20px #666;
+}
+.issue-link {
+  display: block;
+  margin-left: 1em;
+  font-family: Inconsolata, monospace;
+  font-size: 80%;
 }
 ol {
   margin-left: 5px;
