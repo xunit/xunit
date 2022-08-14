@@ -1,0 +1,141 @@
+---
+layout: default
+title: Release Notes for Analyzers&x3A; August 1, 2022
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes for Analyzers: August 1, 2022</h1>
+
+<h2>Hello, 1.0.0!</h2>
+
+<p>
+  Today we're shipping the first full release of the xUnit.net Analyzers
+  package at 1.0.0!
+</p>
+
+<p>
+  The first commit to the analyzers project happened almost exactly 6 years ago
+  on August 31, 2016. <a href="https://github.com/marcind">Marcin Dobosz</a> was
+  working at CenturyLink Cloud with Jim &amp; Brad. His goal was to help developers
+  identify the most common issues found when writing tests with xUnit.net,
+  using his coworkers as the guinea pigs. 😄
+</p>
+
+<p>
+  The first official release was <code>0.1.0</code>, which shipped the following May
+  alongside the <a href="../2.3-beta2">xUnit.net 2.3 Beta 2</a> release. This included
+  15 analyzers for test authors related to non-assertion usage by test authors (things
+  like ensuring the correct number of parameters in <code>[InlineData()]</code> usage)
+  and 5 analyzers for test authors related to assertion usage (things like ensuring that
+  you are passing the <code>expected</code> and <code>actual</code> values in the
+  correct order).
+</p>
+
+<p>
+  In the intervening time between that first release and today, there were ten more
+  public releases in the <code>0.x</code> version system, usually aligned with beta
+  or RTM releases of the core framework.
+</p>
+
+<p>
+  With today's official 1.0 release, we now offer 28 non-assertion analyzers and 19
+  assertion analyzers, plus an entirely new category: 2 analyzers designed for developers
+  who are writing extensions to the core framework.
+</p>
+
+<h2>Release Notes</h2>
+
+<p><em>
+  These release notes reflect the entirety of the changes between 0.10.0 and 1.0.0.
+</em></p>
+
+<!--
+  <li>
+    <a href="/xunit.analyzers/rules/xUnit">xUnit</a>
+  </li>
+-->
+
+<h3>General</h3>
+<ul>
+  <li>
+    All analyzers were reviewed to ensure that the analyzer message contains not just "What was done wrong?"
+    but also "How do I fix it?". This is in recognition that not all developers have access to editors
+    that allow the user to run the fixers, and may only ever see the message via a command line build
+    (like with <code>msbuild</code> or <code>dotnet build</code>) that doesn't surface the documentation
+    links. For example, <a href="/xunit.analyzers/rules/xUnit1000">xUnit1000</a>'s message used to read
+    <code>"Test classes must be public"</code>, but now reads <code>"Test classes must be public. Add or
+    change the visibility modifier of the test class to public."</code>
+  </li>
+</ul>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1010">xUnit1010</a> to allow generic
+    arrays as theory parameters.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2075">xunit/xunit#2075</a>
+  </li>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1016">xUnit1016</a> and
+    <a href="/xunit.analyzers/rules/xUnit1019">xUnit1019</a> which were triggering inadvertently
+    when there were member data elements with overridden names (even though the public one was
+    legal).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1968">xunit/xunit#1968</a>
+  </li>
+  <li>
+    Updated <a href="/xunit.analyzers/rules/xUnit1020">xUnit1020</a> to also ensure property getters
+    are public.
+  </li>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1025">xUnit1025</a> which was
+    incorrectly triggering duplicates because empty arrays were being ignored.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1877">xunit/xunit#1877</a>
+  </li>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1026">xUnit1026</a> which was
+    firing inappropriately when a parameter was used as an <code>out</code> value.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1802">xunit/xunit#1802</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit1027">xUnit1027</a> to detect and fix when test
+    collection classes aren't public.
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/118">xunit/xunit.analyzers#118</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit1033">xUnit1033</a> to detect and fix test classes
+    which are decorated with <code>IClassFixture</code> and/or <code>ICollectionFixture</code> but
+    did not accept the fixture instance via the constructor.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2068">xunit/xunit#2068</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit2013">xUnit2013</a> where it inappropriately
+    suggests converting <code>Assert.Equal(0, arraySegment.Count)</code> into <code>Assert.Empty(arraySegment)</code>
+    since <code>ArraySegment&lt;T&gt;</code> can throw an exception when calling <code>.GetEnumerator()</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1970">xunit/xunit#1970</a>
+  </li>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit2014">xUnit2014</a> where anonymous async methods
+    which returned the result of <code>.ConfigureAwait()</code> were not properly detected.
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/126">xunit/xunit.analyzers#126</a>
+  </li>
+</ul>
+
+<h3>Extensiblity Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit3000">xUnit3000</a> where the fixer would crash
+    on projects that only reference <code>xunit.abstractions</code>. The issue is still raised, but the fixer
+    is not available (since the reference to <code>LongLivedMarshalByRefObject</code> requires a reference
+    to <code>xunit.extensibility.execution</code>).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1574">xunit/xunit#1574</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1575">xunit/xunit#1575</a>
+  </li>
+  <li>
+    Updated <a href="/xunit.analyzers/rules/xUnit3001">xUnit3001</a> to allow it to generate a new constructor
+    in addition to being able to update an existing constructor.
+  </li>
+</ul>

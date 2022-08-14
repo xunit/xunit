@@ -30,6 +30,9 @@ h1, .h1, h2, .h2, h3, .h3 {
   margin: 20px 0 10px 0;
   font-weight: 600;
 }
+h1+h2 {
+  padding-top: 0.5em;
+}
 h2+h3 {
   margin-top: 0;
 }
@@ -285,6 +288,10 @@ blockquote.padded {
 .table.releases td {
   text-align: left;
   vertical-align: middle;
+}
+.release-category {
+  font-size: 125%;
+  color: #363;
 }
 .release:hover,
 .prerelease:hover {
