@@ -31,7 +31,7 @@ For project documentation, please visit the [xUnit.net project home](https://xun
       <td><a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=v2"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dv2&amp;label=build"></td>
     <tr>
     <tr>
-      <th>v3 core framework (<a href="/docs/v3-alpha">alpha docs</a>)</th>
+      <th>v3 core framework (<a href="https://xunit.net/docs/v3-alpha">alpha docs</a>)</th>
       <td>N/A</td>
       <td><a href="https://myget.org/feed/xunit/package/nuget/xunit.v3"><img src="https://img.shields.io/myget/xunit/vpre/xunit.v3.svg?label=myget&amp;logo=nuget"></td>
       <td><a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dmain&amp;label=build"></td>
