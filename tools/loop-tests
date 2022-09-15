@@ -29,5 +29,5 @@ for i in $(seq 1 ${LOOP_COUNT}); do
 	echo -e "\e[1m*** Loop ${i} (Mono) ***\e[0m"
 	mono src/${TEST_PROJECT}/bin/Release/net472/${TEST_PROJECT}.exe "${POSITIONAL_ARGS[@]}"
 	echo -e "\e[1m*** Loop ${i} (.NET Core) ***\e[0m"
-	dotnet exec src/${TEST_PROJECT}/bin/Release/netcoreapp3.1/${TEST_PROJECT}.dll "${POSITIONAL_ARGS[@]}"
+	dotnet exec src/${TEST_PROJECT}/bin/Release/net6.0/${TEST_PROJECT}.dll "${POSITIONAL_ARGS[@]}"
 done

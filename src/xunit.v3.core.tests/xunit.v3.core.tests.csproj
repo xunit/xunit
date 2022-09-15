@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
-    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

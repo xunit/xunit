@@ -17,7 +17,7 @@ public static class TestCoreConsole
 
 		// v3 (default bitness)
 		// TODO: Convert to console runner when it's available
-		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "netcoreapp");
+		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "net6");
 		var v3TestDlls =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.dll", SearchOption.AllDirectories)
@@ -48,7 +48,7 @@ public static class TestCoreConsole
 			return;
 
 		// v3 (forced 32-bit)
-		var netCore32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", "netcoreapp");
+		var netCore32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", "net6");
 		var v3x86TestDlls =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.x86.dll", SearchOption.AllDirectories)
