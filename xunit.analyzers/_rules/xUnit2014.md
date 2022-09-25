@@ -56,9 +56,9 @@ public class xUnit2014
     }
 
     [Fact]
-    public void TestMethod()
+    public async void TestMethod()
     {
-        Assert.ThrowsAsync<DivideByZeroException>(() => MyMath.Divide(1, 0));
+        await Assert.ThrowsAsync<DivideByZeroException>(() => MyMath.Divide(1, 0));
     }
 }
 ```
