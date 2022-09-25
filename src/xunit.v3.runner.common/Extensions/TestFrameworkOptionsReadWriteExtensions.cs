@@ -350,27 +350,6 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
-	/// </summary>
-	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.InternalDiagnosticMessages);
-	}
-
-	/// <summary>
-	/// Gets a flag that determines whether internal diagnostic messages will be emitted. If the flag is not
-	/// present, returns the default value (<c>false</c>).
-	/// </summary>
-	public static bool GetInternalDiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.GetInternalDiagnosticMessages() ?? false;
-	}
-
-	/// <summary>
 	/// Gets a flag to disable parallelization.
 	/// </summary>
 	public static bool? GetDisableParallelization(this _ITestFrameworkExecutionOptions executionOptions)
@@ -389,6 +368,27 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		return executionOptions.GetDisableParallelization() ?? false;
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
+	/// </summary>
+	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.InternalDiagnosticMessages);
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether internal diagnostic messages will be emitted. If the flag is not
+	/// present, returns the default value (<c>false</c>).
+	/// </summary>
+	public static bool GetInternalDiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetInternalDiagnosticMessages() ?? false;
 	}
 
 	/// <summary>

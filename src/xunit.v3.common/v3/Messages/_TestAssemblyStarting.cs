@@ -34,7 +34,7 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 
 	/// <summary>
 	/// Gets or sets the target framework that the assembly was compiled against.
-	/// Examples: ".NETFramework,Version=v4.7.2", ".NETCoreApp,Version=v3.1". This information
+	/// Examples: ".NETFramework,Version=v4.7.2", ".NETCoreApp,Version=v6.0". This information
 	/// is read from <see cref="TargetFrameworkAttribute"/> on the test assembly, which
 	/// is normally auto-generated (but could be missing or empty).
 	/// </summary>

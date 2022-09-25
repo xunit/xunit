@@ -6,12 +6,19 @@ using NSubstitute.Core;
 
 public static class NSubstituteExtensions
 {
-	public static CallInfo Captured<T>(this T substitute, Expression<Action<T>> expr)
+	public static CallInfo Captured<T>(
+		this T substitute,
+		Expression<Action<T>> expr)
+			where T : notnull
 	{
-		return Captured<T>(substitute, 0, expr);
+		return Captured(substitute, 0, expr);
 	}
 
-	public static CallInfo Captured<T>(this T substitute, int callNumber, Expression<Action<T>> expr)
+	public static CallInfo Captured<T>(
+		this T substitute,
+		int callNumber,
+		Expression<Action<T>> expr)
+			where T : notnull
 	{
 		var router = SubstitutionContext.Current.GetCallRouterFor(substitute);
 
@@ -51,7 +58,10 @@ public static class NSubstituteExtensions
 		throw new Exception("Cannot find method.");
 	}
 
-	public static WhenCalledAny<T> WhenAny<T>(this T substitute, Action<T> substituteCall) where T : class
+	public static WhenCalledAny<T> WhenAny<T>(
+		this T substitute,
+		Action<T> substituteCall)
+			where T : class
 	{
 		var context = SubstitutionContext.Current;
 		return new WhenCalledAny<T>(context, substitute, substituteCall, MatchArgs.Any);
@@ -60,8 +70,13 @@ public static class NSubstituteExtensions
 	public class WhenCalledAny<T> : WhenCalled<T>
 		where T : class
 	{
-		public WhenCalledAny(ISubstitutionContext context, T substitute, Action<T> call, MatchArgs matchArgs)
-			: base(context, substitute, call, matchArgs) { }
+		public WhenCalledAny(
+			ISubstitutionContext context,
+			T substitute,
+			Action<T> call,
+			MatchArgs matchArgs) :
+				base(context, substitute, call, matchArgs)
+		{ }
 
 		public void Do<T1>(Action<T1> callbackWithArguments)
 		{

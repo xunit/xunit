@@ -20,7 +20,7 @@ for ($i = 1; $i -le $Count; $i++) {
 	}
 
 	Write-Host "`e[1m*** Loop $i (.NET Core) ***`e[0m"
-	& dotnet exec src/$($TestProject)/bin/Release/netcoreapp3.1/$($TestProject).dll $TestRunArguments
+	& dotnet exec src/$($TestProject)/bin/Release/net6.0/$($TestProject).dll $TestRunArguments
 	if ($LASTEXITCODE -ne 0) {
 		break
 	}

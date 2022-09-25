@@ -18,11 +18,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install .NET Core SDK 3.1
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
-
       - name: Install .NET SDK 6.0
         uses: actions/setup-dotnet@v1
         with:
