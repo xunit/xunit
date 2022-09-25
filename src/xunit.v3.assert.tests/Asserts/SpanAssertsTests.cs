@@ -252,6 +252,7 @@ public class SpanAssertsTests
 		[InlineData(" ", "\t", false, false, true, false)]
 		[InlineData(" \t", "\t ", false, false, true, false)]
 		[InlineData("    ", "\t", false, false, true, false)]
+		// All whitespace differences
 		[InlineData("", "  ", false, false, false, true)]
 		[InlineData("", "  ", false, false, true, true)]
 		[InlineData("", "\t", false, false, true, true)]
@@ -276,6 +277,11 @@ public class SpanAssertsTests
 		[InlineData(" ", "\t", false, false, true, false)]
 		[InlineData(" \t", "\t ", false, false, true, false)]
 		[InlineData("    ", "\t", false, false, true, false)]
+		// All whitespace differences
+		[InlineData("", "  ", false, false, false, true)]
+		[InlineData("", "  ", false, false, true, true)]
+		[InlineData("", "\t", false, false, true, true)]
+		[InlineData("foobar", "foo bar", false, false, true, true)]
 		public void SuccessSpanCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal
