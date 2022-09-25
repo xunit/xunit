@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: "CI Build"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       DOTNET_NOLOGO: true
     steps:
