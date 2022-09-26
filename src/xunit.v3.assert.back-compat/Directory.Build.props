@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project>
+  <!-- This file prevents the auto-import of the .targets file from the parent folder. -->
 
   <PropertyGroup>
     <!-- LangVersion 6 aligns with C# as it existed in VS 2015. -->
     <LangVersion>6</LangVersion>
-    <TargetFramework>netstandard1.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
