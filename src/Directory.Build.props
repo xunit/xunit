@@ -1,17 +1,16 @@
 <Project>
+  <Import Project="Versions.props" />
 
   <!-- ============================== -->
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>6.0.8</AnnotatedReferenceAssemblyVersion>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_SKIP;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
-    <ILRepackVersion>2.0.13</ILRepackVersion>
     <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <RootNamespace>Xunit</RootNamespace>
@@ -20,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.113">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="$(NerdbankGitVersioningVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -53,7 +52,7 @@
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkGitHubVersion)">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -91,9 +90,9 @@
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="NSubstitute" Version="4.4.0" />
-        <PackageReference Include="System.CodeDom" Version="6.0.0" />
-        <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+        <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
+        <PackageReference Include="System.CodeDom" Version="$(SystemCodeDomVersion)" />
+        <PackageReference Include="System.ComponentModel.TypeConverter" Version="$(SystemComponentModelTypeConverterVersion)" />
       </ItemGroup>
 
       <ItemGroup>

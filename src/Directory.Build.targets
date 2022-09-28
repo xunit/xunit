@@ -1,8 +1,7 @@
 <Project>
-
   <!-- Enable building .NET Framework on non-Windows machines -->
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(MicrosoftNetFrameworkReferenceAssembliesVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -10,11 +9,11 @@
 
   <!-- Enable nullable support for older targets -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160">
+    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="$(TunnelVisionLabsReferenceAssemblyAnnotatorVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(AnnotatedReferenceAssemblyVersion)]" />
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(MicrosoftNetCoreAppRefVersion)]" />
   </ItemGroup>
 
   <!-- On Unix-like systems, mark .NET Framework binaries as executable -->
@@ -103,7 +102,18 @@
       <!-- Never put the Git hash in the package version -->
       <PackageVersion>$(BuildVersionSimple)$(PrereleaseVersion)$(PrereleaseSuffix)</PackageVersion>
       <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
-      <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId);Configuration=$(Configuration)</NuspecProperties>
+      <NuspecProperties>
+        Configuration=$(Configuration);
+        GitCommitId=$(GitCommitId);
+        MicrosoftBclAsyncInterfacesVersion=$(MicrosoftBclAsyncInterfacesVersion);
+        MonoCecilVersion=$(MonoCecilVersion);
+        PackageVersion=$(PackageVersion);
+        SystemIoPipelinesVersion=$(SystemIoPipelinesVersion);
+        SystemNetHttpVersion=$(SystemNetHttpVersion);
+        SystemThreadingTasksExtensionsVersion=$(SystemThreadingTasksExtensionsVersion);
+        XunitAbstractionsVersion=$(XunitAbstractionsVersion);
+        XunitAnalyzersVersion=$(XunitAnalyzersVersion);
+      </NuspecProperties>
     </PropertyGroup>
   </Target>
 

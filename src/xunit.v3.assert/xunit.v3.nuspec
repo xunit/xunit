@@ -18,12 +18,12 @@ Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analy
 			<group targetFramework="net472">
 				<dependency id="xunit.v3.core" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
-				<dependency id="xunit.analyzers" version="1.0.0" />
+				<dependency id="xunit.analyzers" version="$XunitAnalyzersVersion$" />
 			</group>
 			<group targetFramework="net6.0">
 				<dependency id="xunit.v3.core" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
-				<dependency id="xunit.analyzers" version="1.0.0" />
+				<dependency id="xunit.analyzers" version="$XunitAnalyzersVersion$" />
 			</group>
 		</dependencies>
 	</metadata>

@@ -5,8 +5,10 @@ All back-compat projects are compiled with .NET Standard 1.1, as that's the bar 
 C# language version is 6 for `XUNIT_SPAN` and `XUNIT_VALUETASK`, and 7.3 for `XUNIT_NULLABLE`.
 The following projects exist for back-compat testing:
 
-- `xunit.v3.assert.cs6.all-off.csproj` has no flags enabled
-- `xunit.v3.assert.cs73.nullable.csproj` has `XUNIT_NULLABLE` enabled
-- `xunit.v3.assert.cs6.span.csproj` has `XUNIT_SPAN` enabled
-- `xunit.v3.assert.cs6.valuetask.csproj` has `XUNIT_VALUETASK` enabled
-- `xunit.v3.assert.cs73.all-on.csproj` has all 3 flags enabled
+| Project                                | Language | Flags                                             |
+| -------------------------------------- | -------- | ------------------------------------------------- |
+| `xunit.v3.assert.cs6.csproj`           | C# 6     | _None_                                            |
+| `xunit.v3.assert.cs6.span.csproj`      | C# 6     | `XUNIT_SPAN`                                      |
+| `xunit.v3.assert.cs6.valuetask.csproj` | C# 6     | `XUNIT_VALUETASK`                                 |
+| `xunit.v3.assert.cs8.nullable.csproj`  | C# 8     | `XUNIT_NULLABLE`                                  |
+| `xunit.v3.assert.cs8.on-all.csproj`    | C# 8     | `XUNIT_NULLABLE`, `XUNIT_SPAN`, `XUNIT_VALUETASK` |

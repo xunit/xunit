@@ -12,15 +12,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.17.2" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="xunit.extensions" Version="1.9.2" />
+    <PackageReference Include="Moq" Version="$(MoqVersion)" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsVersion)" />
+    <PackageReference Include="xunit.extensions" Version="$(XunitV1Version)" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.XML" />
     <Reference Include="System.Web" />
-    <Reference Include="$(NuGetPackageRoot)\xunit\1.9.2\lib\net20\xunit.runner.utility.dll" />
+    <Reference Include="$(NuGetPackageRoot)\xunit\$(XunitV1Version)\lib\net20\xunit.runner.utility.dll" />
   </ItemGroup>
 
 </Project>

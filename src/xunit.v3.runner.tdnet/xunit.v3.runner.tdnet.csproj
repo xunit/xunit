@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="TestDriven.Framework" Version="2.0.0-alpha2" />
+    <PackageReference Include="TestDriven.Framework" Version="$(TestDrivenFrameworkVersion)" />
   </ItemGroup>
 
 </Project>

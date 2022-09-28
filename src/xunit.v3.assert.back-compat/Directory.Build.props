@@ -1,4 +1,6 @@
 <Project>
+  <Import Project="..\Versions.props" />
+
   <!-- This file prevents the auto-import of the .targets file from the parent folder. -->
 
   <PropertyGroup>
@@ -7,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\xunit.v3.assert\Asserts\**\*.cs" LinkBase="Asserts" />
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert\Asserts\**\*.cs" LinkBase="Asserts" />
   </ItemGroup>
 
 </Project>
