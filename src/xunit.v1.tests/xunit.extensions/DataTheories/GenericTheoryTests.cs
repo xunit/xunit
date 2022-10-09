@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Xunit.Extensions;
 
 namespace Xunit1.Extensions

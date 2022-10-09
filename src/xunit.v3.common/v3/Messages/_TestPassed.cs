@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3;
+namespace Xunit.v3;
 
 /// <summary>
 /// Indicates that a test has passed.

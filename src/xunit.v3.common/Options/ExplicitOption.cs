@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk;
+namespace Xunit.Sdk;
 
 /// <summary>
 /// Indicates how explicit tests should be handled during execution.

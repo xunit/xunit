@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3;
+namespace Xunit.v3;
 
 /// <summary>
 /// This message indicates that an instance of a test class has just been constructed.

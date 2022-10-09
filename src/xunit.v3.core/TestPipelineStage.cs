@@ -1,4 +1,4 @@
-﻿namespace Xunit;
+namespace Xunit;
 
 /// <summary>
 /// A flag to indicate which part of the test pipeline you're in. Retrieved from an

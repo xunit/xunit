@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.Common;
+namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Designates the format that the test list should take.

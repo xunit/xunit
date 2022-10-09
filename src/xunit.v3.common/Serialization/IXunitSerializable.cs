@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk;
+namespace Xunit.Sdk;
 
 /// <summary>
 /// This interface should be implemented by any custom object which requires serialization.

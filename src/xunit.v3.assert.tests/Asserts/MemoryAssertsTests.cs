@@ -1,4 +1,4 @@
-﻿#if XUNIT_SPAN
+#if XUNIT_SPAN
 
 using System;
 using Xunit;

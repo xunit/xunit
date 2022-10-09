@@ -1,4 +1,4 @@
-﻿#nullable disable  // TODO: This code is moving to the VSTest adapter
+#nullable disable  // TODO: This code is moving to the VSTest adapter
 
 #if NETSTANDARD
 

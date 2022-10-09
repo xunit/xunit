@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk;
+namespace Xunit.Sdk;
 
 /// <summary>
 /// Default implementation of <see cref="ITestContextAccessor"/>.

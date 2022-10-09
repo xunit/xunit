@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3;
+namespace Xunit.v3;
 
 /// <summary>
 /// Represents information about a method parameter. The primary implementation is based on runtime

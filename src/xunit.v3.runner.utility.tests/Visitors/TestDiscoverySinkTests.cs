@@ -1,4 +1,4 @@
-﻿using NSubstitute;
+using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.v3;

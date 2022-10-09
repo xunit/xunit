@@ -1,4 +1,4 @@
-﻿namespace Xunit;
+namespace Xunit;
 
 /// <summary>
 /// Gives access to the current test context, which is considered to be an immutable snapshot of

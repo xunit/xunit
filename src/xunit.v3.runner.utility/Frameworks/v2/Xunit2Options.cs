@@ -1,4 +1,4 @@
-﻿using Xunit.Abstractions;
+using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 

@@ -1,4 +1,4 @@
-﻿namespace System.Runtime.Serialization;
+namespace System.Runtime.Serialization;
 
 /// <summary>
 /// Extensions for <see cref="SerializationInfo"/>.

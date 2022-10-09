@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3;
+namespace Xunit.v3;
 
 /// <summary>
 /// Represents metadata about a test class.

@@ -1,4 +1,4 @@
-﻿namespace Xunit;
+namespace Xunit;
 
 /// <summary>
 /// Indicates the result of running the test.

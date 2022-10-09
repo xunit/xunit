@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using Xunit.Sdk;
 using Xunit.v3;

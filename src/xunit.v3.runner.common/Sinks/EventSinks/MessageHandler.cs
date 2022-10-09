@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.Common;
+namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Represents a handler for a message, which includes the ability to signal that

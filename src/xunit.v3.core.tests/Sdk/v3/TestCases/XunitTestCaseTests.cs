@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 

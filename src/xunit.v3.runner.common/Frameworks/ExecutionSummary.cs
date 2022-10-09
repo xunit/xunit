@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.Common;
+namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Collects execution totals for a group of test cases.

@@ -1,4 +1,4 @@
-﻿namespace Xunit.v3;
+namespace Xunit.v3;
 
 /// <summary>
 /// The implementation of <see cref="_ITestFramework"/> that supports discovery and

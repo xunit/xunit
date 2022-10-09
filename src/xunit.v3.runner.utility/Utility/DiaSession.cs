@@ -1,4 +1,4 @@
-﻿#nullable disable  // TODO: This code is moving to the VSTest adapter
+#nullable disable  // TODO: This code is moving to the VSTest adapter
 
 using System;
 using System.Collections.Generic;

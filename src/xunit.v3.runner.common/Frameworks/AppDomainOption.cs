@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.Common;
+namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Indicates the current level of app domain support that's in effect,

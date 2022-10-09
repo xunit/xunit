@@ -1,4 +1,4 @@
-﻿namespace Xunit;
+namespace Xunit;
 
 /// <summary>
 /// Represents the current status of the execution of the test engine, with respect to

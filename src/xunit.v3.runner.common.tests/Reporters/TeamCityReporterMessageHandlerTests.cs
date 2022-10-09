@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.v3;

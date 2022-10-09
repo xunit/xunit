@@ -1,4 +1,4 @@
-﻿namespace Xunit.Internal;
+namespace Xunit.Internal;
 
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.

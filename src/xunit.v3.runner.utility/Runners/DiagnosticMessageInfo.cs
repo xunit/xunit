@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runners;
+namespace Xunit.Runners;
 
 /// <summary>
 /// Represents a diagnostic message from the xUnit.net system or third party extension.

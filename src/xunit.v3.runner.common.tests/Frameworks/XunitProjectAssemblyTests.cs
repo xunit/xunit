@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Xunit.Runner.Common;
 
 public class XunitProjectAssemblyTests

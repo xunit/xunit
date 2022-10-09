@@ -1,4 +1,4 @@
-﻿namespace Xunit.Internal;
+namespace Xunit.Internal;
 
 /// <summary/>
 public enum CommandLineGroup

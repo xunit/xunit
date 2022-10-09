@@ -1,4 +1,4 @@
-﻿using Xunit.Internal;
+using Xunit.Internal;
 
 namespace Xunit.v3;
 

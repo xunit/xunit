@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk;
+namespace Xunit.Sdk;
 
 /// <summary>
 /// This is a marker interface implemented to indicate that the exception is the result

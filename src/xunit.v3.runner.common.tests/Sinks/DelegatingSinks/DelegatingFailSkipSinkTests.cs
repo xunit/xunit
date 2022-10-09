@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;

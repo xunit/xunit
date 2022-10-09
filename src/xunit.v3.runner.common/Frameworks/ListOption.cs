@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.Common;
+namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Indicates the kind of list a runner should generate, rather than running tests.
