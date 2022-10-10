@@ -7,3 +7,6 @@
 [submodule "tools/media"]
 	path = tools/media
 	url = https://github.com/xunit/media
+[submodule "src/xunit.v3.assert/Asserts"]
+	path = src/xunit.v3.assert/Asserts
+	url = ../assert.xunit
