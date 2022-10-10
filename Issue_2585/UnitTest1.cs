@@ -5,10 +5,11 @@ namespace Issue_2585
 		[Theory]
 		[InlineData("cherry")]
 		[InlineData("banana")]
-		[InlineData("Apple")]
+		//[InlineData("Apple")]
 		public virtual void TestMethod(string a)
 		{
 			Assert.True(true);
+
 		}
 	}
 
