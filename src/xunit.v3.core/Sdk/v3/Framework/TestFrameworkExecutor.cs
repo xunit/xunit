@@ -62,47 +62,6 @@ public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor
 	}
 
 	/// <inheritdoc/>
-	public ValueTask RunAll(
-		_IMessageSink executionMessageSink,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionMessageSink);
-		Guard.ArgumentNotNull(discoveryOptions);
-		Guard.ArgumentNotNull(executionOptions);
-
-		var tcs = new TaskCompletionSource<object?>();
-
-		ThreadPool.QueueUserWorkItem(async _ =>
-		{
-			try
-			{
-				await using var tracker = new DisposalTracker();
-				var discoverer = CreateDiscoverer();
-				tracker.Add(discoverer);
-
-				var testCases = new List<TTestCase>();
-				await discoverer.Find(
-					testCase => { testCases.Add((TTestCase)testCase); return new(true); },
-					discoveryOptions
-				);
-
-				using (new PreserveWorkingFolder(AssemblyInfo))
-				using (new CultureOverride(executionOptions.Culture()))
-					await RunTestCases(testCases, executionMessageSink, executionOptions);
-
-				tcs.SetResult(null);
-			}
-			catch (Exception ex)
-			{
-				tcs.SetException(ex);
-			}
-		});
-
-		return new(tcs.Task);
-	}
-
-	/// <inheritdoc/>
 	public abstract ValueTask RunTestCases(
 		IReadOnlyCollection<TTestCase> testCases,
 		_IMessageSink executionMessageSink,

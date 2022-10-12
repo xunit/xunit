@@ -13,18 +13,6 @@ namespace Xunit.v3;
 public interface _ITestFrameworkExecutor
 {
 	/// <summary>
-	/// Runs all tests in the assembly.
-	/// </summary>
-	/// <param name="executionMessageSink">The message sink to report results back to.</param>
-	/// <param name="discoveryOptions">The options to be used during test discovery.</param>
-	/// <param name="executionOptions">The options to be used during test execution.</param>
-	ValueTask RunAll(
-		_IMessageSink executionMessageSink,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestFrameworkExecutionOptions executionOptions
-	);
-
-	/// <summary>
 	/// Runs selected test cases in the assembly.
 	/// </summary>
 	/// <param name="testCases">The test cases to run.</param>
