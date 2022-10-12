@@ -355,16 +355,7 @@ public static class SerializationHelper
 		object? value,
 		_ITypeInfo? typeInfo = null)
 	{
-		if (typeInfo == null)
-			typeInfo = Reflector.Wrap(value?.GetType()) ?? TypeInfo_Object;
-
-		if (typeInfo == null)
-		{
-			if (value == null)
-				typeInfo = TypeInfo_Object;
-			else
-				typeInfo = Reflector.Wrap(value.GetType());
-		}
+		typeInfo ??= Reflector.Wrap(value?.GetType()) ?? TypeInfo_Object;
 
 		if (value == null && !typeInfo.IsNullable())
 			throw new ArgumentException($"Cannot serialize a null value as type '{typeInfo.Name}' because it's type-incompatible", nameof(value));
