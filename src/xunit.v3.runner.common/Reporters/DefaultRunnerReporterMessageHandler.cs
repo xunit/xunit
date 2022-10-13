@@ -236,14 +236,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 		var assemblyDisplayName = GetAssemblyDisplayName(discoveryFinished.Assembly);
 
 		if (discoveryFinished.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
-		{
-			var count =
-				discoveryFinished.TestCasesToRun == discoveryFinished.TestCasesDiscovered
-					? discoveryFinished.TestCasesDiscovered.ToString()
-					: $"{discoveryFinished.TestCasesToRun} of {discoveryFinished.TestCasesDiscovered}";
-
-			Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName} (found {count} test case{(discoveryFinished.TestCasesToRun == 1 ? "" : "s")})");
-		}
+			Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName} ({discoveryFinished.TestCasesToRun} test case{(discoveryFinished.TestCasesToRun == 1 ? "" : "s")} to be run)");
 		else
 			Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName}");
 	}

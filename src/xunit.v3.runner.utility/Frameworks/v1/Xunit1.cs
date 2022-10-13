@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -120,29 +121,28 @@ public class Xunit1 : IFrontController
 	{
 		Guard.ArgumentNotNull(messageSink);
 
-		var discoveryStarting = new _DiscoveryStarting
-		{
-			AssemblyName = testAssemblyName,
-			AssemblyPath = assemblyFileName,
-			AssemblyUniqueID = TestAssemblyUniqueID,
-			ConfigFilePath = configFileName
-		};
-		messageSink.OnMessage(discoveryStarting);
+		int testCasesToRun = 0;
 
-		try
-		{
-			Find(includeSourceInformation, testCase =>
+		Find(
+			messageSink,
+			includeSourceInformation,
+			testCase =>
 			{
 				var msg = testCase.ToTestCaseDiscovered(includeSerialization: true);
 				if (filter == null || filter(msg))
+				{
 					messageSink.OnMessage(msg);
-			});
-		}
-		finally
+					++testCasesToRun;
+				}
+			}
+		);
+
+		var discoveryComplete = new _DiscoveryComplete
 		{
-			var discoveryComplete = new _DiscoveryComplete { AssemblyUniqueID = TestAssemblyUniqueID };
-			messageSink.OnMessage(discoveryComplete);
-		}
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			TestCasesToRun = testCasesToRun,
+		};
+		messageSink.OnMessage(discoveryComplete);
 	}
 
 	/// <inheritdoc/>
@@ -161,9 +161,19 @@ public class Xunit1 : IFrontController
 	}
 
 	void Find(
+		_IMessageSink messageSink,
 		bool includeSourceInformation,
 		Action<Xunit1TestCase> callback)
 	{
+		var discoveryStarting = new _DiscoveryStarting
+		{
+			AssemblyName = testAssemblyName,
+			AssemblyPath = assemblyFileName,
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			ConfigFilePath = configFileName
+		};
+		messageSink.OnMessage(discoveryStarting);
+
 		XmlNode? assemblyXml = null;
 
 		var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; });
@@ -243,19 +253,30 @@ public class Xunit1 : IFrontController
 
 		var testCases = new List<Xunit1TestCase>();
 
-		Find(includeSourceInformation, testCase =>
-		{
-			var include = true;
-
-			if (filter != null)
+		Find(
+			messageSink,
+			includeSourceInformation,
+			testCase =>
 			{
-				var msg = testCase.ToTestCaseDiscovered(includeSerialization: false);
-				include = filter(msg);
-			}
+				var include = true;
 
-			if (include)
-				testCases.Add(testCase);
-		});
+				if (filter != null)
+				{
+					var msg = testCase.ToTestCaseDiscovered(includeSerialization: false);
+					include = filter(msg);
+				}
+
+				if (include)
+					testCases.Add(testCase);
+			}
+		);
+
+		var discoveryComplete = new _DiscoveryComplete
+		{
+			AssemblyUniqueID = TestAssemblyUniqueID,
+			TestCasesToRun = testCases.Count,
+		};
+		messageSink.OnMessage(discoveryComplete);
 
 		Run(testCases, messageSink, markAllAsNotRun);
 	}

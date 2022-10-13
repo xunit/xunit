@@ -304,73 +304,35 @@ public class ConsoleRunner
 			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
 			disposalTracker.Add(testFramework);
 
-			// Discover & filter the tests
-			var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-			var discoveryStarting = new TestAssemblyDiscoveryStarting
+			var frontController = new InProcessFrontController(testFramework, assemblyInfo, assembly.ConfigFileName);
+
+			IExecutionSink resultsSink = new DelegatingSummarySink(
+				assembly,
+				discoveryOptions,
+				executionOptions,
+				AppDomainOption.NotAvailable,
+				shadowCopy: false,
+				reporterMessageHandler,
+				() => cancel
+			);
+
+			if (assemblyElement != null)
+				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+			if (longRunningSeconds > 0 && diagnosticMessageSink != null)
+				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
+			if (assembly.Configuration.FailSkipsOrDefault)
+				resultsSink = new DelegatingFailSkipSink(resultsSink);
+
+			using (resultsSink)
 			{
-				AppDomain = AppDomainOption.NotAvailable,
-				Assembly = assembly,
-				DiscoveryOptions = discoveryOptions,
-				ShadowCopy = false
-			};
-			reporterMessageHandler.OnMessage(discoveryStarting);
+				await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
 
-			var testCases = new List<_ITestCase>();
-			await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions);
+				testExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 
-			var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
-			var testCasesToRun = filteredTestCases.Count;
-
-			var discoveryFinished = new TestAssemblyDiscoveryFinished
-			{
-				Assembly = assembly,
-				DiscoveryOptions = discoveryOptions,
-				TestCasesDiscovered = testCases.Count,
-				TestCasesToRun = testCasesToRun
-			};
-			reporterMessageHandler.OnMessage(discoveryFinished);
-
-			// Run the filtered tests
-			if (testCasesToRun == 0)
-				testExecutionSummaries.Add(testDiscoverer.TestAssembly.UniqueID, new ExecutionSummary());
-			else
-			{
-				var executionStarting = new TestAssemblyExecutionStarting
+				if (assembly.Configuration.StopOnFailOrDefault && resultsSink.ExecutionSummary.Failed != 0)
 				{
-					Assembly = assembly,
-					ExecutionOptions = executionOptions
-				};
-				reporterMessageHandler.OnMessage(executionStarting);
-
-				IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel);
-				if (assemblyElement != null)
-					resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-				if (longRunningSeconds > 0 && diagnosticMessageSink != null)
-					resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-				if (assembly.Configuration.FailSkipsOrDefault)
-					resultsSink = new DelegatingFailSkipSink(resultsSink);
-
-				using (resultsSink)
-				{
-					var executor = testFramework.GetExecutor(assemblyInfo);
-
-					await executor.RunTestCases(filteredTestCases, resultsSink, executionOptions);
-
-					testExecutionSummaries.Add(testDiscoverer.TestAssembly.UniqueID, resultsSink.ExecutionSummary);
-
-					var executionFinished = new TestAssemblyExecutionFinished
-					{
-						Assembly = assembly,
-						ExecutionOptions = executionOptions,
-						ExecutionSummary = resultsSink.ExecutionSummary
-					};
-					reporterMessageHandler.OnMessage(executionFinished);
-
-					if (assembly.Configuration.StopOnFailOrDefault && resultsSink.ExecutionSummary.Failed != 0)
-					{
-						Console.WriteLine("Canceling due to test failure...");
-						cancel = true;
-					}
+					Console.WriteLine("Canceling due to test failure...");
+					cancel = true;
 				}
 			}
 		}

@@ -12,6 +12,7 @@ using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v1;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class Xunit1Tests
@@ -1144,6 +1145,8 @@ public class AmbiguouslyNamedTestMethods
 
 			Assert.Collection(
 				spy.Messages,
+				msg => Assert.IsType<_DiscoveryStarting>(msg),
+				msg => Assert.IsType<_DiscoveryComplete>(msg),
 				msg => Assert.IsType<_TestAssemblyStarting>(msg),
 				msg => Assert.IsType<_TestCollectionStarting>(msg),
 				msg => Assert.IsType<_TestClassStarting>(msg),

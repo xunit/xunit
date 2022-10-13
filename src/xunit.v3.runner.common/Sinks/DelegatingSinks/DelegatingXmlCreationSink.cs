@@ -48,48 +48,6 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	/// <inheritdoc/>
 	public ManualResetEvent Finished => innerSink.Finished;
 
-	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message)
-	{
-		Guard.ArgumentNotNull(message);
-
-		// Call the inner sink first, because we want to be able to depend on ExecutionSummary
-		// being correctly filled out.
-		var result = innerSink.OnMessage(message);
-
-		return message.DispatchWhen<_ErrorMessage>(HandleErrorMessage)
-
-			&& message.DispatchWhen<_TestAssemblyCleanupFailure>(HandleTestAssemblyCleanupFailure)
-			&& message.DispatchWhen<_TestAssemblyFinished>(HandleTestAssemblyFinished)
-			&& message.DispatchWhen<_TestAssemblyStarting>(HandleTestAssemblyStarting)
-
-			&& message.DispatchWhen<_TestCaseCleanupFailure>(HandleTestCaseCleanupFailure)
-			&& message.DispatchWhen<_TestCaseFinished>(HandleTestCaseFinished)
-			&& message.DispatchWhen<_TestCaseStarting>(HandleTestCaseStarting)
-
-			&& message.DispatchWhen<_TestClassCleanupFailure>(HandleTestClassCleanupFailure)
-			&& message.DispatchWhen<_TestClassFinished>(HandleTestClassFinished)
-			&& message.DispatchWhen<_TestClassStarting>(HandleTestClassStarting)
-
-			&& message.DispatchWhen<_TestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
-			&& message.DispatchWhen<_TestCollectionFinished>(HandleTestCollectionFinished)
-			&& message.DispatchWhen<_TestCollectionStarting>(HandleTestCollectionStarting)
-
-			&& message.DispatchWhen<_TestMethodCleanupFailure>(HandleTestMethodCleanupFailure)
-			&& message.DispatchWhen<_TestMethodFinished>(HandleTestMethodFinished)
-			&& message.DispatchWhen<_TestMethodStarting>(HandleTestMethodStarting)
-
-			&& message.DispatchWhen<_TestCleanupFailure>(HandleTestCleanupFailure)
-			&& message.DispatchWhen<_TestFailed>(HandleTestFailed)
-			&& message.DispatchWhen<_TestFinished>(HandleTestFinished)
-			&& message.DispatchWhen<_TestPassed>(HandleTestPassed)
-			&& message.DispatchWhen<_TestNotRun>(HandleTestNotRun)
-			&& message.DispatchWhen<_TestSkipped>(HandleTestSkipped)
-			&& message.DispatchWhen<_TestStarting>(HandleTestStarting)
-
-			&& result;
-	}
-
 	void AddError(
 		string type,
 		string? name,
@@ -344,6 +302,48 @@ public class DelegatingXmlCreationSink : IExecutionSink
 
 	void HandleTestStarting(MessageHandlerArgs<_TestStarting> args) =>
 		metadataCache.Set(args.Message);
+
+	/// <inheritdoc/>
+	public bool OnMessage(_MessageSinkMessage message)
+	{
+		Guard.ArgumentNotNull(message);
+
+		// Call the inner sink first, because we want to be able to depend on ExecutionSummary
+		// being correctly filled out.
+		var result = innerSink.OnMessage(message);
+
+		return message.DispatchWhen<_ErrorMessage>(HandleErrorMessage)
+
+			&& message.DispatchWhen<_TestAssemblyCleanupFailure>(HandleTestAssemblyCleanupFailure)
+			&& message.DispatchWhen<_TestAssemblyFinished>(HandleTestAssemblyFinished)
+			&& message.DispatchWhen<_TestAssemblyStarting>(HandleTestAssemblyStarting)
+
+			&& message.DispatchWhen<_TestCaseCleanupFailure>(HandleTestCaseCleanupFailure)
+			&& message.DispatchWhen<_TestCaseFinished>(HandleTestCaseFinished)
+			&& message.DispatchWhen<_TestCaseStarting>(HandleTestCaseStarting)
+
+			&& message.DispatchWhen<_TestClassCleanupFailure>(HandleTestClassCleanupFailure)
+			&& message.DispatchWhen<_TestClassFinished>(HandleTestClassFinished)
+			&& message.DispatchWhen<_TestClassStarting>(HandleTestClassStarting)
+
+			&& message.DispatchWhen<_TestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
+			&& message.DispatchWhen<_TestCollectionFinished>(HandleTestCollectionFinished)
+			&& message.DispatchWhen<_TestCollectionStarting>(HandleTestCollectionStarting)
+
+			&& message.DispatchWhen<_TestMethodCleanupFailure>(HandleTestMethodCleanupFailure)
+			&& message.DispatchWhen<_TestMethodFinished>(HandleTestMethodFinished)
+			&& message.DispatchWhen<_TestMethodStarting>(HandleTestMethodStarting)
+
+			&& message.DispatchWhen<_TestCleanupFailure>(HandleTestCleanupFailure)
+			&& message.DispatchWhen<_TestFailed>(HandleTestFailed)
+			&& message.DispatchWhen<_TestFinished>(HandleTestFinished)
+			&& message.DispatchWhen<_TestPassed>(HandleTestPassed)
+			&& message.DispatchWhen<_TestNotRun>(HandleTestNotRun)
+			&& message.DispatchWhen<_TestSkipped>(HandleTestSkipped)
+			&& message.DispatchWhen<_TestStarting>(HandleTestStarting)
+
+			&& result;
+	}
 
 	/// <summary>
 	/// Escapes a string for placing into the XML.

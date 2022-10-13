@@ -44,6 +44,28 @@ public static class TestData
 	public static _IReflectionAssemblyInfo AssemblyInfo(Assembly assembly) =>
 		Reflector.Wrap(assembly);
 
+	public static _DiscoveryComplete DiscoveryComplete(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int testCasesToRun = DefaultCountTotal) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCasesToRun = testCasesToRun,
+			};
+
+	public static _DiscoveryStarting DiscoveryStarting(
+		string assemblyName = DefaultAssemblyName,
+		string assemblyPath = DefaultAssemblyPath,
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string? configFilePath = DefaultConfigFilePath) =>
+			new()
+			{
+				AssemblyName = assemblyName,
+				AssemblyPath = assemblyPath,
+				AssemblyUniqueID = assemblyUniqueID,
+				ConfigFilePath = configFilePath,
+			};
+
 	public static _ErrorMessage ErrorMessage(
 		int[] exceptionParentIndices,
 		string?[] exceptionTypes,
@@ -150,7 +172,6 @@ public static class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		bool preEnumerateTheories = false,
-		int testCasesDiscovered = 2112,
 		int testCasesToRun = 42)
 	{
 		var project = new XunitProject();
@@ -174,7 +195,6 @@ public static class TestData
 		{
 			Assembly = assembly,
 			DiscoveryOptions = discoveryOptions,
-			TestCasesDiscovered = testCasesDiscovered,
 			TestCasesToRun = testCasesToRun,
 		};
 	}

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole;
@@ -308,14 +309,25 @@ class ConsoleRunner
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink);
 			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
 
-			var executionStarting = new TestAssemblyExecutionStarting
+			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{
-				Assembly = assembly,
-				ExecutionOptions = executionOptions
+				(false, AppDomainSupport.Required) => throw new ArgumentException($"AppDomains were required but assembly '{assembly.AssemblyFileName}' does not support them"),
+				(false, _) => AppDomainOption.NotAvailable,
+				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
+				(true, _) => AppDomainOption.Enabled,
 			};
-			reporterMessageHandler.OnMessage(executionStarting);
 
-			IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
+			IExecutionSink resultsSink = new DelegatingSummarySink(
+				assembly,
+				discoveryOptions,
+				executionOptions,
+				appDomain,
+				shadowCopy,
+				reporterMessageHandler,
+				() => cancel,
+				(summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary)
+			);
+
 			if (assemblyElement != null)
 				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 			if (longRunningSeconds > 0 && diagnosticMessageSink != null)
@@ -328,14 +340,6 @@ class ConsoleRunner
 				var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
 				controller.FindAndRun(resultsSink, settings);
 				resultsSink.Finished.WaitOne();
-
-				var executionFinished = new TestAssemblyExecutionFinished
-				{
-					Assembly = assembly,
-					ExecutionOptions = executionOptions,
-					ExecutionSummary = resultsSink.ExecutionSummary
-				};
-				reporterMessageHandler.OnMessage(executionFinished);
 
 				if (assembly.Configuration.StopOnFailOrDefault && resultsSink.ExecutionSummary.Failed != 0)
 				{

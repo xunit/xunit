@@ -302,6 +302,8 @@ public class xunit : MSBuildTask, ICancelableTask
 		if (cancel)
 			return null;
 
+		Guard.NotNull("Runner is misconfigured ('reporterMessageHandler' is null)", reporterMessageHandler);
+
 		var assemblyElement = NeedsXml ? new XElement("assembly") : null;
 
 		try
@@ -336,14 +338,25 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
 
-			var executionStarting = new TestAssemblyExecutionStarting
+			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{
-				Assembly = assembly,
-				ExecutionOptions = executionOptions
+				(false, AppDomainSupport.Required) => throw new ArgumentException($"AppDomains were required but assembly '{assembly.AssemblyFileName}' does not support them"),
+				(false, _) => AppDomainOption.NotAvailable,
+				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
+				(true, _) => AppDomainOption.Enabled,
 			};
-			reporterMessageHandler!.OnMessage(executionStarting);
 
-			IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler!, () => cancel, (summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary));
+			IExecutionSink resultsSink = new DelegatingSummarySink(
+				assembly,
+				discoveryOptions,
+				executionOptions,
+				appDomain,
+				shadowCopy,
+				reporterMessageHandler,
+				() => cancel,
+				(summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary)
+			);
+
 			if (assemblyElement != null)
 				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
 			if (longRunningSeconds > 0)
@@ -356,14 +369,6 @@ public class xunit : MSBuildTask, ICancelableTask
 				var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
 				controller.FindAndRun(resultsSink, settings);
 				resultsSink.Finished.WaitOne();
-
-				var executionFinished = new TestAssemblyExecutionFinished
-				{
-					Assembly = assembly,
-					ExecutionOptions = executionOptions,
-					ExecutionSummary = resultsSink.ExecutionSummary
-				};
-				reporterMessageHandler!.OnMessage(executionFinished);
 
 				if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
 				{

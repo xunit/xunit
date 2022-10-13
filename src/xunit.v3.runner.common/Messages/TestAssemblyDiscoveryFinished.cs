@@ -32,11 +32,6 @@ public class TestAssemblyDiscoveryFinished : _MessageSinkMessage
 	}
 
 	/// <summary>
-	/// Gets the count of the number of discovered test cases.
-	/// </summary>
-	public int TestCasesDiscovered { get; set; }
-
-	/// <summary>
 	/// Gets the count of the number of test cases that will be run (post-filtering).
 	/// </summary>
 	public int TestCasesToRun { get; set; }

@@ -187,18 +187,6 @@ public class Xunit2MessageAdapterTests
 	public class DiscoveryTests
 	{
 		[Fact]
-		public void DiscoveryComplete()
-		{
-			var v2Message = Xunit2Mocks.DiscoveryCompleteMessage();
-			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
-
-			var adapted = v2Adapter.Adapt(v2Message);
-
-			var v3Message = Assert.IsType<_DiscoveryComplete>(adapted);
-			Assert.Equal(TestAssemblyUniqueID, v3Message.AssemblyUniqueID);
-		}
-
-		[Fact]
 		public void TestCaseDiscoveryMessage()
 		{
 			var v2Message = Xunit2Mocks.TestCaseDiscoveryMessage(TestCase);

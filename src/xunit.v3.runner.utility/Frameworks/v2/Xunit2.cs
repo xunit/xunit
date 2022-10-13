@@ -238,7 +238,7 @@ public class Xunit2 : IFrontController
 				filteringMessageSink.Finished.WaitOne();
 			}
 
-		SendDiscoveryCompleteMessage(messageSink);
+		SendDiscoveryCompleteMessage(messageSink, filteringMessageSink.TestCasesToRun);
 	}
 
 	/// <inheritdoc/>
@@ -253,19 +253,11 @@ public class Xunit2 : IFrontController
 
 		var explicitOption = settings.ExecutionOptions.GetExplicitOptionOrDefault();
 
-		if (settings.Filters.Empty && explicitOption != ExplicitOption.Only)
-		{
-			remoteExecutor.RunAll(
-				CreateOptimizedRemoteMessageSink(messageSink),
-				Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions),
-				Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
-			);
-
-			return;
-		}
+		SendDiscoveryStartingMessage(messageSink);
 
 		using var discoverySink = new Xunit2DiscoverySink(settings.Filters);
 		var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions);
+		var testCases = new List<ITestCase>();
 
 		if (settings.Filters.IncludedClasses.Count == 0)
 		{
@@ -278,6 +270,8 @@ public class Xunit2 : IFrontController
 				remoteDiscoverer.Find(includedClass, includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
 				discoverySink.Finished.WaitOne();
 			}
+
+		SendDiscoveryCompleteMessage(messageSink, discoverySink.TestCases.Count);
 
 		if (explicitOption == ExplicitOption.Only)
 			ReportTestCasesAsNotRun(discoverySink.TestCases, messageSink);
@@ -582,13 +576,16 @@ public class Xunit2 : IFrontController
 		messageSink.OnMessage(discoveryStarting);
 	}
 
-	void SendDiscoveryCompleteMessage(_IMessageSink messageSink)
+	void SendDiscoveryCompleteMessage(
+		_IMessageSink messageSink,
+		int testCasesToRun)
 	{
 		// We optimize discovery when filtering by class, so we filter out discovery complete
 		// messages, and need to send a single one when we're finished.
 		var discoveryComplete = new _DiscoveryComplete
 		{
 			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.Name, assemblyInfo.AssemblyPath, configFileName),
+			TestCasesToRun = testCasesToRun,
 		};
 
 		messageSink.OnMessage(discoveryComplete);
@@ -697,20 +694,29 @@ public class Xunit2 : IFrontController
 		public void Callback(List<KeyValuePair<string?, ITestCase?>> results) => Results = results;
 	}
 
+	// This message sink filters out _DiscoveryComplete (to let us run multiple discoveries at once) as well
+	// as only reported discovered test cases which pass the filter.
 	class FilteringMessageSink : _IMessageSink, IDisposable
 	{
+		readonly Action<_TestCaseDiscovered>? discoveryCallback;
 		readonly Predicate<_TestCaseDiscovered> filter;
 		readonly _IMessageSink innerMessageSink;
+		volatile int testCasesToRun = 0;
 
 		public FilteringMessageSink(
 			_IMessageSink innerMessageSink,
-			Predicate<_TestCaseDiscovered> filter)
+			Predicate<_TestCaseDiscovered> filter,
+			Action<_TestCaseDiscovered>? discoveryCallback = null)
 		{
 			this.innerMessageSink = innerMessageSink;
 			this.filter = filter;
+			this.discoveryCallback = discoveryCallback;
 		}
 
 		public AutoResetEvent Finished { get; } = new AutoResetEvent(initialState: false);
+
+		public int TestCasesToRun =>
+			testCasesToRun;
 
 		public void Dispose() =>
 			Finished.Dispose();
@@ -726,8 +732,15 @@ public class Xunit2 : IFrontController
 			}
 
 			if (message is _TestCaseDiscovered discovered)
+			{
 				if (!filter(discovered))
 					return true;
+
+				Interlocked.Increment(ref testCasesToRun);
+
+				if (discoveryCallback != null)
+					discoveryCallback(discovered);
+			}
 
 			return innerMessageSink.OnMessage(message);
 		}
