@@ -119,6 +119,7 @@ public class DelegatingSummarySink : IExecutionSink
 		{
 			Assembly = assembly,
 			ExecutionOptions = executionOptions,
+			Seed = args.Message.Seed,
 		};
 		innerSink.OnMessage(executionStarting);
 	}

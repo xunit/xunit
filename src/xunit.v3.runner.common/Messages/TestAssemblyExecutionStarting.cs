@@ -30,4 +30,11 @@ public class TestAssemblyExecutionStarting : _MessageSinkMessage
 		get => executionOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionOptions)} on an uninitialized '{GetType().FullName}' object");
 		set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
 	}
+
+	/// <summary>
+	/// Gets the seed value used for randomization. If <c>null</c>, then the test framework does not
+	/// support setting a randomization seed. (For stock versions of xUnit.net, support for settable
+	/// randomization seeds started with v3.)
+	/// </summary>
+	public int? Seed { get; set; }
 }

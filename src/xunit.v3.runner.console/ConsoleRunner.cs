@@ -51,7 +51,7 @@ class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
-				Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
+				Console.WriteLine($"usage: {executableName} <assemblyFile>[:seed] [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
 				Console.WriteLine();
 				Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
 				Console.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
@@ -160,13 +160,13 @@ class ConsoleRunner
 #if NET472
 		var buildTarget = $"net472";
 #elif NET48
-			var buildTarget = $"net48";
+		var buildTarget = $"net48";
 #else
 #error Unknown target framework
 #endif
 
 #if BUILD_X86
-			buildTarget += "/x86";
+		buildTarget += "/x86";
 #else
 		buildTarget += "/AnyCPU";
 #endif

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using Xunit.v3;
@@ -101,6 +102,11 @@ public static class ConfigReader_Json
 						if (intValue > 0)
 							configuration.LongRunningTestSeconds = intValue;
 					}
+					else if (string.Equals(property.Name, Configuration.Seed, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue >= 0)
+							configuration.Seed = intValue;
+					}
 				}
 				else if (property.Value.ValueKind == JsonValueKind.String)
 				{
@@ -169,6 +175,7 @@ public static class ConfigReader_Json
 		public const string ParallelizeAssembly = "parallelizeAssembly";
 		public const string ParallelizeTestCollections = "parallelizeTestCollections";
 		public const string PreEnumerateTheories = "preEnumerateTheories";
+		public const string Seed = "seed";
 		public const string ShadowCopy = "shadowCopy";
 		public const string StopOnFail = "stopOnFail";
 	}

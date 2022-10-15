@@ -178,6 +178,11 @@ public class TestAssemblyConfiguration
 	public bool? PreEnumerateTheories { get; set; }
 
 	/// <summary>
+	/// Gets or sets the seed value used for randomization. Only supported for v3 or later test assemblies.
+	/// </summary>
+	public int? Seed { get; set; }
+
+	/// <summary>
 	/// Gets or sets a flag indicating whether shadow copies should be used.
 	/// </summary>
 	public bool? ShadowCopy { get; set; }

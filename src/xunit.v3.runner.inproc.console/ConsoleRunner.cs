@@ -74,7 +74,7 @@ public class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
-				Console.WriteLine($"usage: [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
+				Console.WriteLine($"usage: [:seed] [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
 
 				commandLine.PrintUsage();
 				return 2;

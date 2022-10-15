@@ -64,16 +64,8 @@ public class Xunit1 : IFrontController
 	/// <inheritdoc/>
 	public bool CanUseAppDomains => true;
 
-	IXunit1Executor Executor
-	{
-		get
-		{
-			if (executor == null)
-				executor = CreateExecutor();
-
-			return executor;
-		}
-	}
+	IXunit1Executor Executor =>
+		executor ??= CreateExecutor();
 
 	/// <inheritdoc/>
 	// This is not supported with v1, since there is no code in the remote AppDomain

@@ -87,6 +87,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// <param name="explicitOption">Optional flag to indicate how explicit tests should be handled</param>
 	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
 	/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
+	/// <param name="seed">Optional override value to seed randomization</param>
 	/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
 	/// <returns></returns>
 	public static _ITestFrameworkExecutionOptions ForExecution(
@@ -96,6 +97,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		ExplicitOption? explicitOption = null,
 		bool? internalDiagnosticMessages = null,
 		int? maxParallelThreads = null,
+		int? seed = null,
 		bool? stopOnFail = null)
 	{
 		_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
@@ -106,6 +108,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		result.SetExplicitOption(explicitOption);
 		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
 		result.SetMaxParallelThreads(maxParallelThreads);
+		result.SetSeed(seed);
 		result.SetStopOnTestFail(stopOnFail);
 
 		return result;
@@ -123,6 +126,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 			configuration.ExplicitOption,
 			configuration.InternalDiagnosticMessages,
 			configuration.MaxParallelThreads,
+			configuration.Seed,
 			configuration.StopOnFail
 		);
 

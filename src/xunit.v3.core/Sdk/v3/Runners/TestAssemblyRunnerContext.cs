@@ -66,6 +66,11 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 		messageBus ?? throw new InvalidOperationException($"Attempted to get {nameof(MessageBus)} on an uninitialized '{GetType().FullName}' object");
 
 	/// <summary>
+	/// Gets the seed value used for randomization.
+	/// </summary>
+	public int? Seed => Randomizer.Seed;
+
+	/// <summary>
 	/// Gets the target framework against which the assembly was compiled (e.g., ".NETFramework,Version=v4.7.2").
 	/// </summary>
 	public virtual string TargetFramework =>

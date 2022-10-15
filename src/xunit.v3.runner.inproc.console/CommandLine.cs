@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Xunit.Internal;
@@ -28,15 +29,16 @@ public class CommandLine : CommandLineParserBase
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
-			"  none        - turn off all parallelization",
-			"  collections - only parallelize collections [default]"
+			"  none        - turn off parallelization",
+			"  collections - parallelize by collections [default]"
 		);
 	}
 
 	void AddAssembly(
 		Assembly assembly,
 		string? assemblyFileName,
-		string? configFileName)
+		string? configFileName,
+		int? seed)
 	{
 		if (assemblyFileName != null && !FileExists(assemblyFileName))
 			throw new ArgumentException($"assembly not found: {assemblyFileName}");
@@ -53,6 +55,7 @@ public class CommandLine : CommandLineParserBase
 		};
 
 		ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
 
 		Project.Add(projectAssembly);
 	}
@@ -73,14 +76,25 @@ public class CommandLine : CommandLineParserBase
 
 		var argsStartIndex = 0;
 
-		string? configFileName = null;
-		if (Args.Length > 0 && !Args[0].StartsWith("-") && Args[0].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		int? seed = null;
+		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(":"))
 		{
-			configFileName = Args[0];
-			argsStartIndex = 1;
+			var seedValueText = Args[argsStartIndex].Substring(1);
+			if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out int parsedValue) || parsedValue < 0)
+				throw new ArgumentException($"invalid seed value '{seedValueText}' (must be an integer in the range of 0 - 2147483647)");
+
+			seed = parsedValue;
+			++argsStartIndex;
 		}
 
-		AddAssembly(assembly, assemblyFileName, configFileName);
+		string? configFileName = null;
+		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith("-") && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		{
+			configFileName = Args[argsStartIndex];
+			++argsStartIndex;
+		}
+
+		AddAssembly(assembly, assemblyFileName, configFileName, seed);
 
 		return ParseInternal(argsStartIndex);
 	}

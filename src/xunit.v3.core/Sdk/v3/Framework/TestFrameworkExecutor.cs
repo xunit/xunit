@@ -77,6 +77,9 @@ public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor
 		Guard.ArgumentNotNull(executionMessageSink);
 		Guard.ArgumentNotNull(executionOptions);
 
+		var seed = executionOptions.Seed() ?? AssemblyInfo.Assembly.Modules.First().ModuleVersionId.GetHashCode();
+		Randomizer.Seed = seed == int.MinValue ? int.MaxValue : Math.Abs(seed);
+
 		var tcs = new TaskCompletionSource<object?>();
 
 		ThreadPool.QueueUserWorkItem(async _ =>

@@ -272,6 +272,16 @@ public static class TestFrameworkOptionsReadExtensions
 	}
 
 	/// <summary>
+	/// Gets the value that should be used to seed randomness.
+	/// </summary>
+	public static int? Seed(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.Seed);
+	}
+
+	/// <summary>
 	/// Gets a flag to stop testing on test failure.
 	/// </summary>
 	public static bool? StopOnTestFail(this _ITestFrameworkExecutionOptions executionOptions)

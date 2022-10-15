@@ -28,6 +28,13 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	public string? ConfigFilePath { get; set; }
 
 	/// <summary>
+	/// Gets or sets the seed value used for randomization. If <c>null</c>, then the test framework
+	/// does not support getting or setting a randomization seed. (For stock versions of xUnit.net,
+	/// support for settable randomization seeds started with v3.)
+	/// </summary>
+	public int? Seed { get; set; }
+
+	/// <summary>
 	/// Gets or sets the date and time when the test assembly execution began.
 	/// </summary>
 	public DateTimeOffset StartTime { get; set; }
@@ -62,5 +69,5 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}";
+		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}{(Seed == null ? "" : $" seed={Seed}")}";
 }

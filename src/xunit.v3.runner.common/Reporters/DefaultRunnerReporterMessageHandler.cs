@@ -299,7 +299,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 			var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
 			var threadCountText = threadCount < 0 ? "unlimited" : threadCount.ToString();
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
-			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit})");
+			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit}{(executionStarting.Seed == null ? "" : $", seed = {executionStarting.Seed}")})");
 		}
 		else
 			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");

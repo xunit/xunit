@@ -418,6 +418,16 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
+	/// Gets the value that should be used to seed randomness.
+	/// </summary>
+	public static int? GetSeed(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.Seed);
+	}
+
+	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// </summary>
 	public static bool? GetSynchronousMessageReporting(this _ITestFrameworkExecutionOptions executionOptions)
@@ -476,6 +486,18 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.InternalDiagnosticMessages, value);
+	}
+
+	/// <summary>
+	/// Sets the value that should be used to seed randomness.
+	/// </summary>
+	public static void SetSeed(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.Seed, value);
 	}
 
 	/// <summary>

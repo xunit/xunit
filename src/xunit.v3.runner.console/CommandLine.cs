@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -57,7 +58,8 @@ public class CommandLine : CommandLineParserBase
 
 	void AddAssembly(
 		string assemblyFileName,
-		string? configFileName)
+		string? configFileName,
+		int? seed)
 	{
 		if (!FileExists(assemblyFileName))
 			throw new ArgumentException($"assembly not found: {assemblyFileName}");
@@ -73,6 +75,7 @@ public class CommandLine : CommandLineParserBase
 		};
 
 		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
 
 		Project.Add(projectAssembly);
 	}
@@ -130,6 +133,19 @@ public class CommandLine : CommandLineParserBase
 				break;
 
 			var assemblyFileName = Args[argsStartIndex++];
+
+			int? seed = null;
+			int seedIndex = assemblyFileName.LastIndexOf(':');
+			if (seedIndex > 1)  // Skip colon from drive letter
+			{
+				var seedValueText = assemblyFileName.Substring(seedIndex + 1);
+				if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out int parsedValue) || parsedValue < 0)
+					throw new ArgumentException($"invalid seed value '{seedValueText}' (must be an integer in the range of 0 - 2147483647)");
+
+				seed = parsedValue;
+				assemblyFileName = assemblyFileName.Substring(0, seedIndex);
+			}
+
 			if (IsConfigFile(assemblyFileName))
 				throw new ArgumentException($"expecting assembly, got config file: {assemblyFileName}");
 
@@ -144,7 +160,7 @@ public class CommandLine : CommandLineParserBase
 				}
 			}
 
-			AddAssembly(assemblyFileName, configFileName);
+			AddAssembly(assemblyFileName, configFileName, seed);
 		}
 
 		return ParseInternal(argsStartIndex);

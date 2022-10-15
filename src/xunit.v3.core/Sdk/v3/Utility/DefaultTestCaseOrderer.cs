@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
@@ -34,7 +35,7 @@ public class DefaultTestCaseOrderer : ITestCaseOrderer
 	List<TTestCase> Randomize<TTestCase>(List<TTestCase> testCases)
 	{
 		var result = new List<TTestCase>(testCases.Count);
-		var randomizer = new Random();
+		var randomizer = Randomizer.Current;
 
 		while (testCases.Count > 0)
 		{

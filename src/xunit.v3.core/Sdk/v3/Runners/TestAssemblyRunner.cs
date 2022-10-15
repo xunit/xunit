@@ -131,6 +131,7 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 				AssemblyPath = ctxt.TestAssembly.Assembly.AssemblyPath,
 				AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
 				ConfigFilePath = ctxt.TestAssembly.ConfigFileName,
+				Seed = ctxt.Seed,
 				StartTime = DateTimeOffset.Now,
 				TargetFramework = ctxt.TargetFramework,
 				TestEnvironment = ctxt.TestFrameworkEnvironment,

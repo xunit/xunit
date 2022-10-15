@@ -132,6 +132,7 @@ public static class TestData
 		string? assemblyPath = DefaultAssemblyPath,
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string? configFilePath = DefaultConfigFilePath,
+		int? seed = null,
 		DateTimeOffset? startTime = null,
 		string targetFramework = DefaultTargetFramework,
 		string testEnvironment = DefaultTestEnvironment,
@@ -142,6 +143,7 @@ public static class TestData
 				AssemblyPath = assemblyPath,
 				AssemblyUniqueID = assemblyUniqueID,
 				ConfigFilePath = configFilePath,
+				Seed = seed,
 				StartTime = startTime ?? new DateTimeOffset(2021, 1, 20, 17, 0, 0, TimeSpan.Zero),
 				TargetFramework = targetFramework,
 				TestEnvironment = testEnvironment,
@@ -290,10 +292,11 @@ public static class TestData
 		string configFilePath = DefaultConfigFilePath,
 		string targetFramework = DefaultTargetFramework,
 		bool diagnosticMessages = false,
+		ExplicitOption? explicitOption = null,
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
 		bool parallelizeTestCollections = false,
-		ExplicitOption? explicitOption = null)
+		int? seed = null)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project)
@@ -309,13 +312,14 @@ public static class TestData
 			ExplicitOption = explicitOption,
 			InternalDiagnosticMessages = internalDiagnosticMessages,
 			MaxParallelThreads = maxParallelThreads,
-			ParallelizeTestCollections = parallelizeTestCollections
+			ParallelizeTestCollections = parallelizeTestCollections,
 		});
 
 		return new()
 		{
 			Assembly = assembly,
 			ExecutionOptions = executionOptions,
+			Seed = seed,
 		};
 	}
 
