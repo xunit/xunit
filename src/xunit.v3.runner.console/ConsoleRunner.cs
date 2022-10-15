@@ -51,7 +51,7 @@ class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
-				Console.WriteLine($"usage: {executableName} <assemblyFile>[:seed] [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
+				Console.WriteLine($"usage: {executableName} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]");
 				Console.WriteLine();
 				Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
 				Console.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
