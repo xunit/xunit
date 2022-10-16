@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole;
