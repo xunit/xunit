@@ -48,7 +48,7 @@ public class xUnit1014
     public static IEnumerable<object[]> TestData;
 
     [Theory]
-    [MemberData(nameof(TestData"))]
+    [MemberData(nameof(TestData))]
     public void TestMethod(string greeting, int age) { }
 }
 ```
