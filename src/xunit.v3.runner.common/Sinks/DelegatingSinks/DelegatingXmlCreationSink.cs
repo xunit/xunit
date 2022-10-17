@@ -18,7 +18,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 {
 	readonly XElement assemblyElement;
 	bool disposed;
-	readonly XElement errorsElement;
+	readonly Lazy<XElement> errorsElement;
 	readonly IExecutionSink innerSink;
 	readonly MessageMetadataCache metadataCache = new();
 	readonly Dictionary<string, XElement> testCollectionElements = new();
@@ -38,8 +38,12 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		this.innerSink = innerSink;
 		this.assemblyElement = assemblyElement;
 
-		errorsElement = new XElement("errors");
-		assemblyElement.Add(errorsElement);
+		errorsElement = new(() =>
+		{
+			var result = new XElement("errors");
+			assemblyElement.Add(result);
+			return result;
+		});
 	}
 
 	/// <inheritdoc/>
@@ -53,20 +57,36 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		string? name,
 		_IErrorMetadata errorMetadata)
 	{
-		var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(errorMetadata));
+		var errorElement = new XElement(
+			"error",
+			new XAttribute("type", type),
+			CreateFailureElement(errorMetadata)
+		);
+
 		if (name != null)
 			errorElement.Add(new XAttribute("name", name));
 
-		errorsElement.Add(errorElement);
+		errorsElement.Value.Add(errorElement);
 	}
 
-	static XElement CreateFailureElement(_IErrorMetadata errorMetadata) =>
-		new(
-			"failure",
-			new XAttribute("exception-type", errorMetadata.ExceptionTypes[0] ?? "<unknown type>"),
-			new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(errorMetadata)))),
-			new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(errorMetadata) ?? string.Empty))
-		);
+	static XElement CreateFailureElement(_IErrorMetadata errorMetadata)
+	{
+		var result = new XElement("failure");
+
+		var exceptionType = errorMetadata.ExceptionTypes[0];
+		if (exceptionType != null)
+			result.Add(new XAttribute("exception-type", exceptionType));
+
+		var message = ExceptionUtility.CombineMessages(errorMetadata);
+		if (!string.IsNullOrWhiteSpace(message))
+			result.Add(new XElement("message", new XCData(XmlEscape(message))));
+
+		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
+		if (stackTrace != null)
+			result.Add(new XElement("stack-trace", new XCData(stackTrace)));
+
+		return result;
+	}
 
 	XElement CreateTestResultElement(
 		_TestResultMessage testResult,
@@ -74,18 +94,26 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		var testMetadata = Guard.NotNull($"Cannot find test metadata for ID {testResult.TestUniqueID}", metadataCache.TryGetTestMetadata(testResult));
 		var testCaseMetadata = Guard.NotNull($"Cannot find test case metadata for ID {testResult.TestCaseUniqueID}", metadataCache.TryGetTestCaseMetadata(testResult));
-		var testMethodMetadata = Guard.NotNull($"Cannot find test method metadata for ID {testResult.TestMethodUniqueID}", metadataCache.TryGetMethodMetadata(testResult));
-		var testClassMetadata = Guard.NotNull($"Cannot find test class metadata for ID {testResult.TestClassUniqueID}", metadataCache.TryGetClassMetadata(testResult));
+		var testMethodMetadata = metadataCache.TryGetMethodMetadata(testResult);
+		var testClassMetadata = metadataCache.TryGetClassMetadata(testResult);
 
 		var collectionElement = GetTestCollectionElement(testResult.TestCollectionUniqueID);
 		var testResultElement =
 			new XElement("test",
+				new XAttribute("id", Guid.NewGuid().ToString("d")),
 				new XAttribute("name", XmlEscape(testMetadata.TestDisplayName)),
-				new XAttribute("type", testClassMetadata.TestClass),
-				new XAttribute("method", testMethodMetadata.TestMethod),
+				new XAttribute("result", resultText),
 				new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
-				new XAttribute("result", resultText)
+				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testResult.ExecutionTime).ToString("c", CultureInfo.InvariantCulture))
 			);
+
+		var type = testClassMetadata?.TestClass;
+		if (type != null)
+			testResultElement.Add(new XAttribute("type", type));
+
+		var method = testMethodMetadata?.TestMethod;
+		if (method != null)
+			testResultElement.Add(new XAttribute("method", method));
 
 		var testOutput = testResult.Output;
 		if (!string.IsNullOrWhiteSpace(testOutput))
@@ -145,22 +173,21 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		var metadata = metadataCache.TryGetAssemblyMetadata(args.Message);
 
-		if (metadata != null)
-			AddError("assembly-cleanup", metadata.AssemblyPath, args.Message);
-		else
-			AddError("assembly-cleanup", "<unknown test assembly>", args.Message);
+		AddError("assembly-cleanup", metadata?.AssemblyPath, args.Message);
 	}
 
 	void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 	{
 		assemblyElement.Add(
-			new XAttribute("total", ExecutionSummary.Total),
-			new XAttribute("passed", ExecutionSummary.Total - ExecutionSummary.Failed - ExecutionSummary.Skipped - ExecutionSummary.NotRun),
+			new XAttribute("errors", ExecutionSummary.Errors),
 			new XAttribute("failed", ExecutionSummary.Failed),
-			new XAttribute("skipped", ExecutionSummary.Skipped),
+			new XAttribute("finish-rtf", args.Message.FinishTime.ToString("O", CultureInfo.InvariantCulture)),
 			new XAttribute("not-run", ExecutionSummary.NotRun),
+			new XAttribute("passed", ExecutionSummary.Total - ExecutionSummary.Failed - ExecutionSummary.Skipped - ExecutionSummary.NotRun),
+			new XAttribute("skipped", ExecutionSummary.Skipped),
 			new XAttribute("time", ExecutionSummary.Time.ToString("0.000", CultureInfo.InvariantCulture)),
-			new XAttribute("errors", ExecutionSummary.Errors)
+			new XAttribute("time-rtf", TimeSpan.FromSeconds((double)ExecutionSummary.Time).ToString("c", CultureInfo.InvariantCulture)),
+			new XAttribute("total", ExecutionSummary.Total)
 		);
 
 		foreach (var element in testCollectionElements.Values)
@@ -172,16 +199,20 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 	{
 		var assemblyStarting = args.Message;
+
 		assemblyElement.Add(
-			new XAttribute("name", assemblyStarting.AssemblyPath ?? "<unknown assembly>"),
 			new XAttribute("environment", assemblyStarting.TestEnvironment),
-			new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
+			new XAttribute("id", Guid.NewGuid().ToString("d")),
 			new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
-			new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture))
+			new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture)),
+			new XAttribute("start-rtf", assemblyStarting.StartTime.ToString("O", CultureInfo.InvariantCulture)),
+			new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName)
 		);
 
 		if (assemblyStarting.ConfigFilePath != null)
 			assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
+		if (assemblyStarting.AssemblyPath != null)
+			assemblyElement.Add(new XAttribute("name", assemblyStarting.AssemblyPath));
 		if (assemblyStarting.TargetFramework != null)
 			assemblyElement.Add(new XAttribute("target-framework", assemblyStarting.TargetFramework));
 
@@ -191,10 +222,8 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 	{
 		var metadata = metadataCache.TryGetTestCaseMetadata(args.Message);
-		if (metadata != null)
-			AddError("test-case-cleanup", metadata.TestCaseDisplayName, args.Message);
-		else
-			AddError("test-case-cleanup", "<unknown test case>", args.Message);
+
+		AddError("test-case-cleanup", metadata?.TestCaseDisplayName, args.Message);
 	}
 
 	void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args) =>
@@ -206,10 +235,8 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 	{
 		var metadata = metadataCache.TryGetClassMetadata(args.Message);
-		if (metadata != null)
-			AddError("test-class-cleanup", metadata.TestClass, args.Message);
-		else
-			AddError("test-class-cleanup", "<unknown test class>", args.Message);
+
+		AddError("test-class-cleanup", metadata?.TestClass, args.Message);
 	}
 
 	void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args) =>
@@ -221,32 +248,30 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
 	{
 		var metadata = metadataCache.TryGetTestMetadata(args.Message);
-		if (metadata != null)
-			AddError("test-cleanup", metadata.TestDisplayName, args.Message);
-		else
-			AddError("test-cleanup", "<unknown test>", args.Message);
+
+		AddError("test-cleanup", metadata?.TestDisplayName, args.Message);
 	}
 
 	void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 	{
 		var metadata = metadataCache.TryGetCollectionMetadata(args.Message);
-		if (metadata != null)
-			AddError("test-collection-cleanup", metadata.TestCollectionDisplayName, args.Message);
-		else
-			AddError("test-collection-cleanup", "<unknown test collection>", args.Message);
+
+		AddError("test-collection-cleanup", metadata?.TestCollectionDisplayName, args.Message);
 	}
 
 	void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 	{
 		var testCollectionFinished = args.Message;
 		var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollectionUniqueID);
+
 		collectionElement.Add(
-			new XAttribute("total", testCollectionFinished.TestsTotal),
-			new XAttribute("passed", testCollectionFinished.TestsTotal - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped - testCollectionFinished.TestsNotRun),
 			new XAttribute("failed", testCollectionFinished.TestsFailed),
-			new XAttribute("skipped", testCollectionFinished.TestsSkipped),
 			new XAttribute("not-run", testCollectionFinished.TestsNotRun),
-			new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
+			new XAttribute("passed", testCollectionFinished.TestsTotal - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped - testCollectionFinished.TestsNotRun),
+			new XAttribute("skipped", testCollectionFinished.TestsSkipped),
+			new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture)),
+			new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testCollectionFinished.ExecutionTime).ToString("c", CultureInfo.InvariantCulture)),
+			new XAttribute("total", testCollectionFinished.TestsTotal)
 		);
 
 		metadataCache.TryRemove(testCollectionFinished);
@@ -257,7 +282,10 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		var testCollectionStarting = args.Message;
 		var collectionElement = GetTestCollectionElement(testCollectionStarting.TestCollectionUniqueID);
 
-		collectionElement.Add(new XAttribute("name", XmlEscape(testCollectionStarting.TestCollectionDisplayName)));
+		collectionElement.Add(
+			new XAttribute("name", XmlEscape(testCollectionStarting.TestCollectionDisplayName)),
+			new XAttribute("id", Guid.NewGuid().ToString("d"))
+		);
 
 		metadataCache.Set(testCollectionStarting);
 	}
@@ -266,6 +294,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		var testFailed = args.Message;
 		var testElement = CreateTestResultElement(testFailed, "Fail");
+
 		testElement.Add(CreateFailureElement(testFailed));
 	}
 
@@ -275,10 +304,8 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 	{
 		var metadata = metadataCache.TryGetMethodMetadata(args.Message);
-		if (metadata != null)
-			AddError("test-method-cleanup", metadata.TestMethod, args.Message);
-		else
-			AddError("test-method-cleanup", "<unknown test method>", args.Message);
+
+		AddError("test-method-cleanup", metadata?.TestMethod, args.Message);
 	}
 
 	void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args) =>
@@ -297,6 +324,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		var testSkipped = args.Message;
 		var testElement = CreateTestResultElement(testSkipped, "Skip");
+
 		testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason))));
 	}
 

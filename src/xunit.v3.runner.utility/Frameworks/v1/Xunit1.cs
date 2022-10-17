@@ -338,6 +338,7 @@ public class Xunit1 : IFrontController
 				{
 					AssemblyUniqueID = testAssemblyStartingMessage.AssemblyUniqueID,
 					ExecutionTime = results.Time,
+					FinishTime = DateTimeOffset.Now,
 					TestsFailed = results.Failed,
 					TestsNotRun = results.NotRun,
 					TestsTotal = results.Total,

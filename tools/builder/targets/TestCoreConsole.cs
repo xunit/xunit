@@ -31,7 +31,7 @@ public static class TestCoreConsole
 			var folder = Path.GetDirectoryName(v3TestDll);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3TestDll) + "-" + Path.GetFileName(folder));
 
-			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
 		}
 
 		// Only run 32-bit .NET Core tests on Windows
@@ -62,7 +62,7 @@ public static class TestCoreConsole
 			var folder = Path.GetDirectoryName(v3x86TestDll);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3x86TestDll) + "-" + Path.GetFileName(folder));
 
-			await context.Exec(x86Dotnet, $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}-x86.xml\" -html \"{outputFileName}-x86.html\"", workingDirectory: folder);
+			await context.Exec(x86Dotnet, $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}-x86.xml\" -html \"{outputFileName}-x86.html\" -trx \"{outputFileName}-x86.trx\"", workingDirectory: folder);
 		}
 	}
 }

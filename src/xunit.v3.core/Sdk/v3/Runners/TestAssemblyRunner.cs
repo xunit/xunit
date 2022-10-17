@@ -168,6 +168,7 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 					{
 						AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
 						ExecutionTime = totalSummary.Time,
+						FinishTime = DateTimeOffset.Now,
 						TestsFailed = totalSummary.Failed,
 						TestsNotRun = totalSummary.NotRun,
 						TestsSkipped = totalSummary.Skipped,

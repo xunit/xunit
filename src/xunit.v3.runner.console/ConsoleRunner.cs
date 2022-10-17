@@ -220,7 +220,7 @@ class ConsoleRunner
 		var parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
 
 		if (needsXml)
-			assembliesElement = new XElement("assemblies");
+			assembliesElement = TransformFactory.CreateAssembliesElement();
 
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 
@@ -257,9 +257,6 @@ class ConsoleRunner
 
 		clockTime.Stop();
 
-		if (assembliesElement != null)
-			assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
 		if (completionMessages.Count > 0)
 		{
 			var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
@@ -271,7 +268,10 @@ class ConsoleRunner
 		Directory.SetCurrentDirectory(originalWorkingFolder);
 
 		if (assembliesElement != null)
+		{
+			TransformFactory.FinishAssembliesElement(assembliesElement);
 			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
+		}
 
 		return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed + summary.Errors);
 	}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -47,6 +48,11 @@ public class TransformFactory
 				"output results to JUnit XML file",
 				(xml, outputFileName) => Handler_XslTransform("JUnitXml.xslt", xml, outputFileName)
 			),
+			new Transform(
+				"trx",
+				"output results to TRX XML file",
+				(xml, outputFileName) => Handler_XslTransform("TRX.xslt", xml, outputFileName)
+			),
 		};
 	}
 
@@ -54,6 +60,72 @@ public class TransformFactory
 	/// Gets the list of available transforms.
 	/// </summary>
 	public static IReadOnlyList<Transform> AvailableTransforms => instance.availableTransforms;
+
+	/// <summary>
+	/// Creates the root "assemblies" XML element.
+	/// </summary>
+	/// <returns></returns>
+	public static XElement CreateAssembliesElement()
+	{
+		var result = new XElement(
+			"assemblies",
+			new XAttribute("schema-version", "2"),
+			new XAttribute("id", Guid.NewGuid().ToString("d"))
+		);
+
+		var computer =
+			// Windows
+			Environment.GetEnvironmentVariable("COMPUTERNAME") ??
+			// Linux
+			Environment.GetEnvironmentVariable("HOSTNAME") ??
+			Environment.GetEnvironmentVariable("NAME") ??
+			// macOS
+			Environment.GetEnvironmentVariable("HOST");
+
+		if (computer != null)
+			result.Add(new XAttribute("computer", computer));
+
+		var user =
+			// Windows
+			Environment.GetEnvironmentVariable("USERNAME") ??
+			// Linux/macOS
+			Environment.GetEnvironmentVariable("LOGNAME") ??
+			Environment.GetEnvironmentVariable("USER");
+
+		if (user != null)
+			result.Add(new XAttribute("user", user));
+
+		return result;
+	}
+
+	/// <summary>
+	/// Finishes the assemblies element by supplementing with summary attributes.
+	/// </summary>
+	/// <param name="assembliesElement"></param>
+	public static void FinishAssembliesElement(XElement assembliesElement)
+	{
+		var assemblyElements = assembliesElement.DescendantNodes().OfType<XElement>().ToList();
+
+		var start = default(string);
+		var finish = default(string);
+
+		if (assemblyElements.Count > 0)
+		{
+			start = assemblyElements.Select(a => a.Attribute("start-rtf")?.Value).WhereNotNull().Min();
+			finish = assemblyElements.Select(a => a.Attribute("finish-rtf")?.Value).WhereNotNull().Max();
+		}
+
+		start ??= DateTimeOffset.MinValue.ToString("o", CultureInfo.InvariantCulture);
+		finish ??= DateTimeOffset.MinValue.ToString("o", CultureInfo.InvariantCulture);
+
+		var finishTimestamp = DateTime.Parse(finish).ToString(CultureInfo.InvariantCulture);
+
+		assembliesElement.Add(
+			new XAttribute("start-rtf", start),
+			new XAttribute("finish-rtf", finish),
+			new XAttribute("timestamp", finishTimestamp)
+		);
+	}
 
 	/// <summary>
 	/// Gets the list of XML transformer functions for the given project.

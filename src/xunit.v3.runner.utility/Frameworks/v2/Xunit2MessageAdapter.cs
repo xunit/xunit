@@ -196,6 +196,7 @@ public class Xunit2MessageAdapter
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.Now,
 			TestsFailed = message.TestsFailed,
 			TestsNotRun = 0,
 			TestsSkipped = message.TestsSkipped,

@@ -122,7 +122,7 @@ public class xunit : MSBuildTask, ICancelableTask
 		XElement? assembliesElement = null;
 
 		if (NeedsXml)
-			assembliesElement = new XElement("assemblies");
+			assembliesElement = TransformFactory.CreateAssembliesElement();
 
 		var appDomains = default(AppDomainSupport?);
 		switch (AppDomains?.ToLowerInvariant())
@@ -259,9 +259,6 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			clockTime.Stop();
 
-			if (assembliesElement != null)
-				assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
 			if (completionMessages.Count > 0)
 			{
 				var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
@@ -275,6 +272,8 @@ public class xunit : MSBuildTask, ICancelableTask
 
 		if (NeedsXml && assembliesElement != null)
 		{
+			TransformFactory.FinishAssembliesElement(assembliesElement);
+
 			if (Xml != null)
 				TransformFactory.Transform("xml", assembliesElement, Xml.GetMetadata("FullPath"));
 

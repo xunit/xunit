@@ -241,7 +241,7 @@ public class ConsoleRunner
 		var needsXml = xmlTransformers.Count > 0;
 
 		if (needsXml)
-			assembliesElement = new XElement("assemblies");
+			assembliesElement = TransformFactory.CreateAssembliesElement();
 
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 
@@ -257,16 +257,16 @@ public class ConsoleRunner
 
 		clockTime.Stop();
 
-		if (assembliesElement != null)
-			assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
 		testExecutionSummaries.ElapsedClockTime = clockTime.Elapsed;
 		reporterMessageHandler.OnMessage(testExecutionSummaries);
 
 		Directory.SetCurrentDirectory(originalWorkingFolder);
 
 		if (assembliesElement != null)
+		{
+			TransformFactory.FinishAssembliesElement(assembliesElement);
 			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
+		}
 
 		return failed ? 1 : testExecutionSummaries.SummariesByAssemblyUniqueID.Sum(s => s.Summary.Failed + s.Summary.Errors);
 	}

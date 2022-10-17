@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
@@ -466,20 +467,15 @@ public class DelegatingXmlCreationSinkTests
 
 		using var writer = new StringWriter();
 		assemblyElement.Save(writer, SaveOptions.DisableFormatting);
-
 		var outputXml = writer.ToString();
-		Assert.Equal(
-			@"<?xml version=""1.0"" encoding=""utf-16""?>" +
-			@"<assembly name=""./test-assembly.dll"" environment=""test-environment"" test-framework=""test-framework"" run-date=""2021-01-20"" run-time=""17:00:00"" config-file=""./test-assembly.json"" target-framework="".NETMagic,Version=v98.76.54"" total=""0"" passed=""0"" failed=""0"" skipped=""0"" not-run=""0"" time=""0.000"" errors=""0"">" +
-				@"<errors />" +
-				@"<collection name=""test-collection-display-name"" total=""2112"" passed=""2061"" failed=""42"" skipped=""6"" not-run=""3"" time=""123.457"">" +
-					$@"<test name=""{outputName}"" type=""DelegatingXmlCreationSinkTests+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"">" +
-						@"<reason><![CDATA[Bad\0\r\nString]]></reason>" +
-					@"</test>" +
-				@"</collection>" +
-			@"</assembly>",
-			outputXml
-		);
+
+		var parsedXml = XDocument.Parse(outputXml);
+		var testElement = parsedXml.XPathSelectElement("/assembly/collection/test");
+		Assert.NotNull(testElement);
+		Assert.Equal(outputName, testElement.Attribute("name")?.Value);
+		var reasonElement = testElement.XPathSelectElement("reason");
+		Assert.NotNull(reasonElement);
+		Assert.Equal("Bad\\0\\r\\nString", reasonElement.Value);
 	}
 
 	class ClassUnderTest

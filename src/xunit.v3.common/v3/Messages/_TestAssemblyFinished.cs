@@ -21,6 +21,11 @@ public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMet
 		set => executionTime = value;
 	}
 
+	/// <summary>
+	/// Gets or sets the date and time when the test assembly execution finished.
+	/// </summary>
+	public DateTimeOffset FinishTime { get; set; }
+
 	/// <inheritdoc/>
 	public int TestsFailed
 	{
