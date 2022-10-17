@@ -133,6 +133,12 @@ table, .table {
 .table.latest td {
   text-align: left;
 }
+.table.xml-format th {
+  text-align: left;
+}
+.table.xml-format td {
+  vertical-align: top;
+}
 .smaller {
   font-size: 90%;
 }
