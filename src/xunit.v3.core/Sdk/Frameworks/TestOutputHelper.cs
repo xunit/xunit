@@ -81,6 +81,7 @@ public class TestOutputHelper : _ITestOutputHelper
 		readonly string? testMethodUniqueID;
 		readonly string testCaseUniqueID;
 		readonly string testUniqueID;
+		readonly static int numberOfMinimalRemainingCharsForValidAnsiSequence = 4 + Environment.NewLine.Length;
 
 		public TestState(
 			IMessageBus messageBus,
@@ -137,6 +138,10 @@ public class TestOutputHelper : _ITestOutputHelper
 				var ch = s[i];
 				if (ch == '\0')
 					builder.Append("\\0");
+				else if (ch == 0x1b && s.Length - i < numberOfMinimalRemainingCharsForValidAnsiSequence)
+					builder.Append("\\x1b"); // This can't be the beginning of an ANSI sequence
+				else if (ch == 0x1b && s[i + 1] == '[')
+					builder.Append(ch); // Beginning of ANSI sequence found.
 				else if (ch < 32 && !char.IsWhiteSpace(ch)) // C0 control char
 					builder.AppendFormat(@"\x{0}", (+ch).ToString("x2"));
 				else if (char.IsSurrogatePair(s, i))

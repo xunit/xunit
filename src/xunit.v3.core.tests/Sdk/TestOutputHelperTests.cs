@@ -9,18 +9,25 @@ public class TestOutputHelperTests
 {
 	public static IEnumerable<object[]> InvalidStrings_TestData()
 	{
-		// Valid
+		// Escaping not required
 		yield return new object[] { " \r \n \t  ", " \r \n \t  " };
 		yield return new object[] { "Hello World", "Hello World" };
 		yield return new object[] { "\uD800\uDC00", "\uD800\uDC00" };
+		yield return new object[] { "\u001b[3mitalic\u001b[0m \u001b[36mcyan\u001b[0m", "\u001b[3mitalic\u001b[0m \u001b[36mcyan\u001b[0m" };
 
-		// Invalid
+
+		// Escaping required
 		yield return new object[] { "\0", "\\0" };
 		yield return new object[] { (char)1, "\\x01" };
 		yield return new object[] { (char)31, "\\x1f" };
 		yield return new object[] { "\uD800", "\\xd800" };
 		yield return new object[] { "\uDC00", "\\xdc00" };
 		yield return new object[] { "\uDC00\uD800", "\\xdc00\\xd800" };
+		yield return new object[] { "\u001bfoo", "\\x1bfoo" };
+		yield return new object[] { "\u001b3m invalid ANSI sequence #1", "\\x1b3m invalid ANSI sequence #1" };
+		yield return new object[] { "incomplete ANSI sequence #2 \u001b[3", "incomplete ANSI sequence #2 \\x1b[3" };
+		yield return new object[] { "incomplete ANSI sequence #3 \u001b[", "incomplete ANSI sequence #3 \\x1b[" };
+		yield return new object[] { "incomplete ANSI sequence #4 \u001b", "incomplete ANSI sequence #4 \\x1b" };
 	}
 
 	[Theory(DisableDiscoveryEnumeration = true)]
