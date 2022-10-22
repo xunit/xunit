@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
@@ -10,6 +12,7 @@ namespace Xunit.Runner.Common;
 public class ConsoleRunnerLogger : IRunnerLogger
 {
 	readonly bool useColors;
+	private static readonly Regex AnsiSgrRegex = new Regex("\\e\\[\\d+[m]");
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
@@ -46,7 +49,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	{
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Red))
-				Console.Error.WriteLine(message);
+				WriteLine(Console.Error, message);
 	}
 
 	/// <inheritdoc/>
@@ -56,7 +59,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	{
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Gray))
-				Console.WriteLine(message);
+				WriteLine(Console.Out, message);
 	}
 
 	/// <inheritdoc/>
@@ -66,7 +69,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	{
 		lock (LockObject)
 			using (SetColor(ConsoleColor.DarkGray))
-				Console.WriteLine(message);
+				WriteLine(Console.Out, message);
 	}
 
 	/// <inheritdoc/>
@@ -76,8 +79,22 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	{
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Yellow))
-				Console.WriteLine(message);
+				WriteLine(Console.Out, message);
 	}
+
+	/// <summary>
+	/// Writes a (non-colored) message. If <see cref="ConsoleRunnerLogger.useColors"/> is false, all ANSI-SGR sequences will be removed prior to writing.
+	/// </summary>
+	/// <param name="target">Target writer</param>
+	/// <param name="message">Message to write</param>
+	/// <remarks>See https://en.wikipedia.org/wiki/ANSI_escape_code#SGR for details about ANSI-SGR.</remarks>
+	public void WriteLine(TextWriter target, string message)
+	{
+		var text = useColors ? message : RemoveAnsiSgr(message);
+		target.WriteLine(text);
+	}
+
+	private static string RemoveAnsiSgr(string message) => AnsiSgrRegex.Replace(message, "");
 
 	IDisposable? SetColor(ConsoleColor color) => useColors ? new ColorRestorer(color) : null;
 
