@@ -28,6 +28,10 @@ public class TestOutputHelperTests
 		yield return new object[] { "incomplete ANSI sequence #2 \u001b[3", "incomplete ANSI sequence #2 \\x1b[3" };
 		yield return new object[] { "incomplete ANSI sequence #3 \u001b[", "incomplete ANSI sequence #3 \\x1b[" };
 		yield return new object[] { "incomplete ANSI sequence #4 \u001b", "incomplete ANSI sequence #4 \\x1b" };
+		yield return new object[] { "incomplete ANSI sequence #5 \x1b[128", "incomplete ANSI sequence #5 \\x1b[128" };
+		yield return new object[] { "\x1b[this is no ansi\x1b]", "\\x1b[this is no ansi\\x1b]" };
+		yield return new object[] { "\x1b^ANSI privacy message\x1b\\ 1234", "\\x1b^ANSI privacy message\\x1b\\ 1234" };
+		yield return new object[] { "\x1b[2J clear display", "\\x1b[2J clear display" };
 	}
 
 	[Theory(DisableDiscoveryEnumeration = true)]
