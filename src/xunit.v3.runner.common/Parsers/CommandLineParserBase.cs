@@ -513,6 +513,7 @@ public abstract class CommandLineParserBase
 	{
 		GuardNoOptionValue(option);
 		Project.Configuration.NoColor = true;
+		Environment.SetEnvironmentVariable("NO_COLOR", "NO_COLOR");
 	}
 
 	void OnNoLogo(KeyValuePair<string, string?> option)
