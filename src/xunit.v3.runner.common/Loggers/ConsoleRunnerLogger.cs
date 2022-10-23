@@ -12,7 +12,7 @@ namespace Xunit.Runner.Common;
 public class ConsoleRunnerLogger : IRunnerLogger
 {
 	readonly bool useColors;
-	private static readonly Regex AnsiSgrRegex = new Regex("\\e\\[\\d+[m]");
+	private static readonly Regex AnsiSgrRegex = new Regex("\\e\\[\\d*(;\\d*)*[m]");
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.

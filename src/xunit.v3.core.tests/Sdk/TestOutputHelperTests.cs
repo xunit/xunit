@@ -13,7 +13,11 @@ public class TestOutputHelperTests
 		yield return new object[] { " \r \n \t  ", " \r \n \t  " };
 		yield return new object[] { "Hello World", "Hello World" };
 		yield return new object[] { "\uD800\uDC00", "\uD800\uDC00" };
-		yield return new object[] { "\u001b[3mitalic\u001b[0m \u001b[36mcyan\u001b[0m", "\u001b[3mitalic\u001b[0m \u001b[36mcyan\u001b[0m" };
+		yield return new object[] { "ANSI \u001b[3mitalic\u001b[0m \u001b[36mcyan\u001b[0m", "ANSI \u001b[3mitalic\u001b[0m \u001b[36mcyan\u001b[0m" };
+		yield return new object[] { "ANSI \x1b[30;47mblack on white\x1b[0m default colors", "ANSI \x1b[30;47mblack on white\x1b[0m default colors" };
+		yield return new object[] { "ANSI \x1b[;47mdefault on white\x1b[m", "ANSI \x1b[;47mdefault on white\x1b[m" };
+		yield return new object[] { "ANSI \x1b[38;5;4mblue\x1b[0m", "ANSI \x1b[38;5;4mblue\x1b[0m" };
+		yield return new object[] { "ANSI \x1b[;;mmissing arguments\x1b[m", "ANSI \x1b[;;mmissing arguments\x1b[m" };
 
 
 		// Escaping required

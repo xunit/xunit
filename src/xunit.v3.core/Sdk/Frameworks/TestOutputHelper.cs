@@ -82,8 +82,8 @@ public class TestOutputHelper : _ITestOutputHelper
 		readonly string? testMethodUniqueID;
 		readonly string testCaseUniqueID;
 		readonly string testUniqueID;
-		readonly static int numberOfMinimalRemainingCharsForValidAnsiSgr = 4 + Environment.NewLine.Length;
-		private static readonly Regex AnsiSgrRegex = new Regex("^\\e\\[\\d+[m]");
+		readonly static int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;
+		private static readonly Regex AnsiSgrRegex = new Regex("^\\e\\[\\d*(;\\d*)*[m]");
 
 		public TestState(
 			IMessageBus messageBus,

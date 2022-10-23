@@ -21,7 +21,7 @@ public class ConsoleRunnerLoggerTests
 	public void WriteLine_ColorsEnabled_AnsiText()
 	{
 		var writer = new StringWriter();
-		var message = "\x1b[3m\x1b[36mhello world\u001b[0m";
+		var message = "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m";
 		var sut = new ConsoleRunnerLogger(true);
 
 		sut.WriteLine(writer, message);
@@ -47,8 +47,8 @@ public class ConsoleRunnerLoggerTests
 		var writer = new StringWriter();
 		var sut = new ConsoleRunnerLogger(false);
 
-		sut.WriteLine(writer, "hello \x1b[3m\x1b[36mworld\u001b[0m");
+		sut.WriteLine(writer, "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m");
 
-		Assert.Equal("hello world" + Environment.NewLine, writer.ToString());
+		Assert.Equal("hello world || bright blue on bright yellow" + Environment.NewLine, writer.ToString());
 	}
 }
