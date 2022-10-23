@@ -111,7 +111,16 @@ namespace Xunit.Sdk
                 // Need to find the parent method, which may not necessarily be on the parent type
                 var baseMethod = GetParent(method);
                 if (baseMethod != null)
-                    results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage));
+                    results = results.Concat(
+                        GetCustomAttributes(baseMethod, attributeType, attributeUsage).Where(a =>
+                        {
+                            if (a is ReflectionAttributeInfo ra)
+                            {
+                                return ReflectionAttributeInfo.GetAttributeUsage(ra.Attribute.GetType()).Inherited;
+                            }
+                            return true;
+                        })
+                    );
             }
 
             return results;

@@ -1331,6 +1331,70 @@ public class Xunit2TheoryAcceptanceTests
             [SingleMemberData(nameof(IEnumerableObjectMethod))]
             public void Passing(object unused) { }
         }
+
+        [DataDiscoverer("Xunit.Sdk.InlineDataDiscoverer", "xunit.core")]
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
+        public sealed class NonInheritableInlineDataAttribute : DataAttribute
+        {
+            readonly object[] data;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InlineDataAttribute"/> class.
+            /// </summary>
+            /// <param name="data">The data values to pass to the theory.</param>
+            public NonInheritableInlineDataAttribute(params object[] data)
+            {
+                this.data = data;
+            }
+
+            /// <inheritdoc/>
+            public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+            {
+                // This is called by the WPA81 version as it does not have access to attribute ctor params
+                return new[] { data };
+            }
+        }
+
+        [Fact]
+        public void ClassWithNonInheritableInlineDataAttributeBaseSubclass_Success()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithNonInheritableInlineDataAttributeBase));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithNonInheritableInlineDataAttributeBase.Passing(unused: ""Apple"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithNonInheritableInlineDataAttributeBase.Passing(unused: ""Banana"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithNonInheritableInlineDataAttributeBase.Passing(unused: ""Orange"")", result.Test.DisplayName)
+            );
+        }
+
+        private class ClassWithNonInheritableInlineDataAttributeBase
+        {
+            [Theory]
+            [InlineData("Apple")]
+            [NonInheritableInlineData("Orange")]
+            [NonInheritableInlineData("Banana")]
+            public virtual void Passing(object unused) { }
+        }
+
+        [Fact]
+        public void ClassWithNonInheritableInlineDataAttributeInheritedSubclass_Success()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithNonInheritableInlineDataAttributeInherited));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithNonInheritableInlineDataAttributeInherited.Passing(unused: ""Apple"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithNonInheritableInlineDataAttributeInherited.Passing(unused: ""Coconut"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithNonInheritableInlineDataAttributeInherited.Passing(unused: ""Grapefruit"")", result.Test.DisplayName)
+            );
+        }
+
+        private class ClassWithNonInheritableInlineDataAttributeInherited : ClassWithNonInheritableInlineDataAttributeBase
+        {
+            [Theory]
+            [InlineData("Grapefruit")]
+            [InlineData("Coconut")]
+            public override void Passing(object unused) { }
+        }
     }
 
     public class ErrorAggregation : AcceptanceTestV2
