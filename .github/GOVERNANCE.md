@@ -2,7 +2,7 @@
 This project is led and managed by a benevolent dictator. That is, the benevolent dictator is responsible for the general strategic direction in addition to the day-to-day maintenance of the project. In turn, it is the community's job to guide the decisions of the benevolent dictator through active engagement and contribution.
 
 # Roles and Responsibilities
-Benevolent dictator (project leads)
+## Benevolent dictator (project leads)
 In the xUnit.net project the role of Benevolent Dictator (project leads) is shared between Brad Wilson and James Newkirk. However, because the community always has the ability to fork, they are fully answerable to the community. The project leads are expected to understand the community as a whole and strive to satisfy as many conflicting needs as possible, while ensuring that the project survives in the long term.
 
 In many ways, the role of the benevolent dictator is less about dictatorship and more about diplomacy. The key is to ensure that, as the project expands, the right people are given influence over it and the community rallies behind the vision of the project leads.
@@ -28,12 +28,12 @@ Users are community members who have a need for the project. They are the most i
 
 Users should be encouraged to participate in the life of the project and the community as much as possible. User contributions enable the project team to ensure that they are satisfying the needs of those users. Common user activities include (but are not limited to):
 
-Advocating the use of the project
-Informing developers of the project strength and weaknesses from a new user's perspective
-Providing moral support (a ‘thank you' goes a long way)
-Writing documentation and tutorials
-Filing bug reports and feature requests
-Participating on the discussion board
+* Advocating the use of the project
+* Informing developers of the project strength and weaknesses from a new user's perspective
+* Providing moral support (a ‘thank you' goes a long way)
+* Writing documentation and tutorials
+* Filing bug reports and feature requests
+* Participating on the discussion board
 Users who continue to engage with the project and its community will often find themselves becoming more and more involved. Such users may then go on to become contributors, as described above.
 
 How to become one: Use xUnit.net and participate at https://github.com/xunit.
