@@ -500,7 +500,8 @@ public class Xunit1 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/>
+	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
 		_ISourceInformationProvider? sourceInformationProvider = null,

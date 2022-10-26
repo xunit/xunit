@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +26,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	XunitFilters? filters;
 	bool? internalDiagnosticMessages;
 	IRunnerLogger? logger;
+	readonly object logLock = new();
 	int? maxThreadCount;
 	bool? parallelizeAssemblies;
 	bool? parallelizeTestCollections;
@@ -59,7 +59,12 @@ public class xunit : MSBuildTask, ICancelableTask
 		{
 			if (filters == null)
 			{
-				var traitParser = new TraitParser(msg => Log.LogWarning(msg));
+				var traitParser = new TraitParser(msg =>
+				{
+					lock (logLock)
+						Log.LogWarning(msg);
+				});
+
 				filters = new XunitFilters();
 				traitParser.Parse(IncludeTraits, filters.IncludedTraits);
 				traitParser.Parse(ExcludeTraits, filters.ExcludedTraits);
@@ -145,7 +150,9 @@ public class xunit : MSBuildTask, ICancelableTask
 				break;
 
 			default:
-				Log.LogError("AppDomains value '{0}' is invalid: must be 'ifavailable', 'required', or 'denied'", AppDomains);
+				lock (logLock)
+					Log.LogError("AppDomains value '{0}' is invalid: must be 'ifavailable', 'required', or 'denied'", AppDomains);
+
 				return false;
 		}
 
@@ -169,7 +176,9 @@ public class xunit : MSBuildTask, ICancelableTask
 					maxThreadCount = threadValue;
 				else
 				{
-					Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
+					lock (logLock)
+						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
+
 					return false;
 				}
 
@@ -177,19 +186,20 @@ public class xunit : MSBuildTask, ICancelableTask
 		}
 
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
-		var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, internalDiagnosticMessages ?? false);
+		var globalDiagnosticsMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? false, internalDiagnosticMessages ?? false);
 
-		using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), internalDiagnosticsMessageSink))
+		using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), globalDiagnosticsMessageSink))
 		{
 			var reporter = GetReporter();
 			if (reporter == null)
 				return false;
 
 			logger = new MSBuildLogger(Log);
-			reporterMessageHandler = reporter.CreateMessageHandler(logger, internalDiagnosticsMessageSink).GetAwaiter().GetResult();
+			reporterMessageHandler = reporter.CreateMessageHandler(logger, globalDiagnosticsMessageSink).GetAwaiter().GetResult();
 
 			if (!NoLogo)
-				Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+				lock (logLock)
+					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 
 			var project = new XunitProject();
 			foreach (var assembly in Assemblies)
@@ -330,7 +340,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				executionOptions.SetStopOnTestFail(stopOnFail);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
-			var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+			var diagnosticMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? assembly.Configuration.DiagnosticMessagesOrDefault, internalDiagnosticMessages ?? assembly.Configuration.InternalDiagnosticMessagesOrDefault, assemblyDisplayName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -358,7 +368,7 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			if (assemblyElement != null)
 				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-			if (longRunningSeconds > 0)
+			if (longRunningSeconds > 0 && diagnosticMessageSink != null)
 				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 			if (assembly.Configuration.FailSkipsOrDefault)
 				resultsSink = new DelegatingFailSkipSink(resultsSink);
@@ -374,7 +384,9 @@ public class xunit : MSBuildTask, ICancelableTask
 					ExitCode = 1;
 					if (stopOnFail == true)
 					{
-						Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+						lock (logLock)
+							Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+
 						Cancel();
 					}
 				}
@@ -384,16 +396,17 @@ public class xunit : MSBuildTask, ICancelableTask
 		{
 			var e = ex;
 
-			while (e != null)
-			{
-				Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
+			lock (logLock)
+				while (e != null)
+				{
+					Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
 
-				if (e.StackTrace != null)
-					foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
-						Log.LogError(stackLine);
+					if (e.StackTrace != null)
+						foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+							Log.LogError(stackLine);
 
-				e = e.InnerException;
-			}
+					e = e.InnerException;
+				}
 
 			ExitCode = -1;
 		}
@@ -432,7 +445,9 @@ public class xunit : MSBuildTask, ICancelableTask
 				var ctor = type.GetConstructor(new Type[0]);
 				if (ctor == null)
 				{
-					Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
+					lock (logLock)
+						Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
+
 					continue;
 				}
 
@@ -462,10 +477,11 @@ public class xunit : MSBuildTask, ICancelableTask
 						.OrderBy(x => x)
 						.ToList();
 
-				if (switchableReporters.Count == 0)
-					Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
-				else
-					Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
+				lock (logLock)
+					if (switchableReporters.Count == 0)
+						Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
+					else
+						Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
 
 				return null;
 			}

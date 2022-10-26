@@ -130,7 +130,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 		sink.OnMessage(new _TestAssemblyFinished());
 
 		var @event = Assert.Single(events);
-		Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message);
+		Assert.Equal("Long running test: 'My test display name' (elapsed: 00:00:01)", @event.Message);
 	}
 
 	[Fact]
@@ -160,8 +160,8 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
 		Assert.Collection(
 			events,
-			@event => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", @event.Message),
-			@event => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:02", @event.Message)
+			@event => Assert.Equal("Long running test: 'My test display name' (elapsed: 00:00:01)", @event.Message),
+			@event => Assert.Equal("Long running test: 'My test display name' (elapsed: 00:00:02)", @event.Message)
 		);
 	}
 

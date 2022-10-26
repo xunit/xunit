@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -104,13 +103,13 @@ public class ConsoleRunner
 			if (project.Configuration.DebugOrDefault)
 				Debugger.Launch();
 
-			// We will enable "global" internal diagnostic messages if any test assembly wanted them
+			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
 			noColor = project.Configuration.NoColorOrDefault;
 			logger = new ConsoleRunnerLogger(!noColor, consoleLock);
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, globalInternalDiagnosticMessages, noColor);
+			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 			var reporter = project.RunnerReporter;
-			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
+			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
@@ -204,12 +203,12 @@ public class ConsoleRunner
 			// Setup discovery options with command line overrides
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
-			var assemblyDisplayName = assembly.AssemblyDisplayName;
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-			var internalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
+			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
+			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, diagnosticMessages, internalDiagnosticMessages);
 
-			TestContext.SetForInitialization(diagnosticMessageSink, internalDiagnosticMessageSink);
+			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
@@ -290,13 +289,13 @@ public class ConsoleRunner
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 
-			var assemblyDisplayName = assembly.AssemblyDisplayName;
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-			var internalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
+			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
+			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, diagnosticMessages, internalDiagnosticMessages);
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-			TestContext.SetForInitialization(diagnosticMessageSink, internalDiagnosticMessageSink);
+			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 

@@ -9,81 +9,70 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleDiagnosticMessageSink : _IMessageSink
 {
-	readonly string? assemblyDisplayName;
 	readonly object consoleLock;
-	readonly ConsoleColor displayColor;
+	readonly string displayNewlineReplace;
+	readonly string? displayPrefixDiagnostic;
+	readonly string? displayPrefixInternal;
 	readonly bool noColor;
 
 	ConsoleDiagnosticMessageSink(
 		object consoleLock,
-		string? assemblyDisplayName,
 		bool noColor,
-		ConsoleColor displayColor)
+		bool showDiagnosticMessages,
+		bool showInternalDiagnosticMessages,
+		string? assemblyDisplayName)
 	{
 		Guard.ArgumentNotNull(consoleLock);
 
 		this.consoleLock = consoleLock;
-		this.assemblyDisplayName = assemblyDisplayName;
 		this.noColor = noColor;
-		this.displayColor = displayColor;
+
+		displayPrefixDiagnostic = (showDiagnosticMessages, assemblyDisplayName, noColor) switch
+		{
+			(false, _, _) => null,
+			(true, null, false) => "",
+			(true, null, true) => "[D] ",
+			(true, _, false) => $"[{assemblyDisplayName}] ",
+			(true, _, true) => $"[D::{assemblyDisplayName}] "
+		};
+		displayPrefixInternal = (showInternalDiagnosticMessages, assemblyDisplayName, noColor) switch
+		{
+			(false, _, _) => null,
+			(true, null, false) => "",
+			(true, null, true) => "[I] ",
+			(true, _, false) => $"[{assemblyDisplayName}] ",
+			(true, _, true) => $"[I::{assemblyDisplayName}] "
+		};
+		displayNewlineReplace = "\n" + new string(' ', (displayPrefixDiagnostic?.Length ?? displayPrefixInternal?.Length ?? 0) + 4);
 	}
-
-	/// <summary>
-	/// Creates a message sink for public diagnostics.
-	/// </summary>
-	/// <param name="consoleLock">The console lock, used to prevent console contention</param>
-	/// <param name="assemblyDisplayName">The display name for the test assembly</param>
-	/// <param name="showDiagnostics">A flag to indicate whether to show public diagnostics</param>
-	/// <param name="noColor">A flag to indicate whether to disable color output</param>
-	public static ConsoleDiagnosticMessageSink? ForDiagnostics(
-		object consoleLock,
-		string assemblyDisplayName,
-		bool showDiagnostics,
-		bool noColor) =>
-			showDiagnostics ? new(consoleLock, assemblyDisplayName, noColor, ConsoleColor.Yellow) : null;
-
-	/// <summary>
-	/// Creates a message sink for internal diagnostics.
-	/// </summary>
-	/// <param name="consoleLock">The console lock, used to prevent console contention</param>
-	/// <param name="assemblyDisplayName">The display name for the test assembly</param>
-	/// <param name="showDiagnostics">A flag to indicate whether to show internal diagnostics</param>
-	/// <param name="noColor">A flag to indicate whether to disable color output</param>
-	public static ConsoleDiagnosticMessageSink? ForInternalDiagnostics(
-		object consoleLock,
-		string assemblyDisplayName,
-		bool showDiagnostics,
-		bool noColor) =>
-			showDiagnostics ? new(consoleLock, assemblyDisplayName, noColor, ConsoleColor.DarkGray) : null;
-
-	/// <summary>
-	/// Creates a message sink for internal diagnostics.
-	/// </summary>
-	/// <param name="consoleLock">The console lock, used to prevent console contention</param>
-	/// <param name="showDiagnostics">A flag to indicate whether to show internal diagnostics</param>
-	/// <param name="noColor">A flag to indicate whether to disable color output</param>
-	public static ConsoleDiagnosticMessageSink? ForInternalDiagnostics(
-		object consoleLock,
-		bool showDiagnostics,
-		bool noColor) =>
-			showDiagnostics ? new(consoleLock, null, noColor, ConsoleColor.DarkGray) : null;
 
 	/// <inheritdoc/>
 	public bool OnMessage(_MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is _DiagnosticMessage diagnosticMessage)
+		if (message is _DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic != null)
 		{
 			lock (consoleLock)
 			{
 				if (!noColor)
-					ConsoleHelper.SetForegroundColor(displayColor);
+					ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
-				if (assemblyDisplayName == null)
-					Console.WriteLine(diagnosticMessage.Message);
-				else
-					Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
+				Console.WriteLine("    {0}{1}", displayPrefixDiagnostic, diagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+
+				if (!noColor)
+					ConsoleHelper.ResetColor();
+			}
+		}
+
+		if (message is _InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal != null)
+		{
+			lock (consoleLock)
+			{
+				if (!noColor)
+					ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+
+				Console.WriteLine("    {0}{1}", displayPrefixInternal, internalDiagnosticMessage.Message.Replace("\n", displayNewlineReplace));
 
 				if (!noColor)
 					ConsoleHelper.ResetColor();
@@ -92,4 +81,23 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 
 		return true;
 	}
+
+	/// <summary>
+	/// Tries to create a new instance of the <see cref="ConsoleDiagnosticMessageSink"/> which will display instances
+	/// of <see cref="_DiagnosticMessage"/> and <see cref="_InternalDiagnosticMessage"/> to the <see cref="Console"/>.
+	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
+	/// are <c>false</c>.
+	/// </summary>
+	/// <param name="consoleLock">The lock object used to prevent multi-threaded code from overlapping out to the console</param>
+	/// <param name="noColor">A flag to indicate that the user has asked for no color</param>
+	/// <param name="showDiagnosticMessages">A flag to indicate whether diagnostic messages should be shown</param>
+	/// <param name="showInternalDiagnosticMessages">A flag to indicate whether internal diagnostic messages should be shown</param>
+	/// <param name="assemblyDisplayName">The optional assembly display name to delineate the messages</param>
+	public static ConsoleDiagnosticMessageSink? TryCreate(
+		object consoleLock,
+		bool noColor,
+		bool showDiagnosticMessages = false,
+		bool showInternalDiagnosticMessages = false,
+		string? assemblyDisplayName = null) =>
+			showDiagnosticMessages || showInternalDiagnosticMessages ? new(consoleLock, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName) : null;
 }

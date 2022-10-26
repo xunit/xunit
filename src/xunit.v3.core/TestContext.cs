@@ -170,6 +170,54 @@ public class TestContext
 	/// See https://xunit.net/docs/configuration-files for configuration information.
 	/// </summary>
 	/// <param name="format">A composite format string.</param>
+	/// <param name="arg0">The value to replace {0} in the format string.</param>
+	public void SendDiagnosticMessage(
+		string format,
+		object? arg0)
+	{
+		if (DiagnosticMessageSink != null)
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, arg0) });
+	}
+
+	/// <summary>
+	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
+	/// See https://xunit.net/docs/configuration-files for configuration information.
+	/// </summary>
+	/// <param name="format">A composite format string.</param>
+	/// <param name="arg0">The value to replace {0} in the format string.</param>
+	/// <param name="arg1">The value to replace {1} in the format string.</param>
+	public void SendDiagnosticMessage(
+		string format,
+		object? arg0,
+		object? arg1)
+	{
+		if (DiagnosticMessageSink != null)
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, arg0, arg1) });
+	}
+
+	/// <summary>
+	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
+	/// See https://xunit.net/docs/configuration-files for configuration information.
+	/// </summary>
+	/// <param name="format">A composite format string.</param>
+	/// <param name="arg0">The value to replace {0} in the format string.</param>
+	/// <param name="arg1">The value to replace {1} in the format string.</param>
+	/// <param name="arg2">The value to replace {2} in the format string.</param>
+	public void SendDiagnosticMessage(
+		string format,
+		object? arg0,
+		object? arg1,
+		object? arg2)
+	{
+		if (DiagnosticMessageSink != null)
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, arg0, arg1, arg2) });
+	}
+
+	/// <summary>
+	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
+	/// See https://xunit.net/docs/configuration-files for configuration information.
+	/// </summary>
+	/// <param name="format">A composite format string.</param>
 	/// <param name="args">An object array that contains zero or more objects to format.</param>
 	public void SendDiagnosticMessage(
 		string format,
@@ -182,7 +230,34 @@ public class TestContext
 	internal void SendInternalDiagnosticMessage(string message)
 	{
 		if (InternalDiagnosticMessageSink != null)
-			InternalDiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = message });
+	}
+
+	internal void SendInternalDiagnosticMessage(
+		string format,
+		object? arg0)
+	{
+		if (InternalDiagnosticMessageSink != null)
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, arg0) });
+	}
+
+	internal void SendInternalDiagnosticMessage(
+		string format,
+		object? arg0,
+		object? arg1)
+	{
+		if (InternalDiagnosticMessageSink != null)
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, arg0, arg1) });
+	}
+
+	internal void SendInternalDiagnosticMessage(
+		string format,
+		object? arg0,
+		object? arg1,
+		object? arg2)
+	{
+		if (InternalDiagnosticMessageSink != null)
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, arg0, arg1, arg2) });
 	}
 
 	internal void SendInternalDiagnosticMessage(
@@ -190,7 +265,7 @@ public class TestContext
 		params object?[] args)
 	{
 		if (InternalDiagnosticMessageSink != null)
-			InternalDiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, args) });
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, args) });
 	}
 
 	/// <summary>
@@ -198,14 +273,15 @@ public class TestContext
 	/// being discovered or run. This is typically used by custom runners just before they create the test framework
 	/// via a call to <see cref="ExtensibilityPointFactory.GetTestFramework"/>.
 	/// </summary>
-	/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="_DiagnosticMessage"/> instances.</param>
-	/// <param name="internalDiagnosticMessageSink">The optional message sink used to receive internal <see cref="_DiagnosticMessage"/> instances.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="_DiagnosticMessage"/>
+	/// and <see cref="_InternalDiagnosticMessage"/> instances.</param>
+	/// <param name="diagnosticMessages">A flag to indicate whether the user wants to receive diagnostic messages</param>
+	/// <param name="internalDiagnosticMessages">A flag to indicate whether the user wants to receive internal diagnostic messages</param>
 	public static void SetForInitialization(
 		_IMessageSink? diagnosticMessageSink,
-		_IMessageSink? internalDiagnosticMessageSink)
-	{
-		local.Value = new TestContext(default, diagnosticMessageSink, internalDiagnosticMessageSink, TestPipelineStage.Initialization);
-	}
+		bool diagnosticMessages,
+		bool internalDiagnosticMessages) =>
+			local.Value = new TestContext(default, diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, TestPipelineStage.Initialization);
 
 	/// <summary>
 	/// Sets the test context for execution of a test. This assumes an existing test context already exists from which

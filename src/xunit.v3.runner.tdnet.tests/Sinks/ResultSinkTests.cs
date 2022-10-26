@@ -15,7 +15,7 @@ public class ResultSinkTests
 	public static async ValueTask SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
 	{
 		var listener = Substitute.For<ITestListener>();
-		await using var sink = new ResultSink(listener, 42);
+		await using var sink = new ResultSink(listener, new object(), 42);
 		var message = TestData.TestAssemblyFinished();
 
 		sink.OnMessage(message);
@@ -29,7 +29,7 @@ public class ResultSinkTests
 		public static async ValueTask DefaultRunStateIsNoTests()
 		{
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, new object(), 42);
 
 			Assert.Equal(TestRunState.NoTests, sink.TestRunState);
 		}
@@ -41,7 +41,7 @@ public class ResultSinkTests
 		public static async ValueTask FailureSetsStateToFailed(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = initialState };
 			sink.OnMessage(TestData.TestClassStarting());
 			sink.OnMessage(TestData.TestMethodStarting());
 			sink.OnMessage(TestData.TestStarting());
@@ -55,7 +55,7 @@ public class ResultSinkTests
 		public static async ValueTask Success_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 			sink.OnMessage(TestData.TestClassStarting());
 			sink.OnMessage(TestData.TestMethodStarting());
 			sink.OnMessage(TestData.TestStarting());
@@ -72,7 +72,7 @@ public class ResultSinkTests
 		public static async ValueTask Success_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = initialState };
 			sink.OnMessage(TestData.TestClassStarting());
 			sink.OnMessage(TestData.TestMethodStarting());
 			sink.OnMessage(TestData.TestStarting());
@@ -86,7 +86,7 @@ public class ResultSinkTests
 		public static async ValueTask Skip_MovesToSuccess()
 		{
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 			sink.OnMessage(TestData.TestClassStarting());
 			sink.OnMessage(TestData.TestMethodStarting());
 			sink.OnMessage(TestData.TestStarting());
@@ -103,7 +103,7 @@ public class ResultSinkTests
 		public static async ValueTask Skip_StaysInCurrentState(TestRunState initialState)
 		{
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = initialState };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = initialState };
 			sink.OnMessage(TestData.TestClassStarting());
 			sink.OnMessage(TestData.TestMethodStarting());
 			sink.OnMessage(TestData.TestStarting());
@@ -138,7 +138,7 @@ public class ResultSinkTests
 				StackTraces = stackTraces
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(errorMessage);
 
@@ -162,7 +162,7 @@ public class ResultSinkTests
 				StackTraces = stackTraces
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(collectionStarting);
 			sink.OnMessage(collectionCleanupFailure);
@@ -195,7 +195,7 @@ public class ResultSinkTests
 				TestMethodUniqueID = methodID
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(caseStarting);
 			sink.OnMessage(caseCleanupFailure);
@@ -224,7 +224,7 @@ public class ResultSinkTests
 				TestClassUniqueID = classID
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(classStarting);
 			sink.OnMessage(classCleanupFailure);
@@ -259,7 +259,7 @@ public class ResultSinkTests
 				TestUniqueID = testID
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(testStarting);
 			sink.OnMessage(testCleanupFailure);
@@ -286,7 +286,7 @@ public class ResultSinkTests
 				TestCollectionUniqueID = collectionID
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(collectionStarting);
 			sink.OnMessage(collectionCleanupFailure);
@@ -317,7 +317,7 @@ public class ResultSinkTests
 				TestMethodUniqueID = methodID
 			};
 			var listener = Substitute.For<ITestListener>();
-			await using var sink = new ResultSink(listener, 42) { TestRunState = TestRunState.NoTests };
+			await using var sink = new ResultSink(listener, new object(), 42) { TestRunState = TestRunState.NoTests };
 
 			sink.OnMessage(methodStarting);
 			sink.OnMessage(methodCleanupFailure);
@@ -350,7 +350,7 @@ public class ResultSinkTests
 			listener
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
-			await using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, new object(), 42);
 			sink.OnMessage(TestData.TestClassStarting(testClass: typeof(object).FullName!));
 			sink.OnMessage(TestData.TestMethodStarting(testMethod: nameof(object.GetHashCode)));
 			sink.OnMessage(TestData.TestStarting(testDisplayName: "Display Name"));
@@ -385,7 +385,7 @@ public class ResultSinkTests
 			listener
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
-			await using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, new object(), 42);
 			sink.OnMessage(TestData.TestClassStarting(testClass: typeof(object).FullName!));
 			sink.OnMessage(TestData.TestMethodStarting(testMethod: nameof(object.GetHashCode)));
 			sink.OnMessage(TestData.TestStarting(testDisplayName: "Display Name"));
@@ -418,7 +418,7 @@ public class ResultSinkTests
 			listener
 				.WhenAny(l => l.TestFinished(null))
 				.Do<TestResult>(result => testResult = result);
-			await using var sink = new ResultSink(listener, 42);
+			await using var sink = new ResultSink(listener, new object(), 42);
 			sink.OnMessage(TestData.TestClassStarting(testClass: typeof(object).FullName!));
 			sink.OnMessage(TestData.TestMethodStarting(testMethod: nameof(object.GetHashCode)));
 			sink.OnMessage(TestData.TestStarting(testDisplayName: "Display Name"));

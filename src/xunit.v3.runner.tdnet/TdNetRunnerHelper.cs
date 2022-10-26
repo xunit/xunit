@@ -20,6 +20,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 	readonly IFrontController? frontController;
 	readonly XunitProjectAssembly? projectAssembly;
 	readonly ITestListener? testListener;
+	readonly object testListenerLock = new();
 
 	/// <summary>
 	/// This constructor is for unit testing purposes only.
@@ -45,7 +46,11 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		projectAssembly.Configuration.ShadowCopy = false;
 		ConfigReader.Load(projectAssembly.Configuration, assemblyFileName);
 
-		var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), projectAssembly.Configuration.DiagnosticMessagesOrDefault);
+		var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
+		var internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
+		var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+		var diagnosticMessageSink = TdNetDiagnosticMessageSink.TryCreate(testListener, testListenerLock, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName);
+
 		frontController = Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: diagnosticMessageSink);
 		disposalTracker.Add(frontController);
 	}
@@ -85,7 +90,9 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		}
 		catch (Exception ex)
 		{
-			testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
+			lock (testListenerLock)
+				testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
+
 			return new _TestCaseDiscovered[0];
 		}
 	}
@@ -109,12 +116,14 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
 
+		// TODO: This does not yet support fail-on-skip or reporting long-running tests. The fact that these are done via
+		// delegating implementations of IExecutionSink is a design problem for this runner.
+
 		try
 		{
-			if (testCases == null)
-				testCases = Discover();
+			testCases ??= Discover();
 
-			var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
+			var resultSink = new ResultSink(testListener, testListenerLock, testCases.Count) { TestRunState = initialRunState };
 			disposalTracker.Add(resultSink);
 
 			var executionOptions = _TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
@@ -130,7 +139,9 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		}
 		catch (Exception ex)
 		{
-			testListener.WriteLine("Error during test execution:\r\n" + ex, Category.Error);
+			lock (testListenerLock)
+				testListener.WriteLine("Error during test execution:\r\n" + ex, Category.Error);
+
 			return TestRunState.Error;
 		}
 	}

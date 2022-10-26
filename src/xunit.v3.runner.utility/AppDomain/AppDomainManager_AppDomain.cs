@@ -144,7 +144,7 @@ class AppDomainManager_AppDomain : IAppDomainManager
 				thread.Start();
 
 				if (!thread.Join(TimeSpan.FromSeconds(10)))
-					diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' timed out" });
+					diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' timed out" });
 				else
 				{
 					if (cachePath != null)
@@ -160,7 +160,7 @@ class AppDomainManager_AppDomain : IAppDomainManager
 			}
 
 			if (failure != null)
-				diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}" });
+				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}" });
 		}
 	}
 

@@ -16,10 +16,12 @@ public class ResultSink : TestMessageSink
 
 	public ResultSink(
 		ITestListener listener,
+		object listenerLock,
 		int totalTests)
 	{
 		this.totalTests = totalTests;
 		TestListener = listener;
+		TestListenerLock = listenerLock;
 		TestRunState = TestRunState.NoTests;
 
 		Execution.TestCleanupFailureEvent +=
@@ -77,6 +79,8 @@ public class ResultSink : TestMessageSink
 
 	public ITestListener TestListener { get; }
 
+	public object TestListenerLock { get; }
+
 	public TestRunState TestRunState { get; set; }
 
 	void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
@@ -88,7 +92,8 @@ public class ResultSink : TestMessageSink
 		testResult.Message = ExceptionUtility.CombineMessages(testFailed);
 		testResult.StackTrace = ExceptionUtility.CombineStackTraces(testFailed);
 
-		TestListener.TestFinished(testResult);
+		lock (TestListenerLock)
+			TestListener.TestFinished(testResult);
 
 		WriteOutput(testResult.Name, testFailed.Output);
 	}
@@ -101,7 +106,8 @@ public class ResultSink : TestMessageSink
 		var testPassed = args.Message;
 		var testResult = ToTdNetTestResult(testPassed, TestState.Passed, totalTests);
 
-		TestListener.TestFinished(testResult);
+		lock (TestListenerLock)
+			TestListener.TestFinished(testResult);
 
 		WriteOutput(testResult.Name, testPassed.Output);
 	}
@@ -115,7 +121,8 @@ public class ResultSink : TestMessageSink
 		var testResult = ToTdNetTestResult(testSkipped, TestState.Ignored, totalTests);
 		testResult.Message = testSkipped.Reason;
 
-		TestListener.TestFinished(testResult);
+		lock (TestListenerLock)
+			TestListener.TestFinished(testResult);
 	}
 
 	void ReportError(
@@ -134,7 +141,8 @@ public class ResultSink : TestMessageSink
 			StackTrace = ExceptionUtility.CombineStackTraces(errorMetadata)
 		};
 
-		TestListener.TestFinished(testResult);
+		lock (TestListenerLock)
+			TestListener.TestFinished(testResult);
 	}
 
 	TestResult ToTdNetTestResult(
@@ -166,9 +174,13 @@ public class ResultSink : TestMessageSink
 		if (string.IsNullOrWhiteSpace(output))
 			return;
 
-		TestListener.WriteLine($"Output from {name}:", Category.Output);
-		foreach (var line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-			TestListener.WriteLine($"  {line}", Category.Output);
+		lock (TestListenerLock)
+		{
+			TestListener.WriteLine($"Output from {name}:", Category.Output);
+
+			foreach (var line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+				TestListener.WriteLine($"  {line}", Category.Output);
+		}
 	}
 
 	public override async ValueTask DisposeAsync()

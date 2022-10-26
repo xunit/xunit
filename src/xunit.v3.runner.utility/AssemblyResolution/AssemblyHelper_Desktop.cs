@@ -18,7 +18,7 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 
 	readonly string directory;
 	bool disposed;
-	readonly _IMessageSink? internalDiagnosticsMessageSink;
+	readonly _IMessageSink? diagnosticMessageSink;
 	readonly Dictionary<string, Assembly?> lookupCache = new();
 
 	/// <summary>
@@ -33,13 +33,13 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 	/// Constructs an instance using the given <paramref name="directory"/> for resolution.
 	/// </summary>
 	/// <param name="directory">The directory to use for resolving assemblies.</param>
-	/// <param name="internalDiagnosticsMessageSink">The message sink to send internal diagnostics messages to</param>
+	/// <param name="diagnosticMessageSink">The message sink to send diagnostics messages to.</param>
 	public AssemblyHelper(
 		string directory,
-		_IMessageSink? internalDiagnosticsMessageSink)
+		_IMessageSink? diagnosticMessageSink)
 	{
 		this.directory = Guard.ArgumentNotNull(directory);
-		this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
+		this.diagnosticMessageSink = diagnosticMessageSink;
 
 		AppDomain.CurrentDomain.AssemblyResolve += Resolve;
 	}
@@ -66,12 +66,12 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 		var path = Path.Combine(directory, assemblyName.Name);
 		result = ResolveAndLoadAssembly(path, out var resolvedAssemblyPath);
 
-		if (internalDiagnosticsMessageSink != null)
+		if (diagnosticMessageSink != null)
 		{
 			if (result == null)
-				internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage { Message = $"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver" });
+				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver" });
 			else
-				internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage { Message = $"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'" });
+				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'" });
 		}
 
 		lookupCache[assemblyName.Name] = result;
@@ -116,8 +116,8 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		string assemblyFileName,
-		_IMessageSink? internalDiagnosticsMessageSink = null) =>
-			new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, internalDiagnosticsMessageSink);
+		_IMessageSink? diagnosticMessageSink = null) =>
+			new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, diagnosticMessageSink);
 
 	/// <summary>
 	/// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
@@ -127,8 +127,8 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		Type typeInAssembly,
-		_IMessageSink? internalDiagnosticsMessageSink = null) =>
-			new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, internalDiagnosticsMessageSink);
+		_IMessageSink? diagnosticMessageSink = null) =>
+			new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, diagnosticMessageSink);
 }
 
 #endif

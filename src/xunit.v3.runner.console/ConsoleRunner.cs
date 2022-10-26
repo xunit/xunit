@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -87,13 +86,13 @@ class ConsoleRunner
 			if (project.Configuration.DebugOrDefault)
 				Debugger.Launch();
 
-			// We will enable "global" internal diagnostic messages if any test assembly wanted them
+			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
 			noColor = project.Configuration.NoColorOrDefault;
 			logger = new ConsoleRunnerLogger(!noColor, consoleLock);
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, globalInternalDiagnosticMessages, noColor);
+			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 			var reporter = project.RunnerReporter;
-			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
+			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
@@ -299,13 +298,14 @@ class ConsoleRunner
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-			var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
+			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
+			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink);
+			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, diagnosticMessageSink);
 			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch

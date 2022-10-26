@@ -18,6 +18,11 @@ public class DiagnosticEventSink : _IMessageSink
 	/// </summary>
 	public event MessageHandler<_ErrorMessage>? ErrorMessageEvent;
 
+	/// <summary>
+	/// Occurs when a <see cref="_InternalDiagnosticMessage"/> message is received.
+	/// </summary>
+	public event MessageHandler<_InternalDiagnosticMessage>? InternalDiagnosticMessageEvent;
+
 	/// <inheritdoc/>
 	public bool OnMessage(_MessageSinkMessage message)
 	{
@@ -25,6 +30,7 @@ public class DiagnosticEventSink : _IMessageSink
 
 		return
 			message.DispatchWhen(DiagnosticMessageEvent) &&
-			message.DispatchWhen(ErrorMessageEvent);
+			message.DispatchWhen(ErrorMessageEvent) &&
+			message.DispatchWhen(InternalDiagnosticMessageEvent);
 	}
 }

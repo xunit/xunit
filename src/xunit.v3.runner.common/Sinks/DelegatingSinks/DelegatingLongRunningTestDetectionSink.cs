@@ -80,10 +80,11 @@ public class DelegatingLongRunningTestDetectionSink : IExecutionSink
 		LongRunningTestsSummary summary,
 		_IMessageSink diagnosticMessageSink)
 	{
-		var messages = summary.TestCases.Select(pair => $"[Long Running Test] '{pair.Key.TestCaseDisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
+		var messages = summary.TestCases.Select(pair => $"Long running test: '{pair.Key.TestCaseDisplayName}' (elapsed: {pair.Value:hh\\:mm\\:ss})");
 		var message = string.Join(Environment.NewLine, messages.ToArray());
 
 		diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
+		diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = message });
 	}
 
 	/// <inheritdoc/>

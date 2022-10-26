@@ -20,7 +20,8 @@ public class VisualStudioSourceInformationProvider : _ISourceInformationProvider
 	/// Initializes a new instance of the <see cref="VisualStudioSourceInformationProvider" /> class.
 	/// </summary>
 	/// <param name="assemblyFileName">The assembly file name.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/>
+	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
 	public VisualStudioSourceInformationProvider(
 		string assemblyFileName,
 		_IMessageSink diagnosticMessageSink)

@@ -18,7 +18,7 @@ public static class AssemblyHelper
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		string assemblyFileName,
-		_IMessageSink? internalDiagnosticsMessageSink = null) =>
+		_IMessageSink? diagnosticMessageSink = null) =>
 			null;
 
 	/// <summary>
@@ -29,7 +29,7 @@ public static class AssemblyHelper
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		Type typeInAssembly,
-		_IMessageSink? internalDiagnosticsMessageSink = null) =>
+		_IMessageSink? diagnosticMessageSink = null) =>
 			null;
 }
 

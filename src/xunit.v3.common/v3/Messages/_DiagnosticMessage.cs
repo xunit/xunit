@@ -4,8 +4,10 @@ using Xunit.Internal;
 namespace Xunit.v3;
 
 /// <summary>
-/// This message is sent when the test framework wants to report a diagnostic message
-/// to the end user.
+/// This message is sent when code (1st or 3rd party) wants to alert the user to a situation that may require
+/// diagnostic investigation. This is typically not displayed unless the user has explicitly asked for diagnostic
+/// messages to be displayed (see <see href="https://xunit.net/docs/configuration-files#diagnosticMessages"/> on
+/// how to enable display of diagnostic messages).
 /// </summary>
 public class _DiagnosticMessage : _MessageSinkMessage
 {

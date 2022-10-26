@@ -603,7 +603,8 @@ public class Xunit2 : IFrontController
 	/// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.*.dll; if <c>null</c>, then
 	/// the location of xunit.execution.*.dll is implied based on the location of the test assembly</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/>
+	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontControllerDiscoverer ForDiscovery(
 		_IAssemblyInfo assemblyInfo,
@@ -645,7 +646,8 @@ public class Xunit2 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/>
+	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,

@@ -35,6 +35,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		AddMessageTypeName<_DiagnosticMessage>();
 		AddMessageTypeName<_DiscoveryComplete>();
 		AddMessageTypeName<_ErrorMessage>();
+		AddMessageTypeName<_InternalDiagnosticMessage>();
 		AddMessageTypeName<_TestAssemblyCleanupFailure>();
 		AddMessageTypeName<_TestAssemblyFinished>();
 		AddMessageTypeName<_TestCaseCleanupFailure>();
@@ -97,6 +98,11 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 	/// Set to get notification of when test execution is complete.
 	/// </summary>
 	public Action<ExecutionCompleteInfo>? OnExecutionComplete { get; set; }
+
+	/// <summary>
+	/// Set to get notification of internal diagnostic messages.
+	/// </summary>
+	public Action<InternalDiagnosticMessageInfo>? OnInternalDiagnosticMessage { get; set; }
 
 	/// <summary>
 	/// Set to get notification of failed tests.
@@ -185,10 +191,10 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 
 	_ITestFrameworkDiscoveryOptions GetDiscoveryOptions(
 		bool? diagnosticMessages,
+		bool? internalDiagnosticMessages,
 		TestMethodDisplay? methodDisplay,
 		TestMethodDisplayOptions? methodDisplayOptions,
-		bool? preEnumerateTheories,
-		bool? internalDiagnosticMessages)
+		bool? preEnumerateTheories)
 	{
 		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(configuration);
 		discoveryOptions.SetSynchronousMessageReporting(true);
@@ -209,9 +215,9 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 
 	_ITestFrameworkExecutionOptions GetExecutionOptions(
 		bool? diagnosticMessages,
-		bool? parallel,
+		bool? internalDiagnosticMessages,
 		int? maxParallelThreads,
-		bool? internalDiagnosticMessages)
+		bool? parallel)
 	{
 		var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
 		executionOptions.SetSynchronousMessageReporting(true);
@@ -274,7 +280,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		ThreadPool.QueueUserWorkItem(_ =>
 		{
 			// TODO: This should be restructured to use FindAndRun, which will require a new design for AssemblyRunner
-			var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
+			var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, internalDiagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories);
 			var filters = new XunitFilters();
 			if (typeName != null)
 				filters.IncludedClasses.Add(typeName);
@@ -290,7 +296,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 				return;
 			}
 
-			var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
+			var executionOptions = GetExecutionOptions(diagnosticMessages, internalDiagnosticMessages, maxParallelThreads, parallel);
 			var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
 			controller.Run(this, runSettings);
 			executionCompleteEvent.WaitOne();
@@ -370,6 +376,9 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 
 		if (OnDiagnosticMessage != null)
 			if (DispatchMessage<_DiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
+				return !cancelled;
+		if (OnInternalDiagnosticMessage != null)
+			if (DispatchMessage<_InternalDiagnosticMessage>(message, messageTypes, m => OnInternalDiagnosticMessage(new InternalDiagnosticMessageInfo(m.Message))))
 				return !cancelled;
 #if false  // TODO: No simple conversions here yet
 		if (OnTestFailed != null)
