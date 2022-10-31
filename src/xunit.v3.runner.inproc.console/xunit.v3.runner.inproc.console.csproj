@@ -3,6 +3,8 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Get a warning about auto-generated ThisAssembly from xunit.v3.core which has InternalsVisibleTo to us -->
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 

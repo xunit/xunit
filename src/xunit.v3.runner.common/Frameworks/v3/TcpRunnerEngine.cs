@@ -19,8 +19,9 @@ namespace Xunit.Runner.v3;
 /// </summary>
 public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 {
-	int cancelRequested;
 	BufferedTcpClient? bufferedClient;
+	int cancelRequested;
+	readonly _IMessageSink diagnosticMessageSink;
 	readonly Func<string, _MessageSinkMessage, bool> messageDispatcher;
 	bool quitSent;
 
@@ -34,7 +35,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 		string engineID,
 		Func<string, _MessageSinkMessage, bool> messageDispatcher,
 		_IMessageSink diagnosticMessageSink) :
-			base(engineID, diagnosticMessageSink)
+			base(engineID)
 	{
 		State = TcpEngineState.Initialized;
 
@@ -42,6 +43,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 		AddCommandHandler(TcpEngineMessages.Execution.Message, OnMessage);
 
 		this.messageDispatcher = Guard.ArgumentNotNull(messageDispatcher);
+		this.diagnosticMessageSink = Guard.ArgumentNotNull(diagnosticMessageSink);
 	}
 
 	/// <summary>
@@ -84,7 +86,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 	{
 		if (!data.HasValue)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: INFO data is missing the JSON", EngineDisplayName));
+			SendInternalDiagnosticMessage("{0}: [ERR] INFO data is missing the JSON", EngineDisplayName);
 			return;
 		}
 
@@ -93,7 +95,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 		lock (StateLock)
 		{
 			if (State != TcpEngineState.Negotiating)
-				DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: INFO message received before we reached {1} state (current state is {2})", EngineDisplayName, TcpEngineState.Negotiating, State));
+				SendInternalDiagnosticMessage("{0}: [ERR] INFO message received before we reached {1} state (current state is {2})", EngineDisplayName, TcpEngineState.Negotiating, State);
 			else
 				State = TcpEngineState.Connected;
 		}
@@ -103,7 +105,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 	{
 		if (!data.HasValue)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: MSG data is missing the operation ID and JSON", EngineDisplayName));
+			SendInternalDiagnosticMessage("{0}: [ERR] MSG data is missing the operation ID and JSON", EngineDisplayName);
 			return;
 		}
 
@@ -111,7 +113,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 
 		if (!json.HasValue)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: MSG data is missing the JSON", EngineDisplayName));
+			SendInternalDiagnosticMessage("{0}: [ERR] MSG data is missing the JSON", EngineDisplayName);
 			return;
 		}
 
@@ -123,9 +125,6 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 			bufferedClient?.Send(TcpEngineMessages.Runner.Cancel);
 			bufferedClient?.Send(TcpEngineMessages.EndOfMessage);
 		}
-
-		if (State != TcpEngineState.Connected)
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: MSG message received before we reached {1} state (current state is {2})", EngineDisplayName, TcpEngineState.Connected, State));
 	}
 
 	/// <summary>
@@ -138,7 +137,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 
 		if (bufferedClient is null)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendCancel)));
+			SendInternalDiagnosticMessage("{0}: [ERR] {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendCancel));
 			return;
 		}
 
@@ -147,6 +146,12 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 		bufferedClient.Send(operationID);
 		bufferedClient.Send(TcpEngineMessages.EndOfMessage);
 	}
+
+	/// <inheritdoc/>
+	protected override void SendDiagnosticMessage(
+		string format,
+		params object?[] args) =>
+			diagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, args));
 
 	/// <summary>
 	/// Sends <see cref="TcpEngineMessages.Runner.Find"/>.
@@ -158,7 +163,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 
 		if (bufferedClient is null)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendFind)));
+			SendInternalDiagnosticMessage("{0}: {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendFind));
 			return;
 		}
 
@@ -166,7 +171,15 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 		bufferedClient.Send(TcpEngineMessages.Separator);
 		bufferedClient.Send(operationID);
 		bufferedClient.Send(TcpEngineMessages.EndOfMessage);
+
+		SendInternalDiagnosticMessage("{0}: [INF] Request sent: FIND {1}", EngineDisplayName, operationID);
 	}
+
+	/// <inheritdoc/>
+	protected override void SendInternalDiagnosticMessage(
+		string format,
+		params object?[] args) =>
+			diagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
 
 	/// <summary>
 	/// Sends <see cref="TcpEngineMessages.Runner.Quit"/>.
@@ -175,7 +188,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 	{
 		if (bufferedClient is null)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendQuit)));
+			SendInternalDiagnosticMessage("{0}: [ERR] {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendQuit));
 			return;
 		}
 
@@ -183,6 +196,8 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 
 		bufferedClient.Send(TcpEngineMessages.Runner.Quit);
 		bufferedClient.Send(TcpEngineMessages.EndOfMessage);
+
+		SendInternalDiagnosticMessage("{0}: [INF] Request sent: QUIT", EngineDisplayName);
 	}
 
 	/// <summary>
@@ -195,7 +210,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 
 		if (bufferedClient is null)
 		{
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendFind)));
+			SendInternalDiagnosticMessage("{0}: [ERR] {1} called when there is no connected execution engine", EngineDisplayName, nameof(SendRun));
 			return;
 		}
 
@@ -231,7 +246,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 				}
 				catch (Exception ex)
 				{
-					DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Error during listen socket closure: {1}", EngineDisplayName, ex));
+					SendInternalDiagnosticMessage("{0}: [ERR] Error during listen socket closure: {1}", EngineDisplayName, ex);
 				}
 			});
 
@@ -250,11 +265,11 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 
 			var remotePort = ((IPEndPoint?)socket.RemoteEndPoint)?.Port.ToString(CultureInfo.InvariantCulture) ?? "<unknown_port>";
 
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Connection accepted from tcp://localhost:{1}/", EngineDisplayName, remotePort));
+			SendInternalDiagnosticMessage("{0}: [INF] Connection accepted from tcp://localhost:{1}/", EngineDisplayName, remotePort);
 
 			DisposalTracker.AddAction(() =>
 			{
-				DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Disconnecting from tcp://localhost:{1}/", EngineDisplayName, remotePort));
+				SendInternalDiagnosticMessage("{0}: [INF] Disconnecting from tcp://localhost:{1}/", EngineDisplayName, remotePort);
 
 				try
 				{
@@ -265,15 +280,15 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 				}
 				catch (Exception ex)
 				{
-					DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Error during connection socket closure: {1}", EngineDisplayName, ex));
+					SendInternalDiagnosticMessage("{0}: [ERR] Error during connection socket closure: {1}", EngineDisplayName, ex);
 				}
 
-				DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Disconnected from tcp://localhost:{1}/", EngineDisplayName, remotePort));
+				SendInternalDiagnosticMessage("{0}: [INF] Disconnected from tcp://localhost:{1}/", EngineDisplayName, remotePort);
 			});
 
-			bufferedClient = new(string.Format(CultureInfo.InvariantCulture, "runner::{0}", EngineID), socket, ProcessRequest, DiagnosticMessageSink)
+			bufferedClient = new(string.Format(CultureInfo.InvariantCulture, "runner::{0}", EngineID), socket, ProcessRequest, this)
 			{
-				OnAbnormalTermination = ex => messageDispatcher("::BROADCAST::", _ErrorMessage.FromException(ex))
+				OnAbnormalTermination = ex => messageDispatcher(BroadcastOperationID, _ErrorMessage.FromException(ex))
 			};
 			bufferedClient.Start();
 
@@ -286,7 +301,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 				}
 				catch (Exception ex)
 				{
-					DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Error sending QUIT message to execution engine: {1}", EngineDisplayName, ex));
+					SendInternalDiagnosticMessage("{0}: [ERR] Error sending QUIT message to execution engine: {1}", EngineDisplayName, ex);
 				}
 
 				try
@@ -295,7 +310,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 				}
 				catch (Exception ex)
 				{
-					DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Error during buffered client disposal: {1}", EngineDisplayName, ex));
+					SendInternalDiagnosticMessage("{0}: [ERR] Error during buffered client disposal: {1}", EngineDisplayName, ex);
 				}
 			});
 
@@ -311,7 +326,7 @@ public class TcpRunnerEngine : TcpEngine, IAsyncDisposable
 			bufferedClient.Send(TcpEngineMessages.EndOfMessage);
 		});
 
-		DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage("{0}: Listening on tcp://localhost:{1}/", EngineDisplayName, listenPort));
+		SendInternalDiagnosticMessage("{0}: [INF] Listening on tcp://localhost:{1}/", EngineDisplayName, listenPort);
 
 		return listenPort;
 	}

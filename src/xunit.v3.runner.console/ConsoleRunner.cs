@@ -161,16 +161,23 @@ sealed class ConsoleRunner
 			// Default to false for console runners
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
-			// Setup discovery and execution options with command-line overrides
+			// Setup discovery options with command-line overrides
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
-			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
-			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
-			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+
+#if false
+			// This is useful for debugging, but breaks the "clean" output that is intended for -list
+			var noColor = assembly.Project.Configuration.NoColorOrDefault;
+			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
+			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName);
+#else
+			var diagnosticMessageSink = default(_IMessageSink);
+#endif
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName);
-			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly);
+			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
 
 			using var discoverySink = new TestDiscoverySink(() => cancel);
 
