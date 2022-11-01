@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Includes the assertion library from xUnit.net (xunit.v3.assert.dll). Supports .NET Standard 2.0.</Description>

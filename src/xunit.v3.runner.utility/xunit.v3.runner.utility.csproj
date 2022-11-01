@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.net472</AssemblyName>
