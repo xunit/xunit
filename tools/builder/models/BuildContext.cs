@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -129,6 +130,41 @@ public class BuildContext
 		await Command.RunAsync(name, args, workingDirectory ?? BaseFolder, /*noEcho*/ true);
 
 		Console.WriteLine();
+	}
+
+	static readonly HashSet<string> skippedFolders = new(StringComparer.InvariantCultureIgnoreCase)
+	{
+		".git",
+		"artifacts",
+		"Asserts",
+		"bin",
+		"obj",
+	};
+
+	public IEnumerable<(string fileName, byte[] content)> FindFilesWithBOMs(string? folder = null)
+	{
+		folder ??= BaseFolder;
+
+		if (skippedFolders.Contains(Path.GetFileName(folder)))
+			yield break;
+
+		foreach (var file in Directory.GetFiles(folder))
+		{
+			byte[]? bytes = null;
+
+			try
+			{
+				bytes = File.ReadAllBytes(file);
+			}
+			catch { }
+
+			if (bytes != null && bytes.Length > 2 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
+				yield return (file, bytes);
+		}
+
+		foreach (var directory in Directory.GetDirectories(folder))
+			foreach (var result in FindFilesWithBOMs(directory))
+				yield return result;
 	}
 
 	async Task<int> OnExecuteAsync()
