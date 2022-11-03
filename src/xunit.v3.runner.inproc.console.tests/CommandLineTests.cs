@@ -114,6 +114,7 @@ public class CommandLineTests
 			string _,
 			Expression<Func<XunitProject, bool>> accessor)
 		{
+			//Environment.SetEnvironmentVariable("NO_COLOR", null);
 			var commandLine = new TestableCommandLine("no-config.json");
 			var project = commandLine.Parse();
 
