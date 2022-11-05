@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Text.RegularExpressions;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -72,9 +73,11 @@ public class TestOutputHelper : _ITestOutputHelper
 
 	class TestState
 	{
+		readonly static Regex ansiSgrRegex = new("^\\e\\[\\d*(;\\d*)*m");
 		readonly StringBuilder buffer = new();
 		readonly object lockObject = new();
 		readonly IMessageBus messageBus;
+		readonly static int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;  // ESC + [ + m
 		readonly string testAssemblyUniqueID;
 		readonly string testCollectionUniqueID;
 		readonly string? testClassUniqueID;
@@ -137,6 +140,8 @@ public class TestOutputHelper : _ITestOutputHelper
 				var ch = s[i];
 				if (ch == '\0')
 					builder.Append("\\0");
+				else if (ch == 0x1b)
+					HandleEscapeCharacter(builder, s, i);
 				else if (ch < 32 && !char.IsWhiteSpace(ch)) // C0 control char
 					builder.AppendFormat(@"\x{0}", (+ch).ToString("x2"));
 				else if (char.IsSurrogatePair(s, i))
@@ -153,6 +158,29 @@ public class TestOutputHelper : _ITestOutputHelper
 			}
 
 			return builder.ToString();
+		}
+
+		static void HandleEscapeCharacter(
+			StringBuilder builder,
+			string message,
+			int i)
+		{
+			if (numberOfMinimalRemainingCharsForValidAnsiSgr <= message.Length - i && message[i + 1] == '[')
+				HandlePossibleAnsiSgr(builder, message, i);
+			else
+				builder.Append("\\x1b"); // This can't be the beginning of an ANSI-SGR
+		}
+
+		static void HandlePossibleAnsiSgr(
+			StringBuilder builder,
+			string message,
+			int i)
+		{
+			var remaining = message.Substring(i);
+			if (ansiSgrRegex.IsMatch(remaining))
+				builder.Append(message[i]);
+			else
+				builder.Append("\\x1b");
 		}
 	}
 }
