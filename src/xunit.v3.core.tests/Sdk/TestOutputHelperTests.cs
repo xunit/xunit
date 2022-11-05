@@ -19,7 +19,6 @@ public class TestOutputHelperTests
 		yield return new object[] { "ANSI \x1b[38;5;4mblue\x1b[0m", "ANSI \x1b[38;5;4mblue\x1b[0m" };
 		yield return new object[] { "ANSI \x1b[;;mmissing arguments\x1b[m", "ANSI \x1b[;;mmissing arguments\x1b[m" };
 
-
 		// Escaping required
 		yield return new object[] { "\0", "\\0" };
 		yield return new object[] { (char)1, "\\x01" };
@@ -40,7 +39,9 @@ public class TestOutputHelperTests
 
 	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(InvalidStrings_TestData))]
-	public void WriteLine(string outputText, string expected)
+	public void WriteLine(
+		string outputText,
+		string expected)
 	{
 		var output = new TestOutputHelper();
 		var messageBus = new SpyMessageBus();

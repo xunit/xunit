@@ -11,8 +11,8 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleRunnerLogger : IRunnerLogger
 {
+	readonly static Regex ansiSgrRegex = new Regex("\\e\\[\\d*(;\\d*)*m");
 	readonly bool useColors;
-	private static readonly Regex AnsiSgrRegex = new Regex("\\e\\[\\d*(;\\d*)*[m]");
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
@@ -88,20 +88,26 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	/// <param name="target">Target writer</param>
 	/// <param name="message">Message to write</param>
 	/// <remarks>See https://en.wikipedia.org/wiki/ANSI_escape_code#SGR for details about ANSI-SGR.</remarks>
-	public void WriteLine(TextWriter target, string message)
+	public void WriteLine(
+		TextWriter target,
+		string message)
 	{
 		var text = useColors ? message : RemoveAnsiSgr(message);
 		target.WriteLine(text);
 	}
 
-	private static string RemoveAnsiSgr(string message) => AnsiSgrRegex.Replace(message, "");
+	static string RemoveAnsiSgr(string message) =>
+		ansiSgrRegex.Replace(message, "");
 
-	IDisposable? SetColor(ConsoleColor color) => useColors ? new ColorRestorer(color) : null;
+	IDisposable? SetColor(ConsoleColor color) =>
+		useColors ? new ColorRestorer(color) : null;
 
 	class ColorRestorer : IDisposable
 	{
-		public ColorRestorer(ConsoleColor color) => ConsoleHelper.SetForegroundColor(color);
+		public ColorRestorer(ConsoleColor color) =>
+			ConsoleHelper.SetForegroundColor(color);
 
-		public void Dispose() => ConsoleHelper.ResetColor();
+		public void Dispose() =>
+			ConsoleHelper.ResetColor();
 	}
 }

@@ -73,17 +73,17 @@ public class TestOutputHelper : _ITestOutputHelper
 
 	class TestState
 	{
+		readonly static Regex ansiSgrRegex = new("^\\e\\[\\d*(;\\d*)*m");
 		readonly StringBuilder buffer = new();
 		readonly object lockObject = new();
 		readonly IMessageBus messageBus;
+		readonly static int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;  // ESC + [ + m
 		readonly string testAssemblyUniqueID;
 		readonly string testCollectionUniqueID;
 		readonly string? testClassUniqueID;
 		readonly string? testMethodUniqueID;
 		readonly string testCaseUniqueID;
 		readonly string testUniqueID;
-		readonly static int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;
-		private static readonly Regex AnsiSgrRegex = new Regex("^\\e\\[\\d*(;\\d*)*[m]");
 
 		public TestState(
 			IMessageBus messageBus,
@@ -160,7 +160,10 @@ public class TestOutputHelper : _ITestOutputHelper
 			return builder.ToString();
 		}
 
-		private static void HandleEscapeCharacter(StringBuilder builder, string message, int i)
+		static void HandleEscapeCharacter(
+			StringBuilder builder,
+			string message,
+			int i)
 		{
 			if (numberOfMinimalRemainingCharsForValidAnsiSgr <= message.Length - i && message[i + 1] == '[')
 				HandlePossibleAnsiSgr(builder, message, i);
@@ -168,10 +171,13 @@ public class TestOutputHelper : _ITestOutputHelper
 				builder.Append("\\x1b"); // This can't be the beginning of an ANSI-SGR
 		}
 
-		private static void HandlePossibleAnsiSgr(StringBuilder builder, string message, int i)
+		static void HandlePossibleAnsiSgr(
+			StringBuilder builder,
+			string message,
+			int i)
 		{
 			var remaining = message.Substring(i);
-			if (AnsiSgrRegex.IsMatch(remaining))
+			if (ansiSgrRegex.IsMatch(remaining))
 				builder.Append(message[i]);
 			else
 				builder.Append("\\x1b");
