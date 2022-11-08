@@ -1,24 +1,24 @@
 <Project>
 
-  <PropertyGroup>
   <!-- Package versions shared among multiple .targets files -->
-    <FSharpCompilerServiceVersion>41.0.6</FSharpCompilerServiceVersion>
+  <PropertyGroup>
+    <FSharpCompilerServiceVersion>41.0.7</FSharpCompilerServiceVersion>
     <ILRepackVersion>2.0.13</ILRepackVersion>
-    <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
-    <MicrosoftNetCoreAppRefVersion>6.0.8</MicrosoftNetCoreAppRefVersion>
+    <MicrosoftBclAsyncInterfacesVersion>7.0.0</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftNetCoreAppRefVersion>6.0.11</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>1.1.1</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.4</MonoCecilVersion>
     <MoqVersion>4.17.2</MoqVersion>
-    <NerdbankGitVersioningVersion>3.5.113</NerdbankGitVersioningVersion>
+    <NerdbankGitVersioningVersion>3.5.119</NerdbankGitVersioningVersion>
     <NSubstituteVersion>4.4.0</NSubstituteVersion>
-    <SystemCodeDomVersion>6.0.0</SystemCodeDomVersion>
+    <SystemCodeDomVersion>7.0.0</SystemCodeDomVersion>
     <SystemComponentModelTypeConverterVersion>4.3.0</SystemComponentModelTypeConverterVersion>
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <SystemNetHttpVersion>4.3.4</SystemNetHttpVersion>
-    <SystemIoPipelinesVersion>6.0.3</SystemIoPipelinesVersion>
-    <SystemReflectionMetadataVersion>6.0.1</SystemReflectionMetadataVersion>
-    <SystemTextJsonVersion>6.0.6</SystemTextJsonVersion>
+    <SystemIoPipelinesVersion>7.0.0</SystemIoPipelinesVersion>
+    <SystemReflectionMetadataVersion>7.0.0</SystemReflectionMetadataVersion>
+    <SystemTextJsonVersion>7.0.0</SystemTextJsonVersion>
     <SystemThreadingTasksExtensionsVersion>4.5.4</SystemThreadingTasksExtensionsVersion>
     <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
