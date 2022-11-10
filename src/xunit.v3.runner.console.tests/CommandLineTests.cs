@@ -140,8 +140,15 @@ public class CommandLineTests
 		}
 	}
 
-	public class Switches
+	[Collection("Switches Test Collection")]
+	public class Switches : IDisposable
 	{
+		private readonly string? _originalNoColorValue;
+
+		public Switches()
+		{
+			_originalNoColorValue = Environment.GetEnvironmentVariable("NO_COLOR");
+		}
 		static readonly (string Switch, Expression<Func<XunitProject, bool>> Accessor)[] SwitchOptionsList = new (string, Expression<Func<XunitProject, bool>>)[]
 		{
 			("-debug", project => project.Configuration.DebugOrDefault),
@@ -168,7 +175,7 @@ public class CommandLineTests
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesLowerCase))]
 		[MemberData(nameof(SwitchesUpperCase))]
-		public static void SwitchDefault(
+		public void SwitchDefault(
 			string _,
 			Expression<Func<XunitProject, bool>> accessor)
 		{
@@ -183,7 +190,7 @@ public class CommandLineTests
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesLowerCase))]
 		[MemberData(nameof(SwitchesUpperCase))]
-		public static void SwitchOverride(
+		public void SwitchOverride(
 			string @switch,
 			Expression<Func<XunitProject, bool>> accessor)
 		{
@@ -193,6 +200,11 @@ public class CommandLineTests
 			var result = accessor.Compile().Invoke(project);
 
 			Assert.True(result);
+		}
+
+		public void Dispose()
+		{
+			Environment.SetEnvironmentVariable("NO_COLOR", _originalNoColorValue);
 		}
 	}
 
