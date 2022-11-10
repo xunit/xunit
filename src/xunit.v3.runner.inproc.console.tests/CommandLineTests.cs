@@ -86,12 +86,17 @@ public class CommandLineTests
 	[Collection("Switches Test Collection")]
 	public class Switches : IDisposable
 	{
-		private readonly string? _originalNoColorValue;
+		readonly string? _originalNoColorValue;
 
 		public Switches()
 		{
 			_originalNoColorValue = Environment.GetEnvironmentVariable("NO_COLOR");
+			Environment.SetEnvironmentVariable("NO_COLOR", null);
 		}
+
+		public void Dispose() =>
+			Environment.SetEnvironmentVariable("NO_COLOR", _originalNoColorValue);
+
 		static readonly (string Switch, Expression<Func<XunitProject, bool>> Accessor)[] SwitchOptionsList = new (string, Expression<Func<XunitProject, bool>>)[]
 		{
 			("-debug", project => project.Configuration.DebugOrDefault),
@@ -144,9 +149,14 @@ public class CommandLineTests
 			Assert.True(result);
 		}
 
-		public void Dispose()
+		[Fact]
+		public void NoColorSetsEnvironmentVariable()
 		{
-			Environment.SetEnvironmentVariable("NO_COLOR", _originalNoColorValue);
+			Assert.Null(Environment.GetEnvironmentVariable("NO_COLOR"));
+
+			new TestableCommandLine("no-config.json", "-nocolor").Parse();
+
+			Assert.NotNull(Environment.GetEnvironmentVariable("NO_COLOR"));
 		}
 	}
 
