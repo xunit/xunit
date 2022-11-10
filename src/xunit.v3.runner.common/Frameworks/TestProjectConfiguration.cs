@@ -11,6 +11,11 @@ namespace Xunit.Runner.Common;
 public class TestProjectConfiguration
 {
 	/// <summary>
+	/// Gets the environment variable name used to test for the user requesting no color output.
+	/// </summary>
+	public const string EnvNameNoColor = "NO_COLOR";
+
+	/// <summary>
 	/// Gets or sets a flag which indicates whether the runner should attempt to attach the debugger
 	/// before running any tests.
 	/// </summary>
@@ -72,7 +77,7 @@ public class TestProjectConfiguration
 	/// text to the console. If the flag is not set, returns <c>true</c> if the user has defined
 	/// the NO_COLOR environment variable, or <c>false</c> otherwise.
 	/// </summary>
-	public bool NoColorOrDefault => NoColor ?? Environment.GetEnvironmentVariable("NO_COLOR") != null;
+	public bool NoColorOrDefault => NoColor ?? Environment.GetEnvironmentVariable(EnvNameNoColor) != null;
 
 	/// <summary>
 	/// Gets or sets a flag indicating that the test runner should not output the copyright

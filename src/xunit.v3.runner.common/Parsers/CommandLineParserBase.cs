@@ -513,7 +513,10 @@ public abstract class CommandLineParserBase
 	{
 		GuardNoOptionValue(option);
 		Project.Configuration.NoColor = true;
-		Environment.SetEnvironmentVariable("NO_COLOR", "NO_COLOR");
+
+		// Set the environment variable so any plugins can also see the user requested -nocolor
+		// For more information, see https://no-color.org/
+		Environment.SetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor, "NO_COLOR");
 	}
 
 	void OnNoLogo(KeyValuePair<string, string?> option)

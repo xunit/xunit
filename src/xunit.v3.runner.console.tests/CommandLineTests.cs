@@ -147,12 +147,12 @@ public class CommandLineTests
 
 		public Switches()
 		{
-			_originalNoColorValue = Environment.GetEnvironmentVariable("NO_COLOR");
-			Environment.SetEnvironmentVariable("NO_COLOR", null);
+			_originalNoColorValue = Environment.GetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor);
+			Environment.SetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor, null);
 		}
 
 		public void Dispose() =>
-			Environment.SetEnvironmentVariable("NO_COLOR", _originalNoColorValue);
+			Environment.SetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor, _originalNoColorValue);
 
 		static readonly (string Switch, Expression<Func<XunitProject, bool>> Accessor)[] SwitchOptionsList = new (string, Expression<Func<XunitProject, bool>>)[]
 		{
@@ -210,11 +210,14 @@ public class CommandLineTests
 		[Fact]
 		public void NoColorSetsEnvironmentVariable()
 		{
-			Assert.Null(Environment.GetEnvironmentVariable("NO_COLOR"));
+			Assert.Null(Environment.GetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor));
 
 			new TestableCommandLine("assemblyName.dll", "no-config.json", "-nocolor").Parse();
 
-			Assert.NotNull(Environment.GetEnvironmentVariable("NO_COLOR"));
+			// Any set (non-null, non-empty) value is acceptable, see https://no-color.org/
+			var envValue = Environment.GetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor);
+			Assert.NotNull(envValue);
+			Assert.NotEmpty(envValue);
 		}
 	}
 
