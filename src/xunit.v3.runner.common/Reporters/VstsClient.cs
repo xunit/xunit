@@ -123,7 +123,7 @@ class VstsClient
 		workEvent.Set();
 	}
 
-	async Task<int?> CreateTestRun()
+	async Task<int> CreateTestRun()
 	{
 		var requestMessage = new Dictionary<string, object?>
 			{
