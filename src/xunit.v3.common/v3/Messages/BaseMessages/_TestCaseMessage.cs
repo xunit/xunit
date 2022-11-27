@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -18,7 +17,7 @@ public class _TestCaseMessage : _TestMethodMessage
 	/// </summary>
 	public string TestCaseUniqueID
 	{
-		get => testCaseUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCaseUniqueID, nameof(TestCaseUniqueID));
 		set => testCaseUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseUniqueID));
 	}
 

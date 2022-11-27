@@ -76,7 +76,7 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 
 	/// <inheritdoc/>
 	public string TestCaseDisplayName =>
-		testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(testCaseDisplayName, nameof(TestCaseDisplayName));
 
 	/// <inheritdoc/>
 	public _ITestCollection TestCollection =>
@@ -97,25 +97,25 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 
 	/// <inheritdoc/>
 	public _ITestMethod TestMethod =>
-		testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(testMethod, nameof(TestMethod));
 
 	/// <inheritdoc/>
 	public object?[] TestMethodArguments =>
-		testMethodArguments ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethodArguments)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(testMethodArguments, nameof(TestMethodArguments));
 
 	string _ITestCaseMetadata.TestMethodName =>
 		TestMethod.Method.Name;
 
 	/// <inheritdoc/>
 	public Dictionary<string, List<string>> Traits =>
-		traits ?? throw new InvalidOperationException($"Attempted to get {nameof(Traits)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(traits, nameof(Traits));
 
 	IReadOnlyDictionary<string, IReadOnlyList<string>> _ITestCaseMetadata.Traits =>
 		Traits.ToReadOnly();
 
 	/// <inheritdoc/>
 	public virtual string UniqueID =>
-		uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
 	/// <inheritdoc/>
 	protected virtual void Deserialize(IXunitSerializationInfo info)

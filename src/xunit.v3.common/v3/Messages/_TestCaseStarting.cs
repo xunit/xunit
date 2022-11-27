@@ -27,7 +27,7 @@ public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
 	/// <inheritdoc/>
 	public string TestCaseDisplayName
 	{
-		get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCaseDisplayName, nameof(TestCaseDisplayName));
 		set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseDisplayName));
 	}
 

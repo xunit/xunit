@@ -22,7 +22,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	/// </summary>
 	public string Serialization
 	{
-		get => serialization ?? throw new InvalidOperationException($"Attempted to get {nameof(Serialization)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(serialization, nameof(Serialization));
 		set => serialization = Guard.ArgumentNotNull(value, nameof(Serialization));
 	}
 
@@ -38,7 +38,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	/// <inheritdoc/>
 	public string TestCaseDisplayName
 	{
-		get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCaseDisplayName, nameof(TestCaseDisplayName));
 		set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseDisplayName));
 	}
 

@@ -31,28 +31,28 @@ public class _TestFailed : _TestResultMessage, _IErrorMetadata
 	/// <inheritdoc/>
 	public int[] ExceptionParentIndices
 	{
-		get => exceptionParentIndices ?? throw new InvalidOperationException($"Attempted to get {nameof(ExceptionParentIndices)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(exceptionParentIndices, nameof(ExceptionParentIndices));
 		set => exceptionParentIndices = Guard.ArgumentNotNullOrEmpty(value, nameof(ExceptionParentIndices));
 	}
 
 	/// <inheritdoc/>
 	public string?[] ExceptionTypes
 	{
-		get => exceptionTypes ?? throw new InvalidOperationException($"Attempted to get {nameof(ExceptionTypes)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(exceptionTypes, nameof(ExceptionTypes));
 		set => exceptionTypes = Guard.ArgumentNotNullOrEmpty(value, nameof(ExceptionTypes));
 	}
 
 	/// <inheritdoc/>
 	public string[] Messages
 	{
-		get => messages ?? throw new InvalidOperationException($"Attempted to get {nameof(Messages)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(messages, nameof(Messages));
 		set => messages = Guard.ArgumentNotNullOrEmpty(value, nameof(Messages));
 	}
 
 	/// <inheritdoc/>
 	public string?[] StackTraces
 	{
-		get => stackTraces ?? throw new InvalidOperationException($"Attempted to get {nameof(StackTraces)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(stackTraces, nameof(StackTraces));
 		set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));
 	}
 

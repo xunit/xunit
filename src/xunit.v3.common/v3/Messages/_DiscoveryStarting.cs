@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -14,7 +13,7 @@ public class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// <inheritdoc/>
 	public string AssemblyName
 	{
-		get => assemblyName ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(assemblyName, nameof(AssemblyName));
 		set => assemblyName = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyName));
 	}
 

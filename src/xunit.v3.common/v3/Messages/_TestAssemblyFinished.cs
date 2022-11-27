@@ -1,4 +1,5 @@
 using System;
+using Xunit.Internal;
 
 namespace Xunit.v3;
 
@@ -17,7 +18,7 @@ public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMet
 	/// <inheritdoc/>
 	public decimal ExecutionTime
 	{
-		get => executionTime ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionTime)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
 	}
 
@@ -29,28 +30,28 @@ public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMet
 	/// <inheritdoc/>
 	public int TestsFailed
 	{
-		get => testsFailed ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsFailed)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testsFailed, nameof(TestsFailed));
 		set => testsFailed = value;
 	}
 
 	/// <inheritdoc/>
 	public int TestsNotRun
 	{
-		get => testsNotRun ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsNotRun)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testsNotRun, nameof(TestsNotRun));
 		set => testsNotRun = value;
 	}
 
 	/// <inheritdoc/>
 	public int TestsSkipped
 	{
-		get => testsSkipped ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsSkipped)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testsSkipped, nameof(TestsSkipped));
 		set => testsSkipped = value;
 	}
 
 	/// <inheritdoc/>
 	public int TestsTotal
 	{
-		get => testsTotal ?? throw new InvalidOperationException($"Attempted to get {nameof(TestsTotal)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testsTotal, nameof(TestsTotal));
 		set => testsTotal = value;
 	}
 }

@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -20,7 +19,7 @@ public class TestAssemblyDiscoveryStarting : _MessageSinkMessage
 	/// </summary>
 	public AppDomainOption AppDomain
 	{
-		get => appDomain ?? throw new InvalidOperationException($"Attempted to get {nameof(AppDomain)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(appDomain, nameof(AppDomain));
 		set => appDomain = value;
 	}
 
@@ -29,7 +28,7 @@ public class TestAssemblyDiscoveryStarting : _MessageSinkMessage
 	/// </summary>
 	public XunitProjectAssembly Assembly
 	{
-		get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(assembly, nameof(Assembly));
 		set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
 	}
 
@@ -38,7 +37,7 @@ public class TestAssemblyDiscoveryStarting : _MessageSinkMessage
 	/// </summary>
 	public _ITestFrameworkDiscoveryOptions DiscoveryOptions
 	{
-		get => discoveryOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(DiscoveryOptions)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(discoveryOptions, nameof(DiscoveryOptions));
 		set => discoveryOptions = Guard.ArgumentNotNull(value, nameof(DiscoveryOptions));
 	}
 

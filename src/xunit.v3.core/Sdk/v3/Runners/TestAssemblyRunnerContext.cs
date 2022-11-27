@@ -63,7 +63,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	/// Gets the message bus to send execution engine messages to.
 	/// </summary>
 	public IMessageBus MessageBus =>
-		messageBus ?? throw new InvalidOperationException($"Attempted to get {nameof(MessageBus)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(messageBus, nameof(MessageBus));
 
 	/// <summary>
 	/// Gets the seed value used for randomization.

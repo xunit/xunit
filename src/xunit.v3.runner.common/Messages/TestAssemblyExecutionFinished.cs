@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -19,7 +18,7 @@ public class TestAssemblyExecutionFinished : _MessageSinkMessage
 	/// </summary>
 	public XunitProjectAssembly Assembly
 	{
-		get => assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(assembly, nameof(Assembly));
 		set => assembly = Guard.ArgumentNotNull(value, nameof(Assembly));
 	}
 
@@ -28,7 +27,7 @@ public class TestAssemblyExecutionFinished : _MessageSinkMessage
 	/// </summary>
 	public _ITestFrameworkExecutionOptions ExecutionOptions
 	{
-		get => executionOptions ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionOptions)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(executionOptions, nameof(ExecutionOptions));
 		set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));
 	}
 
@@ -37,7 +36,7 @@ public class TestAssemblyExecutionFinished : _MessageSinkMessage
 	/// </summary>
 	public ExecutionSummary ExecutionSummary
 	{
-		get => executionSummary ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionSummary)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(executionSummary, nameof(ExecutionSummary));
 		set => executionSummary = Guard.ArgumentNotNull(value, nameof(ExecutionSummary));
 	}
 }

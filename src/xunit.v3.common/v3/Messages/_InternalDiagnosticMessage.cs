@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -20,7 +19,7 @@ public class _InternalDiagnosticMessage : _MessageSinkMessage
 	/// </summary>
 	public string Message
 	{
-		get => message ?? throw new InvalidOperationException($"Attempted to get {nameof(Message)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(message, nameof(Message));
 		set => message = Guard.ArgumentNotNull(value, nameof(Message));
 	}
 

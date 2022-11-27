@@ -1,12 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Xunit.Internal;
-
-/// <summary>
-/// INTERNAL CLASS. DO NOT USE.
-/// </summary>
-public static class ExceptionExtensions
+static class ExceptionExtensions
 {
 	/// <summary>
 	/// Unwraps an exception to remove any wrappers, like <see cref="TargetInvocationException"/>.

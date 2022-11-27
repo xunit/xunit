@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -17,7 +16,7 @@ public class _TestCollectionMessage : _TestAssemblyMessage
 	/// </summary>
 	public string TestCollectionUniqueID
 	{
-		get => testCollectionUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCollectionUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCollectionUniqueID, nameof(TestCollectionUniqueID));
 		set => testCollectionUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionUniqueID));
 	}
 

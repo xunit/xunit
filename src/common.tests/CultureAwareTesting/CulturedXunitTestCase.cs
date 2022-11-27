@@ -39,7 +39,7 @@ public class CulturedXunitTestCase : XunitTestCase
 	}
 
 	public string Culture =>
-		culture ?? throw new InvalidOperationException($"Attempted to get {nameof(Culture)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(culture, nameof(Culture));
 
 	protected override void Deserialize(IXunitSerializationInfo info)
 	{

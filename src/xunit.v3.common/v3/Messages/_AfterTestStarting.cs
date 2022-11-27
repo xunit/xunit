@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -16,7 +15,7 @@ public class _AfterTestStarting : _TestMessage
 	/// </summary>
 	public string AttributeName
 	{
-		get => attributeName ?? throw new InvalidOperationException($"Attempted to get {nameof(AttributeName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(attributeName, nameof(AttributeName));
 		set => attributeName = Guard.ArgumentNotNull(value, nameof(AttributeName));
 	}
 

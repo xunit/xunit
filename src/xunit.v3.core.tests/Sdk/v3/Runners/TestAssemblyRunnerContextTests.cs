@@ -18,8 +18,9 @@ public class TestAssemblyRunnerContextTests
 
 			var ex = Record.Exception(() => ctxt.MessageBus);
 
-			Assert.IsType<InvalidOperationException>(ex);
-			Assert.Equal($"Attempted to get MessageBus on an uninitialized '{typeof(TestableTestAssemblyRunnerContext).FullName}' object", ex.Message);
+			var upex = Assert.IsType<UnsetPropertyException>(ex);
+			Assert.Equal(nameof(TestableTestAssemblyRunnerContext.MessageBus), upex.PropertyName);
+			Assert.Equal(typeof(TestableTestAssemblyRunnerContext).FullName, upex.TypeName);
 		}
 
 		[Fact]

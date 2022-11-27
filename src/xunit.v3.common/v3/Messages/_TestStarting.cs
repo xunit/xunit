@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -18,7 +17,7 @@ public class _TestStarting : _TestMessage, _ITestMetadata
 	/// <inheritdoc/>
 	public string TestDisplayName
 	{
-		get => testDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testDisplayName, nameof(TestDisplayName));
 		set => testDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestDisplayName));
 	}
 

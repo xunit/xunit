@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -15,14 +14,14 @@ public class _TestResultMessage : _TestMessage, _IExecutionMetadata
 	/// <inheritdoc/>
 	public decimal ExecutionTime
 	{
-		get => executionTime ?? throw new InvalidOperationException($"Attempted to get {nameof(ExecutionTime)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
 	}
 
 	/// <inheritdoc/>
 	public string Output
 	{
-		get => output ?? throw new InvalidOperationException($"Attempted to get {nameof(Output)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(output, nameof(Output));
 		set => output = Guard.ArgumentNotNull(value, nameof(Output));
 	}
 }

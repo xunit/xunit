@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -36,7 +35,7 @@ public class XunitProject
 	/// </summary>
 	public IRunnerReporter RunnerReporter
 	{
-		get => runnerReporter ?? throw new InvalidOperationException($"Attempted to get {nameof(RunnerReporter)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(runnerReporter, nameof(RunnerReporter));
 		set => runnerReporter = Guard.ArgumentNotNull(value, nameof(RunnerReporter));
 	}
 

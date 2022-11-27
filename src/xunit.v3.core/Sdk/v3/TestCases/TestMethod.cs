@@ -41,15 +41,15 @@ public class TestMethod : _ITestMethod, IXunitSerializable
 
 	/// <inheritdoc/>
 	public _IMethodInfo Method =>
-		method ?? throw new InvalidOperationException($"Attempted to get {nameof(Method)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(method, nameof(Method));
 
 	/// <inheritdoc/>
 	public _ITestClass TestClass =>
-		testClass ?? throw new InvalidOperationException($"Attempted to get {nameof(TestClass)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(testClass, nameof(TestClass));
 
 	/// <inheritdoc/>
 	public string UniqueID =>
-		uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
 	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{

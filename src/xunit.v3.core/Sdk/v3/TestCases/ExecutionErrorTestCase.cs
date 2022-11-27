@@ -42,7 +42,7 @@ public class ExecutionErrorTestCase : XunitTestCase
 	/// Gets the error message that will be display when the test is run.
 	/// </summary>
 	public string ErrorMessage =>
-		errorMessage ?? throw new InvalidOperationException($"Attempted to get {nameof(ErrorMessage)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(errorMessage, nameof(ErrorMessage));
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IXunitSerializationInfo info)

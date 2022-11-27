@@ -38,7 +38,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string AssemblyUniqueID
 	{
-		get => assemblyUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(assemblyUniqueID, nameof(AssemblyUniqueID));
 		set => assemblyUniqueID = Guard.ArgumentNotNull(value, nameof(AssemblyUniqueID));
 	}
 
@@ -63,7 +63,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestCollectionUniqueID
 	{
-		get => testCollectionUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCollectionUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCollectionUniqueID, nameof(TestCollectionUniqueID));
 		set => testCollectionUniqueID = Guard.ArgumentNotNull(value, nameof(TestCollectionUniqueID));
 	}
 
@@ -72,7 +72,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestCaseDisplayName
 	{
-		get => testCaseDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCaseDisplayName, nameof(TestCaseDisplayName));
 		set => testCaseDisplayName = Guard.ArgumentNotNull(value, nameof(TestCaseDisplayName));
 	}
 
@@ -81,7 +81,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestCaseUniqueID
 	{
-		get => testCaseUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestCaseUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testCaseUniqueID, nameof(TestCaseUniqueID));
 		set => testCaseUniqueID = Guard.ArgumentNotNull(value, nameof(TestCaseUniqueID));
 	}
 
@@ -90,7 +90,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestClass
 	{
-		get => testClass ?? throw new InvalidOperationException($"Attempted to get {nameof(TestClass)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testClass, nameof(TestClass));
 		set => testClass = Guard.ArgumentNotNull(value, nameof(TestClass));
 	}
 
@@ -99,7 +99,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestClassUniqueID
 	{
-		get => testClassUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestClassUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testClassUniqueID, nameof(TestClassUniqueID));
 		set => testClassUniqueID = Guard.ArgumentNotNull(value, nameof(TestClassUniqueID));
 	}
 
@@ -108,7 +108,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestMethod
 	{
-		get => testMethod ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethod)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testMethod, nameof(TestMethod));
 		set => testMethod = Guard.ArgumentNotNull(value, nameof(TestMethod));
 	}
 
@@ -117,7 +117,7 @@ public class Xunit1TestCase : IXunitSerializable
 	/// </summary>
 	public string TestMethodUniqueID
 	{
-		get => testMethodUniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(TestMethodUniqueID)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testMethodUniqueID, nameof(TestMethodUniqueID));
 		set => testMethodUniqueID = Guard.ArgumentNotNull(value, nameof(TestMethodUniqueID));
 	}
 

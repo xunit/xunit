@@ -49,18 +49,18 @@ public class TestAssembly : _ITestAssembly, IXunitSerializable
 
 	/// <inheritdoc/>
 	public _IAssemblyInfo Assembly =>
-		assembly ?? throw new InvalidOperationException($"Attempted to get {nameof(Assembly)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(assembly, nameof(Assembly));
 
 	/// <inheritdoc/>
 	public string? ConfigFileName { get; private set; }
 
 	/// <inheritdoc/>
 	public string UniqueID =>
-		uniqueID ?? throw new InvalidOperationException($"Attempted to get {nameof(UniqueID)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
 	/// <inheritdoc/>
 	public Version Version =>
-		version ?? throw new InvalidOperationException($"Attempted to get {nameof(Version)} on an uninitialized '{GetType().FullName}' object");
+		this.ValidateNullablePropertyValue(version, nameof(Version));
 
 	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{

@@ -1,4 +1,3 @@
-using System;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -15,7 +14,7 @@ public class _TestSkipped : _TestResultMessage
 	/// </summary>
 	public string Reason
 	{
-		get => reason ?? throw new InvalidOperationException($"Attempted to get {nameof(Reason)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(reason, nameof(Reason));
 		set => reason = Guard.ArgumentNotNull(value, nameof(Reason));
 	}
 }

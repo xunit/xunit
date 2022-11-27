@@ -17,7 +17,7 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// <inheritdoc/>
 	public string AssemblyName
 	{
-		get => assemblyName ?? throw new InvalidOperationException($"Attempted to get {nameof(AssemblyName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(assemblyName, nameof(AssemblyName));
 		set => assemblyName = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyName));
 	}
 
@@ -53,7 +53,7 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// </summary>
 	public string TestEnvironment
 	{
-		get => testEnvironment ?? throw new InvalidOperationException($"Attempted to get {nameof(TestEnvironment)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testEnvironment, nameof(TestEnvironment));
 		set => testEnvironment = Guard.ArgumentNotNullOrEmpty(value, nameof(TestEnvironment));
 	}
 
@@ -63,7 +63,7 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// </summary>
 	public string TestFrameworkDisplayName
 	{
-		get => testFrameworkDisplayName ?? throw new InvalidOperationException($"Attempted to get {nameof(TestFrameworkDisplayName)} on an uninitialized '{GetType().FullName}' object");
+		get => this.ValidateNullablePropertyValue(testFrameworkDisplayName, nameof(TestFrameworkDisplayName));
 		set => testFrameworkDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestFrameworkDisplayName));
 	}
 
