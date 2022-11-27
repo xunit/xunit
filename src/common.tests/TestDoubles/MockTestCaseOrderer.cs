@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class MockTestCaseOrderer : ITestCaseOrderer

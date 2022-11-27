@@ -6,7 +6,6 @@ using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.InProc.SystemConsole;
-using Xunit.v3;
 
 public class CommandLineTests
 {

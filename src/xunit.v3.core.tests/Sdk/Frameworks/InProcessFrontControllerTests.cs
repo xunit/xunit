@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
-using NSubstitute.ReceivedExtensions;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;

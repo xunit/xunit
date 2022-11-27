@@ -9,7 +9,6 @@ using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.MSBuild;
-using Xunit.v3;
 
 public class xunitTests
 {
