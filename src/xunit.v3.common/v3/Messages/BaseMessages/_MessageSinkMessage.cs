@@ -1,72 +1,69 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
 /// <summary>
-/// The base type for all messages. It provides serialization support. Because of the way type
-/// serialization works, messages can only be defined by xUnit.net itself.
+/// The base type for all messages. This utilizes JSON polymorphic serialization via System.Text.Json
+/// so all derived types must be declared here with a short name to support deserialization.
 /// </summary>
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(_AfterTestFinished), nameof(_AfterTestFinished))]
+[JsonDerivedType(typeof(_AfterTestStarting), nameof(_AfterTestStarting))]
+[JsonDerivedType(typeof(_BeforeTestFinished), nameof(_BeforeTestFinished))]
+[JsonDerivedType(typeof(_BeforeTestStarting), nameof(_BeforeTestStarting))]
+[JsonDerivedType(typeof(_DiagnosticMessage), nameof(_DiagnosticMessage))]
+[JsonDerivedType(typeof(_DiscoveryComplete), nameof(_DiscoveryComplete))]
+[JsonDerivedType(typeof(_DiscoveryStarting), nameof(_DiscoveryStarting))]
+[JsonDerivedType(typeof(_ErrorMessage), nameof(_ErrorMessage))]
+[JsonDerivedType(typeof(_InternalDiagnosticMessage), nameof(_InternalDiagnosticMessage))]
+[JsonDerivedType(typeof(_MessageSinkMessage), nameof(_MessageSinkMessage))]
+[JsonDerivedType(typeof(_TestAssemblyCleanupFailure), nameof(_TestAssemblyCleanupFailure))]
+[JsonDerivedType(typeof(_TestAssemblyFinished), nameof(_TestAssemblyFinished))]
+[JsonDerivedType(typeof(_TestAssemblyMessage), nameof(_TestAssemblyMessage))]
+[JsonDerivedType(typeof(_TestAssemblyStarting), nameof(_TestAssemblyStarting))]
+[JsonDerivedType(typeof(_TestCaseCleanupFailure), nameof(_TestCaseCleanupFailure))]
+[JsonDerivedType(typeof(_TestCaseDiscovered), nameof(_TestCaseDiscovered))]
+[JsonDerivedType(typeof(_TestCaseFinished), nameof(_TestCaseFinished))]
+[JsonDerivedType(typeof(_TestCaseMessage), nameof(_TestCaseMessage))]
+[JsonDerivedType(typeof(_TestCaseStarting), nameof(_TestCaseStarting))]
+[JsonDerivedType(typeof(_TestClassCleanupFailure), nameof(_TestClassCleanupFailure))]
+[JsonDerivedType(typeof(_TestClassConstructionFinished), nameof(_TestClassConstructionFinished))]
+[JsonDerivedType(typeof(_TestClassConstructionStarting), nameof(_TestClassConstructionStarting))]
+[JsonDerivedType(typeof(_TestClassDisposeFinished), nameof(_TestClassDisposeFinished))]
+[JsonDerivedType(typeof(_TestClassDisposeStarting), nameof(_TestClassDisposeStarting))]
+[JsonDerivedType(typeof(_TestClassFinished), nameof(_TestClassFinished))]
+[JsonDerivedType(typeof(_TestClassMessage), nameof(_TestClassMessage))]
+[JsonDerivedType(typeof(_TestClassStarting), nameof(_TestClassStarting))]
+[JsonDerivedType(typeof(_TestCleanupFailure), nameof(_TestCleanupFailure))]
+[JsonDerivedType(typeof(_TestCollectionCleanupFailure), nameof(_TestCollectionCleanupFailure))]
+[JsonDerivedType(typeof(_TestCollectionFinished), nameof(_TestCollectionFinished))]
+[JsonDerivedType(typeof(_TestCollectionMessage), nameof(_TestCollectionMessage))]
+[JsonDerivedType(typeof(_TestCollectionStarting), nameof(_TestCollectionStarting))]
+[JsonDerivedType(typeof(_TestFailed), nameof(_TestFailed))]
+[JsonDerivedType(typeof(_TestFinished), nameof(_TestFinished))]
+[JsonDerivedType(typeof(_TestMessage), nameof(_TestMessage))]
+[JsonDerivedType(typeof(_TestMethodCleanupFailure), nameof(_TestMethodCleanupFailure))]
+[JsonDerivedType(typeof(_TestMethodFinished), nameof(_TestMethodFinished))]
+[JsonDerivedType(typeof(_TestMethodMessage), nameof(_TestMethodMessage))]
+[JsonDerivedType(typeof(_TestMethodStarting), nameof(_TestMethodStarting))]
+[JsonDerivedType(typeof(_TestNotRun), nameof(_TestNotRun))]
+[JsonDerivedType(typeof(_TestOutput), nameof(_TestOutput))]
+[JsonDerivedType(typeof(_TestPassed), nameof(_TestPassed))]
+[JsonDerivedType(typeof(_TestResultMessage), nameof(_TestResultMessage))]
+[JsonDerivedType(typeof(_TestSkipped), nameof(_TestSkipped))]
+[JsonDerivedType(typeof(_TestStarting), nameof(_TestStarting))]
 public class _MessageSinkMessage
 {
-	delegate void PropertyWriter(Utf8JsonWriter writer, object? value, JsonSerializerOptions options);
-
-	static readonly string assemblyQualifiedNameTemplate;
-	static readonly JsonSerializerOptions jsonSerializerOptions = new() { Converters = { new JsonStringEnumConverter() } };
-	static readonly Dictionary<Type, PropertyWriter> propertyWriters = new();
-
-	static _MessageSinkMessage()
+	static readonly JsonSerializerOptions jsonSerializerOptions = new()
 	{
-		var assemblyQualifiedName = typeof(_MessageSinkMessage).AssemblyQualifiedName;
-		if (assemblyQualifiedName == null)
-			throw new InvalidOperationException($"Could not get AssemblyQualifiedName for {typeof(_MessageSinkMessage).FullName ?? typeof(_MessageSinkMessage).Name}");
-
-		assemblyQualifiedNameTemplate = assemblyQualifiedName.Replace(nameof(_MessageSinkMessage), "{0}");
-
-		// Default converters list doesn't support dictionaries, so we need to use this as an override
-		propertyWriters.Add(typeof(IReadOnlyDictionary<string, IReadOnlyList<string>>), SerializeTraits);
-	}
-
-	static PropertyWriter GetPropertyWriter(Type propertyType)
-	{
-		// We don't write null values, and the converters don't seem to support nullable anyway,
-		// so we request a converter for the non-nullable type instead
-		if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-			propertyType = propertyType.GetGenericArguments()[0];
-
-		return propertyWriters.GetOrAdd(propertyType, () =>
-		{
-			var converter = jsonSerializerOptions.GetConverter(propertyType);
-			if (converter == null)
-				throw new InvalidOperationException($"Could not find serializer for {propertyType.FullName}");
-
-			var writeMethod =
-				converter
-					.GetType()
-					.GetMethods()
-					.Where(mi =>
-					{
-						if (mi.Name != "Write")
-							return false;
-						var parameters = mi.GetParameters();
-						return parameters.Length == 3
-							&& parameters[0].ParameterType == typeof(Utf8JsonWriter)
-							&& parameters[2].ParameterType == typeof(JsonSerializerOptions);
-					})
-					.SingleOrDefault();
-
-			if (writeMethod == null)
-				throw new InvalidOperationException($"Could not find Write method on '{converter.GetType().FullName}' to serialize '{propertyType.FullName}'");
-
-			return (Utf8JsonWriter writer, object? value, JsonSerializerOptions options) =>
-				writeMethod.Invoke(converter, new object?[] { writer, value, options });
-		});
-	}
+		Converters = { new JsonStringEnumConverter() },
+		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+		IgnoreReadOnlyProperties = true,
+	};
 
 	/// <summary>
 	/// Parses a previously serialized <see cref="_MessageSinkMessage"/>-derived object.
@@ -75,62 +72,12 @@ public class _MessageSinkMessage
 	/// <returns>The deserialized object</returns>
 	public static _MessageSinkMessage ParseJson(ReadOnlyMemory<byte> serialization)
 	{
-		var byteSpan = serialization.Span;
-		var reader = new Utf8JsonReader(byteSpan);
+		var result = JsonSerializer.Deserialize<_MessageSinkMessage>(serialization.Span, jsonSerializerOptions);
+		if (result is null)
+			throw new ArgumentException($"Deserialization of JSON message unexpectedly returned null", nameof(serialization));
 
-		reader.Read();
-		if (reader.TokenType != JsonTokenType.StartObject)
-			throw new ArgumentException($"Expected object serialization, got {reader.TokenType} instead", nameof(serialization));
-
-		reader.Read();
-		if (reader.TokenType != JsonTokenType.PropertyName)
-			throw new ArgumentException($"Expected first element to be a property, got {reader.TokenType} instead", nameof(serialization));
-
-		var propertyName = reader.GetString();
-		if (propertyName != "$type")
-			throw new ArgumentException($"Expected first property to be named $type, got '{propertyName}' instead", nameof(serialization));
-
-		reader.Read();
-		if (reader.TokenType != JsonTokenType.String)
-			throw new ArgumentException($"Expected $type to be a string, got {reader.TokenType} instead", nameof(serialization));
-
-		var shortTypeName = reader.GetString();
-		var typeName = string.Format(assemblyQualifiedNameTemplate, shortTypeName);
-		var type = Type.GetType(typeName);
-		if (type == null)
-			throw new ArgumentException($"Could not load type '{typeName}' for deserialization", nameof(serialization));
-
-		var result = JsonSerializer.Deserialize(byteSpan, type, jsonSerializerOptions);
-		if (result == null)
-			throw new ArgumentException($"Deserialization of type '{typeName}' unexpectedly returned null", nameof(serialization));
-
-		if (result is not _MessageSinkMessage typedResult)
-			throw new ArgumentException($"Deserialization of type '{typeName}' returned a value of type '{result.GetType().FullName}' instead of something derived from '{typeof(_MessageSinkMessage).FullName}'", nameof(serialization));
-
-		return typedResult;
-	}
-
-	static void SerializeTraits(
-		Utf8JsonWriter writer,
-		object? value,
-		JsonSerializerOptions options)
-	{
-		var traits = (IReadOnlyDictionary<string, IReadOnlyList<string>>)value!;
-
-		writer.WriteStartObject();
-
-		foreach (var trait in traits)
-		{
-			writer.WritePropertyName(trait.Key);
-			writer.WriteStartArray();
-
-			foreach (var traitValue in trait.Value)
-				writer.WriteStringValue(traitValue);
-
-			writer.WriteEndArray();
-		}
-
-		writer.WriteEndObject();
+		result.ValidateObjectState();
+		return result;
 	}
 
 	/// <summary>
@@ -139,38 +86,43 @@ public class _MessageSinkMessage
 	/// <returns>The serialization of this message</returns>
 	public byte[] ToJson()
 	{
-		using var stream = new MemoryStream();
-		using (var writer = new Utf8JsonWriter(stream))
-		{
-			var valueType = GetType();
+		ValidateObjectState();
 
-			writer.WriteStartObject();
-			writer.WriteString("$type", valueType.Name);
-
-			// Only serializing the public read/write properties without [JsonIgnore]
-			var properties =
-				valueType
-					.GetProperties()
-					.Where(p => p.CanRead && p.CanWrite && p.GetCustomAttributes(typeof(JsonIgnoreAttribute), true).Length == 0)
-					.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase);
-
-			foreach (var property in properties)
-			{
-				var propValue = property.GetValue(this);
-
-				// Skip writing nulls, makes the payload smaller/faster
-				if (propValue != null)
-				{
-					var propWriter = GetPropertyWriter(property.PropertyType);
-					writer.WritePropertyName(property.Name);
-					propWriter(writer, propValue, jsonSerializerOptions);
-				}
-			}
-
-			writer.WriteEndObject();
-		}
-
-		stream.Seek(0, SeekOrigin.Begin);
-		return stream.ToArray();
+		return JsonSerializer.SerializeToUtf8Bytes(this, jsonSerializerOptions);
 	}
+
+	/// <summary>
+	/// Validates that the property value is not <c>null</c>, and if it is, adds the given
+	/// property name to the invalid property hash set.
+	/// </summary>
+	/// <param name="propertyValue">The property value</param>
+	/// <param name="propertyName">The property name</param>
+	/// <param name="invalidProperties">The hash set to contain the invalid property name list</param>
+	protected void ValidateNullableProperty(
+		object? propertyValue,
+		string propertyName,
+		HashSet<string> invalidProperties)
+	{
+		if (propertyValue == null)
+			invalidProperties.Add(propertyName);
+	}
+
+	void ValidateObjectState()
+	{
+		var invalidProperties = new HashSet<string>();
+
+		ValidateObjectState(invalidProperties);
+
+		if (invalidProperties.Count != 0)
+			throw new UnsetPropertiesException(invalidProperties, GetType());
+	}
+
+	/// <summary>
+	/// Called by <see cref="ToJson"/> before serializing the message, and by <see cref="ParseJson"/> after
+	/// the message has been serialized. Implementers are expected to call <see cref="ValidateNullableProperty"/>
+	/// for each nullable property value to record invalid property values into the provided hash set.
+	/// </summary>
+	/// <param name="invalidProperties">The hash set to record invalid properties into</param>
+	protected virtual void ValidateObjectState(HashSet<string> invalidProperties)
+	{ }
 }

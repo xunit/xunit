@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -24,4 +25,12 @@ public class _DiagnosticMessage : _MessageSinkMessage
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{GetType().Name} message={message.Quoted()}";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(message, nameof(Message), invalidProperties);
+	}
 }

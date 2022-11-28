@@ -12,8 +12,8 @@ public class UnsetPropertyException : InvalidOperationException
 	/// <summary>
 	/// Initializes a new instance of the <see cref="UnsetPropertyException"/> class.
 	/// </summary>
-	/// <param name="propertyName"></param>
-	/// <param name="type"></param>
+	/// <param name="propertyName">The property that was not set</param>
+	/// <param name="type">The type that the property belongs to</param>
 	public UnsetPropertyException(
 		string propertyName,
 		Type type)

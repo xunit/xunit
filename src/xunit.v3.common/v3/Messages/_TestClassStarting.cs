@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -19,4 +20,12 @@ public class _TestClassStarting : _TestClassMessage, _ITestClassMetadata
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{base.ToString()} class={testClass.Quoted()}";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(testClass, nameof(TestClass), invalidProperties);
+	}
 }

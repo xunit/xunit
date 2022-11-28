@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -83,5 +84,15 @@ public class _TestCleanupFailure : _TestMessage, _IErrorMetadata
 			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 		};
 	}
-}
 
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(exceptionParentIndices, nameof(ExceptionParentIndices), invalidProperties);
+		ValidateNullableProperty(exceptionTypes, nameof(ExceptionTypes), invalidProperties);
+		ValidateNullableProperty(messages, nameof(Messages), invalidProperties);
+		ValidateNullableProperty(stackTraces, nameof(StackTraces), invalidProperties);
+	}
+}

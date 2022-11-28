@@ -86,4 +86,18 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{base.ToString()} name={testCaseDisplayName.Quoted()}";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(serialization, nameof(Serialization), invalidProperties);
+		ValidateNullableProperty(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
+
+		if (TestMethodName != null)
+			ValidateNullableProperty(testClassName, nameof(TestClassName), invalidProperties);
+		if (testClassName != null)
+			ValidateNullableProperty(testClassNameWithNamespace, nameof(TestClassNameWithNamespace), invalidProperties);
+	}
 }

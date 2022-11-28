@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Xunit.Internal;
 
@@ -70,4 +71,14 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}{(Seed == null ? "" : $" seed={Seed}")}";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(assemblyName, nameof(AssemblyName), invalidProperties);
+		ValidateNullableProperty(testEnvironment, nameof(TestEnvironment), invalidProperties);
+		ValidateNullableProperty(testFrameworkDisplayName, nameof(TestFrameworkDisplayName), invalidProperties);
+	}
 }

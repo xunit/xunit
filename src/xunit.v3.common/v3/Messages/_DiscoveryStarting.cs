@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -26,4 +27,12 @@ public class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(assemblyName, nameof(AssemblyName), invalidProperties);
+	}
 }

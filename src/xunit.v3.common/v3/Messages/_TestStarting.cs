@@ -34,4 +34,12 @@ public class _TestStarting : _TestMessage, _ITestMetadata
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{base.ToString()} name={testDisplayName.Quoted()}";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(testDisplayName, nameof(TestDisplayName), invalidProperties);
+	}
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -24,5 +25,13 @@ public class _TestAssemblyMessage : _MessageSinkMessage
 	/// <inheritdoc/>
 	public override string ToString() =>
 		$"{GetType().Name}({assemblyUniqueID.Quoted()})";
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(assemblyUniqueID, nameof(AssemblyUniqueID), invalidProperties);
+	}
 }
 

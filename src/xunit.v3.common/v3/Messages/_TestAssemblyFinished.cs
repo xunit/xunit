@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -53,5 +54,17 @@ public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMet
 	{
 		get => this.ValidateNullablePropertyValue(testsTotal, nameof(TestsTotal));
 		set => testsTotal = value;
+	}
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(executionTime, nameof(ExecutionTime), invalidProperties);
+		ValidateNullableProperty(testsFailed, nameof(TestsFailed), invalidProperties);
+		ValidateNullableProperty(testsNotRun, nameof(TestsNotRun), invalidProperties);
+		ValidateNullableProperty(testsSkipped, nameof(TestsSkipped), invalidProperties);
+		ValidateNullableProperty(testsTotal, nameof(TestsTotal), invalidProperties);
 	}
 }

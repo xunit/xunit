@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -16,5 +17,13 @@ public class _TestOutput : _TestMessage
 	{
 		get => this.ValidateNullablePropertyValue(output, nameof(Output));
 		set => output = Guard.ArgumentNotNull(value, nameof(Output));
+	}
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidateNullableProperty(output, nameof(Output), invalidProperties);
 	}
 }
