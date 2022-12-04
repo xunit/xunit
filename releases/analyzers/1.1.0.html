@@ -1,0 +1,50 @@
+---
+layout: default
+title: "Release Notes for Analyzers: December 3, 2022"
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes for Analyzers: December 3, 2022</h1>
+
+<p>
+  Today we shipped the xUnit.net Analyzers package v1.1.0. This package contains
+  a few targeted bug fixes, and is compatible with xUnit.net 2.4.2.
+</p>
+
+<p class="note">
+  By default, adding a reference to the <code>xunit</code> version <code>2.4.2</code> package
+  will pull in <code>xunit.analyzers</code> version <code>1.0.0</code>; you can upgrade
+  to the newer Analyzers package by taking an explicit package reference against
+  version <code>1.1.0</code>. See
+  <a href="https://github.com/xunit/xunit.integration/blob/bca460c71fe56ce76d7d278b165ed08d031c0702/analyzers/FullXunit/FullXunit.csproj#L9-L10">this project</a>
+  for an example.
+</p>
+
+<h2>Release Notes</h2>
+
+<p><em>
+  These release notes reflect the entirety of the changes between 1.0.0 and 1.1.0.
+</em></p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1033">xUnit1033</a> where the analyzers
+    was incorrectly detecting a missing fixture when the constructor had more than one parameter.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2567">xunit/xunit#2567</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit2002">xUnit2002</a> that incorrectly flagged
+    implicit casts from non-nullable types to nullable types as though the value were still non-nullable.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2395">xunit/xunit#2395</a>
+  </li>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit2005">xUnit2005</a> was not correctly triggering
+    when one of the two values was a non-nullable value (it was checking for both being non-nullable values).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2560">xunit/xunit#2560</a>
+  </li>
+</ul>
