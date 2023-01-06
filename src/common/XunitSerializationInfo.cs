@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -345,9 +346,11 @@ namespace Xunit.Serialization
             typeof(float),          typeof(float?),
             typeof(double),         typeof(double?),
             typeof(decimal),        typeof(decimal?),
+            typeof(BigInteger),     typeof(BigInteger?),
             typeof(bool),           typeof(bool?),
             typeof(DateTime),       typeof(DateTime?),
             typeof(DateTimeOffset), typeof(DateTimeOffset?),
+            typeof(TimeSpan),       typeof(TimeSpan?)
         };
 
         internal static bool CanSerializeObject(object value)
@@ -383,6 +386,10 @@ namespace Xunit.Serialization
             Type typeToCheck = valueType;
             if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
                 return typeToCheck.IsFromLocalAssembly();
+
+            // DateOnly and TimeOnly available only since NET6
+            if ((valueType.FullName == "System.DateOnly" || valueType.FullName == "System.TimeOnly") && valueType.GetAssembly() == typeof(int).Assembly)
+                return true;
 
             return false;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
@@ -55,6 +56,9 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(decimal), decimal.MaxValue };
             yield return new object[] { typeof(decimal?), decimal.MinValue };
             yield return new object[] { typeof(decimal?), null };
+            yield return new object[] { typeof(BigInteger), BigInteger.One };
+            yield return new object[] { typeof(BigInteger?), BigInteger.MinusOne };
+            yield return new object[] { typeof(BigInteger?), null };
             yield return new object[] { typeof(bool), true };
             yield return new object[] { typeof(bool?), false };
             yield return new object[] { typeof(bool?), null };
@@ -67,6 +71,9 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(DateTimeOffset), DateTimeOffset.Now };
             yield return new object[] { typeof(DateTimeOffset?), DateTimeOffset.UtcNow };
             yield return new object[] { typeof(DateTimeOffset?), null };
+            yield return new object[] { typeof(TimeSpan), TimeSpan.Zero };
+            yield return new object[] { typeof(TimeSpan?), new TimeSpan(1, 2, 3) };
+            yield return new object[] { typeof(TimeSpan?), null };
             yield return new object[] { typeof(Type), typeof(object) };
             yield return new object[] { typeof(Type), null };
             yield return new object[] { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } };
