@@ -6,7 +6,7 @@
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
-    <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
