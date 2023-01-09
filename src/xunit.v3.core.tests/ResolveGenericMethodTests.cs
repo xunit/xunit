@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -435,6 +436,22 @@ public class ResolveGenericMethodTests
 			new Type[] { typeof(int), typeof(string) }
 		};
 
+		// SubClass<T, U>: BaseClass<U> -> BaseClass<T>
+		yield return new object?[]
+		{
+			nameof(OneGenericParameter_GenericBaseClass),
+			new object?[] { new GenericImplements1BaseClass<int, string>() },
+			new Type[] { typeof(string) }
+		};
+
+		// SubClass<T, U>: (SubClass<T, U>: BaseClass<U>) -> BaseClass<T>
+		yield return new object?[]
+		{
+			nameof(OneGenericParameter_GenericBaseClass),
+			new object?[] { new GenericImplements2SubClassOf1BaseClass<int, string>() },
+			new Type[] { typeof(string) }
+		};
+
 		// Class: Interface<int> -> Interface<T>
 		yield return new object?[]
 		{
@@ -458,6 +475,38 @@ public class ResolveGenericMethodTests
 			new object?[] { new GenericImplements2Interface<int>() },
 			new Type[] { typeof(int), typeof(string) }
 		};
+
+		// SubClass<T, U>: Interface<U> -> Interface<T>
+		yield return new object?[]
+		{
+			nameof(OneGenericParameter_GenericInterface),
+			new object?[] { new GenericImplements1Interface<int, string>() },
+			new Type[] { typeof(string) }
+		};
+
+		// SubClass<T, U>: (SubClass<T, U>: Interface<U>) -> Interface<T>
+		yield return new object?[]
+		{
+			nameof(OneGenericParameter_GenericInterface),
+			new object?[] { new GenericImplements2SubClassOf1Interface<int, string>() },
+			new Type[] { typeof(string) }
+		};
+
+		// SubClass<T, U>: (Interface<T, U>: Interface<U>) -> Interface<T>
+		yield return new object?[]
+		{
+			nameof(OneGenericParameter_GenericInterface),
+			new object?[] { new GenericImplements2InterfaceOf1Interface<int, string>() },
+			new Type[] { typeof(string) }
+		};
+
+		// SubClass<T, U>: OtherInterface<T>, Interface<U> -> Interface<T>
+		yield return new object?[]
+		{
+			nameof(OneGenericParameter_GenericInterface),
+			new object?[] { new GenericImplementsTwo1Interfaces<int, string>() },
+			new Type[] { typeof(string) }
+		};
 	}
 
 	[Theory(DisableDiscoveryEnumeration = true)]
@@ -469,8 +518,8 @@ public class ResolveGenericMethodTests
 		Assert.NotNull(methodInfo);
 
 		_IMethodInfo method = Reflector.Wrap(methodInfo);
-		Type[] actual = method.ResolveGenericTypes(parameters).Select(t => ((ReflectionTypeInfo)t).Type).ToArray();
-		Assert.Equal(expected, actual);
+		_ITypeInfo[] actual = method.ResolveGenericTypes(parameters);
+		Assert.Equal(expected, actual.Select(t => ((ReflectionTypeInfo)t).Type));
 	}
 
 	public static void NoGenericParameters_NoParameters() { }
@@ -539,6 +588,7 @@ public class ResolveGenericMethodTests
 	public class GenericClass3<T, U, V> { }
 
 	public interface Generic1Interface<T> { }
+	public interface OtherGeneric1Interface<T> { }
 	public interface Generic2Interface<T, U> { }
 
 	public class ImplementsGeneric1BaseClass : GenericClass<int> { }
@@ -549,4 +599,13 @@ public class ResolveGenericMethodTests
 
 	public class GenericImplements2BaseClass<T> : GenericClass2<T, string> { }
 	public class GenericImplements2Interface<T> : Generic2Interface<T, string> { }
+
+	public class GenericImplements1Interface<T, U> : Generic1Interface<U> { }
+	public class GenericImplementsTwo1Interfaces<T, U> : OtherGeneric1Interface<T>, Generic1Interface<U> { }
+	public interface GenericExtends1Interface<T, U> : Generic1Interface<U> { }
+	public class GenericImplements1BaseClass<T, U> : GenericClass<U> { }
+
+	public class GenericImplements2SubClassOf1Interface<T, U> : GenericImplements1Interface<T, U> { }
+	public class GenericImplements2InterfaceOf1Interface<T, U> : GenericExtends1Interface<T, U> { }
+	public class GenericImplements2SubClassOf1BaseClass<T, U> : GenericImplements1BaseClass<T, U> { }
 }
