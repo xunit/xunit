@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using System.Xml;
 using Xunit;
@@ -26,6 +27,12 @@ public class SerializationHelperTests
 		{ true, "13:True" },
 		{ new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Utc), "14:2022-04-21T23:18:19.0200000Z" },
 		{ new DateTimeOffset(2022, 4, 21, 23, 19, 20, 21, TimeSpan.Zero), "15:2022-04-21T23:19:20.0210000+00:00" },
+		{ new TimeSpan(1, 2, 3, 4, 5), "1.02:03:04.0050000" },
+		{ BigInteger.Parse("123456789009876543210123456789"), "123456789009876543210123456789" },
+#if NET6_0_OR_GREATER
+		{ new DateOnly(2023, 1, 7), "01/07/2023" },
+		{ new TimeOnly(9, 4, 15), "09:04:15" },
+#endif
 
 		// Arrays use array notation for embedded types, plus this serialization format:
 		//   r = ranks, tl = total length, l[n] = length of rank n, lb[n] = lower bound of rank n, i[n] = item[n]
@@ -169,6 +176,12 @@ public class SerializationHelperTests
 		[InlineData(typeof(bool))]
 		[InlineData(typeof(DateTime))]
 		[InlineData(typeof(DateTimeOffset))]
+		[InlineData(typeof(TimeSpan))]
+		[InlineData(typeof(BigInteger))]
+#if NET6_0_OR_GREATER
+		[InlineData(typeof(DateOnly))]
+		[InlineData(typeof(TimeOnly))]
+#endif
 		public void SuccessCases(Type type)
 		{
 			Assert.True(SerializationHelper.IsSerializable(null, type));

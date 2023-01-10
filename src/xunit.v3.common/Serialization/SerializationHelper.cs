@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using Xunit.Internal;
@@ -82,6 +83,8 @@ public static class SerializationHelper
 			{ TypeIndex.Boolean, (v, _) => v.ToString() ?? throw new InvalidOperationException("Boolean value returned null from ToString()") },
 			{ TypeIndex.DateTime, (v, _) => ((DateTime)v).ToString("O", CultureInfo.InvariantCulture) },
 			{ TypeIndex.DateTimeOffset, (v, _) => ((DateTimeOffset)v).ToString("O", CultureInfo.InvariantCulture) },
+			{ TypeIndex.TimeSpan, (v, _) => ((TimeSpan)v).ToString("c", CultureInfo.InvariantCulture) },
+			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
 		};
 
 		typesByTypeIdx = new()
@@ -108,6 +111,8 @@ public static class SerializationHelper
 			{ TypeIndex.Boolean, typeof(bool) },
 			{ TypeIndex.DateTime, typeof(DateTime) },
 			{ TypeIndex.DateTimeOffset, typeof(DateTimeOffset) },
+			{ TypeIndex.TimeSpan, typeof(TimeSpan) },
+			{ TypeIndex.BigInteger, typeof(BigInteger) },
 		};
 
 		typeIndicesByType = typesByTypeIdx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
@@ -331,7 +336,14 @@ public static class SerializationHelper
 			return true;
 
 		typeInfo = typeInfo.UnwrapNullable();
-		return typeIndicesByType.Keys.Any(st => typeInfo.Equal(st));
+		if (typeIndicesByType.Keys.Any(st => typeInfo.Equal(st)))
+			return true;
+
+		// DateOnly and TimeOnly available only since NET6
+		if ((typeInfo.Name == "System.DateOnly" || typeInfo.Name == "System.TimeOnly") && typeInfo.Assembly.Name == typeof(int).Assembly.FullName)
+			return true;
+
+		return false;
 	}
 
 	/// <summary>
@@ -783,6 +795,8 @@ public static class SerializationHelper
 		Boolean = 13,
 		DateTime = 14,
 		DateTimeOffset = 15,
+		TimeSpan = 16,
+		BigInteger = 17,
 
 		MinValue = Type,
 		MaxValue = DateTimeOffset,
