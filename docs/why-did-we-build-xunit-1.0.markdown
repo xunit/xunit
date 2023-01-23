@@ -11,7 +11,7 @@ In the 5 years since the release of NUnit 2.0, there have been millions of lines
 
 Additionally, the .NET framework itself has evolved a lot since its v1 release in early 2002. Being able to leverage some of the new framework features can help us write clearer tests.
 
-Another aspect of change that we wanted to affect was bringing the testing framework more closely in line with the .NET platform. Many of the decisions we made, which we enumerate below, were driven by this desire. We wanted an architecture which is built for programmer testing (specifically Test-Driven Development), but can also be very easily extended to support other kinds of testing (like automated acceptance tests).
+Another aspect of change that we wanted to effect was bringing the testing framework more closely in line with the .NET platform. Many of the decisions we made, which we enumerate below, were driven by this desire. We wanted an architecture which is built for programmer testing (specifically Test-Driven Development), but can also be very easily extended to support other kinds of testing (like automated acceptance tests).
 
 Finally, there have been advances in other unit test library implementations that have not really surfaced in the .NET community.
 
