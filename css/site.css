@@ -143,6 +143,7 @@ table, .table {
   font-size: 90%;
 }
 .border {
+  background-color: #ccc;
   display: inline-block;
   margin-left: 15px;
   box-shadow: 3px 3px 20px #666;

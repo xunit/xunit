@@ -74,14 +74,14 @@ public class MyTestClass
   test runners will surface the output for you as well.
 </p>
 
-<p class="note">
-  If running tests via <code>dotnet test</code>, specify
-  <code>--logger "console;verbosity=detailed"</code> to see console output.
+<p><img class="border" src="/images/capturing-output/vs-runner-output.png" /></p>
 
-  See the <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test">dotnet documentation</a> for more details.
+<p>
+  To see output from <code>dotnet test</code>, pass the command line option
+  <code>--logger "console;verbosity=detailed"</code>:
 </p>
 
-<p><img class="border" src="/images/capturing-output/vs-runner-output.png" width="775" /></p>
+<p><img class="border" src="/images/capturing-output/dotnet-test-output.png" width="800" /></p>
 
 <h2 id="output-in-extensions">Capturing output in extensibility classes</h2>
 
@@ -149,28 +149,29 @@ public class MyTestCaseOrderer : ITestCaseOrderer
 }
 {% endhighlight %}
 
-<p>Then after enabling diagnostic messages in <code>App.config</code>:</p>
-
-{% highlight xml %}
-<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-  <appSettings>
-    <add key="xunit.diagnosticMessages" value="true"/>
-  </appSettings>
-</configuration>
-{% endhighlight %}
-
 <p>
-  When run, Visual Studio's output window contains a Tests tab which contains
-  the information from running the tests, including the diagnostic message:
+  Then after
+  <a href="configuration-files#diagnosticMessages">enabling diagnostic messages in your configuration file</a>,
+  when run, Visual Studio's output window contains a Tests tab which contains the information from
+  running the tests, including the diagnostic message:
 </p>
 
 {% highlight text %}
------- Run test started ------
-[xUnit.net 00:00:00.1131667] Discovery starting: OutputExample (name display = ClassAndMethod)
-[xUnit.net 00:00:00.1600619] Discovery finished: OutputExample (1 tests)
-[xUnit.net 00:00:00.1739819] Execution starting: OutputExample (method display = ClassAndMethod, parallel test collections = True, max threads = 8)
-OutputExample: Ordered 1 test cases
-[xUnit.net 00:00:00.1739819] Execution finished: OutputExample
-========== Run test finished: 1 run (0:00:00.4369286) ==========
+Starting test discovery for requested test run
+========== Starting test discovery ==========
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 7.0.2)
+[xUnit.net 00:00:00.51]   Discovering: OutputExample (method display = ClassAndMethod, method display options = None)
+[xUnit.net 00:00:00.53]   Discovered:  OutputExample (found 1 test case)
+========== Test discovery finished: 1 Tests found in 1.4 sec ==========
+========== Starting test run ==========
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 7.0.2)
+[xUnit.net 00:00:00.24]   Starting:    OutputExample (parallel test collections = on, max threads = 24)
+[xUnit.net 00:00:00.26] OutputExample: Ordered 1 test cases
+[xUnit.net 00:00:00.27]   Finished:    OutputExample
+========== Test run finished: 1 Tests (1 Passed, 0 Failed, 0 Skipped) run in 282 ms ==========
 {% endhighlight %}
+
+<p><em>
+  To see this output, open the Output window in Visual Studio (from the main menu: View &gt; Output), and in the "Show output from" drop down,
+  select "Tests".
+</em></p>
