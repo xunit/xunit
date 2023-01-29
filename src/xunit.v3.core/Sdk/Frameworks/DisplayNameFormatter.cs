@@ -87,6 +87,15 @@ public class DisplayNameFormatter
 
 		public char ReadNext() => text[position++];
 
+		public char? TryLookAhead(int offset)
+		{
+			var lookAheadPosition = position + offset;
+
+			return lookAheadPosition < length
+				? text[lookAheadPosition]
+				: null;
+		}
+
 		public void Flush()
 		{
 			FormattedDisplayName.Append(Buffer);
@@ -177,47 +186,56 @@ public class DisplayNameFormatter
 			FormatContext context,
 			char character)
 		{
+			int consumed;
 			switch (character)
 			{
 				case 'U':
 					// same as \uHHHH without the leading '\u'
-					TryConsumeEscapeSequence(context, character, 4);
+					consumed = TryConsumeEscapeSequence(context, 4);
 					break;
 
 				case 'X':
 					// same as \xHH without the leading '\x'
-					TryConsumeEscapeSequence(context, character, 2);
+					consumed = TryConsumeEscapeSequence(context, 2);
 					break;
 
 				default:
-					Next?.Evaluate(context, character);
+					consumed = 0;
 					break;
+			}
+
+			if (consumed == 0)
+			{
+				Next?.Evaluate(context, character);
+			}
+			else
+			{
+				for (var i = 0; i < consumed; i++)
+				{
+					context.ReadNext();
+				}
 			}
 		}
 
-		static void TryConsumeEscapeSequence(
+		static int TryConsumeEscapeSequence(
 			FormatContext context,
-			char @char,
-			int allowedLength)
+			int length)
 		{
-			var escapeSequence = new char[allowedLength];
-			var consumed = 0;
+			var escapeSequence = new char[length];
+			int consumed;
 
-			while (consumed < allowedLength && context.HasMoreText)
+			for (consumed = 0; consumed < length; consumed++)
 			{
-				var nextChar = context.ReadNext();
+				var nextChar = context.TryLookAhead(consumed);
 
-				escapeSequence[consumed++] = nextChar;
-
-				if (IsHex(nextChar))
-					continue;
-
-				context.Buffer.Append(@char);
-				context.Buffer.Append(escapeSequence, 0, consumed);
-				return;
+				if (nextChar.HasValue && IsHex(nextChar.Value))
+					escapeSequence[consumed] = nextChar.Value;
+				else
+					return 0;
 			}
 
 			context.Buffer.Append(char.ConvertFromUtf32(HexToInt32(escapeSequence)));
+			return consumed;
 		}
 
 		static bool IsHex(char c) => (c > 64 && c < 71) || (c > 47 && c < 58);
