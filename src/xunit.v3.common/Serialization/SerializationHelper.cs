@@ -25,6 +25,9 @@ public static class SerializationHelper
 	static readonly Dictionary<Type, TypeIndex> typeIndicesByType;
 	static readonly Dictionary<TypeIndex, Type> typesByTypeIdx;
 
+	static readonly MethodInfo dateonlyParseMethod = typeof(int).Assembly.GetType("System.DateOnly")!.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string), typeof(IFormatProvider) }, null)!;
+	static readonly MethodInfo timeonlyParseMethod = typeof(int).Assembly.GetType("System.TimeOnly")!.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string), typeof(IFormatProvider) }, null)!;
+
 	static SerializationHelper()
 	{
 		static string extractValue(string v) =>
@@ -57,6 +60,10 @@ public static class SerializationHelper
 			{ TypeIndex.Boolean, v => bool.Parse(v) },
 			{ TypeIndex.DateTime, v => DateTime.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
 			{ TypeIndex.DateTimeOffset, v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
+			{ TypeIndex.TimeSpan, v => TimeSpan.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.DateOnly, v => dateonlyParseMethod.Invoke(null, new object[] { v, CultureInfo.InvariantCulture }) },
+			{ TypeIndex.TimeOnly, v => timeonlyParseMethod.Invoke(null, new object[] { v, CultureInfo.InvariantCulture }) },
 		};
 
 		serializersByTypeIdx = new()
@@ -85,6 +92,8 @@ public static class SerializationHelper
 			{ TypeIndex.DateTimeOffset, (v, _) => ((DateTimeOffset)v).ToString("O", CultureInfo.InvariantCulture) },
 			{ TypeIndex.TimeSpan, (v, _) => ((TimeSpan)v).ToString("c", CultureInfo.InvariantCulture) },
 			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.DateOnly, (v, _) => ((IFormattable)v).ToString("d", CultureInfo.InvariantCulture) },
+			{ TypeIndex.TimeOnly, (v, _) => ((IFormattable)v).ToString("T", CultureInfo.InvariantCulture) },
 		};
 
 		typesByTypeIdx = new()
@@ -797,8 +806,10 @@ public static class SerializationHelper
 		DateTimeOffset = 15,
 		TimeSpan = 16,
 		BigInteger = 17,
+		DateOnly = 18,
+		TimeOnly = 19,
 
 		MinValue = Type,
-		MaxValue = DateTimeOffset,
+		MaxValue = TimeOnly,
 	}
 }
