@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -388,7 +389,7 @@ namespace Xunit.Serialization
                 return typeToCheck.IsFromLocalAssembly();
 
             // DateOnly and TimeOnly available only since NET6
-            if ((valueType.FullName == "System.DateOnly" || valueType.FullName == "System.TimeOnly") && valueType.GetAssembly() == typeof(int).Assembly)
+            if ((valueType.FullName == "System.DateOnly" || valueType.FullName == "System.TimeOnly") && valueType.GetAssembly() == typeof(int).GetTypeInfo().Assembly)
                 return true;
 
             return false;
