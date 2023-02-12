@@ -178,6 +178,8 @@ public class ArgumentFormatterTests
 			{ typeof(string), "typeof(string)" },
 			{ typeof(int[]), "typeof(int[])" },
 			{ typeof(int).MakeArrayType(1), "typeof(int[*])" },
+			{ typeof(int).MakeArrayType(2), "typeof(int[,])" },
+			{ typeof(int).MakeArrayType(3), "typeof(int[,,])" },
 			{ typeof(DateTime[,]), "typeof(System.DateTime[,])" },
 			{ typeof(decimal[][,]), "typeof(decimal[][,])" },
 			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
