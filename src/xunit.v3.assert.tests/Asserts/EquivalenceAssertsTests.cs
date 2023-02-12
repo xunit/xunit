@@ -241,6 +241,15 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
+		public void Success_IgnorePrivateValue()
+		{
+			var expected = new PrivateMembersClass(1, "help");
+			var actual = new PrivateMembersClass(2, "me");
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
 		public void Failure()
 		{
 			var ex = Record.Exception(() => Assert.Equivalent(new { x = 42, y = 2600 }, new { y = 2600, x = 2112 }));
@@ -287,6 +296,26 @@ public class EquivalenceAssertsTests
 			var actual = new ShallowClass { Value1 = 42, Value2 = "Hello, world!" };
 
 			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void Success_IgnoreStaticValue()
+		{
+			try
+			{
+				ShallowClass.StaticValue = 1;
+				ShallowClass2.StaticValue = 2;
+
+				var expected = new ShallowClass();
+				var actual = new ShallowClass2();
+
+				Assert.Equivalent(expected, actual);
+			}
+			finally
+			{
+				ShallowClass.StaticValue = default;
+				ShallowClass2.StaticValue = default;
+			}
 		}
 
 		[Fact]
@@ -1263,14 +1292,28 @@ public class EquivalenceAssertsTests
 
 	class ShallowClass
 	{
+		public static int StaticValue { get; set; }
 		public int Value1;
 		public string? Value2 { get; set; }
 	}
 
 	class ShallowClass2
 	{
+		public static int StaticValue { get; set; }
 		public int Value1 { get; set; }
 		public string? Value2;
+	}
+
+	class PrivateMembersClass
+	{
+		public PrivateMembersClass(int value1, string value2)
+		{
+			Value1 = value1;
+			Value2 = value2;
+		}
+
+		private readonly int Value1;
+		private string Value2 { get; }
 	}
 
 	class DeepClass
