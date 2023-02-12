@@ -35,7 +35,8 @@ public static class Packages
 			var nuspecFiles =
 				Directory
 					.GetFiles(projectFolder, "*.nuspec")
-					.Select(x => Path.GetFileName(x));
+					.Select(x => Path.GetFileName(x))
+					.ToList();
 
 			// Pack the .nuspec file(s)
 			foreach (var nuspecFile in nuspecFiles.OrderBy(x => x))
