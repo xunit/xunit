@@ -178,7 +178,7 @@ public static class SerializationHelper
 			typeIdxText = typeIdxText.Substring(0, typeIdxText.Length - 1);
 		}
 
-		if (!Enum.TryParse<TypeIndex>(typeIdxText, out var typeIdx) || typeIdx < TypeIndex.MinValue || typeIdx > TypeIndex.MaxValue)
+		if (!Enum.TryParse<TypeIndex>(typeIdxText, out var typeIdx) || typeIdx < TypeIndex_MinValue || typeIdx > TypeIndex_MaxValue)
 			throw new ArgumentException($"Tried to deserialize unknown type index '{typeIdxText}'", nameof(serializedValue));
 
 		if (!deserializersByTypeIdx.TryGetValue(typeIdx, out var deserializer))
@@ -826,8 +826,8 @@ public static class SerializationHelper
 		BigInteger = 17,
 		DateOnly = 18,
 		TimeOnly = 19,
-
-		MinValue = Type,
-		MaxValue = TimeOnly,
 	}
+
+	const TypeIndex TypeIndex_MinValue = TypeIndex.Type;
+	const TypeIndex TypeIndex_MaxValue = TypeIndex.TimeOnly;
 }
