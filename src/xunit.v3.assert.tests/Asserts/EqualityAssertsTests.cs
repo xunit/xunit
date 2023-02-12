@@ -1102,9 +1102,15 @@ public class EqualityAssertsTests
 	public class Equal_Float
 	{
 		[Fact]
-		public void Success()
+		public void Success_Tolerance()
 		{
 			Assert.Equal(10.566f, 10.565f, 0.01f);
+		}
+
+		[Fact]
+		public void Success_Precision()
+		{
+			Assert.Equal(10.566f, 10.565f, 1);
 		}
 
 		[Fact]
