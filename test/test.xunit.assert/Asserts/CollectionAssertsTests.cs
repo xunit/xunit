@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -879,6 +879,16 @@ public class CollectionAssertsTests
 	public class Equal
 	{
 		[Fact]
+		public static void NullCollections()
+		{
+			var expected = default(IEnumerable<int>);
+			var actual = default(IEnumerable<int>);
+
+			Assert.Equal(expected, actual);
+			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+		}
+
+		[Fact]
 		public static void Array()
 		{
 			string[] expected = { "@", "a", "ab", "b" };
@@ -1056,6 +1066,16 @@ public class CollectionAssertsTests
 
 	public class Equal_WithComparer
 	{
+		[Fact]
+		public static void NullCollections()
+		{
+			var expected = default(IEnumerable<int>);
+			var actual = default(IEnumerable<int>);
+
+			Assert.Equal(expected, actual, new IntComparer(true));
+			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual, new IntComparer(true)));
+		}
+
 		[Fact]
 		public static void EquivalenceWithComparer()
 		{

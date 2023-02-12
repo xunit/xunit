@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -294,6 +294,27 @@ public class EqualExceptionTests
 				() => Assert.Equal(
 					new[] { 1, 2, 3, 4, 5, 6, 7 },
 					new[] { 1, 2, 3, 4, 5, 6, 99 }
+				)
+			);
+
+			Assert.NotNull(ex);
+			Assert.Equal(expectedMessage, ex.Message);
+		}
+
+		[Fact]
+		public void Array_ExpectedSameType()
+		{
+			var expectedMessage =
+				"Assert.Equal() Failure" + Environment.NewLine +
+				"                 ↓ (pos 2, type System.Int32)" + Environment.NewLine +
+				"Expected: [1, 2, 3]".Replace("'", "\"") + Environment.NewLine +
+				"Actual:   [1, 2, 3]".Replace("'", "\"") + Environment.NewLine +
+				"                 ↑ (pos 2, type System.Int64)";
+
+			var ex = Record.Exception(
+				() => Assert.Equal(
+					new object[] { 1, 2, 3 },
+					new object[] { 1, 2, 3L }
 				)
 			);
 

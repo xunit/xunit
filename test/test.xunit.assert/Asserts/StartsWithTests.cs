@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 using Xunit;
 
-public class StartsWithExceptionTests
+public class StartsWithTests
 {
 	[Fact]
 	public void ActualStringNotLongerThanActualStringDoesNotTruncateActualString()

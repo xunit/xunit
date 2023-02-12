@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit;
@@ -693,12 +693,14 @@ public class ExceptionAssertsTests
 			throw new InvalidCastException();
 		}
 
-		[Fact]
-		public static void GotExpectedException()
+		[Theory]
+		[InlineData("paramName")]
+		[InlineData(default(string))]
+		public static void GotExpectedException(string? paramName)
 		{
-			static void testCode() => throw new ArgumentException("message", "paramName");
+			void testCode() => throw new ArgumentException("message", paramName);
 
-			var ex = Assert.Throws<ArgumentException>("paramName", testCode);
+			var ex = Assert.Throws<ArgumentException>(paramName, testCode);
 
 			Assert.NotNull(ex);
 		}
@@ -718,12 +720,14 @@ public class ExceptionAssertsTests
 
 	public class ThrowsArgument_Func
 	{
-		[Fact]
-		public static void GuardClause()
+		[Theory]
+		[InlineData("paramName")]
+		[InlineData(default(string))]
+		public static void GuardClause(string? paramName)
 		{
-			static object testCode() => Task.Run(() => { throw new ArgumentException("foo", "param"); });
+			object testCode() => Task.Run(() => { throw new ArgumentException("foo", paramName); });
 
-			var ex = Record.Exception(() => Assert.Throws<ArgumentException>("param", testCode));
+			var ex = Record.Exception(() => Assert.Throws<ArgumentException>(paramName, testCode));
 
 			Assert.IsType<InvalidOperationException>(ex);
 			Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
@@ -777,10 +781,12 @@ public class ExceptionAssertsTests
 			throw new InvalidCastException();
 		}
 
-		[Fact]
-		public static async Task GotExpectedException()
+		[Theory]
+		[InlineData("paramName")]
+		[InlineData(default(string))]
+		public static async Task GotExpectedException(string? paramName)
 		{
-			var ex = await Assert.ThrowsAsync<ArgumentException>("paramName", () => Task.Run(() => { throw new ArgumentException("message", "paramName"); }));
+			var ex = await Assert.ThrowsAsync<ArgumentException>(paramName, () => Task.Run(() => { throw new ArgumentException("message", paramName); }));
 
 			Assert.NotNull(ex);
 		}
@@ -846,12 +852,14 @@ public class ExceptionAssertsTests
 			throw new InvalidCastException();
 		}
 
-		[Fact]
-		public static async Task GotExpectedException()
+		[Theory]
+		[InlineData("paramName")]
+		[InlineData(default(string))]
+		public static async Task GotExpectedException(string? paramName)
 		{
-			static ValueTask testCode() => throw new ArgumentException("message", "paramName");
+			ValueTask testCode() => throw new ArgumentException("message", paramName);
 
-			var ex = await Assert.ThrowsAsync<ArgumentException>("paramName", testCode);
+			var ex = await Assert.ThrowsAsync<ArgumentException>(paramName, testCode);
 
 			Assert.NotNull(ex);
 		}
@@ -915,12 +923,14 @@ public class ExceptionAssertsTests
 			throw new InvalidCastException();
 		}
 
-		[Fact]
-		public static void GotExpectedException()
+		[Theory]
+		[InlineData("paramName")]
+		[InlineData(default(string))]
+		public static void GotExpectedException(string? paramName)
 		{
-			static void testCode() => throw new ArgumentNullException("paramName");
+			void testCode() => throw new ArgumentNullException(paramName);
 
-			var ex = Assert.Throws<ArgumentNullException>("paramName", testCode);
+			var ex = Assert.Throws<ArgumentNullException>(paramName, testCode);
 
 			Assert.NotNull(ex);
 		}

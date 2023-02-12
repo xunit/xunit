@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -760,6 +760,208 @@ public class EqualityAssertsTests
 		}
 	}
 
+	public class Equal_DateTime
+	{
+		public class WithoutPrecision
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new DateTime(2023, 2, 11, 15, 4, 0);
+				var actual = new DateTime(2023, 2, 11, 15, 4, 0);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var expected = new DateTime(2023, 2, 11, 15, 4, 0);
+				var actual = new DateTime(2023, 2, 11, 15, 5, 0);
+
+				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {expected}" + Environment.NewLine +
+					$"Actual:   {actual}",
+					ex.Message
+				);
+			}
+		}
+
+		public class WithPrecision
+		{
+			[Fact]
+			public void InRange()
+			{
+				var date1 = new DateTime(2023, 2, 11, 15, 4, 0);
+				var date2 = new DateTime(2023, 2, 11, 15, 5, 0);
+				var precision = TimeSpan.FromMinutes(1);
+
+				Assert.Equal(date1, date2, precision);  // expected earlier than actual
+				Assert.Equal(date2, date1, precision);  // expected later than actual
+			}
+
+			[CulturedFact]
+			public void OutOfRange()
+			{
+				var date1 = new DateTime(2023, 2, 11, 15, 4, 0);
+				var date2 = new DateTime(2023, 2, 11, 15, 6, 0);
+				var precision = TimeSpan.FromMinutes(1);
+				var difference = TimeSpan.FromMinutes(2);
+
+				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {date1}" + Environment.NewLine +
+					$"Actual:   {date2} (difference {difference} is larger than {precision})",
+					ex.Message
+				);
+				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {date2}" + Environment.NewLine +
+					$"Actual:   {date1} (difference {difference} is larger than {precision})",
+					ex2.Message
+				);
+			}
+		}
+	}
+
+	public class Equal_DateTimeOffset
+	{
+		public class WithoutPrecision_SameTimeZone
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var actual = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, actual);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var actual = new DateTimeOffset(2023, 2, 11, 15, 5, 0, TimeSpan.Zero);
+
+				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {expected}" + Environment.NewLine +
+					$"Actual:   {actual}",
+					ex.Message
+				);
+			}
+		}
+
+		public class WithoutPrecision_DifferentTimeZone
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var actual = new DateTimeOffset(2023, 2, 11, 16, 4, 0, TimeSpan.FromHours(1));
+
+				Assert.Equal(expected, actual);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var actual = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.FromHours(1));
+
+				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {expected}" + Environment.NewLine +
+					$"Actual:   {actual}",
+					ex.Message
+				);
+			}
+		}
+
+		public class WithPrecision_SameTimeZone
+		{
+			[Fact]
+			public void InRange()
+			{
+				var date1 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var date2 = new DateTimeOffset(2023, 2, 11, 15, 5, 0, TimeSpan.Zero);
+				var precision = TimeSpan.FromMinutes(1);
+
+				Assert.Equal(date1, date2, precision);  // expected earlier than actual
+				Assert.Equal(date2, date1, precision);  // expected later than actual
+			}
+
+			[CulturedFact]
+			public void OutOfRange()
+			{
+				var date1 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var date2 = new DateTimeOffset(2023, 2, 11, 15, 6, 0, TimeSpan.Zero);
+				var precision = TimeSpan.FromMinutes(1);
+				var difference = TimeSpan.FromMinutes(2);
+
+				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {date1}" + Environment.NewLine +
+					$"Actual:   {date2} (difference {difference} is larger than {precision})",
+					ex.Message
+				);
+				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {date2}" + Environment.NewLine +
+					$"Actual:   {date1} (difference {difference} is larger than {precision})",
+					ex2.Message
+				);
+			}
+		}
+
+		public class WithPrecision_DifferentTimeZone
+		{
+			[Fact]
+			public void InRange()
+			{
+				var date1 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var date2 = new DateTimeOffset(2023, 2, 11, 16, 5, 0, TimeSpan.FromHours(1));
+				var precision = TimeSpan.FromMinutes(1);
+
+				Assert.Equal(date1, date2, precision);  // expected earlier than actual
+				Assert.Equal(date2, date1, precision);  // expected later than actual
+			}
+
+			[CulturedFact]
+			public void OutOfRange()
+			{
+				var date1 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
+				var date2 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.FromHours(1));
+				var precision = TimeSpan.FromMinutes(1);
+				var difference = TimeSpan.FromHours(1);
+
+				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {date1}" + Environment.NewLine +
+					$"Actual:   {date2} (difference {difference} is larger than {precision})",
+					ex.Message
+				);
+				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+				Assert.Equal(
+					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Expected: {date2}" + Environment.NewLine +
+					$"Actual:   {date1} (difference {difference} is larger than {precision})",
+					ex2.Message
+				);
+			}
+		}
+	}
+
 	public class Equal_Decimal
 	{
 		[Fact]
@@ -900,9 +1102,15 @@ public class EqualityAssertsTests
 	public class Equal_Float
 	{
 		[Fact]
-		public void Success()
+		public void Success_Tolerance()
 		{
 			Assert.Equal(10.566f, 10.565f, 0.01f);
+		}
+
+		[Fact]
+		public void Success_Precision()
+		{
+			Assert.Equal(10.566f, 10.565f, 1);
 		}
 
 		[Fact]
