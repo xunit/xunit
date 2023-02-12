@@ -30,8 +30,8 @@ public class SerializationHelperTests
 		{ new TimeSpan(1, 2, 3, 4, 5), "16:1.02:03:04.0050000" },
 		{ BigInteger.Parse("123456789009876543210123456789"), "17:123456789009876543210123456789" },
 #if NET6_0_OR_GREATER
-		{ new DateOnly(2023, 1, 7), "18:01/07/2023" },
-		{ new TimeOnly(9, 4, 15), "19:09:04:15" },
+		{ new DateOnly(2023, 1, 7), "18:738526" },
+		{ new TimeOnly(9, 4, 15), "19:326550000000" },
 #endif
 
 		// Arrays use array notation for embedded types, plus this serialization format:
@@ -93,6 +93,12 @@ public class SerializationHelperTests
 		{ typeof(bool?), "13?" },
 		{ typeof(DateTime?), "14?" },
 		{ typeof(DateTimeOffset?), "15?" },
+		{ typeof(TimeSpan?), "16?" },
+		{ typeof(BigInteger?), "17?" },
+#if NET6_0_OR_GREATER
+		{ typeof(DateOnly?), "18?" },
+		{ typeof(TimeOnly?), "19?" },
+#endif
 	};
 
 	public class Deserialize
@@ -120,7 +126,7 @@ public class SerializationHelperTests
 		}
 
 		[Theory]
-		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests))]
+		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCases(
 			Type _,
 			string serialization)
@@ -131,7 +137,7 @@ public class SerializationHelperTests
 		}
 
 		[Theory]
-		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests))]
+		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCasesAsArrays(
 			Type _,
 			string serialization)
@@ -151,37 +157,60 @@ public class SerializationHelperTests
 
 			Assert.Equivalent(expectedValue, result);
 		}
+
+#if NETFRAMEWORK
+		[Theory]
+		[InlineData("18:738526", "DateOnly")]
+		[InlineData("18?", "DateOnly")]
+		[InlineData("19:326550000000", "TimeOnly")]
+		[InlineData("19?", "TimeOnly")]
+		public void UnsupportedPlatform(
+			string value,
+			string typeName)
+		{
+			var ex = Record.Exception(() => SerializationHelper.Deserialize(value));
+
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.Equal("serializedValue", argEx.ParamName);
+			Assert.StartsWith($"Cannot deserialize value of '{typeName}': unsupported platform", argEx.Message);
+		}
+#endif
 	}
 
 	public class IsSerializable
 	{
-		[Theory]
-		[InlineData(typeof(Enum))]
-		[InlineData(typeof(IXunitSerializable))]
-		[InlineData(typeof(Dictionary<string, List<string>>))]
-		[InlineData(typeof(object))]
-		[InlineData(typeof(string))]
-		[InlineData(typeof(char))]
-		[InlineData(typeof(byte))]
-		[InlineData(typeof(sbyte))]
-		[InlineData(typeof(short))]
-		[InlineData(typeof(ushort))]
-		[InlineData(typeof(int))]
-		[InlineData(typeof(uint))]
-		[InlineData(typeof(long))]
-		[InlineData(typeof(ulong))]
-		[InlineData(typeof(float))]
-		[InlineData(typeof(double))]
-		[InlineData(typeof(decimal))]
-		[InlineData(typeof(bool))]
-		[InlineData(typeof(DateTime))]
-		[InlineData(typeof(DateTimeOffset))]
-		[InlineData(typeof(TimeSpan))]
-		[InlineData(typeof(BigInteger))]
+		public static TheoryData<Type> SupportedTypes = new()
+		{
+			typeof(Enum),
+			typeof(IXunitSerializable),
+			typeof(Dictionary<string, List<string>>),
+			typeof(object),
+			typeof(string),
+			typeof(char),
+			typeof(byte),
+			typeof(sbyte),
+			typeof(short),
+			typeof(ushort),
+			typeof(int),
+			typeof(uint),
+			typeof(long),
+			typeof(ulong),
+			typeof(float),
+			typeof(double),
+			typeof(decimal),
+			typeof(bool),
+			typeof(DateTime),
+			typeof(DateTimeOffset),
+			typeof(TimeSpan),
+			typeof(BigInteger),
 #if NET6_0_OR_GREATER
-		[InlineData(typeof(DateOnly))]
-		[InlineData(typeof(TimeOnly))]
+			typeof(DateOnly),
+			typeof(TimeOnly),
 #endif
+		};
+
+		[Theory]
+		[MemberData(nameof(SupportedTypes), DisableDiscoveryEnumeration = true)]
 		public void SuccessCases(Type type)
 		{
 			Assert.True(SerializationHelper.IsSerializable(null, type));
@@ -211,7 +240,7 @@ public class SerializationHelperTests
 	public class Serialize
 	{
 		[Theory]
-		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests))]
+		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCases(
 			Type nullableType,
 			string? expectedSerialization)
@@ -222,7 +251,7 @@ public class SerializationHelperTests
 		}
 
 		[Theory]
-		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests))]
+		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCasesAsArrays(
 			Type nullableType,
 			string? expectedSerialization)

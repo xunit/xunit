@@ -25,9 +25,6 @@ public static class SerializationHelper
 	static readonly Dictionary<Type, TypeIndex> typeIndicesByType;
 	static readonly Dictionary<TypeIndex, Type> typesByTypeIdx;
 
-	static readonly MethodInfo dateonlyParseMethod = typeof(int).Assembly.GetType("System.DateOnly")!.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string), typeof(IFormatProvider) }, null)!;
-	static readonly MethodInfo timeonlyParseMethod = typeof(int).Assembly.GetType("System.TimeOnly")!.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string), typeof(IFormatProvider) }, null)!;
-
 	static SerializationHelper()
 	{
 		static string extractValue(string v) =>
@@ -35,6 +32,14 @@ public static class SerializationHelper
 
 		static DateTimeStyles getDateStyle(string v) =>
 			v.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+
+		var dateOnlyType = Type.GetType("System.DateOnly");
+		var dateOnlyDayNumber = dateOnlyType?.GetProperty("DayNumber");
+		var dateOnlyFromDayNumber = dateOnlyType?.GetMethod("FromDayNumber", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(int) }, null);
+
+		var timeOnlyType = Type.GetType("System.TimeOnly");
+		var timeOnlyTicks = timeOnlyType?.GetProperty("Ticks");
+		var timeOnlyCtor = timeOnlyType?.GetConstructor(new[] { typeof(long) });
 
 		deserializersByTypeIdx = new()
 		{
@@ -62,9 +67,12 @@ public static class SerializationHelper
 			{ TypeIndex.DateTimeOffset, v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
 			{ TypeIndex.TimeSpan, v => TimeSpan.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.DateOnly, v => dateonlyParseMethod.Invoke(null, new object[] { v, CultureInfo.InvariantCulture }) },
-			{ TypeIndex.TimeOnly, v => timeonlyParseMethod.Invoke(null, new object[] { v, CultureInfo.InvariantCulture }) },
 		};
+
+		if (dateOnlyFromDayNumber != null)
+			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, new object[] { int.Parse(v) }));
+		if (timeOnlyCtor != null)
+			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke(new object[] { long.Parse(v) }));
 
 		serializersByTypeIdx = new()
 		{
@@ -92,9 +100,12 @@ public static class SerializationHelper
 			{ TypeIndex.DateTimeOffset, (v, _) => ((DateTimeOffset)v).ToString("O", CultureInfo.InvariantCulture) },
 			{ TypeIndex.TimeSpan, (v, _) => ((TimeSpan)v).ToString("c", CultureInfo.InvariantCulture) },
 			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.DateOnly, (v, _) => ((IFormattable)v).ToString("d", CultureInfo.InvariantCulture) },
-			{ TypeIndex.TimeOnly, (v, _) => ((IFormattable)v).ToString("T", CultureInfo.InvariantCulture) },
 		};
+
+		if (dateOnlyDayNumber != null)
+			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call GetValue on an instance of '{dateOnlyType!.SafeName()}': {v}"));
+		if (timeOnlyTicks != null)
+			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call Ticks on an instance of '{timeOnlyType!.SafeName()}': {v}"));
 
 		typesByTypeIdx = new()
 		{
@@ -123,6 +134,11 @@ public static class SerializationHelper
 			{ TypeIndex.TimeSpan, typeof(TimeSpan) },
 			{ TypeIndex.BigInteger, typeof(BigInteger) },
 		};
+
+		if (dateOnlyType != null)
+			typesByTypeIdx.Add(TypeIndex.DateOnly, dateOnlyType);
+		if (timeOnlyType != null)
+			typesByTypeIdx.Add(TypeIndex.TimeOnly, timeOnlyType);
 
 		typeIndicesByType = typesByTypeIdx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
 	}
@@ -165,6 +181,9 @@ public static class SerializationHelper
 		if (!Enum.TryParse<TypeIndex>(typeIdxText, out var typeIdx) || typeIdx < TypeIndex.MinValue || typeIdx > TypeIndex.MaxValue)
 			throw new ArgumentException($"Tried to deserialize unknown type index '{typeIdxText}'", nameof(serializedValue));
 
+		if (!deserializersByTypeIdx.TryGetValue(typeIdx, out var deserializer))
+			throw new ArgumentException($"Cannot deserialize value of '{typeIdx}': unsupported platform", nameof(serializedValue));
+
 		if (pieces.Length != 2)
 			return null;
 
@@ -177,7 +196,7 @@ public static class SerializationHelper
 			return DeserializeArray(elementType, pieces[1]);
 		}
 
-		return deserializersByTypeIdx[typeIdx](pieces[1]);
+		return deserializer(pieces[1]);
 	}
 
 	static Array DeserializeArray(
@@ -348,10 +367,6 @@ public static class SerializationHelper
 		if (typeIndicesByType.Keys.Any(st => typeInfo.Equal(st)))
 			return true;
 
-		// DateOnly and TimeOnly available only since NET6
-		if ((typeInfo.Name == "System.DateOnly" || typeInfo.Name == "System.TimeOnly") && typeInfo.Assembly.Name == typeof(int).Assembly.FullName)
-			return true;
-
 		return false;
 	}
 
@@ -405,6 +420,9 @@ public static class SerializationHelper
 			typeIdx = kvp.Value;
 		}
 
+		if (!serializersByTypeIdx.TryGetValue(typeIdx, out var serializer))
+			throw new ArgumentException($"Cannot serialize a value of type '{typeIdx}': unsupported platform", nameof(value));
+
 		var typeIdxText = $"{(int)typeIdx}{(coreValueTypeInfo != nonNullableCoreValueTypeInfo ? "?" : "")}{(isArray ? "[]" : "")}";
 
 		if (value == null)
@@ -416,7 +434,7 @@ public static class SerializationHelper
 		if (typeIdx == TypeIndex.Object)
 			throw new ArgumentException("Cannot serialize a non-null value of type 'System.Object'", nameof(value));
 
-		return $"{typeIdxText}:{serializersByTypeIdx[typeIdx](value, nonNullableCoreValueTypeInfo)}";
+		return $"{typeIdxText}:{serializer(value, nonNullableCoreValueTypeInfo)}";
 	}
 
 	static string SerializeArray(Array array)
