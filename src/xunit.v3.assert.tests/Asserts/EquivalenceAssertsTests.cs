@@ -42,11 +42,38 @@ public class EquivalenceAssertsTests
 		[InlineData(1.1f, 1.1f)]
 		[InlineData(1.1, 1.1)]
 		[InlineData(true, true)]
+		[InlineData(ConsoleKey.A, ConsoleKey.A)]
 		public void SameType_Success(
 			object? expected,
 			object? actual)
 		{
 			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DateTime_Success()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DateTime_Failure()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = new DateTime(2011, 9, 13, 18, 22, 0);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
+				"Actual:   2011-09-13T18:22:00.0000000",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -102,6 +129,35 @@ public class EquivalenceAssertsTests
 				"Assert.Equivalent() Failure" + Environment.NewLine +
 				"Expected: 42" + Environment.NewLine +
 				"Actual:   2112",
+				ex.Message
+			);
+		}
+	}
+
+	public class ValueTypes_Identical_Deep
+	{
+		[Fact]
+		public void Success()
+		{
+			var expected = new DeepStruct(new ShallowClass { Value1 = 42, Value2 = "Hello, world!" });
+			var actual = new DeepStruct(new ShallowClass { Value1 = 42, Value2 = "Hello, world!" });
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var expected = new DeepStruct(new ShallowClass { Value1 = 42, Value2 = "Hello, world!" });
+			var actual = new DeepStruct(new ShallowClass { Value1 = 13, Value2 = "Hello, world!" });
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Shallow.Value1'" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   13",
 				ex.Message
 			);
 		}
@@ -1228,6 +1284,16 @@ public class EquivalenceAssertsTests
 	{
 		public decimal Value3 { get; set; }
 		public ShallowClass? Shallow;
+	}
+
+	struct DeepStruct
+	{
+		public DeepStruct(ShallowClass shallow)
+		{
+			Shallow = shallow;
+		}
+
+		public ShallowClass Shallow { get; }
 	}
 
 	class SelfReferential
