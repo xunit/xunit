@@ -347,8 +347,12 @@ public class CommandLineTests
 
 			[Theory]
 			[InlineData("abc")]
-			[InlineData("0.ax")]  // Non-digit
-			[InlineData(".0x")]   // Missing leading digit
+			// Non digit
+			[InlineData("0.ax")]
+			[InlineData("0,ax")]
+			// Missing leading digit
+			[InlineData(".0x")]
+			[InlineData(",0x")]
 			public static void InvalidValues(string value)
 			{
 				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-maxthreads", value);
@@ -356,7 +360,7 @@ public class CommandLineTests
 				var exception = Record.Exception(() => commandLine.Parse());
 
 				Assert.IsType<ArgumentException>(exception);
-				Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x')", exception.Message);
+				Assert.Equal($"incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0.0m}x')", exception.Message);
 			}
 
 			[Theory]
@@ -379,6 +383,7 @@ public class CommandLineTests
 			[Theory]
 			[InlineData("2x")]
 			[InlineData("2.0x")]
+			[InlineData("2,0x")]
 			public static void MultiplierValue(string value)
 			{
 				var expected = Environment.ProcessorCount * 2;
