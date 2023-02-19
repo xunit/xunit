@@ -172,6 +172,28 @@ public class ConfigReaderTests
 	}
 
 	[Fact]
+	public static void ConfigurationFileWithMaxThreadsAsMultiplierWithComma_ReturnsMultipliedValue()
+	{
+		var configuration = new TestAssemblyConfiguration();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierComma.json"));
+
+		Assert.True(result);
+		Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+	}
+
+	[Fact]
+	public static void ConfigurationFileWithMaxThreadsAsMultiplierWithDecimal_ReturnsMultipliedValue()
+	{
+		var configuration = new TestAssemblyConfiguration();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierDecimal.json"));
+
+		Assert.True(result);
+		Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+	}
+
+	[Fact]
 	public static void ConfigurationFileWithMaxThreadsExplicitDefault_ReturnsProcessorCount()
 	{
 		var configuration = new TestAssemblyConfiguration { MaxParallelThreads = 2112 };

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using Xunit.v3;
@@ -121,7 +122,10 @@ public static class ConfigReader_Json
 							else
 							{
 								var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
-								if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+								// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
+								// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
+								// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+								if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
 									configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
 							}
 						}
