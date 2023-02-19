@@ -236,7 +236,7 @@ public class TestAssemblyRunnerTests
             Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
         }
 
-        [Fact]
+        [CulturedFact("en-US")]
         public static async void OrdererUsedToOrderTestCases()
         {
             var collection1 = Mocks.TestCollection(displayName: "AAA");
