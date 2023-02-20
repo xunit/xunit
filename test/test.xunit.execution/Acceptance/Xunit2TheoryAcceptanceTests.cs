@@ -440,7 +440,7 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact]
+        [CulturedFact("en-US")]
         public void GenericTheoryWithSerializableData()
         {
             var results = Run<ITestResultMessage>(typeof(GenericWithSerializableData));
@@ -517,7 +517,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class InlineDataTests : AcceptanceTestV2
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
@@ -620,7 +620,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class ClassDataTests : AcceptanceTestV2
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
@@ -844,7 +844,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class FieldDataTests : AcceptanceTestV2
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfFieldData));
@@ -935,7 +935,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class MethodDataTests : AcceptanceTestV2
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfMethodData));
@@ -1120,7 +1120,7 @@ public class Xunit2TheoryAcceptanceTests
 
         public class SubClassWithNoTests : BaseClassWithTestAndData { }
 
-        [Fact]
+        [CulturedFact("en-US")]
         public void CanPassParametersToDataMethod()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithParameterizedMethodData));
@@ -1153,7 +1153,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class PropertyDataTests : AcceptanceTestV2
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
@@ -1335,7 +1335,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class ErrorAggregation : AcceptanceTestV2
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void EachTheoryHasIndividualExceptionMessage()
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
