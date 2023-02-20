@@ -2,7 +2,7 @@
 
   <!-- Package versions shared among multiple .targets files -->
   <PropertyGroup>
-    <FSharpCompilerServiceVersion>41.0.7</FSharpCompilerServiceVersion>
+    <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
     <ILRepackVersion>2.0.13</ILRepackVersion>
     <MicrosoftBclAsyncInterfacesVersion>7.0.0</MicrosoftBclAsyncInterfacesVersion>
     <MicrosoftNetCoreAppRefVersion>6.0.11</MicrosoftNetCoreAppRefVersion>
