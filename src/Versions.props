@@ -13,6 +13,7 @@
     <NerdbankGitVersioningVersion>3.5.119</NerdbankGitVersioningVersion>
     <NSubstituteVersion>4.4.0</NSubstituteVersion>
     <SystemCodeDomVersion>7.0.0</SystemCodeDomVersion>
+    <SystemCollectionsImmutableVersion>7.0.0</SystemCollectionsImmutableVersion>
     <SystemComponentModelTypeConverterVersion>4.3.0</SystemComponentModelTypeConverterVersion>
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <SystemNetHttpVersion>4.3.4</SystemNetHttpVersion>

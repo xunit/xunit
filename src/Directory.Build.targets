@@ -1,4 +1,14 @@
 <Project>
+  <!-- Conditional assert import for v3 test projects -->
+  <Choose>
+    <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
+      <ItemGroup>
+        <ProjectReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
+        <ProjectReference Condition=" '$(TargetFramework)' == 'net6.0' " Include="..\xunit.v3.assert.back-compat\xunit.v3.assert.net6.on-all\xunit.v3.assert.net6.on-all.csproj" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
   <!-- Enable building .NET Framework on non-Windows machines -->
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(MicrosoftNetFrameworkReferenceAssembliesVersion)">
@@ -96,6 +106,9 @@
   </Target>
 
   <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+    <ReadLinesFromFile File="$(MSBuildThisFileDirectory)..\.git\modules\src\xunit.v3.assert\Asserts\HEAD">
+      <Output TaskParameter="Lines" PropertyName="GitAssertModuleCommitId"/>
+    </ReadLinesFromFile>
     <PropertyGroup>
       <!-- Local builds should have a '-dev' suffix on the build number -->
       <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
@@ -104,6 +117,7 @@
       <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
       <NuspecProperties>
         Configuration=$(Configuration);
+        GitAssertModuleCommitId=$(GitAssertModuleCommitId);
         GitCommitId=$(GitCommitId);
         MicrosoftBclAsyncInterfacesVersion=$(MicrosoftBclAsyncInterfacesVersion);
         MonoCecilVersion=$(MonoCecilVersion);
