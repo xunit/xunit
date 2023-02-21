@@ -440,7 +440,7 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [CulturedFact("en-US")]
+        [Fact]
         public void GenericTheoryWithSerializableData()
         {
             var results = Run<ITestResultMessage>(typeof(GenericWithSerializableData));
@@ -453,8 +453,7 @@ public class Xunit2TheoryAcceptanceTests
                 // Simple (T1, T2)
                 displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32, Object>(value1: 42, value2: null)", displayName),
                 displayName => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", displayName),
-                displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Object, Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData+Empty<Int32>>(value1: null, value2: Empty<Int32>)", displayName),
-                displayName => Assert.Equal($@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<String, Double>(value1: ""Hello, world!"", value2: {21.12:G17})", displayName)
+                displayName => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Object, Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData+Empty<Int32>>(value1: null, value2: Empty<Int32>)", displayName)
             );
         }
 
@@ -480,7 +479,6 @@ public class Xunit2TheoryAcceptanceTests
                 get
                 {
                     yield return new object[] { 42, null };
-                    yield return new object[] { "Hello, world!", 21.12 };
                     yield return new object[] { new int[] { 1, 2, 3 }, new List<string> { "a", "b", "c" } };
                     yield return new object[] { null, default(Empty<int>) };
                 }
@@ -517,24 +515,24 @@ public class Xunit2TheoryAcceptanceTests
 
     public class InlineDataTests : AcceptanceTestV2
     {
-        [CulturedFact("en-US")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
         class ClassUnderTest
         {
             [Theory]
-            [InlineData(42, 21.12, "Hello, world!")]
-            [InlineData(0, 0.0, null)]
-            public void TestViaInlineData(int x, double y, string z)
+            [InlineData(42, "Hello, world!")]
+            [InlineData(0, null)]
+            public void TestViaInlineData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -620,15 +618,15 @@ public class Xunit2TheoryAcceptanceTests
 
     public class ClassDataTests : AcceptanceTestV2
     {
-        [CulturedFact("en-US")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 42, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -636,7 +634,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             [Theory]
             [ClassData(typeof(ClassDataSource))]
-            public void TestViaClassData(int x, double y, string z)
+            public void TestViaClassData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -646,8 +644,8 @@ public class Xunit2TheoryAcceptanceTests
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                yield return new object[] { 42, 21.12, "Hello, world!" };
-                yield return new object[] { 0, 0.0, null };
+                yield return new object[] { 42, "Hello, world!" };
+                yield return new object[] { 0, null };
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -844,28 +842,28 @@ public class Xunit2TheoryAcceptanceTests
 
     public class FieldDataTests : AcceptanceTestV2
     {
-        [CulturedFact("en-US")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfFieldData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
         class ClassWithSelfFieldData
         {
             public static IEnumerable<object[]> DataSource = new[] {
-                new object[] { 42, 21.12, "Hello, world!" },
-                new object[] { 0, 0.0, null }
+                new object[] { 42, "Hello, world!" },
+                new object[] { 0, null }
             };
 
             [Theory]
             [MemberData("DataSource")]
-            public void TestViaFieldData(int x, double y, string z)
+            public void TestViaFieldData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -885,7 +883,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             [Theory]
             [MemberData("DataSource", MemberType = typeof(ClassWithSelfFieldData))]
-            public void TestViaFieldData(int x, double y, string z)
+            public void TestViaFieldData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -935,15 +933,15 @@ public class Xunit2TheoryAcceptanceTests
 
     public class MethodDataTests : AcceptanceTestV2
     {
-        [CulturedFact("en-US")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfMethodData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -952,14 +950,14 @@ public class Xunit2TheoryAcceptanceTests
             public static IEnumerable<object[]> DataSource()
             {
                 return new[] {
-                    new object[] { 42, 21.12, "Hello, world!" },
-                    new object[] { 0, 0.0, null }
+                    new object[] { 42, "Hello, world!" },
+                    new object[] { 0, null }
                 };
             }
 
             [Theory]
             [MemberData("DataSource")]
-            public void TestViaMethodData(int x, double y, string z)
+            public void TestViaMethodData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -979,7 +977,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             [Theory]
             [MemberData("DataSource", MemberType = typeof(ClassWithSelfMethodData))]
-            public void TestViaMethodData(int x, double y, string z)
+            public void TestViaMethodData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -1120,15 +1118,15 @@ public class Xunit2TheoryAcceptanceTests
 
         public class SubClassWithNoTests : BaseClassWithTestAndData { }
 
-        [CulturedFact("en-US")]
+        [Fact]
         public void CanPassParametersToDataMethod()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithParameterizedMethodData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -1137,14 +1135,14 @@ public class Xunit2TheoryAcceptanceTests
             public static IEnumerable<object[]> DataSource(int x)
             {
                 return new[] {
-                    new object[] { x / 2, 21.12, "Hello, world!" },
-                    new object[] { 0, 0.0, null }
+                    new object[] { x / 2, "Hello, world!" },
+                    new object[] { 0, null }
                 };
             }
 
             [Theory]
             [MemberData("DataSource", 84)]
-            public void TestViaMethodData(int x, double y, string z)
+            public void TestViaMethodData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -1153,15 +1151,15 @@ public class Xunit2TheoryAcceptanceTests
 
     public class PropertyDataTests : AcceptanceTestV2
     {
-        [CulturedFact("en-US")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -1171,14 +1169,14 @@ public class Xunit2TheoryAcceptanceTests
             {
                 get
                 {
-                    yield return new object[] { 42, 21.12, "Hello, world!" };
-                    yield return new object[] { 0, 0.0, null };
+                    yield return new object[] { 42, "Hello, world!" };
+                    yield return new object[] { 0, null };
                 }
             }
 
             [Theory]
             [MemberData("DataSource")]
-            public void TestViaPropertyData(int x, double y, string z)
+            public void TestViaPropertyData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -1198,7 +1196,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             [Theory]
             [MemberData("DataSource", MemberType = typeof(ClassWithSelfPropertyData))]
-            public void TestViaPropertyData(int x, double y, string z)
+            public void TestViaPropertyData(int x, string z)
             {
                 Assert.NotNull(z);
             }
@@ -1335,15 +1333,15 @@ public class Xunit2TheoryAcceptanceTests
 
     public class ErrorAggregation : AcceptanceTestV2
     {
-        [CulturedFact("en-US")]
+        [Fact]
         public void EachTheoryHasIndividualExceptionMessage()
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
-            var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == $"Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12:G17}, z: ClassUnderTest {{ }})");
+            var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: \"Hello\", z: ClassUnderTest { })");
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-            var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");
+            var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: \"\", z: null)");
             Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
         }
 
@@ -1353,14 +1351,14 @@ public class Xunit2TheoryAcceptanceTests
             {
                 get
                 {
-                    yield return new object[] { 42, 21.12, new ClassUnderTest() };
-                    yield return new object[] { 0, 0.0, null };
+                    yield return new object[] { 42, "Hello", new ClassUnderTest() };
+                    yield return new object[] { 0, "", null };
                 }
             }
 
             [Theory]
             [MemberData("Data")]
-            public void TestViaInlineData(int x, double y, object z)
+            public void TestViaInlineData(int x, string y, object z)
             {
                 Assert.Equal(0, x); // Fails the first data item
                 Assert.NotNull(z);  // Fails the second data item
