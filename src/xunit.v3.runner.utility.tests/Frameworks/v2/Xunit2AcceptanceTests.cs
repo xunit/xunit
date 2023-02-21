@@ -139,6 +139,8 @@ public class TestClass
 			[Fact]
 			public async ValueTask FactAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
@@ -192,6 +194,8 @@ let CustomName() =
 			[Fact]
 			public async ValueTask TheoryAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
@@ -392,6 +396,8 @@ public class TestClass
 			[Fact]
 			public async ValueTask FactAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
@@ -420,6 +426,8 @@ let TestMethod() =
 			[Fact]
 			public async ValueTask TheoryAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
@@ -452,6 +460,8 @@ let TestMethod(x : int) =
 			[Fact]
 			public async ValueTask AsyncAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
@@ -626,6 +636,8 @@ public class TestClass
 			[Fact]
 			public async ValueTask FactAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
@@ -662,6 +674,8 @@ let TestMethod() =
 			[Fact]
 			public async ValueTask TheoryAcceptanceTest()
 			{
+				Assert.SkipWhen(EnvironmentHelper.IsMono, "F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 				var code = @"
 module FSharpTests
 
