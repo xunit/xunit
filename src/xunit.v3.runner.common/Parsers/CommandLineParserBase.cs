@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +35,8 @@ public abstract class CommandLineParserBase
 		// General options
 		AddParser(
 			"culture", OnCulture, CommandLineGroup.General, "<option>",
-			"run tests under the given culture",
+			"run tests under the given culture (v3 assemblies only)",
+			"note: when running a v1/v2 assembly, the culture option will be ignored",
 			"  default   - run with default operating system culture",
 			"  invariant - run with the invariant culture",
 			"  (string)  - run with the given culture (f.e., 'en-US')"
@@ -453,12 +455,15 @@ public abstract class CommandLineParserBase
 
 			default:
 				var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(option.Value);
-				if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+				// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
+				// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
+				// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+				if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
 					maxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
 				else if (int.TryParse(option.Value, out var threadValue) && threadValue > 0)
 					maxParallelThreads = threadValue;
 				else
-					throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x')");
+					throw new ArgumentException($"incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0.0m}x')");
 
 				break;
 		}

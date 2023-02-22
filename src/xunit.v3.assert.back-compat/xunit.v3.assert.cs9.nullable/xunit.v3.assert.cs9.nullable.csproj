@@ -3,6 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
     <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
     <TargetFramework>netstandard1.1</TargetFramework>
   </PropertyGroup>
 

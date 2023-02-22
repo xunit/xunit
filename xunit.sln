@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
@@ -19,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert", "src\xuni
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.cs6", "src\xunit.v3.assert.back-compat\xunit.v3.assert.cs6\xunit.v3.assert.cs6.csproj", "{916DC5CE-D60E-44BE-B71D-E6A667BE838F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.cs6.immutable", "src\xunit.v3.assert.back-compat\xunit.v3.assert.cs6.immutable\xunit.v3.assert.cs6.immutable.csproj", "{4F646402-2133-48D2-A68A-578E4992D55C}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.cs6.span", "src\xunit.v3.assert.back-compat\xunit.v3.assert.cs6.span\xunit.v3.assert.cs6.span.csproj", "{92BE47C0-7583-454C-BB1D-EC0AC241F9A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.cs6.valuetask", "src\xunit.v3.assert.back-compat\xunit.v3.assert.cs6.valuetask\xunit.v3.assert.cs6.valuetask.csproj", "{1641DA06-F8F5-4094-8A2C-FCFDAC2D5E27}"
@@ -26,6 +27,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.cs9.nullable", "src\xunit.v3.assert.back-compat\xunit.v3.assert.cs9.nullable\xunit.v3.assert.cs9.nullable.csproj", "{AFDEA84E-BDF7-4570-B237-9638FC67307D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.cs9.on-all", "src\xunit.v3.assert.back-compat\xunit.v3.assert.cs9.on-all\xunit.v3.assert.cs9.on-all.csproj", "{4B00223A-2040-4409-968E-11035C3966E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.net6.on-all", "src\xunit.v3.assert.back-compat\xunit.v3.assert.net6.on-all\xunit.v3.assert.net6.on-all.csproj", "{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.tests", "src\xunit.v3.assert.tests\xunit.v3.assert.tests.csproj", "{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}"
 EndProject
@@ -101,6 +104,14 @@ Global
 		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Release_x86|Any CPU.Build.0 = Release|Any CPU
 		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Debug_x86|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Debug_x86|Any CPU.Build.0 = Debug|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Release_x86|Any CPU.ActiveCfg = Release|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Release_x86|Any CPU.Build.0 = Release|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F646402-2133-48D2-A68A-578E4992D55C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{92BE47C0-7583-454C-BB1D-EC0AC241F9A5}.Debug_x86|Any CPU.ActiveCfg = Debug|Any CPU
 		{92BE47C0-7583-454C-BB1D-EC0AC241F9A5}.Debug_x86|Any CPU.Build.0 = Debug|Any CPU
 		{92BE47C0-7583-454C-BB1D-EC0AC241F9A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -133,6 +144,14 @@ Global
 		{4B00223A-2040-4409-968E-11035C3966E0}.Release_x86|Any CPU.Build.0 = Debug|Any CPU
 		{4B00223A-2040-4409-968E-11035C3966E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B00223A-2040-4409-968E-11035C3966E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Debug_x86|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Debug_x86|Any CPU.Build.0 = Debug|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Release_x86|Any CPU.ActiveCfg = Release|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Release_x86|Any CPU.Build.0 = Release|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}.Debug_x86|Any CPU.ActiveCfg = Debug_x86|Any CPU
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}.Debug_x86|Any CPU.Build.0 = Debug_x86|Any CPU
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -278,10 +297,12 @@ Global
 		{C378E546-9E5C-4FCE-B79E-EB396D43FB62} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{916DC5CE-D60E-44BE-B71D-E6A667BE838F} = {DD6C7641-EDB5-445C-8563-15068910979E}
+		{4F646402-2133-48D2-A68A-578E4992D55C} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{92BE47C0-7583-454C-BB1D-EC0AC241F9A5} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{1641DA06-F8F5-4094-8A2C-FCFDAC2D5E27} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{AFDEA84E-BDF7-4570-B237-9638FC67307D} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{4B00223A-2040-4409-968E-11035C3966E0} = {DD6C7641-EDB5-445C-8563-15068910979E}
+		{BE36C553-E2C0-4C35-86B9-9F75DDA5912E} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{0E1B2CC2-160F-4EA9-923B-641835B2218B} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{E500624B-9930-4F32-A73D-6397327A121F} = {DD6C7641-EDB5-445C-8563-15068910979E}

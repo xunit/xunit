@@ -3,8 +3,139 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
+#if XUNIT_IMMUTABLE_COLLECTIONS
+using System.Collections.Immutable;
+#endif
+
 public class SetAssertsTests
 {
+	public class Contains
+	{
+		[Fact]
+		public static void ValueInSet()
+		{
+			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "forty-two" };
+
+			Assert.Contains("FORTY-two", set);
+			Assert.Contains("FORTY-two", (ISet<string>)set);
+#if NET5_0_OR_GREATER
+			Assert.Contains("FORTY-two", (IReadOnlySet<string>)set);
+#endif
+#if XUNIT_IMMUTABLE_COLLECTIONS
+			Assert.Contains("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase));
+#endif
+		}
+
+		[Fact]
+		public static void ValueNotInSet()
+		{
+			var set = new HashSet<string>() { "eleventeen" };
+
+			var ex = Record.Exception(() => Assert.Contains("FORTY-two", set));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure" + Environment.NewLine +
+				"Not found: FORTY-two" + Environment.NewLine +
+				"In value:  HashSet<String> [\"eleventeen\"]",
+				ex.Message
+			);
+
+			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", (ISet<string>)set));
+#if NET5_0_OR_GREATER
+			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", (IReadOnlySet<string>)set));
+#endif
+#if XUNIT_IMMUTABLE_COLLECTIONS
+			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", set.ToImmutableHashSet()));
+#endif
+		}
+	}
+
+	public class DoesNotContain
+	{
+		[Fact]
+		public static void ValueNotInSet()
+		{
+			var set = new HashSet<string>() { "eleventeen" };
+
+			Assert.DoesNotContain("FORTY-two", set);
+			Assert.DoesNotContain("FORTY-two", (ISet<string>)set);
+#if NET5_0_OR_GREATER
+			Assert.DoesNotContain("FORTY-two", (IReadOnlySet<string>)set);
+#endif
+#if XUNIT_IMMUTABLE_COLLECTIONS
+			Assert.DoesNotContain("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase));
+#endif
+		}
+
+		[Fact]
+		public static void ValueInSet()
+		{
+			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "forty-two" };
+
+			var ex = Record.Exception(() => Assert.DoesNotContain("FORTY-two", set));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure" + Environment.NewLine +
+				"Found:    FORTY-two" + Environment.NewLine +
+				"In value: HashSet<String> [\"forty-two\"]",
+				ex.Message
+			);
+
+			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", (ISet<string>)set));
+#if NET5_0_OR_GREATER
+			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", (IReadOnlySet<string>)set));
+#endif
+#if XUNIT_IMMUTABLE_COLLECTIONS
+			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase)));
+#endif
+		}
+	}
+
+	public class Equal
+	{
+		[Fact]
+		public static void InOrderSet()
+		{
+			var expected = new HashSet<int> { 1, 2, 3 };
+			var actual = new HashSet<int> { 1, 2, 3 };
+
+			Assert.Equal(expected, actual);
+			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+		}
+
+		[Fact]
+		public static void OutOfOrderSet()
+		{
+			var expected = new HashSet<int> { 1, 2, 3 };
+			var actual = new HashSet<int> { 2, 3, 1 };
+
+			Assert.Equal(expected, actual);
+			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+		}
+
+		[Fact]
+		public static void ExpectedLarger()
+		{
+			var expected = new HashSet<int> { 1, 2, 3 };
+			var actual = new HashSet<int> { 1, 2 };
+
+			Assert.NotEqual(expected, actual);
+			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+		}
+
+		[Fact]
+		public static void ActualLarger()
+		{
+			var expected = new HashSet<int> { 1, 2 };
+			var actual = new HashSet<int> { 1, 2, 3 };
+
+			Assert.NotEqual(expected, actual);
+			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+		}
+	}
+
 	public class Subset
 	{
 		[Fact]

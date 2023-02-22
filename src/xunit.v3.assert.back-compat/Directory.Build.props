@@ -6,6 +6,10 @@
   <PropertyGroup>
     <!-- LangVersion 6 aligns with C# as it existed in VS 2015. -->
     <LangVersion>6</LangVersion>
+
+    <!-- Sign assemblies so they can used if needed -->
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\signing.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>

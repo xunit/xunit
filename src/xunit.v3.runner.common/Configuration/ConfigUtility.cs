@@ -11,5 +11,5 @@ public static class ConfigUtility
 	/// Gets the regular expression that matches the multiplier-style value for maximum
 	/// parallel threads (that is, '0.5x', '2x', etc.).
 	/// </summary>
-	public static readonly Regex MultiplierStyleMaxParallelThreadsRegex = new("^(\\d+(\\.\\d+)?)(x|X)$");
+	public static readonly Regex MultiplierStyleMaxParallelThreadsRegex = new("^(\\d+((\\.|,)\\d+)?)(x|X)$");
 }
