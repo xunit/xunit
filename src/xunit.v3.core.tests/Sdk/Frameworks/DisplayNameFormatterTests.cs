@@ -150,6 +150,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), NameOf(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27) };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), NameOf(FormattedDisplayNameExample.TestNameShouldRemainUnchanged) };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), NameOf(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces) };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added) };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added) };
 			yield return new object?[] { NameOf(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), NameOf(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2) };
 		}
 		else
@@ -172,6 +174,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { nameof(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), nameof(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27) };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), nameof(FormattedDisplayNameExample.TestNameShouldRemainUnchanged) };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), nameof(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces) };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added) };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added) };
 			yield return new object?[] { nameof(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), nameof(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2) };
 		}
 	}
@@ -198,6 +202,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "FormattedDisplayNameExample, 'maxed out' should not be ambiguous with 'maí out'" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "FormattedDisplayNameExample, TestNameShouldRemainUnchanged" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "FormattedDisplayNameExample, Test Name With Spaces" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "FormattedDisplayNameExample, Parameter \"RETURN VALUE\" is always added" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "FormattedDisplayNameExample, Parameter \"RETURN VALUE \" is always added" };
 			yield return new object?[] { NameOf(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "Given a version number, when it equals 1, then it should be less than 2" };
 		}
 		else
@@ -220,6 +226,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { nameof(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "'maxed out' should not be ambiguous with 'maí out'" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "TestNameShouldRemainUnchanged" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "Test Name With Spaces" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "Parameter \"RETURN VALUE\" is always added" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "Parameter \"RETURN VALUE \" is always added" };
 			yield return new object?[] { nameof(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "then it should be less than 2" };
 		}
 	}
@@ -246,6 +254,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "FormattedDisplayNameExample.X27maxed outX27 should not be ambiguous with X27maXED outX27" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "FormattedDisplayNameExample.TestNameShouldRemainUnchanged" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "FormattedDisplayNameExample.Parameter X22RETURN VALUEX22 is always added" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "FormattedDisplayNameExample.Parameter X22RETURN VALUE X22 is always added" };
 			yield return new object?[] { NameOf(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "Given a version number.when it equals 1.then it should be less than 2" };
 		}
 		else
@@ -268,6 +278,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { nameof(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "X27maxed outX27 should not be ambiguous with X27maXED outX27" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "TestNameShouldRemainUnchanged" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "TestX20NameX20WithU0020Spaces" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "Parameter X22RETURN VALUEX22 is always added" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "Parameter X22RETURN VALUE X22 is always added" };
 			yield return new object?[] { nameof(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "then it should be less than 2" };
 		}
 	}
@@ -294,6 +306,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "FormattedDisplayNameExample.X27maxed outX27 should not be ambiguous with X27maXED outX27" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "FormattedDisplayNameExample.TestNameShouldRemainUnchanged" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "FormattedDisplayNameExample.Parameter X22RETURN VALUEX22 is always added" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "FormattedDisplayNameExample.Parameter X22RETURN VALUE X22 is always added" };
 			yield return new object?[] { NameOf(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "Given a version number.when it equals 1.then it should be less than 2" };
 		}
 		else
@@ -316,6 +330,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { nameof(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "X27maxed outX27 should not be ambiguous with X27maXED outX27" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "TestNameShouldRemainUnchanged" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "TestX20NameX20WithU0020Spaces" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "Parameter X22RETURN VALUEX22 is always added" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "Parameter X22RETURN VALUE X22 is always added" };
 			yield return new object?[] { nameof(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "then it should be less than 2" };
 		}
 	}
@@ -342,6 +358,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "FormattedDisplayNameExample.'maxed out' should not be ambiguous with 'maí out'" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "FormattedDisplayNameExample.TestNameShouldRemainUnchanged" };
 			yield return new object?[] { NameOf(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "FormattedDisplayNameExample.Test Name With Spaces" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "FormattedDisplayNameExample.Parameter \"RETURN VALUE\" is always added" };
+			yield return new object?[] { NameOf(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "FormattedDisplayNameExample.Parameter \"RETURN VALUE \" is always added" };
 			yield return new object?[] { NameOf(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "Given a version number.when it equals 1.then it should be less than 2" };
 		}
 		else
@@ -364,6 +382,8 @@ public class DisplayNameFormatterTests
 			yield return new object?[] { nameof(FormattedDisplayNameExample.X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27), "'maxed out' should not be ambiguous with 'maí out'" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestNameShouldRemainUnchanged), "TestNameShouldRemainUnchanged" };
 			yield return new object?[] { nameof(FormattedDisplayNameExample.TestX20NameX20WithU0020Spaces), "Test Name With Spaces" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUEX22_is_always_added), "Parameter \"RETURN VALUE\" is always added" };
+			yield return new object?[] { nameof(FormattedDisplayNameExample.Parameter_X22RETURN_VALUE_X22_is_always_added), "Parameter \"RETURN VALUE \" is always added" };
 			yield return new object?[] { nameof(Given_a_version_number.when_it_equals_1.then_it_should_be_less_than_2), "then it should be less than 2" };
 		}
 	}
@@ -389,6 +409,8 @@ public static class FormattedDisplayNameExample
 	public static void X27maxed_outX27_should_not_be_ambiguous_with_X27maXED_outX27() { }
 	public static void TestNameShouldRemainUnchanged() { }
 	public static void TestX20NameX20WithU0020Spaces() { }
+	public static void Parameter_X22RETURN_VALUEX22_is_always_added() { }
+	public static void Parameter_X22RETURN_VALUE_X22_is_always_added() { }
 }
 
 namespace Given_a_version_number
