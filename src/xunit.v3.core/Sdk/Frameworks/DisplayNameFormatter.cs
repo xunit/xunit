@@ -205,16 +205,10 @@ public class DisplayNameFormatter
 			}
 
 			if (consumed == 0)
-			{
 				Next?.Evaluate(context, character);
-			}
 			else
-			{
 				for (var i = 0; i < consumed; i++)
-				{
 					context.ReadNext();
-				}
-			}
 		}
 
 		static int TryConsumeEscapeSequence(
