@@ -17,6 +17,17 @@ public static class ReflectionExtensions
 	static readonly ConcurrentDictionary<Type, bool> isNullableCache = new();
 	static readonly ConcurrentDictionary<Type, bool> isNullableEnumCache = new();
 
+	/// <summary>
+	/// Enumerates the type and all its base types.
+	/// </summary>
+	/// <param name="type">The type to start enumerating from.</param>
+	/// <returns>A sequence of types.</returns>
+	static IEnumerable<_ITypeInfo> EnumerateTypeHierarchy(this _ITypeInfo type)
+	{
+		for (var current = type; current != null; current = current.BaseType)
+			yield return current;
+	}
+
 	/// <summary/>
 	public static bool Equal(
 		this _ITypeInfo? objA,
@@ -42,14 +53,6 @@ public static class ReflectionExtensions
 
 		return objA.Name == objB.FullName && (objA.Assembly.Name == objB.Assembly.FullName || objA.Assembly.Name == objB.Assembly.GetName().Name);
 	}
-
-	/// <summary>
-	/// Gets the ElementType of a type, only if it is an array.
-	/// </summary>
-	/// <param name="type">The type to get the ElementType of.</param>
-	/// <returns>If type is an array, the ElementType of the type, else the original type.</returns>
-	static _ITypeInfo? GetArrayElementTypeOrThis(_ITypeInfo? type) =>
-		type?.IsArray == true ? type.GetElementType() : type;
 
 	/// <summary/>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
@@ -388,62 +391,17 @@ public static class ReflectionExtensions
 	static bool ResolveGenericParameter(
 		this _ITypeInfo genericType,
 		_ITypeInfo methodParameterType,
-		_ITypeInfo? passedParameterType,
-		ref _ITypeInfo? resultType)
+		_ITypeInfo passedParameterType,
+		out _ITypeInfo? resultType)
 	{
-		// Is a parameter a generic array, e.g. T[] or List<T>[]
-		var isGenericArray = false;
-		var strippedMethodParameterType = StripElementType(methodParameterType, ref isGenericArray);
-
-		if (isGenericArray)
-			passedParameterType = GetArrayElementTypeOrThis(passedParameterType);
-
-		// Is the parameter generic type (e.g. List<T>, Dictionary<T, U>, List<T>[], List<string>)
-		if (strippedMethodParameterType.IsGenericType)
+		if (genericType.Equal(methodParameterType))
 		{
-			// We recursively drill down both the method parameter and the passed parameter
-			// to get and resolve inner generic arguments
-			// E.g. (List<T>, List<string>) -> (T, string)
-			// E.g. (List<List<T>, List<List<string>>) -> (List<T>, List<string>) -> (T, string)
-			var methodParameterGenericArguments = strippedMethodParameterType.GetGenericArguments().CastOrToArray();
-			var passedParameterGenericArguments = passedParameterType?.GetGenericArguments();
-
-			// We can't pass List<T> to Dictionary<T, U>
-			// But we can pass Class : Interface<T> to Interface<T>
-			if (methodParameterGenericArguments.Length != passedParameterGenericArguments?.Length)
-			{
-				if (genericType.ResolveMismatchedGenericArguments(passedParameterType, methodParameterGenericArguments, ref resultType))
-					return true;
-			}
-			else
-			{
-				for (var i = 0; i < methodParameterGenericArguments.Length; i++)
-				{
-					// Drill down through the generic arguments of the parameter provided,
-					// and find one matching the genericType
-					// This allows us to resolve complex generics with any number of parameters
-					// and at any level deep
-					// e.g. Dictionary<T, U>, Dictionary<string, U>, Dictionary<T, int> etc.
-					// e.g. Dictionary<Dictionary<T, U>, List<Dictionary<V, W>>
-					var methodGenericArgument = methodParameterGenericArguments[i];
-					var passedTypeArgument = passedParameterGenericArguments[i];
-
-					if (genericType.ResolveGenericParameter(methodGenericArgument, passedTypeArgument, ref resultType))
-						return true;
-				}
-			}
+			resultType = passedParameterType;
+			return true;
 		}
 
-		// Now finally check if we found a matching type (e.g. T -> T, List<T> -> List<T> etc.)
-		if (strippedMethodParameterType.IsGenericParameter && strippedMethodParameterType.Name == genericType.Name)
-		{
-			if (resultType == null)
-				resultType = passedParameterType;
-			else if (!resultType.Equal(passedParameterType))
-				resultType = null;
-		}
-
-		return resultType != null;
+		return genericType.ResolveMatchingElementType(methodParameterType, passedParameterType, out resultType)
+			|| genericType.ResolveMatchingGenericType(methodParameterType, passedParameterType, out resultType);
 	}
 
 	/// <summary>
@@ -464,12 +422,15 @@ public static class ReflectionExtensions
 
 		for (var idx = 0; idx < parameterInfos.Length; ++idx)
 		{
-			var methodParameterType = parameterInfos[idx].ParameterType;
-			var passedParameterType = Reflector.Wrap(parameters[idx]?.GetType());
-			_ITypeInfo? matchedType = null;
+			var parameter = parameters[idx];
+			if (parameter != null)
+			{
+				var methodParameterType = parameterInfos[idx].ParameterType;
+				var passedParameterType = Reflector.Wrap(parameter.GetType());
 
-			if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType) && matchedType != null)
-				return matchedType;
+				if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, out var matchedType))
+					return matchedType!;
+			}
 		}
 
 		return SerializationHelper.TypeInfo_Object;
@@ -501,50 +462,97 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary>
-	/// Resolves an individual generic type given an intended generic parameter type and the type of an object passed to that type.
+	/// Resolves an individual generic type given a type that has an element type, e.g. T[] or ref T.
 	/// </summary>
 	/// <param name="genericType">The generic type, e.g. T, to resolve.</param>
+	/// <param name="methodParameterType">The non-generic or open generic type, e.g. T, to try to match with the type of the object passed to that type.</param>
 	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
-	/// <param name="methodGenericTypeArguments">The generic arguments of the open generic type to match with the passed parameter.</param>
 	/// <param name="resultType">The resolved type.</param>
 	/// <returns>True if resolving was successful, else false.</returns>
-	static bool ResolveMismatchedGenericArguments(
+	static bool ResolveMatchingElementType(
 		this _ITypeInfo genericType,
-		_ITypeInfo? passedParameterType,
-		_ITypeInfo[] methodGenericTypeArguments,
-		ref _ITypeInfo? resultType)
+		_ITypeInfo methodParameterType,
+		_ITypeInfo passedParameterType,
+		out _ITypeInfo? resultType)
 	{
-		// Do we have Class : BaseClass<T>, Class: BaseClass<T, U> etc.
-		var baseType = passedParameterType?.BaseType;
-		if (baseType != null && baseType.IsGenericType)
+		var methodElementType = methodParameterType.GetElementType();
+		if (methodElementType != null)
 		{
-			var baseGenericTypeArguments = baseType.GetGenericArguments();
+			var passedElementType = passedParameterType;
+			if (methodParameterType.IsArray && passedParameterType.IsArray)
+				passedElementType = passedParameterType.GetElementType();
 
-			for (var i = 0; i < baseGenericTypeArguments.Length; i++)
+			if (passedElementType != null)
+				return genericType.ResolveGenericParameter(methodElementType, passedElementType, out resultType);
+		}
+
+		resultType = null;
+		return false;
+	}
+
+	/// <summary>
+	/// Resolves an individual generic type given the generic arguments and the type of an object passed to that type.
+	/// </summary>
+	/// <param name="genericType">The generic type, e.g. T, to resolve.</param>
+	/// <param name="methodParameterType">The open generic type to match with the passed parameter.</param>
+	/// <param name="methodParameterArguments">The generic arguments of the open generic type to match with the passed parameter.</param>
+	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
+	/// <param name="resultType">The resolved type.</param>
+	/// <returns>True if resolving was successful, else false.</returns>
+	static bool ResolveMatchingGenericArguments(
+		this _ITypeInfo genericType,
+		_ITypeInfo methodParameterType,
+		_ITypeInfo[] methodParameterArguments,
+		_ITypeInfo passedParameterType,
+		out _ITypeInfo? resultType)
+	{
+		if (passedParameterType.IsGenericType)
+		{
+			var passedParameterTypeDefinition = passedParameterType.GetGenericTypeDefinition();
+
+			if (methodParameterType.Equal(passedParameterTypeDefinition))
 			{
-				var methodGenericTypeArgument = methodGenericTypeArguments[i];
-				var baseGenericTypeArgument = baseGenericTypeArguments[i];
+				var passedParameterArguments = passedParameterType.GetGenericArguments();
 
-				if (genericType.ResolveGenericParameter(methodGenericTypeArgument, baseGenericTypeArgument, ref resultType))
-					return true;
+				for (var i = 0; i < methodParameterArguments.Length; i++)
+					if (genericType.ResolveGenericParameter(methodParameterArguments[i], passedParameterArguments[i], out resultType))
+						return true;
 			}
 		}
 
-		// Do we have Class : Interface<T>, Class : Interface<T, U> etc.
-		if (passedParameterType != null)
-			foreach (var interfaceType in passedParameterType.Interfaces.Where(i => i.IsGenericType))
-			{
-				var interfaceGenericArguments = interfaceType.GetGenericArguments();
-				for (var i = 0; i < interfaceGenericArguments.Length; i++)
-				{
-					var methodGenericTypeArgument = methodGenericTypeArguments[i];
-					var baseGenericTypeArgument = interfaceGenericArguments[i];
+		resultType = null;
+		return false;
+	}
 
-					if (genericType.ResolveGenericParameter(methodGenericTypeArgument, baseGenericTypeArgument, ref resultType))
-						return true;
-				}
-			}
+	/// <summary>
+	/// Resolves an individual generic type given a possibly nested generic type (e.g. List&lt;T&gt;, Dictionary&lt;T, List&lt;Ugt;gt;)
+	/// </summary>
+	/// <param name="genericType">The generic type, e.g. T, to resolve.</param>
+	/// <param name="methodParameterType">The non-generic or open generic type, e.g. T, to try to match with the type of the object passed to that type.</param>
+	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
+	/// <param name="resultType">The resolved type.</param>
+	/// <returns>True if resolving was successful, else false.</returns>
+	static bool ResolveMatchingGenericType(
+		this _ITypeInfo genericType,
+		_ITypeInfo methodParameterType,
+		_ITypeInfo passedParameterType,
+		out _ITypeInfo? resultType)
+	{
+		if (methodParameterType.IsGenericType)
+		{
+			var methodParameterTypeDefinition = methodParameterType.GetGenericTypeDefinition();
+			var methodParameterArguments = methodParameterType.GetGenericArguments();
 
+			var passedParameterTypeCandidates = passedParameterType
+				.EnumerateTypeHierarchy()
+				.Concat(passedParameterType.Interfaces);
+
+			foreach (var passedParameterTypeCandidate in passedParameterTypeCandidates)
+				if (genericType.ResolveMatchingGenericArguments(methodParameterTypeDefinition, methodParameterArguments, passedParameterTypeCandidate, out resultType))
+					return true;
+		}
+
+		resultType = null;
 		return false;
 	}
 
@@ -651,26 +659,6 @@ public static class ReflectionExtensions
 		Guard.ArgumentNotNull(type);
 
 		return type.FullName ?? type.Name;
-	}
-
-	/// <summary>
-	/// Gets the underlying ElementType of a type, if the <see cref="_ITypeInfo"/> supports reflection.
-	/// </summary>
-	/// <param name="type">The type to get the ElementType of.</param>
-	/// <param name="isArray">A flag indicating whether the type is an array.</param>
-	/// <returns>If type has an element type, underlying ElementType of a type, else the original type.</returns>
-	static _ITypeInfo StripElementType(
-		_ITypeInfo type,
-		ref bool isArray)
-	{
-		if (type is _IReflectionTypeInfo parameterReflectionType && parameterReflectionType.Type.HasElementType)
-		{
-			// We have a T[] or T&
-			isArray = parameterReflectionType.Type.IsArray;
-			return Reflector.Wrap(parameterReflectionType.Type.GetElementType()!);
-		}
-
-		return type;
 	}
 
 	/// <summary/>
