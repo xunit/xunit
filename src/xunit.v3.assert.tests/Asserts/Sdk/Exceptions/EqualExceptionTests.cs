@@ -205,7 +205,7 @@ public class EqualExceptionTests
 				"Assert.Equal() Failure" + Environment.NewLine +
 				"Expected: [1, 2, 3]" + Environment.NewLine +
 				"Actual:   [1, 2, 3, 4]" + Environment.NewLine +
-				"                    ↑ (pos 3)";
+				"                    ↑ (pos 3, length 4)";
 
 			var ex = Record.Exception(
 				() => Assert.Equal(
@@ -223,7 +223,7 @@ public class EqualExceptionTests
 		{
 			var expectedMessage =
 				"Assert.Equal() Failure" + Environment.NewLine +
-				"                    ↓ (pos 3)" + Environment.NewLine +
+				"                    ↓ (pos 3, length 4)" + Environment.NewLine +
 				"Expected: [1, 2, 3, 4]" + Environment.NewLine +
 				"Actual:   [1, 2, 3]";
 
