@@ -1,3 +1,4 @@
+using Xunit.Internal;
 using Xunit.v3;
 
 public class TestFailedWithDisplayName : _TestFailed, ITestResultWithDisplayName
@@ -23,4 +24,8 @@ public class TestFailedWithDisplayName : _TestFailed, ITestResultWithDisplayName
 	}
 
 	public string TestDisplayName { get; set; }
+
+	/// <inheritdoc/>
+	public override string ToString() =>
+		$"{GetType().Name}({TestUniqueID.Quoted()}, {TestDisplayName.Quoted()})";
 }

@@ -1,3 +1,4 @@
+using Xunit.Internal;
 using Xunit.v3;
 
 public class TestSkippedWithDisplayName : _TestSkipped, ITestResultWithDisplayName
@@ -19,4 +20,8 @@ public class TestSkippedWithDisplayName : _TestSkipped, ITestResultWithDisplayNa
 	}
 
 	public string TestDisplayName { get; set; }
+
+	/// <inheritdoc/>
+	public override string ToString() =>
+		$"{GetType().Name}({TestUniqueID.Quoted()}, {TestDisplayName.Quoted()})";
 }
