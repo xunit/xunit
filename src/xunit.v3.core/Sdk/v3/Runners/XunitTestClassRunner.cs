@@ -170,6 +170,7 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 				}
 				catch (Exception ex)
 				{
+					ctxt.ClassFixtureMappings[fixtureType] = new object();
 					throw new TestClassException($"Class fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
 				}
 			});

@@ -120,6 +120,8 @@ public class FixtureAcceptanceTests
 
 		class ClassWithThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
 		{
+			public ClassWithThrowingFixtureCtor(ThrowingCtorFixture _) { }
+
 			[Fact]
 			public void TheTest() { }
 		}
