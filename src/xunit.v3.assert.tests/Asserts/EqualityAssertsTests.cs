@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -372,6 +373,17 @@ public class EqualityAssertsTests
 			Assert.Equal(expected, (object)actual);
 			Assert.Equal(actual, expected);
 			Assert.Equal(actual, (object)expected);
+		}
+
+		[Fact]
+		public void Equals_IEnumerable()
+		{
+			var collectionA = new List<string> { "fooA", "barA" };
+			var collection = new List<string> { "foo", "bar" };
+
+			Assert.Equal(collection, collectionA,
+				(collection, collectionA) => collection.Count() == collectionA.Count()
+			);
 		}
 
 		[Fact]
