@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -1170,6 +1171,17 @@ public class EqualityAssertsTests
 			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
 			Assert.Equal("tolerance", ex.ParamName);
 		}
+	}
+	
+	[Fact]
+	public void Equals_IEnumerable()
+	{
+		var collectionA = new List<string> { "fooA", "barA" };
+		var collection = new List<string> { "foo", "bar" };
+
+		Assert.Equal(collection, collectionA,
+			(collection, collectionA) => collection.Count() == collectionA.Count()
+		);
 	}
 
 	public class StrictEqual
