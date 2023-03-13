@@ -818,6 +818,18 @@ public class CollectionAssertsTests
 			var actual = new RunOnceEnumerable<int>(expected);
 			Assert.Equal(expected, actual);
 		}
+		
+		[Fact]
+		public void Equals_IEnumerable()
+		{
+			var collectionA = new List<string> { "fooA", "barA" };
+			var collection = new List<string> { "foo", "bar" };
+
+			Assert.Equal(collection, collectionA,
+				(collection, collectionA) => collectionA.Contains(collection)
+			);
+			
+		}
 	}
 
 	public class EqualDictionary
