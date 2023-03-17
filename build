@@ -13,6 +13,11 @@ cleanup () {
 trap cleanup EXIT ERR INT TERM
 
 if which dotnet > /dev/null; then
+    if [ $(dotnet --version | cut -d. -f1) -lt 7 ]; then
+        echo "error(1): .NET SDK version $(dotnet --version) is too low; please install 7.0 or later"
+        exit 1
+    fi
+
     if [ `uname -o` = Msys ] || which mono > /dev/null ; then
         pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
         PUSHED=1
