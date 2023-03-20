@@ -8,7 +8,8 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 
 * _New to xUnit.net? Get started with [.NET Framework](https://xunit.net/docs/getting-started/netfx/visual-studio), [.NET Core](https://xunit.net/docs/getting-started/netcore/cmdline), and [devices](https://xunit.net/docs/getting-started/uwp/devices-runner)._
 * _Need some help building the source? See [BUILDING.md](BUILDING.md)._
-* _Want to contribute to the project? See [CONTRIBUTING.md](.github/CONTRIBUTING.md)._
+* _Want to contribute to the project? See [CONTRIBUTING.md](https://github.com/xunit/.github/tree/main/CONTRIBUTING.md)._
+* _Want to contribute to the assertion library? See the [suggested contribution workflow](https://github.com/xunit/assert.xunit/tree/main/README.md#suggested-contribution-workflow) in the assertion library project, as it is slightly more complex due to code being spread across two GitHub repositories._
 
 [<img src="https://raw.github.com/xunit/media/main/powered-by-ndepend-transparent.png" title="Powered by NDepend" width="142" />](http://www.ndepend.com/)
 
