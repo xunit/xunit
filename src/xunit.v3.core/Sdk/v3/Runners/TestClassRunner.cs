@@ -36,7 +36,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	protected virtual object?[] CreateTestClassConstructorArguments(TContext ctxt)
 	{
 		var isStaticClass = ctxt.Class.Type.IsAbstract && ctxt.Class.Type.IsSealed;
-		if (!isStaticClass)
+		if (!isStaticClass && !ctxt.Aggregator.HasExceptions)
 		{
 			var ctor = SelectTestClassConstructor(ctxt);
 			if (ctor != null)
