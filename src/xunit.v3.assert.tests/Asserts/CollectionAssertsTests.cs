@@ -826,7 +826,11 @@ public class CollectionAssertsTests
 			var collection = new List<string> { "foo", "bar" };
 
 			Assert.Equal(collection, collectionA,
-				(collection, collectionA) => collectionA.Contains(collection)
+				(collection, collectionA) =>
+				{
+					Assert.True(collectionA.Contains(collection));
+					Assert.Equal(collectionA.Length, 4);
+				}
 			);
 			
 		}
