@@ -504,7 +504,7 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int> { 42, 42 };
 
-			var ex = Assert.Throws<ContainsDuplicateException>(() => Assert.Distinct(list));
+			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list));
 
 			Assert.Equal(
 				"Assert.Distinct() Failure: The item 42 occurs multiple times in [42, 42].",
@@ -517,7 +517,7 @@ public class CollectionAssertsTests
 		{
 			var list = new List<string?> { "a", null, "b", null };
 
-			var ex = Assert.Throws<ContainsDuplicateException>(() => Assert.Distinct(list));
+			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list));
 
 			Assert.Equal(
 				"Assert.Distinct() Failure: The item null occurs multiple times in [\"a\", null, \"b\", null].",
@@ -539,7 +539,7 @@ public class CollectionAssertsTests
 		{
 			var list = new string[] { "a", "b", "A" };
 
-			var ex = Assert.Throws<ContainsDuplicateException>(() => Assert.Distinct(list, StringComparer.OrdinalIgnoreCase));
+			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list, StringComparer.OrdinalIgnoreCase));
 
 			Assert.Equal(
 				"Assert.Distinct() Failure: The item \"A\" occurs multiple times in [\"a\", \"b\", \"A\"].",
