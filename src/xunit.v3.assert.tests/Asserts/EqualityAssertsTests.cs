@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -1172,7 +1171,7 @@ public class EqualityAssertsTests
 			Assert.Equal("tolerance", ex.ParamName);
 		}
 	}
-	
+
 	public class StrictEqual
 	{
 		[Fact]
