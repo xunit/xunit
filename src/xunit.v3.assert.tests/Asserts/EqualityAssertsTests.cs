@@ -760,6 +760,150 @@ public class EqualityAssertsTests
 		}
 	}
 
+	public class Equal_WithEnumerablesAndDelegate
+	{
+		[Fact]
+		public void Success_SameType()
+		{
+			var expected = new int[] { 1, 2, 3 };
+			var actual = new int[] { 2, 3, 4 };
+
+			Assert.Equal(expected, actual,
+				(e, a) =>
+				{
+					Assert.Equal(e, a - 1);
+				});
+		}
+
+		[Fact]
+		public void Success_DifferentType()
+		{
+			var expected = new int[] { 1, 2, 3 };
+			var actual = new string[] { "1", "2", "3" };
+
+			Assert.Equal(expected, actual,
+				(e, a) =>
+				{
+					Assert.Equal(e, int.Parse(a));
+				});
+		}
+
+		[Fact]
+		public void Success_Null()
+		{
+			int[]? expected = null;
+			int[]? actual = null;
+
+			Assert.Equal(expected, actual,
+				(e, a) =>
+				{
+					Assert.Equal(e, a - 1);
+				});
+		}
+
+		[Fact]
+		public void Failure_ExpectedNullActualNotNull()
+		{
+			int[]? expected = null;
+			var actual = new int[] { 2, 3 };
+
+			var ex = Assert.Throws<NullException>(() =>
+			{
+				Assert.Equal(expected, actual,
+					(e, a) =>
+					{
+						Assert.Equal(e, a - 1);
+					});
+			});
+		}
+
+		[Fact]
+		public void Failure_ActualNullExpectedNotNull()
+		{
+			int[] expected = new int[] { 2, 3 };
+			int[]? actual = null;
+
+			var ex = Assert.Throws<NotNullException>(() =>
+			{
+				Assert.Equal(expected, actual,
+					(e, a) =>
+					{
+						Assert.Equal(e, a - 1);
+					});
+			});
+		}
+
+		[Fact]
+		public void Failure_MoreExpectedThanActual()
+		{
+			var expected = new int[] { 1, 2, 3 };
+			var actual = new int[] { 2, 3 };
+
+			var ex = Assert.Throws<EqualException>(() =>
+			{
+				Assert.Equal(expected, actual,
+					(e, a) =>
+					{
+						Assert.Equal(e, a - 1);
+					});
+			});
+
+			Assert.Equal("3", ex.Expected);
+			Assert.Equal("2", ex.Actual);
+		}
+
+		[Fact]
+		public void Failure_MoreActualThanExpected()
+		{
+			var expected = new int[] { 1, 2 };
+			var actual = new int[] { 2, 3, 4 };
+
+			var ex = Assert.Throws<EqualException>(() =>
+			{
+				Assert.Equal(expected, actual,
+					(e, a) =>
+					{
+						Assert.Equal(e, a - 1);
+					});
+			});
+
+			Assert.Equal("2", ex.Expected);
+			Assert.Equal("3", ex.Actual);
+		}
+
+		[Fact]
+		public void Failure_DelegateException()
+		{
+			var expected = new int[] { 1, 2, 3 };
+			var actual = new int[] { 2, 3, 4 };
+
+			var ex = Assert.Throws<EqualException>(() =>
+			{
+				Assert.Equal(expected, actual,
+					(e, a) =>
+					{
+						Assert.Equal(e, a);
+					});
+			});
+
+			Assert.Equal("1", ex.Expected);
+			Assert.Equal("2", ex.Actual);
+		}
+
+#if !XUNIT_NULLABLE
+		[Fact]
+		public void Failure_NullDelegate()
+		{
+			var expected = new int[] { 1, 2, 3 };
+			var actual = new int[] { 2, 3, 4 };
+
+			var ex = Assert.Throws<ArgumentNullException>(() => Assert.Equal(expected, actual, comparer: null));
+
+			Assert.Equal("comparer", ex.ParamName);
+		}
+#endif
+	}
+
 	public class Equal_DateTime
 	{
 		public class WithoutPrecision
