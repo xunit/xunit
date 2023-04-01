@@ -16,48 +16,41 @@ public class CollectionAssertsTests
 	public class All
 	{
 		[Fact]
-		public static void NullCollectionThrows()
+		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null!, _ => { }));
+			Assert.Throws<ArgumentNullException>(() => Assert.All(Array.Empty<object>(), (Action<object>)null!));
+			Assert.Throws<ArgumentNullException>(() => Assert.All(Array.Empty<object>(), (Action<object, int>)null!));
 		}
 
 		[Fact]
-		public static void NullActionThrows()
-		{
-			Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object>)null!));
-			Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object, int>)null!));
-		}
-
-		[Fact]
-		public static void ActionWhereSomeFail()
-		{
-			var items = new[] { 1, 1, 2, 2, 1, 1 };
-
-			var ex = Assert.Throws<AllException>(() => Assert.All(items, x => Assert.Equal(1, x)));
-
-			Assert.Equal(2, ex.Failures.Count);
-			Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
-		}
-
-		[Fact]
-		public static void ActionWhereNoneFail()
+		public static void Success()
 		{
 			var items = new[] { 1, 1, 1, 1, 1, 1 };
 
-			var ex = Record.Exception(() => Assert.All(items, x => Assert.Equal(1, x)));
-
-			Assert.Null(ex);
+			Assert.All(items, x => Assert.Equal(1, x));
 		}
 
 		[Fact]
-		public static void ActionWhereAllFail()
+		public static void Failure()
 		{
-			var items = new[] { 1, 1, 2, 2, 1, 1 };
+			var items = new[] { 1, 1, 42, 2112, 1, 1 };
 
-			var ex = Assert.Throws<AllException>(() => Assert.All(items, x => Assert.Equal(0, x)));
+			var ex = Record.Exception(() => Assert.All(items, item => Assert.Equal(1, item)));
 
-			Assert.Equal(6, ex.Failures.Count);
-			Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+			Assert.IsType<AllException>(ex);
+			Assert.Equal(
+				"Assert.All() Failure: 2 out of 6 items in the collection did not pass." + Environment.NewLine +
+				"[2]: Item:  42" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"            Expected: 1" + Environment.NewLine +
+				"            Actual:   42" + Environment.NewLine +
+				"[3]: Item:  2112" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"            Expected: 1" + Environment.NewLine +
+				"            Actual:   2112",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -66,22 +59,9 @@ public class CollectionAssertsTests
 			var items = new[] { 1, 1, 2, 2, 1, 1 };
 			var indices = new List<int>();
 
-			Assert.All(items, (x, idx) => indices.Add(idx));
+			Assert.All(items, (_, idx) => indices.Add(idx));
 
 			Assert.Equal(new[] { 0, 1, 2, 3, 4, 5 }, indices);
-		}
-
-		[Fact]
-		public static void CollectionWithNullThrowsAllException()
-		{
-			var collection = new object?[]
-			{
-				new object(),
-				null
-			};
-
-			var ex = Assert.Throws<AllException>(() => Assert.All(collection, Assert.NotNull));
-			Assert.Contains("[1]: Item: ", ex.Message);
 		}
 	}
 
@@ -89,60 +69,41 @@ public class CollectionAssertsTests
 	public class AllAsync
 	{
 		[Fact]
-		public static async ValueTask NullCollectionThrows()
+		public static async ValueTask GuardClauses()
 		{
 			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(Array.Empty<object>(), (Func<object, ValueTask>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(Array.Empty<object>(), (Func<object, int, ValueTask>)null!));
 		}
 
 		[Fact]
-		public static async ValueTask NullActionThrows()
-		{
-			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(new object[0], (Func<object, ValueTask>)null!));
-			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(new object[0], (Func<object, int, ValueTask>)null!));
-		}
-
-		[Fact]
-		public static async ValueTask ActionWhereSomeFail()
-		{
-			var items = new[] { 1, 1, 2, 2, 1, 1 };
-
-			var ex = await Assert.ThrowsAsync<AllException>(() => Assert.AllAsync(items, async x =>
-			{
-				await Task.Yield();
-				Assert.Equal(1, x);
-			}));
-
-			Assert.Equal(2, ex.Failures.Count);
-			Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
-		}
-
-		[Fact]
-		public static async ValueTask ActionWhereNoneFail()
+		public static async ValueTask Success()
 		{
 			var items = new[] { 1, 1, 1, 1, 1, 1 };
 
-			var ex = await Record.ExceptionAsync(() => Assert.AllAsync(items, async x =>
-			{
-				await Task.Yield();
-				Assert.Equal(1, x);
-			}));
-
-			Assert.Null(ex);
+			await Assert.AllAsync(items, async item => { await Task.Yield(); Assert.Equal(1, item); });
 		}
 
 		[Fact]
-		public static async ValueTask ActionWhereAllFail()
+		public static void Failure()
 		{
-			var items = new[] { 1, 1, 2, 2, 1, 1 };
+			var items = new[] { 1, 1, 42, 2112, 1, 1 };
 
-			var ex = await Assert.ThrowsAsync<AllException>(() => Assert.AllAsync(items, async x =>
-			{
-				await Task.Yield();
-				Assert.Equal(0, x);
-			}));
+			var ex = Record.Exception(() => Assert.All(items, x => Assert.Equal(1, x)));
 
-			Assert.Equal(6, ex.Failures.Count);
-			Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+			Assert.IsType<AllException>(ex);
+			Assert.Equal(
+				"Assert.All() Failure: 2 out of 6 items in the collection did not pass." + Environment.NewLine +
+				"[2]: Item:  42" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"            Expected: 1" + Environment.NewLine +
+				"            Actual:   42" + Environment.NewLine +
+				"[3]: Item:  2112" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"            Expected: 1" + Environment.NewLine +
+				"            Actual:   2112",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -151,30 +112,9 @@ public class CollectionAssertsTests
 			var items = new[] { 1, 1, 2, 2, 1, 1 };
 			var indices = new List<int>();
 
-			await Assert.AllAsync(items, async (x, idx) =>
-			{
-				await Task.Yield();
-				indices.Add(idx);
-			});
+			await Assert.AllAsync(items, async (_, idx) => { await Task.Yield(); indices.Add(idx); });
 
 			Assert.Equal(new[] { 0, 1, 2, 3, 4, 5 }, indices);
-		}
-
-		[Fact]
-		public static async ValueTask CollectionWithNullThrowsAllException()
-		{
-			var collection = new object?[]
-			{
-				new object(),
-				null
-			};
-
-			var ex = await Assert.ThrowsAsync<AllException>(() => Assert.AllAsync(collection, async x =>
-			{
-				await Task.Yield();
-				Assert.NotNull(x);
-			}));
-			Assert.Contains("[1]: Item: ", ex.Message);
 		}
 	}
 #endif
