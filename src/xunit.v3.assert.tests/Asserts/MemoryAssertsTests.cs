@@ -8,147 +8,182 @@ public class MemoryAssertsTests
 {
 	public class Contains
 	{
-		[Fact]
-		public void CanSearchForReadOnlyMemorySubstrings()
+		public class Strings
 		{
-			Assert.Contains("wor".AsMemory(), "Hello, world!".AsMemory());
+			[Fact]
+			public void ReadOnlyMemory_Success()
+			{
+				Assert.Contains("wor".AsMemory(), "Hello, world!".AsMemory());
+			}
+
+			[Fact]
+			public void ReadWriteMemory_Success()
+			{
+				Assert.Contains("wor".Memoryify(), "Hello, world!".Memoryify());
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_CaseSensitiveByDefault()
+			{
+				var ex = Record.Exception(() => Assert.Contains("WORLD".AsMemory(), "Hello, world!".AsMemory()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    Hello, world!" + Environment.NewLine +
+					"Not found: WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteMemory_CaseSensitiveByDefault()
+			{
+				var ex = Record.Exception(() => Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    Hello, world!" + Environment.NewLine +
+					"Not found: WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_CanSpecifyComparisonType()
+			{
+				Assert.Contains("WORLD".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			}
+
+			[Fact]
+			public void ReadWriteMemory_CanSpecifyComparisonType()
+			{
+				Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_NullStringIsEmpty()
+			{
+				var ex = Record.Exception(() => Assert.Contains("foo".AsMemory(), default(string).AsMemory()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    (empty string)" + Environment.NewLine +
+					"Not found: foo",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteMemory_NullStringIsEmpty()
+			{
+				var ex = Record.Exception(() => Assert.Contains("foo".Memoryify(), default(string).Memoryify()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    (empty string)" + Environment.NewLine +
+					"Not found: foo",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongStrings()
+			{
+				var ex = Record.Exception(
+					() => Assert.Contains(
+						"We are looking for something very long as well".Memoryify(),
+						"This is a relatively long string so that we can see the truncation in action".Memoryify()
+					)
+				);
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    This is a relatively long string so that ···" + Environment.NewLine +
+					"Not found: We are looking for something very long as···",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void CanSearchForMemorySubstrings()
+		public class NonStrings
 		{
-			Assert.Contains("wor".Memoryify(), "Hello, world!".Memoryify());
-		}
+			[Fact]
+			public void ReadOnlyMemoryOfInts_Success()
+			{
+				Assert.Contains(new int[] { 3, 4 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyContainsIsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD".AsMemory(), "Hello, world!".AsMemory()));
+			[Fact]
+			public void ReadOnlyMemoryOfStrings_Success()
+			{
+				Assert.Contains(new string[] { "test", "it" }.RoMemoryify(), new string[] { "something", "interesting", "test", "it", "out" }.RoMemoryify());
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    Hello, world!" + Environment.NewLine +
-				"Not found: WORLD",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadWriteMemoryOfInts_Success()
+			{
+				Assert.Contains(new int[] { 3, 4 }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify());
+			}
 
-		[Fact]
-		public void SubstringMemoryContainsIsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify()));
+			[Fact]
+			public void ReadWriteMemoryOfStrings_Success()
+			{
+				Assert.Contains(new string[] { "test", "it" }.Memoryify(), new string[] { "something", "interesting", "test", "it", "out" }.Memoryify());
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    Hello, world!" + Environment.NewLine +
-				"Not found: WORLD",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadOnlyMemoryOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
 
-		[Fact]
-		public void SubstringReadOnlyNotFound()
-		{
-			var ex = Record.Exception(() => Assert.Contains("hey".AsMemory(), "Hello, world!".AsMemory()));
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
+					"Memory:    [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Not found: [13, 14]",
+					ex.Message
+				);
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    Hello, world!" + Environment.NewLine +
-				"Not found: hey",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadWriteMemoryOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify()));
 
-		[Fact]
-		public void SubstringMemoryNotFound()
-		{
-			var ex = Record.Exception(() => Assert.Contains("hey".Memoryify(), "Hello, world!".Memoryify()));
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
+					"Memory:    [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Not found: [13, 14]",
+					ex.Message
+				);
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    Hello, world!" + Environment.NewLine +
-				"Not found: hey",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void FindingNonEmptyMemoryInsideEmptyMemoryFails()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 3, 4 }.Memoryify(), Memory<int>.Empty));
 
-		[Fact]
-		public void NullActualReadOnlyThrows()
-		{
-			var ex = Record.Exception(() => Assert.Contains("foo".AsMemory(), ((string?)null).AsMemory()));
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
+					"Memory:    []" + Environment.NewLine +
+					"Not found: [3, 4]",
+					ex.Message
+				);
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    (empty string)" + Environment.NewLine +
-				"Not found: foo",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void SuccessWithIntReadOnly()
-		{
-			Assert.Contains(new int[] { 3, 4, }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify());
-		}
-
-		[Fact]
-		public void SuccessWithStringReadOnly()
-		{
-			Assert.Contains(new string[] { "test", "it", }.RoMemoryify(), new string[] { "something", "interesting", "test", "it", "out", }.RoMemoryify());
-		}
-
-		[Fact]
-		public void SuccessWithIntMemory()
-		{
-			Assert.Contains(new int[] { 3, 4, }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify());
-		}
-
-		[Fact]
-		public void NotFoundWithIntReadOnly()
-		{
-			var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
-
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
-				"Memory:    [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
-				"Not found: [13, 14]",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void NotFoundWithNonStringMemory()
-		{
-			var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify()));
-
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
-				"Memory:    [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
-				"Not found: [13, 14]",
-				ex.Message
-			);
-		}
-	}
-
-	public class Contains_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForReadOnlySubstringsCaseInsensitive()
-		{
-			Assert.Contains("WORLD".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void CanSearchForMemorySubstringsCaseInsensitive()
-		{
-			Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			[Fact]
+			public void FindingEmptyMemoryInsideAnyMemorySucceeds()
+			{
+				Assert.Contains(Memory<int>.Empty, new int[] { 3, 4 }.Memoryify());
+				Assert.Contains(Memory<int>.Empty, Memory<int>.Empty);
+			}
 		}
 	}
 

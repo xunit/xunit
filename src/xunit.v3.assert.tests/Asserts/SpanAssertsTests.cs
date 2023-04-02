@@ -89,6 +89,25 @@ public class SpanAssertsTests
 					ex.Message
 				);
 			}
+
+			[Fact]
+			public void VeryLongStrings()
+			{
+				var ex = Record.Exception(
+					() => Assert.Contains(
+						"We are looking for something very long as well".Spanify(),
+						"This is a relatively long string so that we can see the truncation in action".Spanify()
+					)
+				);
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    This is a relatively long string so that ···" + Environment.NewLine +
+					"Not found: We are looking for something very long as···",
+					ex.Message
+				);
+			}
 		}
 
 		public class NonStrings

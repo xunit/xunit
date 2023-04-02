@@ -302,8 +302,9 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int> { 41, 43 };
 
-			var ex = Assert.Throws<ContainsException>(() => Assert.Contains(42, list));
+			var ex = Record.Exception(() => Assert.Contains(42, list));
 
+			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
 				"Assert.Contains() Failure: Item not found in collection" + Environment.NewLine +
 				"Collection: [41, 43]" + Environment.NewLine +
@@ -352,14 +353,13 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void DoesNotTryToCallICollectionContains()
+		public static void HashSetConstructorComparerIsIgnored()
 		{
 			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
-			// ICollection<T>.Contains would return true, but we're passing in a custom comparer to Assert.Contains
-			// (and ICollection<T>.Contains does not accept a comparer) so we should not attempt to use that result.
-			var ex = Assert.Throws<ContainsException>(() => Assert.Contains("HI THERE", set, StringComparer.Ordinal));
+			var ex = Record.Exception(() => Assert.Contains("HI THERE", set, StringComparer.Ordinal));
 
+			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
 				"Assert.Contains() Failure: Item not found in collection" + Environment.NewLine +
 				"Collection: [\"Hi there\"]" + Environment.NewLine +
@@ -386,7 +386,7 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void ItemFound_DoesNotThrow()
+		public static void ItemFound()
 		{
 			var list = new[] { "Hello", "world" };
 
@@ -394,11 +394,18 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void ItemNotFound_Throws()
+		public static void ItemNotFound()
 		{
 			var list = new[] { "Hello", "world" };
 
-			Assert.Throws<ContainsException>(() => Assert.Contains(list, item => item.StartsWith("q")));
+			var ex = Record.Exception(() => Assert.Contains(list, item => item.StartsWith("q")));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Filter not matched in collection" + Environment.NewLine +
+				"Collection: [\"Hello\", \"world\"]",
+				ex.Message
+			);
 		}
 	}
 
