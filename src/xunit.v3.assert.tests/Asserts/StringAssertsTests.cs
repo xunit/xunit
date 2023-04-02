@@ -105,9 +105,10 @@ public class StringAssertsTests
 
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    world" + Environment.NewLine +
-				"In value: Hello, world!",
+				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+				"               ↓ (pos 7)" + Environment.NewLine +
+				"String: Hello, world!" + Environment.NewLine +
+				"Found:  world",
 				ex.Message
 			);
 		}
@@ -117,6 +118,51 @@ public class StringAssertsTests
 		{
 			Assert.DoesNotContain("foo", (string?)null);
 		}
+
+		[Fact]
+		public void VeryLongString_FoundAtFront()
+		{
+			var ex = Record.Exception(() => Assert.DoesNotContain("world", "Hello, world from a very long string that will end up being truncated"));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+				"               ↓ (pos 7)" + Environment.NewLine +
+				"String: Hello, world from a very long string that will e···" + Environment.NewLine +
+				"Found:  world",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void VeryLongString_FoundInMiddle()
+		{
+			var ex = Record.Exception(() => Assert.DoesNotContain("world", "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction"));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+				"                               ↓ (pos 50)" + Environment.NewLine +
+				"String: ···ng that has 'Hello, world' placed in the middle so that we ca···" + Environment.NewLine +
+				"Found:  world",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void VeryLongString_FoundAtEnd()
+		{
+			var ex = Record.Exception(() => Assert.DoesNotContain("world", "This is a relatively long string that will from the front truncated, just to say 'Hello, world'"));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+				"                               ↓ (pos 89)" + Environment.NewLine +
+				"String: ···just to say 'Hello, world'" + Environment.NewLine +
+				"Found:  world",
+				ex.Message
+			);
+		}
 	}
 
 	public class DoesNotContain_WithComparisonType
@@ -124,7 +170,16 @@ public class StringAssertsTests
 		[Fact]
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase));
+			var ex = Record.Exception(() => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+				"               ↓ (pos 7)" + Environment.NewLine +
+				"String: Hello, world!" + Environment.NewLine +
+				"Found:  WORLD",
+				ex.Message
+			);
 		}
 	}
 

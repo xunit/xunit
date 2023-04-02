@@ -502,13 +502,14 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int> { 42 };
 
-			DoesNotContainException ex =
-				Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(42, list));
+			var ex = Record.Exception(() => Assert.DoesNotContain(42, list));
 
+			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    42" + Environment.NewLine +
-				"In value: List<Int32> [42]",
+				"Assert.DoesNotContain() Failure: Item found in collection" + Environment.NewLine +
+				"             ↓ (pos 0)" + Environment.NewLine +
+				"Collection: [42]" + Environment.NewLine +
+				"Found:      42",
 				ex.Message
 			);
 		}
@@ -530,40 +531,21 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void ICollectionContainsIsTrueButContainsWithDefaultComparerIsFalse()
+		public static void HashSetIsTreatedSpecially()
 		{
+			// HashSet.Contains() is a custom implementation since the comparer is passed
+			// to the constructor. If this comes in via the IEnumerable<T> overload, we want
+			// to make sure it still gets treated like a HashSet.
 			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
-			// ICollection<T>.Contains is called if the container implements ICollection<T>.
-			// If either ICollection<T>.Contains or the default equality comparer report that
-			// the collection has the item, the assert should fail.
-			var ex = Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("HI THERE", set));
+			var ex = Record.Exception(() => Assert.DoesNotContain("HI THERE", set));
 
+			Assert.IsType<DoesNotContainException>(ex);
+			// Note: There is no pointer for sets, unlike other collections
 			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    HI THERE" + Environment.NewLine +
-				"In value: HashSet<String> [\"Hi there\"]",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public static void ICollectionContainsIsFalseButContainsWithDefaultComparerIsTrue()
-		{
-			IEnumerable<int[]> collections = new[]
-			{
-				new[] { 1, 2, 3, 4 }
-			};
-
-			// ICollection<T>.Contains is called if the container implements ICollection<T>.
-			// If either ICollection<T>.Contains or the default equality comparer report that
-			// the collection has the item, the assert should fail.
-			var ex = Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new[] { 1, 2, 3, 4 }, collections));
-
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    Int32[] [1, 2, 3, 4]" + Environment.NewLine +
-				"In value: Int32[][] [[1, 2, 3, 4]]",
+				"Assert.DoesNotContain() Failure: Item found in set" + Environment.NewLine +
+				"Set:   [\"Hi there\"]" + Environment.NewLine +
+				"Found: \"HI THERE\"",
 				ex.Message
 			);
 		}
@@ -589,12 +571,10 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void DoesNotTryToCallICollectionContains()
+		public static void HashSetConstructorComparerIsIgnored()
 		{
 			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
-			// ICollection<T>.Contains would return true, but we're passing in a custom comparer to Assert.DoesNotContain
-			// (and ICollection<T>.Contains does not accept a comparer) so we should not attempt to use that result.
 			Assert.DoesNotContain("HI THERE", set, StringComparer.Ordinal);
 		}
 
@@ -616,15 +596,23 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void ItemFound_Throws()
+		public static void ItemFound()
 		{
 			var list = new[] { "Hello", "world" };
 
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(list, item => item.StartsWith("w")));
+			var ex = Record.Exception(() => Assert.DoesNotContain(list, item => item.StartsWith("w")));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure: Filter matched in collection" + Environment.NewLine +
+				"                      ↓ (pos 1)" + Environment.NewLine +
+				"Collection: [\"Hello\", \"world\"]",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public static void ItemNotFound_DoesNotThrow()
+		public static void ItemNotFound()
 		{
 			var list = new[] { "Hello", "world" };
 

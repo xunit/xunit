@@ -1,6 +1,8 @@
 #if XUNIT_SPAN
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -189,106 +191,228 @@ public class SpanAssertsTests
 
 	public class DoesNotContain
 	{
-		[Fact]
-		public void CanSearchForReadOnlySubstrings()
+		public class Strings
 		{
-			Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".AsSpan());
+			[Fact]
+			public void ReadOnlySpan_Success()
+			{
+				Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".AsSpan());
+			}
+
+			[Fact]
+			public void ReadWriteSpan_Success()
+			{
+				Assert.DoesNotContain("hey".Spanify(), "Hello, world!".Spanify());
+			}
+
+			[Fact]
+			public void ReadOnlySpan_CaseSensitiveByDefault()
+			{
+				Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan());
+			}
+
+			[Fact]
+			public void ReadWriteSpan_CaseSensitiveByDefault()
+			{
+				Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify());
+			}
+
+			[Fact]
+			public void ReadOnlySpan_CanSpecifyComparisonType()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_CanSpecifyComparisonType()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_NullStringIsEmpty()
+			{
+				Assert.DoesNotContain("foo".AsSpan(), default(string).AsSpan());
+			}
+
+			[Fact]
+			public void ReadWriteSpan_NullStringIsEmpty()
+			{
+				Assert.DoesNotContain("foo".Spanify(), default(string).AsSpan());
+			}
+
+			[Fact]
+			public void VeryLongString_FoundAtFront()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world from a very long string that will end up being truncated".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world from a very long string that will e···" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongString_FoundInMiddle()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                               ↓ (pos 50)" + Environment.NewLine +
+					"String: ···ng that has 'Hello, world' placed in the middle so that we ca···" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongString_FoundAtEnd()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                               ↓ (pos 89)" + Environment.NewLine +
+					"String: ···just to say 'Hello, world'" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void CanSearchForSpanSubstrings()
+		public class NonStrings
 		{
-			Assert.DoesNotContain("hey".Spanify(), "Hello, world!".Spanify());
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Success()
+			{
+				Assert.DoesNotContain(new int[] { 13, 14 }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyDoesNotContainIsCaseSensitiveByDefault()
-		{
-			Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan());
-		}
+			[Fact]
+			public void ReadOnlySpanOfStrings_Success()
+			{
+				Assert.DoesNotContain(new string[] { "it", "test" }.RoSpanify(), new string[] { "something", "interesting", "test", "it", "out" }.RoSpanify());
+			}
 
-		[Fact]
-		public void SubstringSpanDoesNotContainIsCaseSensitiveByDefault()
-		{
-			Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify());
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Success()
+			{
+				Assert.DoesNotContain(new int[] { 13, 14 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyFound()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".AsSpan()));
-		}
+			[Fact]
+			public void ReadWriteSpanOfStrings_Success()
+			{
+				Assert.DoesNotContain(new string[] { "it", "test" }.Spanify(), new string[] { "something", "interesting", "test", "it", "out" }.Spanify());
+			}
 
-		[Fact]
-		public void SubstringSpanFound()
-		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
+			[Fact]
+			public void ReadOnlySpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify()));
 
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    world" + Environment.NewLine +
-				"In value: Hello, world!",
-				ex.Message
-			);
-		}
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
+					"              ↓ (pos 2)" + Environment.NewLine +
+					"Span:  [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Found: [3, 4]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void NullActualStringReadOnlyDoesNotThrow()
-		{
-			Assert.DoesNotContain("foo".AsSpan(), ((string?)null).AsSpan());
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
 
-		[Fact]
-		public void SuccessWithNonStringReadOnly()
-		{
-			Assert.DoesNotContain(new int[] { 13, 14, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify());
-		}
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
+					"              ↓ (pos 2)" + Environment.NewLine +
+					"Span:  [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Found: [3, 4]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SuccessWithNonStringSpan()
-		{
-			Assert.DoesNotContain(new int[] { 13, 14, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
-		}
+			[Fact]
+			public void FindingNonEmptySpanInsideEmptySpanSucceeds()
+			{
+				Assert.DoesNotContain(new int[] { 3, 4 }.Spanify(), Span<int>.Empty);
+			}
 
-		[Fact]
-		public void NotFoundWithNonStringReadOnly()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify()));
-		}
+			[Theory]
+			[InlineData(new[] { 3, 4 })]
+			[InlineData(new int[0])]
+			public void FindingEmptySpanInsideAnySpanFails(IEnumerable<int> data)
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(Span<int>.Empty, data.ToArray().Spanify()));
 
-		[Fact]
-		public void NotFoundWithNonStringSpan()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
-		}
-
-		[Fact]
-		public void FindingNonEmptySpanInsideEmptySpanSucceeds()
-		{
-			Assert.DoesNotContain(new int[] { 3, 4, }.Spanify(), Span<int>.Empty);
-		}
-
-		[Fact]
-		public void FindingEmptySpanInsideAnySpanFails()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(Span<int>.Empty, new int[] { 3, 4, }.Spanify()));
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(Span<int>.Empty, Span<int>.Empty));
-		}
-	}
-
-	public class DoesNotContain_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsReadOnlyCaseInsensitive()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
-		}
-
-		[Fact]
-		public void CanSearchForSubstringsSpanCaseInsensitive()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
+					"        ↓ (pos 0)" + Environment.NewLine +
+					"Span:  " + CollectionTracker<int>.FormatStart(data) + Environment.NewLine +
+					"Found: []",
+					ex.Message
+				);
+			}
 		}
 	}
 

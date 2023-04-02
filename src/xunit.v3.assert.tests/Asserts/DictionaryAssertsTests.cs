@@ -90,9 +90,9 @@ public class DictionaryAssertsTests
 
 			var ex = Assert.IsType<DoesNotContainException>(actual);
 			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    FORTY-two" + Environment.NewLine +
-				"In value: KeyCollection<String, Int32> [\"forty-two\"]",
+				"Assert.DoesNotContain() Failure: Key found in dictionary" + Environment.NewLine +
+				"Keys:  [\"forty-two\"]" + Environment.NewLine +
+				"Found: \"FORTY-two\"",
 				ex.Message
 			);
 

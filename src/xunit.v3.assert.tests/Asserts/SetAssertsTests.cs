@@ -77,9 +77,9 @@ public class SetAssertsTests
 
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    FORTY-two" + Environment.NewLine +
-				"In value: HashSet<String> [\"forty-two\"]",
+				"Assert.DoesNotContain() Failure: Item found in set" + Environment.NewLine +
+				"Set:   [\"forty-two\"]" + Environment.NewLine +
+				"Found: \"FORTY-two\"",
 				ex.Message
 			);
 

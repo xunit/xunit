@@ -1,6 +1,8 @@
 #if XUNIT_SPAN
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -189,85 +191,228 @@ public class MemoryAssertsTests
 
 	public class DoesNotContain
 	{
-		[Fact]
-		public void CanSearchForReadOnlySubstrings()
+		public class Strings
 		{
-			Assert.DoesNotContain("hey".AsMemory(), "Hello, world!".AsMemory());
+			[Fact]
+			public void ReadOnlyMemory_Success()
+			{
+				Assert.DoesNotContain("hey".AsMemory(), "Hello, world!".AsMemory());
+			}
+
+			[Fact]
+			public void ReadWriteMemory_Success()
+			{
+				Assert.DoesNotContain("hey".Memoryify(), "Hello, world!".Memoryify());
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_CaseSensitiveByDefault()
+			{
+				Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".AsMemory());
+			}
+
+			[Fact]
+			public void ReadWriteMemory_CaseSensitiveByDefault()
+			{
+				Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify());
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_CanSpecifyComparisonType()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteMemory_CanSpecifyComparisonType()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world!".AsMemory()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteMemory_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world!".Memoryify()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world!" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlyMemory_NullStringIsEmpty()
+			{
+				Assert.DoesNotContain("foo".AsMemory(), default(string).AsMemory());
+			}
+
+			[Fact]
+			public void ReadWriteMemory_NullStringIsEmpty()
+			{
+				Assert.DoesNotContain("foo".Memoryify(), default(string).Memoryify());
+			}
+
+			[Fact]
+			public void VeryLongString_FoundAtFront()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world from a very long string that will end up being truncated".Memoryify()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"               ↓ (pos 7)" + Environment.NewLine +
+					"String: Hello, world from a very long string that will e···" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongString_FoundInMiddle()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Memoryify()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                               ↓ (pos 50)" + Environment.NewLine +
+					"String: ···ng that has 'Hello, world' placed in the middle so that we ca···" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongString_FoundAtEnd()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Memoryify()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                               ↓ (pos 89)" + Environment.NewLine +
+					"String: ···just to say 'Hello, world'" + Environment.NewLine +
+					"Found:  world",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void CanSearchForMemorySubstrings()
+		public class NonStrings
 		{
-			Assert.DoesNotContain("hey".Memoryify(), "Hello, world!".Memoryify());
-		}
+			[Fact]
+			public void ReadOnlyMemoryOfInts_Success()
+			{
+				Assert.DoesNotContain(new int[] { 13, 14 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyDoesNotContainIsCaseSensitiveByDefault()
-		{
-			Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".AsMemory());
-		}
+			[Fact]
+			public void ReadOnlyMemoryOfStrings_Success()
+			{
+				Assert.DoesNotContain(new string[] { "it", "test" }.RoMemoryify(), new string[] { "something", "interesting", "test", "it", "out" }.RoMemoryify());
+			}
 
-		[Fact]
-		public void SubstringMemoryDoesNotContainIsCaseSensitiveByDefault()
-		{
-			Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify());
-		}
+			[Fact]
+			public void ReadWriteMemoryOfInts_Success()
+			{
+				Assert.DoesNotContain(new int[] { 13, 14 }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyFound()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world!".AsMemory()));
-		}
+			[Fact]
+			public void ReadWriteMemoryOfStrings_Success()
+			{
+				Assert.DoesNotContain(new string[] { "it", "test" }.Memoryify(), new string[] { "something", "interesting", "test", "it", "out" }.Memoryify());
+			}
 
-		[Fact]
-		public void SubstringMemoryFound()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world!".Memoryify()));
-		}
+			[Fact]
+			public void ReadOnlyMemoryOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
 
-		[Fact]
-		public void NullActualStringReadOnlyDoesNotThrow()
-		{
-			Assert.DoesNotContain("foo".AsMemory(), ((string?)null).AsMemory());
-		}
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-memory found" + Environment.NewLine +
+					"               ↓ (pos 2)" + Environment.NewLine +
+					"Memory: [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Found:  [3, 4]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SuccessWithNonStringReadOnly()
-		{
-			Assert.DoesNotContain(new int[] { 13, 14, }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify());
-		}
+			[Fact]
+			public void ReadWriteMemoryOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify()));
 
-		[Fact]
-		public void SuccessWithNonStringMemory()
-		{
-			Assert.DoesNotContain(new int[] { 13, 14, }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify());
-		}
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-memory found" + Environment.NewLine +
+					"               ↓ (pos 2)" + Environment.NewLine +
+					"Memory: [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Found:  [3, 4]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void NotFoundWithNonStringReadOnly()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
-		}
+			[Fact]
+			public void SearchingForNonEmptyMemoryInsideEmptyMemorySucceeds()
+			{
+				Assert.DoesNotContain(new int[] { 3, 4 }.Memoryify(), Memory<int>.Empty);
+			}
 
-		[Fact]
-		public void NotFoundWithNonStringMemory()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify()));
-		}
-	}
+			[Theory]
+			[InlineData(new[] { 3, 4 })]
+			[InlineData(new int[0])]
+			public void SearchForEmptyMemoryInsideAnyMemoryFails(IEnumerable<int> data)
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(Memory<int>.Empty, data.ToArray().Memoryify()));
 
-	public class DoesNotContain_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsReadOnlyCaseInsensitive()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase));
-		}
-
-		[Fact]
-		public void CanSearchForSubstringsMemoryCaseInsensitive()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase));
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-memory found" + Environment.NewLine +
+					"         ↓ (pos 0)" + Environment.NewLine +
+					"Memory: " + CollectionTracker<int>.FormatStart(data) + Environment.NewLine +
+					"Found:  []",
+					ex.Message
+				);
+			}
 		}
 	}
 
