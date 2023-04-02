@@ -427,7 +427,9 @@ public class CollectionAssertsTests
 			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list));
 
 			Assert.Equal(
-				"Assert.Distinct() Failure: The item 42 occurs multiple times in [42, 42].",
+				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
+				"Collection: [42, 42]" + Environment.NewLine +
+				"Item:       42",
 				ex.Message
 			);
 		}
@@ -435,12 +437,14 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void TwoNulls()
 		{
-			var list = new List<string?> { "a", null, "b", null };
+			var list = new List<string?> { "a", null, "b", null, "c", "d" };
 
 			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list));
 
 			Assert.Equal(
-				"Assert.Distinct() Failure: The item null occurs multiple times in [\"a\", null, \"b\", null].",
+				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
+				"Collection: [\"a\", null, \"b\", null, \"c\", ···]" + Environment.NewLine +
+				"Item:       null",
 				ex.Message
 			);
 		}
@@ -462,7 +466,9 @@ public class CollectionAssertsTests
 			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list, StringComparer.OrdinalIgnoreCase));
 
 			Assert.Equal(
-				"Assert.Distinct() Failure: The item \"A\" occurs multiple times in [\"a\", \"b\", \"A\"].",
+				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
+				"Collection: [\"a\", \"b\", \"A\"]" + Environment.NewLine +
+				"Item:       \"A\"",
 				ex.Message
 			);
 		}
