@@ -623,13 +623,13 @@ public class CollectionAssertsTests
 	public class Empty
 	{
 		[Fact]
-		public static void GuardClauses()
+		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Empty(null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Empty(default(IEnumerable)!));
 		}
 
 		[Fact]
-		public static void EmptyContainer()
+		public static void EmptyCollection()
 		{
 			var list = new List<int>();
 
@@ -637,37 +637,27 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void NonEmptyContainerThrows()
+		public static void NonEmptyCollection()
 		{
 			var list = new List<int> { 42 };
 
 			EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
 
-			Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Expected: <empty>{Environment.NewLine}Actual:   [42]", ex.Message);
+			Assert.Equal(
+				"Assert.Empty() Failure: Collection was not empty" + Environment.NewLine +
+				"Collection: [42]",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public static void EnumeratorDisposed()
+		public static void CollectionEnumeratorDisposed()
 		{
 			var enumerator = new SpyEnumerator<int>(Enumerable.Empty<int>());
 
 			Assert.Empty(enumerator);
 
 			Assert.True(enumerator.IsDisposed);
-		}
-
-		[Fact]
-		public static void EmptyString()
-		{
-			Assert.Empty("");
-		}
-
-		[Fact]
-		public static void NonEmptyStringThrows()
-		{
-			EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
-
-			Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Expected: <empty>{Environment.NewLine}Actual:   \"Foo\"", ex.Message);
 		}
 	}
 

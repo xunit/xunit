@@ -243,6 +243,33 @@ public class StringAssertsTests
 		}
 	}
 
+	public class Empty
+	{
+		[Fact]
+		public static void GuardClause()
+		{
+			Assert.Throws<ArgumentNullException>("value", () => Assert.Empty(default(string)!));
+		}
+
+		[Fact]
+		public static void EmptyString()
+		{
+			Assert.Empty("");
+		}
+
+		[Fact]
+		public static void NonEmptyString()
+		{
+			EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
+
+			Assert.Equal(
+				"Assert.Empty() Failure: String was not empty" + Environment.NewLine +
+				"String: Foo",
+				ex.Message
+			);
+		}
+	}
+
 	public class Equal
 	{
 		[Theory]
