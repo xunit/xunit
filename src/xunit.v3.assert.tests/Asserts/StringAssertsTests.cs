@@ -183,6 +183,66 @@ public class StringAssertsTests
 		}
 	}
 
+	public class DoesNotMatch_WithString
+	{
+		[Fact]
+		public void GuardClause()
+		{
+			Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((string?)null!, "Hello, world!"));
+		}
+
+		[Fact]
+		public void Success()
+		{
+			Assert.DoesNotMatch(@"\d", "Hello");
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.DoesNotMatch(@"ll", "Hello, world!"));
+
+			Assert.IsType<DoesNotMatchException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotMatch() Failure: Match found" + Environment.NewLine +
+				"          ↓ (pos 2)" + Environment.NewLine +
+				"String: Hello, world!" + Environment.NewLine +
+				"RegEx:  ll",
+				ex.Message
+			);
+		}
+	}
+
+	public class DoesNotMatch_WithRegex
+	{
+		[Fact]
+		public void GuardClause()
+		{
+			Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((Regex?)null!, "Hello, world!"));
+		}
+
+		[Fact]
+		public void Success()
+		{
+			Assert.DoesNotMatch(new Regex(@"\d"), "Hello");
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.DoesNotMatch(new Regex(@"ll"), "Hello, world!"));
+
+			Assert.IsType<DoesNotMatchException>(ex);
+			Assert.Equal(
+				"Assert.DoesNotMatch() Failure: Match found" + Environment.NewLine +
+				"          ↓ (pos 2)" + Environment.NewLine +
+				"String: Hello, world!" + Environment.NewLine +
+				"RegEx:  ll",
+				ex.Message
+			);
+		}
+	}
+
 	public class Equal
 	{
 		[Theory]
@@ -424,66 +484,6 @@ public class StringAssertsTests
 			Assert.Equal(
 				"Assert.Matches() Failure:" + Environment.NewLine +
 				@"Regex: \d+" + Environment.NewLine +
-				"Value: Hello, world!",
-				ex.Message
-			);
-		}
-	}
-
-	public class DoesNotMatch_WithString
-	{
-		[Fact]
-		public void GuardClauses()
-		{
-			Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((string?)null!, "Hello, world!"));
-			Assert.DoesNotMatch(@"\w+", null);
-		}
-
-		[Fact]
-		public void Success()
-		{
-			Assert.DoesNotMatch(@"\d", "Hello");
-		}
-
-		[Fact]
-		public void Failure()
-		{
-			var ex = Record.Exception(() => Assert.DoesNotMatch(@"\w", "Hello, world!"));
-
-			Assert.IsType<DoesNotMatchException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotMatch() Failure:" + Environment.NewLine +
-				@"Regex: \w" + Environment.NewLine +
-				"Value: Hello, world!",
-				ex.Message
-			);
-		}
-	}
-
-	public class DoesNotMatch_WithRegex
-	{
-		[Fact]
-		public void GuardClauses()
-		{
-			Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((Regex?)null!, "Hello, world!"));
-			Assert.DoesNotMatch(new Regex(@"\w+"), null);
-		}
-
-		[Fact]
-		public void Success()
-		{
-			Assert.DoesNotMatch(new Regex(@"\d"), "Hello");
-		}
-
-		[Fact]
-		public void Failure()
-		{
-			var ex = Record.Exception(() => Assert.DoesNotMatch(new Regex(@"\w"), "Hello, world!"));
-
-			Assert.IsType<DoesNotMatchException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotMatch() Failure:" + Environment.NewLine +
-				@"Regex: \w" + Environment.NewLine +
 				"Value: Hello, world!",
 				ex.Message
 			);
