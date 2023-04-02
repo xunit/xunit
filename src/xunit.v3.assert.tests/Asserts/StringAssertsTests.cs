@@ -20,9 +20,9 @@ public class StringAssertsTests
 
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    Hello, world!" + Environment.NewLine +
+				"Not found: WORLD",
 				ex.Message
 			);
 		}
@@ -30,13 +30,29 @@ public class StringAssertsTests
 		[Fact]
 		public void SubstringNotFound()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey", "Hello, world!"));
+			var ex = Record.Exception(() => Assert.Contains("hey", "Hello, world!"));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    Hello, world!" + Environment.NewLine +
+				"Not found: hey",
+				ex.Message
+			);
 		}
 
 		[Fact]
 		public void NullActualStringThrows()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("foo", (string?)null));
+			var ex = Record.Exception(() => Assert.Contains("foo", default(string)));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    (null)" + Environment.NewLine +
+				"Not found: foo",
+				ex.Message
+			);
 		}
 	}
 

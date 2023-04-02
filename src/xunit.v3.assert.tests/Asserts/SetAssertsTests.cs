@@ -35,9 +35,9 @@ public class SetAssertsTests
 
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: FORTY-two" + Environment.NewLine +
-				"In value:  HashSet<String> [\"eleventeen\"]",
+				"Assert.Contains() Failure: Item not found in set" + Environment.NewLine +
+				"Set:       [\"eleventeen\"]" + Environment.NewLine +
+				"Not found: \"FORTY-two\"",
 				ex.Message
 			);
 

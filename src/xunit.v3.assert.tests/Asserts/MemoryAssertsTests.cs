@@ -27,9 +27,9 @@ public class MemoryAssertsTests
 
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    Hello, world!" + Environment.NewLine +
+				"Not found: WORLD",
 				ex.Message
 			);
 		}
@@ -41,9 +41,9 @@ public class MemoryAssertsTests
 
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    Hello, world!" + Environment.NewLine +
+				"Not found: WORLD",
 				ex.Message
 			);
 		}
@@ -51,19 +51,43 @@ public class MemoryAssertsTests
 		[Fact]
 		public void SubstringReadOnlyNotFound()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey".AsMemory(), "Hello, world!".AsMemory()));
+			var ex = Record.Exception(() => Assert.Contains("hey".AsMemory(), "Hello, world!".AsMemory()));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    Hello, world!" + Environment.NewLine +
+				"Not found: hey",
+				ex.Message
+			);
 		}
 
 		[Fact]
 		public void SubstringMemoryNotFound()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey".Memoryify(), "Hello, world!".Memoryify()));
+			var ex = Record.Exception(() => Assert.Contains("hey".Memoryify(), "Hello, world!".Memoryify()));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    Hello, world!" + Environment.NewLine +
+				"Not found: hey",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public void NullActualReadOnlyIntThrows()
+		public void NullActualReadOnlyThrows()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("foo".AsMemory(), ((string?)null).AsMemory()));
+			var ex = Record.Exception(() => Assert.Contains("foo".AsMemory(), ((string?)null).AsMemory()));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+				"String:    (empty string)" + Environment.NewLine +
+				"Not found: foo",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -87,13 +111,29 @@ public class MemoryAssertsTests
 		[Fact]
 		public void NotFoundWithIntReadOnly()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
+			var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
+				"Memory:    [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+				"Not found: [13, 14]",
+				ex.Message
+			);
 		}
 
 		[Fact]
 		public void NotFoundWithNonStringMemory()
 		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify()));
+			var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.Memoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Memoryify()));
+
+			Assert.IsType<ContainsException>(ex);
+			Assert.Equal(
+				"Assert.Contains() Failure: Sub-memory not found" + Environment.NewLine +
+				"Memory:    [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+				"Not found: [13, 14]",
+				ex.Message
+			);
 		}
 	}
 

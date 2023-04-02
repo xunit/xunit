@@ -42,9 +42,9 @@ public class DictionaryAssertsTests
 
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: FORTY-two" + Environment.NewLine +
-				"In value:  KeyCollection<String, Int32> [\"eleventeen\"]",
+				"Assert.Contains() Failure: Key not found in dictionary" + Environment.NewLine +
+				"Keys:      [\"eleventeen\"]" + Environment.NewLine +
+				"Not found: \"FORTY-two\"",
 				ex.Message
 			);
 

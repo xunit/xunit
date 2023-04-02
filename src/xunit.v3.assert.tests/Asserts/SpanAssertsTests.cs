@@ -8,120 +8,163 @@ public class SpanAssertsTests
 {
 	public class Contains
 	{
-		[Fact]
-		public void CanSearchForReadOnlySpanSubstrings()
+		public class Strings
 		{
-			Assert.Contains("wor".AsSpan(), "Hello, world!".AsSpan());
+			[Fact]
+			public void ReadOnlySpan_Success()
+			{
+				Assert.Contains("wor".AsSpan(), "Hello, world!".AsSpan());
+			}
+
+			[Fact]
+			public void ReadWriteSpan_Success()
+			{
+				Assert.Contains("wor".Spanify(), "Hello, world!".Spanify());
+			}
+
+			[Fact]
+			public void ReadOnlySpan_CaseSensitiveByDefault()
+			{
+				var ex = Record.Exception(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    Hello, world!" + Environment.NewLine +
+					"Not found: WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_CaseSensitiveByDefault()
+			{
+				var ex = Record.Exception(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    Hello, world!" + Environment.NewLine +
+					"Not found: WORLD",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_CanSpecifyComparisonType()
+			{
+				Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_CanSpecifyComparisonType()
+			{
+				Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_NullStringIsEmpty()
+			{
+				var ex = Record.Exception(() => Assert.Contains("foo".AsSpan(), default(string).AsSpan()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    (empty string)" + Environment.NewLine +
+					"Not found: foo",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_NullStringIsEmpty()
+			{
+				var ex = Record.Exception(() => Assert.Contains("foo".Spanify(), default(string).Spanify()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    (empty string)" + Environment.NewLine +
+					"Not found: foo",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void CanSearchForSpanSubstrings()
+		public class NonStrings
 		{
-			Assert.Contains("wor".Spanify(), "Hello, world!".Spanify());
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Success()
+			{
+				Assert.Contains(new int[] { 3, 4 }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyContainsIsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan()));
+			[Fact]
+			public void ReadOnlySpanOfStrings_Success()
+			{
+				Assert.Contains(new string[] { "test", "it" }.RoSpanify(), new string[] { "something", "interesting", "test", "it", "out" }.RoSpanify());
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Success()
+			{
+				Assert.Contains(new int[] { 3, 4 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
+			}
 
-		[Fact]
-		public void SubstringSpanContainsIsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify()));
+			[Fact]
+			public void ReadWriteSpanOfStrings_Success()
+			{
+				Assert.Contains(new string[] { "test", "it" }.Spanify(), new string[] { "something", "interesting", "test", "it", "out" }.Spanify());
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify()));
 
-		[Fact]
-		public void SubstringReadOnlyNotFound()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey".AsSpan(), "Hello, world!".AsSpan()));
-		}
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-span not found" + Environment.NewLine +
+					"Span:      [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Not found: [13, 14]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SubstringSpanNotFound()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey".Spanify(), "Hello, world!".Spanify()));
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
 
-		[Fact]
-		public void NullActualReadOnlyIntThrows()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("foo".AsSpan(), ((string?)null).AsSpan()));
-		}
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-span not found" + Environment.NewLine +
+					"Span:      [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Not found: [13, 14]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SuccessWithIntReadOnly()
-		{
-			Assert.Contains(new int[] { 3, 4, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify());
-		}
+			[Fact]
+			public void FindingNonEmptySpanInsideEmptySpanFails()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 3, 4 }.Spanify(), Span<int>.Empty));
 
-		[Fact]
-		public void SuccessWithStringReadOnly()
-		{
-			Assert.Contains(new string[] { "test", "it", }.RoSpanify(), new string[] { "something", "interesting", "test", "it", "out", }.RoSpanify());
-		}
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-span not found" + Environment.NewLine +
+					"Span:      []" + Environment.NewLine +
+					"Not found: [3, 4]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SuccessWithIntSpan()
-		{
-			Assert.Contains(new int[] { 3, 4, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
-		}
-
-		[Fact]
-		public void NotFoundWithIntReadOnly()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify()));
-		}
-
-		[Fact]
-		public void NotFoundWithNonStringSpan()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
-		}
-
-		[Fact]
-		public void FindingNonEmptySpanInsideEmptySpanFails()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 3, 4, }.Spanify(), Span<int>.Empty));
-		}
-
-		[Fact]
-		public void FindingEmptySpanInsideAnySpanSucceeds()
-		{
-			Assert.Contains(Span<int>.Empty, new int[] { 3, 4, }.Spanify());
-			Assert.Contains(Span<int>.Empty, Span<int>.Empty);
-		}
-	}
-
-	public class Contains_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForReadOnlySubstringsCaseInsensitive()
-		{
-			Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void CanSearchForSpanSubstringsCaseInsensitive()
-		{
-			Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			[Fact]
+			public void FindingEmptySpanInsideAnySpanSucceeds()
+			{
+				Assert.Contains(Span<int>.Empty, new int[] { 3, 4 }.Spanify());
+				Assert.Contains(Span<int>.Empty, Span<int>.Empty);
+			}
 		}
 	}
 

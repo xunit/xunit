@@ -305,9 +305,9 @@ public class CollectionAssertsTests
 			var ex = Assert.Throws<ContainsException>(() => Assert.Contains(42, list));
 
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: 42" + Environment.NewLine +
-				"In value:  List<Int32> [41, 43]",
+				"Assert.Contains() Failure: Item not found in collection" + Environment.NewLine +
+				"Collection: [41, 43]" + Environment.NewLine +
+				"Not found:  42",
 				ex.Message
 			);
 		}
@@ -321,28 +321,14 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void ICollectionContainsIsTrueButContainsWithDefaultComparerIsFalse()
+		public static void HashSetIsTreatedSpecially()
 		{
+			// HashSet.Contains() is a custom implementation since the comparer is passed
+			// to the constructor. If this comes in via the IEnumerable<T> overload, we want
+			// to make sure it still gets treated like a HashSet.
 			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
-			// ICollection<T>.Contains is called if the container implements ICollection<T>.
-			// If either ICollection<T>.Contains or the default equality comparer report that
-			// the collection has the item, the assert should pass.
 			Assert.Contains("HI THERE", set);
-		}
-
-		[Fact]
-		public static void ICollectionContainsIsFalseButContainsWithDefaultComparerIsTrue()
-		{
-			IEnumerable<int[]> collections = new[]
-			{
-				new[] { 1, 2, 3, 4 }
-			};
-
-			// ICollection<T>.Contains is called if the container implements ICollection<T>.
-			// If either ICollection<T>.Contains or the default equality comparer report that
-			// the collection has the item, the assert should pass.
-			Assert.Contains(new[] { 1, 2, 3, 4 }, collections);
 		}
 	}
 
@@ -375,9 +361,9 @@ public class CollectionAssertsTests
 			var ex = Assert.Throws<ContainsException>(() => Assert.Contains("HI THERE", set, StringComparer.Ordinal));
 
 			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: HI THERE" + Environment.NewLine +
-				"In value:  HashSet<String> [\"Hi there\"]",
+				"Assert.Contains() Failure: Item not found in collection" + Environment.NewLine +
+				"Collection: [\"Hi there\"]" + Environment.NewLine +
+				"Not found:  \"HI THERE\"",
 				ex.Message
 			);
 		}
