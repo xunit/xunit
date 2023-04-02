@@ -416,6 +416,131 @@ public class MemoryAssertsTests
 		}
 	}
 
+	public class EndsWith
+	{
+		[Fact]
+		public void ReadOnlyMemory_Success()
+		{
+			Assert.EndsWith("world!".AsMemory(), "Hello, world!".AsMemory());
+		}
+
+		[Fact]
+		public void ReadWriteMemory_Success()
+		{
+			Assert.EndsWith("world!".Memoryify(), "Hello, world!".Memoryify());
+		}
+
+		[Fact]
+		public void ReadOnlyMemory_CaseSensitiveByDefault()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".AsMemory()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       world!" + Environment.NewLine +
+				"Expected end: WORLD!",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadWriteMemory_CaseSensitiveByDefault()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".Memoryify()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       world!" + Environment.NewLine +
+				"Expected end: WORLD!",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadOnlyMemory_CanSpecifyComparisonType()
+		{
+			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void ReadWriteMemory_CanSpecifyComparisonType()
+		{
+			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void ReadOnlyMemory_Failure()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       Hello, world!" + Environment.NewLine +
+				"Expected end: hey",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadWriteMemory_Failure()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       Hello, world!" + Environment.NewLine +
+				"Expected end: hey",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadOnlyMemory_NullStringIsEmpty()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("foo".AsMemory(), null));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       (empty string)" + Environment.NewLine +
+				"Expected end: foo",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadWriteMemory_NullStringIsEmpty()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("foo".Memoryify(), null));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       (empty string)" + Environment.NewLine +
+				"Expected end: foo",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void LongStrings()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("This is a long string that we're looking for at the end".Memoryify(), "This is the long string that we expected to find this ending inside".Memoryify()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       ···at we expected to find this ending inside" + Environment.NewLine +
+				"Expected end: This is a long string that we're looking ···",
+				ex.Message
+			);
+		}
+	}
+
 	public class Equal
 	{
 		[Theory]
@@ -702,88 +827,6 @@ public class MemoryAssertsTests
 		public void CanSearchForSubstringsCaseInsensitiveMemory()
 		{
 			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
-		}
-	}
-
-	public class EndsWith
-	{
-		[Fact]
-		public void SuccessReadOnly()
-		{
-			Assert.EndsWith("world!".AsMemory(), "Hello, world!".AsMemory());
-		}
-
-		[Fact]
-		public void SuccessMemory()
-		{
-			Assert.EndsWith("world!".Memoryify(), "Hello, world!".Memoryify());
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefaultReadOnly()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".AsMemory()));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefaultMemory()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".Memoryify()));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void NotFoundReadOnly()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
-		}
-
-		[Fact]
-		public void NotFoundMemory()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsReadOnly()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo".AsMemory(), null));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsMemory()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo".Memoryify(), null));
-		}
-	}
-
-	public class EndsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveReadOnly()
-		{
-			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveMemory()
-		{
-			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

@@ -416,6 +416,131 @@ public class SpanAssertsTests
 		}
 	}
 
+	public class EndsWith
+	{
+		[Fact]
+		public void ReadOnlySpan_Success()
+		{
+			Assert.EndsWith("world!".AsSpan(), "Hello, world!".AsSpan());
+		}
+
+		[Fact]
+		public void ReadWriteSpan_Success()
+		{
+			Assert.EndsWith("world!".Spanify(), "Hello, world!".Spanify());
+		}
+
+		[Fact]
+		public void ReadOnlySpan_CaseSensitiveByDefault()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       world!" + Environment.NewLine +
+				"Expected end: WORLD!",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadWriteSpan_CaseSensitiveByDefault()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       world!" + Environment.NewLine +
+				"Expected end: WORLD!",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadOnlySpan_CanSpecifyComparisonType()
+		{
+			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void ReadWriteSpan_CanSpecifyComparisonType()
+		{
+			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void ReadOnlySpan_Failure()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       Hello, world!" + Environment.NewLine +
+				"Expected end: hey",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadWriteSpan_Failure()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       Hello, world!" + Environment.NewLine +
+				"Expected end: hey",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadOnlySpan_NullStringIsEmpty()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("foo".AsSpan(), null));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       (empty string)" + Environment.NewLine +
+				"Expected end: foo",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ReadWriteSpan_NullStringIsEmpty()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("foo".Spanify(), null));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       (empty string)" + Environment.NewLine +
+				"Expected end: foo",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void LongStrings()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("This is a long string that we're looking for at the end".Spanify(), "This is the long string that we expected to find this ending inside".Spanify()));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       ···at we expected to find this ending inside" + Environment.NewLine +
+				"Expected end: This is a long string that we're looking ···",
+				ex.Message
+			);
+		}
+	}
+
 	public class Equal
 	{
 		[Theory]
@@ -733,88 +858,6 @@ public class SpanAssertsTests
 		public void CanSearchForSubstringsCaseInsensitiveSpan()
 		{
 			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
-		}
-	}
-
-	public class EndsWith
-	{
-		[Fact]
-		public void SuccessReadOnly()
-		{
-			Assert.EndsWith("world!".AsSpan(), "Hello, world!".AsSpan());
-		}
-
-		[Fact]
-		public void SuccessSpan()
-		{
-			Assert.EndsWith("world!".Spanify(), "Hello, world!".Spanify());
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefaultReadOnly()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefaultSpan()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void NotFoundReadOnly()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
-		}
-
-		[Fact]
-		public void NotFoundSpan()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsReadOnly()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo".AsSpan(), null));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsSpan()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo".Spanify(), null));
-		}
-	}
-
-	public class EndsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveReadOnly()
-		{
-			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveSpan()
-		{
-			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

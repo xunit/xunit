@@ -270,6 +270,77 @@ public class StringAssertsTests
 		}
 	}
 
+	public class EndsWith
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.EndsWith("world!", "Hello, world!");
+		}
+
+		[Fact]
+		public void CaseSensitiveByDefault()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("WORLD!", "world!"));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       world!" + Environment.NewLine +
+				"Expected end: WORLD!",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void CanSpecifyComparisonType()
+		{
+			Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("hey", "Hello, world!"));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       Hello, world!" + Environment.NewLine +
+				"Expected end: hey",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void NullString()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("foo", null));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       (null)" + Environment.NewLine +
+				"Expected end: foo",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void LongStrings()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("This is a long string that we're looking for at the end", "This is the long string that we expected to find this ending inside"));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       ···at we expected to find this ending inside" + Environment.NewLine +
+				"Expected end: This is a long string that we're looking ···",
+				ex.Message
+			);
+		}
+	}
+
 	public class Equal
 	{
 		[Theory]
@@ -404,50 +475,6 @@ public class StringAssertsTests
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
 			Assert.StartsWith("HELLO", "Hello, world!", StringComparison.OrdinalIgnoreCase);
-		}
-	}
-
-	public class EndsWith
-	{
-		[Fact]
-		public void Success()
-		{
-			Assert.EndsWith("world!", "Hello, world!");
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!", "world!"));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void NotFound()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey", "Hello, world!"));
-		}
-
-		[Fact]
-		public void NullActualStringThrows()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo", null));
-		}
-	}
-
-	public class EndsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitive()
-		{
-			Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.OrdinalIgnoreCase);
 		}
 	}
 
