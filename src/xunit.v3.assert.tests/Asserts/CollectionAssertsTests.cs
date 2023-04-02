@@ -141,13 +141,11 @@ public class CollectionAssertsTests
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
-			Assert.Equal(1, collEx.ExpectedCount);
-			Assert.Equal(0, collEx.ActualCount);
 			Assert.Equal(
-				"Assert.Collection() Failure" + Environment.NewLine +
-				"Collection: []" + Environment.NewLine +
-				"Expected item count: 1" + Environment.NewLine +
-				"Actual item count:   0",
+				"Assert.Collection() Failure: Mismatched item count" + Environment.NewLine +
+				"Collection:     []" + Environment.NewLine +
+				"Expected count: 1" + Environment.NewLine +
+				"Actual count:   0",
 				collEx.Message
 			);
 			Assert.Null(collEx.InnerException);
@@ -177,14 +175,13 @@ public class CollectionAssertsTests
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
-			Assert.Equal(1, collEx.IndexFailurePoint);
 			Assert.Equal(
-				"Assert.Collection() Failure" + Environment.NewLine +
+				"Assert.Collection() Failure: Item comparison failure" + Environment.NewLine +
+				"                 ↓ (pos 1)" + Environment.NewLine +
 				"Collection: [42, 2112]" + Environment.NewLine +
-				"Error during comparison of item at index 1" + Environment.NewLine +
-				"Inner exception: Assert.Equal() Failure" + Environment.NewLine +
-				"        Expected: 2113" + Environment.NewLine +
-				"        Actual:   2112",
+				"Error:      Assert.Equal() Failure" + Environment.NewLine +
+				"            Expected: 2113" + Environment.NewLine +
+				"            Actual:   2112",
 				ex.Message
 			);
 		}
@@ -213,13 +210,11 @@ public class CollectionAssertsTests
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
-			Assert.Equal(1, collEx.ExpectedCount);
-			Assert.Equal(0, collEx.ActualCount);
 			Assert.Equal(
-				"Assert.Collection() Failure" + Environment.NewLine +
-				"Collection: []" + Environment.NewLine +
-				"Expected item count: 1" + Environment.NewLine +
-				"Actual item count:   0",
+				"Assert.Collection() Failure: Mismatched item count" + Environment.NewLine +
+				"Collection:     []" + Environment.NewLine +
+				"Expected count: 1" + Environment.NewLine +
+				"Actual count:   0",
 				collEx.Message
 			);
 			Assert.Null(collEx.InnerException);
@@ -251,28 +246,27 @@ public class CollectionAssertsTests
 
 			var ex = await Record.ExceptionAsync(() =>
 				 Assert.CollectionAsync(list,
-				 async item =>
-				 {
-					 await Task.Yield();
-					 Assert.Equal(42, item);
-				 },
-				 async item =>
-				 {
-					 await Task.Yield();
-					 Assert.Equal(2113, item);
-				 }
+					 async item =>
+					 {
+						 await Task.Yield();
+						 Assert.Equal(42, item);
+					 },
+					 async item =>
+					 {
+						 await Task.Yield();
+						 Assert.Equal(2113, item);
+					 }
 				 )
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
-			Assert.Equal(1, collEx.IndexFailurePoint);
 			Assert.Equal(
-				"Assert.Collection() Failure" + Environment.NewLine +
+				"Assert.Collection() Failure: Item comparison failure" + Environment.NewLine +
+				"                 ↓ (pos 1)" + Environment.NewLine +
 				"Collection: [42, 2112]" + Environment.NewLine +
-				"Error during comparison of item at index 1" + Environment.NewLine +
-				"Inner exception: Assert.Equal() Failure" + Environment.NewLine +
-				"        Expected: 2113" + Environment.NewLine +
-				"        Actual:   2112",
+				"Error:      Assert.Equal() Failure" + Environment.NewLine +
+				"            Expected: 2113" + Environment.NewLine +
+				"            Actual:   2112",
 				ex.Message
 			);
 		}
