@@ -298,7 +298,7 @@ public class SpanAssertsTests
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
 					"               ↓ (pos 7)" + Environment.NewLine +
-					"String: Hello, world from a very long string that will e···" + Environment.NewLine +
+					"String: Hello, world from a very long string that···" + Environment.NewLine +
 					"Found:  world",
 					ex.Message
 				);
@@ -313,7 +313,7 @@ public class SpanAssertsTests
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
 					"                               ↓ (pos 50)" + Environment.NewLine +
-					"String: ···ng that has 'Hello, world' placed in the middle so that we ca···" + Environment.NewLine +
+					"String: ···ng that has 'Hello, world' placed in the ···" + Environment.NewLine +
 					"Found:  world",
 					ex.Message
 				);
@@ -327,8 +327,8 @@ public class SpanAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"                               ↓ (pos 89)" + Environment.NewLine +
-					"String: ···just to say 'Hello, world'" + Environment.NewLine +
+					"                                              ↓ (pos 89)" + Environment.NewLine +
+					"String: ···ont truncated, just to say 'Hello, world'" + Environment.NewLine +
 					"Found:  world",
 					ex.Message
 				);
