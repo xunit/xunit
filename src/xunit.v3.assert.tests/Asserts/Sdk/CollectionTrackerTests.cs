@@ -10,7 +10,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var tracker = new CollectionTracker<int>(new[] { 42, 2112 });
+			var tracker = new[] { 42, 2112 }.AsTracker()!;
 
 			var result = tracker.FormatIndexedMismatch(2600, out var pointerIndent, ArgumentFormatter.MAX_DEPTH);
 
@@ -22,7 +22,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void SmallCollection_Start()
 		{
-			var tracker = new CollectionTracker<int>(new[] { 42, 2112 });
+			var tracker = new[] { 42, 2112 }.AsTracker()!;
 
 			var result = tracker.FormatIndexedMismatch(0, out var pointerIndent);
 
@@ -34,7 +34,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void LargeCollection_Start()
 		{
-			var tracker = new CollectionTracker<int>(new[] { 1, 2, 3, 4, 5, 6, 7 });
+			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker()!;
 
 			var result = tracker.FormatIndexedMismatch(1, out var pointerIndent);
 
@@ -46,7 +46,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void LargeCollection_Mid()
 		{
-			var tracker = new CollectionTracker<int>(new[] { 1, 2, 3, 4, 5, 6, 7 });
+			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker()!;
 
 			var result = tracker.FormatIndexedMismatch(3, out var pointerIndent);
 
@@ -58,7 +58,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void LargeCollection_End()
 		{
-			var tracker = new CollectionTracker<int>(new[] { 1, 2, 3, 4, 5, 6, 7 });
+			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker()!;
 
 			var result = tracker.FormatIndexedMismatch(6, out var pointerIndent);
 
@@ -136,7 +136,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void Empty()
 		{
-			var tracker = new CollectionTracker<object>(Array.Empty<object>());
+			var tracker = Array.Empty<object>().AsTracker()!;
 
 			Assert.Equal("[]", tracker.FormatStart());
 		}
@@ -144,7 +144,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var tracker = new CollectionTracker<object>(Array.Empty<object>());
+			var tracker = Array.Empty<object>().AsTracker()!;
 
 			Assert.Equal("[···]", tracker.FormatStart(ArgumentFormatter.MAX_DEPTH));
 		}
@@ -152,7 +152,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Short()
 		{
-			var tracker = new CollectionTracker<object>(new object[] { 1, 2.3M, "Hello, world!" });
+			var tracker = new object[] { 1, 2.3M, "Hello, world!" }.AsTracker()!;
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\"]", tracker.FormatStart());
 		}
@@ -160,7 +160,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Long()
 		{
-			var tracker = new CollectionTracker<object>(new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() });
+			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsTracker()!;
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, ···]", tracker.FormatStart());
 		}
