@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,7 +72,7 @@ public class ArgumentFormatterTests
 		[InlineData("\v", @"""\v""")] // vertical tab
 		[InlineData("\t", @"""\t""")] // tab
 		[InlineData("\f", @"""\f""")] // formfeed
-		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"...")] // truncation
+		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"···")] // truncation
 		[MemberData(nameof(StringValue_TestData), DisableDiscoveryEnumeration = true)]
 		public static void StringValue(string value, string expected)
 		{
@@ -254,12 +255,20 @@ public class ArgumentFormatterTests
 
 	public class Enumerables
 	{
-		[CulturedFact]
-		public static void EnumerableValue()
+		// Both tracked and untracked should be the same
+		public static TheoryData<IEnumerable> Collections = new()
+		{
+			new object[] { 1, 2.3M, "Hello, world!" },
+			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker()!,
+		};
+
+		[CulturedTheory]
+		[MemberData(nameof(Collections))]
+		public static void EnumerableValue(IEnumerable collection)
 		{
 			var expected = $"[1, {2.3M}, \"Hello, world!\"]";
 
-			Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
+			Assert.Equal(expected, ArgumentFormatter.Format(collection));
 		}
 
 		[CulturedFact]
@@ -278,7 +287,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void OnlyFirstFewValuesOfEnumerableAreRendered()
 		{
-			Assert.Equal("[0, 1, 2, 3, 4, ...]", ArgumentFormatter.Format(Enumerable.Range(0, int.MaxValue)));
+			Assert.Equal("[0, 1, 2, 3, 4, ···]", ArgumentFormatter.Format(Enumerable.Range(0, int.MaxValue)));
 		}
 
 		[CulturedFact]
@@ -288,7 +297,7 @@ public class ArgumentFormatterTests
 			looping[0] = 42;
 			looping[1] = looping;
 
-			Assert.Equal("[42, [42, [...]]]", ArgumentFormatter.Format(looping));
+			Assert.Equal("[42, [42, [···]]]", ArgumentFormatter.Format(looping));
 		}
 	}
 
@@ -355,7 +364,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void LimitsOutputToFirstFewValues()
 		{
-			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }}";
+			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ··· }}";
 
 			Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
 		}
@@ -386,7 +395,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
-			Assert.Equal("Looping { Me = Looping { Me = Looping { ... } } }", ArgumentFormatter.Format(new Looping()));
+			Assert.Equal("Looping { Me = Looping { Me = Looping { ··· } } }", ArgumentFormatter.Format(new Looping()));
 		}
 
 		public class Looping

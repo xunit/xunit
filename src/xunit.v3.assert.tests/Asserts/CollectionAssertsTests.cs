@@ -799,8 +799,8 @@ public class CollectionAssertsTests
 			var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
 			Assert.Equal(
 				"Assert.Equal() Failure" + Environment.NewLine +
-				"Expected: Dictionary<String, Int32> [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ...]" + Environment.NewLine +
-				"Actual:   Dictionary<String, Int32> [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ...]",
+				"Expected: Dictionary<String, Int32> [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]" + Environment.NewLine +
+				"Actual:   Dictionary<String, Int32> [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]",
 				ex.Message
 			);
 		}

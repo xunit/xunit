@@ -244,8 +244,8 @@ public class EqualExceptionTests
 			var expectedMessage =
 				"Assert.Equal() Failure" + Environment.NewLine +
 				"           ↓ (pos 0)" + Environment.NewLine +
-				"Expected: [1, 2, 3, 4, 5, ...]".Replace("'", "\"") + Environment.NewLine +
-				"Actual:   [99, 2, 3, 4, 5, ...]".Replace("'", "\"") + Environment.NewLine +
+				"Expected: [1, 2, 3, 4, 5, ···]".Replace("'", "\"") + Environment.NewLine +
+				"Actual:   [99, 2, 3, 4, 5, ···]".Replace("'", "\"") + Environment.NewLine +
 				"           ↑ (pos 0)";
 
 			var ex = Record.Exception(
@@ -265,8 +265,8 @@ public class EqualExceptionTests
 			var expectedMessage =
 				"Assert.Equal() Failure" + Environment.NewLine +
 				"                      ↓ (pos 3)" + Environment.NewLine +
-				"Expected: [..., 2, 3, 4, 5, 6, ...]".Replace("'", "\"") + Environment.NewLine +
-				"Actual:   [..., 2, 3, 99, 5, 6, ...]".Replace("'", "\"") + Environment.NewLine +
+				"Expected: [···, 2, 3, 4, 5, 6, ···]".Replace("'", "\"") + Environment.NewLine +
+				"Actual:   [···, 2, 3, 99, 5, 6, ···]".Replace("'", "\"") + Environment.NewLine +
 				"                      ↑ (pos 3)";
 
 			var ex = Record.Exception(
@@ -286,8 +286,8 @@ public class EqualExceptionTests
 			var expectedMessage =
 				"Assert.Equal() Failure" + Environment.NewLine +
 				"                            ↓ (pos 6)" + Environment.NewLine +
-				"Expected: [..., 3, 4, 5, 6, 7]".Replace("'", "\"") + Environment.NewLine +
-				"Actual:   [..., 3, 4, 5, 6, 99]".Replace("'", "\"") + Environment.NewLine +
+				"Expected: [···, 3, 4, 5, 6, 7]".Replace("'", "\"") + Environment.NewLine +
+				"Actual:   [···, 3, 4, 5, 6, 99]".Replace("'", "\"") + Environment.NewLine +
 				"                            ↑ (pos 6)";
 
 			var ex = Record.Exception(

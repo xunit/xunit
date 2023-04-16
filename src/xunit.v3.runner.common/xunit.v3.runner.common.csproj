@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\CollectionTracker.cs" LinkBase="Asserts\Sdk" />
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\CollectionTrackerExtensions.cs" LinkBase="Asserts\Sdk" />
   </ItemGroup>
 
   <ItemGroup>

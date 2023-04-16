@@ -24,7 +24,7 @@ public class StartsWithTests
 		var expectedMessage =
 			"Assert.StartsWith() Failure:" + Environment.NewLine +
 			"Expected: WORLD" + Environment.NewLine +
-			"Actual:   Hello...";
+			"Actual:   Hello···";
 
 		var ex = Record.Exception(() => Assert.StartsWith("WORLD", "Hello, world!"));
 
