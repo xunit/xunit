@@ -407,7 +407,7 @@ public class SpanAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
-					"        ↓ (pos 0)" + Environment.NewLine +
+					(data.Any() ? "        ↓ (pos 0)" + Environment.NewLine : "") +
 					"Span:  " + CollectionTracker<int>.FormatStart(data) + Environment.NewLine +
 					"Found: []",
 					ex.Message

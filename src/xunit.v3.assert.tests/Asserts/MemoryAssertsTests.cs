@@ -407,7 +407,7 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-memory found" + Environment.NewLine +
-					"         ↓ (pos 0)" + Environment.NewLine +
+					(data.Any() ? "         ↓ (pos 0)" + Environment.NewLine : "") +
 					"Memory: " + CollectionTracker<int>.FormatStart(data) + Environment.NewLine +
 					"Found:  []",
 					ex.Message
