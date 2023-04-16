@@ -712,9 +712,14 @@ public class ExceptionAssertsTests
 
 			var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal("paramName", eqEx.Expected);
-			Assert.Equal("paramName2", eqEx.Actual);
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+				"Expected: \"paramName\"" + Environment.NewLine +
+				"Actual:   \"paramName2\"" + Environment.NewLine +
+				"                    ↑ (pos 9)",
+				ex.Message
+			);
 		}
 	}
 
@@ -798,9 +803,14 @@ public class ExceptionAssertsTests
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal("paramName", eqEx.Expected);
-			Assert.Equal("paramName2", eqEx.Actual);
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+				"Expected: \"paramName\"" + Environment.NewLine +
+				"Actual:   \"paramName2\"" + Environment.NewLine +
+				"                    ↑ (pos 9)",
+				ex.Message
+			);
 		}
 	}
 
@@ -871,9 +881,14 @@ public class ExceptionAssertsTests
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal("paramName", eqEx.Expected);
-			Assert.Equal("paramName2", eqEx.Actual);
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+				"Expected: \"paramName\"" + Environment.NewLine +
+				"Actual:   \"paramName2\"" + Environment.NewLine +
+				"                    ↑ (pos 9)",
+				ex.Message
+			);
 		}
 	}
 #endif
@@ -900,9 +915,12 @@ public class ExceptionAssertsTests
 			var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
 			Assert.IsType<ThrowsException>(ex);
-			Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-							"Expected: typeof(System.ArgumentNullException)" + Environment.NewLine +
-							"Actual:   typeof(System.InvalidOperationException)", ex.Message);
+			Assert.Contains(
+				"Assert.Throws() Failure" + Environment.NewLine +
+				"Expected: typeof(System.ArgumentNullException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidOperationException)",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -942,9 +960,15 @@ public class ExceptionAssertsTests
 
 			var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal("paramName", eqEx.Expected);
-			Assert.Equal("paramName2", eqEx.Actual);
+			// TODO: Remove the dangling pointer?
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+				"Expected: \"paramName\"" + Environment.NewLine +
+				"Actual:   \"paramName2\"" + Environment.NewLine +
+				"                    ↑ (pos 9)",
+				ex.Message
+			);
 		}
 	}
 

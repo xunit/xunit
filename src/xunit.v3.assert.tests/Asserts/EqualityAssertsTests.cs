@@ -19,9 +19,38 @@ public class EqualityAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(42, 2112));
-			Assert.Equal("42", ex.Expected);
-			Assert.Equal("2112", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(42, 2112));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   2112",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ObjectEqual_FailureWithLongStringsDoesNotTruncateOrEscape()
+		{
+			var ex = Record.Exception(
+				() => Assert.Equal<object>(
+					$"This is a long{Environment.NewLine}string with{Environment.NewLine}new lines",
+					$"This is a long{Environment.NewLine}string with embedded{Environment.NewLine}new lines"
+				)
+			);
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				"Expected: This is a long" + Environment.NewLine +
+				"          string with" + Environment.NewLine +
+				"          new lines" + Environment.NewLine +
+				"Actual:   This is a long" + Environment.NewLine +
+				"          string with embedded" + Environment.NewLine +
+				"          new lines",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -729,7 +758,7 @@ public class EqualityAssertsTests
 		}
 	}
 
-	public class Equal_WithComparer
+	public class Equal_Comparer
 	{
 		[Fact]
 		public void Success()
@@ -740,9 +769,15 @@ public class EqualityAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(42, 42, new Comparer<int>(false)));
-			Assert.Equal("42", ex.Expected);
-			Assert.Equal("42", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(42, 42, new Comparer<int>(false)));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   42",
+				ex.Message
+			);
 		}
 
 		class Comparer<T> : IEqualityComparer<T>
@@ -779,9 +814,11 @@ public class EqualityAssertsTests
 				var expected = new DateTime(2023, 2, 11, 15, 4, 0);
 				var actual = new DateTime(2023, 2, 11, 15, 5, 0);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {expected}" + Environment.NewLine +
 					$"Actual:   {actual}",
 					ex.Message
@@ -810,16 +847,23 @@ public class EqualityAssertsTests
 				var precision = TimeSpan.FromMinutes(1);
 				var difference = TimeSpan.FromMinutes(2);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				// expected earlier than actual
+				var ex = Record.Exception(() => Assert.Equal(date1, date2, precision));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {date1}" + Environment.NewLine +
 					$"Actual:   {date2} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
-				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+
+				// expected later than actual
+				var ex2 = Record.Exception(() => Assert.Equal(date2, date1, precision));
+
+				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {date2}" + Environment.NewLine +
 					$"Actual:   {date1} (difference {difference} is larger than {precision})",
 					ex2.Message
@@ -848,9 +892,11 @@ public class EqualityAssertsTests
 				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
 				var actual = new DateTimeOffset(2023, 2, 11, 15, 5, 0, TimeSpan.Zero);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {expected}" + Environment.NewLine +
 					$"Actual:   {actual}",
 					ex.Message
@@ -875,9 +921,11 @@ public class EqualityAssertsTests
 				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
 				var actual = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.FromHours(1));
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {expected}" + Environment.NewLine +
 					$"Actual:   {actual}",
 					ex.Message
@@ -906,16 +954,23 @@ public class EqualityAssertsTests
 				var precision = TimeSpan.FromMinutes(1);
 				var difference = TimeSpan.FromMinutes(2);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				// expected earlier than actual
+				var ex = Record.Exception(() => Assert.Equal(date1, date2, precision));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {date1}" + Environment.NewLine +
 					$"Actual:   {date2} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
-				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+
+				// expected later than actual
+				var ex2 = Record.Exception(() => Assert.Equal(date2, date1, precision));
+
+				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {date2}" + Environment.NewLine +
 					$"Actual:   {date1} (difference {difference} is larger than {precision})",
 					ex2.Message
@@ -944,16 +999,23 @@ public class EqualityAssertsTests
 				var precision = TimeSpan.FromMinutes(1);
 				var difference = TimeSpan.FromHours(1);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				// expected earlier than actual
+				var ex = Record.Exception(() => Assert.Equal(date1, date2, precision));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {date1}" + Environment.NewLine +
 					$"Actual:   {date2} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
-				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+
+				// expected later than actual
+				var ex2 = Record.Exception(() => Assert.Equal(date2, date1, precision));
+
+				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					$"Expected: {date2}" + Environment.NewLine +
 					$"Actual:   {date1} (difference {difference} is larger than {precision})",
 					ex2.Message
@@ -973,9 +1035,15 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111M, 0.11444M, 3));
-			Assert.Equal($"{0.111M} (rounded from {0.11111M})", ex.Expected);
-			Assert.Equal($"{0.114M} (rounded from {0.11444M})", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.11111M, 0.11444M, 3));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.111M} (rounded from {0.11111M})" + Environment.NewLine +
+				$"Actual:   {0.114M} (rounded from {0.11444M})",
+				ex.Message
+			);
 		}
 	}
 
@@ -1003,9 +1071,15 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111, 0.11444, 3));
-			Assert.Equal($"{0.111M} (rounded from {0.11111})", ex.Expected);
-			Assert.Equal($"{0.114M} (rounded from {0.11444})", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.11111, 0.11444, 3));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.111} (rounded from {0.11111})" + Environment.NewLine +
+				$"Actual:   {0.114} (rounded from {0.11444})",
+				ex.Message
+			);
 		}
 	}
 
@@ -1026,9 +1100,15 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
-			Assert.Equal($"{0.1111} (rounded from {0.11113})", ex.Expected);
-			Assert.Equal($"{0.1112} (rounded from {0.11115})", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.1111} (rounded from {0.11113})" + Environment.NewLine +
+				$"Actual:   {0.1112} (rounded from {0.11115})",
+				ex.Message
+			);
 		}
 	}
 
@@ -1061,41 +1141,67 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 0.00001));
-			Assert.Equal($"{0.11113:G17}", ex.Expected);
-			Assert.Equal($"{0.11115:G17}", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.11113, 0.11115, 0.00001));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.11113:G17}" + Environment.NewLine +
+				$"Actual:   {0.11115:G17}",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_NaN()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208, double.NaN, 20000000.0));
-			Assert.Equal($"{20210102.2208:G17}", ex.Expected);
-			Assert.Equal($"NaN", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(20210102.2208, double.NaN, 20000000.0));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {20210102.2208:G17}" + Environment.NewLine +
+				$"Actual:   NaN",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_PositiveInfinity()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
-			Assert.Equal(double.PositiveInfinity.ToString(), ex.Expected);
-			Assert.Equal($"{77.7:G17}", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {double.PositiveInfinity}" + Environment.NewLine +
+				$"Actual:   {77.7:G17}",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_NegativeInfinity()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
-			Assert.Equal($"{0.0:G17}", ex.Expected);
-			Assert.Equal(double.NegativeInfinity.ToString(), ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.0:G17}" + Environment.NewLine +
+				$"Actual:   {double.NegativeInfinity}",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_InvalidTolerance()
 		{
-			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0, 1.0, double.NegativeInfinity));
+			var ex = Record.Exception(() => Assert.Equal(0.0, 1.0, double.NegativeInfinity));
+
+			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
-			Assert.Equal("tolerance", ex.ParamName);
+			Assert.Equal("tolerance", argEx.ParamName);
 		}
 	}
 
@@ -1134,75 +1240,67 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
-			Assert.Equal($"{0.11113f:G9}", ex.Expected);
-			Assert.Equal($"{0.11115f:G9}", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.11113f:G9}" + Environment.NewLine +
+				$"Actual:   {0.11115f:G9}",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_NaN()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
-			Assert.Equal($"{20210102.2208f:G9}", ex.Expected);
-			Assert.Equal($"NaN", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {20210102.2208f:G9}" + Environment.NewLine +
+				$"Actual:   NaN",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_PositiveInfinity()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
-			Assert.Equal(float.PositiveInfinity.ToString(), ex.Expected);
-			Assert.Equal($"{77.7f:G9}", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {float.PositiveInfinity}" + Environment.NewLine +
+				$"Actual:   {77.7f:G9}",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_NegativeInfinity()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
-			Assert.Equal($"{0.0f:G9}", ex.Expected);
-			Assert.Equal(float.NegativeInfinity.ToString(), ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.0f:G9}" + Environment.NewLine +
+				$"Actual:   {float.NegativeInfinity}",
+				ex.Message
+			);
 		}
 
 		[CulturedFact]
 		public void Failure_InvalidTolerance()
 		{
-			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
-			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
-			Assert.Equal("tolerance", ex.ParamName);
-		}
-	}
+			var ex = Record.Exception(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
 
-	public class StrictEqual
-	{
-		[Fact]
-		public static void Success()
-		{
-			Assert.StrictEqual(42, 42);
-		}
-
-		[Fact]
-		public static void Equals()
-		{
-			Assert.StrictEqual(new DerivedClass(), new BaseClass());
-		}
-
-		[Fact]
-		public static void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(42, 2112));
-			Assert.Equal("42", ex.Expected);
-			Assert.Equal("2112", ex.Actual);
-		}
-
-		[Fact]
-		public static void Collection_Failure()
-		{
-			var expected = new EnumerableClass("ploeh");
-			var actual = new EnumerableClass("fnaah");
-
-			var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(expected, actual));
-			Assert.Equal("EnumerableClass []", ex.Expected);
-			Assert.Equal("EnumerableClass []", ex.Actual);
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.StartsWith("Tolerance must be greater than or equal to zero", ex.Message);
+			Assert.Equal("tolerance", argEx.ParamName);
 		}
 	}
 
@@ -1237,8 +1335,21 @@ public class EqualityAssertsTests
 			var expected = new string[] { "foo", "bar" };
 			IReadOnlyCollection<string> actual = new ReadOnlyCollection<string>(expected);
 
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [\"foo\", \"bar\"]" + Environment.NewLine +
+					"Actual:   [\"foo\", \"bar\"]",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.NotEqual(expected, actual));
+			assertFailure(() => Assert.NotEqual(expected, (object)actual));
 		}
 
 		[Fact]
@@ -1257,8 +1368,21 @@ public class EqualityAssertsTests
 			var expected = new string[] { "foo", "bar" };
 			var actual = new object[] { "foo", "bar" };
 
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [\"foo\", \"bar\"]" + Environment.NewLine +
+					"Actual:   [\"foo\", \"bar\"]",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.NotEqual(expected, actual));
+			assertFailure(() => Assert.NotEqual(expected, (object)actual));
 		}
 
 		[Fact]
@@ -1327,7 +1451,7 @@ public class EqualityAssertsTests
 		}
 	}
 
-	public class NotEqual_WithComparer
+	public class NotEqual_Comparer
 	{
 		[Fact]
 		public void Success()
@@ -1362,10 +1486,11 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
+			var ex = Record.Exception(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
 
+			Assert.IsType<NotEqualException>(ex);
 			Assert.Equal(
-				"Assert.NotEqual() Failure" + Environment.NewLine +
+				$"Assert.NotEqual() Failure" + Environment.NewLine +
 				$"Expected: Not {0.11M} (rounded from {0.11111})" + Environment.NewLine +
 				$"Actual:   {0.11M} (rounded from {0.11444})",
 				ex.Message
@@ -1384,10 +1509,11 @@ public class EqualityAssertsTests
 		[CulturedFact]
 		public void Failure()
 		{
-			var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
+			var ex = Record.Exception(() => Assert.NotEqual(0.11111, 0.11444, 2));
 
+			Assert.IsType<NotEqualException>(ex);
 			Assert.Equal(
-				"Assert.NotEqual() Failure" + Environment.NewLine +
+				$"Assert.NotEqual() Failure" + Environment.NewLine +
 				$"Expected: Not {0.11M} (rounded from {0.11111})" + Environment.NewLine +
 				$"Actual:   {0.11M} (rounded from {0.11444})",
 				ex.Message
@@ -1426,11 +1552,59 @@ public class EqualityAssertsTests
 		[Fact]
 		public static void Collection()
 		{
-			var ex = Assert.Throws<NotEqualException>(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
+			var ex = Record.Exception(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
+
+			Assert.IsType<NotEqualException>(ex);
 			Assert.Equal(
 				@"Assert.NotEqual() Failure" + Environment.NewLine +
 				@"Expected: Not DerivedClass { }" + Environment.NewLine +
 				@"Actual:   BaseClass { }",
+				ex.Message
+			);
+		}
+	}
+
+	public class StrictEqual
+	{
+		[Fact]
+		public static void Success()
+		{
+			Assert.StrictEqual(42, 42);
+		}
+
+		[Fact]
+		public static void Equals()
+		{
+			Assert.StrictEqual(new DerivedClass(), new BaseClass());
+		}
+
+		[Fact]
+		public static void Failure()
+		{
+			var ex = Record.Exception(() => Assert.StrictEqual(42, 2112));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   2112",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void Collection_Failure()
+		{
+			var expected = new EnumerableClass("ploeh");
+			var actual = new EnumerableClass("fnaah");
+
+			var ex = Record.Exception(() => Assert.StrictEqual(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+				"Expected: []" + Environment.NewLine +
+				"Actual:   []",
 				ex.Message
 			);
 		}

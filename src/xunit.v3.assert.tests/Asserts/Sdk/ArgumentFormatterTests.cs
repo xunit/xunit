@@ -262,7 +262,7 @@ public class ArgumentFormatterTests
 			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker()!,
 		};
 
-		[CulturedTheory]
+		[CulturedTheory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(Collections))]
 		public static void EnumerableValue(IEnumerable collection)
 		{

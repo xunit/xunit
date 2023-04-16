@@ -32,8 +32,8 @@ public class MemoryAssertsTests
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
 					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-					"String:    Hello, world!" + Environment.NewLine +
-					"Not found: WORLD",
+					"String:    \"Hello, world!\"" + Environment.NewLine +
+					"Not found: \"WORLD\"",
 					ex.Message
 				);
 			}
@@ -46,8 +46,8 @@ public class MemoryAssertsTests
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
 					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-					"String:    Hello, world!" + Environment.NewLine +
-					"Not found: WORLD",
+					"String:    \"Hello, world!\"" + Environment.NewLine +
+					"Not found: \"WORLD\"",
 					ex.Message
 				);
 			}
@@ -72,8 +72,8 @@ public class MemoryAssertsTests
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
 					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-					"String:    (empty string)" + Environment.NewLine +
-					"Not found: foo",
+					"String:    \"\"" + Environment.NewLine +
+					"Not found: \"foo\"",
 					ex.Message
 				);
 			}
@@ -86,8 +86,8 @@ public class MemoryAssertsTests
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
 					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-					"String:    (empty string)" + Environment.NewLine +
-					"Not found: foo",
+					"String:    \"\"" + Environment.NewLine +
+					"Not found: \"foo\"",
 					ex.Message
 				);
 			}
@@ -105,8 +105,8 @@ public class MemoryAssertsTests
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
 					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-					"String:    This is a relatively long string so that ···" + Environment.NewLine +
-					"Not found: We are looking for something very long as···",
+					"String:    \"This is a relatively long string so that \"···" + Environment.NewLine +
+					"Not found: \"We are looking for something very long as\"···",
 					ex.Message
 				);
 			}
@@ -117,13 +117,13 @@ public class MemoryAssertsTests
 			[Fact]
 			public void ReadOnlyMemoryOfInts_Success()
 			{
-				Assert.Contains(new int[] { 3, 4 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify());
+				Assert.Contains(new int[] { 3, 4 }.AsMemory(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsMemory());
 			}
 
 			[Fact]
 			public void ReadOnlyMemoryOfStrings_Success()
 			{
-				Assert.Contains(new string[] { "test", "it" }.RoMemoryify(), new string[] { "something", "interesting", "test", "it", "out" }.RoMemoryify());
+				Assert.Contains(new string[] { "test", "it" }.AsMemory(), new string[] { "something", "interesting", "test", "it", "out" }.AsMemory());
 			}
 
 			[Fact]
@@ -141,7 +141,7 @@ public class MemoryAssertsTests
 			[Fact]
 			public void ReadOnlyMemoryOfInts_Failure()
 			{
-				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.AsMemory(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsMemory()));
 
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
@@ -225,9 +225,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"               ↓ (pos 7)" + Environment.NewLine +
-					"String: Hello, world!" + Environment.NewLine +
-					"Found:  WORLD",
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"WORLD\"",
 					ex.Message
 				);
 			}
@@ -240,9 +240,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"               ↓ (pos 7)" + Environment.NewLine +
-					"String: Hello, world!" + Environment.NewLine +
-					"Found:  WORLD",
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"WORLD\"",
 					ex.Message
 				);
 			}
@@ -255,9 +255,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"               ↓ (pos 7)" + Environment.NewLine +
-					"String: Hello, world!" + Environment.NewLine +
-					"Found:  world",
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"world\"",
 					ex.Message
 				);
 			}
@@ -270,9 +270,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"               ↓ (pos 7)" + Environment.NewLine +
-					"String: Hello, world!" + Environment.NewLine +
-					"Found:  world",
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"world\"",
 					ex.Message
 				);
 			}
@@ -297,9 +297,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"               ↓ (pos 7)" + Environment.NewLine +
-					"String: Hello, world from a very long string that···" + Environment.NewLine +
-					"Found:  world",
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world from a very long string that\"···" + Environment.NewLine +
+					"Found:  \"world\"",
 					ex.Message
 				);
 			}
@@ -312,9 +312,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"                               ↓ (pos 50)" + Environment.NewLine +
-					"String: ···ng that has 'Hello, world' placed in the ···" + Environment.NewLine +
-					"Found:  world",
+					"                                ↓ (pos 50)" + Environment.NewLine +
+					"String: ···\"ng that has 'Hello, world' placed in the \"···" + Environment.NewLine +
+					"Found:  \"world\"",
 					ex.Message
 				);
 			}
@@ -327,9 +327,9 @@ public class MemoryAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"                                              ↓ (pos 89)" + Environment.NewLine +
-					"String: ···ont truncated, just to say 'Hello, world'" + Environment.NewLine +
-					"Found:  world",
+					"                                               ↓ (pos 89)" + Environment.NewLine +
+					"String: ···\"ont truncated, just to say 'Hello, world'\"" + Environment.NewLine +
+					"Found:  \"world\"",
 					ex.Message
 				);
 			}
@@ -340,13 +340,13 @@ public class MemoryAssertsTests
 			[Fact]
 			public void ReadOnlyMemoryOfInts_Success()
 			{
-				Assert.DoesNotContain(new int[] { 13, 14 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify());
+				Assert.DoesNotContain(new int[] { 13, 14 }.AsMemory(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsMemory());
 			}
 
 			[Fact]
 			public void ReadOnlyMemoryOfStrings_Success()
 			{
-				Assert.DoesNotContain(new string[] { "it", "test" }.RoMemoryify(), new string[] { "something", "interesting", "test", "it", "out" }.RoMemoryify());
+				Assert.DoesNotContain(new string[] { "it", "test" }.AsMemory(), new string[] { "something", "interesting", "test", "it", "out" }.AsMemory());
 			}
 
 			[Fact]
@@ -364,7 +364,7 @@ public class MemoryAssertsTests
 			[Fact]
 			public void ReadOnlyMemoryOfInts_Failure()
 			{
-				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.RoMemoryify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoMemoryify()));
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.AsMemory(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsMemory()));
 
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
@@ -438,8 +438,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       world!" + Environment.NewLine +
-				"Expected end: WORLD!",
+				"String:       \"world!\"" + Environment.NewLine +
+				"Expected end: \"WORLD!\"",
 				ex.Message
 			);
 		}
@@ -452,8 +452,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       world!" + Environment.NewLine +
-				"Expected end: WORLD!",
+				"String:       \"world!\"" + Environment.NewLine +
+				"Expected end: \"WORLD!\"",
 				ex.Message
 			);
 		}
@@ -478,8 +478,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       Hello, world!" + Environment.NewLine +
-				"Expected end: hey",
+				"String:       \"Hello, world!\"" + Environment.NewLine +
+				"Expected end: \"hey\"",
 				ex.Message
 			);
 		}
@@ -492,8 +492,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       Hello, world!" + Environment.NewLine +
-				"Expected end: hey",
+				"String:       \"Hello, world!\"" + Environment.NewLine +
+				"Expected end: \"hey\"",
 				ex.Message
 			);
 		}
@@ -506,8 +506,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       (empty string)" + Environment.NewLine +
-				"Expected end: foo",
+				"String:       \"\"" + Environment.NewLine +
+				"Expected end: \"foo\"",
 				ex.Message
 			);
 		}
@@ -520,8 +520,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       (empty string)" + Environment.NewLine +
-				"Expected end: foo",
+				"String:       \"\"" + Environment.NewLine +
+				"Expected end: \"foo\"",
 				ex.Message
 			);
 		}
@@ -534,8 +534,8 @@ public class MemoryAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       ···at we expected to find this ending inside" + Environment.NewLine +
-				"Expected end: This is a long string that we're looking ···",
+				"String:       ···\"at we expected to find this ending inside\"" + Environment.NewLine +
+				"Expected end: \"This is a long string that we're looking \"···",
 				ex.Message
 			);
 		}
@@ -543,206 +543,308 @@ public class MemoryAssertsTests
 
 	public class Equal
 	{
-		[Theory]
-		// Null values
-		[InlineData(null, null, false, false, false)]
-		// Null ReadOnlyMemory<char> acts like an empty string
-		[InlineData(null, "", false, false, false)]
-		[InlineData("", null, false, false, false)]
-		// Empty values
-		[InlineData("", "", false, false, false)]
-		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
-		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
-		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
-		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
-		public void SuccessReadOnlyCases(string? value1, string? value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
+		public class Chars_TreatedLikeStrings
 		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.AsMemory(), value2.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2.AsMemory(), value1.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
+			[Theory]
+			// Null values
+			[InlineData(null, null, false, false, false, false)]
+			// Null ReadOnlySpan<char> acts like an empty string
+			[InlineData(null, "", false, false, false, false)]
+			[InlineData("", null, false, false, false, false)]
+			// Empty values
+			[InlineData("", "", false, false, false, false)]
+			// Identical values
+			[InlineData("foo", "foo", false, false, false, false)]
+			// Case differences
+			[InlineData("foo", "FoO", true, false, false, false)]
+			// Line ending differences
+			[InlineData("foo \r\n bar", "foo \r bar", false, true, false, false)]
+			[InlineData("foo \r\n bar", "foo \n bar", false, true, false, false)]
+			[InlineData("foo \n bar", "foo \r bar", false, true, false, false)]
+			// Whitespace differences
+			[InlineData(" ", "\t", false, false, true, false)]
+			[InlineData(" \t", "\t ", false, false, true, false)]
+			[InlineData("    ", "\t", false, false, true, false)]
+			[InlineData(" ", " \u180E", false, false, true, false)]
+			[InlineData(" \u180E", "\u180E ", false, false, true, false)]
+			[InlineData("    ", "\u180E", false, false, true, false)]
+			[InlineData(" ", " \u200B", false, false, true, false)]
+			[InlineData(" \u200B", "\u200B ", false, false, true, false)]
+			[InlineData("    ", "\u200B", false, false, true, false)]
+			[InlineData(" ", " \u200B\uFEFF", false, false, true, false)]
+			[InlineData(" \u180E", "\u200B\u202F\u1680\u180E ", false, false, true, false)]
+			[InlineData("\u2001\u2002\u2003\u2006\u2009    ", "\u200B", false, false, true, false)]
+			[InlineData("\u00A0\u200A\u2009\u2006\u2009    ", "\u200B", false, false, true, false)]
+			// The ogham space mark (\u1680) kind of looks like a faint dash, but Microsoft has put it
+			// inside the SpaceSeparator unicode category, so we also treat it as a space
+			[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true, false)]
+			[InlineData("\u1680", "\t", false, false, true, false)]
+			[InlineData("\u1680", "       ", false, false, true, false)]
+			// All whitespace differences
+			[InlineData("", "  ", false, false, false, true)]
+			[InlineData("", "  ", false, false, true, true)]
+			[InlineData("", "\t", false, false, true, true)]
+			[InlineData("foobar", "foo bar", false, false, true, true)]
+			public void Success(
+				string? value1,
+				string? value2,
+				bool ignoreCase,
+				bool ignoreLineEndingDifferences,
+				bool ignoreWhiteSpaceDifferences,
+				bool ignoreAllWhiteSpace)
+			{
+				// Run everything in both directions, as the values should be interchangeable when they're equal
+
+				// ReadOnlyMemory vs. ReadOnlyMemory
+				Assert.Equal(value1.AsMemory(), value2.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.AsMemory(), value1.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+
+				// ReadOnlyMemory vs. Memory
+				Assert.Equal(value1.AsMemory(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.AsMemory(), value1.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+
+				// Memory vs. ReadOnlyMemory
+				Assert.Equal(value1.Memoryify(), value2.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.Memoryify(), value1.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+
+				// Memory vs. Memory
+				Assert.Equal(value1.Memoryify(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.Memoryify(), value1.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			}
+
+			[Theory]
+			// Non-identical values
+			[InlineData("foo", "foo!", false, false, false, false, null, "   ↑ (pos 3)")]
+			[InlineData("foo\0", "foo\0\0", false, false, false, false, null, "     ↑ (pos 4)")]
+			// Overruns
+			[InlineData("first test", "first test 1", false, false, false, false, null, "          ↑ (pos 10)")]
+			[InlineData("first test 1", "first test", false, false, false, false, "          ↓ (pos 10)", null)]
+			// Case differences
+			[InlineData("Foobar", "foo bar", true, false, false, false, "   ↓ (pos 3)", "   ↑ (pos 3)")]
+			// Line ending differences
+			[InlineData("foo\nbar", "foo\rBar", false, true, false, false, "     ↓ (pos 4)", "     ↑ (pos 4)")]
+			// Non-zero whitespace quantity differences
+			[InlineData("foo bar", "foo  Bar", false, false, true, false, "    ↓ (pos 4)", "     ↑ (pos 5)")]
+			// Ignore all white space differences
+			[InlineData("foobar", "foo Bar", false, false, false, true, "   ↓ (pos 3)", "    ↑ (pos 4)")]
+			public void Failure(
+				string expected,
+				string actual,
+				bool ignoreCase,
+				bool ignoreLineEndingDifferences,
+				bool ignoreWhiteSpaceDifferences,
+				bool ignoreAllWhiteSpace,
+				string? expectedPointer,
+				string? actualPointer)
+			{
+				var message = "Assert.Equal() Failure: Strings differ";
+
+				if (expectedPointer != null)
+					message += Environment.NewLine + "           " + expectedPointer;
+
+				message +=
+					Environment.NewLine + "Expected: " + (expected == null ? "null" : '"' + ArgumentFormatter.EscapeString(expected) + '"') +
+					Environment.NewLine + "Actual:   " + (actual == null ? "null" : '"' + ArgumentFormatter.EscapeString(actual) + '"');
+
+				if (actualPointer != null)
+					message += Environment.NewLine + "           " + actualPointer;
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						message,
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected.AsMemory(), actual.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				assertFailure(() => Assert.Equal(expected.Memoryify(), actual.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				assertFailure(() => Assert.Equal(expected.AsMemory(), actual.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				assertFailure(() => Assert.Equal(expected.Memoryify(), actual.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+			}
+
+			[Fact]
+			public void Truncation()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+						"                                  ↓ (pos 21)" + Environment.NewLine +
+						"Expected: ···\"hy hello there world, you're a long strin\"···" + Environment.NewLine +
+						"Actual:   ···\"hy hello there world! You're a long strin\"···" + Environment.NewLine +
+						"                                  ↑ (pos 21)",
+						ex.Message
+					);
+				}
+
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".AsMemory(),
+						"Why hello there world! You're a long string!".AsMemory()
+					)
+				);
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".AsMemory(),
+						"Why hello there world! You're a long string!".Memoryify()
+					)
+				);
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".Memoryify(),
+						"Why hello there world! You're a long string!".AsMemory()
+					)
+				);
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".Memoryify(),
+						"Why hello there world! You're a long string!".Memoryify()
+					)
+				);
+			}
 		}
 
-		[Theory]
-		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
-		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
-		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
-		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
-		public void SuccessMemoryCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
+		public class Ints
 		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Memoryify(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2.Memoryify(), value1.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
+			[Theory]
+			// Null values
+			[InlineData(null, null)]
+			[InlineData(null, new int[] { })] // Null ReadOnlySpan<int> acts like an empty array
+			[InlineData(new int[] { }, null)]
+			// Identical values
+			[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 })]
+			public void Success(
+				int[]? value1,
+				int[]? value2)
+			{
+				// Run them in both directions, as the values should be interchangeable when they're equal
+
+				// ReadOnlySpan vs. ReadOnlySpan
+				Assert.Equal(value1.AsMemory(), value2.AsMemory());
+				Assert.Equal(value2.AsMemory(), value1.AsMemory());
+
+				// ReadOnlySpan vs. Span
+				Assert.Equal(value1.AsMemory(), value2.Memoryify());
+				Assert.Equal(value2.AsMemory(), value1.Memoryify());
+
+				// Span vs. ReadOnlySpan
+				Assert.Equal(value1.Memoryify(), value2.AsMemory());
+				Assert.Equal(value2.Memoryify(), value1.AsMemory());
+
+				// Span vs. Span
+				Assert.Equal(value1.Memoryify(), value2.Memoryify());
+				Assert.Equal(value2.Memoryify(), value1.Memoryify());
+			}
+
+			[Fact]
+			public void Failure_MidCollection()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"              ↓ (pos 1)" + Environment.NewLine +
+						"Expected: [1, 0, 2, 3]" + Environment.NewLine +
+						"Actual:   [1, 2, 3]" + Environment.NewLine +
+						"              ↑ (pos 1)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.AsMemory(), new int[] { 1, 2, 3 }.AsMemory()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.AsMemory(), new int[] { 1, 2, 3 }.Memoryify()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.Memoryify(), new int[] { 1, 2, 3 }.AsMemory()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.Memoryify(), new int[] { 1, 2, 3 }.Memoryify()));
+			}
+
+			[Fact]
+			public void Failure_BeyondEnd()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"Expected: [1, 2, 3]" + Environment.NewLine +
+						"Actual:   [1, 2, 3, 4]" + Environment.NewLine +
+						"                    ↑ (pos 3)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.AsMemory(), new int[] { 1, 2, 3, 4 }.AsMemory()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.AsMemory(), new int[] { 1, 2, 3, 4 }.Memoryify()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.Memoryify(), new int[] { 1, 2, 3, 4 }.AsMemory()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.Memoryify(), new int[] { 1, 2, 3, 4 }.Memoryify()));
+			}
 		}
 
-		[Theory]
-		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
-		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
-		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
-		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureReadOnlyCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
+		public class Strings
 		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.AsMemory(), actual.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
-			);
+			[Theory]
+			// Null values
+			[InlineData(null, null)]
+			[InlineData(null, new string[] { })] // Null ReadOnlyMemory<string> acts like an empty array
+			[InlineData(new string[] { }, null)]
+			// Identical values
+			[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe" })]
+			public void Success(
+				string[]? value1,
+				string[]? value2)
+			{
+				// Run them in both directions, as the values should be interchangeable when they're equal
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
+				// ReadOnlyMemory vs. ReadOnlyMemory
+				Assert.Equal(value1.AsMemory(), value2.AsMemory());
+				Assert.Equal(value2.AsMemory(), value1.AsMemory());
 
-		[Theory]
-		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
-		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
-		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
-		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureMemoryCases(string expected, string actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.Memoryify(), actual.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
-			);
+				// ReadOnlyMemory vs. Memory
+				Assert.Equal(value1.AsMemory(), value2.Memoryify());
+				Assert.Equal(value2.AsMemory(), value1.Memoryify());
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
+				// Memory vs. ReadOnlyMemory
+				Assert.Equal(value1.Memoryify(), value2.AsMemory());
+				Assert.Equal(value2.Memoryify(), value1.AsMemory());
 
-		[Theory]
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new int[] { })] // Null ReadOnlyMemory<int> acts like an empty array
-		[InlineData(new int[] { }, null)]
-		// Identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 })]
-		public void SuccessReadOnlyCasesInt(int[]? value1, int[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.RoMemoryify(), value2.RoMemoryify());
-			Assert.Equal(value2.RoMemoryify(), value1.RoMemoryify());
-		}
+				// Memory vs. Memory
+				Assert.Equal(value1.Memoryify(), value2.Memoryify());
+				Assert.Equal(value2.Memoryify(), value1.Memoryify());
+			}
 
-		[Theory]
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new int[] { })] // Null Memory<int> acts like an empty array
-		[InlineData(new int[] { }, null)]
-		// Identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 })]
-		public void SuccessMemoryCasesInt(int[]? value1, int[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Memoryify(), value2.Memoryify());
-			Assert.Equal(value2.Memoryify(), value1.Memoryify());
-		}
+			[Fact]
+			public void Failure()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
 
-		[Theory]
-		// Non-identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3, 4 }, 3, 3)]
-		[InlineData(new int[] { 0, 1, 2, 3 }, new int[] { 1, 2, 3 }, 0, 0)]
-		public void FailureReadOnlyCasesInt(int[]? expected, int[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.RoMemoryify(), actual.RoMemoryify())
-			);
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"Expected: [\"yes\", \"no\", \"maybe\"]" + Environment.NewLine +
+						"Actual:   [\"yes\", \"no\", \"maybe\", \"so\"]" + Environment.NewLine +
+						"                                 ↑ (pos 3)",
+						ex.Message
+					);
+				}
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
-
-		[Theory]
-		// Non-identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3, 4 }, 3, 3)]
-		[InlineData(new int[] { 0, 1, 2, 3 }, new int[] { 1, 2, 3 }, 0, 0)]
-		public void FailureMemoryCasesInt(int[]? expected, int[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.Memoryify(), actual.Memoryify())
-			);
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
-
-		[Theory]
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new string[] { })] // Null ReadOnlyMemory<string> acts like an empty array
-		[InlineData(new string[] { }, null)]
-		// Identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe" })]
-		public void SuccessReadOnlyCasesString(string[]? value1, string[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.RoMemoryify(), value2.RoMemoryify());
-			Assert.Equal(value2.RoMemoryify(), value1.RoMemoryify());
-		}
-
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new string[] { })] // Null Memory<string> acts like an empty array
-		[InlineData(new string[] { }, null)]
-		// Identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe" })]
-		public void SuccessMemoryCasesString(string[]? value1, string[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Memoryify(), value2.Memoryify());
-			Assert.Equal(value2.Memoryify(), value1.Memoryify());
-		}
-
-		[Theory]
-		// Non-identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 3, 3)]
-		[InlineData(new string[] { "so", "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 0, 0)]
-		public void FailureReadOnlyCasesString(string[]? expected, string[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.RoMemoryify(), actual.RoMemoryify())
-			);
-
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
-
-		[Theory]
-		// Non-identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 3, 3)]
-		[InlineData(new string[] { "so", "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 0, 0)]
-		public void FailureMemoryCasesString(string[]? expected, string[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.Memoryify(), actual.Memoryify())
-			);
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.AsMemory(), new string[] { "yes", "no", "maybe", "so" }.AsMemory()));
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.AsMemory(), new string[] { "yes", "no", "maybe", "so" }.Memoryify()));
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.Memoryify(), new string[] { "yes", "no", "maybe", "so" }.AsMemory()));
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.Memoryify(), new string[] { "yes", "no", "maybe", "so" }.Memoryify()));
+			}
 		}
 	}
 
@@ -828,24 +930,6 @@ public class MemoryAssertsTests
 		{
 			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 		}
-	}
-}
-
-public static class MemoryTestHelpers
-{
-	public static Memory<T> Memoryify<T>(this T[]? values)
-	{
-		return new Memory<T>(values);
-	}
-
-	public static ReadOnlyMemory<T> RoMemoryify<T>(this T[]? values)
-	{
-		return new ReadOnlyMemory<T>(values);
-	}
-
-	public static Memory<char> Memoryify(this string? value)
-	{
-		return new Memory<char>((value ?? string.Empty).ToCharArray());
 	}
 }
 

@@ -18,9 +18,9 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null!, _ => { }));
-			Assert.Throws<ArgumentNullException>(() => Assert.All(Array.Empty<object>(), (Action<object>)null!));
-			Assert.Throws<ArgumentNullException>(() => Assert.All(Array.Empty<object>(), (Action<object, int>)null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.All<object>(null!, _ => { }));
+			Assert.Throws<ArgumentNullException>("action", () => Assert.All(Array.Empty<object>(), (Action<object>)null!));
+			Assert.Throws<ArgumentNullException>("action", () => Assert.All(Array.Empty<object>(), (Action<object, int>)null!));
 		}
 
 		[Fact]
@@ -42,11 +42,11 @@ public class CollectionAssertsTests
 			Assert.Equal(
 				"Assert.All() Failure: 2 out of 6 items in the collection did not pass." + Environment.NewLine +
 				"[2]: Item:  42" + Environment.NewLine +
-				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 1" + Environment.NewLine +
 				"            Actual:   42" + Environment.NewLine +
 				"[3]: Item:  2112" + Environment.NewLine +
-				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 1" + Environment.NewLine +
 				"            Actual:   2112",
 				ex.Message
@@ -71,9 +71,9 @@ public class CollectionAssertsTests
 		[Fact]
 		public static async ValueTask GuardClauses()
 		{
-			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
-			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(Array.Empty<object>(), (Func<object, ValueTask>)null!));
-			await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.AllAsync(Array.Empty<object>(), (Func<object, int, ValueTask>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("collection", () => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
+			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>(), (Func<object, ValueTask>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>(), (Func<object, int, ValueTask>)null!));
 		}
 
 		[Fact]
@@ -95,11 +95,11 @@ public class CollectionAssertsTests
 			Assert.Equal(
 				"Assert.All() Failure: 2 out of 6 items in the collection did not pass." + Environment.NewLine +
 				"[2]: Item:  42" + Environment.NewLine +
-				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 1" + Environment.NewLine +
 				"            Actual:   42" + Environment.NewLine +
 				"[3]: Item:  2112" + Environment.NewLine +
-				"     Error: Assert.Equal() Failure" + Environment.NewLine +
+				"     Error: Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 1" + Environment.NewLine +
 				"            Actual:   2112",
 				ex.Message
@@ -179,7 +179,7 @@ public class CollectionAssertsTests
 				"Assert.Collection() Failure: Item comparison failure" + Environment.NewLine +
 				"                 ↓ (pos 1)" + Environment.NewLine +
 				"Collection: [42, 2112]" + Environment.NewLine +
-				"Error:      Assert.Equal() Failure" + Environment.NewLine +
+				"Error:      Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 2113" + Environment.NewLine +
 				"            Actual:   2112",
 				ex.Message
@@ -264,7 +264,7 @@ public class CollectionAssertsTests
 				"Assert.Collection() Failure: Item comparison failure" + Environment.NewLine +
 				"                 ↓ (pos 1)" + Environment.NewLine +
 				"Collection: [42, 2112]" + Environment.NewLine +
-				"Error:      Assert.Equal() Failure" + Environment.NewLine +
+				"Error:      Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 2113" + Environment.NewLine +
 				"            Actual:   2112",
 				ex.Message
@@ -333,7 +333,7 @@ public class CollectionAssertsTests
 		}
 	}
 
-	public class Contains_WithComparer
+	public class Contains_Comparer
 	{
 		[Fact]
 		public static void GuardClauses()
@@ -376,7 +376,7 @@ public class CollectionAssertsTests
 		}
 	}
 
-	public class Contains_WithPredicate
+	public class Contains_Predicate
 	{
 		[Fact]
 		public static void GuardClauses()
@@ -431,8 +431,9 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int> { 42, 42 };
 
-			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list));
+			var ex = Record.Exception(() => Assert.Distinct(list));
 
+			Assert.IsType<DistinctException>(ex);
 			Assert.Equal(
 				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
 				"Collection: [42, 42]" + Environment.NewLine +
@@ -446,8 +447,9 @@ public class CollectionAssertsTests
 		{
 			var list = new List<string?> { "a", null, "b", null, "c", "d" };
 
-			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list));
+			var ex = Record.Exception(() => Assert.Distinct(list));
 
+			Assert.IsType<DistinctException>(ex);
 			Assert.Equal(
 				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
 				"Collection: [\"a\", null, \"b\", null, \"c\", ···]" + Environment.NewLine +
@@ -470,8 +472,9 @@ public class CollectionAssertsTests
 		{
 			var list = new string[] { "a", "b", "A" };
 
-			var ex = Assert.Throws<DistinctException>(() => Assert.Distinct(list, StringComparer.OrdinalIgnoreCase));
+			var ex = Record.Exception(() => Assert.Distinct(list, StringComparer.OrdinalIgnoreCase));
 
+			Assert.IsType<DistinctException>(ex);
 			Assert.Equal(
 				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
 				"Collection: [\"a\", \"b\", \"A\"]" + Environment.NewLine +
@@ -551,7 +554,7 @@ public class CollectionAssertsTests
 		}
 	}
 
-	public class DoesNotContain_WithComparer
+	public class DoesNotContain_Comparer
 	{
 		[Fact]
 		public static void GuardClauses()
@@ -586,7 +589,7 @@ public class CollectionAssertsTests
 		}
 	}
 
-	public class DoesNotContain_WithPredicate
+	public class DoesNotContain_Predicate
 	{
 		[Fact]
 		public static void GuardClauses()
@@ -641,8 +644,9 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int> { 42 };
 
-			EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
+			var ex = Record.Exception(() => Assert.Empty(list));
 
+			Assert.IsType<EmptyException>(ex);
 			Assert.Equal(
 				"Assert.Empty() Failure: Collection was not empty" + Environment.NewLine +
 				"Collection: [42]",
@@ -663,182 +667,438 @@ public class CollectionAssertsTests
 
 	public class Equal
 	{
-		[Fact]
-		public static void NullCollections()
+		public class Null
 		{
-			var expected = default(IEnumerable<int>);
-			var actual = default(IEnumerable<int>);
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void Array()
-		{
-			string[] expected = { "@", "a", "ab", "b" };
-			string[] actual = { "@", "a", "ab", "b" };
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void ArrayInsideArray()
-		{
-			string[][] expected = { new[] { "@", "a" }, new[] { "ab", "b" } };
-			string[][] actual = { new[] { "@", "a" }, new[] { "ab", "b" } };
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void ArraysOfDifferentLengthsAreNotEqual()
-		{
-			string[] expected = { "@", "a", "ab", "b", "c" };
-			string[] actual = { "@", "a", "ab", "b" };
-
-			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-			Assert.NotEqual(expected, actual);
-		}
-
-		[Fact]
-		public static void ArrayValuesAreDifferentNotEqual()
-		{
-			string[] expected = { "@", "d", "v", "d" };
-			string[] actual = { "@", "a", "ab", "b" };
-
-			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-			Assert.NotEqual(expected, actual);
-		}
-
-		[Fact]
-		public static void Equivalence()
-		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new List<int>(expected);
-
-			Assert.Equal(expected, actual);
-		}
-
-		[Fact]
-		public static void EnumeratesOnlyOnce()
-		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new RunOnceEnumerable<int>(expected);
-			Assert.Equal(expected, actual);
-		}
-	}
-
-	public class EqualDictionary
-	{
-		[Fact]
-		public static void InOrderDictionary()
-		{
-			var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
-			var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void OutOfOrderDictionary()
-		{
-			var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
-			var actual = new Dictionary<string, int> { { "b", 2 }, { "c", 3 }, { "a", 1 } };
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void ExpectedLarger()
-		{
-			var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
-			var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
-
-			Assert.NotEqual(expected, actual);
-			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-		}
-
-		[Fact]
-		public static void ActualLarger()
-		{
-			var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
-			var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
-
-			Assert.NotEqual(expected, actual);
-			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-		}
-
-		[Fact]
-		public static void SomeKeysDiffer()
-		{
-			var expected = new Dictionary<string, int>
+			[Fact]
+			public static void BothNull()
 			{
-				["a"] = 1,
-				["be"] = 2,
-				["c"] = 3,
-				["d"] = 4,
-				["e"] = 5,
-				["f"] = 6,
-			};
-			var actual = new Dictionary<string, int>
-			{
-				["a"] = 1,
-				["ba"] = 2,
-				["c"] = 3,
-				["d"] = 4,
-				["e"] = 5,
-				["f"] = 6,
-			};
+				var expected = default(IEnumerable<int>);
+				var actual = default(IEnumerable<int>);
 
-			Assert.NotEqual(expected, actual);
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-			Assert.Equal(
-				"Assert.Equal() Failure" + Environment.NewLine +
-				"Expected: Dictionary<String, Int32> [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]" + Environment.NewLine +
-				"Actual:   Dictionary<String, Int32> [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]",
-				ex.Message
-			);
-		}
-	}
-
-	public class Equal_WithComparer
-	{
-		[Fact]
-		public static void NullCollections()
-		{
-			var expected = default(IEnumerable<int>);
-			var actual = default(IEnumerable<int>);
-
-			Assert.Equal(expected, actual, new IntComparer(true));
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual, new IntComparer(true)));
-		}
-
-		[Fact]
-		public static void EquivalenceWithComparer()
-		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
-
-			Assert.Equal(expected, actual, new IntComparer(true));
-		}
-
-		class IntComparer : IEqualityComparer<int>
-		{
-			readonly bool answer;
-
-			public IntComparer(bool answer)
-			{
-				this.answer = answer;
+				Assert.Equal(expected, actual);
 			}
 
-			public bool Equals(int x, int y) => answer;
+			[Fact]
+			public static void EmptyExpectedNullActual()
+			{
+				var expected = Array.Empty<int>();
+				var actual = default(IEnumerable<int>);
 
-			public int GetHashCode(int obj) => throw new NotImplementedException();
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: []" + Environment.NewLine +
+					"Actual:   null",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void NullExpectedEmptyActual()
+			{
+				var expected = default(IEnumerable<int>);
+				var actual = Array.Empty<int>();
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: null" + Environment.NewLine +
+					"Actual:   []",
+					ex.Message
+				);
+			}
+		}
+
+		public class Arrays
+		{
+			[Fact]
+			public static void Success()
+			{
+				string[] expected = { "@", "a", "ab", "b" };
+				string[] actual = { "@", "a", "ab", "b" };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void EmbeddedArraySuccess()
+			{
+				string[][] expected = { new[] { "@", "a" }, new[] { "ab", "b" } };
+				string[][] actual = { new[] { "@", "a" }, new[] { "ab", "b" } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Theory]
+			// Nulls
+			[InlineData(null, new[] { 1, 2, 3 }, null, null)]
+			[InlineData(new[] { 1, 2, 3 }, null, null, null)]
+			// Difference at start
+			[InlineData(new[] { 0, 2, 3, 4 }, new[] { 1, 2, 3, 4 }, "↓ (pos 0)", "↑ (pos 0)")]
+			// Inline difference
+			[InlineData(new[] { 1, 0, 3, 4 }, new[] { 1, 2, 3, 4 }, "   ↓ (pos 1)", "   ↑ (pos 1)")]
+			// Difference at end
+			[InlineData(new[] { 1, 2, 3, 0 }, new[] { 1, 2, 3, 4 }, "         ↓ (pos 3)", "         ↑ (pos 3)")]
+			// Overruns
+			[InlineData(new[] { 1, 2, 3, 4 }, new[] { 1, 2, 3, 4, 5 }, null, "            ↑ (pos 4)")]
+			[InlineData(new[] { 1, 2, 3, 4, 5 }, new[] { 1, 2, 3, 4 }, "            ↓ (pos 4)", null)]
+			[InlineData(new[] { 1 }, new int[0], "↓ (pos 0)", null)]
+			[InlineData(new int[0], new[] { 1 }, null, "↑ (pos 0)")]
+			public void Failure(
+				int[]? expected,
+				int[]? actual,
+				string? expectedPointer,
+				string? actualPointer)
+			{
+				string message = "Assert.Equal() Failure: Collections differ";
+
+				if (expectedPointer != null)
+					message += Environment.NewLine + "           " + expectedPointer;
+
+				message +=
+					Environment.NewLine + "Expected: " + ArgumentFormatter.Format(expected) +
+					Environment.NewLine + "Actual:   " + ArgumentFormatter.Format(actual);
+
+				if (actualPointer != null)
+					message += Environment.NewLine + "           " + actualPointer;
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(message, ex.Message);
+			}
+
+			[Theory]
+			// Nulls
+			[InlineData(
+				null, null, "null",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, ···]", null
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, ···]",
+				null, "null", null
+			)]
+			// Start of array
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, ···]",
+				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, ···]", "↑ (pos 0)"
+			)]
+			// Middle of array
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[···, 2, 3, 4, 5, 6, ···]",
+				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[···, 2, 3, 99, 5, 6, ···]", "           ↑ (pos 3)"
+			)]
+			// End of array
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[···, 3, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[···, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
+			)]
+			// Overruns
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[···, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[···, 6, 7, 8, 9, 10, ···]", "           ↑ (pos 7)"
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[···, 4, 5, 6, 7, 8]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 4, 5, 6, 7]", null
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[···, 6, 7, 8, 9, 10, ···]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 6, 7]", null
+			)]
+			public void Truncation(
+				int[]? expected,
+				string? expectedPointer,
+				string expectedDisplay,
+				int[]? actual,
+				string actualDisplay,
+				string? actualPointer)
+			{
+				var message = "Assert.Equal() Failure: Collections differ";
+
+				if (expectedPointer != null)
+					message += Environment.NewLine + "           " + expectedPointer;
+
+				message +=
+					Environment.NewLine + "Expected: " + expectedDisplay +
+					Environment.NewLine + "Actual:   " + actualDisplay;
+
+				if (actualPointer != null)
+					message += Environment.NewLine + "           " + actualPointer;
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(message, ex.Message);
+			}
+
+			[Fact]
+			public void SameValueDifferentType()
+			{
+				var ex = Record.Exception(() => Assert.Equal(new object[] { 1, 2, 3 }, new object[] { 1, 2, 3L }));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"                 ↓ (pos 2, type System.Int32)" + Environment.NewLine +
+					"Expected: [1, 2, 3]" + Environment.NewLine +
+					"Actual:   [1, 2, 3]" + Environment.NewLine +
+					"                 ↑ (pos 2, type System.Int64)",
+					ex.Message
+				);
+			}
+		}
+
+		public class Collections
+		{
+			[Fact]
+			public static void Success()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+				var actual = new List<int>(expected);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Theory]
+			// Nulls
+			[InlineData(
+				null, null, "null",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, ···]", null
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, ···]",
+				null, "null", null
+			)]
+			// Start of array
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, ···]",
+				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, ···]", "↑ (pos 0)"
+			)]
+			// Middle of array
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[···, 2, 3, 4, 5, 6, ···]",
+				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[···, 2, 3, 99, 5, 6, ···]", "           ↑ (pos 3)"
+			)]
+			// End of array
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[···, 3, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[···, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
+			)]
+			// Overruns
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[···, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[···, 6, 7, 8, 9, 10, ···]", "           ↑ (pos 7)"
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[···, 4, 5, 6, 7, 8]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 4, 5, 6, 7]", null
+			)]
+			[InlineData(
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[···, 6, 7, 8, 9, 10, ···]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 6, 7]", null
+			)]
+			public void Truncation(
+				int[]? expected,
+				string? expectedPointer,
+				string expectedDisplay,
+				int[]? actualArray,
+				string actualDisplay,
+				string? actualPointer)
+			{
+				var actual = actualArray == null ? null : new List<int>(actualArray);
+				var message = "Assert.Equal() Failure: Collections differ";
+
+				if (expectedPointer != null)
+					message += Environment.NewLine + "           " + expectedPointer;
+
+				message +=
+					Environment.NewLine + "Expected: " + expectedDisplay +
+					Environment.NewLine + "Actual:   " + actualDisplay;
+
+				if (actualPointer != null)
+					message += Environment.NewLine + "           " + actualPointer;
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(message, ex.Message);
+			}
+		}
+
+		public class CollectionsWithComparer
+		{
+			[Fact]
+			public static void AlwaysFalse()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, new IntComparer(false)));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"           ↓ (pos 0)" + Environment.NewLine +
+					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"           ↑ (pos 0)",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void AlwaysTrue()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+
+				Assert.Equal(expected, actual, new IntComparer(true));
+			}
+
+			class IntComparer : IEqualityComparer<int>
+			{
+				readonly bool answer;
+
+				public IntComparer(bool answer)
+				{
+					this.answer = answer;
+				}
+
+				public bool Equals(int x, int y) => answer;
+
+				public int GetHashCode(int obj) => throw new NotImplementedException();
+			}
+		}
+
+		public class Dictionaries
+		{
+			[Fact]
+			public static void InOrderDictionary()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+				var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void OutOfOrderDictionary()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+				var actual = new Dictionary<string, int> { { "b", 2 }, { "c", 3 }, { "a", 1 } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void ExpectedLarger()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+				var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
+					"Actual:   [[\"a\"] = 1, [\"b\"] = 2]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void ActualLarger()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
+				var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"a\"] = 1, [\"b\"] = 2]" + Environment.NewLine +
+					"Actual:   [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void SomeKeysDiffer()
+			{
+				var expected = new Dictionary<string, int>
+				{
+					["a"] = 1,
+					["be"] = 2,
+					["c"] = 3,
+					["d"] = 4,
+					["e"] = 5,
+					["f"] = 6,
+				};
+				var actual = new Dictionary<string, int>
+				{
+					["a"] = 1,
+					["ba"] = 2,
+					["c"] = 3,
+					["d"] = 4,
+					["e"] = 5,
+					["f"] = 6,
+				};
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]" + Environment.NewLine +
+					"Actual:   [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]",
+					ex.Message
+				);
+			}
+		}
+
+		public class DoubleEnumerationPrevention
+		{
+			[Fact]
+			public static void EnumeratesOnlyOnce_Success()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact(Skip = "Double enumeration not solved here yet")]
+			public static void EnumeratesOnlyOnce_Failure()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   [···, 2, 3, 4, 5, 6]" + Environment.NewLine +
+					"                            ↑ (pos 5)",
+					ex.Message
+				);
+			}
 		}
 	}
 
@@ -875,57 +1135,275 @@ public class CollectionAssertsTests
 
 	public class NotEqual
 	{
-		[Fact]
-		public static void EnumerableInequivalence()
+		public class Null
 		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new List<int>(new[] { 1, 2, 3, 4, 6 });
-
-			Assert.NotEqual(expected, actual);
-		}
-
-		[Fact]
-		public static void EnumerableEquivalence()
-		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new List<int>(expected);
-
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-	}
-
-	public class NotEqual_WithComparer
-	{
-		[Fact]
-		public static void EnumerableInequivalenceWithFailedComparer()
-		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
-
-			Assert.NotEqual(expected, actual, new IntComparer(false));
-		}
-
-		[Fact]
-		public static void EnumerableEquivalenceWithSuccessfulComparer()
-		{
-			var expected = new[] { 1, 2, 3, 4, 5 };
-			var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
-
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual, new IntComparer(true)));
-		}
-
-		class IntComparer : IEqualityComparer<int>
-		{
-			readonly bool answer;
-
-			public IntComparer(bool answer)
+			[Fact]
+			public static void BothNull()
 			{
-				this.answer = answer;
+				var expected = default(IEnumerable<int>);
+				var actual = default(IEnumerable<int>);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not null" + Environment.NewLine +
+					"Actual:   null",
+					ex.Message
+				);
 			}
 
-			public bool Equals(int x, int y) => answer;
+			[Fact]
+			public static void EmptyExpectedNullActual()
+			{
+				var expected = Array.Empty<int>();
+				var actual = default(IEnumerable<int>);
 
-			public int GetHashCode(int obj) => throw new NotImplementedException();
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public static void NullExpectedEmptyActual()
+			{
+				var expected = default(IEnumerable<int>);
+				var actual = Array.Empty<int>();
+
+				Assert.NotEqual(expected, actual);
+			}
+		}
+
+		public class Arrays
+		{
+			[Fact]
+			public static void SameValues()
+			{
+				string[] expected = { "@", "a", "ab", "b" };
+				string[] actual = { "@", "a", "ab", "b" };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [\"@\", \"a\", \"ab\", \"b\"]" + Environment.NewLine +
+					"Actual:   [\"@\", \"a\", \"ab\", \"b\"]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void EmbeddedArraySameValues()
+			{
+				string[][] expected = { new[] { "@", "a" }, new[] { "ab", "b" } };
+				string[][] actual = { new[] { "@", "a" }, new[] { "ab", "b" } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [[\"@\", \"a\"], [\"ab\", \"b\"]]" + Environment.NewLine +
+					"Actual:   [[\"@\", \"a\"], [\"ab\", \"b\"]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void DifferentLength()
+			{
+				string[] expected = { "@", "a", "ab", "b", "c" };
+				string[] actual = { "@", "a", "ab", "b" };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public static void SameLengthDifferentValues()
+			{
+				string[] expected = { "@", "d", "v", "d" };
+				string[] actual = { "@", "a", "ab", "b" };
+
+				Assert.NotEqual(expected, actual);
+			}
+		}
+
+		public class Collections
+		{
+			[Fact]
+			public static void ArrayVsList_SameValues()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+				var actual = new List<int>(expected);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
+					"Actual:   [1, 2, 3, 4, 5, ···]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void ArrayVsList_DifferentValues()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+				var actual = new List<int>(new[] { 1, 2, 3, 4, 0, 6, 7, 8, 9, 10 });
+
+				Assert.NotEqual(expected, actual);
+			}
+		}
+
+		public class CollectionsWithComparer
+		{
+			[Fact]
+			public static void AlwaysFalse()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
+
+				Assert.NotEqual(expected, actual, new IntComparer(false));
+			}
+
+			[Fact]
+			public static void AlwaysTrue()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, new IntComparer(true)));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   [0, 0, 0, 0, 0]",
+					ex.Message
+				);
+			}
+
+			class IntComparer : IEqualityComparer<int>
+			{
+				readonly bool answer;
+
+				public IntComparer(bool answer)
+				{
+					this.answer = answer;
+				}
+
+				public bool Equals(int x, int y) => answer;
+
+				public int GetHashCode(int obj) => throw new NotImplementedException();
+			}
+		}
+
+		public class Dictionaries
+		{
+			[Fact]
+			public static void InOrderDictionary()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+				var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
+					"Actual:   [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void OutOfOrderDictionary()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+				var actual = new Dictionary<string, int> { { "b", 2 }, { "c", 3 }, { "a", 1 } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
+					"Actual:   [[\"b\"] = 2, [\"c\"] = 3, [\"a\"] = 1]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void ExpectedLarger()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+				var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public static void ActualLarger()
+			{
+				var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
+				var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public static void SomeKeysDiffer()
+			{
+				var expected = new Dictionary<string, int>
+				{
+					["a"] = 1,
+					["be"] = 2,
+					["c"] = 3,
+					["d"] = 4,
+					["e"] = 5,
+					["f"] = 6,
+				};
+				var actual = new Dictionary<string, int>
+				{
+					["a"] = 1,
+					["ba"] = 2,
+					["c"] = 3,
+					["d"] = 4,
+					["e"] = 5,
+					["f"] = 6,
+				};
+
+				Assert.NotEqual(expected, actual);
+			}
+		}
+
+		public class DoubleEnumerationPrevention
+		{
+			[Fact]
+			public static void EnumeratesOnlyOnce_Success()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Expected: Not RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }" + Environment.NewLine +
+					"Actual:   RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void EnumeratesOnlyOnce_Failure()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+
+				Assert.NotEqual(expected, actual);
+			}
 		}
 	}
 
@@ -934,8 +1412,8 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void NullCollectionThrows()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Single((IEnumerable)null!));
-			Assert.Throws<ArgumentNullException>(() => Assert.Single((IEnumerable<object>)null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single((IEnumerable)null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single((IEnumerable<object>)null!));
 		}
 
 		[Fact]
@@ -984,9 +1462,9 @@ public class CollectionAssertsTests
 	public class Single_NonGeneric_WithObject
 	{
 		[Fact]
-		public static void NullCollectionThrows()
+		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Single(null!, null));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single(null!, null));
 		}
 
 		[Fact]
@@ -1031,9 +1509,9 @@ public class CollectionAssertsTests
 	public class Single_Generic
 	{
 		[Fact]
-		public static void NullCollectionThrows()
+		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single<object>(null!));
 		}
 
 		[Fact]
@@ -1084,8 +1562,8 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null!, _ => true));
-			Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(new object[0], null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single<object>(null!, _ => true));
+			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single<object>(new object[0], null!));
 		}
 
 		[Fact]
@@ -1123,19 +1601,20 @@ public class CollectionAssertsTests
 
 	sealed class RunOnceEnumerable<T> : IEnumerable<T>
 	{
-		private readonly IEnumerable<T> _source;
 		private bool _called;
 
 		public RunOnceEnumerable(IEnumerable<T> source)
 		{
-			_source = source;
+			Source = source;
 		}
+
+		public IEnumerable<T> Source { get; }
 
 		public IEnumerator<T> GetEnumerator()
 		{
 			Assert.False(_called, "GetEnumerator() was called more than once");
 			_called = true;
-			return _source.GetEnumerator();
+			return Source.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

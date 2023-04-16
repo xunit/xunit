@@ -38,22 +38,26 @@ public class DictionaryAssertsTests
 				["eleventeen"] = 110
 			};
 
-			var ex = Record.Exception(() => Assert.Contains("FORTY-two", dictionary));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Key not found in dictionary" + Environment.NewLine +
-				"Keys:      [\"eleventeen\"]" + Environment.NewLine +
-				"Not found: \"FORTY-two\"",
-				ex.Message
-			);
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Key not found in dictionary" + Environment.NewLine +
+					"Keys:      [\"eleventeen\"]" + Environment.NewLine +
+					"Not found: \"FORTY-two\"",
+					ex.Message
+				);
+			}
 
-			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
-			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", (IDictionary<string, int>)dictionary));
-			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
+			assertFailure(() => Assert.Contains("FORTY-two", dictionary));
+			assertFailure(() => Assert.Contains("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
+			assertFailure(() => Assert.Contains("FORTY-two", (IDictionary<string, int>)dictionary));
+			assertFailure(() => Assert.Contains("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
 #if XUNIT_IMMUTABLE_COLLECTIONS
-			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", dictionary.ToImmutableDictionary()));
-			Assert.Throws<ContainsException>(() => Assert.Contains("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary()));
+			assertFailure(() => Assert.Contains("FORTY-two", dictionary.ToImmutableDictionary()));
+			assertFailure(() => Assert.Contains("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary()));
 #endif
 		}
 	}
@@ -86,22 +90,26 @@ public class DictionaryAssertsTests
 				["forty-two"] = 42
 			};
 
-			var actual = Record.Exception(() => Assert.DoesNotContain("FORTY-two", dictionary));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			var ex = Assert.IsType<DoesNotContainException>(actual);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure: Key found in dictionary" + Environment.NewLine +
-				"Keys:  [\"forty-two\"]" + Environment.NewLine +
-				"Found: \"FORTY-two\"",
-				ex.Message
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Key found in dictionary" + Environment.NewLine +
+					"Keys:  [\"forty-two\"]" + Environment.NewLine +
+					"Found: \"FORTY-two\"",
+					ex.Message
+				);
+			}
 
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", (IDictionary<string, int>)dictionary));
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
+			assertFailure(() => Assert.DoesNotContain("FORTY-two", dictionary));
+			assertFailure(() => Assert.DoesNotContain("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
+			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IDictionary<string, int>)dictionary));
+			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
 #if XUNIT_IMMUTABLE_COLLECTIONS
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
+			assertFailure(() => Assert.DoesNotContain("FORTY-two", dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
+			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
 #endif
 		}
 	}

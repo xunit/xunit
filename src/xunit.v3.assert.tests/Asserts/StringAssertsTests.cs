@@ -21,8 +21,8 @@ public class StringAssertsTests
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
 				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    Hello, world!" + Environment.NewLine +
-				"Not found: WORLD",
+				"String:    \"Hello, world!\"" + Environment.NewLine +
+				"Not found: \"WORLD\"",
 				ex.Message
 			);
 		}
@@ -35,8 +35,8 @@ public class StringAssertsTests
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
 				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    Hello, world!" + Environment.NewLine +
-				"Not found: hey",
+				"String:    \"Hello, world!\"" + Environment.NewLine +
+				"Not found: \"hey\"",
 				ex.Message
 			);
 		}
@@ -49,8 +49,8 @@ public class StringAssertsTests
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
 				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    (null)" + Environment.NewLine +
-				"Not found: foo",
+				"String:    null" + Environment.NewLine +
+				"Not found: \"foo\"",
 				ex.Message
 			);
 		}
@@ -68,8 +68,8 @@ public class StringAssertsTests
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
 				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    This is a relatively long string so that ···" + Environment.NewLine +
-				"Not found: We are looking for something very long as···",
+				"String:    \"This is a relatively long string so that \"···" + Environment.NewLine +
+				"Not found: \"We are looking for something very long as\"···",
 				ex.Message
 			);
 		}
@@ -106,9 +106,9 @@ public class StringAssertsTests
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"               ↓ (pos 7)" + Environment.NewLine +
-				"String: Hello, world!" + Environment.NewLine +
-				"Found:  world",
+				"                ↓ (pos 7)" + Environment.NewLine +
+				"String: \"Hello, world!\"" + Environment.NewLine +
+				"Found:  \"world\"",
 				ex.Message
 			);
 		}
@@ -127,9 +127,9 @@ public class StringAssertsTests
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"               ↓ (pos 7)" + Environment.NewLine +
-				"String: Hello, world from a very long string that···" + Environment.NewLine +
-				"Found:  world",
+				"                ↓ (pos 7)" + Environment.NewLine +
+				"String: \"Hello, world from a very long string that\"···" + Environment.NewLine +
+				"Found:  \"world\"",
 				ex.Message
 			);
 		}
@@ -142,9 +142,9 @@ public class StringAssertsTests
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                               ↓ (pos 50)" + Environment.NewLine +
-				"String: ···ng that has 'Hello, world' placed in the ···" + Environment.NewLine +
-				"Found:  world",
+				"                                ↓ (pos 50)" + Environment.NewLine +
+				"String: ···\"ng that has 'Hello, world' placed in the \"···" + Environment.NewLine +
+				"Found:  \"world\"",
 				ex.Message
 			);
 		}
@@ -157,9 +157,9 @@ public class StringAssertsTests
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                                              ↓ (pos 89)" + Environment.NewLine +
-				"String: ···ont truncated, just to say 'Hello, world'" + Environment.NewLine +
-				"Found:  world",
+				"                                               ↓ (pos 89)" + Environment.NewLine +
+				"String: ···\"ont truncated, just to say 'Hello, world'\"" + Environment.NewLine +
+				"Found:  \"world\"",
 				ex.Message
 			);
 		}
@@ -175,20 +175,20 @@ public class StringAssertsTests
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"               ↓ (pos 7)" + Environment.NewLine +
-				"String: Hello, world!" + Environment.NewLine +
-				"Found:  WORLD",
+				"                ↓ (pos 7)" + Environment.NewLine +
+				"String: \"Hello, world!\"" + Environment.NewLine +
+				"Found:  \"WORLD\"",
 				ex.Message
 			);
 		}
 	}
 
-	public class DoesNotMatch_WithString
+	public class DoesNotMatch_Pattern
 	{
 		[Fact]
 		public void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((string?)null!, "Hello, world!"));
+			Assert.Throws<ArgumentNullException>("expectedRegexPattern", () => Assert.DoesNotMatch((string?)null!, "Hello, world!"));
 		}
 
 		[Fact]
@@ -200,25 +200,25 @@ public class StringAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.DoesNotMatch(@"ll", "Hello, world!"));
+			var ex = Record.Exception(() => Assert.DoesNotMatch("ll", "Hello, world!"));
 
 			Assert.IsType<DoesNotMatchException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotMatch() Failure: Match found" + Environment.NewLine +
-				"          ↓ (pos 2)" + Environment.NewLine +
-				"String: Hello, world!" + Environment.NewLine +
-				"RegEx:  ll",
+				"           ↓ (pos 2)" + Environment.NewLine +
+				"String: \"Hello, world!\"" + Environment.NewLine +
+				"RegEx:  \"ll\"",
 				ex.Message
 			);
 		}
 	}
 
-	public class DoesNotMatch_WithRegex
+	public class DoesNotMatch_Regex
 	{
 		[Fact]
 		public void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((Regex?)null!, "Hello, world!"));
+			Assert.Throws<ArgumentNullException>("expectedRegex", () => Assert.DoesNotMatch((Regex?)null!, "Hello, world!"));
 		}
 
 		[Fact]
@@ -235,9 +235,9 @@ public class StringAssertsTests
 			Assert.IsType<DoesNotMatchException>(ex);
 			Assert.Equal(
 				"Assert.DoesNotMatch() Failure: Match found" + Environment.NewLine +
-				"          ↓ (pos 2)" + Environment.NewLine +
-				"String: Hello, world!" + Environment.NewLine +
-				"RegEx:  ll",
+				"           ↓ (pos 2)" + Environment.NewLine +
+				"String: \"Hello, world!\"" + Environment.NewLine +
+				"RegEx:  \"ll\"",
 				ex.Message
 			);
 		}
@@ -260,11 +260,12 @@ public class StringAssertsTests
 		[Fact]
 		public static void NonEmptyString()
 		{
-			EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
+			var ex = Record.Exception(() => Assert.Empty("Foo"));
 
+			Assert.IsType<EmptyException>(ex);
 			Assert.Equal(
 				"Assert.Empty() Failure: String was not empty" + Environment.NewLine +
-				"String: Foo",
+				"String: \"Foo\"",
 				ex.Message
 			);
 		}
@@ -286,8 +287,8 @@ public class StringAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       world!" + Environment.NewLine +
-				"Expected end: WORLD!",
+				"String:       \"world!\"" + Environment.NewLine +
+				"Expected end: \"WORLD!\"",
 				ex.Message
 			);
 		}
@@ -306,8 +307,8 @@ public class StringAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       Hello, world!" + Environment.NewLine +
-				"Expected end: hey",
+				"String:       \"Hello, world!\"" + Environment.NewLine +
+				"Expected end: \"hey\"",
 				ex.Message
 			);
 		}
@@ -320,8 +321,8 @@ public class StringAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       (null)" + Environment.NewLine +
-				"Expected end: foo",
+				"String:       null" + Environment.NewLine +
+				"Expected end: \"foo\"",
 				ex.Message
 			);
 		}
@@ -334,8 +335,8 @@ public class StringAssertsTests
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       ···at we expected to find this ending inside" + Environment.NewLine +
-				"Expected end: This is a long string that we're looking ···",
+				"String:       ···\"at we expected to find this ending inside\"" + Environment.NewLine +
+				"Expected end: \"This is a long string that we're looking \"···",
 				ex.Message
 			);
 		}
@@ -360,10 +361,6 @@ public class StringAssertsTests
 		[InlineData(" ", "\t", false, false, true, false)]
 		[InlineData(" \t", "\t ", false, false, true, false)]
 		[InlineData("    ", "\t", false, false, true, false)]
-		[InlineData("", "  ", false, false, false, true)]
-		[InlineData("", "  ", false, false, true, true)]
-		[InlineData("", "\t", false, false, true, true)]
-		[InlineData("foobar", "foo bar", false, false, true, true)]
 #if XUNIT_SPAN
 		[InlineData(" ", " \u180E", false, false, true, false)]
 		[InlineData(" \u180E", "\u180E ", false, false, true, false)]
@@ -381,7 +378,18 @@ public class StringAssertsTests
 		[InlineData("\u1680", "\t", false, false, true, false)]
 		[InlineData("\u1680", "       ", false, false, true, false)]
 #endif
-		public void SuccessCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace)
+		// All whitespace differences
+		[InlineData("", "  ", false, false, false, true)]
+		[InlineData("", "  ", false, false, true, true)]
+		[InlineData("", "\t", false, false, true, true)]
+		[InlineData("foobar", "foo bar", false, false, true, true)]
+		public void Success(
+			string value1,
+			string value2,
+			bool ignoreCase,
+			bool ignoreLineEndingDifferences,
+			bool ignoreWhiteSpaceDifferences,
+			bool ignoreAllWhiteSpace)
 		{
 			// Run them in both directions, as the values should be interchangeable when they're equal
 			Assert.Equal(value1, value2, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
@@ -389,31 +397,58 @@ public class StringAssertsTests
 		}
 
 		[Theory]
-		// Null values
-		[InlineData(null, "", false, false, false, false, -1, -1)]
-		[InlineData("", null, false, false, false, false, -1, -1)]
 		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, false, 3, 3)]
+		[InlineData("foo", "foo!", false, false, false, false, null, "   ↑ (pos 3)")]
+		[InlineData("foo\0", "foo\0\0", false, false, false, false, null, "     ↑ (pos 4)")]
+		// Nulls
+		[InlineData("first test 1", null, false, false, false, false, null, null)]
+		[InlineData(null, "first test 1", false, false, false, false, null, null)]
+		// Overruns
+		[InlineData("first test", "first test 1", false, false, false, false, null, "          ↑ (pos 10)")]
+		[InlineData("first test 1", "first test", false, false, false, false, "          ↓ (pos 10)", null)]
 		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, false, 4, 6)]
+		[InlineData("Foobar", "foo bar", true, false, false, false, "   ↓ (pos 3)", "   ↑ (pos 3)")]
 		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, false, 4, 5)]
-		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, false, 5, 6)]
-		public void FailureCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, bool ignoreAllWhiteSpace, int expectedIndex, int actualIndex)
+		[InlineData("foo\nbar", "foo\rBar", false, true, false, false, "     ↓ (pos 4)", "     ↑ (pos 4)")]
+		// Non-zero whitespace quantity differences
+		[InlineData("foo bar", "foo  Bar", false, false, true, false, "    ↓ (pos 4)", "     ↑ (pos 5)")]
+		// Ignore all white space differences
+		[InlineData("foobar", "foo Bar", false, false, false, true, "   ↓ (pos 3)", "    ↑ (pos 4)")]
+		public void Failure(
+			string? expected,
+			string? actual,
+			bool ignoreCase,
+			bool ignoreLineEndingDifferences,
+			bool ignoreWhiteSpaceDifferences,
+			bool ignoreAllWhiteSpace,
+			string? expectedPointer,
+			string? actualPointer)
 		{
+			var message = "Assert.Equal() Failure: Strings differ";
+
+			if (expectedPointer != null)
+				message += Environment.NewLine + "           " + expectedPointer;
+
+			message +=
+				Environment.NewLine + "Expected: " + (expected == null ? "null" : '"' + ArgumentFormatter.EscapeString(expected) + '"') +
+				Environment.NewLine + "Actual:   " + (actual == null ? "null" : '"' + ArgumentFormatter.EscapeString(actual) + '"');
+
+			if (actualPointer != null)
+				message += Environment.NewLine + "           " + actualPointer;
+
 			var ex = Record.Exception(
 				() => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace)
 			);
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal<object>(
+				message,
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public void MessageFormatting()
+		public void Truncation()
 		{
 			var ex = Record.Exception(() =>
 				Assert.Equal(
@@ -424,11 +459,77 @@ public class StringAssertsTests
 
 			Assert.IsType<EqualException>(ex);
 			Assert.Equal(
-				"Assert.Equal() Failure" + Environment.NewLine +
-				"                                 ↓ (pos 21)" + Environment.NewLine +
-				"Expected: ···hy hello there world, you're a long string with some truncati···" + Environment.NewLine +
-				"Actual:   ···hy hello there world! You're a long string!" + Environment.NewLine +
-				"                                 ↑ (pos 21)",
+				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+				"                                  ↓ (pos 21)" + Environment.NewLine +
+				"Expected: ···\"hy hello there world, you're a long strin\"···" + Environment.NewLine +
+				"Actual:   ···\"hy hello there world! You're a long strin\"···" + Environment.NewLine +
+				"                                  ↑ (pos 21)",
+				ex.Message
+			);
+		}
+	}
+
+	public class Matches_Pattern
+	{
+		[Fact]
+		public void GuardClauses()
+		{
+			Assert.Throws<ArgumentNullException>(() => Assert.Matches((string?)null!, "Hello, world!"));
+			Assert.Throws<MatchesException>(() => Assert.Matches(@"\w+", null));
+		}
+
+		[Fact]
+		public void Success()
+		{
+			Assert.Matches(@"\w", "Hello");
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.Matches(@"\d+", "Hello, world!"));
+
+			Assert.IsType<MatchesException>(ex);
+			Assert.Equal(
+				"Assert.Matches() Failure:" + Environment.NewLine +
+				@"Regex: \d+" + Environment.NewLine +
+				"Value: Hello, world!",
+				ex.Message
+			);
+		}
+	}
+
+	public class Matches_Regex
+	{
+		[Fact]
+		public void GuardClauses()
+		{
+			Assert.Throws<ArgumentNullException>(() => Assert.Matches((Regex?)null!, "Hello, world!"));
+			Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), null));
+		}
+
+		[Fact]
+		public void Success()
+		{
+			Assert.Matches(new Regex(@"\w+"), "Hello");
+		}
+
+		[Fact]
+		public void UsesRegexOptions()
+		{
+			Assert.Matches(new Regex(@"[a-z]+", RegexOptions.IgnoreCase), "HELLO");
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.Matches(new Regex(@"\d+"), "Hello, world!"));
+
+			Assert.IsType<MatchesException>(ex);
+			Assert.Equal(
+				"Assert.Matches() Failure:" + Environment.NewLine +
+				@"Regex: \d+" + Environment.NewLine +
+				"Value: Hello, world!",
 				ex.Message
 			);
 		}
@@ -475,72 +576,6 @@ public class StringAssertsTests
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
 			Assert.StartsWith("HELLO", "Hello, world!", StringComparison.OrdinalIgnoreCase);
-		}
-	}
-
-	public class Matches_WithString
-	{
-		[Fact]
-		public void GuardClauses()
-		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Matches((string?)null!, "Hello, world!"));
-			Assert.Throws<MatchesException>(() => Assert.Matches(@"\w+", null));
-		}
-
-		[Fact]
-		public void Success()
-		{
-			Assert.Matches(@"\w", "Hello");
-		}
-
-		[Fact]
-		public void Failure()
-		{
-			var ex = Record.Exception(() => Assert.Matches(@"\d+", "Hello, world!"));
-
-			Assert.IsType<MatchesException>(ex);
-			Assert.Equal(
-				"Assert.Matches() Failure:" + Environment.NewLine +
-				@"Regex: \d+" + Environment.NewLine +
-				"Value: Hello, world!",
-				ex.Message
-			);
-		}
-	}
-
-	public class Matches_WithRegex
-	{
-		[Fact]
-		public void GuardClauses()
-		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Matches((Regex?)null!, "Hello, world!"));
-			Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), null));
-		}
-
-		[Fact]
-		public void Success()
-		{
-			Assert.Matches(new Regex(@"\w+"), "Hello");
-		}
-
-		[Fact]
-		public void UsesRegexOptions()
-		{
-			Assert.Matches(new Regex(@"[a-z]+", RegexOptions.IgnoreCase), "HELLO");
-		}
-
-		[Fact]
-		public void Failure()
-		{
-			var ex = Record.Exception(() => Assert.Matches(new Regex(@"\d+"), "Hello, world!"));
-
-			Assert.IsType<MatchesException>(ex);
-			Assert.Equal(
-				"Assert.Matches() Failure:" + Environment.NewLine +
-				@"Regex: \d+" + Environment.NewLine +
-				"Value: Hello, world!",
-				ex.Message
-			);
 		}
 	}
 }
