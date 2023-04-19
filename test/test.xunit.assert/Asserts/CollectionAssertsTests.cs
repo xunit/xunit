@@ -344,7 +344,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, default(IEnumerable<int>)!));
 		}
 
 		[Fact]
@@ -389,7 +389,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void ICollectionContainsIsTrueButContainsWithDefaultComparerIsFalse()
 		{
-			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
 			// ICollection<T>.Contains is called if the container implements ICollection<T>.
 			// If either ICollection<T>.Contains or the default equality comparer report that
@@ -400,7 +400,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void ICollectionContainsIsFalseButContainsWithDefaultComparerIsTrue()
 		{
-			var collections = new[]
+			IEnumerable<int[]> collections = new[]
 			{
 				new[] { 1, 2, 3, 4 }
 			};
@@ -409,68 +409,6 @@ public class CollectionAssertsTests
 			// If either ICollection<T>.Contains or the default equality comparer report that
 			// the collection has the item, the assert should pass.
 			Assert.Contains(new[] { 1, 2, 3, 4 }, collections);
-		}
-
-		[Fact]
-		public static void KeyInDictionary()
-		{
-			IDictionary<string, int> dictionary = new Dictionary<string, int>
-			{
-				["forty-two"] = 42
-			};
-
-			var actual = Assert.Contains("forty-two", dictionary);
-			Assert.Equal(42, actual);
-		}
-
-		[Fact]
-		public static void KeyNotInDictionary()
-		{
-			IDictionary<string, int> dictionary = new Dictionary<string, int>
-			{
-				["eleventeen"] = 110
-			};
-
-			var actual = Record.Exception(() => Assert.Contains("forty-two", dictionary));
-
-			var ex = Assert.IsType<ContainsException>(actual);
-			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: forty-two" + Environment.NewLine +
-				@"In value:  KeyCollection<String, Int32> [""eleventeen""]",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public static void KeyInReadOnlyDictionary()
-		{
-			IReadOnlyDictionary<string, int> dictionary = new Dictionary<string, int>
-			{
-				["forty-two"] = 42
-			};
-
-			var actual = Assert.Contains("forty-two", dictionary);
-			Assert.Equal(42, actual);
-		}
-
-		[Fact]
-		public static void KeyNotInReadOnlyDictionary()
-		{
-			IReadOnlyDictionary<string, int> dictionary = new Dictionary<string, int>
-			{
-				["eleventeen"] = 110
-			};
-
-			var actual = Record.Exception(() => Assert.Contains("forty-two", dictionary));
-
-			var ex = Assert.IsType<ContainsException>(actual);
-			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: forty-two" + Environment.NewLine +
-				@"In value:  KeyCollection<String, Int32> [""eleventeen""]",
-				ex.Message
-			);
 		}
 	}
 
@@ -496,7 +434,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void DoesNotTryToCallICollectionContains()
 		{
-			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
 			// ICollection<T>.Contains would return true, but we're passing in a custom comparer to Assert.Contains
 			// (and ICollection<T>.Contains does not accept a comparer) so we should not attempt to use that result.
@@ -505,7 +443,7 @@ public class CollectionAssertsTests
 			Assert.Equal(
 				"Assert.Contains() Failure" + Environment.NewLine +
 				"Not found: HI THERE" + Environment.NewLine +
-				@"In value:  HashSet<String> [""Hi there""]",
+				"In value:  HashSet<String> [\"Hi there\"]",
 				ex.Message
 			);
 		}
@@ -615,7 +553,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, default(IEnumerable<int>)!));
 		}
 
 		[Fact]
@@ -661,7 +599,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void ICollectionContainsIsTrueButContainsWithDefaultComparerIsFalse()
 		{
-			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
 			// ICollection<T>.Contains is called if the container implements ICollection<T>.
 			// If either ICollection<T>.Contains or the default equality comparer report that
@@ -671,7 +609,7 @@ public class CollectionAssertsTests
 			Assert.Equal(
 				"Assert.DoesNotContain() Failure" + Environment.NewLine +
 				"Found:    HI THERE" + Environment.NewLine +
-				@"In value: HashSet<String> [""Hi there""]",
+				"In value: HashSet<String> [\"Hi there\"]",
 				ex.Message
 			);
 		}
@@ -679,7 +617,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void ICollectionContainsIsFalseButContainsWithDefaultComparerIsTrue()
 		{
-			var collections = new[]
+			IEnumerable<int[]> collections = new[]
 			{
 				new[] { 1, 2, 3, 4 }
 			};
@@ -693,70 +631,6 @@ public class CollectionAssertsTests
 				"Assert.DoesNotContain() Failure" + Environment.NewLine +
 				"Found:    Int32[] [1, 2, 3, 4]" + Environment.NewLine +
 				"In value: Int32[][] [[1, 2, 3, 4]]",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public static void KeyNotInDictionary()
-		{
-			var dictionary = (IDictionary<string, int>)new Dictionary<string, int>
-			{
-				["eleventeen"] = 110
-			};
-
-			var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
-
-			Assert.Null(actual);
-		}
-
-		[Fact]
-		public static void KeyInDictionary()
-		{
-			var dictionary = (IDictionary<string, int>)new Dictionary<string, int>
-			{
-				["forty-two"] = 42
-			};
-
-			var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
-
-			var ex = Assert.IsType<DoesNotContainException>(actual);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    forty-two" + Environment.NewLine +
-				@"In value: KeyCollection<String, Int32> [""forty-two""]",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public static void KeyNotInReadOnlyDictionary()
-		{
-			var dictionary = (IReadOnlyDictionary<string, int>)new Dictionary<string, int>
-			{
-				["eleventeen"] = 110
-			};
-
-			var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
-
-			Assert.Null(actual);
-		}
-
-		[Fact]
-		public static void KeyInReadOnlyDictionary()
-		{
-			var dictionary = (IReadOnlyDictionary<string, int>)new Dictionary<string, int>
-			{
-				["forty-two"] = 42
-			};
-
-			var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
-
-			var ex = Assert.IsType<DoesNotContainException>(actual);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    forty-two" + Environment.NewLine +
-				@"In value: KeyCollection<String, Int32> [""forty-two""]",
 				ex.Message
 			);
 		}
@@ -784,7 +658,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void DoesNotTryToCallICollectionContains()
 		{
-			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
 			// ICollection<T>.Contains would return true, but we're passing in a custom comparer to Assert.DoesNotContain
 			// (and ICollection<T>.Contains does not accept a comparer) so we should not attempt to use that result.
@@ -1018,49 +892,6 @@ public class CollectionAssertsTests
 				"Actual:   Dictionary<String, Int32> [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ...]",
 				ex.Message
 			);
-		}
-	}
-
-	public class EqualSet
-	{
-		[Fact]
-		public static void InOrderSet()
-		{
-			var expected = new HashSet<int> { 1, 2, 3 };
-			var actual = new HashSet<int> { 1, 2, 3 };
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void OutOfOrderSet()
-		{
-			var expected = new HashSet<int> { 1, 2, 3 };
-			var actual = new HashSet<int> { 2, 3, 1 };
-
-			Assert.Equal(expected, actual);
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-		}
-
-		[Fact]
-		public static void ExpectedLarger()
-		{
-			var expected = new HashSet<int> { 1, 2, 3 };
-			var actual = new HashSet<int> { 1, 2 };
-
-			Assert.NotEqual(expected, actual);
-			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-		}
-
-		[Fact]
-		public static void ActualLarger()
-		{
-			var expected = new HashSet<int> { 1, 2 };
-			var actual = new HashSet<int> { 1, 2, 3 };
-
-			Assert.NotEqual(expected, actual);
-			Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
 		}
 	}
 

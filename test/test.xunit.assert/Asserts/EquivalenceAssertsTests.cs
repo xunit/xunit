@@ -1290,6 +1290,35 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class Indexers
+	{
+		[Fact]
+		public void Equivalent()
+		{
+			var expected = new ClassWithIndexer { Value = "Hello" };
+			var actual = new ClassWithIndexer { Value = "Hello" };
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void NotEquivalent()
+		{
+			var expected = new ClassWithIndexer { Value = "Hello" };
+			var actual = new ClassWithIndexer { Value = "There" };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				$"Assert.Equivalent() Failure: Mismatched value on member 'Value'{Environment.NewLine}" +
+				$"Expected: Hello{Environment.NewLine}" +
+				$"Actual:   There",
+				ex.Message
+			);
+		}
+	}
+
 	class ShallowClass
 	{
 		public static int StaticValue { get; set; }
@@ -1351,5 +1380,12 @@ public class EquivalenceAssertsTests
 		}
 
 		public SelfReferential Other { get; }
+	}
+
+	class ClassWithIndexer
+	{
+		public string? Value;
+
+		public string this[int idx] => idx.ToString();
 	}
 }
