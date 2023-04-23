@@ -26,8 +26,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure" + Environment.NewLine +
-				$"Expected: {expected ?? "(null)"}" + Environment.NewLine +
-				$"Actual:   {actual ?? "(null)"}",
+				$"Expected: {expected ?? "null"}" + Environment.NewLine +
+				$"Actual:   {actual ?? "null"}",
 				ex.Message
 			);
 		}
@@ -179,8 +179,22 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: Hello, world" + Environment.NewLine +
-				"Actual:   Hello, world!",
+				"Expected: \"Hello, world\"" + Environment.NewLine +
+				"Actual:   \"Hello, world!\"",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void NullIsNotEquivalentToEmptyString()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(null, string.Empty));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: null" + Environment.NewLine +
+				"Actual:   \"\"",
 				ex.Message
 			);
 		}
@@ -445,8 +459,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Mismatched value on member 'Shallow.Value2'" + Environment.NewLine +
-				"Expected: Hello, world" + Environment.NewLine +
-				"Actual:   Hello, world!",
+				"Expected: \"Hello, world\"" + Environment.NewLine +
+				"Actual:   \"Hello, world!\"",
 				ex.Message
 			);
 		}
@@ -703,8 +717,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -720,8 +734,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -758,8 +772,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -775,8 +789,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -792,8 +806,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -809,8 +823,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -847,8 +861,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -864,8 +878,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -902,8 +916,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -919,8 +933,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -936,8 +950,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -953,8 +967,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -1311,9 +1325,9 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				$"Assert.Equivalent() Failure: Mismatched value on member 'Value'{Environment.NewLine}" +
-				$"Expected: Hello{Environment.NewLine}" +
-				$"Actual:   There",
+				"Assert.Equivalent() Failure: Mismatched value on member 'Value'" + Environment.NewLine +
+				"Expected: \"Hello\"" + Environment.NewLine +
+				"Actual:   \"There\"",
 				ex.Message
 			);
 		}

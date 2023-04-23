@@ -13,7 +13,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void NullValue()
 		{
-			Assert.Equal("null", ArgumentFormatter.Format(null!));
+			Assert.Equal("null", ArgumentFormatter.Format(null));
 		}
 
 		// NOTE: It's important that this stays as MemberData
@@ -256,10 +256,10 @@ public class ArgumentFormatterTests
 	public class Enumerables
 	{
 		// Both tracked and untracked should be the same
-		public static TheoryData<IEnumerable> Collections = new()
+		public static TheoryData<IEnumerable?> Collections = new()
 		{
 			new object[] { 1, 2.3M, "Hello, world!" },
-			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker()!,
+			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker(),
 		};
 
 		[CulturedTheory(DisableDiscoveryEnumeration = true)]
@@ -284,10 +284,17 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
-		[CulturedFact]
-		public static void OnlyFirstFewValuesOfEnumerableAreRendered()
+		public static TheoryData<IEnumerable?> LongCollections = new()
 		{
-			Assert.Equal("[0, 1, 2, 3, 4, ···]", ArgumentFormatter.Format(Enumerable.Range(0, int.MaxValue)));
+			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.AsTracker(),
+		};
+
+		[CulturedTheory(DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(LongCollections))]
+		public static void OnlyFirstFewValuesOfEnumerableAreRendered(IEnumerable collection)
+		{
+			Assert.Equal("[0, 1, 2, 3, 4, ···]", ArgumentFormatter.Format(collection));
 		}
 
 		[CulturedFact]
