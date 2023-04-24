@@ -1109,9 +1109,13 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int>();
 
-			var ex = Assert.Throws<NotEmptyException>(() => Assert.NotEmpty(list));
+			var ex = Record.Exception(() => Assert.NotEmpty(list));
 
-			Assert.Equal("Assert.NotEmpty() Failure", ex.Message);
+			Assert.IsType<NotEmptyException>(ex);
+			Assert.Equal(
+				"Assert.NotEmpty() Failure: Container was empty",
+				ex.Message
+			);
 		}
 
 		[Fact]
