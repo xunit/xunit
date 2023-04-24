@@ -9,7 +9,15 @@ public class TypeAssertsTests
 		[Fact]
 		public void NullObjectThrows()
 		{
-			Assert.Throws<IsAssignableFromException>(() => Assert.IsAssignableFrom<object>(null));
+			var ex = Record.Exception(() => Assert.IsAssignableFrom<object>(null));
+
+			Assert.IsType<IsAssignableFromException>(ex);
+			Assert.Equal(
+				"Assert.IsAssignableFrom() Failure: Value is null" + Environment.NewLine +
+				"Expected: typeof(object)" + Environment.NewLine +
+				"Actual:   null",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -49,12 +57,18 @@ public class TypeAssertsTests
 		[Fact]
 		public void IncompatibleTypeThrows()
 		{
-			var exception =
-				Assert.Throws<IsAssignableFromException>(
+			var ex =
+				Record.Exception(
 					() => Assert.IsAssignableFrom<InvalidCastException>(new InvalidOperationException())
 				);
 
-			Assert.Equal("Assert.IsAssignableFrom() Failure", exception.UserMessage);
+			Assert.IsType<IsAssignableFromException>(ex);
+			Assert.Equal(
+				"Assert.IsAssignableFrom() Failure: Value is an incompatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidOperationException)",
+				ex.Message
+			);
 		}
 	}
 
@@ -63,7 +77,15 @@ public class TypeAssertsTests
 		[Fact]
 		public void NullObjectThrows()
 		{
-			Assert.Throws<IsAssignableFromException>(() => Assert.IsAssignableFrom(typeof(object), null));
+			var ex = Record.Exception(() => Assert.IsAssignableFrom(typeof(object), null));
+
+			Assert.IsType<IsAssignableFromException>(ex);
+			Assert.Equal(
+				"Assert.IsAssignableFrom() Failure: Value is null" + Environment.NewLine +
+				"Expected: typeof(object)" + Environment.NewLine +
+				"Actual:   null",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -103,12 +125,18 @@ public class TypeAssertsTests
 		[Fact]
 		public void IncompatibleTypeThrows()
 		{
-			var exception =
-				Assert.Throws<IsAssignableFromException>(
+			var ex =
+				Record.Exception(
 					() => Assert.IsAssignableFrom(typeof(InvalidCastException), new InvalidOperationException())
 				);
 
-			Assert.Equal("Assert.IsAssignableFrom() Failure", exception.UserMessage);
+			Assert.IsType<IsAssignableFromException>(ex);
+			Assert.Equal(
+				"Assert.IsAssignableFrom() Failure: Value is an incompatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidOperationException)",
+				ex.Message
+			);
 		}
 	}
 
