@@ -153,11 +153,15 @@ public class TypeAssertsTests
 		[Fact]
 		public void MatchedTypeThrows()
 		{
-			XunitException exception =
-				Assert.Throws<IsNotTypeException>(
-					() => Assert.IsNotType<InvalidCastException>(new InvalidCastException()));
+			var ex = Record.Exception(() => Assert.IsNotType<InvalidCastException>(new InvalidCastException()));
 
-			Assert.Equal("Assert.IsNotType() Failure", exception.UserMessage);
+			Assert.IsType<IsNotTypeException>(ex);
+			Assert.Equal(
+				"Assert.IsNotType() Failure: Value is the exact type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -180,11 +184,15 @@ public class TypeAssertsTests
 		[Fact]
 		public void MatchedTypeThrows()
 		{
-			XunitException exception =
-				Assert.Throws<IsNotTypeException>(
-					() => Assert.IsNotType(typeof(InvalidCastException), new InvalidCastException()));
+			var ex = Record.Exception(() => Assert.IsNotType(typeof(InvalidCastException), new InvalidCastException()));
 
-			Assert.Equal("Assert.IsNotType() Failure", exception.UserMessage);
+			Assert.IsType<IsNotTypeException>(ex);
+			Assert.Equal(
+				"Assert.IsNotType() Failure: Value is the exact type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				ex.Message
+			);
 		}
 
 		[Fact]
