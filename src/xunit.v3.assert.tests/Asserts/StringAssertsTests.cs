@@ -472,10 +472,9 @@ public class StringAssertsTests
 	public class Matches_Pattern
 	{
 		[Fact]
-		public void GuardClauses()
+		public void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Matches((string?)null!, "Hello, world!"));
-			Assert.Throws<MatchesException>(() => Assert.Matches(@"\w+", null));
+			Assert.Throws<ArgumentNullException>("expectedRegexPattern", () => Assert.Matches((string?)null!, "Hello, world!"));
 		}
 
 		[Fact]
@@ -491,9 +490,23 @@ public class StringAssertsTests
 
 			Assert.IsType<MatchesException>(ex);
 			Assert.Equal(
-				"Assert.Matches() Failure:" + Environment.NewLine +
-				@"Regex: \d+" + Environment.NewLine +
-				"Value: Hello, world!",
+				"Assert.Matches() Failure: Pattern not found in value" + Environment.NewLine +
+				@"Regex: ""\\d+""" + Environment.NewLine +
+				@"Value: ""Hello, world!""",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_NullActual()
+		{
+			var ex = Record.Exception(() => Assert.Matches(@"\d+", null));
+
+			Assert.IsType<MatchesException>(ex);
+			Assert.Equal(
+				"Assert.Matches() Failure: Pattern not found in value" + Environment.NewLine +
+				@"Regex: ""\\d+""" + Environment.NewLine +
+				"Value: null",
 				ex.Message
 			);
 		}
@@ -502,10 +515,9 @@ public class StringAssertsTests
 	public class Matches_Regex
 	{
 		[Fact]
-		public void GuardClauses()
+		public void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>(() => Assert.Matches((Regex?)null!, "Hello, world!"));
-			Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), null));
+			Assert.Throws<ArgumentNullException>("expectedRegex", () => Assert.Matches((Regex?)null!, "Hello, world!"));
 		}
 
 		[Fact]
@@ -527,9 +539,23 @@ public class StringAssertsTests
 
 			Assert.IsType<MatchesException>(ex);
 			Assert.Equal(
-				"Assert.Matches() Failure:" + Environment.NewLine +
-				@"Regex: \d+" + Environment.NewLine +
-				"Value: Hello, world!",
+				"Assert.Matches() Failure: Pattern not found in value" + Environment.NewLine +
+				@"Regex: ""\\d+""" + Environment.NewLine +
+				@"Value: ""Hello, world!""",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_NullActual()
+		{
+			var ex = Record.Exception(() => Assert.Matches(new Regex(@"\d+"), null));
+
+			Assert.IsType<MatchesException>(ex);
+			Assert.Equal(
+				"Assert.Matches() Failure: Pattern not found in value" + Environment.NewLine +
+				@"Regex: ""\\d+""" + Environment.NewLine +
+				"Value: null",
 				ex.Message
 			);
 		}
