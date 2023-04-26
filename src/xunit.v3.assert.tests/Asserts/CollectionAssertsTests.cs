@@ -19,8 +19,8 @@ public class CollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.All<object>(null!, _ => { }));
-			Assert.Throws<ArgumentNullException>("action", () => Assert.All(Array.Empty<object>(), (Action<object>)null!));
-			Assert.Throws<ArgumentNullException>("action", () => Assert.All(Array.Empty<object>(), (Action<object, int>)null!));
+			Assert.Throws<ArgumentNullException>("action", () => Assert.All(new object[0], (Action<object>)null!));
+			Assert.Throws<ArgumentNullException>("action", () => Assert.All(new object[0], (Action<object, int>)null!));
 		}
 
 		[Fact]
@@ -681,7 +681,7 @@ public class CollectionAssertsTests
 			[Fact]
 			public static void EmptyExpectedNullActual()
 			{
-				var expected = Array.Empty<int>();
+				var expected = new int[0];
 				var actual = default(IEnumerable<int>);
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
@@ -699,7 +699,7 @@ public class CollectionAssertsTests
 			public static void NullExpectedEmptyActual()
 			{
 				var expected = default(IEnumerable<int>);
-				var actual = Array.Empty<int>();
+				var actual = new int[0];
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -1160,7 +1160,7 @@ public class CollectionAssertsTests
 			[Fact]
 			public static void EmptyExpectedNullActual()
 			{
-				var expected = Array.Empty<int>();
+				var expected = new int[0];
 				var actual = default(IEnumerable<int>);
 
 				Assert.NotEqual(expected, actual);
@@ -1170,7 +1170,7 @@ public class CollectionAssertsTests
 			public static void NullExpectedEmptyActual()
 			{
 				var expected = default(IEnumerable<int>);
-				var actual = Array.Empty<int>();
+				var actual = new int[0];
 
 				Assert.NotEqual(expected, actual);
 			}

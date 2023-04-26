@@ -1,7 +1,10 @@
-using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
+
+#if XUNIT_SPAN
+using System;
+#endif
 
 public class CollectionTrackerTests
 {
@@ -10,7 +13,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var tracker = new[] { 42, 2112 }.AsTracker()!;
+			var tracker = new[] { 42, 2112 }.AsTracker();
 
 			var result = tracker.FormatIndexedMismatch(2600, out var pointerIndent, ArgumentFormatter.MAX_DEPTH);
 
@@ -22,7 +25,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void SmallCollection_Start()
 		{
-			var tracker = new[] { 42, 2112 }.AsTracker()!;
+			var tracker = new[] { 42, 2112 }.AsTracker();
 
 			var result = tracker.FormatIndexedMismatch(0, out var pointerIndent);
 
@@ -34,7 +37,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void LargeCollection_Start()
 		{
-			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker()!;
+			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker();
 
 			var result = tracker.FormatIndexedMismatch(1, out var pointerIndent);
 
@@ -46,7 +49,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void LargeCollection_Mid()
 		{
-			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker()!;
+			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker();
 
 			var result = tracker.FormatIndexedMismatch(3, out var pointerIndent);
 
@@ -58,7 +61,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void LargeCollection_End()
 		{
-			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker()!;
+			var tracker = new[] { 1, 2, 3, 4, 5, 6, 7 }.AsTracker();
 
 			var result = tracker.FormatIndexedMismatch(6, out var pointerIndent);
 
@@ -68,6 +71,7 @@ public class CollectionTrackerTests
 		}
 	}
 
+#if XUNIT_SPAN
 	public class FormatIndexedMismatch_Span
 	{
 		[Fact]
@@ -130,13 +134,14 @@ public class CollectionTrackerTests
 			Assert.Equal(18, pointerIndent);
 		}
 	}
+#endif
 
 	public class FormatStart_IEnumerable_Tracked
 	{
 		[Fact]
 		public static void Empty()
 		{
-			var tracker = Array.Empty<object>().AsTracker()!;
+			var tracker = new object[0].AsTracker();
 
 			Assert.Equal("[]", tracker.FormatStart());
 		}
@@ -144,7 +149,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var tracker = Array.Empty<object>().AsTracker()!;
+			var tracker = new object[0].AsTracker();
 
 			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", tracker.FormatStart(ArgumentFormatter.MAX_DEPTH));
 		}
@@ -152,7 +157,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Short()
 		{
-			var tracker = new object[] { 1, 2.3M, "Hello, world!" }.AsTracker()!;
+			var tracker = new object[] { 1, 2.3M, "Hello, world!" }.AsTracker();
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\"]", tracker.FormatStart());
 		}
@@ -160,7 +165,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Long()
 		{
-			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsTracker()!;
+			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsTracker();
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter2.Ellipsis}]", tracker.FormatStart());
 		}
@@ -171,7 +176,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void Empty()
 		{
-			IEnumerable<object> collection = Array.Empty<object>();
+			IEnumerable<object> collection = new object[0];
 
 			Assert.Equal("[]", CollectionTracker<object>.FormatStart(collection));
 		}
@@ -179,7 +184,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			IEnumerable<object> collection = Array.Empty<object>();
+			IEnumerable<object> collection = new object[0];
 
 			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MAX_DEPTH));
 		}
@@ -201,12 +206,13 @@ public class CollectionTrackerTests
 		}
 	}
 
+#if XUNIT_SPAN
 	public class FormatStart_Span
 	{
 		[Fact]
 		public static void Empty()
 		{
-			var span = Array.Empty<object>().AsSpan();
+			var span = new object[0].AsSpan();
 
 			Assert.Equal("[]", CollectionTracker<object>.FormatStart(span));
 		}
@@ -214,7 +220,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var span = Array.Empty<object>().AsSpan();
+			var span = new object[0].AsSpan();
 
 			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MAX_DEPTH));
 		}
@@ -235,4 +241,5 @@ public class CollectionTrackerTests
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(span));
 		}
 	}
+#endif
 }

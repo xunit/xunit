@@ -262,8 +262,8 @@ public class ArgumentFormatterTests
 			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker(),
 		};
 
-		[CulturedTheory(DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(Collections))]
+		[CulturedTheory]
+		[MemberData(nameof(Collections), DisableDiscoveryEnumeration = true)]
 		public static void EnumerableValue(IEnumerable collection)
 		{
 			var expected = $"[1, {2.3M}, \"Hello, world!\"]";
@@ -290,8 +290,8 @@ public class ArgumentFormatterTests
 			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.AsTracker(),
 		};
 
-		[CulturedTheory(DisableDiscoveryEnumeration = true)]
-		[MemberData(nameof(LongCollections))]
+		[CulturedTheory]
+		[MemberData(nameof(LongCollections), DisableDiscoveryEnumeration = true)]
 		public static void OnlyFirstFewValuesOfEnumerableAreRendered(IEnumerable collection)
 		{
 			Assert.Equal($"[0, 1, 2, 3, 4, {ArgumentFormatter2.Ellipsis}]", ArgumentFormatter.Format(collection));
