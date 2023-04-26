@@ -14,8 +14,8 @@ public class CollectionTrackerTests
 
 			var result = tracker.FormatIndexedMismatch(2600, out var pointerIndent, ArgumentFormatter.MAX_DEPTH);
 
-			Assert.Equal("[···]", result);
-			//            -^
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", result);
+			//             - ^
 			Assert.Equal(1, pointerIndent);
 		}
 
@@ -38,8 +38,8 @@ public class CollectionTrackerTests
 
 			var result = tracker.FormatIndexedMismatch(1, out var pointerIndent);
 
-			Assert.Equal("[1, 2, 3, 4, 5, ···]", result);
-			//            ----^
+			Assert.Equal($"[1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]", result);
+			//             ----^
 			Assert.Equal(4, pointerIndent);
 		}
 
@@ -50,8 +50,8 @@ public class CollectionTrackerTests
 
 			var result = tracker.FormatIndexedMismatch(3, out var pointerIndent);
 
-			Assert.Equal("[···, 2, 3, 4, 5, 6, ···]", result);
-			//            ----|----|--^
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}, 2, 3, 4, 5, 6, {ArgumentFormatter2.Ellipsis}]", result);
+			//             - ---                         |----|--^
 			Assert.Equal(12, pointerIndent);
 		}
 
@@ -62,8 +62,8 @@ public class CollectionTrackerTests
 
 			var result = tracker.FormatIndexedMismatch(6, out var pointerIndent);
 
-			Assert.Equal("[···, 3, 4, 5, 6, 7]", result);
-			//            ----|----|----|---^
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}, 3, 4, 5, 6, 7]", result);
+			//             - ---                         |----|----|---^
 			Assert.Equal(18, pointerIndent);
 		}
 	}
@@ -77,8 +77,8 @@ public class CollectionTrackerTests
 
 			var result = CollectionTracker<int>.FormatIndexedMismatch(span, 2600, out var pointerIndent, ArgumentFormatter.MAX_DEPTH);
 
-			Assert.Equal("[···]", result);
-			//            -^
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", result);
+			//             - ^
 			Assert.Equal(1, pointerIndent);
 		}
 
@@ -101,8 +101,8 @@ public class CollectionTrackerTests
 
 			var result = CollectionTracker<int>.FormatIndexedMismatch(span, 1, out var pointerIndent);
 
-			Assert.Equal("[1, 2, 3, 4, 5, ···]", result);
-			//            ----^
+			Assert.Equal($"[1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]", result);
+			//             ----^
 			Assert.Equal(4, pointerIndent);
 		}
 
@@ -113,8 +113,8 @@ public class CollectionTrackerTests
 
 			var result = CollectionTracker<int>.FormatIndexedMismatch(span, 3, out var pointerIndent);
 
-			Assert.Equal("[···, 2, 3, 4, 5, 6, ···]", result);
-			//            ----|----|--^
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}, 2, 3, 4, 5, 6, {ArgumentFormatter2.Ellipsis}]", result);
+			//             - ---                         |----|--^
 			Assert.Equal(12, pointerIndent);
 		}
 
@@ -125,8 +125,8 @@ public class CollectionTrackerTests
 
 			var result = CollectionTracker<int>.FormatIndexedMismatch(span, 6, out var pointerIndent);
 
-			Assert.Equal("[···, 3, 4, 5, 6, 7]", result);
-			//            ----|----|----|---^
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}, 3, 4, 5, 6, 7]", result);
+			//             - ---                         |----|----|---^
 			Assert.Equal(18, pointerIndent);
 		}
 	}
@@ -146,7 +146,7 @@ public class CollectionTrackerTests
 		{
 			var tracker = Array.Empty<object>().AsTracker()!;
 
-			Assert.Equal("[···]", tracker.FormatStart(ArgumentFormatter.MAX_DEPTH));
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", tracker.FormatStart(ArgumentFormatter.MAX_DEPTH));
 		}
 
 		[CulturedFact]
@@ -162,7 +162,7 @@ public class CollectionTrackerTests
 		{
 			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsTracker()!;
 
-			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, ···]", tracker.FormatStart());
+			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter2.Ellipsis}]", tracker.FormatStart());
 		}
 	}
 
@@ -181,7 +181,7 @@ public class CollectionTrackerTests
 		{
 			IEnumerable<object> collection = Array.Empty<object>();
 
-			Assert.Equal("[···]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MAX_DEPTH));
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MAX_DEPTH));
 		}
 
 		[CulturedFact]
@@ -197,7 +197,7 @@ public class CollectionTrackerTests
 		{
 			IEnumerable<object> collection = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() };
 
-			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, ···]", CollectionTracker<object>.FormatStart(collection));
+			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(collection));
 		}
 	}
 
@@ -216,7 +216,7 @@ public class CollectionTrackerTests
 		{
 			var span = Array.Empty<object>().AsSpan();
 
-			Assert.Equal("[···]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MAX_DEPTH));
+			Assert.Equal($"[{ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MAX_DEPTH));
 		}
 
 		[CulturedFact]
@@ -232,7 +232,7 @@ public class CollectionTrackerTests
 		{
 			var span = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsSpan();
 
-			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, ···]", CollectionTracker<object>.FormatStart(span));
+			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter2.Ellipsis}]", CollectionTracker<object>.FormatStart(span));
 		}
 	}
 }

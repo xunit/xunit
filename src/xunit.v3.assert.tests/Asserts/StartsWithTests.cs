@@ -1,6 +1,7 @@
 using System;
 
 using Xunit;
+using Xunit.Sdk;
 
 public class StartsWithTests
 {
@@ -24,7 +25,7 @@ public class StartsWithTests
 		var expectedMessage =
 			"Assert.StartsWith() Failure:" + Environment.NewLine +
 			"Expected: WORLD" + Environment.NewLine +
-			"Actual:   Hello···";
+			"Actual:   Hello" + ArgumentFormatter2.Ellipsis;
 
 		var ex = Record.Exception(() => Assert.StartsWith("WORLD", "Hello, world!"));
 

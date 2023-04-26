@@ -452,7 +452,7 @@ public class CollectionAssertsTests
 			Assert.IsType<DistinctException>(ex);
 			Assert.Equal(
 				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
-				"Collection: [\"a\", null, \"b\", null, \"c\", ···]" + Environment.NewLine +
+				$"Collection: [\"a\", null, \"b\", null, \"c\", {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
 				"Item:       null",
 				ex.Message
 			);
@@ -776,43 +776,43 @@ public class CollectionAssertsTests
 			// Nulls
 			[InlineData(
 				null, null, "null",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, ···]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, ···]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
 				null, "null", null
 			)]
 			// Start of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, ···]",
-				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, ···]", "↑ (pos 0)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
+				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, $$ELLIPSIS$$]", "↑ (pos 0)"
 			)]
 			// Middle of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[···, 2, 3, 4, 5, 6, ···]",
-				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[···, 2, 3, 99, 5, 6, ···]", "           ↑ (pos 3)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[$$ELLIPSIS$$, 2, 3, 4, 5, 6, $$ELLIPSIS$$]",
+				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[$$ELLIPSIS$$, 2, 3, 99, 5, 6, $$ELLIPSIS$$]", "           ↑ (pos 3)"
 			)]
 			// End of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[···, 3, 4, 5, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[···, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[$$ELLIPSIS$$, 3, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[$$ELLIPSIS$$, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
 			)]
 			// Overruns
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 4, 5, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[···, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[$$ELLIPSIS$$, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[$$ELLIPSIS$$, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[···, 6, 7, 8, 9, 10, ···]", "           ↑ (pos 7)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[$$ELLIPSIS$$, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]", "           ↑ (pos 7)"
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[···, 4, 5, 6, 7, 8]",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 4, 5, 6, 7]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[$$ELLIPSIS$$, 4, 5, 6, 7, 8]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[$$ELLIPSIS$$, 4, 5, 6, 7]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[···, 6, 7, 8, 9, 10, ···]",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 6, 7]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[$$ELLIPSIS$$, 6, 7]", null
 			)]
 			public void Truncation(
 				int[]? expected,
@@ -837,7 +837,7 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
 				Assert.IsType<EqualException>(ex);
-				Assert.Equal(message, ex.Message);
+				Assert.Equal(message.Replace("$$ELLIPSIS$$", ArgumentFormatter2.Ellipsis), ex.Message);
 			}
 
 			[Fact]
@@ -872,43 +872,43 @@ public class CollectionAssertsTests
 			// Nulls
 			[InlineData(
 				null, null, "null",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, ···]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, ···]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
 				null, "null", null
 			)]
 			// Start of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, ···]",
-				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, ···]", "↑ (pos 0)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
+				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, $$ELLIPSIS$$]", "↑ (pos 0)"
 			)]
 			// Middle of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[···, 2, 3, 4, 5, 6, ···]",
-				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[···, 2, 3, 99, 5, 6, ···]", "           ↑ (pos 3)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[$$ELLIPSIS$$, 2, 3, 4, 5, 6, $$ELLIPSIS$$]",
+				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[$$ELLIPSIS$$, 2, 3, 99, 5, 6, $$ELLIPSIS$$]", "           ↑ (pos 3)"
 			)]
 			// End of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[···, 3, 4, 5, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[···, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[$$ELLIPSIS$$, 3, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[$$ELLIPSIS$$, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
 			)]
 			// Overruns
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 4, 5, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[···, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[$$ELLIPSIS$$, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[$$ELLIPSIS$$, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[···, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[···, 6, 7, 8, 9, 10, ···]", "           ↑ (pos 7)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[$$ELLIPSIS$$, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]", "           ↑ (pos 7)"
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[···, 4, 5, 6, 7, 8]",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 4, 5, 6, 7]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[$$ELLIPSIS$$, 4, 5, 6, 7, 8]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[$$ELLIPSIS$$, 4, 5, 6, 7]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[···, 6, 7, 8, 9, 10, ···]",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[···, 6, 7]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[$$ELLIPSIS$$, 6, 7]", null
 			)]
 			public void Truncation(
 				int[]? expected,
@@ -934,7 +934,7 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
 				Assert.IsType<EqualException>(ex);
-				Assert.Equal(message, ex.Message);
+				Assert.Equal(message.Replace("$$ELLIPSIS$$", ArgumentFormatter2.Ellipsis), ex.Message);
 			}
 		}
 
@@ -1064,8 +1064,8 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
-					"Expected: [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]" + Environment.NewLine +
-					"Actual:   [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, ···]",
+					$"Expected: [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+					$"Actual:   [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter2.Ellipsis}]",
 					ex.Message
 				);
 			}
@@ -1094,7 +1094,7 @@ public class CollectionAssertsTests
 				Assert.Equal(
 					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
 					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
-					"Actual:   [···, 2, 3, 4, 5, 6]" + Environment.NewLine +
+					$"Actual:   [{ArgumentFormatter2.Ellipsis}, 2, 3, 4, 5, 6]" + Environment.NewLine +
 					"                            ↑ (pos 5)",
 					ex.Message
 				);
@@ -1242,8 +1242,8 @@ public class CollectionAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure" + Environment.NewLine +
-					"Expected: Not [1, 2, 3, 4, 5, ···]" + Environment.NewLine +
-					"Actual:   [1, 2, 3, 4, 5, ···]",
+					$"Expected: Not [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+					$"Actual:   [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
 					ex.Message
 				);
 			}

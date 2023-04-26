@@ -59,7 +59,7 @@ public class ArgumentFormatterTests
 		[InlineData("Hello, world!", "\"Hello, world!\"")]
 		[InlineData(@"""", @"""\""""")] // quotes should be escaped
 		[InlineData("\uD800\uDFFF", "\"\uD800\uDFFF\"")] // valid surrogates should print normally
-		[InlineData("\uFFFE", @"""\xfffe""")] // same for U+FFFE...
+		[InlineData("\uFFFE", @"""\xfffe""")] // same for U+FFFE
 		[InlineData("\uFFFF", @"""\xffff""")] // and U+FFFF, which are non-characters
 		[InlineData("\u001F", @"""\x1f""")] // non-escaped C0 controls should be 2 digits
 											// Other escape sequences
@@ -72,11 +72,11 @@ public class ArgumentFormatterTests
 		[InlineData("\v", @"""\v""")] // vertical tab
 		[InlineData("\t", @"""\t""")] // tab
 		[InlineData("\f", @"""\f""")] // formfeed
-		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"···")] // truncation
+		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"$$ELLIPSIS$$")] // truncation
 		[MemberData(nameof(StringValue_TestData), DisableDiscoveryEnumeration = true)]
 		public static void StringValue(string value, string expected)
 		{
-			Assert.Equal(expected, ArgumentFormatter.Format(value));
+			Assert.Equal(expected.Replace("$$ELLIPSIS$$", ArgumentFormatter2.Ellipsis), ArgumentFormatter.Format(value));
 		}
 
 		public static IEnumerable<object[]> CharValue_TestData()
@@ -294,7 +294,7 @@ public class ArgumentFormatterTests
 		[MemberData(nameof(LongCollections))]
 		public static void OnlyFirstFewValuesOfEnumerableAreRendered(IEnumerable collection)
 		{
-			Assert.Equal("[0, 1, 2, 3, 4, ···]", ArgumentFormatter.Format(collection));
+			Assert.Equal($"[0, 1, 2, 3, 4, {ArgumentFormatter2.Ellipsis}]", ArgumentFormatter.Format(collection));
 		}
 
 		[CulturedFact]
@@ -304,7 +304,7 @@ public class ArgumentFormatterTests
 			looping[0] = 42;
 			looping[1] = looping;
 
-			Assert.Equal("[42, [42, [···]]]", ArgumentFormatter.Format(looping));
+			Assert.Equal($"[42, [42, [{ArgumentFormatter2.Ellipsis}]]]", ArgumentFormatter.Format(looping));
 		}
 	}
 
@@ -371,7 +371,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void LimitsOutputToFirstFewValues()
 		{
-			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ··· }}";
+			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, {ArgumentFormatter2.Ellipsis} }}";
 
 			Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
 		}
@@ -402,7 +402,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
-			Assert.Equal("Looping { Me = Looping { Me = Looping { ··· } } }", ArgumentFormatter.Format(new Looping()));
+			Assert.Equal($"Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter2.Ellipsis} }} }} }}", ArgumentFormatter.Format(new Looping()));
 		}
 
 		public class Looping
