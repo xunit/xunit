@@ -6,20 +6,20 @@ public class IdentityAssertsTests
 	public class NotSame
 	{
 		[Fact]
-		public void Success()
-		{
-			Assert.NotSame("bob", "jim");
-		}
-
-		[Fact]
-		public void Failure()
+		public void Identical()
 		{
 			var actual = new object();
 
 			var ex = Record.Exception(() => Assert.NotSame(actual, actual));
 
 			Assert.IsType<NotSameException>(ex);
-			Assert.Equal("Assert.NotSame() Failure", ex.Message);
+			Assert.Equal("Assert.NotSame() Failure: Values are the same instance", ex.Message);
+		}
+
+		[Fact]
+		public void NotIdentical()
+		{
+			Assert.NotSame("bob", "jim");
 		}
 	}
 
