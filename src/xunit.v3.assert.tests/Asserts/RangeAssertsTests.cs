@@ -116,7 +116,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void DoubleWithinRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange(1.0, .75, 1.25));
+			var ex = Record.Exception(() => Assert.NotInRange(1.0, .75, 1.25));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (0.75 - 1.25)" + Environment.NewLine +
+				"Actual: 1",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -128,7 +136,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void IntWithinRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange(2, 1, 3));
+			var ex = Record.Exception(() => Assert.NotInRange(2, 1, 3));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (1 - 3)" + Environment.NewLine +
+				"Actual: 2",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -140,7 +156,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void StringWithNotInRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange("bob", "adam", "scott"));
+			var ex = Record.Exception(() => Assert.NotInRange("bob", "adam", "scott"));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (\"adam\" - \"scott\")" + Environment.NewLine +
+				"Actual: \"bob\"",
+				ex.Message
+			);
 		}
 	}
 
@@ -149,7 +173,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void DoubleValueWithinRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange(400.0, .75, 1.25, new DoubleComparer(-1)));
+			var ex = Record.Exception(() => Assert.NotInRange(400.0, .75, 1.25, new DoubleComparer(-1)));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (0.75 - 1.25)" + Environment.NewLine +
+				"Actual: 400",
+				ex.Message
+			);
 		}
 
 		[Fact]
