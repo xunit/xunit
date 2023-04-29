@@ -119,9 +119,9 @@ public class SetAssertsTests
 
 			Assert.IsType<ProperSubsetException>(ex);
 			Assert.Equal(
-				"Assert.ProperSubset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> [1, 2, 3]" + Environment.NewLine +
-				"Actual:   HashSet<Int32> [1, 2, 3]",
+				"Assert.ProperSubset() Failure: Value is not a proper subset" + Environment.NewLine +
+				"Expected: [1, 2, 3]" + Environment.NewLine +
+				"Actual:   [1, 2, 3]",
 				ex.Message
 			);
 		}
@@ -145,9 +145,9 @@ public class SetAssertsTests
 
 			Assert.IsType<ProperSubsetException>(ex);
 			Assert.Equal(
-				"Assert.ProperSubset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> [1, 2, 3]" + Environment.NewLine +
-				"Actual:   HashSet<Int32> [1, 2, 7]",
+				"Assert.ProperSubset() Failure: Value is not a proper subset" + Environment.NewLine +
+				"Expected: [1, 2, 3]" + Environment.NewLine +
+				"Actual:   [1, 2, 7]",
 				ex.Message
 			);
 		}
@@ -159,9 +159,9 @@ public class SetAssertsTests
 
 			Assert.IsType<ProperSubsetException>(ex);
 			Assert.Equal(
-				"Assert.ProperSubset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> []" + Environment.NewLine +
-				"Actual:   (null)",
+				"Assert.ProperSubset() Failure: Value is not a proper subset" + Environment.NewLine +
+				"Expected: []" + Environment.NewLine +
+				"Actual:   null",
 				ex.Message
 			);
 		}
