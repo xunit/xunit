@@ -3179,25 +3179,13 @@ public class EqualityAssertsTests
 	public class NotStrictEqual
 	{
 		[Fact]
-		public static void Success()
-		{
-			Assert.NotStrictEqual("bob", "jim");
-		}
-
-		[Fact]
-		public static void Equals()
-		{
-			Assert.NotStrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah"));
-		}
-
-		[Fact]
-		public static void Failure()
+		public static void Equal()
 		{
 			var ex = Record.Exception(() => Assert.NotStrictEqual("actual", "actual"));
 
-			Assert.IsType<NotEqualException>(ex);
+			Assert.IsType<NotStrictEqualException>(ex);
 			Assert.Equal(
-				@"Assert.NotEqual() Failure: Strings are equal" + Environment.NewLine +
+				"Assert.NotStrictEqual() Failure: Values are equal" + Environment.NewLine +
 				@"Expected: Not ""actual""" + Environment.NewLine +
 				@"Actual:       ""actual""",
 				ex.Message
@@ -3205,15 +3193,27 @@ public class EqualityAssertsTests
 		}
 
 		[Fact]
+		public static void NotEqual_Strings()
+		{
+			Assert.NotStrictEqual("bob", "jim");
+		}
+
+		[Fact]
+		public static void NotEqual_Classes()
+		{
+			Assert.NotStrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah"));
+		}
+
+		[Fact]
 		public static void DifferentTypes_Equal()
 		{
 			var ex = Record.Exception(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
 
-			Assert.IsType<NotEqualException>(ex);
+			Assert.IsType<NotStrictEqualException>(ex);
 			Assert.Equal(
-				@"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
-				@"Expected: Not DerivedClass { }" + Environment.NewLine +
-				@"Actual:       BaseClass { }",
+				"Assert.NotStrictEqual() Failure: Values are equal" + Environment.NewLine +
+				"Expected: Not DerivedClass { }" + Environment.NewLine +
+				"Actual:       BaseClass { }",
 				ex.Message
 			);
 		}
