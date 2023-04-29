@@ -181,12 +181,13 @@ public class SetAssertsTests
 			var expectedSuperset = new HashSet<int> { 1, 2, 3 };
 			var actual = new HashSet<int> { 1, 2, 3 };
 
-			var ex = Assert.Throws<ProperSupersetException>(() => Assert.ProperSuperset(expectedSuperset, actual));
+			var ex = Record.Exception(() => Assert.ProperSuperset(expectedSuperset, actual));
 
+			Assert.IsType<ProperSupersetException>(ex);
 			Assert.Equal(
-				"Assert.ProperSuperset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> [1, 2, 3]" + Environment.NewLine +
-				"Actual:   HashSet<Int32> [1, 2, 3]",
+				"Assert.ProperSuperset() Failure: Value is not a proper superset" + Environment.NewLine +
+				"Expected: [1, 2, 3]" + Environment.NewLine +
+				"Actual:   [1, 2, 3]",
 				ex.Message
 			);
 		}
@@ -206,7 +207,15 @@ public class SetAssertsTests
 			var expectedSuperset = new HashSet<int> { 1, 2, 3 };
 			var actual = new HashSet<int> { 1, 2, 7 };
 
-			Assert.Throws<ProperSupersetException>(() => Assert.ProperSuperset(expectedSuperset, actual));
+			var ex = Record.Exception(() => Assert.ProperSuperset(expectedSuperset, actual));
+
+			Assert.IsType<ProperSupersetException>(ex);
+			Assert.Equal(
+				"Assert.ProperSuperset() Failure: Value is not a proper superset" + Environment.NewLine +
+				"Expected: [1, 2, 3]" + Environment.NewLine +
+				"Actual:   [1, 2, 7]",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -216,9 +225,9 @@ public class SetAssertsTests
 
 			Assert.IsType<ProperSupersetException>(ex);
 			Assert.Equal(
-				"Assert.ProperSuperset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> []" + Environment.NewLine +
-				"Actual:   (null)",
+				"Assert.ProperSuperset() Failure: Value is not a proper superset" + Environment.NewLine +
+				"Expected: []" + Environment.NewLine +
+				"Actual:   null",
 				ex.Message
 			);
 		}
