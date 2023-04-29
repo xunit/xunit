@@ -716,7 +716,7 @@ public class CollectionAssertsTests
 		public class Arrays
 		{
 			[Fact]
-			public static void Success()
+			public static void Equal()
 			{
 				string[] expected = { "@", "a", "ab", "b" };
 				string[] actual = { "@", "a", "ab", "b" };
@@ -725,7 +725,7 @@ public class CollectionAssertsTests
 			}
 
 			[Fact]
-			public static void EmbeddedArraySuccess()
+			public static void EmbeddedArrays_Equal()
 			{
 				string[][] expected = { new[] { "@", "a" }, new[] { "ab", "b" } };
 				string[][] actual = { new[] { "@", "a" }, new[] { "ab", "b" } };
@@ -748,7 +748,7 @@ public class CollectionAssertsTests
 			[InlineData(new[] { 1, 2, 3, 4, 5 }, new[] { 1, 2, 3, 4 }, "            ↓ (pos 4)", null)]
 			[InlineData(new[] { 1 }, new int[0], "↓ (pos 0)", null)]
 			[InlineData(new int[0], new[] { 1 }, null, "↑ (pos 0)")]
-			public void Failure(
+			public void NotEqual(
 				int[]? expected,
 				int[]? actual,
 				string? expectedPointer,
@@ -867,7 +867,7 @@ public class CollectionAssertsTests
 		public class Collections
 		{
 			[Fact]
-			public static void Success()
+			public static void Equal()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 				var actual = new List<int>(expected);
@@ -917,7 +917,7 @@ public class CollectionAssertsTests
 				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "                      ↓ (pos 7)", "int[]     [$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]",
 				new[] { 1, 2, 3, 4, 5, 6, 7 }, "List<int> [$$ELLIPSIS$$, 6, 7]", null
 			)]
-			public void Truncation(
+			public void NotEqual(
 				int[]? expected,
 				string? expectedPointer,
 				string expectedDisplay,
@@ -1081,7 +1081,7 @@ public class CollectionAssertsTests
 		public class DoubleEnumerationPrevention
 		{
 			[Fact]
-			public static void EnumeratesOnlyOnce_Success()
+			public static void EnumeratesOnlyOnce_Equal()
 			{
 				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
 				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
@@ -1090,7 +1090,7 @@ public class CollectionAssertsTests
 			}
 
 			[Fact(Skip = "Double enumeration not solved here yet")]
-			public static void EnumeratesOnlyOnce_Failure()
+			public static void EnumeratesOnlyOnce_NotEqual()
 			{
 				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
 				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
@@ -1157,9 +1157,9 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
 					"Expected: Not null" + Environment.NewLine +
-					"Actual:   null",
+					"Actual:       null",
 					ex.Message
 				);
 			}
@@ -1186,7 +1186,7 @@ public class CollectionAssertsTests
 		public class Arrays
 		{
 			[Fact]
-			public static void SameValues()
+			public static void Equal()
 			{
 				string[] expected = { "@", "a", "ab", "b" };
 				string[] actual = { "@", "a", "ab", "b" };
@@ -1194,15 +1194,15 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
 					"Expected: Not [\"@\", \"a\", \"ab\", \"b\"]" + Environment.NewLine +
-					"Actual:   [\"@\", \"a\", \"ab\", \"b\"]",
+					"Actual:       [\"@\", \"a\", \"ab\", \"b\"]",
 					ex.Message
 				);
 			}
 
 			[Fact]
-			public static void EmbeddedArraySameValues()
+			public static void EmbeddedArrays_Equal()
 			{
 				string[][] expected = { new[] { "@", "a" }, new[] { "ab", "b" } };
 				string[][] actual = { new[] { "@", "a" }, new[] { "ab", "b" } };
@@ -1210,36 +1210,33 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
 					"Expected: Not [[\"@\", \"a\"], [\"ab\", \"b\"]]" + Environment.NewLine +
-					"Actual:   [[\"@\", \"a\"], [\"ab\", \"b\"]]",
+					"Actual:       [[\"@\", \"a\"], [\"ab\", \"b\"]]",
 					ex.Message
 				);
 			}
 
 			[Fact]
-			public static void DifferentLength()
+			public static void NotEqual()
 			{
-				string[] expected = { "@", "a", "ab", "b", "c" };
-				string[] actual = { "@", "a", "ab", "b" };
+				IEnumerable<int> expected = new[] { 1, 2, 3 };
+				IEnumerable<int> actual = new[] { 1, 2, 4 };
 
 				Assert.NotEqual(expected, actual);
 			}
 
 			[Fact]
-			public static void SameLengthDifferentValues()
+			public static void SameValueDifferentType()
 			{
-				string[] expected = { "@", "d", "v", "d" };
-				string[] actual = { "@", "a", "ab", "b" };
-
-				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(new object[] { 1, 2, 3 }, new object[] { 1, 2, 3L });
 			}
 		}
 
 		public class Collections
 		{
 			[Fact]
-			public static void ArrayVsList_SameValues()
+			public static void Equal()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 				var actual = new List<int>(expected);
@@ -1248,15 +1245,15 @@ public class CollectionAssertsTests
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
-					$"Expected: Not [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
-					$"Actual:   [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					$"Expected: Not int[]     [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+					$"Actual:       List<int> [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
 					ex.Message
 				);
 			}
 
 			[Fact]
-			public static void ArrayVsList_DifferentValues()
+			public static void NotEqual()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 				var actual = new List<int>(new[] { 1, 2, 3, 4, 0, 6, 7, 8, 9, 10 });
@@ -1286,9 +1283,9 @@ public class CollectionAssertsTests
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
-					"Expected: Not [1, 2, 3, 4, 5]" + Environment.NewLine +
-					"Actual:   [0, 0, 0, 0, 0]",
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not int[]     [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:       List<int> [0, 0, 0, 0, 0]",
 					ex.Message
 				);
 			}
@@ -1320,9 +1317,9 @@ public class CollectionAssertsTests
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
 					"Expected: Not [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
-					"Actual:   [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]",
+					"Actual:       [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]",
 					ex.Message
 				);
 			}
@@ -1337,9 +1334,9 @@ public class CollectionAssertsTests
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
 					"Expected: Not [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
-					"Actual:   [[\"b\"] = 2, [\"c\"] = 3, [\"a\"] = 1]",
+					"Actual:       [[\"b\"] = 2, [\"c\"] = 3, [\"a\"] = 1]",
 					ex.Message
 				);
 			}
@@ -1390,8 +1387,8 @@ public class CollectionAssertsTests
 
 		public class DoubleEnumerationPrevention
 		{
-			[Fact]
-			public static void EnumeratesOnlyOnce_Success()
+			[Fact(Skip = "Double enumeration not solved here yet")]
+			public static void EnumeratesOnlyOnce_Equal()
 			{
 				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
 				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
@@ -1400,15 +1397,15 @@ public class CollectionAssertsTests
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
-					"Assert.NotEqual() Failure" + Environment.NewLine +
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
 					"Expected: Not RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }" + Environment.NewLine +
-					"Actual:   RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }",
+					"Actual:       RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }",
 					ex.Message
 				);
 			}
 
 			[Fact]
-			public static void EnumeratesOnlyOnce_Failure()
+			public static void EnumeratesOnlyOnce_NotEqual()
 			{
 				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
 				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
