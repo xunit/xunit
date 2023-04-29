@@ -689,8 +689,8 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-					"Expected: []" + Environment.NewLine +
-					"Actual:   null",
+					"Expected: int[] []" + Environment.NewLine +
+					"Actual:         null",
 					ex.Message
 				);
 			}
@@ -706,8 +706,8 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-					"Expected: null" + Environment.NewLine +
-					"Actual:   []",
+					"Expected:       null" + Environment.NewLine +
+					"Actual:   int[] []",
 					ex.Message
 				);
 			}
@@ -759,9 +759,16 @@ public class CollectionAssertsTests
 				if (expectedPointer != null)
 					message += Environment.NewLine + "           " + expectedPointer;
 
+				var (expectedType, actualType) = (expected, actual) switch
+				{
+					(null, _) => ("      ", "int[] "),
+					(_, null) => ("int[] ", "      "),
+					(_, _) => ("", ""),
+				};
+
 				message +=
-					Environment.NewLine + "Expected: " + ArgumentFormatter.Format(expected) +
-					Environment.NewLine + "Actual:   " + ArgumentFormatter.Format(actual);
+					Environment.NewLine + "Expected: " + expectedType + ArgumentFormatter.Format(expected) +
+					Environment.NewLine + "Actual:   " + actualType + ArgumentFormatter.Format(actual);
 
 				if (actualPointer != null)
 					message += Environment.NewLine + "           " + actualPointer;
@@ -775,12 +782,12 @@ public class CollectionAssertsTests
 			[Theory]
 			// Nulls
 			[InlineData(
-				null, null, "null",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]", null
+				null, null, "      null",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "int[] [1, 2, 3, 4, 5, $$ELLIPSIS$$]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
-				null, "null", null
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "int[] [1, 2, 3, 4, 5, $$ELLIPSIS$$]",
+				null, "      null", null
 			)]
 			// Start of array
 			[InlineData(
@@ -871,44 +878,44 @@ public class CollectionAssertsTests
 			[Theory]
 			// Nulls
 			[InlineData(
-				null, null, "null",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]", null
+				null, null, "          null",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "List<int> [1, 2, 3, 4, 5, $$ELLIPSIS$$]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
-				null, "null", null
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "int[] [1, 2, 3, 4, 5, $$ELLIPSIS$$]",
+				null, "      null", null
 			)]
 			// Start of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "↓ (pos 0)", "[1, 2, 3, 4, 5, $$ELLIPSIS$$]",
-				new[] { 99, 2, 3, 4, 5, 6, 7 }, "[99, 2, 3, 4, 5, $$ELLIPSIS$$]", "↑ (pos 0)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 0)", "int[]     [1, 2, 3, 4, 5, $$ELLIPSIS$$]",
+				new[] { 99, 2, 3, 4, 5, 6, 7 }, "List<int> [99, 2, 3, 4, 5, $$ELLIPSIS$$]", "           ↑ (pos 0)"
 			)]
 			// Middle of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "           ↓ (pos 3)", "[$$ELLIPSIS$$, 2, 3, 4, 5, 6, $$ELLIPSIS$$]",
-				new[] { 1, 2, 3, 99, 5, 6, 7 }, "[$$ELLIPSIS$$, 2, 3, 99, 5, 6, $$ELLIPSIS$$]", "           ↑ (pos 3)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                      ↓ (pos 3)", "int[]     [$$ELLIPSIS$$, 2, 3, 4, 5, 6, $$ELLIPSIS$$]",
+				new[] { 1, 2, 3, 99, 5, 6, 7 }, "List<int> [$$ELLIPSIS$$, 2, 3, 99, 5, 6, $$ELLIPSIS$$]", "                      ↑ (pos 3)"
 			)]
 			// End of array
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                 ↓ (pos 6)", "[$$ELLIPSIS$$, 3, 4, 5, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 99 }, "[$$ELLIPSIS$$, 3, 4, 5, 6, 99]", "                 ↑ (pos 6)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "                            ↓ (pos 6)", "int[]     [$$ELLIPSIS$$, 3, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 99 }, "List<int> [$$ELLIPSIS$$, 3, 4, 5, 6, 99]", "                            ↑ (pos 6)"
 			)]
 			// Overruns
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[$$ELLIPSIS$$, 4, 5, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "[$$ELLIPSIS$$, 4, 5, 6, 7, 8]", "                 ↑ (pos 7)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "int[]     [$$ELLIPSIS$$, 4, 5, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "List<int> [$$ELLIPSIS$$, 4, 5, 6, 7, 8]", "                            ↑ (pos 7)"
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "[$$ELLIPSIS$$, 6, 7]",
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "[$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]", "           ↑ (pos 7)"
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, null, "int[]     [$$ELLIPSIS$$, 6, 7]",
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "List<int> [$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]", "                      ↑ (pos 7)"
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                 ↓ (pos 7)", "[$$ELLIPSIS$$, 4, 5, 6, 7, 8]",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[$$ELLIPSIS$$, 4, 5, 6, 7]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8 }, "                            ↓ (pos 7)", "int[]     [$$ELLIPSIS$$, 4, 5, 6, 7, 8]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "List<int> [$$ELLIPSIS$$, 4, 5, 6, 7]", null
 			)]
 			[InlineData(
-				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "           ↓ (pos 7)", "[$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]",
-				new[] { 1, 2, 3, 4, 5, 6, 7 }, "[$$ELLIPSIS$$, 6, 7]", null
+				new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, "                      ↓ (pos 7)", "int[]     [$$ELLIPSIS$$, 6, 7, 8, 9, 10, $$ELLIPSIS$$]",
+				new[] { 1, 2, 3, 4, 5, 6, 7 }, "List<int> [$$ELLIPSIS$$, 6, 7]", null
 			)]
 			public void Truncation(
 				int[]? expected,
@@ -922,14 +929,14 @@ public class CollectionAssertsTests
 				var message = "Assert.Equal() Failure: Collections differ";
 
 				if (expectedPointer != null)
-					message += Environment.NewLine + "           " + expectedPointer;
+					message += Environment.NewLine + "          " + expectedPointer;
 
 				message +=
 					Environment.NewLine + "Expected: " + expectedDisplay +
 					Environment.NewLine + "Actual:   " + actualDisplay;
 
 				if (actualPointer != null)
-					message += Environment.NewLine + "           " + actualPointer;
+					message += Environment.NewLine + "          " + actualPointer;
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -951,10 +958,10 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-					"           ↓ (pos 0)" + Environment.NewLine +
-					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
-					"Actual:   [1, 2, 3, 4, 5]" + Environment.NewLine +
-					"           ↑ (pos 0)",
+					"                     ↓ (pos 0)" + Environment.NewLine +
+					"Expected: int[]     [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   List<int> [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"                     ↑ (pos 0)",
 					ex.Message
 				);
 			}
