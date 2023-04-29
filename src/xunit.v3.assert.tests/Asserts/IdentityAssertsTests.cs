@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 using Xunit.Sdk;
 
@@ -26,30 +27,31 @@ public class IdentityAssertsTests
 	public class Same
 	{
 		[Fact]
-		public void Success()
+		public void Identical()
 		{
-			Assert.Throws<SameException>(() => Assert.Same("bob", "jim"));
+			var actual = new object();
+
+			Assert.Same(actual, actual);
 		}
 
 		[Fact]
-		public void Failure()
+		public void NotIdentical()
 		{
-			var actual = "Abc";
-			var expected = "a".ToUpperInvariant() + "bc";
+			var ex = Record.Exception(() => Assert.Same("bob", "jim"));
 
-			var ex = Record.Exception(() => Assert.Same(expected, actual));
-
-			var sex = Assert.IsType<SameException>(ex);
-			Assert.Equal("Assert.Same() Failure", sex.UserMessage);
-			Assert.DoesNotContain("Position:", sex.Message);
+			Assert.IsType<SameException>(ex);
+			Assert.Equal(
+				"Assert.Same() Failure: Values are not the same instance" + Environment.NewLine +
+				"Expected: \"bob\"" + Environment.NewLine +
+				"Actual:   \"jim\"",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public void BoxedTypesDontWork()
+		public void EqualValueTypeValuesAreNotSameBecauseOfBoxing()
 		{
-			var index = 0;
-
-			Assert.Throws<SameException>(() => Assert.Same(index, index));
+			Assert.Throws<SameException>(() => Assert.Same(0, 0));
 		}
 	}
 }
