@@ -1418,52 +1418,60 @@ public class CollectionAssertsTests
 	public class Single_NonGeneric
 	{
 		[Fact]
-		public static void NullCollectionThrows()
+		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single((IEnumerable)null!));
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single((IEnumerable<object>)null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single(null!));
 		}
 
 		[Fact]
-		public static void EmptyCollectionThrows()
+		public static void EmptyCollection()
 		{
 			var collection = new ArrayList();
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
+			Assert.Equal("Assert.Single() Failure: The collection was empty", ex.Message);
 		}
 
 		[Fact]
-		public static void MultiItemCollectionThrows()
+		public static void SingleItemCollection()
+		{
+			var collection = new ArrayList { "Hello" };
+
+			var item = Assert.Single(collection);
+
+			Assert.Equal("Hello", item);
+		}
+
+		[Fact]
+		public static void MultiItemCollection()
 		{
 			var collection = new ArrayList { "Hello", "World" };
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element, but it contained 2 elements.", ex.Message);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 2 items" + Environment.NewLine +
+				"Collection: [\"Hello\", \"World\"]",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public static void SingleItemCollectionDoesNotThrow()
+		public static void Truncation()
 		{
-			var collection = new ArrayList { "Hello" };
+			var collection = new ArrayList { 1, 2, 3, 4, 5, 6, 7 };
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
-			Assert.Null(ex);
-		}
-
-		[Fact]
-		public static void SingleItemCollectionReturnsTheItem()
-		{
-			var collection = new ArrayList { "Hello" };
-
-			var result = Assert.Single(collection);
-
-			Assert.Equal("Hello", result);
+			Assert.IsType<SingleException>(ex);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 7 items" + Environment.NewLine +
+				$"Collection: [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
+				ex.Message
+			);
 		}
 	}
 
@@ -1476,41 +1484,69 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void ObjectSingleMatch()
+		public static void SingleMatch()
 		{
-			IEnumerable collection = new[] { "Hello", "World!" };
+			IEnumerable collection = new ArrayList { "Hello", "World" };
 
 			Assert.Single(collection, "Hello");
 		}
 
 		[Fact]
-		public static void NullSingleMatch()
+		public static void SingleMatch_Null()
 		{
-			IEnumerable collection = new[] { "Hello", "World!", null };
+			IEnumerable collection = new ArrayList { "Hello", "World!", null };
 
 			Assert.Single(collection, null);
 		}
 
 		[Fact]
-		public static void ObjectNoMatch()
+		public static void NoMatches()
 		{
-			IEnumerable collection = new[] { "Hello", "World!" };
+			IEnumerable collection = new ArrayList { "Hello", "World" };
 
 			var ex = Record.Exception(() => Assert.Single(collection, "foo"));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element matching \"foo\", but it contained no matching elements.", ex.Message);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection did not contain any matching items" + Environment.NewLine +
+				"Expected:   \"foo\"" + Environment.NewLine +
+				"Collection: [\"Hello\", \"World\"]",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public static void PredicateTooManyMatches()
+		public static void TooManyMatches()
 		{
-			var collection = new[] { "Hello", "World!", "Hello" };
+			var collection = new ArrayList { "Hello", "World", "Hello" };
 
 			var ex = Record.Exception(() => Assert.Single(collection, "Hello"));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element matching \"Hello\", but it contained 2 matching elements.", ex.Message);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 2 matching items" + Environment.NewLine +
+				"Expected:      \"Hello\"" + Environment.NewLine +
+				"Collection:    [\"Hello\", \"World\", \"Hello\"]" + Environment.NewLine +
+				"Match indices: 0, 2",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void Truncation()
+		{
+			var collection = new ArrayList { 1, 2, 3, 4, 5, 6, 7, 8, 4 };
+
+			var ex = Record.Exception(() => Assert.Single(collection, 4));
+
+			Assert.IsType<SingleException>(ex);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 2 matching items" + Environment.NewLine +
+				"Expected:      4" + Environment.NewLine +
+				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+				"Match indices: 3, 8",
+				ex.Message
+			);
 		}
 	}
 
@@ -1523,45 +1559,54 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void EmptyCollectionThrows()
+		public static void EmptyCollection()
 		{
 			var collection = new object[0];
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
+			Assert.Equal("Assert.Single() Failure: The collection was empty", ex.Message);
 		}
 
 		[Fact]
-		public static void MultiItemCollectionThrows()
+		public static void SingleItemCollection()
 		{
-			var collection = new[] { "Hello", "World!" };
+			var collection = new[] { "Hello" };
+
+			var item = Assert.Single(collection);
+
+			Assert.Equal("Hello", item);
+		}
+
+		[Fact]
+		public static void MultiItemCollection()
+		{
+			var collection = new[] { "Hello", "World" };
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element, but it contained 2 elements.", ex.Message);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 2 items" + Environment.NewLine +
+				"Collection: [\"Hello\", \"World\"]",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public static void SingleItemCollectionDoesNotThrow()
+		public static void Truncation()
 		{
-			var collection = new[] { "Hello" };
+			var collection = new[] { 1, 2, 3, 4, 5, 6, 7 };
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
-			Assert.Null(ex);
-		}
-
-		[Fact]
-		public static void SingleItemCollectionReturnsTheItem()
-		{
-			var collection = new[] { "Hello" };
-
-			var result = Assert.Single(collection);
-
-			Assert.Equal("Hello", result);
+			Assert.IsType<SingleException>(ex);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 7 items" + Environment.NewLine +
+				$"Collection: [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
+				ex.Message
+			);
 		}
 	}
 
@@ -1571,13 +1616,13 @@ public class CollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single<object>(null!, _ => true));
-			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single<object>(new object[0], null!));
+			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single(new object[0], null!));
 		}
 
 		[Fact]
-		public static void PredicateSingleMatch()
+		public static void SingleMatch()
 		{
-			var collection = new[] { "Hello", "World!" };
+			var collection = new[] { "Hello", "World" };
 
 			var result = Assert.Single(collection, item => item.StartsWith("H"));
 
@@ -1585,25 +1630,53 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void PredicateNoMatch()
+		public static void NoMatches()
 		{
-			var collection = new[] { "Hello", "World!" };
+			var collection = new[] { "Hello", "World" };
 
 			var ex = Record.Exception(() => Assert.Single(collection, item => false));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained no matching elements.", ex.Message);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection did not contain any matching items" + Environment.NewLine +
+				"Expected:   (predicate expression)" + Environment.NewLine +
+				"Collection: [\"Hello\", \"World\"]",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public static void PredicateTooManyMatches()
+		public static void TooManyMatches()
 		{
-			var collection = new[] { "Hello", "World!" };
+			var collection = new[] { "Hello", "World" };
 
 			var ex = Record.Exception(() => Assert.Single(collection, item => true));
 
 			Assert.IsType<SingleException>(ex);
-			Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained 2 matching elements.", ex.Message);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 2 matching items" + Environment.NewLine +
+				"Expected:      (predicate expression)" + Environment.NewLine +
+				"Collection:    [\"Hello\", \"World\"]" + Environment.NewLine +
+				"Match indices: 0, 1",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void Truncation()
+		{
+			var collection = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 4 };
+
+			var ex = Record.Exception(() => Assert.Single(collection, item => item == 4));
+
+			Assert.IsType<SingleException>(ex);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 2 matching items" + Environment.NewLine +
+				"Expected:      (predicate expression)" + Environment.NewLine +
+				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+				"Match indices: 3, 8",
+				ex.Message
+			);
 		}
 	}
 
