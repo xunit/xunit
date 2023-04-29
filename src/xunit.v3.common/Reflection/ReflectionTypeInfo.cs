@@ -111,9 +111,7 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 	{
 		Guard.ArgumentNotNull(methodName);
 
-		var method =
-			Type
-				.GetRuntimeMethods()
+		var method = GetRuntimeMethods()
 				.FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
 
 		if (method == null)
@@ -125,7 +123,7 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 	/// <inheritdoc/>
 	public IReadOnlyCollection<_IMethodInfo> GetMethods(bool includePrivateMethods)
 	{
-		var methodInfos = Type.GetRuntimeMethods();
+		IEnumerable<MethodInfo> methodInfos = GetRuntimeMethods();
 
 		if (!includePrivateMethods)
 			methodInfos = methodInfos.Where(m => m.IsPublic);
@@ -135,4 +133,9 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 
 	/// <inheritdoc/>
 	public override string? ToString() => Type.ToString();
+
+	private MethodInfo[] GetRuntimeMethods()
+	{
+		return Type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
+	}
 }
