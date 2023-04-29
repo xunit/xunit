@@ -81,7 +81,6 @@
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
         <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
-        <DefineConstants>$(DefineConstants);XUNIT_TESTS_V3</DefineConstants>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
       </PropertyGroup>

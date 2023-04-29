@@ -2,7 +2,7 @@ using System;
 using Xunit;
 using Xunit.Sdk;
 
-#if NETFRAMEWORK && XUNIT_TESTS_V3
+#if NETFRAMEWORK && XUNIT_VALUETASK
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -244,9 +244,9 @@ public class TypeAssertsTests
 			);
 		}
 
-#if NETFRAMEWORK && XUNIT_TESTS_V3
+#if NETFRAMEWORK && XUNIT_VALUETASK
 		[Fact]
-		public async void UnmatchedTypesWithIdenticalNamesShowAssemblies()
+		public async ValueTask UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
 			var dynamicAssembly = await CSharpDynamicAssembly.Create("namespace System.Xml { public class XmlException: Exception { } }");
 			var assembly = Assembly.LoadFile(dynamicAssembly.FileName);
@@ -305,9 +305,9 @@ public class TypeAssertsTests
 			);
 		}
 
-#if NETFRAMEWORK && XUNIT_TESTS_V3
+#if NETFRAMEWORK && XUNIT_VALUETASK
 		[Fact]
-		public async void UnmatchedTypesWithIdenticalNamesShowAssemblies()
+		public async ValueTask UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
 			var dynamicAssembly = await CSharpDynamicAssembly.Create("namespace System.Xml { public class XmlException: Exception { } }");
 			var assembly = Assembly.LoadFile(dynamicAssembly.FileName);
@@ -348,7 +348,7 @@ public class TypeAssertsTests
 		{ }
 	}
 
-#if NETFRAMEWORK && XUNIT_TESTS_V3
+#if NETFRAMEWORK && XUNIT_VALUETASK
 	class CSharpDynamicAssembly : CSharpAcceptanceTestAssembly
 	{
 		public CSharpDynamicAssembly() :
