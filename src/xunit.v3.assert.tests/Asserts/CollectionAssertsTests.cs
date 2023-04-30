@@ -452,7 +452,7 @@ public class CollectionAssertsTests
 			Assert.IsType<DistinctException>(ex);
 			Assert.Equal(
 				"Assert.Distinct() Failure: Duplicate item found" + Environment.NewLine +
-				$"Collection: [\"a\", null, \"b\", null, \"c\", {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+				$"Collection: [\"a\", null, \"b\", null, \"c\", {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
 				"Item:       null",
 				ex.Message
 			);
@@ -844,7 +844,7 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
 				Assert.IsType<EqualException>(ex);
-				Assert.Equal(message.Replace("$$ELLIPSIS$$", ArgumentFormatter2.Ellipsis), ex.Message);
+				Assert.Equal(message.Replace("$$ELLIPSIS$$", ArgumentFormatter.Ellipsis), ex.Message);
 			}
 
 			[Fact]
@@ -941,7 +941,7 @@ public class CollectionAssertsTests
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
 				Assert.IsType<EqualException>(ex);
-				Assert.Equal(message.Replace("$$ELLIPSIS$$", ArgumentFormatter2.Ellipsis), ex.Message);
+				Assert.Equal(message.Replace("$$ELLIPSIS$$", ArgumentFormatter.Ellipsis), ex.Message);
 			}
 		}
 
@@ -1071,8 +1071,8 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
-					$"Expected: [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
-					$"Actual:   [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter2.Ellipsis}]",
+					$"Expected: [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					$"Actual:   [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter.Ellipsis}]",
 					ex.Message
 				);
 			}
@@ -1101,7 +1101,7 @@ public class CollectionAssertsTests
 				Assert.Equal(
 					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
 					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
-					$"Actual:   [{ArgumentFormatter2.Ellipsis}, 2, 3, 4, 5, 6]" + Environment.NewLine +
+					$"Actual:   [{ArgumentFormatter.Ellipsis}, 2, 3, 4, 5, 6]" + Environment.NewLine +
 					"                            ↑ (pos 5)",
 					ex.Message
 				);
@@ -1246,8 +1246,8 @@ public class CollectionAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
-					$"Expected: Not int[]     [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
-					$"Actual:       List<int> [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
+					$"Expected: Not int[]     [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					$"Actual:       List<int> [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]",
 					ex.Message
 				);
 			}
@@ -1469,7 +1469,7 @@ public class CollectionAssertsTests
 			Assert.IsType<SingleException>(ex);
 			Assert.Equal(
 				"Assert.Single() Failure: The collection contained 7 items" + Environment.NewLine +
-				$"Collection: [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
+				$"Collection: [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]",
 				ex.Message
 			);
 		}
@@ -1543,7 +1543,7 @@ public class CollectionAssertsTests
 			Assert.Equal(
 				"Assert.Single() Failure: The collection contained 2 matching items" + Environment.NewLine +
 				"Expected:      4" + Environment.NewLine +
-				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
 				"Match indices: 3, 8",
 				ex.Message
 			);
@@ -1604,7 +1604,7 @@ public class CollectionAssertsTests
 			Assert.IsType<SingleException>(ex);
 			Assert.Equal(
 				"Assert.Single() Failure: The collection contained 7 items" + Environment.NewLine +
-				$"Collection: [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]",
+				$"Collection: [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]",
 				ex.Message
 			);
 		}
@@ -1673,7 +1673,7 @@ public class CollectionAssertsTests
 			Assert.Equal(
 				"Assert.Single() Failure: The collection contained 2 matching items" + Environment.NewLine +
 				"Expected:      (predicate expression)" + Environment.NewLine +
-				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
 				"Match indices: 3, 8",
 				ex.Message
 			);

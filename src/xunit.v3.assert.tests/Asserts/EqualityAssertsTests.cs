@@ -1236,8 +1236,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(expected)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(actual)}",
+					$"Expected: {ArgumentFormatter.Format(expected)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(actual)}",
 					ex.Message
 				);
 			}
@@ -1270,8 +1270,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(date1)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(date2)} (difference {difference} is larger than {precision})",
+					$"Expected: {ArgumentFormatter.Format(date1)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date2)} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
 
@@ -1281,8 +1281,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(date2)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(date1)} (difference {difference} is larger than {precision})",
+					$"Expected: {ArgumentFormatter.Format(date2)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date1)} (difference {difference} is larger than {precision})",
 					ex2.Message
 				);
 			}
@@ -1314,8 +1314,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(expected)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(actual)}",
+					$"Expected: {ArgumentFormatter.Format(expected)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(actual)}",
 					ex.Message
 				);
 			}
@@ -1343,8 +1343,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(expected)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(actual)}",
+					$"Expected: {ArgumentFormatter.Format(expected)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(actual)}",
 					ex.Message
 				);
 			}
@@ -1377,8 +1377,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(date1)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(date2)} (difference {difference} is larger than {precision})",
+					$"Expected: {ArgumentFormatter.Format(date1)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date2)} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
 
@@ -1388,8 +1388,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(date2)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(date1)} (difference {difference} is larger than {precision})",
+					$"Expected: {ArgumentFormatter.Format(date2)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date1)} (difference {difference} is larger than {precision})",
 					ex2.Message
 				);
 			}
@@ -1422,8 +1422,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(date1)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(date2)} (difference {difference} is larger than {precision})",
+					$"Expected: {ArgumentFormatter.Format(date1)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date2)} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
 
@@ -1433,8 +1433,8 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
 					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter2.Format(date2)}" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter2.Format(date1)} (difference {difference} is larger than {precision})",
+					$"Expected: {ArgumentFormatter.Format(date2)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date1)} (difference {difference} is larger than {precision})",
 					ex2.Message
 				);
 			}
@@ -3249,8 +3249,8 @@ public class EqualityAssertsTests
 			Assert.IsType<StrictEqualException>(ex);
 			Assert.Equal(
 				"Assert.StrictEqual() Failure: Values differ" + Environment.NewLine +
-				$"Expected: EnumerableClass [{ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
-				$"Actual:   EnumerableClass [{ArgumentFormatter2.Ellipsis}]",
+				$"Expected: EnumerableClass [{ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+				$"Actual:   EnumerableClass [{ArgumentFormatter.Ellipsis}]",
 				ex.Message
 			);
 		}

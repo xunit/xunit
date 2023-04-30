@@ -76,7 +76,7 @@ public class ArgumentFormatterTests
 		[MemberData(nameof(StringValue_TestData), DisableDiscoveryEnumeration = true)]
 		public static void StringValue(string value, string expected)
 		{
-			Assert.Equal(expected.Replace("$$ELLIPSIS$$", ArgumentFormatter2.Ellipsis), ArgumentFormatter.Format(value));
+			Assert.Equal(expected.Replace("$$ELLIPSIS$$", ArgumentFormatter.Ellipsis), ArgumentFormatter.Format(value));
 		}
 
 		public static IEnumerable<object[]> CharValue_TestData()
@@ -186,8 +186,8 @@ public class ArgumentFormatterTests
 			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
 			{ typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)" },
 			{ typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)" },
-			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, System.DateTime>)" },
-			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)" },
+			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, DateTime>)" },
+			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], DateTime[,][]>)" },
 			{ typeof(bool?), "typeof(bool?)" },
 			{ typeof(bool?[]), "typeof(bool?[])" }
 		};
@@ -294,7 +294,7 @@ public class ArgumentFormatterTests
 		[MemberData(nameof(LongCollections), DisableDiscoveryEnumeration = true)]
 		public static void OnlyFirstFewValuesOfEnumerableAreRendered(IEnumerable collection)
 		{
-			Assert.Equal($"[0, 1, 2, 3, 4, {ArgumentFormatter2.Ellipsis}]", ArgumentFormatter.Format(collection));
+			Assert.Equal($"[0, 1, 2, 3, 4, {ArgumentFormatter.Ellipsis}]", ArgumentFormatter.Format(collection));
 		}
 
 		[CulturedFact]
@@ -304,7 +304,7 @@ public class ArgumentFormatterTests
 			looping[0] = 42;
 			looping[1] = looping;
 
-			Assert.Equal($"[42, [42, [{ArgumentFormatter2.Ellipsis}]]]", ArgumentFormatter.Format(looping));
+			Assert.Equal($"[42, [42, [{ArgumentFormatter.Ellipsis}]]]", ArgumentFormatter.Format(looping));
 		}
 	}
 
@@ -371,7 +371,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void LimitsOutputToFirstFewValues()
 		{
-			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, {ArgumentFormatter2.Ellipsis} }}";
+			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, {ArgumentFormatter.Ellipsis} }}";
 
 			Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
 		}
@@ -402,7 +402,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
-			Assert.Equal($"Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter2.Ellipsis} }} }} }}", ArgumentFormatter.Format(new Looping()));
+			Assert.Equal($"Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter.Ellipsis} }} }} }}", ArgumentFormatter.Format(new Looping()));
 		}
 
 		public class Looping
