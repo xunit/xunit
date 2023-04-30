@@ -163,7 +163,7 @@ public class ExceptionUtilityTests
 #else
 			static void testCode()
 			{
-				throw new XunitException();
+				throw new XunitException("Hello world");
 			}
 			var ex = Record.Exception(testCode)!;
 			var errorMetadata = new ErrorMetadata { ex };
