@@ -326,9 +326,9 @@ public class SetAssertsTests
 			var ex = Assert.Throws<SupersetException>(() => Assert.Superset(expectedSuperset, actual));
 
 			Assert.Equal(
-				"Assert.Superset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> [1, 2, 3]" + Environment.NewLine +
-				"Actual:   HashSet<Int32> [1, 2, 7]",
+				"Assert.Superset() Failure: Value is not a superset" + Environment.NewLine +
+				"Expected: [1, 2, 3]" + Environment.NewLine +
+				"Actual:   [1, 2, 7]",
 				ex.Message
 			);
 		}
@@ -340,9 +340,9 @@ public class SetAssertsTests
 
 			Assert.IsType<SupersetException>(ex);
 			Assert.Equal(
-				"Assert.Superset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> []" + Environment.NewLine +
-				"Actual:   (null)",
+				"Assert.Superset() Failure: Value is not a superset" + Environment.NewLine +
+				"Expected: []" + Environment.NewLine +
+				"Actual:   null",
 				ex.Message
 			);
 		}
