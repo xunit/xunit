@@ -419,125 +419,110 @@ public class SpanAssertsTests
 	public class EndsWith
 	{
 		[Fact]
-		public void ReadOnlySpan_Success()
+		public void Success()
 		{
 			Assert.EndsWith("world!".AsSpan(), "Hello, world!".AsSpan());
-		}
-
-		[Fact]
-		public void ReadWriteSpan_Success()
-		{
+			Assert.EndsWith("world!".AsSpan(), "Hello, world!".Spanify());
+			Assert.EndsWith("world!".Spanify(), "Hello, world!".AsSpan());
 			Assert.EndsWith("world!".Spanify(), "Hello, world!".Spanify());
 		}
 
 		[Fact]
-		public void ReadOnlySpan_CaseSensitiveByDefault()
+		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"world!\"" + Environment.NewLine +
-				"Expected end: \"WORLD!\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"Hello, world!\"" + Environment.NewLine +
+					"Expected end: \"hey\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".Spanify()));
+			assertFailure(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
 		}
 
 		[Fact]
-		public void ReadWriteSpan_CaseSensitiveByDefault()
+		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"world!\"" + Environment.NewLine +
-				"Expected end: \"WORLD!\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"world!\"" + Environment.NewLine +
+					"Expected end: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".Spanify()));
+			assertFailure(() => Assert.EndsWith("WORLD!".Spanify(), "world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
 		}
 
 		[Fact]
-		public void ReadOnlySpan_CanSpecifyComparisonType()
+		public void CanSpecifyComparisonType()
 		{
 			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void ReadWriteSpan_CanSpecifyComparisonType()
-		{
+			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
 			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
-		public void ReadOnlySpan_Failure()
+		public void NullStringIsEmpty()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"Hello, world!\"" + Environment.NewLine +
-				"Expected end: \"hey\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"\"" + Environment.NewLine +
+					"Expected end: \"foo\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("foo".AsSpan(), null));
+			assertFailure(() => Assert.EndsWith("foo".Spanify(), null));
 		}
 
 		[Fact]
-		public void ReadWriteSpan_Failure()
+		public void Truncation()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
+			var expected = "This is a long string that we're looking for at the end";
+			var actual = "This is the long string that we expected to find this ending inside";
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"Hello, world!\"" + Environment.NewLine +
-				"Expected end: \"hey\"",
-				ex.Message
-			);
-		}
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-		[Fact]
-		public void ReadOnlySpan_NullStringIsEmpty()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("foo".AsSpan(), null));
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       " + ArgumentFormatter2.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
+					"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
+					ex.Message
+				);
+			}
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"\"" + Environment.NewLine +
-				"Expected end: \"foo\"",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void ReadWriteSpan_NullStringIsEmpty()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("foo".Spanify(), null));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"\"" + Environment.NewLine +
-				"Expected end: \"foo\"",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void LongStrings()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("This is a long string that we're looking for at the end".Spanify(), "This is the long string that we expected to find this ending inside".Spanify()));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				$"String:       {ArgumentFormatter2.Ellipsis}\"at we expected to find this ending inside\"" + Environment.NewLine +
-				$"Expected end: \"This is a long string that we're looking \"{ArgumentFormatter2.Ellipsis}",
-				ex.Message
-			);
+			assertFailure(() => Assert.EndsWith(expected.AsSpan(), actual.AsSpan()));
+			assertFailure(() => Assert.EndsWith(expected.AsSpan(), actual.Spanify()));
+			assertFailure(() => Assert.EndsWith(expected.Spanify(), actual.AsSpan()));
+			assertFailure(() => Assert.EndsWith(expected.Spanify(), actual.Spanify()));
 		}
 	}
 

@@ -280,6 +280,20 @@ public class StringAssertsTests
 		}
 
 		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.EndsWith("hey", "Hello, world!"));
+
+			Assert.IsType<EndsWithException>(ex);
+			Assert.Equal(
+				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+				"String:       \"Hello, world!\"" + Environment.NewLine +
+				"Expected end: \"hey\"",
+				ex.Message
+			);
+		}
+
+		[Fact]
 		public void CaseSensitiveByDefault()
 		{
 			var ex = Record.Exception(() => Assert.EndsWith("WORLD!", "world!"));
@@ -300,20 +314,6 @@ public class StringAssertsTests
 		}
 
 		[Fact]
-		public void Failure()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("hey", "Hello, world!"));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"Hello, world!\"" + Environment.NewLine +
-				"Expected end: \"hey\"",
-				ex.Message
-			);
-		}
-
-		[Fact]
 		public void NullString()
 		{
 			var ex = Record.Exception(() => Assert.EndsWith("foo", null));
@@ -328,15 +328,18 @@ public class StringAssertsTests
 		}
 
 		[Fact]
-		public void LongStrings()
+		public void Truncation()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("This is a long string that we're looking for at the end", "This is the long string that we expected to find this ending inside"));
+			var expected = "This is a long string that we're looking for at the end";
+			var actual = "This is the long string that we expected to find this ending inside";
+
+			var ex = Record.Exception(() => Assert.EndsWith(expected, actual));
 
 			Assert.IsType<EndsWithException>(ex);
 			Assert.Equal(
 				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				$"String:       {ArgumentFormatter2.Ellipsis}\"at we expected to find this ending inside\"" + Environment.NewLine +
-				$"Expected end: \"This is a long string that we're looking \"{ArgumentFormatter2.Ellipsis}",
+				"String:       " + ArgumentFormatter2.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
+				"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
 				ex.Message
 			);
 		}

@@ -419,125 +419,110 @@ public class MemoryAssertsTests
 	public class EndsWith
 	{
 		[Fact]
-		public void ReadOnlyMemory_Success()
+		public void Success()
 		{
 			Assert.EndsWith("world!".AsMemory(), "Hello, world!".AsMemory());
-		}
-
-		[Fact]
-		public void ReadWriteMemory_Success()
-		{
+			Assert.EndsWith("world!".AsMemory(), "Hello, world!".Memoryify());
+			Assert.EndsWith("world!".Memoryify(), "Hello, world!".AsMemory());
 			Assert.EndsWith("world!".Memoryify(), "Hello, world!".Memoryify());
 		}
 
 		[Fact]
-		public void ReadOnlyMemory_CaseSensitiveByDefault()
+		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".AsMemory()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"world!\"" + Environment.NewLine +
-				"Expected end: \"WORLD!\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"Hello, world!\"" + Environment.NewLine +
+					"Expected end: \"hey\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
+			assertFailure(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".Memoryify()));
+			assertFailure(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".AsMemory()));
+			assertFailure(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
 		}
 
 		[Fact]
-		public void ReadWriteMemory_CaseSensitiveByDefault()
+		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".Memoryify()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"world!\"" + Environment.NewLine +
-				"Expected end: \"WORLD!\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"world!\"" + Environment.NewLine +
+					"Expected end: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".AsMemory()));
+			assertFailure(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".Memoryify()));
+			assertFailure(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".AsMemory()));
+			assertFailure(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".Memoryify()));
 		}
 
 		[Fact]
-		public void ReadOnlyMemory_CanSpecifyComparisonType()
+		public void CanSpecifyComparisonType()
 		{
 			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void ReadWriteMemory_CanSpecifyComparisonType()
-		{
+			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
 			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
-		public void ReadOnlyMemory_Failure()
+		public void NullStringIsEmpty()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"Hello, world!\"" + Environment.NewLine +
-				"Expected end: \"hey\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"\"" + Environment.NewLine +
+					"Expected end: \"foo\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("foo".AsMemory(), null));
+			assertFailure(() => Assert.EndsWith("foo".Memoryify(), null));
 		}
 
 		[Fact]
-		public void ReadWriteMemory_Failure()
+		public void Truncation()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
+			var expected = "This is a long string that we're looking for at the end";
+			var actual = "This is the long string that we expected to find this ending inside";
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"Hello, world!\"" + Environment.NewLine +
-				"Expected end: \"hey\"",
-				ex.Message
-			);
-		}
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-		[Fact]
-		public void ReadOnlyMemory_NullStringIsEmpty()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("foo".AsMemory(), null));
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       " + ArgumentFormatter2.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
+					"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
+					ex.Message
+				);
+			}
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"\"" + Environment.NewLine +
-				"Expected end: \"foo\"",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void ReadWriteMemory_NullStringIsEmpty()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("foo".Memoryify(), null));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"\"" + Environment.NewLine +
-				"Expected end: \"foo\"",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void LongStrings()
-		{
-			var ex = Record.Exception(() => Assert.EndsWith("This is a long string that we're looking for at the end".Memoryify(), "This is the long string that we expected to find this ending inside".Memoryify()));
-
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       " + ArgumentFormatter2.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
-				"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
-				ex.Message
-			);
+			assertFailure(() => Assert.EndsWith(expected.AsMemory(), actual.AsMemory()));
+			assertFailure(() => Assert.EndsWith(expected.AsMemory(), actual.Memoryify()));
+			assertFailure(() => Assert.EndsWith(expected.Memoryify(), actual.AsMemory()));
+			assertFailure(() => Assert.EndsWith(expected.Memoryify(), actual.Memoryify()));
 		}
 	}
 
