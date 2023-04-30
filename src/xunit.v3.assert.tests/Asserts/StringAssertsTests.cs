@@ -573,38 +573,68 @@ public class StringAssertsTests
 		}
 
 		[Fact]
-		public void IsCaseSensitiveByDefault()
+		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO", "Hello"));
+			var ex = Record.Exception(() => Assert.StartsWith("hey", "Hello, world!"));
 
 			Assert.IsType<StartsWithException>(ex);
 			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
+				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+				"String:         \"Hello, world!\"" + Environment.NewLine +
+				"Expected start: \"hey\"",
 				ex.Message
 			);
 		}
 
 		[Fact]
-		public void NotFound()
+		public void CaseSensitiveByDefault()
 		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey", "Hello, world!"));
+			var ex = Record.Exception(() => Assert.StartsWith("WORLD!", "world!"));
+
+			Assert.IsType<StartsWithException>(ex);
+			Assert.Equal(
+				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+				"String:         \"world!\"" + Environment.NewLine +
+				"Expected start: \"WORLD!\"",
+				ex.Message
+			);
 		}
 
 		[Fact]
-		public void NullActualStringThrows()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo", null));
-		}
-	}
-
-	public class StartsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitive()
+		public void CanSpecifyComparisonType()
 		{
 			Assert.StartsWith("HELLO", "Hello, world!", StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void NullStrings()
+		{
+			var ex = Record.Exception(() => Assert.StartsWith(default(string), default(string)));
+
+			Assert.IsType<StartsWithException>(ex);
+			Assert.Equal(
+				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+				"String:         null" + Environment.NewLine +
+				"Expected start: null",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Truncation()
+		{
+			var expected = "This is a long string that we're looking for at the start";
+			var actual = "This is the long string that we expected to find this starting inside";
+
+			var ex = Record.Exception(() => Assert.StartsWith(expected, actual));
+
+			Assert.IsType<StartsWithException>(ex);
+			Assert.Equal(
+				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+				"String:         \"This is the long string that we expected \"" + ArgumentFormatter2.Ellipsis + Environment.NewLine +
+				"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
+				ex.Message
+			);
 		}
 	}
 }

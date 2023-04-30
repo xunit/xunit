@@ -836,84 +836,110 @@ public class MemoryAssertsTests
 	public class StartsWith
 	{
 		[Fact]
-		public void SuccessReadOnly()
+		public void Success()
 		{
 			Assert.StartsWith("Hello".AsMemory(), "Hello, world!".AsMemory());
-		}
-
-		[Fact]
-		public void SuccessMemory()
-		{
+			Assert.StartsWith("Hello".AsMemory(), "Hello, world!".Memoryify());
+			Assert.StartsWith("Hello".Memoryify(), "Hello, world!".AsMemory());
 			Assert.StartsWith("Hello".Memoryify(), "Hello, world!".Memoryify());
 		}
 
-
 		[Fact]
-		public void IsCaseSensitiveByDefaultReadOnly()
+		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO".AsMemory(), "Hello".AsMemory()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"Hello, world!\"" + Environment.NewLine +
+					"Expected start: \"hey\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
+			assertFailure(() => Assert.StartsWith("hey".AsMemory(), "Hello, world!".Memoryify()));
+			assertFailure(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".AsMemory()));
+			assertFailure(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
 		}
 
 		[Fact]
-		public void IsCaseSensitiveByDefaultMemory()
+		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO".Memoryify(), "Hello".Memoryify()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"world!\"" + Environment.NewLine +
+					"Expected start: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("WORLD!".AsMemory(), "world!".AsMemory()));
+			assertFailure(() => Assert.StartsWith("WORLD!".AsMemory(), "world!".Memoryify()));
+			assertFailure(() => Assert.StartsWith("WORLD!".Memoryify(), "world!".AsMemory()));
+			assertFailure(() => Assert.StartsWith("WORLD!".Memoryify(), "world!".Memoryify()));
 		}
 
 		[Fact]
-		public void NotFoundReadOnly()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
-		}
-
-
-		[Fact]
-		public void NotFoundMemory()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsReadOnly()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo".AsMemory(), null));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsMemory()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo".Memoryify(), null));
-		}
-	}
-
-	public class StartsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveReadOnly()
+		public void CanSpecifyComparisonType()
 		{
 			Assert.StartsWith("HELLO".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveMemory()
+		public void NullStringIsEmpty()
 		{
-			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"\"" + Environment.NewLine +
+					"Expected start: \"foo\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("foo".AsMemory(), null));
+			assertFailure(() => Assert.StartsWith("foo".Memoryify(), null));
+		}
+
+		[Fact]
+		public void Truncation()
+		{
+			var expected = "This is a long string that we're looking for at the start";
+			var actual = "This is the long string that we expected to find this starting inside";
+
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"This is the long string that we expected \"" + ArgumentFormatter2.Ellipsis + Environment.NewLine +
+					"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith(expected.AsMemory(), actual.AsMemory()));
+			assertFailure(() => Assert.StartsWith(expected.AsMemory(), actual.Memoryify()));
+			assertFailure(() => Assert.StartsWith(expected.Memoryify(), actual.AsMemory()));
+			assertFailure(() => Assert.StartsWith(expected.Memoryify(), actual.Memoryify()));
 		}
 	}
 }

@@ -836,83 +836,110 @@ public class SpanAssertsTests
 	public class StartsWith
 	{
 		[Fact]
-		public void SuccessReadOnly()
+		public void Success()
 		{
 			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".AsSpan());
-		}
-
-		[Fact]
-		public void SuccessSpan()
-		{
+			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".Spanify());
+			Assert.StartsWith("Hello".Spanify(), "Hello, world!".AsSpan());
 			Assert.StartsWith("Hello".Spanify(), "Hello, world!".Spanify());
 		}
 
 		[Fact]
-		public void IsCaseSensitiveByDefaultReadOnly()
+		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO".AsSpan(), "Hello".AsSpan()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"Hello, world!\"" + Environment.NewLine +
+					"Expected start: \"hey\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".Spanify()));
+			assertFailure(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".Spanify()));
 		}
 
 		[Fact]
-		public void IsCaseSensitiveByDefaultSpan()
+		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO".Spanify(), "Hello".Spanify()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"world!\"" + Environment.NewLine +
+					"Expected start: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".Spanify()));
+			assertFailure(() => Assert.StartsWith("WORLD!".Spanify(), "world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("WORLD!".Spanify(), "world!".Spanify()));
 		}
 
 		[Fact]
-		public void NotFoundReadOnly()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
-		}
-
-
-		[Fact]
-		public void NotFoundSpan()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".Spanify()));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsReadOnly()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo".AsSpan(), null));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsSpan()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo".Spanify(), null));
-		}
-	}
-
-	public class StartsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveReadOnly()
+		public void CanSpecifyComparisonType()
 		{
 			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveSpan()
+		public void NullStringIsEmpty()
 		{
-			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"\"" + Environment.NewLine +
+					"Expected start: \"foo\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("foo".AsSpan(), null));
+			assertFailure(() => Assert.StartsWith("foo".Spanify(), null));
+		}
+
+		[Fact]
+		public void Truncation()
+		{
+			var expected = "This is a long string that we're looking for at the start";
+			var actual = "This is the long string that we expected to find this starting inside";
+
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"This is the long string that we expected \"" + ArgumentFormatter2.Ellipsis + Environment.NewLine +
+					"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter2.Ellipsis,
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith(expected.AsSpan(), actual.AsSpan()));
+			assertFailure(() => Assert.StartsWith(expected.AsSpan(), actual.Spanify()));
+			assertFailure(() => Assert.StartsWith(expected.Spanify(), actual.AsSpan()));
+			assertFailure(() => Assert.StartsWith(expected.Spanify(), actual.Spanify()));
 		}
 	}
 }
