@@ -3222,46 +3222,43 @@ public class EqualityAssertsTests
 	public class StrictEqual
 	{
 		[Fact]
-		public static void Success()
+		public static void Equal()
 		{
-			Assert.StrictEqual(42, 42);
+			Assert.StrictEqual("actual", "actual");
 		}
 
 		[Fact]
-		public static void Equals()
+		public static void NotEqual_Strings()
+		{
+			var ex = Record.Exception(() => Assert.StrictEqual("bob", "jim"));
+
+			Assert.IsType<StrictEqualException>(ex);
+			Assert.Equal(
+				"Assert.StrictEqual() Failure: Values differ" + Environment.NewLine +
+				@"Expected: ""bob""" + Environment.NewLine +
+				@"Actual:   ""jim""",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void NotEqual_Classes()
+		{
+			var ex = Record.Exception(() => Assert.StrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah")));
+
+			Assert.IsType<StrictEqualException>(ex);
+			Assert.Equal(
+				"Assert.StrictEqual() Failure: Values differ" + Environment.NewLine +
+				$"Expected: EnumerableClass [{ArgumentFormatter2.Ellipsis}]" + Environment.NewLine +
+				$"Actual:   EnumerableClass [{ArgumentFormatter2.Ellipsis}]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void DifferentTypes_Equal()
 		{
 			Assert.StrictEqual(new DerivedClass(), new BaseClass());
-		}
-
-		[Fact]
-		public static void Failure()
-		{
-			var ex = Record.Exception(() => Assert.StrictEqual(42, 2112));
-
-			Assert.IsType<EqualException>(ex);
-			Assert.Equal(
-				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-				"Expected: 42" + Environment.NewLine +
-				"Actual:   2112",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public static void Collection_Failure()
-		{
-			var expected = new EnumerableClass("ploeh");
-			var actual = new EnumerableClass("fnaah");
-
-			var ex = Record.Exception(() => Assert.StrictEqual(expected, actual));
-
-			Assert.IsType<EqualException>(ex);
-			Assert.Equal(
-				"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-				"Expected: []" + Environment.NewLine +
-				"Actual:   []",
-				ex.Message
-			);
 		}
 	}
 
