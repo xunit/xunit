@@ -269,9 +269,9 @@ public class SetAssertsTests
 
 			Assert.IsType<SubsetException>(ex);
 			Assert.Equal(
-				"Assert.Subset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> [1, 2, 3]" + Environment.NewLine +
-				"Actual:   HashSet<Int32> [1, 2, 7]",
+				"Assert.Subset() Failure: Value is not a subset" + Environment.NewLine +
+				"Expected: [1, 2, 3]" + Environment.NewLine +
+				"Actual:   [1, 2, 7]",
 				ex.Message
 			);
 		}
@@ -283,9 +283,9 @@ public class SetAssertsTests
 
 			Assert.IsType<SubsetException>(ex);
 			Assert.Equal(
-				"Assert.Subset() Failure" + Environment.NewLine +
-				"Expected: HashSet<Int32> []" + Environment.NewLine +
-				"Actual:   (null)",
+				"Assert.Subset() Failure: Value is not a subset" + Environment.NewLine +
+				"Expected: []" + Environment.NewLine +
+				"Actual:   null",
 				ex.Message
 			);
 		}
