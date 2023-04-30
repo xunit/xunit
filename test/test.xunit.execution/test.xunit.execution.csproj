@@ -13,6 +13,7 @@
     <Compile Include="..\..\src\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\XunitSerializationInfo.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
   </ItemGroup>
 
 </Project>

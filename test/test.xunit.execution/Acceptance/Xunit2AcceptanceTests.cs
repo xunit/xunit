@@ -257,7 +257,7 @@ public class Xunit2AcceptanceTests
 
             var msg = Assert.Single(messages);
             Assert.Equal("System.AggregateException : One or more errors occurred." + Environment.NewLine +
-                         "---- Assert.Equal() Failure" + Environment.NewLine +
+                         "---- Assert.Equal() Failure: Values differ" + Environment.NewLine +
                          "Expected: 2" + Environment.NewLine +
                          "Actual:   3" + Environment.NewLine +
                          "---- System.DivideByZeroException : Attempted to divide by zero.", Xunit.ExceptionUtility.CombineMessages(msg));

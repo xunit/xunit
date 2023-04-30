@@ -6,21 +6,15 @@ public class MultipleAssertsTests
 	[Fact]
 	public void NoActions_DoesNotThrow()
 	{
-		var ex = Record.Exception(() => Assert.Multiple());
-
-		Assert.Null(ex);
+		Assert.Multiple();
 	}
 
 	[Fact]
 	public void SingleAssert_Success_DoesNotThrow()
 	{
-		var ex = Record.Exception(() =>
-			Assert.Multiple(
-				() => Assert.True(true)
-			)
+		Assert.Multiple(
+			() => Assert.True(true)
 		);
-
-		Assert.Null(ex);
 	}
 
 	[Fact]
@@ -38,14 +32,10 @@ public class MultipleAssertsTests
 	[Fact]
 	public void MultipleAssert_Success_DoesNotThrow()
 	{
-		var ex = Record.Exception(() =>
-			Assert.Multiple(
-				() => Assert.True(true),
-				() => Assert.False(false)
-			)
+		Assert.Multiple(
+			() => Assert.True(true),
+			() => Assert.False(false)
 		);
-
-		Assert.Null(ex);
 	}
 
 	[Fact]
@@ -72,6 +62,10 @@ public class MultipleAssertsTests
 		);
 
 		var multiEx = Assert.IsType<MultipleException>(ex);
+		Assert.Equal(
+			"Assert.Multiple() Failure: Multiple failures were encountered",
+			ex.Message
+		);
 		Assert.Collection(
 			multiEx.InnerExceptions,
 			innerEx => Assert.IsType<TrueException>(innerEx),
