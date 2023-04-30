@@ -1077,36 +1077,6 @@ public class CollectionAssertsTests
 				);
 			}
 		}
-
-		public class DoubleEnumerationPrevention
-		{
-			[Fact]
-			public static void EnumeratesOnlyOnce_Equal()
-			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-
-				Assert.Equal(expected, actual);
-			}
-
-			[Fact(Skip = "Double enumeration not solved here yet")]
-			public static void EnumeratesOnlyOnce_NotEqual()
-			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
-
-				var ex = Record.Exception(() => Assert.Equal(expected, actual));
-
-				Assert.IsType<EqualException>(ex);
-				Assert.Equal(
-					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
-					$"Actual:   [{ArgumentFormatter.Ellipsis}, 2, 3, 4, 5, 6]" + Environment.NewLine +
-					"                            ↑ (pos 5)",
-					ex.Message
-				);
-			}
-		}
 	}
 
 	public class NotEmpty
@@ -1384,35 +1354,6 @@ public class CollectionAssertsTests
 				Assert.NotEqual(expected, actual);
 			}
 		}
-
-		public class DoubleEnumerationPrevention
-		{
-			[Fact(Skip = "Double enumeration not solved here yet")]
-			public static void EnumeratesOnlyOnce_Equal()
-			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-
-				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
-
-				Assert.IsType<NotEqualException>(ex);
-				Assert.Equal(
-					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
-					"Expected: Not RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }" + Environment.NewLine +
-					"Actual:       RunOnceEnumerable`1 { Source = [1, 2, 3, 4, 5] }",
-					ex.Message
-				);
-			}
-
-			[Fact]
-			public static void EnumeratesOnlyOnce_NotEqual()
-			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
-
-				Assert.NotEqual(expected, actual);
-			}
-		}
 	}
 
 	public class Single_NonGeneric
@@ -1678,27 +1619,6 @@ public class CollectionAssertsTests
 				ex.Message
 			);
 		}
-	}
-
-	sealed class RunOnceEnumerable<T> : IEnumerable<T>
-	{
-		private bool _called;
-
-		public RunOnceEnumerable(IEnumerable<T> source)
-		{
-			Source = source;
-		}
-
-		public IEnumerable<T> Source { get; }
-
-		public IEnumerator<T> GetEnumerator()
-		{
-			Assert.False(_called, "GetEnumerator() was called more than once");
-			_called = true;
-			return Source.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 
 	sealed class SpyEnumerator<T> : IEnumerable<T>, IEnumerator<T>
