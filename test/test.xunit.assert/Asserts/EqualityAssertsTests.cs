@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
 
@@ -854,6 +855,80 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+			[Fact]
+			public void PrintPointersWithCompatibleComparers()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new[] { 1, 2, 0, 4, 5 };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"                 ↓ (pos 2)" + Environment.NewLine +
+						"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
+						"Actual:   [1, 2, 0, 4, 5]" + Environment.NewLine +
+						"                 ↑ (pos 2)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, actual, EqualityComparer<IEnumerable<int>>.Default));
+			}
+
+			[Fact]
+			public void CustomComparerWithSafeEnumerable()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new[] { 1, 2, 0, 4, 5 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, new MyComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   [1, 2, 0, 4, 5]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void CustomComparerWithUnsafeEnumerable()
+			{
+				var ex = Record.Exception(() => Assert.Equal(new UnsafeEnumerable(), new[] { 1, 2, 3 }, new MyComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					$"Expected: UnsafeEnumerable [{ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					"Actual:   int[]            [1, 2, 3]",
+					ex.Message
+				);
+			}
+
+			class UnsafeEnumerable : IEnumerable
+			{
+				public IEnumerator GetEnumerator()
+				{
+					while (true)
+						yield return 1;
+				}
+			}
+
+			class MyComparer : IEqualityComparer<IEnumerable>
+			{
+				public bool Equals(IEnumerable? x, IEnumerable? y)
+					=> false;
+
+				public int GetHashCode([DisallowNull] IEnumerable obj) =>
+					throw new NotImplementedException();
+			}
 		}
 
 		public class Dictionaries
@@ -1208,6 +1283,36 @@ public class EqualityAssertsTests
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+		}
+
+		public class DoubleEnumerationPrevention
+		{
+			[Fact]
+			public static void EnumeratesOnlyOnce_Equal()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void EnumeratesOnlyOnce_NotEqual()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					$"Expected: [{ArgumentFormatter.Ellipsis}, 2, 3, 4, 5]" + Environment.NewLine +
+					$"Actual:   [{ArgumentFormatter.Ellipsis}, 2, 3, 4, 5, 6]" + Environment.NewLine +
+					"                            ↑ (pos 5)",
+					ex.Message
+				);
 			}
 		}
 	}
@@ -2895,6 +3000,35 @@ public class EqualityAssertsTests
 				);
 			}
 		}
+
+		public class DoubleEnumerationPrevention
+		{
+			[Fact]
+			public static void EnumeratesOnlyOnce_Equal()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:       [1, 2, 3, 4, 5]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void EnumeratesOnlyOnce_NotEqual()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+
+				Assert.NotEqual(expected, actual);
+			}
+		}
 	}
 
 	public class NotEqual_Decimal
@@ -3532,5 +3666,26 @@ public class EqualityAssertsTests
 		public override bool Equals(object? obj) => result;
 
 		public override int GetHashCode() => 42;
+	}
+
+	sealed class RunOnceEnumerable<T> : IEnumerable<T>
+	{
+		private bool _called;
+
+		public RunOnceEnumerable(IEnumerable<T> source)
+		{
+			Source = source;
+		}
+
+		public IEnumerable<T> Source { get; }
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			Assert.False(_called, "GetEnumerator() was called more than once");
+			_called = true;
+			return Source.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 }

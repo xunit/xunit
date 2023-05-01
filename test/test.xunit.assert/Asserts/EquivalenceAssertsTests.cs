@@ -91,17 +91,9 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
-		public void SameValueFromDifferentTypes_Failure()
+		public void SameValueFromDifferentIntrinsicTypes_Success()
 		{
-			var ex = Record.Exception(() => Assert.Equivalent(12, 12L));
-
-			Assert.IsType<EquivalentException>(ex);
-			Assert.Equal(
-				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: 12 (System.Int32)" + Environment.NewLine +
-				"Actual:   12 (System.Int64)",
-				ex.Message
-			);
+			Assert.Equivalent(12, 12L);
 		}
 	}
 
