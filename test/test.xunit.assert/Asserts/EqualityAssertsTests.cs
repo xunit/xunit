@@ -60,6 +60,12 @@ public class EqualityAssertsTests
 		public class WithComparer
 		{
 			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.Equal(1, 2, default(IEqualityComparer<int>)!));
+			}
+
+			[Fact]
 			public void Equal()
 			{
 				Assert.Equal(42, 21, new Comparer<int>(true));
@@ -91,6 +97,35 @@ public class EqualityAssertsTests
 				public bool Equals(T? x, T? y) => result;
 
 				public int GetHashCode(T obj) => throw new NotImplementedException();
+			}
+		}
+
+		public class WithFunc
+		{
+			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.Equal(1, 2, default(Func<int, int, bool>)!));
+			}
+
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(42, 21, (x, y) => true);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(42, 42, (x, y) => false));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: 42" + Environment.NewLine +
+					"Actual:   42",
+					ex.Message
+				);
 			}
 		}
 
@@ -1869,6 +1904,12 @@ public class EqualityAssertsTests
 		public class WithComparer
 		{
 			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.NotEqual(1, 2, default(IEqualityComparer<int>)!));
+			}
+
+			[Fact]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(42, 21, new Comparer<int>(true)));
@@ -1900,6 +1941,35 @@ public class EqualityAssertsTests
 				public bool Equals(T? x, T? y) => result;
 
 				public int GetHashCode(T obj) => throw new NotImplementedException();
+			}
+		}
+
+		public class WithFunc
+		{
+			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.NotEqual(1, 2, default(Func<int, int, bool>)!));
+			}
+
+			[Fact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(42, 21, (x, y) => true));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not 42" + Environment.NewLine +
+					"Actual:       21",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(42, 42, (x, y) => false);
 			}
 		}
 

@@ -990,6 +990,37 @@ public class CollectionAssertsTests
 			}
 		}
 
+		public class CollectionsWithFunc
+		{
+			[Fact]
+			public static void AlwaysFalse()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, (x, y) => false));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"                     ↓ (pos 0)" + Environment.NewLine +
+					"Expected: int[]     [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   List<int> [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"                     ↑ (pos 0)",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void AlwaysTrue()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+
+				Assert.Equal(expected, actual, (x, y) => true);
+			}
+		}
+
 		public class Dictionaries
 		{
 			[Fact]
@@ -1272,6 +1303,35 @@ public class CollectionAssertsTests
 				public bool Equals(int x, int y) => answer;
 
 				public int GetHashCode(int obj) => throw new NotImplementedException();
+			}
+		}
+
+		public class CollectionsWithFunc
+		{
+			[Fact]
+			public static void AlwaysFalse()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
+
+				Assert.NotEqual(expected, actual, (x, y) => false);
+			}
+
+			[Fact]
+			public static void AlwaysTrue()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (x, y) => true));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not int[]     [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:       List<int> [0, 0, 0, 0, 0]",
+					ex.Message
+				);
 			}
 		}
 
