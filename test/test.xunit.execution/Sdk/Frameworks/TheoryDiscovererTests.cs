@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,76 +7,9 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class TheoryDiscovererTests : AcceptanceTestV2
+public class TheoryDiscovererTests
 {
     readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestFrameworkOptions.ForDiscovery();
-
-    [Fact]
-    public void NoDataAttributes()
-    {
-        var failures = Run<ITestFailed>(typeof(NoDataAttributesClass));
-
-        var failure = Assert.Single(failures);
-        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-        Assert.Equal("No data found for TheoryDiscovererTests+NoDataAttributesClass.TheoryMethod", failure.Messages.Single());
-    }
-
-    class NoDataAttributesClass
-    {
-        [Theory]
-        public void TheoryMethod(int x) { }
-    }
-
-    [Fact]
-    public void NullMemberData_ThrowsInvalidOperationException()
-    {
-        var results = Run<ITestFailed>(typeof(NullDataClass));
-
-        var failure = Assert.Single(results);
-        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-        Assert.Equal("Test data returned null for TheoryDiscovererTests+NullDataClass.NullMemberData. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
-    }
-
-    public class NullDataClass
-    {
-        public static IEnumerable<object[]> InitializedInConstructor;
-
-        public NullDataClass()
-        {
-            InitializedInConstructor = new List<object[]>
-            {
-                new object[] { "1", "2"}
-            };
-        }
-
-        [Theory]
-        [MemberData(nameof(InitializedInConstructor))]
-        public void NullMemberData(string str1, string str2) { }
-    }
-
-    [Fact]
-    public void EmptyTheoryData()
-    {
-        var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
-
-        var failure = Assert.Single(failures);
-        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-        Assert.Equal("No data found for TheoryDiscovererTests+EmptyTheoryDataClass.TheoryMethod", failure.Messages.Single());
-    }
-
-    class EmptyTheoryDataAttribute : DataAttribute
-    {
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-        {
-            return new object[0][];
-        }
-    }
-
-    class EmptyTheoryDataClass
-    {
-        [Theory, EmptyTheoryData]
-        public void TheoryMethod(int x) { }
-    }
 
     [Fact]
     public void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
@@ -121,7 +52,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 
     class MultipleDataClass
     {
-        [Theory, MultipleDataAttribute]
+        [Theory, MultipleData]
         public void TheoryMethod(int x) { }
     }
 
@@ -143,7 +74,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 
     class MultipleDataClassSkipped
     {
-        [Theory, MultipleDataAttribute(Skip = "Skip this attribute")]
+        [Theory, MultipleData(Skip = "Skip this attribute")]
         public void TheoryMethod(int x) { }
     }
 
@@ -225,6 +156,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TheoryMethod(object a) { }
     }
 
+#if NETFRAMEWORK
     [Fact]
     public void TheoryWithNonSerializableEnumYieldsSingleTheoryTestCase()
     {
@@ -239,65 +171,14 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         Assert.Equal("TheoryDiscovererTests+NonSerializableEnumDataClass.TheTest", theoryTestCase.DisplayName);
     }
 
-    public class NonSerializableEnumDataClass
+    class NonSerializableEnumDataClass
     {
         [Theory]
         [InlineData(42)]
         [InlineData(ConformanceLevel.Auto)]
         public void TheTest(object x) { }
     }
-
-    [Fact]
-    public void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
-    {
-        var results = Run<ITestFailed>(typeof(NoSuchDataDiscovererClass));
-
-        var failure = Assert.Single(results);
-        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-        Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NoSuchDataDiscovererAttribute on TheoryDiscovererTests+NoSuchDataDiscovererClass.Test does not exist.", failure.Messages.Single());
-    }
-
-    public class NoSuchDataDiscovererClass
-    {
-        [Theory]
-        [NoSuchDataDiscoverer]
-        public void Test() { }
-    }
-
-    [DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
-    public class NoSuchDataDiscovererAttribute : DataAttribute
-    {
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [Fact]
-    public void NotADataDiscoverer_ThrowsInvalidOperationException()
-    {
-        var results = Run<ITestFailed>(typeof(NotADataDiscovererClass));
-
-        var failure = Assert.Single(results);
-        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
-        Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NotADataDiscovererAttribute on TheoryDiscovererTests+NotADataDiscovererClass.Test does not implement IDataDiscoverer.", failure.Messages.Single());
-    }
-
-    public class NotADataDiscovererClass
-    {
-        [Theory]
-        [NotADataDiscoverer]
-        public void Test() { }
-    }
-
-    [DataDiscoverer("TheoryDiscovererTests", "test.xunit.execution")]
-    public class NotADataDiscovererAttribute : DataAttribute
-    {
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-        {
-            throw new NotImplementedException();
-        }
-    }
+#endif
 
     [Fact]
     public void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
@@ -350,37 +231,48 @@ public class TheoryDiscovererTests : AcceptanceTestV2
     }
 
     [Fact]
-    public void SkippedTheoryWithNoData()
+    public void InlineDataWithNoValuesAndParamsArray()
     {
-        var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));
+        void assertTestCaseDetails(IXunitTestCase testCase, params int[] items)
+        {
+            var paramsDisplay = ArgumentFormatter.Format(items);
 
-        var skip = Assert.Single(skips);
-        Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skip.Test.DisplayName);
-        Assert.Equal("I have no data", skip.Reason);
+            Assert.Equal($"TheoryDiscovererTests+ParamsArrayWithNoData.TestMethod(values: {paramsDisplay})", testCase.DisplayName);
+            Assert.NotNull(testCase.TestMethodArguments);
+            var arg = Assert.Single(testCase.TestMethodArguments);
+            var array = Assert.IsType<int[]>(arg);
+            Assert.Equal(items, array);
+        }
+
+        void assertValidTestCase(IXunitTestCase testCase, params int[] items)
+        {
+            assertTestCaseDetails(testCase, items);
+            var serialized = SerializationHelper.Serialize(testCase);
+            var deserialized = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
+            assertTestCaseDetails(deserialized, items);
+        }
+
+        var discoverer = TestableTheoryDiscoverer.Create();
+        var testMethod = Mocks.TestMethod(typeof(ParamsArrayWithNoData), "TestMethod");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+        var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+        Assert.Collection(
+            testCases.OrderBy(tc => tc.DisplayName),
+            testCase => assertValidTestCase(testCase),
+            testCase => assertValidTestCase(testCase, 1, 2),
+            testCase => assertValidTestCase(testCase, 1)
+        );
     }
 
-    class SkippedWithNoData
+    class ParamsArrayWithNoData
     {
-        [Theory(Skip = "I have no data")]
-        public void TestMethod(int value) { }
-    }
-
-    [Fact]
-    public void SkippedTheoryWithData()
-    {
-        var skips = Run<ITestSkipped>(typeof(SkippedWithData));
-
-        var skip = Assert.Single(skips);
-        Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skip.Test.DisplayName);
-        Assert.Equal("I have data", skip.Reason);
-    }
-
-    class SkippedWithData
-    {
-        [Theory(Skip = "I have data")]
-        [InlineData(42)]
-        [InlineData(2112)]
-        public void TestMethod(int value) { }
+        [Theory]
+        [InlineData]
+        [InlineData(1)]
+        [InlineData(1, 2)]
+        public void TestMethod(params int[] values) { }
     }
 
     class TestableTheoryDiscoverer : TheoryDiscoverer
@@ -400,5 +292,3 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         }
     }
 }
-
-#endif
