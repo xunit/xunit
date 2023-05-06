@@ -429,7 +429,7 @@ public class Xunit3AcceptanceTests
 			var combinedMessage = ExceptionUtility.CombineMessages(msg);
 			Assert.StartsWith("System.AggregateException : One or more errors occurred.", combinedMessage);
 			Assert.EndsWith(
-				"---- Assert.Equal() Failure" + Environment.NewLine +
+				"---- Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"Expected: 2" + Environment.NewLine +
 				"Actual:   3" + Environment.NewLine +
 				"---- System.DivideByZeroException : Attempted to divide by zero.",

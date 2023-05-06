@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 using Xunit.Sdk;
 
@@ -10,753 +11,1344 @@ public class EqualityAssertsTests
 {
 	public class Equal
 	{
-		[Fact]
-		public void Success()
+		public class Intrinsics
 		{
-			Assert.Equal(42, 42);
-		}
-
-		[Fact]
-		public void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(42, 2112));
-			Assert.Equal("42", ex.Expected);
-			Assert.Equal("2112", ex.Actual);
-		}
-
-		[Fact]
-		public void Comparable()
-		{
-			var obj1 = new SpyComparable();
-			var obj2 = new SpyComparable();
-
-			Assert.Equal(obj1, obj2);
-			Assert.True(obj1.CompareCalled);
-		}
-
-		[Fact]
-		public void Comparable_NonGeneric_SameType_Equal()
-		{
-			var expected = new MultiComparable(1);
-			var actual = new MultiComparable(1);
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (IComparable)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void Comparable_NonGeneric_SameType_NotEqual()
-		{
-			var expected = new MultiComparable(1);
-			var actual = new MultiComparable(2);
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (IComparable)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		[Fact]
-		public void Comparable_NonGeneric_DifferentType_Equal()
-		{
-			var expected = new MultiComparable(1);
-			var actual = 1;
-
-			Assert.Equal(expected, (IComparable)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void Comparable_NonGeneric_DifferentType_NotEqual()
-		{
-			var expected = new MultiComparable(1);
-			var actual = 2;
-
-			Assert.NotEqual(expected, (IComparable)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class MultiComparable : IComparable
-		{
-			private int Value { get; }
-
-			public MultiComparable(int value)
+			[Fact]
+			public void Equal()
 			{
-				Value = value;
+				Assert.Equal(42, 42);
 			}
 
-			public int CompareTo(object? obj)
+			[Fact]
+			public void NotEqual()
 			{
-				if (obj is int intObj)
-					return Value.CompareTo(intObj);
-				else if (obj is MultiComparable multiObj)
-					return Value.CompareTo(multiObj.Value);
+				var ex = Record.Exception(() => Assert.Equal(42, 2112));
 
-				throw new InvalidOperationException();
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: 42" + Environment.NewLine +
+					"Actual:   2112",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void StringsPassViaObjectEqualAreNotFormattedOrTruncated()
+			{
+				var ex = Record.Exception(
+					() => Assert.Equal<object>(
+						$"This is a long{Environment.NewLine}string with{Environment.NewLine}new lines",
+						$"This is a long{Environment.NewLine}string with embedded{Environment.NewLine}new lines"
+					)
+				);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: This is a long" + Environment.NewLine +
+					"          string with" + Environment.NewLine +
+					"          new lines" + Environment.NewLine +
+					"Actual:   This is a long" + Environment.NewLine +
+					"          string with embedded" + Environment.NewLine +
+					"          new lines",
+					ex.Message
+				);
 			}
 		}
 
-		[Fact]
-		public void Comparable_Generic()
+		public class WithComparer
 		{
-			var obj1 = new SpyComparable_Generic();
-			var obj2 = new SpyComparable_Generic();
-
-			Assert.Equal(obj1, obj2);
-			Assert.True(obj1.CompareCalled);
-		}
-
-		[Fact]
-		public void Comparable_SubClass_SubClass_Equal()
-		{
-			var expected = new ComparableSubClassA(1);
-			var actual = new ComparableSubClassB(1);
-
-			Assert.Equal<ComparableBaseClass>(expected, actual);
-		}
-
-		[Fact]
-		public void Comparable_SubClass_SubClass_NotEqual()
-		{
-			var expected = new ComparableSubClassA(1);
-			var actual = new ComparableSubClassB(2);
-
-			Assert.NotEqual<ComparableBaseClass>(expected, actual);
-		}
-
-		[Fact]
-		public void Comparable_BaseClass_SubClass_Equal()
-		{
-			var expected = new ComparableBaseClass(1);
-			var actual = new ComparableSubClassA(1);
-
-			Assert.Equal(expected, actual);
-		}
-
-		[Fact]
-		public void Comparable_SubClass_BaseClass_Equal()
-		{
-			var expected = new ComparableSubClassA(1);
-			var actual = new ComparableBaseClass(1);
-
-			Assert.Equal(expected, actual);
-		}
-
-		class ComparableBaseClass : IComparable<ComparableBaseClass>
-		{
-			private int Value { get; }
-
-			public ComparableBaseClass(int value)
+			[Fact]
+			public void GuardClause()
 			{
-				Value = value;
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.Equal(1, 2, default(IEqualityComparer<int>)!));
 			}
 
-			public int CompareTo(ComparableBaseClass? other) => Value.CompareTo(other!.Value);
-		}
-
-		class ComparableSubClassA : ComparableBaseClass
-		{
-			public ComparableSubClassA(int value) : base(value)
-			{ }
-		}
-
-		class ComparableSubClassB : ComparableBaseClass
-		{
-			public ComparableSubClassB(int value) : base(value)
-			{ }
-		}
-
-		[Fact]
-		public void Comparable_Generic_ThrowsException_Equal()
-		{
-			var expected = new ComparableThrower(1);
-			var actual = new ComparableThrower(1);
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (IComparable<ComparableThrower>)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void Comparable_Generic_ThrowsException_NotEqual()
-		{
-			var expected = new ComparableThrower(1);
-			var actual = new ComparableThrower(2);
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (IComparable<ComparableThrower>)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class ComparableThrower : IComparable<ComparableThrower>
-		{
-			public int Value { get; }
-
-			public ComparableThrower(int value)
+			[Fact]
+			public void Equal()
 			{
-				Value = value;
+				Assert.Equal(42, 21, new Comparer<int>(true));
 			}
 
-			public int CompareTo(ComparableThrower? other)
+			[Fact]
+			public void NotEqual()
 			{
-				throw new InvalidOperationException();
+				var ex = Record.Exception(() => Assert.Equal(42, 42, new Comparer<int>(false)));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: 42" + Environment.NewLine +
+					"Actual:   42",
+					ex.Message
+				);
 			}
 
-			public override bool Equals(object? obj) => Value == ((ComparableThrower?)obj)!.Value;
-
-			public override int GetHashCode() => Value;
-		}
-
-		[Fact]
-		public void Equatable()
-		{
-			var obj1 = new SpyEquatable();
-			var obj2 = new SpyEquatable();
-
-			Assert.Equal(obj1, obj2);
-
-			Assert.True(obj1.Equals__Called);
-			Assert.Same(obj2, obj1.Equals_Other);
-		}
-
-		[Fact]
-		public void Equatable_SubClass_SubClass_Equal()
-		{
-			var expected = new EquatableSubClassA(1);
-			var actual = new EquatableSubClassB(1);
-
-			Assert.Equal<EquatableBaseClass>(expected, actual);
-		}
-
-		[Fact]
-		public void Equatable_SubClass_SubClass_NotEqual()
-		{
-			var expected = new EquatableSubClassA(1);
-			var actual = new EquatableSubClassB(2);
-
-			Assert.NotEqual<EquatableBaseClass>(expected, actual);
-		}
-
-		[Fact]
-		public void Equatable_BaseClass_SubClass_Equal()
-		{
-			var expected = new EquatableBaseClass(1);
-			var actual = new EquatableSubClassA(1);
-
-			Assert.Equal(expected, actual);
-		}
-
-		[Fact]
-		public void Equatable_SubClass_BaseClass_Equal()
-		{
-			var expected = new EquatableSubClassA(1);
-			var actual = new EquatableBaseClass(1);
-
-			Assert.Equal(expected, actual);
-		}
-
-		class EquatableBaseClass : IEquatable<EquatableBaseClass>
-		{
-			private int Value { get; }
-
-			public EquatableBaseClass(int value)
+			class Comparer<T> : IEqualityComparer<T>
 			{
-				Value = value;
-			}
+				readonly bool result;
 
-			public bool Equals(EquatableBaseClass? other) => Value == other!.Value;
-		}
+				public Comparer(bool result)
+				{
+					this.result = result;
+				}
 
-		class EquatableSubClassA : EquatableBaseClass
-		{
-			public EquatableSubClassA(int value) : base(value) { }
-		}
+				public bool Equals(T? x, T? y) => result;
 
-		class EquatableSubClassB : EquatableBaseClass
-		{
-			public EquatableSubClassB(int value) : base(value) { }
-		}
-
-		[Fact]
-		public void NonComparable()
-		{
-			var nco1 = new NonComparableObject();
-			var nco2 = new NonComparableObject();
-
-			Assert.Equal(nco1, nco2);
-		}
-
-		[Fact]
-		public void IStructuralEquatable_Equal()
-		{
-			var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-			var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (IStructuralEquatable)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IStructuralEquatable_NotEqual()
-		{
-			var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-			var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (IStructuralEquatable)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IStructuralEquatable_ExpectedNull_ActualNull()
-		{
-			var expected = new Tuple<StringWrapper?>(null);
-			var actual = new Tuple<StringWrapper?>(null);
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (IStructuralEquatable)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IStructuralEquatable_ExpectedNull_ActualNonNull()
-		{
-			var expected = new Tuple<StringWrapper?>(null);
-			var actual = new Tuple<StringWrapper?>(new StringWrapper("a"));
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (IStructuralEquatable)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IStructuralEquatable_ExpectedNonNull_ActualNull()
-		{
-			var expected = new Tuple<StringWrapper?>(new StringWrapper("a"));
-			var actual = new Tuple<StringWrapper?>(null);
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (IStructuralEquatable)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class StringWrapper : IEquatable<StringWrapper>
-		{
-			public string Value { get; }
-
-			public StringWrapper(string value)
-			{
-				Value = value;
-			}
-
-			bool IEquatable<StringWrapper>.Equals(StringWrapper? other) => Value == other!.Value;
-		}
-
-		[Fact]
-		public void DepthExample()
-		{
-			var x = new List<object> { new List<object> { new List<object> { new List<object>() } } };
-			var y = new List<object> { new List<object> { new List<object> { new List<object>() } } };
-
-			Assert.Equal(x, y);
-		}
-
-		[Fact]
-		public void IReadOnlyCollection_IEnumerable()
-		{
-			var expected = new string[] { "foo", "bar" };
-			var actual = (IReadOnlyCollection<string>)new ReadOnlyCollection<string>(expected);
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (object)actual);
-			Assert.Equal(actual, expected);
-			Assert.Equal(actual, (object)expected);
-		}
-
-		[Fact]
-		public void StringArray_ObjectArray()
-		{
-			var expected = new string[] { "foo", "bar" };
-			var actual = new object[] { "foo", "bar" };
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (object)actual);
-			Assert.Equal(actual, expected);
-			Assert.Equal(actual, (object)expected);
-		}
-
-		[Fact]
-		public void IDictionary_SameTypes()
-		{
-			var expected = new Dictionary<string, string> { ["foo"] = "bar" };
-			var actual = new Dictionary<string, string> { ["foo"] = "bar" };
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (IDictionary)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IDictionary_DifferentTypes()
-		{
-			var expected = new Dictionary<string, string> { ["foo"] = "bar" };
-			var actual = new ConcurrentDictionary<string, string>(expected);
-
-			Assert.Equal(expected, (IDictionary)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_SameTypes()
-		{
-			var expected = new HashSet<string> { "foo", "bar" };
-			var actual = new HashSet<string> { "foo", "bar" };
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (ISet<string>)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_DifferentTypes()
-		{
-			var expected = new HashSet<string> { "bar", "foo" };
-			var actual = new SortedSet<string> { "foo", "bar" };
-
-			Assert.Equal(expected, (ISet<string>)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_NonGenericSubClass_Equal()
-		{
-			var expected = new NonGenericSet { "bar", "foo" };
-			var actual = new NonGenericSet { "bar", "foo" };
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (ISet<string>)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_NonGenericSubClass_NotEqual()
-		{
-			var expected = new NonGenericSet { "bar", "foo" };
-			var actual = new NonGenericSet { "bar", "baz" };
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (ISet<string>)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_NonGenericSubClass_DifferentCounts()
-		{
-			var expected = new NonGenericSet { "bar" };
-			var actual = new NonGenericSet { "bar", "foo" };
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (ISet<string>)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_NonGenericSubClass_DifferentTypesEqual()
-		{
-			var expected = new NonGenericSet { "bar" };
-			var actual = new HashSet<string> { "bar" };
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (ISet<string>)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_NonGenericSubClass_DifferentTypesNotEqual()
-		{
-			var expected = new NonGenericSet { "bar" };
-			var actual = new HashSet<int> { 1 };
-
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class NonGenericSet : HashSet<string> { }
-
-		[Fact]
-		public void ISet_TwoGenericSubClass_Equal()
-		{
-			var expected = new TwoGenericSet<string, int> { "foo", "bar" };
-			var actual = new TwoGenericSet<string, int> { "foo", "bar" };
-
-			Assert.Equal(expected, actual);
-			Assert.Equal(expected, (ISet<string>)actual);
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_TwoGenericSubClass_NotEqual()
-		{
-			var expected = new TwoGenericSet<string, int> { "foo", "bar" };
-			var actual = new TwoGenericSet<string, int> { "foo", "baz" };
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (ISet<string>)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		[Fact]
-		public void ISet_TwoGenericSubClass_DifferentCounts()
-		{
-			var expected = new TwoGenericSet<string, int> { "bar" };
-			var actual = new TwoGenericSet<string, int> { "foo", "bar" };
-
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (ISet<string>)actual);
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class TwoGenericSet<T, U> : HashSet<T> { }
-
-		[Fact]
-		public void IEquatableActual_Implicit_Equal()
-		{
-			var expected = new ImplicitIEquatableExpected(1);
-			var actual = new IntWrapper(1);
-
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IEquatableActual_Implicit_NotEqual()
-		{
-			var expected = new ImplicitIEquatableExpected(1);
-			var actual = new IntWrapper(2);
-
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class ImplicitIEquatableExpected : IEquatable<IntWrapper>
-		{
-			public int Value { get; }
-
-			public ImplicitIEquatableExpected(int value)
-			{
-				Value = value;
-			}
-
-			public bool Equals(IntWrapper? other) => Value == other!.Value;
-		}
-
-		[Fact]
-		public void IEquatableActual_Explicit_Equal()
-		{
-			var expected = new ExplicitIEquatableExpected(1);
-			var actual = new IntWrapper(1);
-
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IEquatableActual_Explicit_NotEqual()
-		{
-			var expected = new ExplicitIEquatableExpected(1);
-			var actual = new IntWrapper(2);
-
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class ExplicitIEquatableExpected : IEquatable<IntWrapper>
-		{
-			public int Value { get; }
-
-			public ExplicitIEquatableExpected(int value)
-			{
-				Value = value;
-			}
-
-			bool IEquatable<IntWrapper>.Equals(IntWrapper? other) => Value == other!.Value;
-		}
-
-		[Fact]
-		public void IComparableActual_Implicit_Equal()
-		{
-			var expected = new ImplicitIComparableExpected(1);
-			var actual = new IntWrapper(1);
-
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IComparableActual_Implicit_NotEqual()
-		{
-			var expected = new ImplicitIComparableExpected(1);
-			var actual = new IntWrapper(2);
-
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class ImplicitIComparableExpected : IComparable<IntWrapper>
-		{
-			public int Value { get; }
-
-			public ImplicitIComparableExpected(int value)
-			{
-				Value = value;
-			}
-
-			public int CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
-		}
-
-		[Fact]
-		public void IComparableActual_Explicit_Equal()
-		{
-			var expected = new ExplicitIComparableActual(1);
-			var actual = new IntWrapper(1);
-
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IComparableActual_Explicit_NotEqual()
-		{
-			var expected = new ExplicitIComparableActual(1);
-			var actual = new IntWrapper(2);
-
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class ExplicitIComparableActual : IComparable<IntWrapper>
-		{
-			public int Value { get; }
-
-			public ExplicitIComparableActual(int value)
-			{
-				Value = value;
-			}
-
-			int IComparable<IntWrapper>.CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
-		}
-
-		[Fact]
-		public void IComparableActual_ThrowsException_Equal()
-		{
-			var expected = new IComparableActualThrower(1);
-			var actual = new IntWrapper(1);
-
-			Assert.Equal(expected, (object)actual);
-		}
-
-		[Fact]
-		public void IComparableActual_ThrowsException_NotEqual()
-		{
-			var expected = new IComparableActualThrower(1);
-			var actual = new IntWrapper(2);
-
-			Assert.NotEqual(expected, (object)actual);
-		}
-
-		class IComparableActualThrower : IComparable<IntWrapper>
-		{
-			public int Value { get; }
-
-			public IComparableActualThrower(int value)
-			{
-				Value = value;
-			}
-
-			public int CompareTo(IntWrapper? other)
-			{
-				throw new NotSupportedException();
-			}
-
-			public override bool Equals(object? obj) => Value == ((IntWrapper?)obj)!.Value;
-
-			public override int GetHashCode() => Value;
-		}
-
-		class IntWrapper
-		{
-			public int Value { get; }
-
-			public IntWrapper(int value)
-			{
-				Value = value;
+				public int GetHashCode(T obj) => throw new NotImplementedException();
 			}
 		}
 
-		class SpyComparable : IComparable
+		public class WithFunc
 		{
-			public bool CompareCalled;
-
-			public int CompareTo(object? obj)
+			[Fact]
+			public void GuardClause()
 			{
-				CompareCalled = true;
-				return 0;
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.Equal(1, 2, default(Func<int, int, bool>)!));
+			}
+
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(42, 21, (x, y) => true);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(42, 42, (x, y) => false));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: 42" + Environment.NewLine +
+					"Actual:   42",
+					ex.Message
+				);
 			}
 		}
 
-		class SpyComparable_Generic : IComparable<SpyComparable_Generic>
+		public class Comparable
 		{
-			public bool CompareCalled;
-
-			public int CompareTo(SpyComparable_Generic? other)
+			[Fact]
+			public void Equal()
 			{
-				CompareCalled = true;
-				return 0;
+				var obj1 = new SpyComparable(0);
+				var obj2 = new SpyComparable(0);
+
+				Assert.Equal(obj1, obj2);
+				Assert.True(obj1.CompareCalled);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var obj1 = new SpyComparable(-1);
+				var obj2 = new SpyComparable(0);
+
+				var ex = Record.Exception(() => Assert.Equal(obj1, obj2));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: SpyComparable { CompareCalled = True }" + Environment.NewLine +
+					"Actual:   SpyComparable { CompareCalled = False }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NonGeneric_SameType_Equal()
+			{
+				var expected = new MultiComparable(1);
+				var actual = new MultiComparable(1);
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (IComparable)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void NonGeneric_SameType_NotEqual()
+			{
+				var expected = new MultiComparable(1);
+				var actual = new MultiComparable(2);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+						"Expected: MultiComparable { Value = 1 }" + Environment.NewLine +
+						"Actual:   MultiComparable { Value = 2 }",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (IComparable)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void NonGeneric_DifferentType_Equal()
+			{
+				var expected = new MultiComparable(1);
+				var actual = 1;
+
+				Assert.Equal(expected, (IComparable)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void NonGeneric_DifferentType_NotEqual()
+			{
+				var expected = new MultiComparable(1);
+				var actual = 2;
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+						"Expected: MultiComparable { Value = 1 }" + Environment.NewLine +
+						"Actual:   2",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, (IComparable)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void Generic_Equal()
+			{
+				var obj1 = new SpyComparable_Generic();
+				var obj2 = new SpyComparable_Generic();
+
+				Assert.Equal(obj1, obj2);
+				Assert.True(obj1.CompareCalled);
+			}
+
+			[Fact]
+			public void Generic_NotEqual()
+			{
+				var obj1 = new SpyComparable_Generic(-1);
+				var obj2 = new SpyComparable_Generic();
+
+				var ex = Record.Exception(() => Assert.Equal(obj1, obj2));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: SpyComparable_Generic { CompareCalled = True }" + Environment.NewLine +
+					"Actual:   SpyComparable_Generic { CompareCalled = False }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_Equal()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableSubClassB(1);
+
+				Assert.Equal<ComparableBaseClass>(expected, actual);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_NotEqual()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableSubClassB(2);
+
+				var ex = Record.Exception(() => Assert.Equal<ComparableBaseClass>(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ComparableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:   ComparableSubClassB { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_Equal()
+			{
+				var expected = new ComparableBaseClass(1);
+				var actual = new ComparableSubClassA(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_NotEqual()
+			{
+				var expected = new ComparableBaseClass(1);
+				var actual = new ComparableSubClassA(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ComparableBaseClass { Value = 1 }" + Environment.NewLine +
+					"Actual:   ComparableSubClassA { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_Equal()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableBaseClass(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_NotEqual()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableBaseClass(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ComparableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:   ComparableBaseClass { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void Generic_ThrowsException_Equal()
+			{
+				var expected = new ComparableThrower(1);
+				var actual = new ComparableThrower(1);
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (IComparable<ComparableThrower>)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void Generic_ThrowsException_NotEqual()
+			{
+				var expected = new ComparableThrower(1);
+				var actual = new ComparableThrower(2);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+						"Expected: ComparableThrower { Value = 1 }" + Environment.NewLine +
+						"Actual:   ComparableThrower { Value = 2 }",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (IComparable<ComparableThrower>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_Equal()
+			{
+				object expected = new ImplicitIComparableExpected(1);
+				object actual = new IntWrapper(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_NotEqual()
+			{
+				object expected = new ImplicitIComparableExpected(1);
+				object actual = new IntWrapper(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ImplicitIComparableExpected { Value = 1 }" + Environment.NewLine +
+					"Actual:   IntWrapper { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_Equal()
+			{
+				object expected = new ExplicitIComparableActual(1);
+				object actual = new IntWrapper(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_NotEqual()
+			{
+				object expected = new ExplicitIComparableActual(1);
+				object actual = new IntWrapper(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ExplicitIComparableActual { Value = 1 }" + Environment.NewLine +
+					"Actual:   IntWrapper { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_Throws_Equal()
+			{
+				object expected = new IComparableActualThrower(1);
+				object actual = new IntWrapper(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_Throws_NotEqual()
+			{
+				object expected = new IComparableActualThrower(1);
+				object actual = new IntWrapper(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: IComparableActualThrower { Value = 1 }" + Environment.NewLine +
+					"Actual:   IntWrapper { Value = 2 }",
+					ex.Message
+				);
 			}
 		}
 
-		public class SpyEquatable : IEquatable<SpyEquatable>
+		public class NotComparable
 		{
-			public bool Equals__Called;
-			public SpyEquatable? Equals_Other;
-
-			public bool Equals(SpyEquatable? other)
+			[Fact]
+			public void Equal()
 			{
-				Equals__Called = true;
-				Equals_Other = other;
+				var nco1 = new NonComparableObject();
+				var nco2 = new NonComparableObject();
 
-				return true;
+				Assert.Equal(nco1, nco2);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var nco1 = new NonComparableObject(false);
+				var nco2 = new NonComparableObject();
+
+				var ex = Record.Exception(() => Assert.Equal(nco1, nco2));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: NonComparableObject { }" + Environment.NewLine +
+					"Actual:   NonComparableObject { }",
+					ex.Message
+				);
 			}
 		}
 
-		class NonComparableObject
+		public class Equatable
 		{
-			public override bool Equals(object? obj) => true;
-
-			public override int GetHashCode() => 42;
-		}
-	}
-
-	public class Equal_WithComparer
-	{
-		[Fact]
-		public void Success()
-		{
-			Assert.Equal(42, 21, new Comparer<int>(true));
-		}
-
-		[Fact]
-		public void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(42, 42, new Comparer<int>(false)));
-			Assert.Equal("42", ex.Expected);
-			Assert.Equal("42", ex.Actual);
-		}
-
-		class Comparer<T> : IEqualityComparer<T>
-		{
-			readonly bool result;
-
-			public Comparer(bool result)
+			[Fact]
+			public void Equal()
 			{
-				this.result = result;
+				var obj1 = new SpyEquatable();
+				var obj2 = new SpyEquatable();
+
+				Assert.Equal(obj1, obj2);
+
+				Assert.True(obj1.Equals__Called);
+				Assert.Same(obj2, obj1.Equals_Other);
 			}
 
-			public bool Equals(T? x, T? y) => result;
+			[Fact]
+			public void NotEqual()
+			{
+				var obj1 = new SpyEquatable(false);
+				var obj2 = new SpyEquatable();
 
-			public int GetHashCode(T obj) => throw new NotImplementedException();
+				var ex = Record.Exception(() => Assert.Equal(obj1, obj2));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: SpyEquatable { Equals__Called = True, Equals_Other = SpyEquatable { Equals__Called = False, Equals_Other = null } }" + Environment.NewLine +
+					"Actual:   SpyEquatable { Equals__Called = False, Equals_Other = null }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_Equal()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableSubClassB(1);
+
+				Assert.Equal<EquatableBaseClass>(expected, actual);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_NotEqual()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableSubClassB(2);
+
+				var ex = Record.Exception(() => Assert.Equal<EquatableBaseClass>(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: EquatableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:   EquatableSubClassB { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_Equal()
+			{
+				var expected = new EquatableBaseClass(1);
+				var actual = new EquatableSubClassA(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_NotEqual()
+			{
+				var expected = new EquatableBaseClass(1);
+				var actual = new EquatableSubClassA(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: EquatableBaseClass { Value = 1 }" + Environment.NewLine +
+					"Actual:   EquatableSubClassA { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_Equal()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableBaseClass(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_NotEqual()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableBaseClass(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: EquatableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:   EquatableBaseClass { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_Equal()
+			{
+				object expected = new ImplicitIEquatableExpected(1);
+				object actual = new IntWrapper(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_NotEqual()
+			{
+				object expected = new ImplicitIEquatableExpected(1);
+				object actual = new IntWrapper(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ImplicitIEquatableExpected { Value = 1 }" + Environment.NewLine +
+					"Actual:   IntWrapper { Value = 2 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_Equal()
+			{
+				object expected = new ExplicitIEquatableExpected(1);
+				object actual = new IntWrapper(1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_NotEqual()
+			{
+				object expected = new ExplicitIEquatableExpected(1);
+				object actual = new IntWrapper(2);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: ExplicitIEquatableExpected { Value = 1 }" + Environment.NewLine +
+					"Actual:   IntWrapper { Value = 2 }",
+					ex.Message
+				);
+			}
+		}
+
+		public class StructuralEquatable
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+				var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (IStructuralEquatable)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+				var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+						"Expected: Tuple (StringWrapper { Value = \"a\" })" + Environment.NewLine +
+						"Actual:   Tuple (StringWrapper { Value = \"b\" })",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (IStructuralEquatable)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void ExpectedNull_ActualNull()
+			{
+				var expected = new Tuple<StringWrapper?>(null);
+				var actual = new Tuple<StringWrapper?>(null);
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (IStructuralEquatable)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void ExpectedNull_ActualNonNull()
+			{
+				var expected = new Tuple<StringWrapper?>(null);
+				var actual = new Tuple<StringWrapper?>(new StringWrapper("a"));
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+						"Expected: Tuple (null)" + Environment.NewLine +
+						"Actual:   Tuple (StringWrapper { Value = \"a\" })",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (IStructuralEquatable)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void _ExpectedNonNull_ActualNull()
+			{
+				var expected = new Tuple<StringWrapper?>(new StringWrapper("a"));
+				var actual = new Tuple<StringWrapper?>(null);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+						"Expected: Tuple (StringWrapper { Value = \"a\" })" + Environment.NewLine +
+						"Actual:   Tuple (null)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (IStructuralEquatable)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+		}
+
+		public class Collections
+		{
+			[Fact]
+			public void IReadOnlyCollection_IEnumerable_Equal()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new ReadOnlyCollection<string>(expected);
+
+				Assert.Equal(expected, (IReadOnlyCollection<string>)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void IReadOnlyCollection_IEnumerable_NotEqual()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new ReadOnlyCollection<string>(new[] { "bar", "foo" });
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"                                      ↓ (pos 0)" + Environment.NewLine +
+						"Expected: string[]                   [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:   ReadOnlyCollection<string> [\"bar\", \"foo\"]" + Environment.NewLine +
+						"                                      ↑ (pos 0)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, (IReadOnlyCollection<string>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void CollectionDepth_Equal()
+			{
+				var x = new List<object> { new List<object> { new List<object> { 1 } } };
+				var y = new List<object> { new List<object> { new List<object> { 1 } } };
+
+				Assert.Equal(x, y);
+			}
+
+			[Fact]
+			public void CollectionDepth_NotEqual()
+			{
+				var x = new List<object> { new List<object> { new List<object> { 1 } } };
+				var y = new List<object> { new List<object> { new List<object> { 2 } } };
+
+				var ex = Record.Exception(() => Assert.Equal(x, y));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"           ↓ (pos 0)" + Environment.NewLine +
+					"Expected: [[[1]]]" + Environment.NewLine +
+					"Actual:   [[[2]]]" + Environment.NewLine +
+					"           ↑ (pos 0)",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void StringArray_ObjectArray_Equal()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new object[] { "foo", "bar" };
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void StringArray_ObjectArray_NotEqual()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new object[] { "foo", "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"                           ↓ (pos 1)" + Environment.NewLine +
+						"Expected: string[] [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:   object[] [\"foo\", \"baz\"]" + Environment.NewLine +
+						"                           ↑ (pos 1)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void MultidimensionalArrays_Equal()
+			{
+				var expected = new int[,] { { 1 }, { 2 } };
+				var actual = new int[,] { { 1 }, { 2 } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void MultidimensionalArrays_NotEqual()
+			{
+				var expected = new int[,] { { 1, 2 } };
+				var actual = new int[,] { { 1 }, { 2 } };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				// TODO: Would be better to have formatting that preserves the ranks instead of
+				// flattening, which happens because multi-dimensional arrays enumerate flatly
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: [1, 2]" + Environment.NewLine +
+					"Actual:   [1, 2]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NonZeroBoundedArrays_Equal()
+			{
+				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				expected.SetValue(42, 1);
+				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				actual.SetValue(42, 1);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void NonZeroBoundedArrays_NotEqual()
+			{
+				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				expected.SetValue(42, 1);
+				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 0 });
+				actual.SetValue(42, 0);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, (object)actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: int[*] [42]" + Environment.NewLine +
+					"Actual:   int[]  [42]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void PrintPointersWithCompatibleComparers()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new[] { 1, 2, 0, 4, 5 };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"                 ↓ (pos 2)" + Environment.NewLine +
+						"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
+						"Actual:   [1, 2, 0, 4, 5]" + Environment.NewLine +
+						"                 ↑ (pos 2)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, actual, EqualityComparer<IEnumerable<int>>.Default));
+			}
+
+			[Fact]
+			public void CustomComparerWithSafeEnumerable()
+			{
+				var expected = new[] { 1, 2, 3, 4, 5 };
+				var actual = new[] { 1, 2, 0, 4, 5 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, new MyComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:   [1, 2, 0, 4, 5]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void CustomComparerWithUnsafeEnumerable()
+			{
+				var ex = Record.Exception(() => Assert.Equal(new UnsafeEnumerable(), new[] { 1, 2, 3 }, new MyComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					$"Expected: UnsafeEnumerable [{ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					"Actual:   int[]            [1, 2, 3]",
+					ex.Message
+				);
+			}
+
+			class UnsafeEnumerable : IEnumerable
+			{
+				public IEnumerator GetEnumerator()
+				{
+					while (true)
+						yield return 1;
+				}
+			}
+
+			class MyComparer : IEqualityComparer<IEnumerable>
+			{
+				public bool Equals(IEnumerable? x, IEnumerable? y)
+					=> false;
+
+				public int GetHashCode([DisallowNull] IEnumerable obj) =>
+					throw new NotImplementedException();
+			}
+		}
+
+		public class Dictionaries
+		{
+			[Fact]
+			public void SameTypes_Equal()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new Dictionary<string, string> { ["foo"] = "bar" };
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (IDictionary)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void SameTypes_NotEqual()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new Dictionary<string, string> { ["foo"] = "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+						"Expected: [[\"foo\"] = \"bar\"]" + Environment.NewLine +
+						"Actual:   [[\"foo\"] = \"baz\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (IDictionary)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentTypes_Equal()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new ConcurrentDictionary<string, string>(expected);
+
+				Assert.Equal(expected, (IDictionary)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_NotEqual()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new ConcurrentDictionary<string, string> { ["foo"] = "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"Expected: Dictionary<string, string>           [[\"foo\"] = \"bar\"]" + Environment.NewLine +
+						"Actual:   ConcurrentDictionary<string, string> [[\"foo\"] = \"baz\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, (IDictionary)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+		}
+
+		public class HashSets
+		{
+			[Fact]
+			public static void InOrder_Equal()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 1, 2, 3 };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void InOrder_NotEqual()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 1, 2, 4 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [1, 2, 3]" + Environment.NewLine +
+					"Actual:   [1, 2, 4]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void OutOfOrder_Equal()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 2, 3, 1 };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void OutOfOrder_NotEqual()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 2, 4, 1 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [1, 2, 3]" + Environment.NewLine +
+					"Actual:   [2, 4, 1]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void ExpectedLarger()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 1, 2 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [1, 2, 3]" + Environment.NewLine +
+					"Actual:   [1, 2]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void ActualLarger()
+			{
+				var expected = new HashSet<int> { 1, 2 };
+				var actual = new HashSet<int> { 1, 2, 3 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [1, 2]" + Environment.NewLine +
+					"Actual:   [1, 2, 3]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_Equal()
+			{
+				var expected = new HashSet<string> { "bar", "foo" };
+				var actual = new SortedSet<string> { "foo", "bar" };
+
+				Assert.Equal(expected, (ISet<string>)actual);
+				Assert.Equal(expected, (object)actual);
+
+			}
+
+			[Fact]
+			public void DifferentTypes_NotEqual()
+			{
+				object expected = new HashSet<int> { 42 };
+				object actual = new HashSet<long> { 42L };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: HashSet<int>  [42]" + Environment.NewLine +
+					"Actual:   HashSet<long> [42]",
+					ex.Message
+				);
+			}
+		}
+
+		public class Sets
+		{
+			[Fact]
+			public void InOrder_Equal()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "bar", "foo" };
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (ISet<string>)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void InOrder_NotEqual()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "bar", "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Sets differ" + Environment.NewLine +
+						"Expected: [\"bar\", \"foo\"]" + Environment.NewLine +
+						"Actual:   [\"bar\", \"baz\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void OutOfOrder_Equal()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "foo", "bar" };
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (ISet<string>)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void OutOfOrder_NotEqual()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "foo", "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Sets differ" + Environment.NewLine +
+						"Expected: [\"bar\", \"foo\"]" + Environment.NewLine +
+						"Actual:   [\"foo\", \"baz\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentContents()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new NonGenericSet { "bar", "foo" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Sets differ" + Environment.NewLine +
+						"Expected: [\"bar\"]" + Environment.NewLine +
+						"Actual:   [\"bar\", \"foo\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentTypes_Equal()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new HashSet<string> { "bar" };
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (ISet<string>)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_NotEqual()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new HashSet<string> { "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Sets differ" + Environment.NewLine +
+						"Expected: NonGenericSet   [\"bar\"]" + Environment.NewLine +
+						"Actual:   HashSet<string> [\"baz\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void TwoGenericSubClass_Equal()
+			{
+				var expected = new TwoGenericSet<string, int> { "foo", "bar" };
+				var actual = new TwoGenericSet<string, int> { "foo", "bar" };
+
+				Assert.Equal(expected, actual);
+				Assert.Equal(expected, (ISet<string>)actual);
+				Assert.Equal(expected, (object)actual);
+			}
+
+			[Fact]
+			public void TwoGenericSubClass_NotEqual()
+			{
+				var expected = new TwoGenericSet<string, int> { "foo", "bar" };
+				var actual = new TwoGenericSet<string, int> { "foo", "baz" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Sets differ" + Environment.NewLine +
+						"Expected: [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:   [\"foo\", \"baz\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected, actual));
+				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+		}
+
+		public class DoubleEnumerationPrevention
+		{
+			[Fact]
+			public static void EnumeratesOnlyOnce_Equal()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void EnumeratesOnlyOnce_NotEqual()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					$"Expected: [{ArgumentFormatter.Ellipsis}, 2, 3, 4, 5]" + Environment.NewLine +
+					$"Actual:   [{ArgumentFormatter.Ellipsis}, 2, 3, 4, 5, 6]" + Environment.NewLine +
+					"                            ↑ (pos 5)",
+					ex.Message
+				);
+			}
 		}
 	}
 
@@ -779,11 +1371,13 @@ public class EqualityAssertsTests
 				var expected = new DateTime(2023, 2, 11, 15, 4, 0);
 				var actual = new DateTime(2023, 2, 11, 15, 5, 0);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {expected}" + Environment.NewLine +
-					$"Actual:   {actual}",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(expected)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(actual)}",
 					ex.Message
 				);
 			}
@@ -810,18 +1404,25 @@ public class EqualityAssertsTests
 				var precision = TimeSpan.FromMinutes(1);
 				var difference = TimeSpan.FromMinutes(2);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				// expected earlier than actual
+				var ex = Record.Exception(() => Assert.Equal(date1, date2, precision));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {date1}" + Environment.NewLine +
-					$"Actual:   {date2} (difference {difference} is larger than {precision})",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(date1)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date2)} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
-				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+
+				// expected later than actual
+				var ex2 = Record.Exception(() => Assert.Equal(date2, date1, precision));
+
+				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {date2}" + Environment.NewLine +
-					$"Actual:   {date1} (difference {difference} is larger than {precision})",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(date2)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date1)} (difference {difference} is larger than {precision})",
 					ex2.Message
 				);
 			}
@@ -848,11 +1449,13 @@ public class EqualityAssertsTests
 				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
 				var actual = new DateTimeOffset(2023, 2, 11, 15, 5, 0, TimeSpan.Zero);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {expected}" + Environment.NewLine +
-					$"Actual:   {actual}",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(expected)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(actual)}",
 					ex.Message
 				);
 			}
@@ -875,11 +1478,13 @@ public class EqualityAssertsTests
 				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
 				var actual = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.FromHours(1));
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {expected}" + Environment.NewLine +
-					$"Actual:   {actual}",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(expected)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(actual)}",
 					ex.Message
 				);
 			}
@@ -906,18 +1511,25 @@ public class EqualityAssertsTests
 				var precision = TimeSpan.FromMinutes(1);
 				var difference = TimeSpan.FromMinutes(2);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				// expected earlier than actual
+				var ex = Record.Exception(() => Assert.Equal(date1, date2, precision));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {date1}" + Environment.NewLine +
-					$"Actual:   {date2} (difference {difference} is larger than {precision})",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(date1)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date2)} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
-				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+
+				// expected later than actual
+				var ex2 = Record.Exception(() => Assert.Equal(date2, date1, precision));
+
+				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {date2}" + Environment.NewLine +
-					$"Actual:   {date1} (difference {difference} is larger than {precision})",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(date2)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date1)} (difference {difference} is larger than {precision})",
 					ex2.Message
 				);
 			}
@@ -944,18 +1556,25 @@ public class EqualityAssertsTests
 				var precision = TimeSpan.FromMinutes(1);
 				var difference = TimeSpan.FromHours(1);
 
-				var ex = Assert.Throws<EqualException>(() => Assert.Equal(date1, date2, precision));  // expected earlier than actual
+				// expected earlier than actual
+				var ex = Record.Exception(() => Assert.Equal(date1, date2, precision));
+
+				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {date1}" + Environment.NewLine +
-					$"Actual:   {date2} (difference {difference} is larger than {precision})",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(date1)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date2)} (difference {difference} is larger than {precision})",
 					ex.Message
 				);
-				var ex2 = Assert.Throws<EqualException>(() => Assert.Equal(date2, date1, precision));  // expected later than actual
+
+				// expected later than actual
+				var ex2 = Record.Exception(() => Assert.Equal(date2, date1, precision));
+
+				Assert.IsType<EqualException>(ex2);
 				Assert.Equal(
-					$"Assert.Equal() Failure" + Environment.NewLine +
-					$"Expected: {date2}" + Environment.NewLine +
-					$"Actual:   {date1} (difference {difference} is larger than {precision})",
+					$"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Format(date2)}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Format(date1)} (difference {difference} is larger than {precision})",
 					ex2.Message
 				);
 			}
@@ -965,480 +1584,1891 @@ public class EqualityAssertsTests
 	public class Equal_Decimal
 	{
 		[Fact]
-		public void Success()
+		public void Equal()
 		{
 			Assert.Equal(0.11111M, 0.11444M, 2);
 		}
 
 		[CulturedFact]
-		public void Failure()
+		public void NotEqual()
 		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111M, 0.11444M, 3));
-			Assert.Equal($"{0.111M} (rounded from {0.11111M})", ex.Expected);
-			Assert.Equal($"{0.114M} (rounded from {0.11444M})", ex.Actual);
+			var ex = Record.Exception(() => Assert.Equal(0.11111M, 0.11444M, 3));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: {0.111M} (rounded from {0.11111M})" + Environment.NewLine +
+				$"Actual:   {0.114M} (rounded from {0.11444M})",
+				ex.Message
+			);
 		}
 	}
 
 	public class Equal_Double
 	{
-		[Fact]
-		public void Success()
+		public class WithPrecision
 		{
-			Assert.Equal(0.11111, 0.11444, 2);
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(0.11111, 0.11444, 2);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.11111, 0.11444, 3));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values are not within 3 decimal places" + Environment.NewLine +
+					$"Expected: {0.111:G17} (rounded from {0.11111:G17})" + Environment.NewLine +
+					$"Actual:   {0.114:G17} (rounded from {0.11444:G17})",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void Success_Zero()
+		public class WithMidPointRounding
 		{
-			Assert.Equal(0.0, 0.0);
-			Assert.Equal(0.0, (object)0.0);
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(10.565, 10.566, 2, MidpointRounding.AwayFromZero);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within 4 decimal places" + Environment.NewLine +
+					$"Expected: {0.1111:G17} (rounded from {0.11113:G17})" + Environment.NewLine +
+					$"Actual:   {0.1112:G17} (rounded from {0.11115:G17})",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void Success_PositiveZero_NegativeZero()
+		public class WithTolerance
 		{
-			Assert.Equal(0.0, -0.0);
-		}
+			[Fact]
+			public void GuardClause()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.0, 1.0, double.NegativeInfinity));
 
-		[CulturedFact]
-		public void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111, 0.11444, 3));
-			Assert.Equal($"{0.111M} (rounded from {0.11111})", ex.Expected);
-			Assert.Equal($"{0.114M} (rounded from {0.11444})", ex.Actual);
-		}
-	}
+				var argEx = Assert.IsType<ArgumentException>(ex);
+				Assert.StartsWith("Tolerance must be greater than or equal to zero", ex.Message);
+				Assert.Equal("tolerance", argEx.ParamName);
+			}
 
-	public class Equal_Double_MidPointRounding
-	{
-		[Fact]
-		public void Success()
-		{
-			Assert.Equal(10.566, 10.565, 2, MidpointRounding.AwayFromZero);
-		}
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(10.566, 10.565, 0.01);
+			}
 
-		[Fact]
-		public void Success_Zero()
-		{
-			Assert.Equal(0.00, 0.05, 1, MidpointRounding.ToEven);
-		}
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.11113, 0.11115, 0.00001));
 
-		[CulturedFact]
-		public void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
-			Assert.Equal($"{0.1111} (rounded from {0.11113})", ex.Expected);
-			Assert.Equal($"{0.1112} (rounded from {0.11115})", ex.Actual);
-		}
-	}
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {0.00001:G17}" + Environment.NewLine +
+					$"Expected: {0.11113:G17}" + Environment.NewLine +
+					$"Actual:   {0.11115:G17}",
+					ex.Message
+				);
+			}
 
-	public class Equal_Double_Tolerance
-	{
-		[Fact]
-		public void Success()
-		{
-			Assert.Equal(10.566, 10.565, 0.01);
-		}
+			[Fact]
+			public void NaN_Equal()
+			{
+				Assert.Equal(double.NaN, double.NaN, 1000.0);
+			}
 
-		[Fact]
-		public void Success_Zero()
-		{
-			Assert.Equal(0.00, 0.05, 0.1);
-		}
+			[CulturedFact]
+			public void NaN_NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(20210102.2208, double.NaN, 20000000.0));
 
-		[Fact]
-		public void Success_NaN()
-		{
-			Assert.Equal(double.NaN, double.NaN, 1000.0);
-		}
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {20000000.0:G17}" + Environment.NewLine +
+					$"Expected: {20210102.2208:G17}" + Environment.NewLine +
+					$"Actual:   NaN",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void Success_Infinite()
-		{
-			Assert.Equal(double.MinValue, double.MaxValue, double.PositiveInfinity);
-		}
+			[Fact]
+			public void InfiniteTolerance_Equal()
+			{
+				Assert.Equal(double.MinValue, double.MaxValue, double.PositiveInfinity);
+			}
 
-		[CulturedFact]
-		public void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113, 0.11115, 0.00001));
-			Assert.Equal($"{0.11113:G17}", ex.Expected);
-			Assert.Equal($"{0.11115:G17}", ex.Actual);
-		}
+			[CulturedFact]
+			public void PositiveInfinity_NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
 
-		[CulturedFact]
-		public void Failure_NaN()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208, double.NaN, 20000000.0));
-			Assert.Equal($"{20210102.2208:G17}", ex.Expected);
-			Assert.Equal($"NaN", ex.Actual);
-		}
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {1.0:G17}" + Environment.NewLine +
+					$"Expected: {double.PositiveInfinity}" + Environment.NewLine +
+					$"Actual:   {77.7:G17}",
+					ex.Message
+				);
+			}
 
-		[CulturedFact]
-		public void Failure_PositiveInfinity()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
-			Assert.Equal(double.PositiveInfinity.ToString(), ex.Expected);
-			Assert.Equal($"{77.7:G17}", ex.Actual);
-		}
+			[CulturedFact]
+			public void NegativeInfinity_NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
 
-		[CulturedFact]
-		public void Failure_NegativeInfinity()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
-			Assert.Equal($"{0.0:G17}", ex.Expected);
-			Assert.Equal(double.NegativeInfinity.ToString(), ex.Actual);
-		}
-
-		[CulturedFact]
-		public void Failure_InvalidTolerance()
-		{
-			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0, 1.0, double.NegativeInfinity));
-			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
-			Assert.Equal("tolerance", ex.ParamName);
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {1.0:G17}" + Environment.NewLine +
+					$"Expected: {0.0:G17}" + Environment.NewLine +
+					$"Actual:   {double.NegativeInfinity}",
+					ex.Message
+				);
+			}
 		}
 	}
 
 	public class Equal_Float
 	{
-		[Fact]
-		public void Success_Tolerance()
+		public class WithPrecision
 		{
-			Assert.Equal(10.566f, 10.565f, 0.01f);
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(0.11111f, 0.11444f, 2);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.11111f, 0.11444f, 3));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values are not within 3 decimal places" + Environment.NewLine +
+					$"Expected: {0.111:G9} (rounded from {0.11111f:G9})" + Environment.NewLine +
+					$"Actual:   {0.114:G9} (rounded from {0.11444f:G9})",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void Success_Precision()
+		public class WithMidPointRounding
 		{
-			Assert.Equal(10.566f, 10.565f, 1);
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(10.5655f, 10.5666f, 2, MidpointRounding.AwayFromZero);
+			}
+
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.111133f, 0.111155f, 4, MidpointRounding.ToEven));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values are not within 4 decimal places" + Environment.NewLine +
+					$"Expected: {0.1111:G9} (rounded from {0.111133f:G9})" + Environment.NewLine +
+					$"Actual:   {0.1112:G9} (rounded from {0.111155f:G9})",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void Success_Zero()
+		public class WithTolerance
 		{
-			Assert.Equal(0.00f, 0.05f, 0.1f);
-		}
+			[Fact]
+			public void GuardClause()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
 
-		[Fact]
-		public void Success_NaN()
-		{
-			Assert.Equal(float.NaN, float.NaN, 1000.0f);
-		}
+				var argEx = Assert.IsType<ArgumentException>(ex);
+				Assert.StartsWith("Tolerance must be greater than or equal to zero", ex.Message);
+				Assert.Equal("tolerance", argEx.ParamName);
+			}
 
-		[Fact]
-		public void Success_Infinite()
-		{
-			Assert.Equal(float.MinValue, float.MaxValue, float.PositiveInfinity);
-		}
+			[Fact]
+			public void Equal()
+			{
+				Assert.Equal(10.569f, 10.562f, 0.01f);
+			}
 
-		[CulturedFact]
-		public void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
-			Assert.Equal($"{0.11113f:G9}", ex.Expected);
-			Assert.Equal($"{0.11115f:G9}", ex.Actual);
-		}
+			[CulturedFact]
+			public void NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
 
-		[CulturedFact]
-		public void Failure_NaN()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
-			Assert.Equal($"{20210102.2208f:G9}", ex.Expected);
-			Assert.Equal($"NaN", ex.Actual);
-		}
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {0.00001f:G9}" + Environment.NewLine +
+					$"Expected: {0.11113f:G9}" + Environment.NewLine +
+					$"Actual:   {0.11115f:G9}",
+					ex.Message
+				);
+			}
 
-		[CulturedFact]
-		public void Failure_PositiveInfinity()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
-			Assert.Equal(float.PositiveInfinity.ToString(), ex.Expected);
-			Assert.Equal($"{77.7f:G9}", ex.Actual);
-		}
+			[Fact]
+			public void NaN_Equal()
+			{
+				Assert.Equal(float.NaN, float.NaN, 1000.0f);
+			}
 
-		[CulturedFact]
-		public void Failure_NegativeInfinity()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
-			Assert.Equal($"{0.0f:G9}", ex.Expected);
-			Assert.Equal(float.NegativeInfinity.ToString(), ex.Actual);
-		}
+			[CulturedFact]
+			public void NaN_NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
 
-		[CulturedFact]
-		public void Failure_InvalidTolerance()
-		{
-			var ex = Assert.Throws<ArgumentException>(() => Assert.Equal(0.0f, 1.0f, float.NegativeInfinity));
-			Assert.StartsWith($"Tolerance must be greater than or equal to zero", ex.Message);
-			Assert.Equal("tolerance", ex.ParamName);
-		}
-	}
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {20000000.0f:G9}" + Environment.NewLine +
+					$"Expected: {20210102.2208f:G9}" + Environment.NewLine +
+					$"Actual:   NaN",
+					ex.Message
+				);
+			}
 
-	public class StrictEqual
-	{
-		[Fact]
-		public static void Success()
-		{
-			Assert.StrictEqual(42, 42);
-		}
+			[Fact]
+			public void InfiniteTolerance_Equal()
+			{
+				Assert.Equal(float.MinValue, float.MaxValue, float.PositiveInfinity);
+			}
 
-		[Fact]
-		public static void Equals()
-		{
-			Assert.StrictEqual(new DerivedClass(), new BaseClass());
-		}
+			[CulturedFact]
+			public void PositiveInfinity_NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
 
-		[Fact]
-		public static void Failure()
-		{
-			var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(42, 2112));
-			Assert.Equal("42", ex.Expected);
-			Assert.Equal("2112", ex.Actual);
-		}
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {1.0f:G9}" + Environment.NewLine +
+					$"Expected: {float.PositiveInfinity}" + Environment.NewLine +
+					$"Actual:   {77.7f:G9}",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public static void Collection_Failure()
-		{
-			var expected = new EnumerableClass("ploeh");
-			var actual = new EnumerableClass("fnaah");
+			[CulturedFact]
+			public void NegativeInfinity_NotEqual()
+			{
+				var ex = Record.Exception(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
 
-			var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(expected, actual));
-			Assert.Equal("EnumerableClass []", ex.Expected);
-			Assert.Equal("EnumerableClass []", ex.Actual);
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					$"Assert.Equal() Failure: Values are not within tolerance {1.0f:G9}" + Environment.NewLine +
+					$"Expected: {0.0f:G9}" + Environment.NewLine +
+					$"Actual:   {float.NegativeInfinity}",
+					ex.Message
+				);
+			}
 		}
 	}
 
 	public class NotEqual
 	{
-		[Fact]
-		public void Success()
+		public class Intrinsics
 		{
-			Assert.NotEqual("bob", "jim");
+			[Fact]
+			public void EqualValues()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(42, 42));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not 42" + Environment.NewLine +
+					"Actual:       42",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void UnequalValues()
+			{
+				Assert.NotEqual(42, 2112);
+			}
 		}
 
-		[Fact]
-		public void String_Double_Failure()
+		public class WithComparer
 		{
-			Assert.NotEqual("0", (object)0.0);
-			Assert.NotEqual((object)0.0, "0");
+			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.NotEqual(1, 2, default(IEqualityComparer<int>)!));
+			}
+
+			[Fact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(42, 21, new Comparer<int>(true)));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not 42" + Environment.NewLine +
+					"Actual:       21",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(42, 42, new Comparer<int>(false));
+			}
+
+			class Comparer<T> : IEqualityComparer<T>
+			{
+				readonly bool result;
+
+				public Comparer(bool result)
+				{
+					this.result = result;
+				}
+
+				public bool Equals(T? x, T? y) => result;
+
+				public int GetHashCode(T obj) => throw new NotImplementedException();
+			}
 		}
 
-		[Fact]
-		public void IReadOnlyCollection_IEnumerable_Success()
+		public class WithFunc
 		{
-			var expected = new string[] { "foo", "bar" };
-			IReadOnlyCollection<string> actual = new ReadOnlyCollection<string>(new string[] { "foo", "baz" });
+			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.NotEqual(1, 2, default(Func<int, int, bool>)!));
+			}
 
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (object)actual);
+			[Fact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(42, 21, (x, y) => true));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not 42" + Environment.NewLine +
+					"Actual:       21",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(42, 42, (x, y) => false);
+			}
 		}
 
-		[Fact]
-		public void IReadOnlyCollection_IEnumerable_Failure()
+		public class Comparable
 		{
-			var expected = new string[] { "foo", "bar" };
-			IReadOnlyCollection<string> actual = new ReadOnlyCollection<string>(expected);
+			[Fact]
+			public void Equal()
+			{
+				var obj1 = new SpyComparable(0);
+				var obj2 = new SpyComparable(0);
 
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
+				var ex = Record.Exception(() => Assert.NotEqual(obj1, obj2));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not SpyComparable { CompareCalled = True }" + Environment.NewLine +
+					"Actual:       SpyComparable { CompareCalled = False }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var obj1 = new SpyComparable(-1);
+				var obj2 = new SpyComparable(0);
+
+				Assert.NotEqual(obj1, obj2);
+				Assert.True(obj1.CompareCalled);
+			}
+
+			[Fact]
+			public void NonGeneric_SameType_Equal()
+			{
+				var expected = new MultiComparable(1);
+				var actual = new MultiComparable(1);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+						"Expected: Not MultiComparable { Value = 1 }" + Environment.NewLine +
+						"Actual:       MultiComparable { Value = 1 }",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (IComparable)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void NonGeneric_SameType_NotEqual()
+			{
+				var expected = new MultiComparable(1);
+				var actual = new MultiComparable(2);
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (IComparable)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void NonGeneric_DifferentType_Equal()
+			{
+				var expected = new MultiComparable(1);
+				var actual = 1;
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+						"Expected: Not MultiComparable { Value = 1 }" + Environment.NewLine +
+						"Actual:       1",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, (IComparable)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void NonGeneric_DifferentType_NotEqual()
+			{
+				var expected = new MultiComparable(1);
+				var actual = 2;
+
+				Assert.NotEqual(expected, (IComparable)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void Generic_Equal()
+			{
+				var obj1 = new SpyComparable_Generic();
+				var obj2 = new SpyComparable_Generic();
+
+				var ex = Record.Exception(() => Assert.NotEqual(obj1, obj2));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not SpyComparable_Generic { CompareCalled = True }" + Environment.NewLine +
+					"Actual:       SpyComparable_Generic { CompareCalled = False }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void Generic_NotEqual()
+			{
+				var obj1 = new SpyComparable_Generic(-1);
+				var obj2 = new SpyComparable_Generic();
+
+				Assert.NotEqual(obj1, obj2);
+				Assert.True(obj1.CompareCalled);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_Equal()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableSubClassB(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual<ComparableBaseClass>(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ComparableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:       ComparableSubClassB { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_NotEqual()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableSubClassB(2);
+
+				Assert.NotEqual<ComparableBaseClass>(expected, actual);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_Equal()
+			{
+				var expected = new ComparableBaseClass(1);
+				var actual = new ComparableSubClassA(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ComparableBaseClass { Value = 1 }" + Environment.NewLine +
+					"Actual:       ComparableSubClassA { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_NotEqual()
+			{
+				var expected = new ComparableBaseClass(1);
+				var actual = new ComparableSubClassA(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_Equal()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableBaseClass(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ComparableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:       ComparableBaseClass { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_NotEqual()
+			{
+				var expected = new ComparableSubClassA(1);
+				var actual = new ComparableBaseClass(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void Generic_ThrowsException_Equal()
+			{
+				var expected = new ComparableThrower(1);
+				var actual = new ComparableThrower(1);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+						"Expected: Not ComparableThrower { Value = 1 }" + Environment.NewLine +
+						"Actual:       ComparableThrower { Value = 1 }",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (IComparable<ComparableThrower>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void Generic_ThrowsException_NotEqual()
+			{
+				var expected = new ComparableThrower(1);
+				var actual = new ComparableThrower(2);
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (IComparable<ComparableThrower>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_Equal()
+			{
+				object expected = new ImplicitIComparableExpected(1);
+				object actual = new IntWrapper(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ImplicitIComparableExpected { Value = 1 }" + Environment.NewLine +
+					"Actual:       IntWrapper { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_NotEqual()
+			{
+				object expected = new ImplicitIComparableExpected(1);
+				object actual = new IntWrapper(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_Equal()
+			{
+				object expected = new ExplicitIComparableActual(1);
+				object actual = new IntWrapper(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ExplicitIComparableActual { Value = 1 }" + Environment.NewLine +
+					"Actual:       IntWrapper { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_NotEqual()
+			{
+				object expected = new ExplicitIComparableActual(1);
+				object actual = new IntWrapper(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_Throws_Equal()
+			{
+				object expected = new IComparableActualThrower(1);
+				object actual = new IntWrapper(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not IComparableActualThrower { Value = 1 }" + Environment.NewLine +
+					"Actual:       IntWrapper { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_Throws_NotEqual()
+			{
+				object expected = new IComparableActualThrower(1);
+				object actual = new IntWrapper(2);
+
+				Assert.NotEqual(expected, actual);
+			}
 		}
 
-		[Fact]
-		public void StringArray_ObjectArray_Success()
+		public class NotComparable
 		{
-			var expected = new string[] { "foo", "bar" };
-			var actual = new object[] { "foo", "baz" };
+			[Fact]
+			public void Equal()
+			{
+				var nco1 = new NonComparableObject();
+				var nco2 = new NonComparableObject();
 
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (object)actual);
+				var ex = Record.Exception(() => Assert.NotEqual(nco1, nco2));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not NonComparableObject { }" + Environment.NewLine +
+					"Actual:       NonComparableObject { }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var nco1 = new NonComparableObject(false);
+				var nco2 = new NonComparableObject();
+
+				Assert.NotEqual(nco1, nco2);
+			}
 		}
 
-		[Fact]
-		public void StringArray_ObjectArray_Failure()
+		public class Equatable
 		{
-			var expected = new string[] { "foo", "bar" };
-			var actual = new object[] { "foo", "bar" };
+			[Fact]
+			public void Equal()
+			{
+				var obj1 = new SpyEquatable();
+				var obj2 = new SpyEquatable();
 
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-			Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
+				var ex = Record.Exception(() => Assert.NotEqual(obj1, obj2));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not SpyEquatable { Equals__Called = True, Equals_Other = SpyEquatable { Equals__Called = False, Equals_Other = null } }" + Environment.NewLine +
+					"Actual:       SpyEquatable { Equals__Called = False, Equals_Other = null }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var obj1 = new SpyEquatable(false);
+				var obj2 = new SpyEquatable();
+
+				Assert.NotEqual(obj1, obj2);
+
+				Assert.True(obj1.Equals__Called);
+				Assert.Same(obj2, obj1.Equals_Other);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_Equal()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableSubClassB(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual<EquatableBaseClass>(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not EquatableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:       EquatableSubClassB { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_SubClass_NotEqual()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableSubClassB(2);
+
+				Assert.NotEqual<EquatableBaseClass>(expected, actual);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_Equal()
+			{
+				var expected = new EquatableBaseClass(1);
+				var actual = new EquatableSubClassA(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not EquatableBaseClass { Value = 1 }" + Environment.NewLine +
+					"Actual:       EquatableSubClassA { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void BaseClass_SubClass_NotEqual()
+			{
+				var expected = new EquatableBaseClass(1);
+				var actual = new EquatableSubClassA(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_Equal()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableBaseClass(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not EquatableSubClassA { Value = 1 }" + Environment.NewLine +
+					"Actual:       EquatableBaseClass { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void SubClass_BaseClass_NotEqual()
+			{
+				var expected = new EquatableSubClassA(1);
+				var actual = new EquatableBaseClass(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_Equal()
+			{
+				object expected = new ImplicitIEquatableExpected(1);
+				object actual = new IntWrapper(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ImplicitIEquatableExpected { Value = 1 }" + Environment.NewLine +
+					"Actual:       IntWrapper { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ImplicitImplementation_NotEqual()
+			{
+				object expected = new ImplicitIEquatableExpected(1);
+				object actual = new IntWrapper(2);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_Equal()
+			{
+				object expected = new ExplicitIEquatableExpected(1);
+				object actual = new IntWrapper(1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not ExplicitIEquatableExpected { Value = 1 }" + Environment.NewLine +
+					"Actual:       IntWrapper { Value = 1 }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void DifferentTypes_ExplicitImplementation_NotEqual()
+			{
+				object expected = new ExplicitIEquatableExpected(1);
+				object actual = new IntWrapper(2);
+
+				Assert.NotEqual(expected, actual);
+			}
 		}
 
-		[Fact]
-		public void MultidimensionalArrays()
+		public class StructuralEquatable
 		{
-			var expected = new string[] { "foo", "bar" };
-			var actual = new string[,] { { "foo" }, { "baz" } };
+			[Fact]
+			public void Equal()
+			{
+				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+				var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
 
-			Assert.NotEqual(expected, (object)actual);
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+						"Expected: Not Tuple (StringWrapper { Value = \"a\" })" + Environment.NewLine +
+						"Actual:       Tuple (StringWrapper { Value = \"a\" })",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (IStructuralEquatable)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+				var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (IStructuralEquatable)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void ExpectedNull_ActualNull()
+			{
+				var expected = new Tuple<StringWrapper?>(null);
+				var actual = new Tuple<StringWrapper?>(null);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+						"Expected: Not Tuple (null)" + Environment.NewLine +
+						"Actual:       Tuple (null)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (IStructuralEquatable)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void ExpectedNull_ActualNonNull()
+			{
+				var expected = new Tuple<StringWrapper?>(null);
+				var actual = new Tuple<StringWrapper?>(new StringWrapper("a"));
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (IStructuralEquatable)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void ExpectedNonNull_ActualNull()
+			{
+				var expected = new Tuple<StringWrapper?>(new StringWrapper("a"));
+				var actual = new Tuple<StringWrapper?>(null);
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (IStructuralEquatable)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
 		}
 
-		[Fact]
-		public void IDictionary_SameTypes()
+		public class Collections
 		{
-			var expected = new Dictionary<string, string> { ["foo"] = "bar" };
-			var actual = new Dictionary<string, string> { ["foo"] = "baz" };
+			[Fact]
+			public void IReadOnlyCollection_IEnumerable_Equal()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new ReadOnlyCollection<string>(expected);
 
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (IDictionary)actual);
-			Assert.NotEqual(expected, (object)actual);
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+						"Expected: Not string[]                   [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:       ReadOnlyCollection<string> [\"foo\", \"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, (IReadOnlyCollection<string>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void IReadOnlyCollection_IEnumerable_NotEqual()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new ReadOnlyCollection<string>(new[] { "bar", "foo" });
+
+				Assert.NotEqual(expected, (IReadOnlyCollection<string>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void CollectionDepth_Equal()
+			{
+				var x = new List<object> { new List<object> { new List<object> { 1 } } };
+				var y = new List<object> { new List<object> { new List<object> { 1 } } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(x, y));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [[[1]]]" + Environment.NewLine +
+					"Actual:       [[[1]]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void CollectionDepth_NotEqual()
+			{
+				var x = new List<object> { new List<object> { new List<object> { 1 } } };
+				var y = new List<object> { new List<object> { new List<object> { 2 } } };
+
+				Assert.NotEqual(x, y);
+			}
+
+			[Fact]
+			public void StringArray_ObjectArray_Equal()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new object[] { "foo", "bar" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+						"Expected: Not string[] [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:       object[] [\"foo\", \"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void StringArray_ObjectArray_NotEqual()
+			{
+				var expected = new string[] { "foo", "bar" };
+				var actual = new object[] { "foo", "baz" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void MultidimensionalArrays_Equal()
+			{
+				var expected = new int[,] { { 1 }, { 2 } };
+				var actual = new int[,] { { 1 }, { 2 } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				// TODO: Would be better to have formatting that preserves the ranks instead of
+				// flattening, which happens because multi-dimensional arrays enumerate flatly
+				Assert.Equal<object>(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [1, 2]" + Environment.NewLine +
+					"Actual:       [1, 2]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void MultidimensionalArrays_NotEqual()
+			{
+				var expected = new int[,] { { 1, 2 } };
+				var actual = new int[,] { { 1 }, { 2 } };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void NonZeroBoundedArrays_Equal()
+			{
+				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				expected.SetValue(42, 1);
+				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				actual.SetValue(42, 1);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, (object)actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				// TODO: Would be better to have formatting that shows the non-zero bounds
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [42]" + Environment.NewLine +
+					"Actual:       [42]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NonZeroBoundedArrays_NotEqual()
+			{
+				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				expected.SetValue(42, 1);
+				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 0 });
+				actual.SetValue(42, 0);
+
+				Assert.NotEqual(expected, actual);
+			}
 		}
 
-		[Fact]
-		public void IDictionary_DifferentTypes()
+		public class Dictionaries
 		{
-			var expected = new Dictionary<string, string> { ["foo"] = "bar" };
-			var actual = new ConcurrentDictionary<string, string> { ["foo"] = "baz" };
+			[Fact]
+			public void SameTypes_Equal()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new Dictionary<string, string> { ["foo"] = "bar" };
 
-			Assert.NotEqual(expected, (IDictionary)actual);
-			Assert.NotEqual(expected, (object)actual);
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+						"Expected: Not [[\"foo\"] = \"bar\"]" + Environment.NewLine +
+						"Actual:       [[\"foo\"] = \"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (IDictionary)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void SameTypes_NotEqual()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new Dictionary<string, string> { ["foo"] = "baz" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (IDictionary)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_Equal()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new ConcurrentDictionary<string, string>(expected);
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+						"Expected: Not Dictionary<string, string>           [[\"foo\"] = \"bar\"]" + Environment.NewLine +
+						"Actual:       ConcurrentDictionary<string, string> [[\"foo\"] = \"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, (IDictionary)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentTypes_NotEqual()
+			{
+				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+				var actual = new ConcurrentDictionary<string, string> { ["foo"] = "baz" };
+
+				Assert.NotEqual(expected, (IDictionary)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
 		}
 
-		[Fact]
-		public void ISet_SameTypes()
+		public class HashSets
 		{
-			var expected = new HashSet<string> { "foo", "bar" };
-			var actual = new HashSet<string> { "foo", "baz" };
+			[Fact]
+			public static void InOrder_Equal()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 1, 2, 3 };
 
-			Assert.NotEqual(expected, actual);
-			Assert.NotEqual(expected, (ISet<string>)actual);
-			Assert.NotEqual(expected, (object)actual);
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: HashSets are equal" + Environment.NewLine +
+					"Expected: Not [1, 2, 3]" + Environment.NewLine +
+					"Actual:       [1, 2, 3]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void InOrder_NotEqual()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 1, 2, 4 };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public static void OutOfOrder_Equal()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 2, 3, 1 };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: HashSets are equal" + Environment.NewLine +
+					"Expected: Not [1, 2, 3]" + Environment.NewLine +
+					"Actual:       [2, 3, 1]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void OutOfOrder_NotEqual()
+			{
+				var expected = new HashSet<int> { 1, 2, 3 };
+				var actual = new HashSet<int> { 2, 4, 1 };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_Equal()
+			{
+				var expected = new HashSet<string> { "bar", "foo" };
+				var actual = new SortedSet<string> { "foo", "bar" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Sets are equal" + Environment.NewLine +
+						"Expected: Not HashSet<string>   [\"bar\", \"foo\"]" + Environment.NewLine +
+						"Actual:       SortedSet<string> [\"bar\", \"foo\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentTypes_NotEqual()
+			{
+				object expected = new HashSet<int> { 42 };
+				object actual = new HashSet<long> { 42L };
+
+				Assert.NotEqual(expected, actual);
+			}
 		}
 
-		[Fact]
-		public void ISet_DifferentTypes()
+		public class Sets
 		{
-			var expected = new HashSet<string> { "bar", "foo" };
-			var actual = new SortedSet<string> { "foo", "baz" };
+			[Fact]
+			public void InOrder_Equal()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "bar", "foo" };
 
-			Assert.NotEqual(expected, (ISet<string>)actual);
-			Assert.NotEqual(expected, (object)actual);
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Sets are equal" + Environment.NewLine +
+						"Expected: Not [\"bar\", \"foo\"]" + Environment.NewLine +
+						"Actual:       [\"bar\", \"foo\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void InOrder_NotEqual()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "bar", "baz" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (ISet<string>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void OutOfOrder_Equal()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "foo", "bar" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Sets are equal" + Environment.NewLine +
+						"Expected: Not [\"bar\", \"foo\"]" + Environment.NewLine +
+						"Actual:       [\"foo\", \"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void OutOfOrder_NotEqual()
+			{
+				var expected = new NonGenericSet { "bar", "foo" };
+				var actual = new NonGenericSet { "foo", "baz" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (ISet<string>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void DifferentContents()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new NonGenericSet { "bar", "foo" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (ISet<string>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void DifferentTypes_Equal()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new HashSet<string> { "bar" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Sets are equal" + Environment.NewLine +
+						"Expected: Not NonGenericSet   [\"bar\"]" + Environment.NewLine +
+						"Actual:       HashSet<string> [\"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void DifferentTypes_NotEqual()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new HashSet<string> { "baz" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (ISet<string>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void TwoGenericSubClass_Equal()
+			{
+				var expected = new TwoGenericSet<string, int> { "foo", "bar" };
+				var actual = new TwoGenericSet<string, int> { "foo", "bar" };
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<NotEqualException>(ex);
+					Assert.Equal(
+						"Assert.NotEqual() Failure: Sets are equal" + Environment.NewLine +
+						"Expected: Not [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:       [\"foo\", \"bar\"]",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.NotEqual(expected, actual));
+				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+			}
+
+			[Fact]
+			public void TwoGenericSubClass_NotEqual()
+			{
+				var expected = new TwoGenericSet<string, int> { "foo", "bar" };
+				var actual = new TwoGenericSet<string, int> { "foo", "baz" };
+
+				Assert.NotEqual(expected, actual);
+				Assert.NotEqual(expected, (ISet<string>)actual);
+				Assert.NotEqual(expected, (object)actual);
+			}
 		}
 
-		[Fact]
-		public void Failure()
+		public class Strings
 		{
-			var ex = Record.Exception(() => Assert.NotEqual("actual", "actual"));
+			[Fact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual("actual", "actual"));
 
-			Assert.IsType<NotEqualException>(ex);
-			Assert.Equal(
-				@"Assert.NotEqual() Failure" + Environment.NewLine +
-				@"Expected: Not ""actual""" + Environment.NewLine +
-				@"Actual:   ""actual""",
-				ex.Message
-			);
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					@"Assert.NotEqual() Failure: Strings are equal" + Environment.NewLine +
+					@"Expected: Not ""actual""" + Environment.NewLine +
+					@"Actual:       ""actual""",
+					ex.Message
+				);
+			}
+
+			public void NotEqual()
+			{
+				Assert.NotEqual("foo", "bar");
+			}
+
+			[Fact]
+			public void Truncation()
+			{
+				var ex = Record.Exception(
+					() => Assert.NotEqual(
+						"This is a long string so that we can test truncation behavior",
+						"This is a long string so that we can test truncation behavior"
+					)
+				);
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Strings are equal" + Environment.NewLine +
+					@"Expected: Not ""This is a long string so that we can test truncati""···" + Environment.NewLine +
+					@"Actual:       ""This is a long string so that we can test truncati""···",
+					ex.Message
+				);
+			}
 		}
-	}
 
-	public class NotEqual_WithComparer
-	{
-		[Fact]
-		public void Success()
+		public class DoubleEnumerationPrevention
 		{
-			Assert.NotEqual("TestString", "testString", StringComparer.InvariantCulture);
-		}
+			[Fact]
+			public static void EnumeratesOnlyOnce_Equal()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
 
-		[Fact]
-		public void NotEqualWithCustomComparer()
-		{
-			var ex = Record.Exception(
-				() => Assert.NotEqual("TestString", "testString", StringComparer.InvariantCultureIgnoreCase));
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 
-			Assert.IsType<NotEqualException>(ex);
-			Assert.Equal(
-				@"Assert.NotEqual() Failure" + Environment.NewLine +
-				@"Expected: Not ""TestString""" + Environment.NewLine +
-				@"Actual:   ""testString""",
-				ex.Message
-			);
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [1, 2, 3, 4, 5]" + Environment.NewLine +
+					"Actual:       [1, 2, 3, 4, 5]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void EnumeratesOnlyOnce_NotEqual()
+			{
+				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+
+				Assert.NotEqual(expected, actual);
+			}
 		}
 	}
 
 	public class NotEqual_Decimal
 	{
-		[Fact]
-		public void Success()
-		{
-			Assert.NotEqual(0.11111M, 0.11444M, 3);
-		}
-
 		[CulturedFact]
-		public void Failure()
+		public void Equal()
 		{
-			var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
+			var ex = Record.Exception(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
 
+			Assert.IsType<NotEqualException>(ex);
 			Assert.Equal(
-				"Assert.NotEqual() Failure" + Environment.NewLine +
+				"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
 				$"Expected: Not {0.11M} (rounded from {0.11111})" + Environment.NewLine +
-				$"Actual:   {0.11M} (rounded from {0.11444})",
+				$"Actual:       {0.11M} (rounded from {0.11444})",
 				ex.Message
 			);
+		}
+
+		[Fact]
+		public void NotEqual()
+		{
+			Assert.NotEqual(0.11111M, 0.11444M, 3);
 		}
 	}
 
 	public class NotEqual_Double
 	{
-		[Fact]
-		public void Success()
+		public class WithPrecision
 		{
-			Assert.NotEqual(0.11111, 0.11444, 3);
+			[CulturedFact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(0.11111, 0.11444, 2));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are within 2 decimal places" + Environment.NewLine +
+					$"Expected: Not {0.11:G17} (rounded from {0.11111:G17})" + Environment.NewLine +
+					$"Actual:       {0.11:G17} (rounded from {0.11444:G17})",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(0.11111, 0.11444, 3);
+			}
 		}
 
-		[CulturedFact]
-		public void Failure()
+		public class WithMidPointRounding
 		{
-			var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
+			[CulturedFact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(10.565, 10.566, 2, MidpointRounding.AwayFromZero));
 
-			Assert.Equal(
-				"Assert.NotEqual() Failure" + Environment.NewLine +
-				$"Expected: Not {0.11M} (rounded from {0.11111})" + Environment.NewLine +
-				$"Actual:   {0.11M} (rounded from {0.11444})",
-				ex.Message
-			);
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within 2 decimal places" + Environment.NewLine +
+					$"Expected: Not {10.57:G17} (rounded from {10.565:G17})" + Environment.NewLine +
+					$"Actual:       {10.57:G17} (rounded from {10.566:G17})",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(0.11113, 0.11115, 4, MidpointRounding.ToEven);
+			}
+		}
+
+		public class WithTolerance
+		{
+			[Fact]
+			public void GuardClause()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(0.0, 1.0, double.NegativeInfinity));
+
+				var argEx = Assert.IsType<ArgumentException>(ex);
+				Assert.StartsWith("Tolerance must be greater than or equal to zero", ex.Message);
+				Assert.Equal("tolerance", argEx.ParamName);
+			}
+
+			[CulturedFact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(10.566, 10.565, 0.01));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within tolerance {0.01:G17}" + Environment.NewLine +
+					$"Expected: Not {10.566:G17}" + Environment.NewLine +
+					$"Actual:       {10.565:G17}",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(0.11113, 0.11115, 0.00001);
+			}
+
+			[CulturedFact]
+			public void NaN_Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(double.NaN, double.NaN, 1000.0));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within tolerance {1000.0:G17}" + Environment.NewLine +
+					$"Expected: Not {double.NaN}" + Environment.NewLine +
+					$"Actual:       {double.NaN}",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NaN_NotEqual()
+			{
+				Assert.NotEqual(20210102.2208, double.NaN, 20000000.0);
+			}
+
+			[CulturedFact]
+			public void InfiniteTolerance_Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(double.MinValue, double.MaxValue, double.PositiveInfinity));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within tolerance {double.PositiveInfinity}" + Environment.NewLine +
+					$"Expected: Not {double.MinValue:G17}" + Environment.NewLine +
+					$"Actual:       {double.MaxValue:G17}",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void PositiveInfinity_NotEqual()
+			{
+				Assert.NotEqual(double.PositiveInfinity, 77.7, 1.0);
+			}
+
+			[Fact]
+			public void NegativeInfinity_NotEqual()
+			{
+				Assert.NotEqual(0.0, double.NegativeInfinity, 1.0);
+			}
+		}
+	}
+
+	public class NotEqual_Float
+	{
+		public class WithPrecision
+		{
+			[CulturedFact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(0.11111f, 0.11444f, 2));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are within 2 decimal places" + Environment.NewLine +
+					$"Expected: Not {0.11:G9} (rounded from {0.11111f:G9})" + Environment.NewLine +
+					$"Actual:       {0.11:G9} (rounded from {0.11444f:G9})",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(0.11111f, 0.11444f, 3);
+			}
+		}
+
+		public class WithMidPointRounding
+		{
+			[CulturedFact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(10.5655f, 10.5666f, 2, MidpointRounding.AwayFromZero));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are within 2 decimal places" + Environment.NewLine +
+					$"Expected: Not {10.57:G9} (rounded from {10.5655f:G9})" + Environment.NewLine +
+					$"Actual:       {10.57:G9} (rounded from {10.5666f:G9})",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(0.111133f, 0.111155f, 4, MidpointRounding.ToEven);
+			}
+		}
+
+		public class WithTolerance
+		{
+			[Fact]
+			public void GuardClause()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(0.0f, 1.0f, float.NegativeInfinity));
+
+				var argEx = Assert.IsType<ArgumentException>(ex);
+				Assert.StartsWith("Tolerance must be greater than or equal to zero", ex.Message);
+				Assert.Equal("tolerance", argEx.ParamName);
+			}
+
+			[CulturedFact]
+			public void Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(10.569f, 10.562f, 0.01f));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within tolerance {0.01f:G9}" + Environment.NewLine +
+					$"Expected: Not {10.569f:G9}" + Environment.NewLine +
+					$"Actual:       {10.562f:G9}",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				Assert.NotEqual(0.11113f, 0.11115f, 0.00001f);
+			}
+
+			[CulturedFact]
+			public void NaN_Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(float.NaN, float.NaN, 1000.0f));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within tolerance {1000.0f:G9}" + Environment.NewLine +
+					"Expected: Not NaN" + Environment.NewLine +
+					"Actual:       NaN",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NaN_NotEqual()
+			{
+				Assert.NotEqual(20210102.2208f, float.NaN, 20000000.0f);
+			}
+
+			[CulturedFact]
+			public void InfiniteTolerance_Equal()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(float.MinValue, float.MaxValue, float.PositiveInfinity));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					$"Assert.NotEqual() Failure: Values are within tolerance {float.PositiveInfinity}" + Environment.NewLine +
+					$"Expected: Not {float.MinValue:G9}" + Environment.NewLine +
+					$"Actual:       {float.MaxValue:G9}",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void PositiveInfinity_NotEqual()
+			{
+				Assert.NotEqual(float.PositiveInfinity, 77.7f, 1.0f);
+			}
+
+			[Fact]
+			public void NegativeInfinity_NotEqual()
+			{
+				Assert.NotEqual(0.0f, float.NegativeInfinity, 1.0f);
+			}
 		}
 	}
 
 	public class NotStrictEqual
 	{
 		[Fact]
-		public static void Success()
+		public static void Equal()
+		{
+			var ex = Record.Exception(() => Assert.NotStrictEqual("actual", "actual"));
+
+			Assert.IsType<NotStrictEqualException>(ex);
+			Assert.Equal(
+				"Assert.NotStrictEqual() Failure: Values are equal" + Environment.NewLine +
+				@"Expected: Not ""actual""" + Environment.NewLine +
+				@"Actual:       ""actual""",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void NotEqual_Strings()
 		{
 			Assert.NotStrictEqual("bob", "jim");
 		}
 
 		[Fact]
-		public static void Equals()
+		public static void NotEqual_Classes()
 		{
 			Assert.NotStrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah"));
 		}
 
 		[Fact]
-		public static void Failure()
+		public static void DifferentTypes_Equal()
 		{
-			var ex = Record.Exception(() => Assert.NotStrictEqual("actual", "actual"));
+			var ex = Record.Exception(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
 
-			Assert.IsType<NotEqualException>(ex);
+			Assert.IsType<NotStrictEqualException>(ex);
 			Assert.Equal(
-				@"Assert.NotEqual() Failure" + Environment.NewLine +
-				@"Expected: Not ""actual""" + Environment.NewLine +
-				@"Actual:   ""actual""",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public static void Collection()
-		{
-			var ex = Assert.Throws<NotEqualException>(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
-			Assert.Equal(
-				@"Assert.NotEqual() Failure" + Environment.NewLine +
-				@"Expected: Not DerivedClass { }" + Environment.NewLine +
-				@"Actual:   BaseClass { }",
+				"Assert.NotStrictEqual() Failure: Values are equal" + Environment.NewLine +
+				"Expected: Not DerivedClass { }" + Environment.NewLine +
+				"Actual:       BaseClass { }",
 				ex.Message
 			);
 		}
 	}
 
-	private class BaseClass { }
+	public class StrictEqual
+	{
+		[Fact]
+		public static void Equal()
+		{
+			Assert.StrictEqual("actual", "actual");
+		}
 
-	private class DerivedClass : BaseClass
+		[Fact]
+		public static void NotEqual_Strings()
+		{
+			var ex = Record.Exception(() => Assert.StrictEqual("bob", "jim"));
+
+			Assert.IsType<StrictEqualException>(ex);
+			Assert.Equal(
+				"Assert.StrictEqual() Failure: Values differ" + Environment.NewLine +
+				@"Expected: ""bob""" + Environment.NewLine +
+				@"Actual:   ""jim""",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void NotEqual_Classes()
+		{
+			var ex = Record.Exception(() => Assert.StrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah")));
+
+			Assert.IsType<StrictEqualException>(ex);
+			Assert.Equal(
+				"Assert.StrictEqual() Failure: Values differ" + Environment.NewLine +
+				$"Expected: EnumerableClass [{ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+				$"Actual:   EnumerableClass [{ArgumentFormatter.Ellipsis}]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void DifferentTypes_Equal()
+		{
+			Assert.StrictEqual(new DerivedClass(), new BaseClass());
+		}
+	}
+
+	class BaseClass { }
+
+	class DerivedClass : BaseClass
 	{
 		public override bool Equals(object? obj) =>
 			obj is BaseClass || base.Equals(obj);
@@ -1446,7 +3476,7 @@ public class EqualityAssertsTests
 		public override int GetHashCode() => 0;
 	}
 
-	private class EnumerableClass : IEnumerable<BaseClass>
+	class EnumerableClass : IEnumerable<BaseClass>
 	{
 		private readonly IEnumerable<BaseClass> bars;
 
@@ -1456,6 +3486,275 @@ public class EqualityAssertsTests
 		}
 
 		public IEnumerator<BaseClass> GetEnumerator() => bars.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	}
+
+	class MultiComparable : IComparable
+	{
+		public int Value { get; }
+
+		public MultiComparable(int value)
+		{
+			Value = value;
+		}
+
+		public int CompareTo(object? obj)
+		{
+			if (obj is int intObj)
+				return Value.CompareTo(intObj);
+			else if (obj is MultiComparable multiObj)
+				return Value.CompareTo(multiObj.Value);
+
+			throw new InvalidOperationException();
+		}
+	}
+
+	class ComparableBaseClass : IComparable<ComparableBaseClass>
+	{
+		public int Value { get; }
+
+		public ComparableBaseClass(int value)
+		{
+			Value = value;
+		}
+
+		public int CompareTo(ComparableBaseClass? other) => Value.CompareTo(other!.Value);
+	}
+
+	class ComparableSubClassA : ComparableBaseClass
+	{
+		public ComparableSubClassA(int value) : base(value)
+		{ }
+	}
+
+	class ComparableSubClassB : ComparableBaseClass
+	{
+		public ComparableSubClassB(int value) : base(value)
+		{ }
+	}
+
+	class ComparableThrower : IComparable<ComparableThrower>
+	{
+		public int Value { get; }
+
+		public ComparableThrower(int value)
+		{
+			Value = value;
+		}
+
+		public int CompareTo(ComparableThrower? other)
+		{
+			throw new InvalidOperationException();
+		}
+
+		public override bool Equals(object? obj) => Value == ((ComparableThrower?)obj)!.Value;
+
+		public override int GetHashCode() => Value;
+	}
+
+	class EquatableBaseClass : IEquatable<EquatableBaseClass>
+	{
+		public int Value { get; }
+
+		public EquatableBaseClass(int value)
+		{
+			Value = value;
+		}
+
+		public bool Equals(EquatableBaseClass? other) => Value == other!.Value;
+	}
+
+	class EquatableSubClassA : EquatableBaseClass
+	{
+		public EquatableSubClassA(int value) : base(value) { }
+	}
+
+	class EquatableSubClassB : EquatableBaseClass
+	{
+		public EquatableSubClassB(int value) : base(value) { }
+	}
+
+	class StringWrapper : IEquatable<StringWrapper>
+	{
+		public string Value { get; }
+
+		public StringWrapper(string value)
+		{
+			Value = value;
+		}
+
+		bool IEquatable<StringWrapper>.Equals(StringWrapper? other) => Value == other!.Value;
+	}
+
+	class NonGenericSet : HashSet<string> { }
+
+	class TwoGenericSet<T, U> : HashSet<T> { }
+
+	class ImplicitIEquatableExpected : IEquatable<IntWrapper>
+	{
+		public int Value { get; }
+
+		public ImplicitIEquatableExpected(int value)
+		{
+			Value = value;
+		}
+
+		public bool Equals(IntWrapper? other) => Value == other!.Value;
+	}
+
+	class ExplicitIEquatableExpected : IEquatable<IntWrapper>
+	{
+		public int Value { get; }
+
+		public ExplicitIEquatableExpected(int value)
+		{
+			Value = value;
+		}
+
+		bool IEquatable<IntWrapper>.Equals(IntWrapper? other) => Value == other!.Value;
+	}
+
+	class ImplicitIComparableExpected : IComparable<IntWrapper>
+	{
+		public int Value { get; }
+
+		public ImplicitIComparableExpected(int value)
+		{
+			Value = value;
+		}
+
+		public int CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
+	}
+
+	class ExplicitIComparableActual : IComparable<IntWrapper>
+	{
+		public int Value { get; }
+
+		public ExplicitIComparableActual(int value)
+		{
+			Value = value;
+		}
+
+		int IComparable<IntWrapper>.CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
+	}
+
+	class IComparableActualThrower : IComparable<IntWrapper>
+	{
+		public int Value { get; }
+
+		public IComparableActualThrower(int value)
+		{
+			Value = value;
+		}
+
+		public int CompareTo(IntWrapper? other)
+		{
+			throw new NotSupportedException();
+		}
+
+		public override bool Equals(object? obj) => Value == ((IntWrapper?)obj)!.Value;
+
+		public override int GetHashCode() => Value;
+	}
+
+	class IntWrapper
+	{
+		public int Value { get; }
+
+		public IntWrapper(int value)
+		{
+			Value = value;
+		}
+	}
+
+	class SpyComparable : IComparable
+	{
+		readonly int result;
+
+		public bool CompareCalled;
+
+		public SpyComparable(int result)
+		{
+			this.result = result;
+		}
+
+		public int CompareTo(object? obj)
+		{
+			CompareCalled = true;
+			return result;
+		}
+	}
+
+	class SpyComparable_Generic : IComparable<SpyComparable_Generic>
+	{
+		int result;
+
+		public bool CompareCalled;
+
+		public SpyComparable_Generic(int result = 0)
+		{
+			this.result = result;
+		}
+
+		public int CompareTo(SpyComparable_Generic? other)
+		{
+			CompareCalled = true;
+			return result;
+		}
+	}
+
+	class SpyEquatable : IEquatable<SpyEquatable>
+	{
+		bool result;
+		public bool Equals__Called;
+		public SpyEquatable? Equals_Other;
+
+		public SpyEquatable(bool result = true)
+		{
+			this.result = result;
+		}
+
+		public bool Equals(SpyEquatable? other)
+		{
+			Equals__Called = true;
+			Equals_Other = other;
+
+			return result;
+		}
+	}
+
+	class NonComparableObject
+	{
+		bool result;
+
+		public NonComparableObject(bool result = true)
+		{
+			this.result = result;
+		}
+
+		public override bool Equals(object? obj) => result;
+
+		public override int GetHashCode() => 42;
+	}
+
+	sealed class RunOnceEnumerable<T> : IEnumerable<T>
+	{
+		private bool _called;
+
+		public RunOnceEnumerable(IEnumerable<T> source)
+		{
+			Source = source;
+		}
+
+		public IEnumerable<T> Source { get; }
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			Assert.False(_called, "GetEnumerator() was called more than once");
+			_called = true;
+			return Source.GetEnumerator();
+		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}

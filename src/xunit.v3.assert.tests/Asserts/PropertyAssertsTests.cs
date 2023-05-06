@@ -12,11 +12,8 @@ public class PropertyAssertsTests
 		[Fact]
 		public void GuardClauses()
 		{
-			var ex1 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(null!, "propertyName", delegate { }));
-			Assert.Equal("object", ex1.ParamName);
-
-			var ex2 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(Substitute.For<INotifyPropertyChanged>(), "propertyName", (Action)null!));
-			Assert.Equal("testCode", ex2.ParamName);
+			Assert.Throws<ArgumentNullException>("object", () => Assert.PropertyChanged(null!, "propertyName", delegate { }));
+			Assert.Throws<ArgumentNullException>("testCode", () => Assert.PropertyChanged(Substitute.For<INotifyPropertyChanged>(), "propertyName", (Action)null!));
 		}
 
 		[Fact]
@@ -24,12 +21,10 @@ public class PropertyAssertsTests
 		{
 			var obj = new NotifiedClass();
 
-			var ex = Record.Exception(
-				() => Assert.PropertyChanged(obj, "Property1", () => { })
-			);
+			var ex = Record.Exception(() => Assert.PropertyChanged(obj, nameof(NotifiedClass.Property1), () => { }));
 
 			Assert.IsType<PropertyChangedException>(ex);
-			Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set", ex.Message);
+			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
 		}
 
 		[Fact]
@@ -37,12 +32,10 @@ public class PropertyAssertsTests
 		{
 			var obj = new NotifiedClass();
 
-			var ex = Record.Exception(
-				() => Assert.PropertyChanged(obj, "Property1", () => obj.Property2 = 42)
-			);
+			var ex = Record.Exception(() => Assert.PropertyChanged(obj, nameof(NotifiedClass.Property1), () => obj.Property2 = 42));
 
 			Assert.IsType<PropertyChangedException>(ex);
-			Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set", ex.Message);
+			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
 		}
 
 		[Fact]
@@ -50,11 +43,7 @@ public class PropertyAssertsTests
 		{
 			var obj = new NotifiedClass();
 
-			var ex = Record.Exception(
-				() => Assert.PropertyChanged(obj, "Property1", () => obj.Property1 = "NewValue")
-			);
-
-			Assert.Null(ex);
+			Assert.PropertyChanged(obj, nameof(NotifiedClass.Property1), () => obj.Property1 = "NewValue");
 		}
 
 		[Fact]
@@ -62,93 +51,131 @@ public class PropertyAssertsTests
 		{
 			var obj = new NotifiedClass();
 
-			var ex = Record.Exception(
-				() =>
-				{
-					Assert.PropertyChanged(obj, "Property1", () =>
-					{
-						obj.Property2 = 12;
-						obj.Property1 = "New Value";
-						obj.Property2 = 42;
-					});
-				}
-			);
-
-			Assert.Null(ex);
+			Assert.PropertyChanged(obj, nameof(NotifiedClass.Property1), () =>
+			{
+				obj.Property2 = 12;
+				obj.Property1 = "New Value";
+				obj.Property2 = 42;
+			});
 		}
 	}
 
 	public class PropertyChangedAsync
 	{
-#pragma warning disable CS1998
 		[Fact]
 		public async Task GuardClauses()
 		{
-			var ex1 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(null!, "propertyName", async delegate { }));
-			Assert.Equal("object", ex1.ParamName);
+			await Assert.ThrowsAsync<ArgumentNullException>("object", () => Assert.PropertyChangedAsync(null!, "propertyName", () => Task.FromResult(0)));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", default(Func<Task>)!));
 
-			var ex2 = await Assert.ThrowsAsync<ArgumentNullException>(() => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", null!));
-			Assert.Equal("testCode", ex2.ParamName);
+#if XUNIT_VALUETASK
+			await Assert.ThrowsAsync<ArgumentNullException>("object", () => Assert.PropertyChangedAsync(null!, "propertyName", () => default(ValueTask)));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", default(Func<ValueTask>)!));
+#endif
 		}
 
 		[Fact]
-		public async Task ExceptionThrownWhenPropertyNotChanged()
+		public async Task ExceptionThrownWhenPropertyNotChanged_Task()
 		{
 			var obj = new NotifiedClass();
 
-			var ex = await Record.ExceptionAsync(
-				() => Assert.PropertyChangedAsync(obj, "Property1", async () => { })
-			);
+			var ex = await Record.ExceptionAsync(() => Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), () => Task.FromResult(0)));
 
 			Assert.IsType<PropertyChangedException>(ex);
-			Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set", ex.Message);
+			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
 		}
 
+#if XUNIT_VALUETASK
 		[Fact]
-		public async Task ExceptionThrownWhenWrongPropertyChangedAsync()
+		public async Task ExceptionThrownWhenPropertyNotChanged_ValueTask()
 		{
 			var obj = new NotifiedClass();
 
-			var ex = await Record.ExceptionAsync(
-				() => Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property2 = 42)
-			);
+			var ex = await Record.ExceptionAsync(() => Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), () => default(ValueTask)));
 
 			Assert.IsType<PropertyChangedException>(ex);
-			Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set", ex.Message);
+			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
+		}
+#endif
+
+#pragma warning disable CS1998
+		[Fact]
+		public async Task ExceptionThrownWhenWrongPropertyChangedAsync_Task()
+		{
+			var obj = new NotifiedClass();
+			async Task setter() => obj!.Property2 = 42;
+
+			var ex = await Record.ExceptionAsync(() => Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter));
+
+			Assert.IsType<PropertyChangedException>(ex);
+			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
 		}
 
+#if XUNIT_VALUETASK
 		[Fact]
-		public async Task NoExceptionThrownWhenPropertyChangedAsync()
+		public async Task ExceptionThrownWhenWrongPropertyChangedAsync_ValueTask()
+		{
+			var obj = new NotifiedClass();
+			async Task setter() => obj!.Property2 = 42;
+
+			var ex = await Record.ExceptionAsync(() => Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter));
+
+			Assert.IsType<PropertyChangedException>(ex);
+			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
+		}
+#endif
+
+		[Fact]
+		public async Task NoExceptionThrownWhenPropertyChangedAsync_Task()
+		{
+			var obj = new NotifiedClass();
+			async Task setter() => obj!.Property1 = "NewValue";
+
+			await Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter);
+		}
+
+#if XUNIT_VALUETASK
+		[Fact]
+		public async Task NoExceptionThrownWhenPropertyChangedAsync_ValueTask()
+		{
+			var obj = new NotifiedClass();
+			async ValueTask setter() => obj!.Property1 = "NewValue";
+
+			await Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter);
+		}
+#endif
+
+		[Fact]
+		public async Task NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty_Task()
 		{
 			var obj = new NotifiedClass();
 
-			var ex = await Record.ExceptionAsync(
-				() => Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property1 = "NewValue")
-			);
+			async Task setter()
+			{
+				obj.Property2 = 12;
+				obj.Property1 = "New Value";
+				obj.Property2 = 42;
+			}
 
-			Assert.Null(ex);
+			await Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter);
 		}
 
+#if XUNIT_VALUETASK
 		[Fact]
-		public async Task NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty()
+		public async Task NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty_ValueTask()
 		{
 			var obj = new NotifiedClass();
 
-			var ex = await Record.ExceptionAsync(
-				() => Assert.PropertyChangedAsync(
-					obj,
-					"Property1",
-					async () =>
-					{
-						obj.Property2 = 12;
-						obj.Property1 = "New Value";
-						obj.Property2 = 42;
-					}
-				)
-			);
+			async ValueTask setter()
+			{
+				obj.Property2 = 12;
+				obj.Property1 = "New Value";
+				obj.Property2 = 42;
+			}
 
-			Assert.Null(ex);
+			await Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter);
 		}
+#endif
 #pragma warning restore CS1998
 	}
 
@@ -158,12 +185,12 @@ public class PropertyAssertsTests
 
 		public string Property1
 		{
-			set { PropertyChanged!(this, new PropertyChangedEventArgs("Property1")); }
+			set { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Property1))); }
 		}
 
 		public int Property2
 		{
-			set { PropertyChanged!(this, new PropertyChangedEventArgs("Property2")); }
+			set { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Property2))); }
 		}
 	}
 }

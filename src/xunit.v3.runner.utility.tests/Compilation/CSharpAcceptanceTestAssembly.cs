@@ -10,6 +10,10 @@ using Xunit.Internal;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
+	protected CSharpAcceptanceTestAssembly(string? basePath = null) :
+		base(basePath)
+	{ }
+
 	protected override ValueTask Compile(
 		string[] code,
 		string[] references)
