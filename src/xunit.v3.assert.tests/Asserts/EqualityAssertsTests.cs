@@ -60,6 +60,12 @@ public class EqualityAssertsTests
 		public class WithComparer
 		{
 			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.Equal(1, 2, default(IEqualityComparer<int>)!));
+			}
+
+			[Fact]
 			public void Equal()
 			{
 				Assert.Equal(42, 21, new Comparer<int>(true));
@@ -96,6 +102,12 @@ public class EqualityAssertsTests
 
 		public class WithFunc
 		{
+			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.Equal(1, 2, default(Func<int, int, bool>)!));
+			}
+
 			[Fact]
 			public void Equal()
 			{
@@ -1892,6 +1904,12 @@ public class EqualityAssertsTests
 		public class WithComparer
 		{
 			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.NotEqual(1, 2, default(IEqualityComparer<int>)!));
+			}
+
+			[Fact]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(42, 21, new Comparer<int>(true)));
@@ -1928,6 +1946,12 @@ public class EqualityAssertsTests
 
 		public class WithFunc
 		{
+			[Fact]
+			public void GuardClause()
+			{
+				Assert.Throws<ArgumentNullException>("comparer", () => Assert.NotEqual(1, 2, default(Func<int, int, bool>)!));
+			}
+
 			[Fact]
 			public void Equal()
 			{
