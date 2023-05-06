@@ -8,7 +8,9 @@ static class AssemblyExtensions
 {
     public static string GetLocalCodeBase(this Assembly assembly)
     {
+#pragma warning disable SYSLIB0012
         return GetLocalCodeBase(assembly?.CodeBase, Path.DirectorySeparatorChar);
+#pragma warning restore SYSLIB0012
     }
 
     public static string GetLocalCodeBase(string codeBase, char directorySeparator)

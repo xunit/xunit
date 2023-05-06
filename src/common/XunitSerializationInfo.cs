@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
-using System.Reflection;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+
+#if !NET35
+using System.Numerics;
+using System.Reflection;
+#endif
 
 namespace Xunit.Serialization
 {
@@ -16,6 +19,80 @@ namespace Xunit.Serialization
     class XunitSerializationInfo : IXunitSerializationInfo
     {
         readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
+
+        // DateOnly and TimeOnly only exist in .NET 6+, so we must access them via reflection. There is no way for us to
+        // do this from .NET 3.5 (and doesn't matter, because those types would never exist there) so we have to get all
+        // this code away from .NET 3.5.
+#if !NET35
+        static readonly Type dateOnlyType = Type.GetType("System.DateOnly");
+        static readonly Type dateOnlyNullableType = dateOnlyType == null ? null : typeof(Nullable<>).MakeGenericType(dateOnlyType);
+        static readonly PropertyInfo dateOnlyDayNumber = dateOnlyType?.GetTypeInfo().GetDeclaredProperty("DayNumber");
+        static readonly MethodInfo dateOnlyFromDayNumber = dateOnlyType?.GetTypeInfo().GetDeclaredMethods("FromDayNumber").FirstOrDefault(m => m.IsPublic && m.IsStatic && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType == typeof(int));
+
+        static readonly Type timeOnlyType = Type.GetType("System.TimeOnly");
+        static readonly Type timeOnlyNullableType = timeOnlyType == null ? null : typeof(Nullable<>).MakeGenericType(timeOnlyType);
+        static readonly PropertyInfo timeOnlyTicks = timeOnlyType?.GetTypeInfo().GetDeclaredProperty("Ticks");
+        static readonly ConstructorInfo timeOnlyCtor = timeOnlyType?.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Length == 1 && c.GetParameters()[0].ParameterType == typeof(long));
+#endif
+
+        static List<Type> supportedSerializationTypes = new()
+        {
+            typeof(IXunitSerializable),
+            typeof(char),
+            typeof(char?),
+            typeof(string),
+            typeof(byte),
+            typeof(byte?),
+            typeof(sbyte),
+            typeof(sbyte?),
+            typeof(short),
+            typeof(short?),
+            typeof(ushort),
+            typeof(ushort?),
+            typeof(int),
+            typeof(int?),
+            typeof(uint),
+            typeof(uint?),
+            typeof(long),
+            typeof(long?),
+            typeof(ulong),
+            typeof(ulong?),
+            typeof(float),
+            typeof(float?),
+            typeof(double),
+            typeof(double?),
+            typeof(decimal),
+            typeof(decimal?),
+            typeof(bool),
+            typeof(bool?),
+            typeof(DateTime),
+            typeof(DateTime?),
+            typeof(DateTimeOffset),
+            typeof(DateTimeOffset?),
+#if !NETFRAMEWORK
+            typeof(BigInteger),
+            typeof(BigInteger?),
+#endif
+            typeof(TimeSpan),
+            typeof(TimeSpan?),
+        };
+
+#if !NET35
+        static XunitSerializationInfo()
+        {
+            if (dateOnlyType != null)
+            {
+                supportedSerializationTypes.Add(dateOnlyType);
+                supportedSerializationTypes.Add(dateOnlyNullableType);
+            }
+
+            if (timeOnlyType != null)
+            {
+                supportedSerializationTypes.Add(timeOnlyType);
+                supportedSerializationTypes.Add(timeOnlyNullableType);
+            }
+        }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
@@ -173,6 +250,22 @@ namespace Xunit.Serialization
                 return DateTimeOffset.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
             }
 
+#if !NET35
+            if ((type == dateOnlyType || type == dateOnlyNullableType) && dateOnlyFromDayNumber != null)
+                return dateOnlyFromDayNumber.Invoke(null, new object[] { int.Parse(serializedValue, CultureInfo.InvariantCulture) });
+
+            if ((type == timeOnlyType || type == timeOnlyNullableType) && timeOnlyCtor != null)
+                return timeOnlyCtor.Invoke(new object[] { long.Parse(serializedValue, CultureInfo.InvariantCulture) });
+
+            if (type == typeof(TimeSpan?) || type == typeof(TimeSpan))
+                return TimeSpan.Parse(serializedValue, CultureInfo.InvariantCulture);
+#endif
+
+#if !NETFRAMEWORK
+            if (type == typeof(BigInteger?) || type == typeof(BigInteger))
+                return BigInteger.Parse(serializedValue, CultureInfo.InvariantCulture);
+#endif
+
             if (type == typeof(Type))
                 return SerializationHelper.GetType(serializedValue);
 
@@ -308,11 +401,28 @@ namespace Xunit.Serialization
             if (datetimeoffsetData != null)
                 return datetimeoffsetData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
 
+            var valueType = value.GetType();
+
+#if !NET35
+            if (valueType == dateOnlyType && dateOnlyDayNumber != null)
+                return dateOnlyDayNumber.GetValue(value)?.ToString() ?? throw new InvalidOperationException($"Could not call DayNumber on an instance of '{dateOnlyType.FullName}': {value}");
+
+            if (valueType == timeOnlyType && timeOnlyTicks != null)
+                return timeOnlyTicks.GetValue(value)?.ToString() ?? throw new InvalidOperationException($"Could not call Ticks on an instance of '{timeOnlyType.FullName}': {value}");
+
+            if (value is TimeSpan)
+                return ((TimeSpan)value).ToString("c", CultureInfo.InvariantCulture);
+#endif
+
+#if !NETFRAMEWORK
+            if (value is BigInteger)
+                return ((BigInteger)value).ToString(CultureInfo.InvariantCulture);
+#endif
+
             var typeData = value as Type;
             if (typeData != null)
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
 
-            var valueType = value.GetType();
             if (valueType.IsEnum())
             {
                 if (!valueType.IsFromLocalAssembly())
@@ -331,28 +441,6 @@ namespace Xunit.Serialization
 
             throw new ArgumentException($"We don't know how to serialize type {valueType.FullName}", nameof(value));
         }
-
-        static readonly Type[] supportedSerializationTypes = {
-            typeof(IXunitSerializable),
-            typeof(char),           typeof(char?),
-            typeof(string),
-            typeof(byte),           typeof(byte?),
-            typeof(sbyte),          typeof(sbyte?),
-            typeof(short),          typeof(short?),
-            typeof(ushort),         typeof(ushort?),
-            typeof(int),            typeof(int?),
-            typeof(uint),           typeof(uint?),
-            typeof(long),           typeof(long?),
-            typeof(ulong),          typeof(ulong?),
-            typeof(float),          typeof(float?),
-            typeof(double),         typeof(double?),
-            typeof(decimal),        typeof(decimal?),
-            typeof(BigInteger),     typeof(BigInteger?),
-            typeof(bool),           typeof(bool?),
-            typeof(DateTime),       typeof(DateTime?),
-            typeof(DateTimeOffset), typeof(DateTimeOffset?),
-            typeof(TimeSpan),       typeof(TimeSpan?)
-        };
 
         internal static bool CanSerializeObject(object value)
         {
@@ -387,10 +475,6 @@ namespace Xunit.Serialization
             Type typeToCheck = valueType;
             if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
                 return typeToCheck.IsFromLocalAssembly();
-
-            // DateOnly and TimeOnly available only since NET6
-            if ((valueType.FullName == "System.DateOnly" || valueType.FullName == "System.TimeOnly") && valueType.GetAssembly() == typeof(int).GetTypeInfo().Assembly)
-                return true;
 
             return false;
         }

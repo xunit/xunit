@@ -167,6 +167,10 @@ function __target__testcore() {
     _build_step "Running tests: .NET Core 2.0"
         $netcore_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\netcoreapp2.0" } | ForEach-Object { $_.FullName }))
         _xunit_netcore "netcoreapp2.0" ($netcore_assemblies                        + " -xml artifacts\test\v2-netcore.xml -html artifacts\test\v2-netcore.html -serialize "            + $nonparallelFlags)
+
+    _build_step "Running tests: .NET 6"
+        $net6_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\net6.0" } | ForEach-Object { $_.FullName }))
+        _xunit_netcore "net6.0"        ($net6_assemblies                           + " -xml artifacts\test\v2-net6.xml -html artifacts\test\v2-net6.html -serialize "                  + $nonparallelFlags)
 }
 
 # Dispatch
