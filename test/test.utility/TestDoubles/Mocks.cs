@@ -466,7 +466,7 @@ public static class Mocks
     public static TestMethod TestMethod(Type type, string methodName, ITestCollection collection = null)
     {
         var @class = TestClass(type, collection);
-        var methodInfo = type.GetMethod(methodName);
+        var methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
         if (methodInfo == null)
             throw new Exception($"Unknown method: {type.FullName}.{methodName}");
 

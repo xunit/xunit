@@ -94,8 +94,9 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IMethodInfo GetMethod(string methodName, bool includePrivateMethod)
         {
-            var method = Type.GetRuntimeMethods()
-                             .FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
+            var method = GetRuntimeMethods()
+                        .FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
+
             if (method == null)
                 return null;
 
@@ -105,12 +106,22 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
         {
-            var methodInfos = Type.GetRuntimeMethods();
+            var methodInfos = GetRuntimeMethods();
+
             if (!includePrivateMethods)
-            {
                 methodInfos = methodInfos.Where(m => m.IsPublic);
-            }
+
             return methodInfos.Select(m => Reflector.Wrap(m)).ToList();
+        }
+
+        IEnumerable<MethodInfo> GetRuntimeMethods()
+        {
+            List<MethodInfo> results = new(Type.GetRuntimeMethods());
+
+            for (var baseType = Type.GetTypeInfo().BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
+                results.AddRange(baseType.GetRuntimeMethods().Where(m => m.IsStatic));
+
+            return results;
         }
 
         /// <inheritdoc/>

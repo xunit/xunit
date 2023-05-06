@@ -334,6 +334,18 @@ public class XunitTestFrameworkDiscovererTests
             Assert.Equal("XunitTestFrameworkDiscovererTests+FindImpl+Child.FactOverridenInNonImmediateDerivedClass", framework.Sink.TestCases[0].DisplayName);
         }
 
+        [Fact]
+        public static void DiscoversBaseStaticMethodDecoratedWithFact()
+        {
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
+            var testClass = Mocks.TestClass(typeof(ClassWithInheritedStaticMethodUnderTest));
+
+            framework.FindTestsForClass(testClass);
+
+            Assert.Equal(1, framework.Sink.TestCases.Count);
+            Assert.Equal($"{typeof(ClassWithInheritedStaticMethodUnderTest).FullName}.{nameof(ClassWithInheritedStaticMethodUnderTest.Passing)}", framework.Sink.TestCases[0].DisplayName);
+        }
+
         public abstract class GrandParent
         {
             [Fact]
@@ -354,6 +366,15 @@ public class XunitTestFrameworkDiscovererTests
                 Assert.False(false);
             }
         }
+
+        public abstract class BaseClassWithStaticMethodUnderTest
+        {
+            [Fact]
+            public static void Passing() { }
+        }
+
+        public class ClassWithInheritedStaticMethodUnderTest : BaseClassWithStaticMethodUnderTest
+        { }
     }
 
     public class CreateTestClass

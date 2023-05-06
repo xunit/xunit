@@ -44,6 +44,28 @@ public class XunitTestCaseTests
         Assert.Equal(42, testCase.Timeout);
     }
 
+    [Fact]
+    public void SerializesBaseStaticMethodDecoratedWithFact()
+    {
+        var diagnosticMessageSink = new Xunit.NullMessageSink();
+        var testMethod = Mocks.TestMethod(typeof(ClassWithInheritedStaticMethodUnderTest), nameof(ClassWithInheritedStaticMethodUnderTest.Passing));
+        var testCase = new XunitTestCase(diagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+
+        var serialized = SerializationHelper.Serialize(testCase);
+        var deserialized = SerializationHelper.Deserialize<IXunitTestCase>(serialized);
+
+        Assert.NotNull(deserialized);
+    }
+
+    public abstract class BaseClassWithStaticMethodUnderTest
+    {
+        [Fact]
+        public static void Passing() { }
+    }
+
+    public class ClassWithInheritedStaticMethodUnderTest : BaseClassWithStaticMethodUnderTest
+    { }
+
     public class Traits : AcceptanceTestV2
     {
         [Fact]
