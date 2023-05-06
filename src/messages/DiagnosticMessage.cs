@@ -47,5 +47,8 @@ namespace Xunit
 
         /// <inheritdoc/>
         public string Message { get; set; }
+
+        /// <inheritdoc/>
+        public override string ToString() => Message;
     }
 }

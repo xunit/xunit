@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -26,8 +26,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure" + Environment.NewLine +
-				$"Expected: {expected ?? "(null)"}" + Environment.NewLine +
-				$"Actual:   {actual ?? "(null)"}",
+				$"Expected: {expected ?? "null"}" + Environment.NewLine +
+				$"Actual:   {actual ?? "null"}",
 				ex.Message
 			);
 		}
@@ -42,11 +42,38 @@ public class EquivalenceAssertsTests
 		[InlineData(1.1f, 1.1f)]
 		[InlineData(1.1, 1.1)]
 		[InlineData(true, true)]
+		[InlineData(ConsoleKey.A, ConsoleKey.A)]
 		public void SameType_Success(
 			object? expected,
 			object? actual)
 		{
 			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DateTime_Success()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DateTime_Failure()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = new DateTime(2011, 9, 13, 18, 22, 0);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
+				"Actual:   2011-09-13T18:22:00.0000000",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -64,17 +91,9 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
-		public void SameValueFromDifferentTypes_Failure()
+		public void SameValueFromDifferentIntrinsicTypes_Success()
 		{
-			var ex = Record.Exception(() => Assert.Equivalent(12, 12L));
-
-			Assert.IsType<EquivalentException>(ex);
-			Assert.Equal(
-				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: 12 (System.Int32)" + Environment.NewLine +
-				"Actual:   12 (System.Int64)",
-				ex.Message
-			);
+			Assert.Equivalent(12, 12L);
 		}
 	}
 
@@ -107,6 +126,35 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class ValueTypes_Identical_Deep
+	{
+		[Fact]
+		public void Success()
+		{
+			var expected = new DeepStruct(new ShallowClass { Value1 = 42, Value2 = "Hello, world!" });
+			var actual = new DeepStruct(new ShallowClass { Value1 = 42, Value2 = "Hello, world!" });
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var expected = new DeepStruct(new ShallowClass { Value1 = 42, Value2 = "Hello, world!" });
+			var actual = new DeepStruct(new ShallowClass { Value1 = 13, Value2 = "Hello, world!" });
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Shallow.Value1'" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   13",
+				ex.Message
+			);
+		}
+	}
+
 	public class Strings
 	{
 		[Fact]
@@ -123,8 +171,22 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: Hello, world" + Environment.NewLine +
-				"Actual:   Hello, world!",
+				"Expected: \"Hello, world\"" + Environment.NewLine +
+				"Actual:   \"Hello, world!\"",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void NullIsNotEquivalentToEmptyString()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(null, string.Empty));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: null" + Environment.NewLine +
+				"Actual:   \"\"",
 				ex.Message
 			);
 		}
@@ -185,6 +247,15 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
+		public void Success_IgnorePrivateValue()
+		{
+			var expected = new PrivateMembersClass(1, "help");
+			var actual = new PrivateMembersClass(2, "me");
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
 		public void Failure()
 		{
 			var ex = Record.Exception(() => Assert.Equivalent(new { x = 42, y = 2600 }, new { y = 2600, x = 2112 }));
@@ -231,6 +302,26 @@ public class EquivalenceAssertsTests
 			var actual = new ShallowClass { Value1 = 42, Value2 = "Hello, world!" };
 
 			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void Success_IgnoreStaticValue()
+		{
+			try
+			{
+				ShallowClass.StaticValue = 1;
+				ShallowClass2.StaticValue = 2;
+
+				var expected = new ShallowClass();
+				var actual = new ShallowClass2();
+
+				Assert.Equivalent(expected, actual);
+			}
+			finally
+			{
+				ShallowClass.StaticValue = default;
+				ShallowClass2.StaticValue = default;
+			}
 		}
 
 		[Fact]
@@ -360,8 +451,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Mismatched value on member 'Shallow.Value2'" + Environment.NewLine +
-				"Expected: Hello, world" + Environment.NewLine +
-				"Actual:   Hello, world!",
+				"Expected: \"Hello, world\"" + Environment.NewLine +
+				"Actual:   \"Hello, world!\"",
 				ex.Message
 			);
 		}
@@ -618,8 +709,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -635,8 +726,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -673,8 +764,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -690,8 +781,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -707,8 +798,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -724,8 +815,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -762,8 +853,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -779,8 +870,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -817,8 +908,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -834,8 +925,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -851,8 +942,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
-				"Expected: { Foo = Biff }" + Environment.NewLine +
-				"In:       [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
+				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -868,8 +959,8 @@ public class EquivalenceAssertsTests
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
 				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
-				"Expected: [{ Foo = Bar }]" + Environment.NewLine +
-				"Actual:   [{ Foo = Baz }] left over from [{ Foo = Baz }, { Foo = Bar }]",
+				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
+				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
 			);
 		}
@@ -1205,16 +1296,59 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class Indexers
+	{
+		[Fact]
+		public void Equivalent()
+		{
+			var expected = new ClassWithIndexer { Value = "Hello" };
+			var actual = new ClassWithIndexer { Value = "Hello" };
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void NotEquivalent()
+		{
+			var expected = new ClassWithIndexer { Value = "Hello" };
+			var actual = new ClassWithIndexer { Value = "There" };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Value'" + Environment.NewLine +
+				"Expected: \"Hello\"" + Environment.NewLine +
+				"Actual:   \"There\"",
+				ex.Message
+			);
+		}
+	}
+
 	class ShallowClass
 	{
+		public static int StaticValue { get; set; }
 		public int Value1;
 		public string? Value2 { get; set; }
 	}
 
 	class ShallowClass2
 	{
+		public static int StaticValue { get; set; }
 		public int Value1 { get; set; }
 		public string? Value2;
+	}
+
+	class PrivateMembersClass
+	{
+		public PrivateMembersClass(int value1, string value2)
+		{
+			Value1 = value1;
+			Value2 = value2;
+		}
+
+		private readonly int Value1;
+		private string Value2 { get; }
 	}
 
 	class DeepClass
@@ -1230,6 +1364,16 @@ public class EquivalenceAssertsTests
 		public ShallowClass? Shallow;
 	}
 
+	struct DeepStruct
+	{
+		public DeepStruct(ShallowClass shallow)
+		{
+			Shallow = shallow;
+		}
+
+		public ShallowClass Shallow { get; }
+	}
+
 	class SelfReferential
 	{
 		public SelfReferential(bool circularReference)
@@ -1242,5 +1386,12 @@ public class EquivalenceAssertsTests
 		}
 
 		public SelfReferential Other { get; }
+	}
+
+	class ClassWithIndexer
+	{
+		public string? Value;
+
+		public string this[int idx] => idx.ToString();
 	}
 }

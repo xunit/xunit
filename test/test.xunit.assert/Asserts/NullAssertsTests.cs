@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Xunit;
 using Xunit.Sdk;
 
@@ -18,7 +18,7 @@ public class NullAssertsTests
 			var ex = Record.Exception(() => Assert.NotNull(null));
 
 			Assert.IsType<NotNullException>(ex);
-			Assert.Equal("Assert.NotNull() Failure", ex.Message);
+			Assert.Equal("Assert.NotNull() Failure: Value is null", ex.Message);
 		}
 	}
 
@@ -37,8 +37,8 @@ public class NullAssertsTests
 
 			Assert.IsType<NullException>(ex);
 			Assert.Equal(
-				"Assert.Null() Failure" + Environment.NewLine +
-				"Expected: (null)" + Environment.NewLine +
+				"Assert.Null() Failure: Value is not null" + Environment.NewLine +
+				"Expected: null" + Environment.NewLine +
 				"Actual:   Object { }",
 				ex.Message
 			);

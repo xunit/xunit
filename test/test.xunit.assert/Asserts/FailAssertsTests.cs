@@ -1,21 +1,23 @@
-﻿using System;
 using Xunit;
 using Xunit.Sdk;
 
 public class FailAssertsTests
 {
 	[Fact]
-	public void GuardClause()
+	public void WithoutMessage()
 	{
-		Assert.Throws<ArgumentNullException>("message", () => Assert.Fail(null!));
+		var ex = Record.Exception(() => Assert.Fail());
+
+		Assert.IsType<FailException>(ex);
+		Assert.Equal("Assert.Fail() Failure", ex.Message);
 	}
 
 	[Fact]
-	public void ThrowsFailException()
+	public void WithMessage()
 	{
 		var ex = Record.Exception(() => Assert.Fail("This is a user message"));
 
 		Assert.IsType<FailException>(ex);
-		Assert.Equal("Assert.Fail(): This is a user message", ex.Message);
+		Assert.Equal("This is a user message", ex.Message);
 	}
 }

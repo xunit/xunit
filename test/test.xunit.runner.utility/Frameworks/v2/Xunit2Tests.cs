@@ -114,7 +114,7 @@ namespace Namespace2
             }
         }
 
-        [Fact]
+        [CulturedFact]
         public void TheoryWithInlineData()
         {
             string code = @"
@@ -203,7 +203,7 @@ let CustomName() =
             }
         }
 
-        [Fact]
+        [CulturedFact]
         public void TheoryWithInlineData()
         {
             string code = @"

@@ -1,6 +1,8 @@
-﻿#if XUNIT_SPAN
+#if XUNIT_SPAN
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -8,636 +10,937 @@ public class SpanAssertsTests
 {
 	public class Contains
 	{
-		[Fact]
-		public void CanSearchForReadOnlySpanSubstrings()
+		public class Strings
 		{
-			Assert.Contains("wor".AsSpan(), "Hello, world!".AsSpan());
+			[Fact]
+			public void ReadOnlySpan_Success()
+			{
+				Assert.Contains("wor".AsSpan(), "Hello, world!".AsSpan());
+			}
+
+			[Fact]
+			public void ReadWriteSpan_Success()
+			{
+				Assert.Contains("wor".Spanify(), "Hello, world!".Spanify());
+			}
+
+			[Fact]
+			public void ReadOnlySpan_CaseSensitiveByDefault()
+			{
+				var ex = Record.Exception(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    \"Hello, world!\"" + Environment.NewLine +
+					"Not found: \"WORLD\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_CaseSensitiveByDefault()
+			{
+				var ex = Record.Exception(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    \"Hello, world!\"" + Environment.NewLine +
+					"Not found: \"WORLD\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_CanSpecifyComparisonType()
+			{
+				Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_CanSpecifyComparisonType()
+			{
+				Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_NullStringIsEmpty()
+			{
+				var ex = Record.Exception(() => Assert.Contains("foo".AsSpan(), default(string).AsSpan()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    \"\"" + Environment.NewLine +
+					"Not found: \"foo\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_NullStringIsEmpty()
+			{
+				var ex = Record.Exception(() => Assert.Contains("foo".Spanify(), default(string).Spanify()));
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    \"\"" + Environment.NewLine +
+					"Not found: \"foo\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongStrings()
+			{
+				var ex = Record.Exception(
+					() => Assert.Contains(
+						"We are looking for something very long as well".Spanify(),
+						"This is a relatively long string so that we can see the truncation in action".Spanify()
+					)
+				);
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					$"String:    \"This is a relatively long string so that \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					$"Not found: \"We are looking for something very long as\"{ArgumentFormatter.Ellipsis}",
+					ex.Message
+				);
+			}
 		}
 
-		[Fact]
-		public void CanSearchForSpanSubstrings()
+		public class NonStrings
 		{
-			Assert.Contains("wor".Spanify(), "Hello, world!".Spanify());
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Success()
+			{
+				Assert.Contains(new int[] { 3, 4 }.AsSpan(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsSpan());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyContainsIsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan()));
+			[Fact]
+			public void ReadOnlySpanOfStrings_Success()
+			{
+				Assert.Contains(new string[] { "test", "it" }.AsSpan(), new string[] { "something", "interesting", "test", "it", "out" }.AsSpan());
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Success()
+			{
+				Assert.Contains(new int[] { 3, 4 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
+			}
 
-		[Fact]
-		public void SubstringSpanContainsIsCaseSensitiveByDefault()
-		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify()));
+			[Fact]
+			public void ReadWriteSpanOfStrings_Success()
+			{
+				Assert.Contains(new string[] { "test", "it" }.Spanify(), new string[] { "something", "interesting", "test", "it", "out" }.Spanify());
+			}
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure" + Environment.NewLine +
-				"Not found: WORLD" + Environment.NewLine +
-				"In value:  Hello, world!",
-				ex.Message
-			);
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.AsSpan(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsSpan()));
 
-		[Fact]
-		public void SubstringReadOnlyNotFound()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey".AsSpan(), "Hello, world!".AsSpan()));
-		}
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-span not found" + Environment.NewLine +
+					$"Span:      [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					"Not found: [13, 14]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SubstringSpanNotFound()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("hey".Spanify(), "Hello, world!".Spanify()));
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 13, 14 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
 
-		[Fact]
-		public void NullActualReadOnlyIntThrows()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains("foo".AsSpan(), ((string?)null).AsSpan()));
-		}
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-span not found" + Environment.NewLine +
+					$"Span:      [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					"Not found: [13, 14]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SuccessWithIntReadOnly()
-		{
-			Assert.Contains(new int[] { 3, 4, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify());
-		}
+			[Fact]
+			public void FindingNonEmptySpanInsideEmptySpanFails()
+			{
+				var ex = Record.Exception(() => Assert.Contains(new int[] { 3, 4 }.Spanify(), Span<int>.Empty));
 
-		[Fact]
-		public void SuccessWithStringReadOnly()
-		{
-			Assert.Contains(new string[] { "test", "it", }.RoSpanify(), new string[] { "something", "interesting", "test", "it", "out", }.RoSpanify());
-		}
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-span not found" + Environment.NewLine +
+					"Span:      []" + Environment.NewLine +
+					"Not found: [3, 4]",
+					ex.Message
+				);
+			}
 
-		[Fact]
-		public void SuccessWithIntSpan()
-		{
-			Assert.Contains(new int[] { 3, 4, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
-		}
-
-		[Fact]
-		public void NotFoundWithIntReadOnly()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify()));
-		}
-
-		[Fact]
-		public void NotFoundWithNonStringSpan()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 13, 14, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
-		}
-
-		[Fact]
-		public void FindingNonEmptySpanInsideEmptySpanFails()
-		{
-			Assert.Throws<ContainsException>(() => Assert.Contains(new int[] { 3, 4, }.Spanify(), Span<int>.Empty));
-		}
-
-		[Fact]
-		public void FindingEmptySpanInsideAnySpanSucceeds()
-		{
-			Assert.Contains(Span<int>.Empty, new int[] { 3, 4, }.Spanify());
-			Assert.Contains(Span<int>.Empty, Span<int>.Empty);
-		}
-	}
-
-	public class Contains_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForReadOnlySubstringsCaseInsensitive()
-		{
-			Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void CanSearchForSpanSubstringsCaseInsensitive()
-		{
-			Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			[Fact]
+			public void FindingEmptySpanInsideAnySpanSucceeds()
+			{
+				Assert.Contains(Span<int>.Empty, new int[] { 3, 4 }.Spanify());
+				Assert.Contains(Span<int>.Empty, Span<int>.Empty);
+			}
 		}
 	}
 
 	public class DoesNotContain
 	{
-		[Fact]
-		public void CanSearchForReadOnlySubstrings()
+		public class Strings
 		{
-			Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".AsSpan());
-		}
+			[Fact]
+			public void ReadOnlySpan_Success()
+			{
+				Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".AsSpan());
+			}
 
-		[Fact]
-		public void CanSearchForSpanSubstrings()
-		{
-			Assert.DoesNotContain("hey".Spanify(), "Hello, world!".Spanify());
-		}
+			[Fact]
+			public void ReadWriteSpan_Success()
+			{
+				Assert.DoesNotContain("hey".Spanify(), "Hello, world!".Spanify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyDoesNotContainIsCaseSensitiveByDefault()
-		{
-			Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan());
-		}
+			[Fact]
+			public void ReadOnlySpan_CaseSensitiveByDefault()
+			{
+				Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan());
+			}
 
-		[Fact]
-		public void SubstringSpanDoesNotContainIsCaseSensitiveByDefault()
-		{
-			Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify());
-		}
+			[Fact]
+			public void ReadWriteSpan_CaseSensitiveByDefault()
+			{
+				Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify());
+			}
 
-		[Fact]
-		public void SubstringReadOnlyFound()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".AsSpan()));
-		}
+			[Fact]
+			public void ReadOnlySpan_CanSpecifyComparisonType()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
 
-		[Fact]
-		public void SubstringSpanFound()
-		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
-
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure" + Environment.NewLine +
-				"Found:    world" + Environment.NewLine +
-				"In value: Hello, world!",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void NullActualStringReadOnlyDoesNotThrow()
-		{
-			Assert.DoesNotContain("foo".AsSpan(), ((string?)null).AsSpan());
-		}
-
-		[Fact]
-		public void SuccessWithNonStringReadOnly()
-		{
-			Assert.DoesNotContain(new int[] { 13, 14, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify());
-		}
-
-		[Fact]
-		public void SuccessWithNonStringSpan()
-		{
-			Assert.DoesNotContain(new int[] { 13, 14, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
-		}
-
-		[Fact]
-		public void NotFoundWithNonStringReadOnly()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.RoSpanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.RoSpanify()));
-		}
-
-		[Fact]
-		public void NotFoundWithNonStringSpan()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new int[] { 3, 4, }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
-		}
-
-		[Fact]
-		public void FindingNonEmptySpanInsideEmptySpanSucceeds()
-		{
-			Assert.DoesNotContain(new int[] { 3, 4, }.Spanify(), Span<int>.Empty);
-		}
-
-		[Fact]
-		public void FindingEmptySpanInsideAnySpanFails()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(Span<int>.Empty, new int[] { 3, 4, }.Spanify()));
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(Span<int>.Empty, Span<int>.Empty));
-		}
-	}
-
-	public class DoesNotContain_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsReadOnlyCaseInsensitive()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
-		}
-
-		[Fact]
-		public void CanSearchForSubstringsSpanCaseInsensitive()
-		{
-			Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
-		}
-	}
-
-	public class Equal
-	{
-		[Theory]
-		// Null values
-		[InlineData(null, null, false, false, false)]
-		// Null ReadOnlySpan<char> acts like an empty string
-		[InlineData(null, "", false, false, false)]
-		[InlineData("", null, false, false, false)]
-		// Empty values
-		[InlineData("", "", false, false, false)]
-		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
-		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
-		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
-		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
-		public void SuccessReadOnlyCases(string? value1, string? value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.AsSpan(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2.AsSpan(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-		}
-
-		[Theory]
-		// Identical values
-		[InlineData("foo", "foo", false, false, false)]
-		// Case differences
-		[InlineData("foo", "FoO", true, false, false)]
-		// Line ending differences
-		[InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
-		[InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
-		[InlineData("foo \n bar", "foo \r bar", false, true, false)]
-		// Whitespace differences
-		[InlineData(" ", "\t", false, false, true)]
-		[InlineData(" \t", "\t ", false, false, true)]
-		[InlineData("    ", "\t", false, false, true)]
-		public void SuccessSpanCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Spanify(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-			Assert.Equal(value2.Spanify(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
-		}
-
-		[Theory]
-		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
-		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
-		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
-		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureReadOnlyCases(string? expected, string? actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.AsSpan(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
-			);
-
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
-
-		[Theory]
-		// Non-identical values
-		[InlineData("foo", "foo!", false, false, false, 3, 3)]
-		[InlineData("foo", "foo\0", false, false, false, 3, 3)]
-		// Case differences
-		[InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
-		// Line ending differences
-		[InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
-		// Whitespace differences
-		[InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
-		public void FailureSpanCases(string expected, string actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.Spanify(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
-			);
-
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
-
-		[Fact]
-		public void StringMessageFormatting()
-		{
-			var ex = Record.Exception(() =>
+				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
-					"Why hello there world, you're a long string with some truncation!".Spanify(),
-					"Why hello there world! You're a long string!".Spanify()
-				)
-			);
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"WORLD\"",
+					ex.Message
+				);
+			}
 
-			Assert.IsType<EqualException>(ex);
-			Assert.Equal(
-				"Assert.Equal() Failure" + Environment.NewLine +
-				"                                 ↓ (pos 21)" + Environment.NewLine +
-				"Expected: ···hy hello there world, you're a long string with some truncati···" + Environment.NewLine +
-				"Actual:   ···hy hello there world! You're a long string!" + Environment.NewLine +
-				"                                 ↑ (pos 21)",
-				ex.Message
-			);
+			[Fact]
+			public void ReadWriteSpan_CanSpecifyComparisonType()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"WORLD\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadWriteSpan_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ReadOnlySpan_NullStringIsEmpty()
+			{
+				Assert.DoesNotContain("foo".AsSpan(), default(string).AsSpan());
+			}
+
+			[Fact]
+			public void ReadWriteSpan_NullStringIsEmpty()
+			{
+				Assert.DoesNotContain("foo".Spanify(), default(string).AsSpan());
+			}
+
+			[Fact]
+			public void VeryLongString_FoundAtFront()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world from a very long string that will end up being truncated".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					$"String: \"Hello, world from a very long string that\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongString_FoundInMiddle()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                                ↓ (pos 50)" + Environment.NewLine +
+					$"String: {ArgumentFormatter.Ellipsis}\"ng that has 'Hello, world' placed in the \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void VeryLongString_FoundAtEnd()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsSpan()));
+
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                                               ↓ (pos 89)" + Environment.NewLine +
+					$"String: {ArgumentFormatter.Ellipsis}\"ont truncated, just to say 'Hello, world'\"" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
 		}
 
-		[Theory]
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new int[] { })] // Null ReadOnlySpan<int> acts like an empty array
-		[InlineData(new int[] { }, null)]
-		// Identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 })]
-		public void SuccessReadOnlyCasesInt(int[]? value1, int[]? value2)
+		public class NonStrings
 		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.RoSpanify(), value2.RoSpanify());
-			Assert.Equal(value2.RoSpanify(), value1.RoSpanify());
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Success()
+			{
+				Assert.DoesNotContain(new int[] { 13, 14 }.AsSpan(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsSpan());
+			}
 
-		[Theory]
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new int[] { })] // Null Span<int> acts like an empty array
-		[InlineData(new int[] { }, null)]
-		// Identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 })]
-		public void SuccessSpanCasesInt(int[]? value1, int[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Spanify(), value2.Spanify());
-			Assert.Equal(value2.Spanify(), value1.Spanify());
-		}
+			[Fact]
+			public void ReadOnlySpanOfStrings_Success()
+			{
+				Assert.DoesNotContain(new string[] { "it", "test" }.AsSpan(), new string[] { "something", "interesting", "test", "it", "out" }.AsSpan());
+			}
 
-		[Theory]
-		// Non-identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3, 4 }, 3, 3)]
-		[InlineData(new int[] { 0, 1, 2, 3 }, new int[] { 1, 2, 3 }, 0, 0)]
-		public void FailureReadOnlyCasesInt(int[]? expected, int[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.RoSpanify(), actual.RoSpanify())
-			);
+			[Fact]
+			public void ReadWriteSpanOfInts_Success()
+			{
+				Assert.DoesNotContain(new int[] { 13, 14 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify());
+			}
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
+			[Fact]
+			public void ReadWriteSpanOfStrings_Success()
+			{
+				Assert.DoesNotContain(new string[] { "it", "test" }.Spanify(), new string[] { "something", "interesting", "test", "it", "out" }.Spanify());
+			}
 
-		[Theory]
-		// Non-identical values
-		[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3, 4 }, 3, 3)]
-		[InlineData(new int[] { 0, 1, 2, 3 }, new int[] { 1, 2, 3 }, 0, 0)]
-		public void FailureSpanCasesInt(int[]? expected, int[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.Spanify(), actual.Spanify())
-			);
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
+			[Fact]
+			public void ReadOnlySpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.AsSpan(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.AsSpan()));
 
-		[Theory]
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new string[] { })] // Null ReadOnlySpan<string> acts like an empty array
-		[InlineData(new string[] { }, null)]
-		// Identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe" })]
-		public void SuccessReadOnlyCasesString(string[]? value1, string[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.RoSpanify(), value2.RoSpanify());
-			Assert.Equal(value2.RoSpanify(), value1.RoSpanify());
-		}
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
+					"              ↓ (pos 2)" + Environment.NewLine +
+					$"Span:  [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					"Found: [3, 4]",
+					ex.Message
+				);
+			}
 
-		// Null values
-		[InlineData(null, null)]
-		[InlineData(null, new string[] { })] // Null Span<string> acts like an empty array
-		[InlineData(new string[] { }, null)]
-		// Identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe" })]
-		public void SuccessSpanCasesString(string[]? value1, string[]? value2)
-		{
-			// Run them in both directions, as the values should be interchangeable when they're equal
-			Assert.Equal(value1.Spanify(), value2.Spanify());
-			Assert.Equal(value2.Spanify(), value1.Spanify());
-		}
+			[Fact]
+			public void ReadWriteSpanOfInts_Failure()
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(new int[] { 3, 4 }.Spanify(), new int[] { 1, 2, 3, 4, 5, 6, 7 }.Spanify()));
 
-		[Theory]
-		// Non-identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 3, 3)]
-		[InlineData(new string[] { "so", "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 0, 0)]
-		public void FailureReadOnlyCasesString(string[]? expected, string[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.RoSpanify(), actual.RoSpanify())
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
+					"              ↓ (pos 2)" + Environment.NewLine +
+					$"Span:  [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					"Found: [3, 4]",
+					ex.Message
+				);
+			}
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
+			[Fact]
+			public void FindingNonEmptySpanInsideEmptySpanSucceeds()
+			{
+				Assert.DoesNotContain(new int[] { 3, 4 }.Spanify(), Span<int>.Empty);
+			}
 
-		[Theory]
-		// Non-identical values
-		[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 3, 3)]
-		[InlineData(new string[] { "so", "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe", "so" }, 0, 0)]
-		public void FailureSpanCasesString(string[]? expected, string[]? actual, int expectedIndex, int actualIndex)
-		{
-			var ex = Record.Exception(
-				() => Assert.Equal(expected.Spanify(), actual.Spanify())
-			);
+			[Theory]
+			[InlineData(new[] { 3, 4 })]
+			[InlineData(new int[0])]
+			public void FindingEmptySpanInsideAnySpanFails(IEnumerable<int> data)
+			{
+				var ex = Record.Exception(() => Assert.DoesNotContain(Span<int>.Empty, data.ToArray().Spanify()));
 
-			var eqEx = Assert.IsType<EqualException>(ex);
-			Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
-			Assert.Equal(actualIndex, eqEx.ActualIndex);
-		}
-	}
-
-	public class StartsWith
-	{
-		[Fact]
-		public void SuccessReadOnly()
-		{
-			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".AsSpan());
-		}
-
-		[Fact]
-		public void SuccessSpan()
-		{
-			Assert.StartsWith("Hello".Spanify(), "Hello, world!".Spanify());
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefaultReadOnly()
-		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO".AsSpan(), "Hello".AsSpan()));
-
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void IsCaseSensitiveByDefaultSpan()
-		{
-			var ex = Record.Exception(() => Assert.StartsWith("HELLO".Spanify(), "Hello".Spanify()));
-
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure:" + Environment.NewLine +
-				"Expected: HELLO" + Environment.NewLine +
-				"Actual:   Hello",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void NotFoundReadOnly()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
-		}
-
-
-		[Fact]
-		public void NotFoundSpan()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".Spanify()));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsReadOnly()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo".AsSpan(), null));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsSpan()
-		{
-			Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo".Spanify(), null));
-		}
-	}
-
-	public class StartsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveReadOnly()
-		{
-			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-		}
-
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveSpan()
-		{
-			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-span found" + Environment.NewLine +
+					(data.Any() ? "        ↓ (pos 0)" + Environment.NewLine : "") +
+					"Span:  " + CollectionTracker<int>.FormatStart(data) + Environment.NewLine +
+					"Found: []",
+					ex.Message
+				);
+			}
 		}
 	}
 
 	public class EndsWith
 	{
 		[Fact]
-		public void SuccessReadOnly()
+		public void Success()
 		{
 			Assert.EndsWith("world!".AsSpan(), "Hello, world!".AsSpan());
-		}
-
-		[Fact]
-		public void SuccessSpan()
-		{
+			Assert.EndsWith("world!".AsSpan(), "Hello, world!".Spanify());
+			Assert.EndsWith("world!".Spanify(), "Hello, world!".AsSpan());
 			Assert.EndsWith("world!".Spanify(), "Hello, world!".Spanify());
 		}
 
 		[Fact]
-		public void IsCaseSensitiveByDefaultReadOnly()
+		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"Hello, world!\"" + Environment.NewLine +
+					"Expected end: \"hey\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".Spanify()));
+			assertFailure(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
 		}
 
 		[Fact]
-		public void IsCaseSensitiveByDefaultSpan()
+		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure:" + Environment.NewLine +
-				"Expected: WORLD!" + Environment.NewLine +
-				"Actual:   world!",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"world!\"" + Environment.NewLine +
+					"Expected end: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".Spanify()));
+			assertFailure(() => Assert.EndsWith("WORLD!".Spanify(), "world!".AsSpan()));
+			assertFailure(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
 		}
 
 		[Fact]
-		public void NotFoundReadOnly()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
-		}
-
-		[Fact]
-		public void NotFoundSpan()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsReadOnly()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo".AsSpan(), null));
-		}
-
-		[Fact]
-		public void NullActualStringThrowsSpan()
-		{
-			Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo".Spanify(), null));
-		}
-	}
-
-	public class EndsWith_WithComparisonType
-	{
-		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveReadOnly()
+		public void CanSpecifyComparisonType()
 		{
 			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 		}
 
 		[Fact]
-		public void CanSearchForSubstringsCaseInsensitiveSpan()
+		public void NullStringIsEmpty()
 		{
-			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"\"" + Environment.NewLine +
+					"Expected end: \"foo\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith("foo".AsSpan(), null));
+			assertFailure(() => Assert.EndsWith("foo".Spanify(), null));
+		}
+
+		[Fact]
+		public void Truncation()
+		{
+			var expected = "This is a long string that we're looking for at the end";
+			var actual = "This is the long string that we expected to find this ending inside";
+
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       " + ArgumentFormatter.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
+					"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.EndsWith(expected.AsSpan(), actual.AsSpan()));
+			assertFailure(() => Assert.EndsWith(expected.AsSpan(), actual.Spanify()));
+			assertFailure(() => Assert.EndsWith(expected.Spanify(), actual.AsSpan()));
+			assertFailure(() => Assert.EndsWith(expected.Spanify(), actual.Spanify()));
 		}
 	}
-}
 
-public static class SpanTestHelpers
-{
-	public static Span<T> Spanify<T>(this T[]? values)
+	public class Equal
 	{
-		return new Span<T>(values);
+		public class Chars_TreatedLikeStrings
+		{
+			[Theory]
+			// Null values
+			[InlineData(null, null, false, false, false, false)]
+			// Null ReadOnlySpan<char> acts like an empty string
+			[InlineData(null, "", false, false, false, false)]
+			[InlineData("", null, false, false, false, false)]
+			// Empty values
+			[InlineData("", "", false, false, false, false)]
+			// Identical values
+			[InlineData("foo", "foo", false, false, false, false)]
+			// Case differences
+			[InlineData("foo", "FoO", true, false, false, false)]
+			// Line ending differences
+			[InlineData("foo \r\n bar", "foo \r bar", false, true, false, false)]
+			[InlineData("foo \r\n bar", "foo \n bar", false, true, false, false)]
+			[InlineData("foo \n bar", "foo \r bar", false, true, false, false)]
+			// Whitespace differences
+			[InlineData(" ", "\t", false, false, true, false)]
+			[InlineData(" \t", "\t ", false, false, true, false)]
+			[InlineData("    ", "\t", false, false, true, false)]
+			[InlineData(" ", " \u180E", false, false, true, false)]
+			[InlineData(" \u180E", "\u180E ", false, false, true, false)]
+			[InlineData("    ", "\u180E", false, false, true, false)]
+			[InlineData(" ", " \u200B", false, false, true, false)]
+			[InlineData(" \u200B", "\u200B ", false, false, true, false)]
+			[InlineData("    ", "\u200B", false, false, true, false)]
+			[InlineData(" ", " \u200B\uFEFF", false, false, true, false)]
+			[InlineData(" \u180E", "\u200B\u202F\u1680\u180E ", false, false, true, false)]
+			[InlineData("\u2001\u2002\u2003\u2006\u2009    ", "\u200B", false, false, true, false)]
+			[InlineData("\u00A0\u200A\u2009\u2006\u2009    ", "\u200B", false, false, true, false)]
+			// The ogham space mark (\u1680) kind of looks like a faint dash, but Microsoft has put it
+			// inside the SpaceSeparator unicode category, so we also treat it as a space
+			[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true, false)]
+			[InlineData("\u1680", "\t", false, false, true, false)]
+			[InlineData("\u1680", "       ", false, false, true, false)]
+			// All whitespace differences
+			[InlineData("", "  ", false, false, false, true)]
+			[InlineData("", "  ", false, false, true, true)]
+			[InlineData("", "\t", false, false, true, true)]
+			[InlineData("foobar", "foo bar", false, false, true, true)]
+			public void Success(
+				string? value1,
+				string? value2,
+				bool ignoreCase,
+				bool ignoreLineEndingDifferences,
+				bool ignoreWhiteSpaceDifferences,
+				bool ignoreAllWhiteSpace)
+			{
+				// Run them in both directions, as the values should be interchangeable when they're equal
+
+				// ReadOnlySpan vs. ReadOnlySpan
+				Assert.Equal(value1.AsSpan(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.AsSpan(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+
+				// ReadOnlySpan vs. Span
+				Assert.Equal(value1.AsSpan(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.AsSpan(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+
+				// Span vs. ReadOnlySpan
+				Assert.Equal(value1.Spanify(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.Spanify(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+
+				// Span vs. Span
+				Assert.Equal(value1.Spanify(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+				Assert.Equal(value2.Spanify(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			}
+
+			[Theory]
+			// Non-identical values
+			[InlineData("foo", "foo!", false, false, false, false, null, "   ↑ (pos 3)")]
+			[InlineData("foo\0", "foo\0\0", false, false, false, false, null, "     ↑ (pos 4)")]
+			// Overruns
+			[InlineData("first test", "first test 1", false, false, false, false, null, "          ↑ (pos 10)")]
+			[InlineData("first test 1", "first test", false, false, false, false, "          ↓ (pos 10)", null)]
+			// Case differences
+			[InlineData("Foobar", "foo bar", true, false, false, false, "   ↓ (pos 3)", "   ↑ (pos 3)")]
+			// Line ending differences
+			[InlineData("foo\nbar", "foo\rBar", false, true, false, false, "     ↓ (pos 4)", "     ↑ (pos 4)")]
+			// Non-zero whitespace quantity differences
+			[InlineData("foo bar", "foo  Bar", false, false, true, false, "    ↓ (pos 4)", "     ↑ (pos 5)")]
+			// Ignore all white space differences
+			[InlineData("foobar", "foo Bar", false, false, false, true, "   ↓ (pos 3)", "    ↑ (pos 4)")]
+			public void Failure(
+				string expected,
+				string actual,
+				bool ignoreCase,
+				bool ignoreLineEndingDifferences,
+				bool ignoreWhiteSpaceDifferences,
+				bool ignoreAllWhiteSpace,
+				string? expectedPointer,
+				string? actualPointer)
+			{
+				var message = "Assert.Equal() Failure: Strings differ";
+
+				if (expectedPointer != null)
+					message += Environment.NewLine + "           " + expectedPointer;
+
+				message +=
+					Environment.NewLine + "Expected: " + ArgumentFormatter.Format(expected) +
+					Environment.NewLine + "Actual:   " + ArgumentFormatter.Format(actual);
+
+				if (actualPointer != null)
+					message += Environment.NewLine + "           " + actualPointer;
+
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						message,
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(expected.AsSpan(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				assertFailure(() => Assert.Equal(expected.Spanify(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				assertFailure(() => Assert.Equal(expected.AsSpan(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				assertFailure(() => Assert.Equal(expected.Spanify(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+			}
+
+			[Fact]
+			public void Truncation()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+						"                                  ↓ (pos 21)" + Environment.NewLine +
+						$"Expected: {ArgumentFormatter.Ellipsis}\"hy hello there world, you're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+						$"Actual:   {ArgumentFormatter.Ellipsis}\"hy hello there world! You're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+						"                                  ↑ (pos 21)",
+						ex.Message
+					);
+				}
+
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".AsSpan(),
+						"Why hello there world! You're a long string!".AsSpan()
+					)
+				);
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".AsSpan(),
+						"Why hello there world! You're a long string!".Spanify()
+					)
+				);
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".Spanify(),
+						"Why hello there world! You're a long string!".AsSpan()
+					)
+				);
+				assertFailure(
+					() => Assert.Equal(
+						"Why hello there world, you're a long string with some truncation!".Spanify(),
+						"Why hello there world! You're a long string!".Spanify()
+					)
+				);
+			}
+		}
+
+		public class Ints
+		{
+			[Theory]
+			// Null values
+			[InlineData(null, null)]
+			[InlineData(null, new int[] { })] // Null ReadOnlySpan<int> acts like an empty array
+			[InlineData(new int[] { }, null)]
+			// Identical values
+			[InlineData(new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 })]
+			public void Success(
+				int[]? value1,
+				int[]? value2)
+			{
+				// Run them in both directions, as the values should be interchangeable when they're equal
+
+				// ReadOnlySpan vs. ReadOnlySpan
+				Assert.Equal(value1.AsSpan(), value2.AsSpan());
+				Assert.Equal(value2.AsSpan(), value1.AsSpan());
+
+				// ReadOnlySpan vs. Span
+				Assert.Equal(value1.AsSpan(), value2.Spanify());
+				Assert.Equal(value2.AsSpan(), value1.Spanify());
+
+				// Span vs. ReadOnlySpan
+				Assert.Equal(value1.Spanify(), value2.AsSpan());
+				Assert.Equal(value2.Spanify(), value1.AsSpan());
+
+				// Span vs. Span
+				Assert.Equal(value1.Spanify(), value2.Spanify());
+				Assert.Equal(value2.Spanify(), value1.Spanify());
+			}
+
+			[Fact]
+			public void Failure_MidCollection()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"              ↓ (pos 1)" + Environment.NewLine +
+						"Expected: [1, 0, 2, 3]" + Environment.NewLine +
+						"Actual:   [1, 2, 3]" + Environment.NewLine +
+						"              ↑ (pos 1)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.AsSpan(), new int[] { 1, 2, 3 }.AsSpan()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.AsSpan(), new int[] { 1, 2, 3 }.Spanify()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.Spanify(), new int[] { 1, 2, 3 }.AsSpan()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 0, 2, 3 }.Spanify(), new int[] { 1, 2, 3 }.Spanify()));
+			}
+
+			[Fact]
+			public void Failure_BeyondEnd()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"Expected: [1, 2, 3]" + Environment.NewLine +
+						"Actual:   [1, 2, 3, 4]" + Environment.NewLine +
+						"                    ↑ (pos 3)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.AsSpan(), new int[] { 1, 2, 3, 4 }.AsSpan()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.AsSpan(), new int[] { 1, 2, 3, 4 }.Spanify()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.Spanify(), new int[] { 1, 2, 3, 4 }.AsSpan()));
+				assertFailure(() => Assert.Equal(new int[] { 1, 2, 3 }.Spanify(), new int[] { 1, 2, 3, 4 }.Spanify()));
+			}
+		}
+
+		public class Strings
+		{
+			[Theory]
+			// Null values
+			[InlineData(null, null)]
+			[InlineData(null, new string[] { })] // Null ReadOnlyMemory<string> acts like an empty array
+			[InlineData(new string[] { }, null)]
+			// Identical values
+			[InlineData(new string[] { "yes", "no", "maybe" }, new string[] { "yes", "no", "maybe" })]
+			public void Success(
+				string[]? value1,
+				string[]? value2)
+			{
+				// Run them in both directions, as the values should be interchangeable when they're equal
+
+				// ReadOnlyMemory vs. ReadOnlyMemory
+				Assert.Equal(value1.AsSpan(), value2.AsSpan());
+				Assert.Equal(value2.AsSpan(), value1.AsSpan());
+
+				// ReadOnlyMemory vs. Memory
+				Assert.Equal(value1.AsSpan(), value2.Spanify());
+				Assert.Equal(value2.AsSpan(), value1.Spanify());
+
+				// Memory vs. ReadOnlyMemory
+				Assert.Equal(value1.Spanify(), value2.AsSpan());
+				Assert.Equal(value2.Spanify(), value1.AsSpan());
+
+				// Memory vs. Memory
+				Assert.Equal(value1.Spanify(), value2.Spanify());
+				Assert.Equal(value2.Spanify(), value1.Spanify());
+			}
+
+			[Fact]
+			public void Failure()
+			{
+				void assertFailure(Action action)
+				{
+					var ex = Record.Exception(action);
+
+					Assert.IsType<EqualException>(ex);
+					Assert.Equal(
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"Expected: [\"yes\", \"no\", \"maybe\"]" + Environment.NewLine +
+						"Actual:   [\"yes\", \"no\", \"maybe\", \"so\"]" + Environment.NewLine +
+						"                                 ↑ (pos 3)",
+						ex.Message
+					);
+				}
+
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.AsSpan(), new string[] { "yes", "no", "maybe", "so" }.AsSpan()));
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.AsSpan(), new string[] { "yes", "no", "maybe", "so" }.Spanify()));
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.Spanify(), new string[] { "yes", "no", "maybe", "so" }.AsSpan()));
+				assertFailure(() => Assert.Equal(new string[] { "yes", "no", "maybe" }.Spanify(), new string[] { "yes", "no", "maybe", "so" }.Spanify()));
+			}
+		}
 	}
 
-	public static ReadOnlySpan<T> RoSpanify<T>(this T[]? values)
+	public class StartsWith
 	{
-		return new ReadOnlySpan<T>(values);
-	}
+		[Fact]
+		public void Success()
+		{
+			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".AsSpan());
+			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".Spanify());
+			Assert.StartsWith("Hello".Spanify(), "Hello, world!".AsSpan());
+			Assert.StartsWith("Hello".Spanify(), "Hello, world!".Spanify());
+		}
 
-	public static Span<char> Spanify(this string? value)
-	{
-		return new Span<char>((value ?? string.Empty).ToCharArray());
+		[Fact]
+		public void Failure()
+		{
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"Hello, world!\"" + Environment.NewLine +
+					"Expected start: \"hey\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".Spanify()));
+			assertFailure(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".Spanify()));
+		}
+
+		[Fact]
+		public void CaseSensitiveByDefault()
+		{
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"world!\"" + Environment.NewLine +
+					"Expected start: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".Spanify()));
+			assertFailure(() => Assert.StartsWith("WORLD!".Spanify(), "world!".AsSpan()));
+			assertFailure(() => Assert.StartsWith("WORLD!".Spanify(), "world!".Spanify()));
+		}
+
+		[Fact]
+		public void CanSpecifyComparisonType()
+		{
+			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+		}
+
+		[Fact]
+		public void NullStringIsEmpty()
+		{
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"\"" + Environment.NewLine +
+					"Expected start: \"foo\"",
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith("foo".AsSpan(), null));
+			assertFailure(() => Assert.StartsWith("foo".Spanify(), null));
+		}
+
+		[Fact]
+		public void Truncation()
+		{
+			var expected = "This is a long string that we're looking for at the start";
+			var actual = "This is the long string that we expected to find this starting inside";
+
+			void assertFailure(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"This is the long string that we expected \"" + ArgumentFormatter.Ellipsis + Environment.NewLine +
+					"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
+					ex.Message
+				);
+			}
+
+			assertFailure(() => Assert.StartsWith(expected.AsSpan(), actual.AsSpan()));
+			assertFailure(() => Assert.StartsWith(expected.AsSpan(), actual.Spanify()));
+			assertFailure(() => Assert.StartsWith(expected.Spanify(), actual.AsSpan()));
+			assertFailure(() => Assert.StartsWith(expected.Spanify(), actual.Spanify()));
+		}
 	}
 }
 

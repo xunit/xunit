@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Xunit;
 using Xunit.Sdk;
 
@@ -35,7 +35,7 @@ public class BooleanAssertsTests
 			Assert.Equal(
 				"Assert.False() Failure" + Environment.NewLine +
 				"Expected: False" + Environment.NewLine +
-				"Actual:   (null)",
+				"Actual:   null",
 				ex.Message
 			);
 		}
@@ -46,12 +46,7 @@ public class BooleanAssertsTests
 			var ex = Record.Exception(() => Assert.False(true, "Custom User Message"));
 
 			Assert.NotNull(ex);
-			Assert.Equal(
-				"Custom User Message" + Environment.NewLine +
-				"Expected: False" + Environment.NewLine +
-				"Actual:   True",
-				ex.Message
-			);
+			Assert.Equal("Custom User Message", ex.Message);
 		}
 	}
 
@@ -86,7 +81,7 @@ public class BooleanAssertsTests
 			Assert.Equal(
 				"Assert.True() Failure" + Environment.NewLine +
 				"Expected: True" + Environment.NewLine +
-				"Actual:   (null)",
+				"Actual:   null",
 				ex.Message
 			);
 		}
@@ -97,12 +92,7 @@ public class BooleanAssertsTests
 			var ex = Record.Exception(() => Assert.True(false, "Custom User Message"));
 
 			Assert.NotNull(ex);
-			Assert.Equal(
-				"Custom User Message" + Environment.NewLine +
-				"Expected: True" + Environment.NewLine +
-				"Actual:   False",
-				ex.Message
-			);
+			Assert.Equal("Custom User Message", ex.Message);
 		}
 	}
 }

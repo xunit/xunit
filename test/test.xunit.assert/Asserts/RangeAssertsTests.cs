@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
@@ -6,10 +7,18 @@ public class RangeAssertsTests
 {
 	public class InRange
 	{
-		[Fact]
+		[CulturedFact]
 		public void DoubleNotWithinRange()
 		{
-			Assert.Throws<InRangeException>(() => Assert.InRange(1.50, .75, 1.25));
+			var ex = Record.Exception(() => Assert.InRange(1.50, .75, 1.25));
+
+			Assert.IsType<InRangeException>(ex);
+			Assert.Equal(
+				"Assert.InRange() Failure: Value not in range" + Environment.NewLine +
+				$"Range:  ({0.75:G17} - {1.25:G17})" + Environment.NewLine +
+				$"Actual: {1.5:G17}",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -21,13 +30,29 @@ public class RangeAssertsTests
 		[Fact]
 		public void IntNotWithinRangeWithZeroActual()
 		{
-			Assert.Throws<InRangeException>(() => Assert.InRange(0, 1, 2));
+			var ex = Record.Exception(() => Assert.InRange(0, 1, 2));
+
+			Assert.IsType<InRangeException>(ex);
+			Assert.Equal(
+				"Assert.InRange() Failure: Value not in range" + Environment.NewLine +
+				"Range:  (1 - 2)" + Environment.NewLine +
+				"Actual: 0",
+				ex.Message
+			);
 		}
 
 		[Fact]
 		public void IntNotWithinRangeWithZeroMinimum()
 		{
-			Assert.Throws<InRangeException>(() => Assert.InRange(2, 0, 1));
+			var ex = Record.Exception(() => Assert.InRange(2, 0, 1));
+
+			Assert.IsType<InRangeException>(ex);
+			Assert.Equal(
+				"Assert.InRange() Failure: Value not in range" + Environment.NewLine +
+				"Range:  (0 - 1)" + Environment.NewLine +
+				"Actual: 2",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -39,7 +64,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void StringNotWithinRange()
 		{
-			Assert.Throws<InRangeException>(() => Assert.InRange("adam", "bob", "scott"));
+			var ex = Record.Exception(() => Assert.InRange("adam", "bob", "scott"));
+
+			Assert.IsType<InRangeException>(ex);
+			Assert.Equal(
+				"Assert.InRange() Failure: Value not in range" + Environment.NewLine +
+				"Range:  (\"bob\" - \"scott\")" + Environment.NewLine +
+				"Actual: \"adam\"",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -57,10 +90,18 @@ public class RangeAssertsTests
 			Assert.InRange(400.0, .75, 1.25, new DoubleComparer(-1));
 		}
 
-		[Fact]
+		[CulturedFact]
 		public void DoubleValueNotWithinRange()
 		{
-			Assert.Throws<InRangeException>(() => Assert.InRange(1.0, .75, 1.25, new DoubleComparer(1)));
+			var ex = Record.Exception(() => Assert.InRange(1.0, .75, 1.25, new DoubleComparer(1)));
+
+			Assert.IsType<InRangeException>(ex);
+			Assert.Equal(
+				"Assert.InRange() Failure: Value not in range" + Environment.NewLine +
+				$"Range:  ({0.75:G17} - {1.25:G17})" + Environment.NewLine +
+				$"Actual: {1:G17}",
+				ex.Message
+			);
 		}
 	}
 
@@ -75,7 +116,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void DoubleWithinRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange(1.0, .75, 1.25));
+			var ex = Record.Exception(() => Assert.NotInRange(1.0, .75, 1.25));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (0.75 - 1.25)" + Environment.NewLine +
+				"Actual: 1",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -87,7 +136,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void IntWithinRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange(2, 1, 3));
+			var ex = Record.Exception(() => Assert.NotInRange(2, 1, 3));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (1 - 3)" + Environment.NewLine +
+				"Actual: 2",
+				ex.Message
+			);
 		}
 
 		[Fact]
@@ -99,7 +156,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void StringWithNotInRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange("bob", "adam", "scott"));
+			var ex = Record.Exception(() => Assert.NotInRange("bob", "adam", "scott"));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (\"adam\" - \"scott\")" + Environment.NewLine +
+				"Actual: \"bob\"",
+				ex.Message
+			);
 		}
 	}
 
@@ -108,7 +173,15 @@ public class RangeAssertsTests
 		[Fact]
 		public void DoubleValueWithinRange()
 		{
-			Assert.Throws<NotInRangeException>(() => Assert.NotInRange(400.0, .75, 1.25, new DoubleComparer(-1)));
+			var ex = Record.Exception(() => Assert.NotInRange(400.0, .75, 1.25, new DoubleComparer(-1)));
+
+			Assert.IsType<NotInRangeException>(ex);
+			Assert.Equal(
+				"Assert.NotInRange() Failure: Value in range" + Environment.NewLine +
+				"Range:  (0.75 - 1.25)" + Environment.NewLine +
+				"Actual: 400",
+				ex.Message
+			);
 		}
 
 		[Fact]
