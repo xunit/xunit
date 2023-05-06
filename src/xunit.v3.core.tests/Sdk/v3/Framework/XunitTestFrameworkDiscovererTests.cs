@@ -203,6 +203,19 @@ public class XunitTestFrameworkDiscovererTests
 			Assert.Equal($"{typeof(Child).FullName}.{nameof(GrandParent.FactOverridenInNonImmediateDerivedClass)}", testCase.TestCaseDisplayName);
 		}
 
+		[Fact]
+		public static async ValueTask DiscoversBaseStaticMethodDecoratedWithFact()
+		{
+			var testClass = Mocks.TestClass<ClassWithInheritedStaticMethodUnderTest>();
+			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
+
+			await discoverer.FindTestsForType(testClass);
+
+			var testCase = Assert.Single(discoverer.FindTestsForType_TestCases);
+			Assert.IsType<XunitTestCase>(testCase);
+			Assert.Equal($"{typeof(ClassWithInheritedStaticMethodUnderTest).FullName}.{nameof(ClassWithInheritedStaticMethodUnderTest.Passing)}", testCase.TestCaseDisplayName);
+		}
+
 		public abstract class GrandParent
 		{
 			[Fact]
@@ -223,6 +236,15 @@ public class XunitTestFrameworkDiscovererTests
 				Assert.False(false);
 			}
 		}
+
+		public abstract class BaseClassWithStaticMethodUnderTest
+		{
+			[Fact]
+			public static void Passing() { }
+		}
+
+		public class ClassWithInheritedStaticMethodUnderTest : BaseClassWithStaticMethodUnderTest
+		{ }
 	}
 
 	public static class TestCollectionFactory
