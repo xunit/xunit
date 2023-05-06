@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -9,8 +8,6 @@ public class AbstractTestClassTests
     [Fact]
     public void AbstractTestClassesCanDependOnDataFromDerivedClasses()
     {
-        Debugger.Break();
-
         var messages = InMemoryAcceptanceTestV2.Run(typeof(MyRealTest));
 
         var passed = Assert.Single(messages.OfType<ITestPassed>());
