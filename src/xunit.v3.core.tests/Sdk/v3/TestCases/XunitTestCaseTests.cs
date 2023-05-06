@@ -39,9 +39,7 @@ public class XunitTestCaseTests
 		public abstract class BaseClassWithStaticMethodUnderTest
 		{
 			[Fact]
-			public static void Passing()
-			{
-			}
+			public static void Passing() { }
 		}
 
 		public class ClassWithInheritedStaticMethodUnderTest : BaseClassWithStaticMethodUnderTest
