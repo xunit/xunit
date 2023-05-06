@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
+using System.Numerics;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Serialization;
+
+#if NETFRAMEWORK
+using System.Xml;
+#endif
 
 public class XunitSerializationInfoTests
 {
@@ -55,6 +59,11 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(decimal), decimal.MaxValue };
             yield return new object[] { typeof(decimal?), decimal.MinValue };
             yield return new object[] { typeof(decimal?), null };
+#if !NETFRAMEWORK
+            yield return new object[] { typeof(BigInteger), BigInteger.One };
+            yield return new object[] { typeof(BigInteger?), BigInteger.MinusOne };
+            yield return new object[] { typeof(BigInteger?), null };
+#endif
             yield return new object[] { typeof(bool), true };
             yield return new object[] { typeof(bool?), false };
             yield return new object[] { typeof(bool?), null };
@@ -67,6 +76,17 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(DateTimeOffset), DateTimeOffset.Now };
             yield return new object[] { typeof(DateTimeOffset?), DateTimeOffset.UtcNow };
             yield return new object[] { typeof(DateTimeOffset?), null };
+            yield return new object[] { typeof(TimeSpan), TimeSpan.Zero };
+            yield return new object[] { typeof(TimeSpan?), new TimeSpan(1, 2, 3) };
+            yield return new object[] { typeof(TimeSpan?), null };
+#if NET6_0
+            yield return new object[] { typeof(DateOnly), DateOnly.MinValue };
+            yield return new object[] { typeof(DateOnly?), DateOnly.FromDateTime(DateTime.UtcNow) };
+            yield return new object[] { typeof(DateOnly?), null };
+            yield return new object[] { typeof(TimeOnly), TimeOnly.MinValue };
+            yield return new object[] { typeof(TimeOnly?), TimeOnly.FromDateTime(DateTime.UtcNow) };
+            yield return new object[] { typeof(TimeOnly?), null };
+#endif
             yield return new object[] { typeof(Type), typeof(object) };
             yield return new object[] { typeof(Type), null };
             yield return new object[] { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } };

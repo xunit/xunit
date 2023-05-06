@@ -18,6 +18,8 @@
 [assembly: AssemblyTitle("xUnit.net Console Test Runner (.NET Core 1.x)")]
 #elif NETCOREAPP2_0
 [assembly: AssemblyTitle("xUnit.net Console Test Runner (.NET Core 2.x)")]
+#elif NET6_0
+[assembly: AssemblyTitle("xUnit.net Console Test Runner (.NET 6)")]
 #else
 #error Unknown target platform
 #endif

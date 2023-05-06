@@ -15,6 +15,7 @@ public class SerializationTests
     [Fact]
     public static void CanSerializeAndDeserializeObjectsInATest()
     {
+#pragma warning disable SYSLIB0011
         var bf = new BinaryFormatter();
 
         using (var ms = new MemoryStream())
@@ -26,6 +27,7 @@ public class SerializationTests
             Assert.IsType(typeof(SerializableObject), o);
             var o2 = (SerializableObject)o;  // Should not throw
         }
+#pragma warning restore SYSLIB0011
     }
 
     [Fact]
