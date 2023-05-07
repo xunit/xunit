@@ -1,0 +1,36 @@
+---
+layout: default
+title: "Release Notes for Analyzers: May 6, 2023"
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes for Analyzers: May 6, 2023</h1>
+
+<h2>xUnit.net Analyzers 1.2.0 Pre-Release (build 7)</h2>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1025">xUnit1025</a> where the analyzer
+    was throwing an exception with specific input data (see the attached bug).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2662">xunit/xunit#2662</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Fixed an issue with <a href="/xunit.analyzers/rules/xUnit2000">xUnit2000</a> that incorrectly considered
+    <code>new string(' ', 4)</code> to not be a constant expected value in <code>Assert.Equal</code>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2394">xunit/xunit#2394</a>
+  </li>
+</ul>
+
+<h3>Code Fixers</h3>
+<ul>
+  <li>
+    Fixed a crash in <code>RemoveMethodParameterFix</code> caused by specifically malformed code in
+    the text editor.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2675">xunit/xunit#2675</a>
+  </li>
+</ul>
