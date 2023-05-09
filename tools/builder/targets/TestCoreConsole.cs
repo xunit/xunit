@@ -15,13 +15,15 @@ public static class TestCoreConsole
 
 		Directory.CreateDirectory(context.TestOutputFolder);
 
+		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
+
 		// v3 (default bitness)
 		// TODO: Convert to console runner when it's available
 		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "net6");
 		var v3TestDlls =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.dll", SearchOption.AllDirectories)
-				.Where(x => x.Contains(netCoreSubpath))
+				.Where(x => x.Contains(netCoreSubpath) && !x.Contains(refPath))
 				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
@@ -52,7 +54,7 @@ public static class TestCoreConsole
 		var v3x86TestDlls =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.x86.dll", SearchOption.AllDirectories)
-				.Where(x => x.Contains(netCore32Subpath))
+				.Where(x => x.Contains(netCore32Subpath) && !x.Contains(refPath))
 				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 

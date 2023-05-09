@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.v3;
@@ -32,7 +34,7 @@ public class TeamCityReporterMessageHandlerTests
 
 			handler.OnMessage(errorMessage);
 
-			AssertFailureMessage(handler.Messages, "FATAL ERROR");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "FATAL ERROR");
 		}
 
 		[Fact]
@@ -56,7 +58,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(collectionStarting);
 			handler.OnMessage(collectionCleanupFailure);
 
-			AssertFailureMessage(handler.Messages, "Test Assembly Cleanup Failure (assembly-file-path)");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Assembly Cleanup Failure (assembly-file-path)", assemblyID);
 		}
 
 		[Fact]
@@ -88,7 +90,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(caseStarting);
 			handler.OnMessage(caseCleanupFailure);
 
-			AssertFailureMessage(handler.Messages, "Test Case Cleanup Failure (MyTestCase)");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Case Cleanup Failure (MyTestCase)", collectionID);
 		}
 
 		[Fact]
@@ -116,7 +118,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(classStarting);
 			handler.OnMessage(classCleanupFailure);
 
-			AssertFailureMessage(handler.Messages, "Test Class Cleanup Failure (MyType)");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Class Cleanup Failure (MyType)", collectionID);
 		}
 
 		[Fact]
@@ -150,7 +152,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(testStarting);
 			handler.OnMessage(testCleanupFailure);
 
-			AssertFailureMessage(handler.Messages, "Test Cleanup Failure (MyTest)");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Cleanup Failure (MyTest)", collectionID);
 		}
 
 		[Fact]
@@ -176,7 +178,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(collectionStarting);
 			handler.OnMessage(collectionCleanupFailure);
 
-			AssertFailureMessage(handler.Messages, "Test Collection Cleanup Failure (FooBar)");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Collection Cleanup Failure (FooBar (test-collection-id))", collectionID);
 		}
 
 		[Fact]
@@ -206,22 +208,82 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(methodStarting);
 			handler.OnMessage(methodCleanupFailure);
 
-			AssertFailureMessage(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Method Cleanup Failure (MyMethod)", collectionID);
 		}
 
-		static void AssertFailureMessage(IEnumerable<string> messages, string messageType)
+		static void AssertFailureMessage(
+			IEnumerable<string> messages,
+			string messageType,
+			string? flowId = null)
 		{
-			Assert.Contains(
-				$"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']",
-				messages
+			var message = messages.Last();
+
+			Assert.Equal(
+				$"[Raw] => ##teamcity[message timestamp='2023-05-03T21:12:00.000+0000'{(flowId == null ? "" : $" flowId='{flowId}'")} status='ERROR' text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f']",
+				message
 			);
+		}
+	}
+
+	public class OnMessage_TestAssemblyStarting_TestAssemblyFinished
+	{
+		[Fact]
+		public static void StartsAndEndsFlowAndSuite()
+		{
+			var startingMessage = TestData.TestAssemblyStarting(assemblyUniqueID: "assembly-id", assemblyPath: "/path/to/test-assembly.exe");
+			var finishedMessage = TestData.TestAssemblyFinished(assemblyUniqueID: "assembly-id");
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(finishedMessage);
+
+			Assert.Collection(
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id' name='/path/to/test-assembly.exe']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id' name='/path/to/test-assembly.exe']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[flowFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id']", msg)
+			);
+		}
+
+		[Fact]
+		public static void FallsBackToAssemblyNameWhenPathIsNull()
+		{
+			var startingMessage = TestData.TestAssemblyStarting(assemblyUniqueID: "assembly-id", assemblyPath: null, assemblyName: "test-assembly.exe");
+			var finishedMessage = TestData.TestAssemblyFinished(assemblyUniqueID: "assembly-id");
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(finishedMessage);
+
+			Assert.Collection(
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id' name='test-assembly.exe']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id' name='test-assembly.exe']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[flowFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id']", msg)
+			);
+		}
+
+		[Fact]
+		public static void UsesRootFlowIDFromTeamCityEnvironment()
+		{
+			var startingMessage = TestData.TestAssemblyStarting(assemblyUniqueID: "assembly-id", assemblyPath: null, assemblyName: "test-assembly.exe");
+			var finishedMessage = TestData.TestAssemblyFinished(assemblyUniqueID: "assembly-id");
+			var handler = TestableTeamCityReporterMessageHandler.Create("root-flow-id");
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(finishedMessage);
+
+			var msg = handler.Messages.Where(msg => msg.Contains("##teamcity")).First();
+			Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id' parent='root-flow-id']", msg);
 		}
 	}
 
 	public class OnMessage_TestCollectionStarting_TestCollectionFinished
 	{
 		[Fact]
-		public static void LogsMessage()
+		public static void StartsAndEndsFlowAndSuite()
 		{
 			var startingMessage = TestData.TestCollectionStarting(testCollectionUniqueID: "test-collection-id", testCollectionDisplayName: "my-test-collection");
 			var finishedMessage = TestData.TestCollectionFinished(testCollectionUniqueID: "test-collection-id");
@@ -231,9 +293,11 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(finishedMessage);
 
 			Assert.Collection(
-				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testSuiteStarted name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testSuiteFinished name='my-test-collection (test-collection-id)' flowId='test-collection-id']", msg)
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' parent='assembly-id']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='my-test-collection (test-collection-id)']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='my-test-collection (test-collection-id)']", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[flowFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id']", msg)
 			);
 		}
 	}
@@ -241,7 +305,7 @@ public class TeamCityReporterMessageHandlerTests
 	public class OnMessage_TestFailed
 	{
 		[Fact]
-		public static void LogsTestNameWithExceptionAndStackTraceAndOutput()
+		public static void LogsTestFailed()
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 			var failedMessage = TestData.TestFailed(
@@ -258,32 +322,49 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(failedMessage);
 
 			Assert.Collection(
-				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testStarted name='This is my display name 	|r|n' flowId='test-collection-id']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFailed name='This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='test-collection-id']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='This is my display name \t|r|n' out='This is\t|r|noutput' flowId='test-collection-id' tc:tags='tc:parseServiceMessagesInside']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='test-collection-id']", msg)
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => { }, // testStarting
+				msg => Assert.Equal("[Raw] => ##teamcity[testFailed timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='This is my display name \t|r|n' details='ExceptionType : This is my message 	|r|n|r|nLine 1|r|nLine 2|r|nLine 3']", msg)
 			);
 		}
 	}
 
-	public class OnMessage_TestPassed
+	public class OnMessage_TestFinished
 	{
 		[Fact]
-		public static void LogsTestNameAndOutput()
+		public static void WithoutOutput()
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
-			var passedMessage = TestData.TestPassed(output: "This is\t\r\noutput");
+			var finishedMessage = TestData.TestFinished(executionTime: 1.2345m);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(startingMessage);
-			handler.OnMessage(passedMessage);
+			handler.OnMessage(finishedMessage);
 
+			var msg = handler.Messages.Last();
 			Assert.Collection(
-				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testStarted name='This is my display name \t|r|n' flowId='test-collection-id']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testStdOut name='This is my display name \t|r|n' out='This is\t|r|noutput' flowId='test-collection-id' tc:tags='tc:parseServiceMessagesInside']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='This is my display name \t|r|n' duration='123456' flowId='test-collection-id']", msg)
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => { }, // testStarted
+				msg => Assert.Equal("[Raw] => ##teamcity[testFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='This is my display name \t|r|n' duration='1234']", msg)
+			);
+		}
+
+		[Fact]
+		public static void WithOutput()
+		{
+			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+			var finishedMessage = TestData.TestFinished(executionTime: 1.2345m, output: "This is\t\r\noutput");
+			var handler = TestableTeamCityReporterMessageHandler.Create();
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(finishedMessage);
+
+			var msg = handler.Messages.Last();
+			Assert.Collection(
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => { }, // testStarted
+				msg => Assert.Equal("[Raw] => ##teamcity[testStdOut timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='This is my display name \t|r|n' out='This is	|r|noutput' tc:tags='tc:parseServiceMessagesInside']]", msg),
+				msg => Assert.Equal("[Raw] => ##teamcity[testFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='This is my display name \t|r|n' duration='1234']", msg)
 			);
 		}
 	}
@@ -291,7 +372,7 @@ public class TeamCityReporterMessageHandlerTests
 	public class OnMessage_TestSkipped
 	{
 		[Fact]
-		public static void LogsTestNameAsWarning()
+		public static void LogsTestIgnored()
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 			var skippedMessage = TestData.TestSkipped(reason: "This is my skip reason \t\r\n");
@@ -301,10 +382,9 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(skippedMessage);
 
 			Assert.Collection(
-				handler.Messages,
-				msg => Assert.Equal("[Imp] => ##teamcity[testStarted name='This is my display name \t|r|n' flowId='test-collection-id']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='test-collection-id']", msg),
-				msg => Assert.Equal("[Imp] => ##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='test-collection-id']", msg)
+				handler.Messages.Where(msg => msg.Contains("##teamcity")),
+				msg => { }, // testStarted
+				msg => Assert.Equal("[Raw] => ##teamcity[testIgnored timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='This is my display name \t|r|n' message='This is my skip reason \t|r|n']", msg)
 			);
 		}
 	}
@@ -320,7 +400,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(startingMessage);
 
 			var msg = Assert.Single(handler.Messages);
-			Assert.Equal(msg, "[Imp] => ##teamcity[testStarted name='This is my display name \t|r|n' flowId='test-collection-id']");
+			Assert.Equal("[Raw] => ##teamcity[testStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='test-collection-id' name='This is my display name \t|r|n']", msg);
 		}
 	}
 
@@ -328,17 +408,23 @@ public class TeamCityReporterMessageHandlerTests
 
 	class TestableTeamCityReporterMessageHandler : TeamCityReporterMessageHandler
 	{
+		DateTimeOffset now = new DateTimeOffset(2023, 5, 3, 21, 12, 0, TimeSpan.Zero);
+
 		public IReadOnlyList<string> Messages;
 
-		TestableTeamCityReporterMessageHandler(SpyRunnerLogger logger) :
-			base(logger)
+		TestableTeamCityReporterMessageHandler(
+			SpyRunnerLogger logger,
+			string? rootFlowId) :
+				base(logger, rootFlowId)
 		{
 			Messages = logger.Messages;
 		}
 
-		public static TestableTeamCityReporterMessageHandler Create()
+		protected override DateTimeOffset UtcNow => now;
+
+		public static TestableTeamCityReporterMessageHandler Create(string? rootFlowId = null)
 		{
-			return new TestableTeamCityReporterMessageHandler(new SpyRunnerLogger());
+			return new TestableTeamCityReporterMessageHandler(new SpyRunnerLogger(), rootFlowId);
 		}
 	}
 }

@@ -691,8 +691,16 @@ public class CommandLineTests
 		}
 	}
 
-	public class Reporters
+	public class Reporters : IDisposable
 	{
+		readonly IDisposable environmentCleanup;
+
+		public Reporters() =>
+			environmentCleanup = EnvironmentHelper.NullifyEnvironmentalReporters();
+
+		public void Dispose() =>
+			environmentCleanup.Dispose();
+
 		[Fact]
 		public void NoReporters_UsesDefaultReporter()
 		{

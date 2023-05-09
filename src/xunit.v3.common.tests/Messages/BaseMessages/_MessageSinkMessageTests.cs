@@ -18,11 +18,10 @@ public class _MessageSinkMessageTests
 
 		var result = Encoding.UTF8.GetString(msg.ToJson());
 
-		var expected = """
-		{
-			"$type": "_MessageSinkMessage"
-		}
-		""".Replace("\n", "");
+		var expected =
+@"{
+	""$type"": ""_MessageSinkMessage""
+}".Replace("\n", "");
 		Assert.Equal(expected, result, ignoreAllWhiteSpace: true);
 	}
 
@@ -43,16 +42,15 @@ public class _MessageSinkMessageTests
 
 		var result = Encoding.UTF8.GetString(msg.ToJson());
 
-		var expected = """
-		{
-			"$type":                    "_TestAssemblyStarting",
-			"AssemblyName":             "asm-name",
-			"StartTime":                "2020-09-26T13:55:27.212-07:00",
-			"TestEnvironment":          "test-env",
-			"TestFrameworkDisplayName": "test-framework",
-			"AssemblyUniqueID":         "asm-id"
-		}
-		""".Replace("\n", "");
+		var expected =
+@"{
+	""$type"":                    ""_TestAssemblyStarting"",
+	""AssemblyName"":             ""asm-name"",
+	""StartTime"":                ""2020-09-26T13:55:27.212-07:00"",
+	""TestEnvironment"":          ""test-env"",
+	""TestFrameworkDisplayName"": ""test-framework"",
+	""AssemblyUniqueID"":         ""asm-id""
+}".Replace("\n", "");
 		Assert.Equal(expected, result, ignoreAllWhiteSpace: true);
 	}
 
@@ -76,22 +74,21 @@ public class _MessageSinkMessageTests
 
 		var result = Encoding.UTF8.GetString(msg.ToJson());
 
-		var expected = """
-		{
-			"$type":                  "_TestFailed",
-			"Cause":                  "Assertion",
-			"ExceptionParentIndices": [-1],
-			"ExceptionTypes":         ["exception-type"],
-			"Messages":               ["exception-message"],
-			"StackTraces":            ["stack-trace"],
-			"ExecutionTime":          123.45,
-			"Output":                 "",
-			"TestUniqueID":           "test-id",
-			"TestCaseUniqueID":       "test-case-id",
-			"TestCollectionUniqueID": "test-collection-id",
-			"AssemblyUniqueID":       "asm-id"
-		}
-		""".Replace("\n", "");
+		var expected =
+@"{
+	""$type"":                  ""_TestFailed"",
+	""Cause"":                  ""Assertion"",
+	""ExceptionParentIndices"": [-1],
+	""ExceptionTypes"":         [""exception-type""],
+	""Messages"":               [""exception-message""],
+	""StackTraces"":            [""stack-trace""],
+	""ExecutionTime"":          123.45,
+	""Output"":                 """",
+	""TestUniqueID"":           ""test-id"",
+	""TestCaseUniqueID"":       ""test-case-id"",
+	""TestCollectionUniqueID"": ""test-collection-id"",
+	""AssemblyUniqueID"":       ""asm-id""
+}".Replace("\n", "");
 		Assert.Equal(expected, result, ignoreAllWhiteSpace: true);
 	}
 
@@ -103,22 +100,21 @@ public class _MessageSinkMessageTests
 	[Fact]
 	public void DeserializesEnumsAsStrings()
 	{
-		var msg = """
-		{
-			"$type":                  "_TestFailed",
-			"Cause":                  "Assertion",
-			"ExceptionParentIndices": [-1],
-			"ExceptionTypes":         ["exception-type"],
-			"Messages":               ["exception-message"],
-			"StackTraces":            ["stack-trace"],
-			"ExecutionTime":          123.45,
-			"Output":                 "",
-			"TestUniqueID":           "test-id",
-			"TestCaseUniqueID":       "test-case-id",
-			"TestCollectionUniqueID": "test-collection-id",
-			"AssemblyUniqueID":       "asm-id"
-		}
-		""";
+		var msg =
+@"{
+	""$type"":                  ""_TestFailed"",
+	""Cause"":                  ""Assertion"",
+	""ExceptionParentIndices"": [-1],
+	""ExceptionTypes"":         [""exception-type""],
+	""Messages"":               [""exception-message""],
+	""StackTraces"":            [""stack-trace""],
+	""ExecutionTime"":          123.45,
+	""Output"":                 """",
+	""TestUniqueID"":           ""test-id"",
+	""TestCaseUniqueID"":       ""test-case-id"",
+	""TestCollectionUniqueID"": ""test-collection-id"",
+	""AssemblyUniqueID"":       ""asm-id""
+}";
 
 		var result = _MessageSinkMessage.ParseJson(Encoding.UTF8.GetBytes(msg));
 
@@ -148,22 +144,21 @@ public class _MessageSinkMessageTests
 
 		var serialized = msg.ToJson();
 
-		var expected = """
-		{
-			"$type":               "_TestCaseDiscovered",
-			"Serialization":       "serialized-value",
-			"TestCaseDisplayName": "test-case-display-name",
-			"Traits":
-			{
-				"foo":   ["bar", "baz"],
-				"abc":   ["123"],
-				"empty": []
-			},
-			"TestCaseUniqueID":       "test-case-id",
-			"TestCollectionUniqueID": "test-collection-id",
-			"AssemblyUniqueID":       "asm-id"
-		}
-		""".Replace("\n", "");
+		var expected =
+@"{
+	""$type"":               ""_TestCaseDiscovered"",
+	""Serialization"":       ""serialized-value"",
+	""TestCaseDisplayName"": ""test-case-display-name"",
+	""Traits"":
+	{
+		""foo"":   [""bar"", ""baz""],
+		""abc"":   [""123""],
+		""empty"": []
+	},
+	""TestCaseUniqueID"":       ""test-case-id"",
+	""TestCollectionUniqueID"": ""test-collection-id"",
+	""AssemblyUniqueID"":       ""asm-id""
+}".Replace("\n", "");
 		Assert.Equal(expected, Encoding.UTF8.GetString(serialized), ignoreAllWhiteSpace: true);
 
 		// Validate deserialization

@@ -14,13 +14,15 @@ public static class TestFxConsole
 
 		Directory.CreateDirectory(context.TestOutputFolder);
 
+		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
+
 		// v3 (default bitness)
 		var netFxSubpath = Path.Combine("bin", context.ConfigurationText, "net4");
 		var v3OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v3.tests-netfx");
 		var v3TestExes =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.exe", SearchOption.AllDirectories)
-				.Where(x => x.Contains(netFxSubpath));
+				.Where(x => x.Contains(netFxSubpath) && !x.Contains(refPath));
 
 #if false
 		// TODO: When we officially move to console runner, combine x86 and AnyCPU binaries into a single run (and output file)
@@ -43,7 +45,7 @@ public static class TestFxConsole
 		var v3x86TestExes =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.x86.exe", SearchOption.AllDirectories)
-				.Where(x => x.Contains(netFx32Subpath));
+				.Where(x => x.Contains(netFx32Subpath) && !x.Contains(refPath));
 
 		if (context.V3Only)
 			return;

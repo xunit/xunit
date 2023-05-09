@@ -73,6 +73,13 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	}
 
 	/// <inheritdoc/>
+	public void LogRaw(string message)
+	{
+		lock (LockObject)
+			WriteLine(Console.Out, message);
+	}
+
+	/// <inheritdoc/>
 	public void LogWarning(
 		StackFrameInfo stackFrame,
 		string message)

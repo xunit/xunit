@@ -82,8 +82,16 @@ public class xunitTests
 		}
 	}
 
-	public class GetReporter
+	public class GetReporter : IDisposable
 	{
+		readonly IDisposable environmentCleanup;
+
+		public GetReporter() =>
+			environmentCleanup = EnvironmentHelper.NullifyEnvironmentalReporters();
+
+		public void Dispose() =>
+			environmentCleanup.Dispose();
+
 		[Fact]
 		public void NoReporters_UsesDefaultReporter()
 		{

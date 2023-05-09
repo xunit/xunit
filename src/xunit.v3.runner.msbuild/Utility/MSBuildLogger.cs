@@ -37,6 +37,12 @@ public class MSBuildLogger : IRunnerLogger
 		Log.LogMessage("{0}", message);
 	}
 
+	public void LogRaw(string message)
+	{
+		// We log with high importance, to make sure the message is always output.
+		Log.LogMessage(MessageImportance.High, "{0}", message);
+	}
+
 	public void LogWarning(
 		StackFrameInfo stackFrame,
 		string message)

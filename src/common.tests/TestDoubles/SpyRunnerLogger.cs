@@ -37,6 +37,11 @@ public class SpyRunnerLogger : IRunnerLogger
 		AddMessage("---", stackFrame, message);
 	}
 
+	public void LogRaw(string message)
+	{
+		AddMessage("Raw", StackFrameInfo.None, message);
+	}
+
 	public void LogWarning(
 		StackFrameInfo stackFrame,
 		string message)

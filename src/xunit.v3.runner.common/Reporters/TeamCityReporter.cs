@@ -27,5 +27,5 @@ public class TeamCityReporter : IRunnerReporter
 	public ValueTask<_IMessageSink> CreateMessageHandler(
 		IRunnerLogger logger,
 		_IMessageSink? diagnosticMessageSink) =>
-			new(new TeamCityReporterMessageHandler(logger));
+			new(new TeamCityReporterMessageHandler(logger, Environment.GetEnvironmentVariable("TEAMCITY_PROCESS_FLOW_ID")));
 }
