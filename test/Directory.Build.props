@@ -9,7 +9,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);NU1603;CS1701;MSB3277</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
