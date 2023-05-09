@@ -43,7 +43,7 @@ public class TeamCityReporterMessageHandlerTests
 			var collectionStarting = new _TestAssemblyStarting
 			{
 				AssemblyUniqueID = assemblyID,
-				AssemblyPath = "assembly-file-path"
+				AssemblyPath = @"C:\Foo\Bar.dll"
 			};
 			var collectionCleanupFailure = new _TestAssemblyCleanupFailure
 			{
@@ -58,7 +58,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(collectionStarting);
 			handler.OnMessage(collectionCleanupFailure);
 
-			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Assembly Cleanup Failure (assembly-file-path)", assemblyID);
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Assembly Cleanup Failure (C:|0x005CFoo|0x005CBar.dll)", assemblyID);
 		}
 
 		[Fact]
@@ -68,7 +68,7 @@ public class TeamCityReporterMessageHandlerTests
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCaseUniqueID = testCaseID,
-				TestCaseDisplayName = "MyTestCase",
+				TestCaseDisplayName = "MyTestCase\t\r\n",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID,
 				TestMethodUniqueID = methodID
@@ -90,7 +90,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(caseStarting);
 			handler.OnMessage(caseCleanupFailure);
 
-			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Case Cleanup Failure (MyTestCase)", collectionID);
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Case Cleanup Failure (MyTestCase\t|r|n)", collectionID);
 		}
 
 		[Fact]
@@ -99,7 +99,7 @@ public class TeamCityReporterMessageHandlerTests
 			var classStarting = new _TestClassStarting
 			{
 				AssemblyUniqueID = assemblyID,
-				TestClass = "MyType",
+				TestClass = "MyType\t\r\n",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID
 			};
@@ -118,7 +118,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(classStarting);
 			handler.OnMessage(classCleanupFailure);
 
-			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Class Cleanup Failure (MyType)", collectionID);
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Class Cleanup Failure (MyType\t|r|n)", collectionID);
 		}
 
 		[Fact]
@@ -129,7 +129,7 @@ public class TeamCityReporterMessageHandlerTests
 				AssemblyUniqueID = assemblyID,
 				TestCaseUniqueID = testCaseID,
 				TestClassUniqueID = classID,
-				TestDisplayName = "MyTest",
+				TestDisplayName = "MyTest\t\r\n",
 				TestCollectionUniqueID = collectionID,
 				TestMethodUniqueID = methodID,
 				TestUniqueID = testID
@@ -152,7 +152,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(testStarting);
 			handler.OnMessage(testCleanupFailure);
 
-			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Cleanup Failure (MyTest)", collectionID);
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Cleanup Failure (MyTest\t|r|n)", collectionID);
 		}
 
 		[Fact]
@@ -161,7 +161,7 @@ public class TeamCityReporterMessageHandlerTests
 			var collectionStarting = new _TestCollectionStarting
 			{
 				AssemblyUniqueID = assemblyID,
-				TestCollectionDisplayName = "FooBar",
+				TestCollectionDisplayName = "FooBar\t\r\n",
 				TestCollectionUniqueID = collectionID
 			};
 			var collectionCleanupFailure = new _TestCollectionCleanupFailure
@@ -178,7 +178,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(collectionStarting);
 			handler.OnMessage(collectionCleanupFailure);
 
-			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Collection Cleanup Failure (FooBar (test-collection-id))", collectionID);
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Collection Cleanup Failure (FooBar\t|r|n (test-collection-id))", collectionID);
 		}
 
 		[Fact]
@@ -189,7 +189,7 @@ public class TeamCityReporterMessageHandlerTests
 				AssemblyUniqueID = assemblyID,
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID,
-				TestMethod = "MyMethod",
+				TestMethod = "MyMethod\t\r\n",
 				TestMethodUniqueID = methodID,
 			};
 			var methodCleanupFailure = new _TestMethodCleanupFailure
@@ -208,7 +208,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(methodStarting);
 			handler.OnMessage(methodCleanupFailure);
 
-			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Method Cleanup Failure (MyMethod)", collectionID);
+			AssertFailureMessage(handler.Messages.Where(msg => msg.Contains("##teamcity")), "Test Method Cleanup Failure (MyMethod\t|r|n)", collectionID);
 		}
 
 		static void AssertFailureMessage(

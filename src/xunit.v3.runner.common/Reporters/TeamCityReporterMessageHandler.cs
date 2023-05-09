@@ -25,7 +25,6 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 			base(logger)
 	{
 		this.rootFlowId = rootFlowId;
-
 	}
 
 	/// <summary>
@@ -55,7 +54,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Assembly Cleanup Failure ({ToEscapedAssemblyName(cleanupFailure)})", cleanupFailure, cleanupFailure.AssemblyUniqueID);
+		LogError($"Test Assembly Cleanup Failure ({ToAssemblyName(cleanupFailure)})", cleanupFailure, cleanupFailure.AssemblyUniqueID);
 	}
 
 	/// <summary>
@@ -67,7 +66,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var assemblyFinished = args.Message;
 
-		LogSuiteFinished(ToEscapedAssemblyName(assemblyFinished), assemblyFinished.AssemblyUniqueID);
+		LogSuiteFinished(ToAssemblyName(assemblyFinished), assemblyFinished.AssemblyUniqueID);
 
 		metadataCache.TryRemove(assemblyFinished);
 	}
@@ -83,7 +82,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		metadataCache.Set(assemblyStarting);
 
-		LogSuiteStarted(ToEscapedAssemblyName(assemblyStarting), assemblyStarting.AssemblyUniqueID, rootFlowId);
+		LogSuiteStarted(ToAssemblyName(assemblyStarting), assemblyStarting.AssemblyUniqueID, rootFlowId);
 	}
 
 	/// <summary>
@@ -95,7 +94,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Case Cleanup Failure ({ToEscapedTestCaseName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		LogError($"Test Case Cleanup Failure ({ToTestCaseName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -127,7 +126,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Class Cleanup Failure ({ToEscapedTestClassName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		LogError($"Test Class Cleanup Failure ({ToTestClassName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -159,7 +158,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Collection Cleanup Failure ({ToEscapedTestCollectionName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		LogError($"Test Collection Cleanup Failure ({ToTestCollectionName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -171,7 +170,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testCollectionFinished = args.Message;
 
-		LogSuiteFinished(ToEscapedTestCollectionName(testCollectionFinished), testCollectionFinished.TestCollectionUniqueID);
+		LogSuiteFinished(ToTestCollectionName(testCollectionFinished), testCollectionFinished.TestCollectionUniqueID);
 
 		metadataCache.TryRemove(testCollectionFinished);
 	}
@@ -187,7 +186,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		metadataCache.Set(testCollectionStarting);
 
-		LogSuiteStarted(ToEscapedTestCollectionName(testCollectionStarting), testCollectionStarting.TestCollectionUniqueID, testCollectionStarting.AssemblyUniqueID);
+		LogSuiteStarted(ToTestCollectionName(testCollectionStarting), testCollectionStarting.TestCollectionUniqueID, testCollectionStarting.AssemblyUniqueID);
 	}
 
 	/// <summary>
@@ -199,7 +198,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Cleanup Failure ({ToEscapedTestName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		LogError($"Test Cleanup Failure ({ToTestName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -212,7 +211,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		var testFailed = args.Message;
 		var details = $"{TeamCityEscape(ExceptionUtility.CombineMessages(testFailed))}|r|n{TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed))}";
 
-		LogMessage("testFailed", $"name='{ToEscapedTestName(testFailed)}' details='{details}'", testFailed.TestCollectionUniqueID);
+		LogMessage("testFailed", $"name='{TeamCityEscape(ToTestName(testFailed))}' details='{details}'", testFailed.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -224,7 +223,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testFinished = args.Message;
 
-		var formattedName = ToEscapedTestName(testFinished);
+		var formattedName = TeamCityEscape(ToTestName(testFinished));
 		var flowId = testFinished.TestCollectionUniqueID;
 
 		if (!string.IsNullOrWhiteSpace(testFinished.Output))
@@ -244,7 +243,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Method Cleanup Failure ({ToEscapedTestMethodName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		LogError($"Test Method Cleanup Failure ({ToTestMethodName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -276,7 +275,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testSkipped = args.Message;
 
-		LogMessage("testIgnored", $"name='{ToEscapedTestName(testSkipped)}' message='{TeamCityEscape(testSkipped.Reason)}'", testSkipped.TestCollectionUniqueID);
+		LogMessage("testIgnored", $"name='{TeamCityEscape(ToTestName(testSkipped))}' message='{TeamCityEscape(testSkipped.Reason)}'", testSkipped.TestCollectionUniqueID);
 	}
 
 	/// <summary>
@@ -290,7 +289,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		metadataCache.Set(testStarting);
 
-		LogMessage("testStarted", $"name='{ToEscapedTestName(testStarting)}'", testStarting.TestCollectionUniqueID);
+		LogMessage("testStarted", $"name='{TeamCityEscape(ToTestName(testStarting))}'", testStarting.TestCollectionUniqueID);
 	}
 
 	// Helpers
@@ -321,79 +320,12 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	}
 
 	void LogSuiteStarted(
-		string escapedName,
+		string name,
 		string flowId,
 		string? parentFlowId = null)
 	{
 		LogMessage("flowStarted", parentFlowId != null ? $"parent='{TeamCityEscape(parentFlowId)}'" : null, flowId);
-		LogMessage("testSuiteStarted", $"name='{escapedName}'", flowId);
-	}
-
-	string ToEscapedAssemblyName(_TestAssemblyMessage message)
-	{
-		var metadata = metadataCache.TryGetAssemblyMetadata(message);
-		if (metadata == null)
-			return "<unknown test assembly>";
-
-		return TeamCityEscape(metadata.AssemblyPath ?? metadata.SimpleAssemblyName());
-	}
-
-	string ToEscapedTestCaseName(_TestCaseMessage message)
-	{
-		var metadata = metadataCache.TryGetTestCaseMetadata(message);
-		if (metadata == null)
-			return "<unknown test case>";
-
-		return TeamCityEscape(metadata.TestCaseDisplayName);
-	}
-
-	string ToEscapedTestClassName(_TestClassMessage message)
-	{
-		var metadata = metadataCache.TryGetClassMetadata(message);
-		if (metadata == null)
-			return "<unknown test class>";
-
-		return TeamCityEscape(metadata.TestClass);
-	}
-
-	string ToEscapedTestCollectionName(_TestCollectionMessage message)
-	{
-		var metadata = metadataCache.TryGetCollectionMetadata(message);
-		if (metadata == null)
-			return "<unknown test collection>";
-
-
-		return TeamCityEscape($"{metadata.TestCollectionDisplayName} ({message.TestCollectionUniqueID})");
-	}
-
-	string ToEscapedTestMethodName(_TestMethodMessage message) =>
-		TeamCityEscape(ToTestMethodName(message) ?? "<unknown test method>");
-
-	string ToEscapedTestName(_TestMessage message)
-	{
-		var testMetadata = metadataCache.TryGetTestMetadata(message);
-		if (testMetadata == null)
-			return "<unknown test>";
-
-		// TODO: Is there a way to get just the component pieces of the display name?
-		// That way we could construct the method name and arguments separately.
-		return TeamCityEscape(testMetadata.TestDisplayName);
-	}
-
-	string? ToTestClassName(_TestClassMessage message) =>
-		metadataCache.TryGetClassMetadata(message)?.TestClass;
-
-	string? ToTestMethodName(_TestMethodMessage message)
-	{
-		var testMethodMetadata = metadataCache.TryGetMethodMetadata(message);
-		if (testMethodMetadata == null)
-			return null;
-
-		var testClassName = ToTestClassName(message);
-		if (testClassName == null)
-			return testMethodMetadata.TestMethod;
-
-		return $"{testClassName}.{testMethodMetadata.TestMethod}";
+		LogMessage("testSuiteStarted", $"name='{TeamCityEscape(name)}'", flowId);
 	}
 
 	[return: NotNullIfNotNull("value")]
@@ -445,4 +377,46 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		return sb.ToString();
 	}
+
+	string ToAssemblyName(_TestAssemblyMessage message)
+	{
+		var metadata = metadataCache.TryGetAssemblyMetadata(message);
+		if (metadata == null)
+			return "<unknown test assembly>";
+
+		return metadata.AssemblyPath ?? metadata.SimpleAssemblyName();
+	}
+
+	string ToTestCaseName(_TestCaseMessage message) =>
+		metadataCache.TryGetTestCaseMetadata(message)?.TestCaseDisplayName ?? "<unknown test case>";
+
+	string ToTestClassName(_TestClassMessage message) =>
+		metadataCache.TryGetClassMetadata(message)?.TestClass ?? "<unknown test class>";
+
+	string ToTestCollectionName(_TestCollectionMessage message)
+	{
+		var metadata = metadataCache.TryGetCollectionMetadata(message);
+		if (metadata == null)
+			return "<unknown test collection>";
+
+		return $"{metadata.TestCollectionDisplayName} ({message.TestCollectionUniqueID})";
+	}
+
+	string ToTestMethodName(_TestMethodMessage message)
+	{
+		var testMethodMetadata = metadataCache.TryGetMethodMetadata(message);
+		if (testMethodMetadata == null)
+			return "<unknown test method>";
+
+		var testClassMetadata = metadataCache.TryGetClassMetadata(message);
+		if (testClassMetadata == null)
+			return testMethodMetadata.TestMethod;
+
+		return $"{testClassMetadata.TestClass}.{testMethodMetadata.TestMethod}";
+	}
+
+	string ToTestName(_TestMessage message) =>
+		// TODO: Is there a way to get just the component pieces of the display name?
+		// That way we could construct the method name and arguments separately.
+		metadataCache.TryGetTestMetadata(message)?.TestDisplayName ?? "<unknown test>";
 }
