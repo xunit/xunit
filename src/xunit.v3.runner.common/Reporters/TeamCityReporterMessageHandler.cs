@@ -312,10 +312,10 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 			Logger.LogRaw($"##teamcity[{messageType} timestamp='{TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff"))}+0000'{(flowId != null ? $" flowId='{TeamCityEscape(flowId)}'" : "")}{(arguments != null ? " " + arguments : "")}]");
 
 	void LogSuiteFinished(
-		string escapedName,
+		string name,
 		string flowId)
 	{
-		LogMessage("testSuiteFinished", $"name='{escapedName}'", flowId);
+		LogMessage("testSuiteFinished", $"name='{TeamCityEscape(name)}'", flowId);
 		LogMessage("flowFinished", flowId: flowId);
 	}
 
@@ -328,8 +328,13 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		LogMessage("testSuiteStarted", $"name='{TeamCityEscape(name)}'", flowId);
 	}
 
+	/// <summary>
+	/// Escapes a string to be sent in a TeamCity message.
+	/// </summary>
+	/// <param name="value">The value to be escaped</param>
+	/// <returns>The escaped value</returns>
 	[return: NotNullIfNotNull("value")]
-	static string? TeamCityEscape(string? value)
+	public static string? TeamCityEscape(string? value)
 	{
 		if (value == null)
 			return null;
