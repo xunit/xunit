@@ -60,6 +60,13 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public void LogRaw(string message)
+        {
+            lock (LockObject)
+                Console.WriteLine(message);
+        }
+
+        /// <inheritdoc/>
         public void LogWarning(StackFrameInfo stackFrame, string message)
         {
             lock (LockObject)

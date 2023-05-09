@@ -42,13 +42,13 @@ namespace Xunit.Runner.Reporters
                 };
                 yield return new object[]
                 {
-                    Mocks.TestCollectionStarting(),
-                    @"{""message"":""testCollectionStarting"",""flowId"":""mappedFlow"",""assembly"":"""",""collectionName"":""Display Name"",""collectionId"":""00000000-0000-0000-0000-000000000000""}"
+                    Mocks.TestCollectionStarting(assemblyFileName: "assembly.dll"),
+                    @"{""message"":""testCollectionStarting"",""flowId"":""mappedFlow"",""assembly"":""assembly"",""collectionName"":""Display Name"",""collectionId"":""00000000-0000-0000-0000-000000000000""}"
                 };
                 yield return new object[]
                 {
-                    Mocks.TestCollectionFinished(),
-                    @"{""message"":""testCollectionFinished"",""flowId"":""mappedFlow"",""assembly"":"""",""collectionName"":""Display Name"",""collectionId"":""00000000-0000-0000-0000-000000000000"",""executionTime"":123.4567,""testsFailed"":42,""testsRun"":2112,""testsSkipped"":6}"
+                    Mocks.TestCollectionFinished(assemblyFileName: "assembly.dll"),
+                    @"{""message"":""testCollectionFinished"",""flowId"":""mappedFlow"",""assembly"":""assembly"",""collectionName"":""Display Name"",""collectionId"":""00000000-0000-0000-0000-000000000000"",""executionTime"":123.4567,""testsFailed"":42,""testsRun"":2112,""testsSkipped"":6}"
                 };
 
                 // IErrorMessage

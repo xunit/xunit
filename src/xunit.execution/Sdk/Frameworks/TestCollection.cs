@@ -23,16 +23,23 @@ namespace Xunit.Sdk
         /// <param name="collectionDefinition">The optional type which contains the collection definition</param>
         /// <param name="displayName">The display name for the test collection</param>
         public TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName)
-            : this(testAssembly, collectionDefinition, displayName, Guid.NewGuid()) { }
+            : this(testAssembly, collectionDefinition, displayName, null) { }
 
-        internal TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName, Guid uniqueId)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestCollection"/> class.
+        /// </summary>
+        /// <param name="testAssembly">The test assembly the collection belongs to</param>
+        /// <param name="collectionDefinition">The optional type which contains the collection definition</param>
+        /// <param name="displayName">The display name for the test collection</param>
+        /// <param name="uniqueId">The test collection's unique ID</param>
+        public TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName, Guid? uniqueId)
         {
             Guard.ArgumentNotNull("testAssembly", testAssembly);
 
             CollectionDefinition = collectionDefinition;
             DisplayName = displayName;
             TestAssembly = testAssembly;
-            UniqueID = uniqueId;
+            UniqueID = uniqueId ?? Guid.NewGuid();
         }
 
         /// <inheritdoc/>

@@ -39,5 +39,13 @@ namespace Xunit
         /// <param name="stackFrame">The stack frame information</param>
         /// <param name="message">The message to be logged</param>
         void LogError(StackFrameInfo stackFrame, string message);
+
+        /// <summary>
+        /// Logs a messages with as little processing as possible. For example, the console runner will
+        /// not attempt to set the color of the text that's being logged. This is most useful when attempting
+        /// to render text lines that will be processed, like for TeamCity.
+        /// </summary>
+        /// <param name="message">The message to be logged.</param>
+        void LogRaw(string message);
     }
 }
