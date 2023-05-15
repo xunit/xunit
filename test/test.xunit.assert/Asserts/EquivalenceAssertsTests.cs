@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Xunit;
 using Xunit.Sdk;
@@ -678,6 +679,135 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class ImmutableArrayOfValueTypes_NotStrict
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.Equivalent(new[] { 1, 4 }.ToImmutableArray(), new[] { 9, 4, 1 }.ToImmutableArray(), strict: false);
+		}
+
+		[Fact]
+		public void Success_EmbeddedArray()
+		{
+			var expected = new { x = new[] { 1, 4 }.ToImmutableArray() };
+			var actual = new { x = new[] { 9, 4, 1 }.ToImmutableArray() };
+
+			Assert.Equivalent(expected, actual, strict: false);
+		}
+
+		[Fact]
+		public void Failure()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(new[] { 1, 6 }.ToImmutableArray(), new[] { 9, 4, 1 }.ToImmutableArray(), strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: 6" + Environment.NewLine +
+				"In:       [9, 4, 1]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_EmbeddedArray()
+		{
+			var expected = new { x = new[] { 1, 6 }.ToImmutableArray() };
+			var actual = new { x = new[] { 9, 4, 1 }.ToImmutableArray() };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Expected: 6" + Environment.NewLine +
+				"In:       [9, 4, 1]",
+				ex.Message
+			);
+		}
+	}
+
+	public class ImmutableArrayOfValueTypes_Strict
+	{
+		[Fact]
+		public void Success()
+		{
+			Assert.Equivalent(new[] { 1, 9, 4 }.ToImmutableArray(), new[] { 9, 4, 1 }.ToImmutableArray(), strict: true);
+		}
+
+		[Fact]
+		public void Success_EmbeddedArray()
+		{
+			var expected = new { x = new[] { 1, 9, 4 }.ToImmutableArray() };
+			var actual = new { x = new[] { 9, 4, 1 }.ToImmutableArray() };
+
+			Assert.Equivalent(expected, actual, strict: true);
+		}
+
+		[Fact]
+		public void Failure_ValueNotFoundInActual()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(new[] { 1, 6 }.ToImmutableArray(), new[] { 9, 4, 1 }.ToImmutableArray(), strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: 6" + Environment.NewLine +
+				"In:       [9, 4, 1]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_ExtraValueInActual()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(new[] { 1, 9, 4 }.ToImmutableArray(), new[] { 6, 9, 4, 1 }.ToImmutableArray(), strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Extra values found" + Environment.NewLine +
+				"Expected: [1, 9, 4]" + Environment.NewLine +
+				"Actual:   [6] left over from [6, 9, 4, 1]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_EmbeddedArray_ValueNotFoundInActual()
+		{
+			var expected = new { x = new[] { 1, 6 }.ToImmutableArray() };
+			var actual = new { x = new[] { 9, 4, 1 }.ToImmutableArray() };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Expected: 6" + Environment.NewLine +
+				"In:       [9, 4, 1]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void Failure_EmbeddedArray_ExtraValueInActual()
+		{
+			var expected = new { x = new[] { 1, 9, 4 }.ToImmutableArray() };
+			var actual = new { x = new[] { 6, 9, 4, 1, 12 }.ToImmutableArray() };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Expected: [1, 9, 4]" + Environment.NewLine +
+				"Actual:   [6, 12] left over from [6, 9, 4, 1, 12]",
+				ex.Message
+			);
+		}
+	}
+
 	public class ArrayOfObjects_NotStrict
 	{
 		[Fact]
@@ -966,7 +1096,7 @@ public class EquivalenceAssertsTests
 		}
 	}
 
-	public class ArraysAndListsAreEquivalent
+	public class EquivalentCollectionsInDifferentTypes
 	{
 		[Fact]
 		public void ArrayIsEquivalentToList()
@@ -978,6 +1108,24 @@ public class EquivalenceAssertsTests
 		public void ListIsEquivalentToArray()
 		{
 			Assert.Equivalent(new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 });
+		}
+
+		[Fact]
+		public void ArrayIsEquivalentToImmutableArray()
+		{
+			Assert.Equivalent(new[] { 1, 2, 3 }, new[] { 1, 2, 3 }.ToImmutableArray());
+		}
+
+		[Fact]
+		public void ImmutableArrayIsEquivalentToArray()
+		{
+			Assert.Equivalent(new[] { 1, 2, 3 }.ToImmutableArray(), new[] { 1, 2, 3 });
+		}
+
+		[Fact]
+		public void ImmutableListIsEquivalentToImmutableSortedSet()
+		{
+			Assert.Equivalent(new[] { 1, 2, 3 }.ToImmutableList(), new[] { 1, 2, 3 }.ToImmutableSortedSet());
 		}
 	}
 
