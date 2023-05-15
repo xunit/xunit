@@ -8,8 +8,10 @@
     <!-- Version specific -->
     <XunitConsole472Path>$(MSBuildThisFileDirectory)..\tools\net472\xunit.v3.runner.console.exe</XunitConsole472Path>
     <XunitConsole472PathX86>$(MSBuildThisFileDirectory)..\tools\net472\xunit.v3.runner.console.x86.exe</XunitConsole472PathX86>
-    <XunitConsole48Path>$(MSBuildThisFileDirectory)..\tools\net48\xunit.v3.runner.console.exe</XunitConsole472Path>
-    <XunitConsole48PathX86>$(MSBuildThisFileDirectory)..\tools\net48\xunit.v3.runner.console.x86.exe</XunitConsole472PathX86>
+    <XunitConsole48Path>$(MSBuildThisFileDirectory)..\tools\net48\xunit.v3.runner.console.exe</XunitConsole48Path>
+    <XunitConsole48PathX86>$(MSBuildThisFileDirectory)..\tools\net48\xunit.v3.runner.console.x86.exe</XunitConsole48PathX86>
+    <XunitConsole481Path>$(MSBuildThisFileDirectory)..\tools\net481\xunit.v3.runner.console.exe</XunitConsole481Path>
+    <XunitConsole481PathX86>$(MSBuildThisFileDirectory)..\tools\net481\xunit.v3.runner.console.x86.exe</XunitConsole481PathX86>
   </PropertyGroup>
 
 </Project>

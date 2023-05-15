@@ -5,7 +5,7 @@
     <Configurations>Debug;Debug_x86;Release;Release_x86</Configurations>
     <OutputType>Exe</OutputType>
     <RunILRepack>true</RunILRepack>
-    <TargetFrameworks>net472;net48</TargetFrameworks>
+    <TargetFrameworks>net472;net48;net481</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

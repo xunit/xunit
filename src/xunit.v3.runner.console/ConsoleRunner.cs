@@ -159,6 +159,8 @@ class ConsoleRunner
 		var buildTarget = $"net472";
 #elif NET48
 		var buildTarget = $"net48";
+#elif NET481
+		var buildTarget = $"net481";
 #else
 #error Unknown target framework
 #endif

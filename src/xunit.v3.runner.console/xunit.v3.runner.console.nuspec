@@ -24,5 +24,8 @@
 
 		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\*" />
 		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\*.x86.*" />
+
+		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\*" />
+		<file target="tools\net481\" src="bin\$Configuration$_x86\net481\merged\*.x86.*" />
 	</files>
 </package>
