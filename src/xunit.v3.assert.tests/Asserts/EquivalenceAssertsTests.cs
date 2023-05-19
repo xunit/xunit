@@ -61,6 +61,15 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
+		public void StringToDateTime_Success()
+		{
+			var expected = "2022-12-01T01:03:01.0000000";
+			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
 		public void DateTime_Failure()
 		{
 			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
@@ -75,6 +84,24 @@ public class EquivalenceAssertsTests
 				"Actual:   2011-09-13T18:22:00.0000000",
 				ex.Message
 			);
+		}
+
+		[Fact]
+		public void DateTimeToString_Failure()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = "2022-12-01T01:03:01.0000000";
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
+				"Actual:   \"2022-12-01T01:03:01.0000000\"",
+				ex.Message
+			);
+			Assert.IsType<ArgumentException>(ex.InnerException);  // Thrown by DateTime.CompareTo
 		}
 
 		[Fact]
