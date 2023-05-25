@@ -8,7 +8,8 @@ public static class Restore
 	{
 		var assertFiles = Directory.GetFiles(Path.Combine(context.BaseFolder, "src", "xunit.v3.assert", "Asserts"));
 		var mediaFiles = Directory.GetFiles(Path.Combine(context.BaseFolder, "tools", "media"));
-		if (assertFiles.Length == 0 || mediaFiles.Length == 0)
+		var signToolFiles = Directory.GetFiles(Path.Combine(context.BaseFolder, "tools", "NuGetKeyVaultSignTool"));
+		if (assertFiles.Length == 0 || mediaFiles.Length == 0 || signToolFiles.Length == 0)
 		{
 			context.BuildStep("Updating submodules");
 
