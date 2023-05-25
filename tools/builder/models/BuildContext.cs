@@ -89,8 +89,8 @@ public class BuildContext
 	[Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
 	public bool SkipDependencies { get; }
 
-	[Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; common values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
-	public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
+	[Argument(0, "targets", Description = "The target(s) to run (default: 'BuildAll'; common values: 'Build', 'BuildAll', 'Clean', 'Packages', 'Restore', 'Test', 'TestCore', 'TestFx')")]
+	public BuildTarget[] Targets { get; } = new[] { BuildTarget.BuildAll };
 
 	[Option("-t|--timing", Description = "Emit timing information for each target")]
 	public bool Timing { get; }
@@ -203,7 +203,7 @@ public class BuildContext
 			var targetNames = Targets.Select(x => x.ToString()).ToList();
 
 			// Turn off test parallelization in CI, for more repeatable test timing
-			if (Targets.Contains(BuildTarget.CI))
+			if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")))
 				TestFlagsParallel = TestFlagsNonParallel;
 
 			// Find target classes

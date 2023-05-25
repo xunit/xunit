@@ -4,7 +4,3 @@
 [submodule "tools/media"]
 	path = tools/media
 	url = https://github.com/xunit/media
-[submodule "tools/NuGetKeyVaultSignTool"]
-	path = tools/NuGetKeyVaultSignTool
-	url = https://github.com/xunit/NuGetKeyVaultSignTool
-	branch = Updates

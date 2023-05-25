@@ -4,8 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 [Target(
-	BuildTarget.SignPackages,
-	BuildTarget.Packages
+	BuildTarget.SignPackages
 )]
 public static class SignPackages
 {
@@ -31,17 +30,24 @@ public static class SignPackages
 			return;
 		}
 
-		foreach (var package in Directory.GetFiles(context.PackageOutputFolder, "*.nupkg").OrderBy(x => x))
-		{
-			var args = $"run --project tools/NuGetKeyVaultSignTool/NuGetKeyVaultSignTool -- sign \"{package}\" -tr http://timestamp.digicert.com -kvu {vaultUri} -kvi {applicationId} -kvs \"{applicationSecret}\" -kvt {tenantId} -kvc {certificateName}";
-			var redactedArgs =
-				args.Replace(tenantId, "[redacted]")
-					.Replace(vaultUri, "[redacted]")
-					.Replace(applicationId, "[redacted]")
-					.Replace(applicationSecret, "[redacted]")
-					.Replace(certificateName, "[redacted]");
+		var args =
+			$"sign code azure-key-vault **/*.nupkg" +
+			$" --base-directory \"{context.PackageOutputFolder}\"" +
+			$" --description \"xUnit.net\"" +
+			$" --description-url https://github.com/xunit" +
+			$" --azure-key-vault-url {vaultUri}" +
+			$" --azure-key-vault-client-id {applicationId}" +
+			$" --azure-key-vault-client-secret \"{applicationSecret}\"" +
+			$" --azure-key-vault-tenant-id {tenantId}" +
+			$" --azure-key-vault-certificate {certificateName}";
 
-			await context.Exec("dotnet", args, redactedArgs);
-		}
+		var redactedArgs =
+			args.Replace(tenantId, "[redacted]")
+				.Replace(vaultUri, "[redacted]")
+				.Replace(applicationId, "[redacted]")
+				.Replace(applicationSecret, "[redacted]")
+				.Replace(certificateName, "[redacted]");
+
+		await context.Exec("dotnet", args, redactedArgs);
 	}
 }

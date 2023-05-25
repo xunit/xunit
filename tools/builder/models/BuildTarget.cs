@@ -2,11 +2,10 @@ public enum BuildTarget
 {
 	AnalyzeSource,
 	Build,
-	CI,
+	BuildAll,
 	Clean,
 	FormatSource,
 	Packages,
-	PR,
 	PublishPackages,
 	Restore,
 	SignPackages,

@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    name: "Build for PR"
+    name: "Build"
     runs-on: ${{ matrix.os }}
     env:
       DOTNET_NOLOGO: true
@@ -33,8 +33,8 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: "Build target: PR"
-        run: dotnet run --project tools/builder --no-launch-profile -- PR --timing
+      - name: "Build target: BuildAll"
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
       - name: "Upload artifact: test-${{ matrix.os }}"
         uses: actions/upload-artifact@v3.1.1
