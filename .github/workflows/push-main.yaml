@@ -30,9 +30,12 @@ jobs:
 
       - name: "Build target: CI"
         env:
-          PublishToken: ${{ secrets.PublishToken }}
-          SignClientUser: ${{ secrets.SignClientUser }}
-          SignClientSecret: ${{ secrets.SignClientSecret }}
+          SIGN_APP_ID: ${{ secrets.SIGN_APP_ID }}
+          SIGN_APP_SECRET: ${{ secrets.SIGN_APP_SECRET }}
+          SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
+          SIGN_SUBSCRIPTION: ${{ secrets.SIGN_SUBSCRIPTION }}
+          SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
+          SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
         run: dotnet run --project tools/builder --no-launch-profile -- CI --timing
 
       - name: "Upload artifact: test"
