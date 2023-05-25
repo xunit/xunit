@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 [Target(
 	BuildTarget.Build,
-	BuildTarget.Restore
+	BuildTarget.UpdateSubModules, BuildTarget.Restore
 )]
 public static class Build
 {

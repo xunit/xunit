@@ -4,7 +4,7 @@ using SimpleExec;
 
 [Target(
 	BuildTarget.AnalyzeSource,
-	BuildTarget.Restore
+	BuildTarget.RestoreTools
 )]
 public static class AnalyzeSource
 {

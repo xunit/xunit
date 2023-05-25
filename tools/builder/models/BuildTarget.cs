@@ -8,6 +8,7 @@ public enum BuildTarget
 	Packages,
 	PublishPackages,
 	Restore,
+	RestoreTools,
 	SignPackages,
 	Test,
 	TestConsole,
@@ -17,4 +18,5 @@ public enum BuildTarget
 	TestFxConsole,
 	TestFxMSBuild,
 	TestMSBuild,
+	UpdateSubModules,
 }

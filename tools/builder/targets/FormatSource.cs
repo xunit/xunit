@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 [Target(
 	BuildTarget.FormatSource,
-	BuildTarget.Restore
+	BuildTarget.RestoreTools
 )]
 public static class FormatSource
 {

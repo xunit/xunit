@@ -1,9 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-[Target(
-	BuildTarget.Clean
-)]
+[Target(BuildTarget.Clean)]
 public static class Clean
 {
 	public static async Task OnExecute(BuildContext context)

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 
 [Target(
-	BuildTarget.SignPackages
+	BuildTarget.SignPackages,
+	BuildTarget.RestoreTools
 )]
 public static class SignPackages
 {
