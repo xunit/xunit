@@ -8,10 +8,10 @@
         "dotnet-format"
       ]
     },
-    "signclient": {
-      "version": "1.3.155",
+    "sign": {
+      "version": "0.9.1-beta.23203.3",
       "commands": [
-        "SignClient"
+        "sign"
       ]
     }
   }

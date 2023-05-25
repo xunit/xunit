@@ -1,9 +1,9 @@
 #Requires -Version 5.1
 
 param(
-    [ValidateSet('GitHubActions','Build','CI','FormatSource','PackageRestore','Packages','Restore','Test',
+    [ValidateSet('Build','BuildAll','CI','FormatSource','PackageRestore','Packages','Restore','Test',
                  '_AnalyzeSource', '_Packages','_Publish','_PushMyGet','_SignPackages','_Test32','_Test64','_TestCore')]
-    [string]$target = "Test",
+    [string]$target = "BuildAll",
     [string]$configuration = "Release"
 )
 
@@ -30,7 +30,6 @@ $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
-$signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 $dotnetFormatCommand = "& dotnet dotnet-format --folder --exclude src/common/AssemblyResolution/Microsoft.DotNet.PlatformAbstractions --exclude src/common/AssemblyResolution/Microsoft.Extensions.DependencyModel --exclude src/xunit.assert/Asserts"
 
 # Helper functions
@@ -49,12 +48,6 @@ function _xunit_netcore([string]$targetFramework, [string]$command) {
 
 # Top-level targets
 
-function __target_githubactions() {
-    __target_ci
-    __target__signpackages
-    __target__pushmyget
-}
-
 function __target_build() {
     __target_restore
     __target__analyzesource
@@ -64,13 +57,21 @@ function __target_build() {
         _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
 }
 
-function __target_ci() {
-    $script:parallelFlags = "-parallel none -maxthreads 1"
-    $script:nonparallelFlags = "-parallel none -maxthreads 1"
+function __target_buildall() {
+    if ($null -ne $env:CI) {
+        $script:parallelFlags = "-parallel none -maxthreads 1"
+        $script:nonparallelFlags = "-parallel none -maxthreads 1"
+    }
 
     __target_test
     __target__publish
     __target__packages
+}
+
+function __target_ci() {
+    __target_buildall
+    __target__signpackages
+    __target__pushmyget
 }
 
 function __target_formatsource() {
@@ -138,13 +139,27 @@ function __target__pushmyget() {
 }
 
 function __target__signpackages() {
-    if ($null -ne $env:SignClientSecret) {
+    if ($null -ne $env:SIGN_APP_SECRET) {
         _build_step "Signing NuGet packages"
             _exec "& dotnet tool restore"
 
-            $cmd = '& dotnet signclient sign --config "' + $signClientAppSettings + '" --user "' + $env:SignClientUser + '" --secret "' + $env:SignClientSecret + '" --name "xUnit.net" --description "xUnit.net" -u "https://github.com/xunit/xunit" --baseDirectory "' + $packageOutputFolder + '" --input **/*.nupkg'
-            $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
-            $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
+            # --baseDirectory "' + $packageOutputFolder + '" --input **/*.nupkg'
+            $cmd = `
+                '& dotnet sign code azure-key-vault **/*.nupkg' + `
+                ' --base-directory "' + $packageOutputFolder + '"' + `
+                ' --description "xUnit.net"' + `
+                ' --description-url https://github.com/xunit' + `
+                ' --azure-key-vault-url ' + $env:SIGN_VAULT_URI + `
+                ' --azure-key-vault-client-id ' + $env:SIGN_APP_ID + `
+                ' --azure-key-vault-client-secret "' + $env:SIGN_APP_SECRET + '"' + `
+                ' --azure-key-vault-tenant-id ' + $env:SIGN_TENANT + `
+                ' --azure-key-vault-certificate ' + $env:SIGN_CERT_NAME
+
+            $msg = $cmd.Replace($env:SIGN_VAULT_URI, '[redacted]')
+            $msg = $msg.Replace($env:SIGN_APP_ID, '[redacted]')
+            $msg = $msg.Replace($env:SIGN_APP_SECRET, '[redacted]')
+            $msg = $msg.Replace($env:SIGN_TENANT, '[redacted]')
+            $msg = $msg.Replace($env:SIGN_CERT_NAME, '[redacted]')
             _exec $cmd $msg
     }
 }

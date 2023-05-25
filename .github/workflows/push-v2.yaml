@@ -1,8 +1,9 @@
-name: xUnit.net CI Build
+name: xUnit.net CI Build (v2)
 on:
   push:
     branches:
       - v2
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,52 +13,44 @@ jobs:
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          submodules: true
 
-      - name: Install .NET Core SDK 2.1
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '2.1.x'
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1
 
-      - name: Install .NET Core SDK 3.1
-        uses: actions/setup-dotnet@v1
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '3.1.x'
-
-      - name: Install .NET SDK 6.0
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
-          include-prerelease: true
+          dotnet-version: |
+            '2.1.x'
+            '3.1.x'
+            '6.0.x'
 
       - name: Get .NET information
         run: dotnet --info
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.3
-        with:
-          vs-version: '[17.0,18.0)'
-          vs-prerelease: true
-
       - name: "Build target: CI"
         env:
           PublishToken: ${{ secrets.PublishToken }}
-          SignClientUser: ${{ secrets.SignClientUser }}
-          SignClientSecret: ${{ secrets.SignClientSecret }}
-        run: .\build.ps1 -target githubactions
+          SIGN_APP_ID: ${{ secrets.SIGN_APP_ID }}
+          SIGN_APP_SECRET: ${{ secrets.SIGN_APP_SECRET }}
+          SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
+          SIGN_SUBSCRIPTION: ${{ secrets.SIGN_SUBSCRIPTION }}
+          SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
+          SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
+        run: .\build.ps1 -target CI
 
       - name: "Upload artifact: test-results"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: artifacts/test
         if: always()
 
       - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: artifacts/packages
