@@ -47,12 +47,14 @@
         <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageReadmeFile>_content/README.md</PackageReadmeFile>
         <Product>xUnit.net Testing Framework</Product>
         <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
       </PropertyGroup>
 
       <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="_content" />
+        <None Include="$(MSBuildThisFileDirectory)../README.md" Visible="false" Pack="true" PackagePath="_content" />
       </ItemGroup>
 
       <ItemGroup>

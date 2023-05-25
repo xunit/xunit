@@ -9,6 +9,7 @@
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
 		<icon>_content/logo-128-transparent.png</icon>
+		<readme>_content/README.md</readme>
 		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.
 
 Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analyzers.</description>
@@ -29,6 +30,7 @@ Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analy
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\" src="..\..\README.md" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
