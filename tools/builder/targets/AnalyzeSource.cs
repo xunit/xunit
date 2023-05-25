@@ -28,6 +28,6 @@ public static class AnalyzeSource
 		if (foundBOM)
 			throw new ExitCodeException(-1);
 
-		await context.Exec("dotnet", $"dotnet-format --check --folder --verbosity {context.Verbosity} --exclude src/xunit.v3.assert/Asserts");
+		await context.Exec("dotnet", $"dotnet-format --check --folder --verbosity {context.Verbosity} --exclude src/xunit.v3.assert/Asserts --exclude tools/NuGetKeyVaultSignTool");
 	}
 }

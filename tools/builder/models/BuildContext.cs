@@ -139,6 +139,7 @@ public class BuildContext
 		"Asserts",
 		"bin",
 		"obj",
+		"NuGetKeyVaultSignTool",
 	};
 
 	public IEnumerable<(string fileName, byte[] content)> FindFilesWithBOMs(string? folder = null)

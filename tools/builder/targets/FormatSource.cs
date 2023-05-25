@@ -29,6 +29,6 @@ public static class FormatSource
 		if (foundBOM)
 			Console.WriteLine();
 
-		await context.Exec("dotnet", $"dotnet-format --folder --exclude src/xunit.v3.assert/Asserts");
+		await context.Exec("dotnet", $"dotnet-format --folder --exclude src/xunit.v3.assert/Asserts --exclude tools/NuGetKeyVaultSignTool");
 	}
 }
