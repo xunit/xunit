@@ -30,6 +30,7 @@ jobs:
 
       - name: "Build target: CI"
         env:
+          PublishToken: ${{ secrets.PublishToken }}
           SIGN_APP_ID: ${{ secrets.SIGN_APP_ID }}
           SIGN_APP_SECRET: ${{ secrets.SIGN_APP_SECRET }}
           SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
