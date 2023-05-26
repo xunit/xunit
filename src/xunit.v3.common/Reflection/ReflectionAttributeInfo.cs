@@ -118,7 +118,22 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 
 	Attribute Instantiate(CustomAttributeData attributeData)
 	{
-		var ctorArgs = GetConstructorArguments().ToArray();
+		object?[]? ctorArgs;
+		Type? attributeType;
+
+		try
+		{
+			ctorArgs = GetConstructorArguments().ToArray();
+		}
+		// Mono throws here when the ctor args can't be matched up, even before we try to invoke the ctor. We don't know exactly
+		// why, unfortunately (and the exception does not contain any information), so we have to default to a generic message.
+		catch (CustomAttributeFormatException)
+		{
+			attributeType = attributeData.Constructor.DeclaringType ?? attributeData.Constructor.ReflectedType;
+			var fullName = attributeType?.FullName ?? attributeType?.Name ?? "<unknown type>";
+			throw new ArgumentException($"Constructor/initializer arguments for type '{fullName}' appear to be malformed", nameof(attributeData));
+		}
+
 		var ctorArgTypes = Reflector.EmptyTypes;
 		if (ctorArgs.Length > 0)
 		{
@@ -131,7 +146,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 		if (attribute == null)
 			throw new ArgumentException($"Unable to create attribute of type '{attributeData.AttributeType.FullName}'", nameof(attributeData));
 
-		var attributeType = attribute.GetType();
+		attributeType = attribute.GetType();
 
 		for (var i = 0; i < attributeData.NamedArguments.Count; i++)
 		{
@@ -141,14 +156,28 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 
 			var propInfo = attributeType.GetRuntimeProperty(memberName);
 			if (propInfo != null)
-				propInfo.SetValue(attribute, typedValue);
+				try
+				{
+					propInfo.SetValue(attribute, typedValue);
+				}
+				catch
+				{
+					throw new ArgumentException($"Could not set property named '{memberName}' on instance of '{attributeType.FullName}'", nameof(attributeData));
+				}
 			else
 			{
 				var fieldInfo = attributeType.GetRuntimeField(memberName);
 				if (fieldInfo != null)
-					fieldInfo.SetValue(attribute, typedValue);
+					try
+					{
+						fieldInfo.SetValue(attribute, typedValue);
+					}
+					catch
+					{
+						throw new ArgumentException($"Could not set field named '{memberName}' on instance of '{attributeType.FullName}'", nameof(attributeData));
+					}
 				else
-					throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{Attribute.GetType().FullName}'", nameof(attributeData));
+					throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{attributeType.FullName}'", nameof(attributeData));
 			}
 		}
 

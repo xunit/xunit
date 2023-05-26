@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -13,12 +14,22 @@ namespace Xunit.v3;
 /// </summary>
 public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCase>
 {
+	static readonly Lazy<_IReflectionAttributeInfo> defaultFactAttribute;
 	readonly _ITestAssembly testAssembly;
 
 	/// <summary>
 	/// Gets the display name of the xUnit.net v3 test framework.
 	/// </summary>
 	public static readonly string DisplayName = $"xUnit.net v3 {ThisAssembly.AssemblyInformationalVersion}";
+
+	static XunitTestFrameworkDiscoverer()
+	{
+		[Fact]
+		static _IReflectionAttributeInfo EmptyFact() =>
+			Reflector.Wrap(CustomAttributeData.GetCustomAttributes(MethodBase.GetCurrentMethod()!).Single(cad => cad.AttributeType == typeof(FactAttribute)));
+
+		defaultFactAttribute = new(() => EmptyFact());
+	}
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -127,8 +138,23 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
 		{
 			var testMethod = new TestMethod(testClass, method);
-			if (!await FindTestsForMethod(testMethod, discoveryOptions, discoveryCallback))
-				return false;
+
+			try
+			{
+				if (!await FindTestsForMethod(testMethod, discoveryOptions, discoveryCallback))
+					return false;
+			}
+			catch (Exception ex)
+			{
+				var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute.Value);
+				var errorTestCase = new ExecutionErrorTestCase(
+					testMethod,
+					details.TestCaseDisplayName,
+					details.UniqueID,
+					$"Exception during discovery:{Environment.NewLine}{ex}"
+				);
+				await discoveryCallback(errorTestCase);
+			}
 		}
 
 		return true;
