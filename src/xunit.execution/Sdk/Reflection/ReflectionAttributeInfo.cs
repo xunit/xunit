@@ -145,14 +145,28 @@ namespace Xunit.Sdk
 
                 var propInfo = ati.GetRuntimeProperty(memberName);
                 if (propInfo != null)
-                    propInfo.SetValue(attribute, typedValue);
+                    try
+                    {
+                        propInfo.SetValue(attribute, typedValue);
+                    }
+                    catch
+                    {
+                        throw new ArgumentException($"Could not set property named '{memberName}' on instance of '{ati.FullName}'", nameof(attributeData));
+                    }
                 else
                 {
                     var fieldInfo = ati.GetRuntimeField(memberName);
                     if (fieldInfo != null)
-                        fieldInfo.SetValue(attribute, typedValue);
+                        try
+                        {
+                            fieldInfo.SetValue(attribute, typedValue);
+                        }
+                        catch
+                        {
+                            throw new ArgumentException($"Could not set field named '{memberName}' on instance of '{ati.FullName}'", nameof(attributeData));
+                        }
                     else
-                        throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{Attribute.GetType().FullName}'", nameof(attributeData));
+                        throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{ati.FullName}'", nameof(attributeData));
                 }
             }
 

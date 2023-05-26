@@ -526,6 +526,63 @@ public class Xunit2AcceptanceTests
             [MyCustomFact]
             public void Passing() { }
         }
+
+        // https://github.com/xunit/xunit/issues/2719
+        [Fact]
+        public void ClassWithBrokenFactShouldNotDisruptDiscovery()
+        {
+            var msgs = Run<ITestResultMessage>(new[] { typeof(ClassWithBrokenFactAttribute) }).OrderBy(x => x.Test.DisplayName).ToList();
+
+            Assert.Collection(msgs,
+                msg =>
+                {
+                    Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithBrokenFactAttribute.Test1", msg.Test.DisplayName);
+                    var skip = Assert.IsAssignableFrom<ITestSkipped>(msg);
+                    Assert.Equal("Skipped with Fact", skip.Reason);
+                },
+                msg =>
+                {
+                    Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithBrokenFactAttribute.Test2", msg.Test.DisplayName);
+                    var fail = Assert.IsAssignableFrom<ITestFailed>(msg);
+                    Assert.StartsWith(
+                        "Exception during discovery:" + Environment.NewLine +
+                        "System.ArgumentException: Could not set property named 'Skip' on instance of 'Xunit2AcceptanceTests+CustomFacts+SkipFact'" + Environment.NewLine +
+                        "Parameter name: attributeData",
+                        fail.Messages.Single()
+                    );
+                },
+                msg =>
+                {
+                    Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithBrokenFactAttribute.Test3", msg.Test.DisplayName);
+                    Assert.IsAssignableFrom<ITestPassed>(msg);
+                }
+            );
+        }
+
+        class ClassWithBrokenFactAttribute
+        {
+            [Fact(Skip = "Skipped with Fact")]
+            public void Test1()
+            {
+                Assert.True(false);
+            }
+
+            [SkipFact(Skip = "Simple not run, not skipped")]
+            public void Test2()
+            {
+                Assert.True(false);
+            }
+
+            [Fact]
+            public void Test3()
+            { }
+        }
+
+        public class SkipFact : FactAttribute
+        {
+            // Property setter here is missing, so trying to use it with the overridden skip message will fail at runtime
+            public override string Skip => "Skipped";
+        }
     }
 
     public class TestOutput : AcceptanceTestV2

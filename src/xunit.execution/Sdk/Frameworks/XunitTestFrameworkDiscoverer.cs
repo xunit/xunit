@@ -129,8 +129,23 @@ namespace Xunit.Sdk
             foreach (var method in testClass.Class.GetMethods(true))
             {
                 var testMethod = new TestMethod(testClass, method);
-                if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus, discoveryOptions))
-                    return false;
+
+                try
+                {
+                    if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus, discoveryOptions))
+                        return false;
+                }
+                catch (Exception ex)
+                {
+                    var errorTestCase = new ExecutionErrorTestCase(
+                        DiagnosticMessageSink,
+                        discoveryOptions.MethodDisplayOrDefault(),
+                        discoveryOptions.MethodDisplayOptionsOrDefault(),
+                        testMethod,
+                        $"Exception during discovery:{Environment.NewLine}{ex}"
+                    );
+                    ReportDiscoveredTestCase(errorTestCase, includeSourceInformation, messageBus);
+                }
             }
 
             return true;
