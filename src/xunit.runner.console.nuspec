@@ -47,6 +47,14 @@
     <file src="xunit.console\bin\$Configuration$\net472\xunit.console.*"     target="tools\net472\" />
     <file src="xunit.console\bin\$Configuration$_x86\net472\xunit.console.*" target="tools\net472\" />
 
+    <file src="xunit.console\bin\$Configuration$\net48\*.dll"                target="tools\net48\" />
+    <file src="xunit.console\bin\$Configuration$\net48\xunit.console.*"      target="tools\net48\" />
+    <file src="xunit.console\bin\$Configuration$_x86\net48\xunit.console.*"  target="tools\net48\" />
+
+    <file src="xunit.console\bin\$Configuration$\net481\*.dll"               target="tools\net481\" />
+    <file src="xunit.console\bin\$Configuration$\net481\xunit.console.*"     target="tools\net481\" />
+    <file src="xunit.console\bin\$Configuration$_x86\net481\xunit.console.*" target="tools\net481\" />
+
     <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\*.*" target="tools\netcoreapp1.0\" />
 
     <file src="xunit.console\bin\$Configuration$\netcoreapp2.0\publish\*.*" target="tools\netcoreapp2.0\" />

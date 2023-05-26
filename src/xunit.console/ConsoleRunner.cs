@@ -189,19 +189,23 @@ namespace Xunit.ConsoleClient
         void PrintHeader()
         {
 #if NET452
-            var platform = $"Desktop .NET 4.5.2, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.5.2, runtime: {Environment.Version}";
 #elif NET46
-            var platform = $"Desktop .NET 4.6, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.6, runtime: {Environment.Version}";
 #elif NET461
-            var platform = $"Desktop .NET 4.6.1, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.6.1, runtime: {Environment.Version}";
 #elif NET462
-            var platform = $"Desktop .NET 4.6.2, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.6.2, runtime: {Environment.Version}";
 #elif NET47
-            var platform = $"Desktop .NET 4.7, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.7, runtime: {Environment.Version}";
 #elif NET471
-            var platform = $"Desktop .NET 4.7.1, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.7.1, runtime: {Environment.Version}";
 #elif NET472
-            var platform = $"Desktop .NET 4.7.2, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.7.2, runtime: {Environment.Version}";
+#elif NET48
+            var platform = $".NET Framework 4.8, runtime: {Environment.Version}";
+#elif NET481
+            var platform = $".NET Framework 4.8.1, runtime: {Environment.Version}";
 #elif NETCOREAPP
             var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #else

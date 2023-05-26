@@ -4,7 +4,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputType>Exe</OutputType>
     <RootNamespace>Xunit.ConsoleClient</RootNamespace>
-    <TargetFrameworks>net452;net46;net461;net462;net47;net471;net472;netcoreapp1.0;netcoreapp2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net452;net46;net461;net462;net47;net471;net472;net48;net481;netcoreapp1.0;netcoreapp2.0;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

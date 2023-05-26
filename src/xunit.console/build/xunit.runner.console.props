@@ -20,6 +20,10 @@
     <XunitConsole471PathX86>$(MSBuildThisFileDirectory)..\tools\net471\xunit.console.x86.exe</XunitConsole471PathX86>
     <XunitConsole472Path>$(MSBuildThisFileDirectory)..\tools\net472\xunit.console.exe</XunitConsole472Path>
     <XunitConsole472PathX86>$(MSBuildThisFileDirectory)..\tools\net472\xunit.console.x86.exe</XunitConsole472PathX86>
+    <XunitConsole48Path>$(MSBuildThisFileDirectory)..\tools\net48\xunit.console.exe</XunitConsole48Path>
+    <XunitConsole48PathX86>$(MSBuildThisFileDirectory)..\tools\net48\xunit.console.x86.exe</XunitConsole48PathX86>
+    <XunitConsole481Path>$(MSBuildThisFileDirectory)..\tools\net481\xunit.console.exe</XunitConsole481Path>
+    <XunitConsole481PathX86>$(MSBuildThisFileDirectory)..\tools\net481\xunit.console.x86.exe</XunitConsole481PathX86>
 
     <!-- Lowest supported version -->
     <XunitConsoleNetCoreAppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp1.0\xunit.console.dll</XunitConsoleNetCoreAppPath>

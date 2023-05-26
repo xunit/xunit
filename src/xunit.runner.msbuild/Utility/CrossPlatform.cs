@@ -24,6 +24,6 @@ namespace Xunit.Runner.MSBuild
         public static Assembly LoadAssembly(string dllFile)
             => Assembly.LoadFile(dllFile);
 
-        public static string Version => $"Desktop .NET {Environment.Version}";
+        public static string Version => $".NET Framework {Environment.Version}";
     }
 }
