@@ -14,7 +14,7 @@ jobs:
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -32,14 +32,14 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
       - name: "Upload artifact: test"
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3
         with:
           name: test
           path: artifacts/test
         if: always()
 
       - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: artifacts/packages
@@ -53,12 +53,12 @@ jobs:
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.1.3
+        uses: microsoft/setup-msbuild@v1
 
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
@@ -88,7 +88,7 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- PublishPackages --timing
 
       - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: artifacts/packages

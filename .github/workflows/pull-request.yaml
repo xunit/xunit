@@ -15,12 +15,12 @@ jobs:
         os: [windows-2022, ubuntu-22.04, macOS-12]
     steps:
       - name: Clone source
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Add MSBuild to PATH (Windows)
-        uses: microsoft/setup-msbuild@v1.1.3
+        uses: microsoft/setup-msbuild@v1
         if: matrix.os == 'windows-2022'
 
       - name: Install .NET SDK
@@ -37,7 +37,7 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
       - name: "Upload artifact: test-${{ matrix.os }}"
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3
         with:
           name: test-${{ matrix.os }}
           path: artifacts/test
