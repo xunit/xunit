@@ -1,0 +1,35 @@
+---
+layout: default
+title: Release Notes for May 31, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: May 31, 2023</h1>
+
+<h2>
+  xunit.runner.visualstudio 2.5.0 Pre-Release (build 15)
+</h2>
+
+<p>
+  This is co-released with the core framework release
+  <a href="../2.5.0-pre.22"><code>2.5.0-pre.22</code></a>.
+</p>
+
+<p class="note">
+  This version has updated the minimum framework support to .NET Framework 4.6.2+ and .NET 6.0+.
+  If you need support for older frameworks, please continue to use an older build of this project.<br />
+  <br />
+  This version also removes support for UWP projects. If you need continued support for UWP, please continue
+  to use an older build of this project. UWP has been officially deprecated by Microsoft and we have similarly
+  removed official support for UWP from the core framework and this adapter.
+</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    Added assembly-wide <code>ExcludeFromCodeCoverageAttribute</code> to all the xUnit.net assemblies.
+    This should resolve issues with <code>dotnet test ---collect "Code Coverage"</code> (the new
+    cross-platform code coverage system) incorrectly showing coverage for the adapter.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2682">xunit/xunit#2682</a>
+  </li>
+</ul>
