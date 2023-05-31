@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
   </ItemGroup>
 
