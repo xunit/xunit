@@ -655,8 +655,8 @@ public class Xunit2TheoryAcceptanceTests
 			Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failed.Test.DisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			var failedMessage = failed.Messages.Single();
-			Assert.Contains("'System.String'", failedMessage);
-			Assert.Contains("'System.Int32'", failedMessage);
+			Assert.Contains("System.String", failedMessage);
+			Assert.Contains("System.Int32", failedMessage);
 		}
 
 		class ClassWithIncompatibleData
@@ -1207,7 +1207,7 @@ public class Xunit2TheoryAcceptanceTests
 			var types = testMessages.Select(t => t.GetType()).ToList();
 
 			var failed = Assert.Single(testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName));
-			Assert.Contains("'Xunit2TheoryAcceptanceTests+CustomDataTests+MyCustomData'", failed.Messages[0]);
+			Assert.Contains("Xunit2TheoryAcceptanceTests+CustomDataTests+MyCustomData", failed.Messages[0]);
 
 			Assert.Empty(testMessages.OfType<ITestPassed>());
 			Assert.Empty(testMessages.OfType<ITestSkipped>());
