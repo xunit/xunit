@@ -1,12 +1,11 @@
 using System.Threading.Tasks;
+using Xunit.BuildTools.Models;
 
-[Target(
-	BuildTarget.Build,
-	BuildTarget.UpdateSubModules, BuildTarget.Restore
-)]
-public static class Build
+namespace Xunit.BuildTools.Targets;
+
+public static partial class Build
 {
-	public static async Task OnExecute(BuildContext context)
+	public static partial async Task PerformBuild(BuildContext context)
 	{
 		context.BuildStep("Compiling binaries (AnyCPU)");
 

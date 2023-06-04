@@ -4,30 +4,43 @@ set -euo pipefail
 PUSHED=0
 
 cleanup () {
-    if [[ $PUSHED == 1 ]]; then
-        popd >/dev/null
-        PUSHED=0
-    fi
+	if [[ $PUSHED == 1 ]]; then
+		popd >/dev/null
+		PUSHED=0
+	fi
 }
 
 trap cleanup EXIT ERR INT TERM
 
-if which dotnet > /dev/null; then
-    if [ $(dotnet --version | cut -d. -f1) -lt 7 ]; then
-        echo "error(1): .NET SDK version $(dotnet --version) is too low; please install 7.0 or later"
-        exit 1
-    fi
-
-    if [ `uname -o` = Msys ] || which mono > /dev/null ; then
-        pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
-        PUSHED=1
-
-        dotnet run --project tools/builder --no-launch-profile -- "$@"
-    else
-        echo "error(1): Could not find 'mono'; please install Mono" 2>&1
-        exit 1
-    fi
+if which git > /dev/null; then
+	git submodule status | while read line; do
+		if [ "$(echo $line | cut -b1)" == "-" ]; then
+			pieces=( $line )
+			git submodule update --init ${pieces[1]}
+			echo ""
+		fi
+	done
 else
-    echo "error(1): Could not find 'dotnet'; please install the .NET Core SDK" 2>&1
-    exit 1
+	echo "error(1): Could not find 'git'; please install the Git CLI" 2>&1
+	exit 1
+fi
+
+if which dotnet > /dev/null; then
+	if [ $(dotnet --version | cut -d. -f1) -lt 7 ]; then
+		echo "error(1): .NET SDK version $(dotnet --version) is too low; please install 7.0 or later"
+		exit 1
+	fi
+
+	if [ `uname -o` = Msys ] || which mono > /dev/null ; then
+		pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
+		PUSHED=1
+
+		dotnet run --project tools/builder --no-launch-profile -- "$@"
+	else
+		echo "error(1): Could not find 'mono'; please install Mono" 2>&1
+		exit 1
+	fi
+else
+	echo "error(1): Could not find 'dotnet'; please install the .NET Core SDK" 2>&1
+	exit 1
 fi

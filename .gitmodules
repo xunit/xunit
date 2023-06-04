@@ -4,3 +4,6 @@
 [submodule "tools/media"]
 	path = tools/media
 	url = https://github.com/xunit/media
+[submodule "tools/builder/common"]
+	path = tools/builder/common
+	url = https://github.com/xunit/build-tools-v3

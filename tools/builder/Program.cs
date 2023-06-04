@@ -1,5 +1,8 @@
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
+using Xunit.BuildTools.Models;
+
+namespace Xunit.BuildTools;
 
 public class Program
 {

@@ -2,6 +2,9 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using SimpleExec;
+using Xunit.BuildTools.Models;
+
+namespace Xunit.BuildTools.Targets;
 
 [Target(
 	BuildTarget.TestFxMSBuild,

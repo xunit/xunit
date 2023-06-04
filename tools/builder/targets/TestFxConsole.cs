@@ -1,6 +1,9 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit.BuildTools.Models;
+
+namespace Xunit.BuildTools.Targets;
 
 [Target(
 	BuildTarget.TestFxConsole,
@@ -11,8 +14,6 @@ public static class TestFxConsole
 	public static async Task OnExecute(BuildContext context)
 	{
 		context.BuildStep("Running .NET Framework tests (via Console runner)");
-
-		Directory.CreateDirectory(context.TestOutputFolder);
 
 		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
 
