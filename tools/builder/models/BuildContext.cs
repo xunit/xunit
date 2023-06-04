@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bullseye;
 using Bullseye.Internal;
@@ -132,6 +133,11 @@ public class BuildContext
 		Console.WriteLine();
 	}
 
+	static readonly List<Regex> skippedFilePatterns = new()
+	{
+		new Regex(@"\.user$"),
+	};
+
 	static readonly HashSet<string> skippedFolders = new(StringComparer.InvariantCultureIgnoreCase)
 	{
 		".git",
@@ -151,6 +157,9 @@ public class BuildContext
 
 		foreach (var file in Directory.GetFiles(folder))
 		{
+			if (skippedFilePatterns.Any(pattern => pattern.Match(file).Success))
+				continue;
+
 			byte[]? bytes = null;
 
 			try
