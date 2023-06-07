@@ -2,7 +2,7 @@
   <!-- This file prevents the auto-import of the .targets file from the parent folder. -->
 
   <!-- Enable nullable support for C# 9 targets (minimum threshold for nullable support) -->
-  <ItemGroup Condition=" $(MSBuildProjectName.Contains('.cs9.')) ">
+  <ItemGroup Condition=" '$(LangVersion)' == '9.0' ">
     <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="$(TunnelVisionLabsReferenceAssemblyAnnotatorVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

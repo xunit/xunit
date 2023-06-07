@@ -4,7 +4,7 @@
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <ItemGroup>
         <ProjectReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
-        <ProjectReference Condition=" '$(TargetFramework)' == 'net6.0' " Include="..\xunit.v3.assert.back-compat\xunit.v3.assert.net6.on-all\xunit.v3.assert.net6.on-all.csproj" />
+        <ProjectReference Condition=" '$(TargetFramework)' == 'net6.0' " Include="..\xunit.v3.assert.compat\xunit.v3.assert.net6\xunit.v3.assert.net6.csproj" />
       </ItemGroup>
     </When>
   </Choose>
