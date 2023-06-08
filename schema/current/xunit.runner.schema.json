@@ -24,6 +24,11 @@
       "default": false,
       "type": "boolean"
     },
+    "failSkips": {
+      "description": "Enables or disables converting skipped tests into failed tests.",
+      "default": false,
+      "type": "boolean"
+    },
     "internalDiagnosticMessages": {
       "description": "Enables or disables internal diagnostic information during test discovery and execution.",
       "default": false,
@@ -70,6 +75,11 @@
     "shadowCopy": {
       "description": "Enables or disables use of shadow copying when using app domains. Has no effect if app domains are not used.",
       "default": true,
+      "type": "boolean"
+    },
+    "stopOnFail": {
+      "description": "Enable or disable stopping running further tests once a failed test has been recorded.",
+      "default": false,
       "type": "boolean"
     }
   },

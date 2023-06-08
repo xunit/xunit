@@ -19,6 +19,8 @@ redirect_from:
     <li><a href="#appDomain"><code>appDomain</code></a></li>
     <li><a href="#culture"><code>culture</code></a></li>
     <li><a href="#diagnosticMessages"><code>diagnosticMessages</code></a></li>
+    <li><a href="#failSkips"><code>failSkips</code></a></li>
+    <li><a href="#failWarns"><code>failWarns</code></a></li>
     <li><a href="#internalDiagnosticMessages"><code>internalDiagnosticMessages</code></a></li>
     <li><a href="#longRunningTestSeconds"><code>longRunningTestSeconds</code></a></li>
     <li><a href="#maxParallelThreads"><code>maxParallelThreads</code></a></li>
@@ -29,7 +31,9 @@ redirect_from:
     <li><a href="#preEnumerateTheories"><code>preEnumerateTheories</code></a></li>
     <li><a href="#seed"><code>seed</code></a></li>
     <li><a href="#shadowCopy"><code>shadowCopy</code></a></li>
+    <li><a href="#stopOnFail"><code>stopOnFail</code></a></li>
   </ul>
+  <li><a href="#schemas">List of schema versions</a></li>
 </ul>
 
 <p class="note">
@@ -76,7 +80,7 @@ redirect_from:
 <h2 id="items">Supported configuration items</h2>
 
 <p>
-  The schema is online at
+  The current schema is online at
   <a href="https://xunit.net/schema/current/xunit.runner.schema.json">https://xunit.net/schema/current/xunit.runner.schema.json</a>,
   which can be set in the JSON file to aid with intellisense from development IDEs like
   <a href="https://visualstudio.microsoft.com/">Visual Studio</a> and
@@ -93,13 +97,22 @@ redirect_from:
 }
 {% endhighlight %}
 
+<p>
+  All values in this table list the minimum runner version that is required to support the
+  configuration value (previous versions will ignore unknown configuration values). Features
+  that require support from the test framework itself will also list the minimum version
+  of the test framework required for the feature; if you don't see a minimum test framework
+  version, then it means the feature is implemented purely in the runners and works with all
+  test framework versions.
+</p>
+
 <table class="table">
   <tr>
     <th>Key</th>
     <th>Supported Values</th>
   </tr>
   <tr>
-    <th id="appDomain"><code>appDomain</code><br />[Runners v2.1+]</th>
+    <th id="appDomain"><code>appDomain</code><br />Runners v2.1+<br />Test Framework v1-v2</th>
     <td class="wrapped-wide">
       <p>
         Set this value to determine whether App Domains are used. By default, they
@@ -117,7 +130,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="culture"><code>culture</code><br />[Runners v3.0+]</th>
+    <th id="culture"><code>culture</code><br />Runners v3+<br />Test Framework v3+</th>
     <td class="wrapped-wide">
       <p>
         Set this value to override the default culture used to run all unit tests in
@@ -126,8 +139,7 @@ redirect_from:
         to use the invariant culture; or you can pass any string which describes a
         valid culture on the target operating system (see <a href="https://www.rfc-editor.org/info/bcp47">BCP
         47</a> for a description of how culture names are formatted; note that the list
-        of supported cultures will vary by target operating system). <em>Note that culture
-        values are only supported for v3.0 or later test projects.</em>
+        of supported cultures will vary by target operating system).
       </p>
       <p>
         <em>JSON schema type: <strong>string</strong><br />
@@ -136,7 +148,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="diagnosticMessages"><code>diagnosticMessages</code><br />[Runners v2.1+]</th>
+    <th id="diagnosticMessages"><code>diagnosticMessages</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this value to <code>true</code> to include diagnostic information during test
@@ -150,7 +162,32 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="internalDiagnosticMessages"><code>internalDiagnosticMessages</code><br />[Runners v2.1+]</th>
+    <th id="failSkips"><code>failSkips</code><br />Runners v2.5+<br />Test Framework v1+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to enable skipped tests to be treated as errors.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="failWarns"><code>failWarns</code><br />Runners v3+<br />Test Framework v3+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to enable warned tests to be treated as errors.
+        By default, warnings will be reported with a passing test result.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="internalDiagnosticMessages"><code>internalDiagnosticMessages</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this value to <code>true</code> to include internals diagnostic information during test
@@ -165,7 +202,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="longRunningTestSeconds"><code>longRunningTestSeconds</code><br />[Runners v2.2+]</th>
+    <th id="longRunningTestSeconds"><code>longRunningTestSeconds</code><br />Runners v2.2+</th>
     <td class="wrapped-wide">
       <p>
         Set this value to enable long-running (hung) test detection. When the runner is
@@ -184,7 +221,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="maxParallelThreads"><code>maxParallelThreads</code><br />[Runners v2.1+]</th>
+    <th id="maxParallelThreads"><code>maxParallelThreads</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this to override the maximum number of threads to be used when parallelizing
@@ -208,7 +245,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="methodDisplay"><code>methodDisplay</code><br />[Runners v2.1+]</th>
+    <th id="methodDisplay"><code>methodDisplay</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this to override the default display name for test cases. If you set this
@@ -224,7 +261,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="methodDisplayOptions"><code>methodDisplayOptions</code><br />[Runners v2.4+]</th>
+    <th id="methodDisplayOptions"><code>methodDisplayOptions</code><br />Runners v2.4+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this to automatically perform transforms on default test names. This value
@@ -265,7 +302,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="parallelizeAssembly"><code>parallelizeAssembly</code><br />[Runners v2.1+]</th>
+    <th id="parallelizeAssembly"><code>parallelizeAssembly</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this to <code>true</code> if this assembly is willing to participate in
@@ -280,7 +317,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="parallelizeTestCollections"><code>parallelizeTestCollections</code><br />[Runners v2.1+]</th>
+    <th id="parallelizeTestCollections"><code>parallelizeTestCollections</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this to <code>true</code> if the assembly is willing to run tests inside
@@ -296,7 +333,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="preEnumerateTheories"><code>preEnumerateTheories</code><br />[Runners v2.1+]</th>
+    <th id="preEnumerateTheories"><code>preEnumerateTheories</code><br />Runners v2.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
         Set this to <code>true</code> to pre-enumerate theories so that there is an
@@ -314,7 +351,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="seed"><code>seed</code><br />[Runners v3.0+]</th>
+    <th id="seed"><code>seed</code><br />Runners v3+<br />Test Framework v3+</th>
     <td class="wrapped-wide">
       <p>
         Set this to set the seed used for randomization (affects how the test cases are randomized).
@@ -331,7 +368,7 @@ redirect_from:
     </td>
   </tr>
   <tr>
-    <th id="shadowCopy"><code>shadowCopy</code><br />[Runners v2.1+]</th>
+    <th id="shadowCopy"><code>shadowCopy</code><br />Runners v2.1+<br />Test Framework v1-v2</th>
     <td class="wrapped-wide">
       <p>
         Set this to <code>true</code> to use shadow copying when running tests in
@@ -344,4 +381,63 @@ redirect_from:
       </p>
     </td>
   </tr>
+  <tr>
+    <th id="stopOnFail"><code>stopOnFail</code><br />Runners v2.3+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to stop running further tests once a test has failed.
+        (Because of the asynchronous nature of test execution, this will not necessarily happen
+        immediately; any test that is already in flight may complete, which may result in multiple
+        test failures reported.)
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+</table>
+
+<h2 id="schemas">List of schema versions</h2>
+
+<h3>Release versions</h3>
+
+<table class="table">
+  <tbody>
+    <tr>
+      <th>2.5 [current]</td>
+      <td class="wrapped-wide"><a href="../schema/v2.5/xunit.runner.schema.json">https://xunit.net/schema/v2.5/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>2.4</th>
+      <td class="wrapped-wide"><a href="../schema/v2.4/xunit.runner.schema.json">https://xunit.net/schema/v2.4/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>2.3</th>
+      <td class="wrapped-wide"><a href="../schema/v2.3/xunit.runner.schema.json">https://xunit.net/schema/v2.3/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>2.2</th>
+      <td class="wrapped-wide"><a href="../schema/v2.2/xunit.runner.schema.json">https://xunit.net/schema/v2.2/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>1.0</th>
+      <td class="wrapped-wide"><a href="../schema/v1/xunit.runner.schema.json">https://xunit.net/schema/v1/xunit.runner.schema.json</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Pre-release versions</h3>
+
+<table class="table">
+  <tbody>
+    <tr>
+      <th>3.0 (alpha 1)</th>
+      <td class="wrapped-wide"><a href="../schema/v2.5/xunit.runner.schema.json">https://xunit.net/schema/v3.0-alpha-1/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>2.1 (RC 1)</th>
+      <td class="wrapped-wide"><a href="../schema/v2.1-rc1/xunit.runner.schema.json">https://xunit.net/schema/v2.1-rc1/xunit.runner.schema.json</a></td>
+    </tr>
+  </tbody>
 </table>
