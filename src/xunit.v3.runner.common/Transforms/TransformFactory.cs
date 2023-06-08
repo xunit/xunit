@@ -29,7 +29,7 @@ public class TransformFactory
 				Handler_DirectWrite
 			),
 			new Transform(
-				"xmlv1",
+				"xmlV1",
 				"output results to xUnit.net v1 XML file",
 				(xml, outputFileName) => Handler_XslTransform("xUnit1.xslt", xml, outputFileName)
 			),
@@ -39,12 +39,12 @@ public class TransformFactory
 				(xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName)
 			),
 			new Transform(
-				"nunit",
+				"nUnit",
 				"output results to NUnit v2.5 XML file",
 				(xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName)
 			),
 			new Transform(
-				"junit",
+				"jUnit",
 				"output results to JUnit XML file",
 				(xml, outputFileName) => Handler_XslTransform("JUnitXml.xslt", xml, outputFileName)
 			),
@@ -140,7 +140,7 @@ public class TransformFactory
 			project
 				.Configuration
 				.Output
-				.Select(output => new Action<XElement>(xml => instance.availableTransforms.Single(t => t.ID == output.Key).OutputHandler(xml, output.Value)))
+				.Select(output => new Action<XElement>(xml => instance.availableTransforms.Single(t => t.ID.Equals(output.Key, StringComparison.OrdinalIgnoreCase)).OutputHandler(xml, output.Value)))
 				.ToList();
 	}
 

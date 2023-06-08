@@ -15,7 +15,7 @@ namespace Xunit.Internal;
 /// </summary>
 public abstract class CommandLineParserBase
 {
-	readonly Dictionary<string, (CommandLineGroup Group, string? ArgumentDisplay, string[] Descriptions, Action<KeyValuePair<string, string?>> Handler)> parsers = new();
+	readonly Dictionary<string, (CommandLineGroup Group, string? ArgumentDisplay, string[] Descriptions, Action<KeyValuePair<string, string?>> Handler)> parsers = new(StringComparer.OrdinalIgnoreCase);
 	readonly string? reporterFolder;
 	IReadOnlyList<IRunnerReporter>? runnerReporters;
 
@@ -50,9 +50,9 @@ public abstract class CommandLineParserBase
 			"  off  - run only non-explicit tests [default]",
 			"  only - run only explicit tests"
 		);
-		AddParser("failskips", OnFailSkips, CommandLineGroup.General, null, "convert skipped tests into failures");
-		AddParser("ignorefailures", OnIgnoreFailures, CommandLineGroup.General, null, "if tests fail, do not return a failure exit code");
-		AddParser("internaldiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
+		AddParser("failSkips", OnFailSkips, CommandLineGroup.General, null, "treat skipped tests as failures");
+		AddParser("ignoreFailures", OnIgnoreFailures, CommandLineGroup.General, null, "if tests fail, do not return a failure exit code");
+		AddParser("internalDiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
 		AddParser(
 			"list", OnList, CommandLineGroup.General, "<option>",
 			"list information about the test assemblies rather than running tests (implies -nologo)",
@@ -64,7 +64,7 @@ public abstract class CommandLineParserBase
 			"  traits  - list the set of trait name/value pairs used in the test assemblies"
 		);
 		AddParser(
-			"maxthreads", OnMaxThreads, CommandLineGroup.General, "<option>",
+			"maxThreads", OnMaxThreads, CommandLineGroup.General, "<option>",
 			"maximum thread count for collection parallelization",
 			"  default   - run with default (1 thread per CPU thread)",
 			"  unlimited - run with unbounded thread count",
@@ -72,15 +72,15 @@ public abstract class CommandLineParserBase
 			"  (float)x  - use a multiple of CPU threads (f.e., '2.0x' = 2.0 * the number of CPU threads)"
 		);
 		AddParser(
-			"noautoreporters", OnNoAutoReporters, CommandLineGroup.General, "<option>",
+			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, "<option>",
 			"do not allow reporters to be auto-enabled by environment",
 			"(for example, auto-detecting TeamCity or AppVeyor)"
 		);
-		AddParser("nocolor", OnNoColor, CommandLineGroup.General, null, "do not output results with colors");
-		AddParser("nologo", OnNoLogo, CommandLineGroup.General, null, "do not show the copyright message");
+		AddParser("noColor", OnNoColor, CommandLineGroup.General, null, "do not output results with colors");
+		AddParser("noLogo", OnNoLogo, CommandLineGroup.General, null, "do not show the copyright message");
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
-		AddParser("preenumeratetheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
-		AddParser("stoponfail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
+		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
+		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
 
 		// Filter options
@@ -131,7 +131,7 @@ public abstract class CommandLineParserBase
 			"  if specified more than once, acts as an AND operation"
 		);
 
-		// Deprecated options
+		// Deprecated/hidden options
 		AddHiddenParser("noclass", OnClassMinus);
 		AddHiddenParser("nomethod", OnMethodMinus);
 		AddHiddenParser("nonamespace", OnNamespaceMinus);
@@ -277,7 +277,7 @@ public abstract class CommandLineParserBase
 		while (arguments.Count > 0)
 		{
 			var option = PopOption(arguments);
-			var optionName = option.Key.ToLowerInvariant();
+			var optionName = option.Key;
 
 			if (!optionName.StartsWith("-", StringComparison.Ordinal))
 				throw new ArgumentException($"unknown option: {option.Key}");
@@ -318,7 +318,7 @@ public abstract class CommandLineParserBase
 
 		foreach (var unknownOption in unknownOptions)
 		{
-			var reporter = runnerReporters.FirstOrDefault(r => r.RunnerSwitch == unknownOption) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
+			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
 
 			if (runnerReporter != null)
 				throw new ArgumentException("only one reporter is allowed");
@@ -639,7 +639,7 @@ public abstract class CommandLineParserBase
 			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
 			foreach (var switchableReporter in RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-				Console.WriteLine($"  -{switchableReporter.RunnerSwitch!.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
+				Console.WriteLine($"  -{switchableReporter.RunnerSwitch!.PadRight(longestSwitch)} : {switchableReporter.Description}");
 
 			foreach (var environmentalReporter in RunnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
 				Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");

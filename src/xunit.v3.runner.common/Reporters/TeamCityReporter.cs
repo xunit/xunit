@@ -21,7 +21,7 @@ public class TeamCityReporter : IRunnerReporter
 		!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
 
 	/// <inheritdoc/>
-	public string RunnerSwitch => "teamcity";
+	public string RunnerSwitch => "teamCity";
 
 	/// <inheritdoc/>
 	public ValueTask<_IMessageSink> CreateMessageHandler(

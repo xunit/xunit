@@ -567,7 +567,7 @@ public class CommandLineTests
 			var project = commandLine.Parse();
 
 			var output = Assert.Single(project.Configuration.Output);
-			Assert.Equal(@switch.Substring(1).ToLowerInvariant(), output.Key);
+			Assert.Equal(@switch.Substring(1), output.Key, ignoreCase: true);
 			Assert.Equal("outputFile", output.Value);
 		}
 	}
