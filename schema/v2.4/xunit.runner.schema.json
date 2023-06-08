@@ -1,14 +1,23 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema",
-  "id": "https://xunit.net/schema/v2.4-beta1/xunit.runner.schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://xunit.net/schema/v2.4/xunit.runner.schema.json",
   "title": "xUnit.net Runner Configuration",
   "description": "Configuration file for unit test projects using xUnit.net",
   "type": "object",
   "properties": {
+    "$schema": {
+      "description": "The document schema",
+      "default": "https://xunit.net/schema/v2.4/xunit.runner.schema.json",
+      "type": "string"
+    },
     "appDomain": {
       "description": "Determines whether the runner will use an app domain to discover and run tests. If you choose 'required', app domains will be required (only desktop tests can be run); if you choose 'denied', then tests will not use app domains; if you choose 'ifAvailable', then app domains use is left to the discretion of the runner. Defaults to 'ifAvailable'. Note that not all runners support app domains, so the 'required' value may not always be valid.",
       "default": "ifAvailable",
-      "enum": [ "required", "ifAvailable", "denied" ]
+      "enum": [
+        "required",
+        "ifAvailable",
+        "denied"
+      ]
     },
     "diagnosticMessages": {
       "description": "Enables or disables diagnostic information during test discovery and execution.",
@@ -33,7 +42,10 @@
     "methodDisplay": {
       "description": "Configures the default display name for test cases. If you choose 'method', the display name will be just the method (without the class name); if you choose 'classAndMethod', the default display name will be the fully qualified class name and method name.",
       "default": "classAndMethod",
-      "enum": [ "method", "classAndMethod" ]
+      "enum": [
+        "method",
+        "classAndMethod"
+      ]
     },
     "methodDisplayOptions": {
       "description": "Configures one or more automatic transformations of test names. Flag names should be combined with a comma (i.e., flag1,flag2). Valid flags are: 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma'. There are special flags named 'all' and 'none'.",
@@ -58,6 +70,11 @@
     "shadowCopy": {
       "description": "Enables or disables use of shadow copying when using app domains. Has no effect if app domains are not used.",
       "default": true,
+      "type": "boolean"
+    },
+    "stopOnFail": {
+      "description": "Enable or disable stopping running further tests once a failed test has been recorded.",
+      "default": false,
       "type": "boolean"
     }
   },
