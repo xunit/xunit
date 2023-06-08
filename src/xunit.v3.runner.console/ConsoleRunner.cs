@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
@@ -33,6 +34,8 @@ class ConsoleRunner
 
 	public async ValueTask<int> EntryPoint()
 	{
+		Console.OutputEncoding = Encoding.UTF8;
+
 		var globalInternalDiagnosticMessages = false;
 		var noColor = false;
 

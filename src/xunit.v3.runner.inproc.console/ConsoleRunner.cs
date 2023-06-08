@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
@@ -59,6 +60,8 @@ public class ConsoleRunner
 			throw new InvalidOperationException("The EntryPoint method can only be called once.");
 
 		executed = true;
+
+		SetOutputEncoding();
 
 		var globalInternalDiagnosticMessages = false;
 		var noColor = false;
@@ -353,4 +356,13 @@ public class ConsoleRunner
 
 		return assemblyElement;
 	}
+
+	/// <summary>
+	/// Override this function to change the default output encoding for the system console.
+	/// The default is set to <see cref="Encoding.UTF8"/> to support our usage of Unicode
+	/// characters in output (for example, the up and down arrows printed for pointers with
+	/// mismatches assertion values).
+	/// </summary>
+	protected virtual void SetOutputEncoding() =>
+		Console.OutputEncoding = Encoding.UTF8;
 }
