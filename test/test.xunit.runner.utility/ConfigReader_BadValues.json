@@ -1,5 +1,6 @@
 ﻿{
     "diagnosticMessages": "blarch",
+    "failSkips": "blarch",
     "internalDiagnosticMessages": "blarch",
     "maxParallelThreads": "abc",
     "methodDisplay": "fooBar",

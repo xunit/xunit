@@ -311,7 +311,7 @@ namespace Xunit.Runner.MSBuild
                             resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
                         if (longRunningSeconds > 0)
                             resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-                        if (FailSkips)
+                        if (FailSkips || assembly.Configuration.FailSkipsOrDefault)
                             resultsSink = new DelegatingFailSkipSink(resultsSink);
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));

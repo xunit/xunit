@@ -22,6 +22,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_Empty.json"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.False(result.FailSkipsOrDefault);
             Assert.False(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
@@ -37,6 +38,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_OverrideValues.json"));
 
             Assert.True(result.DiagnosticMessagesOrDefault);
+            Assert.True(result.FailSkipsOrDefault);
             Assert.True(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(2112, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.Method, result.MethodDisplayOrDefault);
@@ -53,6 +55,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_BadValues.json"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.False(result.FailSkipsOrDefault);
             Assert.False(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);

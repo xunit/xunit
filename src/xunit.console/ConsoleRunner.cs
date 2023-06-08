@@ -383,6 +383,8 @@ namespace Xunit.ConsoleClient
             if (cancel)
                 return null;
 
+            failSkips = failSkips || assembly.Configuration.FailSkipsOrDefault;
+
             var assemblyElement = needsXml ? new XElement("assembly") : null;
 
             try
