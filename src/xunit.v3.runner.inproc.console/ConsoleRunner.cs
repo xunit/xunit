@@ -161,36 +161,6 @@ public class ConsoleRunner
 		}
 	}
 
-	void OnUnhandledException(
-		object sender,
-		UnhandledExceptionEventArgs e)
-	{
-		if (e.ExceptionObject is Exception ex)
-			Console.WriteLine(ex.ToString());
-		else
-			Console.WriteLine("Error of unknown type thrown in application domain");
-
-		Environment.Exit(1);
-	}
-
-	void PrintHeader() =>
-		Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
-
-	/// <summary>
-	/// Creates a new <see cref="ConsoleRunner"/> instance and runs it via <see cref="EntryPoint"/>.
-	/// </summary>
-	/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
-	/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
-	/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
-	/// <param name="consoleLock">The (optional) lock used around all console output to ensure there are no write collisions.</param>
-	/// <returns>The return value intended to be returned by the Main method.</returns>
-	public static ValueTask<int> Run(
-		string[] args,
-		Assembly? testAssembly = null,
-		IEnumerable<IRunnerReporter>? runnerReporters = null,
-		object? consoleLock = null) =>
-			new ConsoleRunner(args, testAssembly, runnerReporters, consoleLock).EntryPoint();
-
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
@@ -232,6 +202,36 @@ public class ConsoleRunner
 
 		ConsoleProjectLister.List(testCasesByAssembly, listOption, listFormat);
 	}
+
+	void OnUnhandledException(
+		object sender,
+		UnhandledExceptionEventArgs e)
+	{
+		if (e.ExceptionObject is Exception ex)
+			Console.WriteLine(ex.ToString());
+		else
+			Console.WriteLine("Error of unknown type thrown in application domain");
+
+		Environment.Exit(1);
+	}
+
+	void PrintHeader() =>
+		Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+
+	/// <summary>
+	/// Creates a new <see cref="ConsoleRunner"/> instance and runs it via <see cref="EntryPoint"/>.
+	/// </summary>
+	/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
+	/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
+	/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
+	/// <param name="consoleLock">The (optional) lock used around all console output to ensure there are no write collisions.</param>
+	/// <returns>The return value intended to be returned by the Main method.</returns>
+	public static ValueTask<int> Run(
+		string[] args,
+		Assembly? testAssembly = null,
+		IEnumerable<IRunnerReporter>? runnerReporters = null,
+		object? consoleLock = null) =>
+			new ConsoleRunner(args, testAssembly, runnerReporters, consoleLock).EntryPoint();
 
 	async ValueTask<int> RunProject(
 		XunitProject project,

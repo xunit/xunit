@@ -144,39 +144,6 @@ class ConsoleRunner
 		}
 	}
 
-	void OnUnhandledException(
-		object sender,
-		UnhandledExceptionEventArgs e)
-	{
-		if (e.ExceptionObject is Exception ex)
-			Console.WriteLine(ex.ToString());
-		else
-			Console.WriteLine("Error of unknown type thrown in application domain");
-
-		Environment.Exit(1);
-	}
-
-	void PrintHeader()
-	{
-#if NET472
-		var buildTarget = $"net472";
-#elif NET48
-		var buildTarget = $"net48";
-#elif NET481
-		var buildTarget = $"net481";
-#else
-#error Unknown target framework
-#endif
-
-#if BUILD_X86
-		buildTarget += "/x86";
-#else
-		buildTarget += "/AnyCPU";
-#endif
-
-		Console.WriteLine($"xUnit.net v3 Console Runner v{ThisAssembly.AssemblyInformationalVersion} [{buildTarget}] ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
-	}
-
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
@@ -210,6 +177,39 @@ class ConsoleRunner
 		}
 
 		ConsoleProjectLister.List(testCasesByAssembly, listOption, listFormat);
+	}
+
+	void OnUnhandledException(
+		object sender,
+		UnhandledExceptionEventArgs e)
+	{
+		if (e.ExceptionObject is Exception ex)
+			Console.WriteLine(ex.ToString());
+		else
+			Console.WriteLine("Error of unknown type thrown in application domain");
+
+		Environment.Exit(1);
+	}
+
+	void PrintHeader()
+	{
+#if NET472
+		var buildTarget = $"net472";
+#elif NET48
+		var buildTarget = $"net48";
+#elif NET481
+		var buildTarget = $"net481";
+#else
+#error Unknown target framework
+#endif
+
+#if BUILD_X86
+		buildTarget += "/x86";
+#else
+		buildTarget += "/AnyCPU";
+#endif
+
+		Console.WriteLine($"xUnit.net v3 Console Runner v{ThisAssembly.AssemblyInformationalVersion} [{buildTarget}] ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 	}
 
 	async ValueTask<int> RunProject(
