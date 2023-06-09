@@ -146,6 +146,7 @@ public class DelegatingFailSkipSink : IExecutionSink
 			{
 				AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
 				ExecutionTime = assemblyFinished.ExecutionTime,
+				FinishTime = assemblyFinished.FinishTime,
 				TestsFailed = assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
 				TestsNotRun = assemblyFinished.TestsNotRun,
 				TestsTotal = assemblyFinished.TestsTotal,
