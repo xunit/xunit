@@ -119,6 +119,16 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		if (!string.IsNullOrWhiteSpace(testOutput))
 			testResultElement.Add(new XElement("output", new XCData(testOutput)));
 
+		if (testResult.Warnings != null && testResult.Warnings.Length > 0)
+		{
+			var warningsElement = new XElement("warnings");
+
+			foreach (var warning in testResult.Warnings)
+				warningsElement.Add(new XElement("warning", new XCData(warning)));
+
+			testResultElement.Add(warningsElement);
+		}
+
 		var fileName = testCaseMetadata.SourceFilePath;
 		if (fileName != null)
 			testResultElement.Add(new XAttribute("source-file", fileName));

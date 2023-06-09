@@ -17,6 +17,7 @@ public class TestSkippedWithDisplayName : _TestSkipped, ITestResultWithDisplayNa
 		TestDisplayName = testDisplayName;
 		TestMethodUniqueID = testSkipped.TestMethodUniqueID;
 		TestUniqueID = testSkipped.TestUniqueID;
+		Warnings = testSkipped.Warnings;
 	}
 
 	public string TestDisplayName { get; set; }

@@ -16,6 +16,7 @@ public class TestPassedWithDisplayName : _TestPassed, ITestResultWithDisplayName
 		TestDisplayName = testDisplayName;
 		TestMethodUniqueID = testPassed.TestMethodUniqueID;
 		TestUniqueID = testPassed.TestUniqueID;
+		Warnings = testPassed.Warnings;
 	}
 
 	public string TestDisplayName { get; set; }

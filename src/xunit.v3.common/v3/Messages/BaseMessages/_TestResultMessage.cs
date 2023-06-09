@@ -27,6 +27,9 @@ public class _TestResultMessage : _TestMessage, _IExecutionMetadata
 	}
 
 	/// <inheritdoc/>
+	public string[]? Warnings { get; set; }
+
+	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);

@@ -21,6 +21,7 @@ public class TestFailedWithDisplayName : _TestFailed, ITestResultWithDisplayName
 		TestDisplayName = testDisplayName;
 		TestMethodUniqueID = testFailed.TestMethodUniqueID;
 		TestUniqueID = testFailed.TestUniqueID;
+		Warnings = testFailed.Warnings;
 	}
 
 	public string TestDisplayName { get; set; }

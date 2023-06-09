@@ -539,6 +539,7 @@ public static class TestData
 
 	public static _TestFailed TestFailed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		FailureCause cause = FailureCause.Assertion,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		decimal executionTime = DefaultExecutionTime,
@@ -550,7 +551,7 @@ public static class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
-		FailureCause cause = FailureCause.Assertion) =>
+		string[]? warnings = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -566,6 +567,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Warnings = warnings,
 			};
 
 	public static _TestFinished TestFinished(
@@ -576,7 +578,8 @@ public static class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		string testUniqueID = DefaultTestUniqueID) =>
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -587,6 +590,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Warnings = warnings,
 			};
 
 	public static TestMethod TestMethod(
@@ -656,7 +660,8 @@ public static class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		string testUniqueID = DefaultTestUniqueID) =>
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -667,6 +672,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Warnings = warnings,
 			};
 
 	public static _TestPassed TestPassed(
@@ -677,7 +683,8 @@ public static class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		string testUniqueID = DefaultTestUniqueID) =>
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -688,6 +695,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Warnings = warnings,
 			};
 
 	public static _TestSkipped TestSkipped(
@@ -697,7 +705,8 @@ public static class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		string testUniqueID = DefaultTestUniqueID) =>
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -709,6 +718,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Warnings = warnings,
 			};
 
 	public static _TestStarting TestStarting(

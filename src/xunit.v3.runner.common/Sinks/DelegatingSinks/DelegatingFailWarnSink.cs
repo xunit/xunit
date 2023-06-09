@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -8,18 +9,19 @@ namespace Xunit.Runner.Common;
 
 /// <summary>
 /// A delegating implementation of <see cref="IExecutionSink"/> which converts all
-/// skipped tests into failures before passing them on to the inner sink.
+/// passing tests with warnings into failures before passing them on to the inner sink.
 /// </summary>
-public class DelegatingFailSkipSink : IExecutionSink
+public class DelegatingFailWarnSink : IExecutionSink
 {
 	bool disposed;
 	readonly IExecutionSink innerSink;
+	readonly Dictionary<string, int> failCountsByUniqueID = new();
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="DelegatingFailSkipSink"/> class.
+	/// Initializes a new instance of the <see cref="DelegatingFailWarnSink"/> class.
 	/// </summary>
 	/// <param name="innerSink">The sink to delegate messages to.</param>
-	public DelegatingFailSkipSink(IExecutionSink innerSink)
+	public DelegatingFailWarnSink(IExecutionSink innerSink)
 	{
 		Guard.ArgumentNotNull(innerSink);
 
@@ -48,31 +50,48 @@ public class DelegatingFailSkipSink : IExecutionSink
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is _TestSkipped testSkipped)
+		if (message is _TestPassed testPassed && testPassed.Warnings?.Length > 0)
 		{
 			var testFailed = new _TestFailed
 			{
-				AssemblyUniqueID = testSkipped.AssemblyUniqueID,
+				AssemblyUniqueID = testPassed.AssemblyUniqueID,
 				Cause = FailureCause.Other,
 				ExceptionParentIndices = new[] { -1 },
-				ExceptionTypes = new[] { "FAIL_SKIP" },
-				ExecutionTime = 0m,
-				Messages = new[] { testSkipped.Reason },
-				Output = "",
+				ExceptionTypes = new[] { "FAIL_WARN" },
+				ExecutionTime = testPassed.ExecutionTime,
+				Messages = new[] { "This test failed due to one or more warnings" },
+				Output = testPassed.Output,
 				StackTraces = new[] { "" },
-				TestCaseUniqueID = testSkipped.TestCaseUniqueID,
-				TestClassUniqueID = testSkipped.TestClassUniqueID,
-				TestCollectionUniqueID = testSkipped.TestCollectionUniqueID,
-				TestMethodUniqueID = testSkipped.TestMethodUniqueID,
-				TestUniqueID = testSkipped.TestUniqueID,
-				Warnings = testSkipped.Warnings,
+				TestCaseUniqueID = testPassed.TestCaseUniqueID,
+				TestClassUniqueID = testPassed.TestClassUniqueID,
+				TestCollectionUniqueID = testPassed.TestCollectionUniqueID,
+				TestMethodUniqueID = testPassed.TestMethodUniqueID,
+				TestUniqueID = testPassed.TestUniqueID,
+				Warnings = testPassed.Warnings,
 			};
+
+			lock (failCountsByUniqueID)
+			{
+				failCountsByUniqueID[testPassed.TestCaseUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestCaseUniqueID) + 1;
+				if (testPassed.TestMethodUniqueID != null)
+					failCountsByUniqueID[testPassed.TestMethodUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestMethodUniqueID) + 1;
+				if (testPassed.TestClassUniqueID != null)
+					failCountsByUniqueID[testPassed.TestClassUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestClassUniqueID) + 1;
+				failCountsByUniqueID[testPassed.TestCollectionUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestCollectionUniqueID) + 1;
+				failCountsByUniqueID[testPassed.AssemblyUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.AssemblyUniqueID) + 1;
+			}
 
 			return innerSink.OnMessage(testFailed);
 		}
 
 		if (message is _TestCaseFinished testCaseFinished)
 		{
+			int failedByCase;
+
+			lock (failCountsByUniqueID)
+				if (!failCountsByUniqueID.TryGetValue(testCaseFinished.TestCaseUniqueID, out failedByCase))
+					failedByCase = 0;
+
 			testCaseFinished = new _TestCaseFinished
 			{
 				AssemblyUniqueID = testCaseFinished.AssemblyUniqueID,
@@ -81,10 +100,10 @@ public class DelegatingFailSkipSink : IExecutionSink
 				TestClassUniqueID = testCaseFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testCaseFinished.TestCollectionUniqueID,
 				TestMethodUniqueID = testCaseFinished.TestMethodUniqueID,
-				TestsFailed = testCaseFinished.TestsFailed + testCaseFinished.TestsSkipped,
+				TestsFailed = testCaseFinished.TestsFailed + failedByCase,
 				TestsNotRun = testCaseFinished.TestsNotRun,
 				TestsTotal = testCaseFinished.TestsTotal,
-				TestsSkipped = 0,
+				TestsSkipped = testCaseFinished.TestsSkipped,
 			};
 
 			return innerSink.OnMessage(testCaseFinished);
@@ -92,6 +111,13 @@ public class DelegatingFailSkipSink : IExecutionSink
 
 		if (message is _TestMethodFinished testMethodFinished)
 		{
+			int failedByMethod = 0;
+
+			if (testMethodFinished.TestMethodUniqueID != null)
+				lock (failCountsByUniqueID)
+					if (!failCountsByUniqueID.TryGetValue(testMethodFinished.TestMethodUniqueID, out failedByMethod))
+						failedByMethod = 0;
+
 			testMethodFinished = new _TestMethodFinished
 			{
 				AssemblyUniqueID = testMethodFinished.AssemblyUniqueID,
@@ -99,10 +125,10 @@ public class DelegatingFailSkipSink : IExecutionSink
 				TestClassUniqueID = testMethodFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testMethodFinished.TestCollectionUniqueID,
 				TestMethodUniqueID = testMethodFinished.TestMethodUniqueID,
-				TestsFailed = testMethodFinished.TestsFailed + testMethodFinished.TestsSkipped,
+				TestsFailed = testMethodFinished.TestsFailed + failedByMethod,
 				TestsNotRun = testMethodFinished.TestsNotRun,
 				TestsTotal = testMethodFinished.TestsTotal,
-				TestsSkipped = 0,
+				TestsSkipped = testMethodFinished.TestsSkipped,
 			};
 
 			return innerSink.OnMessage(testMethodFinished);
@@ -110,16 +136,23 @@ public class DelegatingFailSkipSink : IExecutionSink
 
 		if (message is _TestClassFinished testClassFinished)
 		{
+			int failedByClass = 0;
+
+			if (testClassFinished.TestClassUniqueID != null)
+				lock (failCountsByUniqueID)
+					if (!failCountsByUniqueID.TryGetValue(testClassFinished.TestClassUniqueID, out failedByClass))
+						failedByClass = 0;
+
 			testClassFinished = new _TestClassFinished
 			{
 				AssemblyUniqueID = testClassFinished.AssemblyUniqueID,
 				ExecutionTime = testClassFinished.ExecutionTime,
 				TestClassUniqueID = testClassFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testClassFinished.TestCollectionUniqueID,
-				TestsFailed = testClassFinished.TestsFailed + testClassFinished.TestsSkipped,
+				TestsFailed = testClassFinished.TestsFailed + failedByClass,
 				TestsNotRun = testClassFinished.TestsNotRun,
 				TestsTotal = testClassFinished.TestsTotal,
-				TestsSkipped = 0,
+				TestsSkipped = testClassFinished.TestsSkipped,
 			};
 
 			return innerSink.OnMessage(testClassFinished);
@@ -127,15 +160,21 @@ public class DelegatingFailSkipSink : IExecutionSink
 
 		if (message is _TestCollectionFinished testCollectionFinished)
 		{
+			int failedByCollection;
+
+			lock (failCountsByUniqueID)
+				if (!failCountsByUniqueID.TryGetValue(testCollectionFinished.TestCollectionUniqueID, out failedByCollection))
+					failedByCollection = 0;
+
 			testCollectionFinished = new _TestCollectionFinished
 			{
 				AssemblyUniqueID = testCollectionFinished.AssemblyUniqueID,
 				ExecutionTime = testCollectionFinished.ExecutionTime,
 				TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
-				TestsFailed = testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
+				TestsFailed = testCollectionFinished.TestsFailed + failedByCollection,
 				TestsNotRun = testCollectionFinished.TestsNotRun,
 				TestsTotal = testCollectionFinished.TestsTotal,
-				TestsSkipped = 0,
+				TestsSkipped = testCollectionFinished.TestsSkipped,
 			};
 
 			return innerSink.OnMessage(testCollectionFinished);
@@ -143,15 +182,21 @@ public class DelegatingFailSkipSink : IExecutionSink
 
 		if (message is _TestAssemblyFinished assemblyFinished)
 		{
+			int failedByAssembly;
+
+			lock (failCountsByUniqueID)
+				if (!failCountsByUniqueID.TryGetValue(assemblyFinished.AssemblyUniqueID, out failedByAssembly))
+					failedByAssembly = 0;
+
 			assemblyFinished = new _TestAssemblyFinished
 			{
 				AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
 				ExecutionTime = assemblyFinished.ExecutionTime,
 				FinishTime = assemblyFinished.FinishTime,
-				TestsFailed = assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
+				TestsFailed = assemblyFinished.TestsFailed + failedByAssembly,
 				TestsNotRun = assemblyFinished.TestsNotRun,
 				TestsTotal = assemblyFinished.TestsTotal,
-				TestsSkipped = 0,
+				TestsSkipped = assemblyFinished.TestsSkipped,
 			};
 
 			return innerSink.OnMessage(assemblyFinished);

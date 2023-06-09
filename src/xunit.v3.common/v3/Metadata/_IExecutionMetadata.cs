@@ -14,4 +14,10 @@ public interface _IExecutionMetadata
 	/// The captured output of the test. Will be <see cref="string.Empty"/> if there was no output.
 	/// </summary>
 	string Output { get; }
+
+	/// <summary>
+	/// Gets a list of the warning messages that were recorded during execution. Will be <c>null</c>
+	/// if there were no warnings.
+	/// </summary>
+	string[]? Warnings { get; }
 }

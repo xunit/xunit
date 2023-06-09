@@ -69,6 +69,7 @@ public class _TestFailed : _TestResultMessage, _IErrorMetadata
 	/// <param name="testUniqueID">The unique ID of the test</param>
 	/// <param name="executionTime">The execution time of the test (may be <c>null</c> if the test wasn't executed)</param>
 	/// <param name="output">The (optional) output from the test</param>
+	/// <param name="warnings">The (optional) warnings that were recorded during test execution</param>
 	public static _TestFailed FromException(
 		Exception ex,
 		string assemblyUniqueID,
@@ -78,7 +79,8 @@ public class _TestFailed : _TestResultMessage, _IErrorMetadata
 		string testCaseUniqueID,
 		string testUniqueID,
 		decimal executionTime,
-		string? output)
+		string? output,
+		string[]? warnings)
 	{
 		Guard.ArgumentNotNull(ex);
 		Guard.ArgumentNotNull(assemblyUniqueID);
@@ -92,17 +94,18 @@ public class _TestFailed : _TestResultMessage, _IErrorMetadata
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			Cause = errorMetadata.Cause,
+			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+			ExceptionTypes = errorMetadata.ExceptionTypes,
+			ExecutionTime = executionTime,
+			Messages = errorMetadata.Messages,
+			Output = output ?? string.Empty,
+			StackTraces = errorMetadata.StackTraces,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestUniqueID = testUniqueID,
-			ExecutionTime = executionTime,
-			Output = output ?? string.Empty,
-			ExceptionTypes = errorMetadata.ExceptionTypes,
-			Messages = errorMetadata.Messages,
-			StackTraces = errorMetadata.StackTraces,
-			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
+			Warnings = warnings,
 		};
 	}
 

@@ -67,6 +67,19 @@ public class TestAssemblyConfiguration
 	public bool FailSkipsOrDefault => FailSkips ?? false;
 
 	/// <summary>
+	/// Gets or sets a flag indicating that passing tests with warnings should be
+	/// converted into failed tests.
+	/// </summary>
+	public bool? FailWarns { get; set; }
+
+	/// <summary>
+	/// Gets or sets a flag indicating that passing tests with warnings should be
+	/// converted into failed tests. If the flag is not set, returns the default
+	/// value (<c>false</c>).
+	/// </summary>
+	public bool FailWarnsOrDefault => FailWarns ?? false;
+
+	/// <summary>
 	/// Gets the list of filters used during test discovery.
 	/// </summary>
 	public XunitFilters Filters { get; } = new();

@@ -77,6 +77,8 @@ public static class ConfigReader_Json
 						configuration.DiagnosticMessages = booleanValue;
 					else if (string.Equals(property.Name, Configuration.FailSkips, StringComparison.OrdinalIgnoreCase))
 						configuration.FailSkips = booleanValue;
+					else if (string.Equals(property.Name, Configuration.FailWarns, StringComparison.OrdinalIgnoreCase))
+						configuration.FailWarns = booleanValue;
 					else if (string.Equals(property.Name, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 						configuration.InternalDiagnosticMessages = booleanValue;
 					else if (string.Equals(property.Name, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
@@ -170,6 +172,7 @@ public static class ConfigReader_Json
 		public const string Culture = "culture";
 		public const string DiagnosticMessages = "diagnosticMessages";
 		public const string FailSkips = "failSkips";
+		public const string FailWarns = "failWarns";
 		public const string InternalDiagnosticMessages = "internalDiagnosticMessages";
 		public const string LongRunningTestSeconds = "longRunningTestSeconds";
 		public const string MaxParallelThreads = "maxParallelThreads";

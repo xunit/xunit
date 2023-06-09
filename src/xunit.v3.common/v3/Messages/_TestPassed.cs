@@ -5,4 +5,3 @@ namespace Xunit.v3;
 /// </summary>
 public class _TestPassed : _TestResultMessage
 { }
-

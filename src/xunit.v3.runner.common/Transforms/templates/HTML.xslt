@@ -18,6 +18,7 @@
           table { padding-bottom: 0.25em; }
           th { padding: 0 0.5em; border-right: 1px solid #bbb; text-align: left; }
           td { padding-left: 0.5em; }
+          ul { margin: 0; }
           .divided { border-top: solid 1px #f0f5fa; padding-top: 0.5em; }
           .row, .altrow { padding: 0.1em 0.3em; }
           .row { background-color: #f0f5fa; }
@@ -183,6 +184,12 @@
         <h6>Output:</h6>
         <pre><xsl:value-of select="output"/></pre>
       </xsl:if>
+      <xsl:if test="warnings">
+        <h6>Warnings:</h6>
+        <ul>
+          <xsl:apply-templates select="warnings/warning"/>
+        </ul>
+      </xsl:if>
       <xsl:if test="traits">
         <h6>Traits:</h6>
         <table cellspacing="0" cellpadding="0">
@@ -190,6 +197,10 @@
         </table>
       </xsl:if>
     </div>
+  </xsl:template>
+
+  <xsl:template match="warning">
+    <li><pre><xsl:value-of select="."/></pre></li>
   </xsl:template>
 
   <xsl:template match="trait">

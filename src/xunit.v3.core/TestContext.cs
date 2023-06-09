@@ -17,16 +17,20 @@ public class TestContext
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = new() { TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp };
 
+	readonly List<string>? warnings;
+
 	TestContext(
 		CancellationToken cancellationToken,
 		_IMessageSink? diagnosticMessageSink,
 		_IMessageSink? internalDiagnosticMessageSink,
-		TestPipelineStage pipelineStage)
+		TestPipelineStage pipelineStage,
+		List<string>? warnings = null)
 	{
 		CancellationToken = cancellationToken;
 		DiagnosticMessageSink = diagnosticMessageSink;
 		InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
 		PipelineStage = pipelineStage;
+		this.warnings = warnings;
 	}
 
 	/// <summary>
@@ -153,6 +157,25 @@ public class TestContext
 	/// </summary>
 	[NotNullIfNotNull(nameof(Test))]
 	public TestEngineStatus? TestStatus { get; private set; }
+
+	/// <summary>
+	/// Gets the set of warnings associated with the current test. Will only be available when <see cref="Test"/>
+	/// is not <c>null</c>; will also return <c>null</c> if there have been no warnings issued.
+	/// </summary>
+	public IReadOnlyList<string>? Warnings =>
+		warnings?.Count > 0 ? warnings : null;
+
+	/// <summary>
+	/// Adds a warning to the test result.
+	/// </summary>
+	/// <param name="message">The warning message to be reported</param>
+	public void AddWarning(string message)
+	{
+		if (Test == null || warnings == null)
+			SendDiagnosticMessage("Attempted to log a test warning message while not running a test (pipeline stage = {0}); message: {1}", PipelineStage, message);
+		else
+			warnings.Add(message);
+	}
 
 	/// <summary>
 	/// Sends a diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -313,7 +336,7 @@ public class TestContext
 		if (Current.TestOutputHelper == null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution)
+		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, Current.warnings ?? new())
 		{
 			Test = test,
 			TestStatus = testStatus,

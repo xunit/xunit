@@ -16,6 +16,7 @@ public class TestNotRunWithDisplayName : _TestNotRun, ITestResultWithDisplayName
 		TestDisplayName = testDisplayName;
 		TestMethodUniqueID = testNotRun.TestMethodUniqueID;
 		TestUniqueID = testNotRun.TestUniqueID;
+		Warnings = testNotRun.Warnings;
 	}
 
 	public string TestDisplayName { get; set; }

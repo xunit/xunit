@@ -149,6 +149,7 @@ public class Xunit3AcceptanceTests
 					Assert.Equal(observedCollectionID, testPassed.TestCollectionUniqueID);
 					Assert.Equal(observedMethodID, testPassed.TestMethodUniqueID);
 					Assert.Equal(observedTestID, testPassed.TestUniqueID);
+					Assert.Null(testPassed.Warnings);
 				},
 				message =>
 				{
@@ -1049,6 +1050,77 @@ public class Xunit3AcceptanceTests
 		}
 	}
 
+	public class Warnings : AcceptanceTestV3
+	{
+		[Fact]
+		public async ValueTask LegalWarnings()
+		{
+			var results = await RunForResultsAsync(typeof(ClassWithLegalWarnings));
+
+			Assert.Collection(
+				results.OrderBy(result => result.TestDisplayName),
+				msg =>
+				{
+					var failed = Assert.IsType<TestFailedWithDisplayName>(msg);
+					Assert.Equal($"{typeof(ClassWithLegalWarnings).FullName}.{nameof(ClassWithLegalWarnings.Failing)}", failed.TestDisplayName);
+					Assert.NotNull(failed.Warnings);
+					Assert.Collection(
+						failed.Warnings,
+						warning => Assert.Equal("This is a warning message from the constructor", warning),
+						warning => Assert.Equal("This is a warning message from Failing()", warning),
+						warning => Assert.Equal("This is a warning message from Dispose()", warning)
+					);
+				},
+				msg =>
+				{
+					var passed = Assert.IsType<TestPassedWithDisplayName>(msg);
+					Assert.Equal($"{typeof(ClassWithLegalWarnings).FullName}.{nameof(ClassWithLegalWarnings.Passing)}", passed.TestDisplayName);
+					Assert.NotNull(passed.Warnings);
+					Assert.Collection(
+						passed.Warnings,
+						warning => Assert.Equal("This is a warning message from the constructor", warning),
+						warning => Assert.Equal("This is a warning message from Passing()", warning),
+						warning => Assert.Equal("This is a warning message from Dispose()", warning)
+					);
+				},
+				msg =>
+				{
+					var skipped = Assert.IsType<TestSkippedWithDisplayName>(msg);
+					Assert.Equal($"{typeof(ClassWithLegalWarnings).FullName}.{nameof(ClassWithLegalWarnings.Skipping)}", skipped.TestDisplayName);
+					Assert.Null(skipped.Warnings);  // Ctor and Dispose are skipped, so no warnings
+				},
+				msg =>
+				{
+					var skipped = Assert.IsType<TestSkippedWithDisplayName>(msg);
+					Assert.Equal($"{typeof(ClassWithLegalWarnings).FullName}.{nameof(ClassWithLegalWarnings.SkippingDynamic)}", skipped.TestDisplayName);
+					Assert.NotNull(skipped.Warnings);
+					Assert.Collection(
+						skipped.Warnings,
+						warning => Assert.Equal("This is a warning message from the constructor", warning),
+						warning => Assert.Equal("This is a warning message from SkippingDynamic()", warning),
+						warning => Assert.Equal("This is a warning message from Dispose()", warning)
+					);
+				}
+			);
+		}
+
+		[Fact]
+		public async ValueTask IllegalWarning()
+		{
+			var diagnosticSink = SpyMessageSink.Capture();
+
+			var results = await RunForResultsAsync(typeof(ClassWithIllegalWarnings), diagnosticMessageSink: diagnosticSink);
+
+			var diagnosticMessage = Assert.Single(diagnosticSink.Messages.OfType<_DiagnosticMessage>());
+			Assert.Equal("Attempted to log a test warning message while not running a test (pipeline stage = TestClassExecution); message: This is a warning from an illegal part of the pipeline", diagnosticMessage.Message);
+			var result = Assert.Single(results);
+			// Illegal warning messages won't show up here, and won't prevent running tests
+			var passed = Assert.IsType<TestPassedWithDisplayName>(result);
+			Assert.Equal($"{typeof(ClassWithIllegalWarnings).FullName}.{nameof(ClassWithIllegalWarnings.Passing)}", passed.TestDisplayName);
+			Assert.Null(passed.Warnings);
+		}
+	}
+
 	class NoTestsClass { }
 
 	class SinglePassingTestClass
@@ -1083,5 +1155,55 @@ public class Xunit3AcceptanceTests
 			await Task.Delay(1);
 			Assert.True(false);
 		}
+	}
+
+	class ClassWithLegalWarnings : IDisposable
+	{
+		public ClassWithLegalWarnings()
+		{
+			TestContext.Current!.AddWarning("This is a warning message from the constructor");
+		}
+
+		public void Dispose()
+		{
+			TestContext.Current!.AddWarning("This is a warning message from Dispose()");
+		}
+
+		[Fact]
+		public void Passing()
+		{
+			TestContext.Current!.AddWarning("This is a warning message from Passing()");
+		}
+
+		[Fact]
+		public void Failing()
+		{
+			TestContext.Current!.AddWarning("This is a warning message from Failing()");
+			Assert.True(false);
+		}
+
+		[Fact(Skip = "I never run")]
+		public void Skipping()
+		{ }
+
+		[Fact]
+		public void SkippingDynamic()
+		{
+			TestContext.Current!.AddWarning("This is a warning message from SkippingDynamic()");
+			Assert.Skip("I decided not to run");
+		}
+	}
+
+	class FixtureWithIllegalWarning
+	{
+		public FixtureWithIllegalWarning() =>
+			TestContext.Current!.AddWarning("This is a warning from an illegal part of the pipeline");
+	}
+
+	class ClassWithIllegalWarnings : IClassFixture<FixtureWithIllegalWarning>
+	{
+		[Fact]
+		public void Passing()
+		{ }
 	}
 }

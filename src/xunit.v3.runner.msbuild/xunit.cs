@@ -23,6 +23,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
 	bool? diagnosticMessages;
 	bool? failSkips;
+	bool? failWarns;
 	XunitFilters? filters;
 	bool? internalDiagnosticMessages;
 	IRunnerLogger? logger;
@@ -52,6 +53,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	public int ExitCode { get; protected set; }
 
 	public bool FailSkips { set { failSkips = value; } }
+
+	public bool FailWarns { set { failWarns = value; } }
 
 	protected XunitFilters Filters
 	{
@@ -325,6 +328,8 @@ public class xunit : MSBuildTask, ICancelableTask
 				assembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages.Value;
 			if (failSkips.HasValue)
 				assembly.Configuration.FailSkips = failSkips.Value;
+			if (failWarns.HasValue)
+				assembly.Configuration.FailWarns = failWarns.Value;
 
 			if (appDomains.HasValue)
 				assembly.Configuration.AppDomain = appDomains;
@@ -372,6 +377,8 @@ public class xunit : MSBuildTask, ICancelableTask
 				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 			if (assembly.Configuration.FailSkipsOrDefault)
 				resultsSink = new DelegatingFailSkipSink(resultsSink);
+			if (assembly.Configuration.FailWarnsOrDefault)
+				resultsSink = new DelegatingFailWarnSink(resultsSink);
 
 			using (resultsSink)
 			{

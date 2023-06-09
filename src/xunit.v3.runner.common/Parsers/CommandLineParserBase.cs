@@ -51,7 +51,9 @@ public abstract class CommandLineParserBase
 			"  only - run only explicit tests"
 		);
 		AddParser("failSkips", OnFailSkips, CommandLineGroup.General, null, "treat skipped tests as failures");
-		AddParser("failSkips-", OnFailSkipsMinus, CommandLineGroup.General, null, "treat skipped tests as skipped");
+		AddParser("failSkips-", OnFailSkipsMinus, CommandLineGroup.General, null, "treat skipped tests as skipped (default)");
+		AddParser("failWarns", OnFailWarns, CommandLineGroup.General, null, "treat passing tests with warnings as failures");
+		AddParser("failWarns-", OnFailWarnsMinus, CommandLineGroup.General, null, "treat passing tests with warnings as successful (default)");
 		AddParser("ignoreFailures", OnIgnoreFailures, CommandLineGroup.General, null, "if tests fail, do not return a failure exit code");
 		AddParser("internalDiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
 		AddParser(
@@ -408,6 +410,20 @@ public abstract class CommandLineParserBase
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.FailSkips = false;
+	}
+
+	void OnFailWarns(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.FailWarns = true;
+	}
+
+	void OnFailWarnsMinus(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.FailWarns = false;
 	}
 
 	void OnIgnoreFailures(KeyValuePair<string, string?> option)

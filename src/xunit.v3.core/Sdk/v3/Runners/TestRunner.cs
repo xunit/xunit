@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -107,6 +108,7 @@ public abstract class TestRunner<TContext>
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
 						TestUniqueID = testUniqueID,
+						Warnings = TestContext.Current?.Warnings?.ToArray(),
 					};
 				}
 				else if (!string.IsNullOrEmpty(ctxt.SkipReason))
@@ -123,7 +125,8 @@ public abstract class TestRunner<TContext>
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
-						TestUniqueID = testUniqueID
+						TestUniqueID = testUniqueID,
+						Warnings = TestContext.Current?.Warnings?.ToArray(),
 					};
 				}
 				else
@@ -151,7 +154,8 @@ public abstract class TestRunner<TContext>
 							TestClassUniqueID = testClassUniqueID,
 							TestCollectionUniqueID = testCollectionUniqueID,
 							TestMethodUniqueID = testMethodUniqueID,
-							TestUniqueID = testUniqueID
+							TestUniqueID = testUniqueID,
+							Warnings = TestContext.Current?.Warnings?.ToArray(),
 						};
 					}
 					// We don't want a strongly typed contract here; any exception can be a dynamically
@@ -168,7 +172,8 @@ public abstract class TestRunner<TContext>
 							TestClassUniqueID = testClassUniqueID,
 							TestCollectionUniqueID = testCollectionUniqueID,
 							TestMethodUniqueID = testMethodUniqueID,
-							TestUniqueID = testUniqueID
+							TestUniqueID = testUniqueID,
+							Warnings = TestContext.Current?.Warnings?.ToArray(),
 						};
 						runSummary.Skipped++;
 					}
@@ -183,7 +188,8 @@ public abstract class TestRunner<TContext>
 							testCaseUniqueID,
 							testUniqueID,
 							runSummary.Time,
-							output
+							output,
+							TestContext.Current?.Warnings?.ToArray()
 						);
 						runSummary.Failed++;
 					}

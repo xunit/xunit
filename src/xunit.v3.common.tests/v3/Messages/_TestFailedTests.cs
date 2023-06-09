@@ -44,7 +44,7 @@ public class _TestFailedTests
 		{
 			var ex = new DivideByZeroException();
 
-			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
+			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 
 			Assert.Equal(FailureCause.Exception, failed.Cause);
 		}
@@ -54,7 +54,7 @@ public class _TestFailedTests
 		{
 			var ex = EqualException.ForMismatchedValues(42, 2112);
 
-			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
+			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 
 			Assert.Equal(FailureCause.Assertion, failed.Cause);
 		}
@@ -64,7 +64,7 @@ public class _TestFailedTests
 		{
 			var ex = new MyAssertionException();
 
-			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
+			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 
 			Assert.Equal(FailureCause.Assertion, failed.Cause);
 		}
@@ -80,7 +80,7 @@ public class _TestFailedTests
 		{
 			var ex = TestTimeoutException.ForTimedOutTest(2112);
 
-			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
+			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 
 			Assert.Equal(FailureCause.Timeout, failed.Cause);
 		}
@@ -90,7 +90,7 @@ public class _TestFailedTests
 		{
 			var ex = new MyTimeoutException();
 
-			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
+			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 
 			Assert.Equal(FailureCause.Timeout, failed.Cause);
 		}
@@ -106,7 +106,7 @@ public class _TestFailedTests
 		{
 			var ex = new MyMultiException();
 
-			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null);
+			var failed = _TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 
 			Assert.Equal(FailureCause.Timeout, failed.Cause);
 		}

@@ -187,7 +187,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 	}
 
 	/// <summary>
-	/// Lots test output to the logger.
+	/// Logs test output to the logger.
 	/// </summary>
 	protected virtual void LogOutput(
 		StackFrameInfo frameInfo,
@@ -205,6 +205,24 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 
 		foreach (var line in output.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
 			Logger.LogImportantMessage(frameInfo, $"        {line}");
+	}
+
+	/// <summary>
+	/// Logs warnings to the logger.
+	/// </summary>
+	protected virtual void LogWarnings(string[]? warnings)
+	{
+		if (warnings == null || warnings.Length == 0)
+			return;
+
+		Logger.LogMessage(StackFrameInfo.None, "      Warnings:");
+
+		foreach (var warning in warnings)
+		{
+			var lines = warning.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+			for (var idx = 0; idx < lines.Length; ++idx)
+				Logger.LogWarning(StackFrameInfo.None, $"        {(idx == 0 ? "•" : " ")} {lines[idx]}");
+		}
 	}
 
 	void RemoveExecutionOptions(string assemblyIdentifier)
@@ -505,6 +523,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 
 			LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));
 			LogOutput(frameInfo, testFailed.Output);
+			LogWarnings(testFailed.Warnings);
 		}
 	}
 
@@ -567,9 +586,9 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 
 		var testPassed = args.Message;
 		var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(testPassed);
+		var diagnosticMessages = GetExecutionOptions(assemblyMetadata?.AssemblyPath).GetDiagnosticMessagesOrDefault();
 
-		if (!string.IsNullOrEmpty(testPassed.Output) &&
-			GetExecutionOptions(assemblyMetadata?.AssemblyPath).GetDiagnosticMessagesOrDefault())
+		if (testPassed.Warnings?.Length > 0 || (diagnosticMessages && !string.IsNullOrEmpty(testPassed.Output)))
 		{
 			lock (Logger.LockObject)
 			{
@@ -580,6 +599,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 					Logger.LogImportantMessage("    <unknown test> [PASS]");
 
 				LogOutput(StackFrameInfo.None, testPassed.Output);
+				LogWarnings(testPassed.Warnings);
 			}
 		}
 		// TODO: What to do if assembly metadata cannot be found?
@@ -603,6 +623,9 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 				Logger.LogWarning("    <unknown test> [SKIP]");
 
 			Logger.LogImportantMessage($"      {EscapeMultiLineIndent(testSkipped.Reason, "      ")}");
+
+			LogOutput(StackFrameInfo.None, testSkipped.Output);
+			LogWarnings(testSkipped.Warnings);
 		}
 	}
 

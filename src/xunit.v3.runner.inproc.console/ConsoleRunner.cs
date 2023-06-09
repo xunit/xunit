@@ -324,6 +324,8 @@ public class ConsoleRunner
 				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 			if (assembly.Configuration.FailSkipsOrDefault)
 				resultsSink = new DelegatingFailSkipSink(resultsSink);
+			if (assembly.Configuration.FailWarnsOrDefault)
+				resultsSink = new DelegatingFailWarnSink(resultsSink);
 
 			using (resultsSink)
 			{
