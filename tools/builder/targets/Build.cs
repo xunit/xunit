@@ -11,7 +11,7 @@ public static partial class Build
 
 		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
 
-		context.BuildStep("Compiling binaries (32-bit)");
+		context.BuildStep("Compiling binaries (x86)");
 
 		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}_x86");
 	}

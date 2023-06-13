@@ -14,7 +14,7 @@ public static class TestCoreConsole
 {
 	public static async Task OnExecute(BuildContext context)
 	{
-		context.BuildStep("Running .NET Core tests (via Console runner)");
+		context.BuildStep("Running .NET Core tests (AnyCPU, via Console runner)");
 
 		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
 
@@ -49,6 +49,8 @@ public static class TestCoreConsole
 		var x86Dotnet = Path.Combine(programFilesX86, "dotnet", "dotnet.exe");
 		if (!File.Exists(x86Dotnet))
 			return;
+
+		context.BuildStep("Running .NET Core tests (x86, via Console runner)");
 
 		// v3 (forced 32-bit)
 		var netCore32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", "net6");

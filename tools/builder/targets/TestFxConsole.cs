@@ -13,7 +13,7 @@ public static class TestFxConsole
 {
 	public static async Task OnExecute(BuildContext context)
 	{
-		context.BuildStep("Running .NET Framework tests (via Console runner)");
+		context.BuildStep("Running .NET Framework tests (AnyCPU, via Console runner)");
 
 		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
 
@@ -40,6 +40,8 @@ public static class TestFxConsole
 		// Mono is only supported for v3, at whatever bitness the user installs for Mono
 		if (context.NeedMono)
 			return;
+
+		context.BuildStep("Running .NET Framework tests (x86, via Console runner)");
 
 		// v3 (forced 32-bit)
 		var netFx32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", "net4");
