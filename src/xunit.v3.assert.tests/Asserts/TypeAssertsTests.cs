@@ -148,6 +148,132 @@ public class TypeAssertsTests
 		}
 	}
 
+	public class IsNotAssignableFrom_Generic
+	{
+		[Fact]
+		public void NullObject()
+		{
+			Assert.IsNotAssignableFrom<object>(null);
+		}
+
+		[Fact]
+		public void SameType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotAssignableFrom<InvalidCastException>(ex));
+
+			Assert.IsType<IsNotAssignableFromException>(result);
+			Assert.Equal(
+				"Assert.IsNotAssignableFrom() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void BaseType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotAssignableFrom<Exception>(ex));
+
+			Assert.IsType<IsNotAssignableFromException>(result);
+			Assert.Equal(
+				"Assert.IsNotAssignableFrom() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.Exception)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void Interface()
+		{
+			var ex = new DisposableClass();
+
+			var result = Record.Exception(() => Assert.IsNotAssignableFrom<IDisposable>(ex));
+
+			Assert.IsType<IsNotAssignableFromException>(result);
+			Assert.Equal(
+				"Assert.IsNotAssignableFrom() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.IDisposable)" + Environment.NewLine +
+				"Actual:   typeof(TypeAssertsTests+DisposableClass)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void IncompatibleType()
+		{
+			Assert.IsNotAssignableFrom<InvalidCastException>(new InvalidOperationException());
+		}
+	}
+
+	public class IsNotAssignableFrom_NonGeneric
+	{
+		[Fact]
+		public void NullObject()
+		{
+			Assert.IsNotAssignableFrom(typeof(object), null);
+		}
+
+		[Fact]
+		public void SameType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotAssignableFrom(typeof(InvalidCastException), ex));
+
+			Assert.IsType<IsNotAssignableFromException>(result);
+			Assert.Equal(
+				"Assert.IsNotAssignableFrom() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void BaseType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotAssignableFrom(typeof(Exception), ex));
+
+			Assert.IsType<IsNotAssignableFromException>(result);
+			Assert.Equal(
+				"Assert.IsNotAssignableFrom() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.Exception)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void Interface()
+		{
+			var ex = new DisposableClass();
+
+			var result = Record.Exception(() => Assert.IsNotAssignableFrom(typeof(IDisposable), ex));
+
+			Assert.IsType<IsNotAssignableFromException>(result);
+			Assert.Equal(
+				"Assert.IsNotAssignableFrom() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.IDisposable)" + Environment.NewLine +
+				"Actual:   typeof(TypeAssertsTests+DisposableClass)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void IncompatibleType()
+		{
+			Assert.IsNotAssignableFrom(typeof(InvalidCastException), new InvalidOperationException());
+		}
+	}
+
 	public class IsNotType_Generic
 	{
 		[Fact]
