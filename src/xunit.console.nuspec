@@ -9,6 +9,7 @@
     <license type="expression">Apache-2.0</license>
     <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
     <icon>_content/logo-128-transparent.png</icon>
+    <readme>_content/README.md</readme>
     <description>.NET Core console runner, as a linkable library, for runner authors. For running tests, please use xunit.runner.console instead.</description>
     <copyright>Copyright (C) .NET Foundation</copyright>
     <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
@@ -23,6 +24,7 @@
   </metadata>
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
+    <file target="_content\" src="..\README.md" />
 
     <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.console.dll" target="lib\netcoreapp1.0\" />
 

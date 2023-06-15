@@ -9,6 +9,7 @@
     <license type="expression">Apache-2.0</license>
     <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
     <icon>_content/logo-128-transparent.png</icon>
+    <readme>_content/README.md</readme>
     <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners. Supports .NET 4.5.2 or later, .NET Standard 1.1, .NET Standard 1.5, and .NET Core 1.0 or later.</description>
     <copyright>Copyright (C) .NET Foundation</copyright>
     <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
@@ -32,6 +33,7 @@
   </metadata>
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
+    <file target="_content\" src="..\README.md" />
 
     <file src="xunit.runner.reporters\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="lib\net452\" />
 

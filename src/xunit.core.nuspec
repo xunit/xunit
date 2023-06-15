@@ -9,6 +9,7 @@
     <license type="expression">Apache-2.0</license>
     <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
     <icon>_content/logo-128-transparent.png</icon>
+    <readme>_content/README.md</readme>
     <description>Includes the libraries for writing unit tests with xUnit.net.</description>
     <copyright>Copyright (C) .NET Foundation</copyright>
     <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
@@ -19,6 +20,7 @@
   </metadata>
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
+    <file target="_content\" src="..\README.md" />
 
     <file src="xunit.core\build\xunit.core.props"   target="build\" />
     <file src="xunit.core\build\xunit.core.targets" target="build\" />
