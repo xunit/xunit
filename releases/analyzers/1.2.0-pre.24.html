@@ -1,0 +1,68 @@
+---
+layout: default
+title: "Release Notes for Analyzers: June 14, 2023"
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes for Analyzers: June 14, 2023</h1>
+
+<h2>xUnit.net Analyzers 1.2.0 Pre-Release (build 24)</h2>
+
+<p>
+  This is co-released with the core framework release
+  <a href="../2.5.0-pre.26"><code>2.5.0-pre.26</code></a>.
+</p>
+
+<p class="note">
+  This version has updated the minimum supported Visual Studio to 2022. It is possible that the analyzers
+  will continue to work with older versions of Visual Studio, but we do not guarantee or test against that.
+</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    Updated xUnit1026 to ignore unused parameters when the name matches the discard logic specified by
+    <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0060">IDE0060</a>.
+    That includes parameters named simply <code>_</code> as well parameters named starting with an
+    underscore followed by a integer number (e.g., <code>_123</code>).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2730">xunit/xunit#2730</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue in the xUnit1033 fixer ("Generate constructor") where the generated
+    constructor should've been public, but wasn't.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2721">xunit/xunit#2721</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Updated xUnit2018 to include support for the new <code>Assert.IsNotAssignableFrom</code> assertion.
+    This includes an updated message in the analyzer, and updated code generation for the fixer.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2727">xunit/xunit#2727</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with common code for xUnit1010 and xUnit1012 that was causing an
+    exception in the analyzer when the user was passing an explicit empty array to provide values for
+    a <code>params</code>-style array in the test method. A secondary issue (for non-empty explicit
+    arrays) was also discovered and fixed at the same time.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2711">xunit/xunit#2711</a>
+  </li>
+</ul>
+
+<h3>Miscellany</h3>
+<ul>
+  <li>
+    The included <code>install.ps1</code> and <code>uninstall.ps1</code> files are now the signed
+    versions provided by Microsoft.
+  </li>
+  <li>
+    We have updated to version <code>4.6.0</code> of <code>Microsoft.CodeAnalysis.CSharp</code> and
+    <code>Microsoft.CodeAnalysis.CSharp.Workspaces</code>. In addition to bringing us up to date with
+    latest language features, this also gives us better coverage when your tests are being compiled
+    with the <a href="https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references">Nullable
+    Reference Types</a> feature enabled. This should allow us to enable future analyzers based
+    on newer C# language features, and should also help our analyzers be more robust (as the
+    libraries we're consuming now themselves are enabled for Nullable Reference Types).
+  </li>
+</ul>
