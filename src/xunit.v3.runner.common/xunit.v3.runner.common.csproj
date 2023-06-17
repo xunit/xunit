@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <RootNamespace>Xunit.Runner.Common</RootNamespace>

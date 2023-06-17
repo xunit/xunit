@@ -4,8 +4,4 @@
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
-  </ItemGroup>
-
 </Project>
