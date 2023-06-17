@@ -126,50 +126,23 @@ namespace Xunit.ConsoleClient
 
         List<IRunnerReporter> GetAvailableRunnerReporters()
         {
-            var result = new List<IRunnerReporter>();
+            var result = RunnerReporterUtility.GetAvailableRunnerReporters(Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location), out var messages);
 
-            var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
-
-            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
-            {
-                Type[] types = new Type[0];
-
-                try
+            if (messages.Count > 0)
+                lock (consoleLock)
                 {
-#if NETFRAMEWORK
-                    var assembly = Assembly.LoadFile(dllFile);
-#else
-                    var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-#endif
-                    types = assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException ex)
-                {
-                    types = ex.Types;
-                }
-                catch
-                {
-                    continue;
-                }
-
-                foreach (var type in types)
-                {
-#pragma warning disable CS0618
-                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-                        continue;
-#pragma warning restore CS0618
-                    var ctor = type.GetConstructor(new Type[0]);
-                    if (ctor == null)
-                    {
+                    if (!commandLine.NoColor)
                         ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-                        Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-                        ConsoleHelper.ResetColor();
-                        continue;
+
+                    foreach (var message in messages)
+                    {
+                        Console.WriteLine(message);
+                        Console.WriteLine();
                     }
 
-                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+                    if (!commandLine.NoColor)
+                        ConsoleHelper.ResetColor();
                 }
-            }
 
             return result;
         }
