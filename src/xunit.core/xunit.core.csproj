@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE;XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard1.1</TargetFramework>
   </PropertyGroup>

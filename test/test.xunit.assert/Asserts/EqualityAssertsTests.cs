@@ -3453,8 +3453,8 @@ public class EqualityAssertsTests
 			Assert.IsType<StrictEqualException>(ex);
 			Assert.Equal(
 				"Assert.StrictEqual() Failure: Values differ" + Environment.NewLine +
-				$"Expected: EnumerableClass [{ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
-				$"Actual:   EnumerableClass [{ArgumentFormatter.Ellipsis}]",
+				$"Expected: [{ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+				$"Actual:   [{ArgumentFormatter.Ellipsis}]",
 				ex.Message
 			);
 		}

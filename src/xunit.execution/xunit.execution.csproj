@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.execution.desktop</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.execution.dotnet</AssemblyName>
-    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE;XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
     <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
