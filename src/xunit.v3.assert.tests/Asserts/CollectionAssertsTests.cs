@@ -1121,7 +1121,7 @@ public class CollectionAssertsTests
 
 			Assert.IsType<NotEmptyException>(ex);
 			Assert.Equal(
-				"Assert.NotEmpty() Failure: Container was empty",
+				"Assert.NotEmpty() Failure: Collection was empty",
 				ex.Message
 			);
 		}
