@@ -126,7 +126,7 @@ namespace Xunit.ConsoleClient
 
         List<IRunnerReporter> GetAvailableRunnerReporters()
         {
-            var result = RunnerReporterUtility.GetAvailableRunnerReporters(Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location), out var messages);
+            var result = RunnerReporterUtility.GetAvailableRunnerReporters(Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.GetLocalCodeBase()), out var messages);
 
             if (messages.Count > 0)
                 lock (consoleLock)
