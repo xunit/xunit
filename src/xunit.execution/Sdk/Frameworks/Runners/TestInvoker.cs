@@ -244,6 +244,18 @@ namespace Xunit.Sdk
                         {
                             var parameterCount = TestMethod.GetParameters().Length;
                             var valueCount = TestMethodArguments == null ? 0 : TestMethodArguments.Length;
+
+                            // https://github.com/xunit/visualstudio.xunit/issues/371
+                            if (valueCount == 0 && parameterCount == 1)
+                            {
+                                var parameter = TestMethod.GetParameters()[0];
+                                if (parameter.GetCustomAttribute(typeof(ParamArrayAttribute)) != null)
+                                {
+                                    TestMethodArguments = new object[] { Array.CreateInstance(parameter.ParameterType.GetElementType(), 0) };
+                                    valueCount = 1;
+                                }
+                            }
+
                             if (parameterCount != valueCount)
                             {
                                 Aggregator.Add(

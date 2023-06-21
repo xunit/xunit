@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -124,6 +123,19 @@ public class TestInvokerTests
         Assert.Equal("The test method expected 1 parameter value, but 0 parameter values were provided.", ex.Message);
     }
 
+    // https://github.com/xunit/visualstudio.xunit/issues/371
+    [Fact]
+    public static async void NoArgumentsForParamsArrayIsOkay()
+    {
+        var messageBus = new SpyMessageBus();
+        var invoker = TestableTestInvoker.Create<NonDisposableClass>("PassingParamsArray", messageBus);
+
+        var result = await invoker.RunAsync();
+
+        Assert.NotEqual(0m, result);
+        Assert.Null(invoker.Aggregator.ToException());
+    }
+
     [Fact]
     public static async void CancellationRequested_DoesNotInvokeTestMethod()
     {
@@ -146,6 +158,10 @@ public class TestInvokerTests
 
         [Fact]
         public void Passing() { }
+
+        [Theory]
+        [InlineData]
+        public void PassingParamsArray(params int[] _) { }
 
         [Fact]
         public void Failing()
