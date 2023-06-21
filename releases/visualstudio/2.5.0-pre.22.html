@@ -1,0 +1,43 @@
+---
+layout: default
+title: Release Notes for June 21, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: June 21, 2023</h1>
+
+<h2>
+  xunit.runner.visualstudio 2.5.0 Pre-Release (build 22)
+</h2>
+
+<p>
+  This is co-released with the core framework release
+  <a href="../2.5.0-pre.37"><code>2.5.0-pre.37</code></a>.
+</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    Fixed a performance issue with reporter discovery related to scanning every single DLL in your output folder looking
+    for types which implement reporters. <strong><em>Now we only scan libraries named</em></strong> <code>*reporters*.dll</code>
+    <strong><em>which may break any custom reporters you are using from first or third party assemblies without an appropriate
+    name.</em></strong>
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/317">xunit/visualstudio.xunit#317</a>
+  </li>
+  <li>
+    <p><strong>BUG:</strong> Fixed an issue where data-driven tests with only a params array could not
+    be run with an empty `[InlineData]` declaration. For example, this worked:</p>
+{% highlight csharp %}
+[Theory]
+[InlineData(new int[] { })]
+public void MyTest(params int[] values)
+{% endhighlight %}
+    <p>But this would not:</p>
+{% highlight csharp %}
+[Theory]
+[InlineData]
+public void MyTest(params int[] values)
+{% endhighlight %}
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/371">xunit/visualstudio.xunit#371</a>
+  </li>
+</ul>
