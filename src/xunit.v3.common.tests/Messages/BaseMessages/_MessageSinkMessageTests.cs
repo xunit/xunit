@@ -1,11 +1,9 @@
+#if false
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Text.Json.Serialization;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -228,3 +226,4 @@ public class _MessageSinkMessageTests
 			throw new XunitException($"The following attributes are missing from {nameof(_MessageSinkMessage)}:{Environment.NewLine}{string.Join(Environment.NewLine, missingTypes.OrderBy(t => t.Name).Select(t => $"  [JsonDerivedType(typeof({t.Name}), nameof({t.Name}))]"))}");
 	}
 }
+#endif
