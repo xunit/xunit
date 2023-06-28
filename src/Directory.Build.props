@@ -19,8 +19,6 @@
     <PackageId>$(MSBuildProjectName)</PackageId>
     <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>
-    <TargetPlatformMinVersion Condition=" '$(TargetFramework)' == 'uap10.0' ">10.0.16299.0</TargetPlatformMinVersion>
-    <TargetPlatformVersion Condition=" '$(TargetFramework)' == 'uap10.0' ">10.0.19041.0</TargetPlatformVersion>
     <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
 

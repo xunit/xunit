@@ -6,7 +6,7 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 
 For project documentation, please visit the [xUnit.net project home](https://xunit.net/).
 
-* _New to xUnit.net? Get started with [.NET Framework](https://xunit.net/docs/getting-started/netfx/visual-studio), [.NET Core](https://xunit.net/docs/getting-started/netcore/cmdline), and [devices](https://xunit.net/docs/getting-started/uwp/devices-runner)._
+* _New to xUnit.net? Get started with [.NET Framework](https://xunit.net/docs/getting-started/netfx/visual-studio) and [.NET Core](https://xunit.net/docs/getting-started/netcore/cmdline)._
 * _Need some help building the source? See [BUILDING.md](https://github.com/xunit/xunit/tree/v2/BUILDING.md)._
 * _Want to contribute to the project? See [CONTRIBUTING.md](https://github.com/xunit/.github/tree/main/CONTRIBUTING.md)._
 * _Want to contribute to the assertion library? See the [suggested contribution workflow](https://github.com/xunit/assert.xunit/tree/main/README.md#suggested-contribution-workflow) in the assertion library project, as it is slightly more complex due to code being spread across two GitHub repositories._

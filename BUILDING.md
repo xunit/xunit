@@ -9,7 +9,6 @@ You will need the following software installed:
 * .NET Framework 4.7.2 or later (part of the Windows OS)
 * [Visual Studio 2022 or later](https://visualstudio.microsoft.com/vs/)
   * ".NET desktop development" workload
-  * "Universal Windows Platform development" workload
   * Additional components:
     * .NET Framework development tools for 3.5
     * .NET Framework targeting packs for 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1

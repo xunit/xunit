@@ -1,4 +1,4 @@
-#if NETSTANDARD1_5 || NETCOREAPP || WINDOWS_UAP
+#if NETSTANDARD1_5 || NETCOREAPP
 
 using System;
 using System.Collections.Generic;
@@ -60,13 +60,7 @@ namespace Xunit
                     {
                         // DiaSession only ever wants you to ask for the declaring type
                         typeName = method.DeclaringType.FullName;
-
-#if WINDOWS_UAP
-                        assemblyPath = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, assemblyPath);
-#else
                         assemblyPath = method.DeclaringType.GetAssembly().Location;
-#endif
-
                         var stateMachineType = method.GetCustomAttribute<AsyncStateMachineAttribute>()?.StateMachineType;
 
                         if (stateMachineType != null)

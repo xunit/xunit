@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net35' ">xunit.runner.utility.net35</AssemblyName>
@@ -6,11 +6,9 @@
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.runner.utility.netstandard11</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.5' ">xunit.runner.utility.netstandard15</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.utility.netcoreapp10</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.utility.uwp10</AssemblyName>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'uap10.0' ">$(DefineConstants);WINDOWS_UAP</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit</RootNamespace>
-    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0;uap10.0</TargetFrameworks>
+    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -58,10 +56,6 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
-    <EmbeddedResource Include="Resources\xunit.runner.utility.uwp10.rd.xml" />
   </ItemGroup>
 
 </Project>
