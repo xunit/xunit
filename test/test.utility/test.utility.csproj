@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Needed by FSharpAcceptanceTestAssembly -->
+    <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net452" Version="[1.0.3]" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj" />
     <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj" />
     <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj" />

@@ -15,13 +15,13 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
     protected override IEnumerable<string> GetStandardReferences()
     {
         var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var fxDir = $@"{homeDir}\.nuget\packages\microsoft.netframework.referenceassemblies.net452\1.0.2\build\.NETFramework\v4.5.2\";
+        // If you update this path, make sure to update the PackageDownload in test.utility.csproj as well
+        var fxDir = $@"{homeDir}\.nuget\packages\microsoft.netframework.referenceassemblies.net452\1.0.3\build\.NETFramework\v4.5.2\";
         var mscorlib = $@"{fxDir}mscorlib.dll";
         var sysRuntime = $@"{fxDir}Facades\System.Runtime.dll";
 
         return new[] { mscorlib, sysRuntime, "xunit.abstractions.dll" };
     }
-
 
     protected override void Compile(string code, string[] references)
     {
