@@ -27,6 +27,15 @@
     <PackageReference Include="System.Reflection.Metadata" Version="$(SystemReflectionMetadataVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageDownload Include="xunit" Version="[$(XunitV1Version)]" />
+    <PackageDownload Include="xunit.abstractions" Version="[$(XunitAbstractionsVersion)]" />
+    <PackageDownload Include="xunit.assert" Version="[$(XunitV2Version)]" />
+    <PackageDownload Include="xunit.extensibility.core" Version="[$(XunitV2Version)]" />
+    <PackageDownload Include="xunit.extensibility.execution" Version="[$(XunitV2Version)]" />
+    <PackageDownload Include="xunit.extensions" Version="[$(XunitV1Version)]" />
+  </ItemGroup>
+
   <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <ItemGroup>
       <!-- xUnit.net v1 -->
