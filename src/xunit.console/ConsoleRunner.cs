@@ -376,11 +376,12 @@ namespace Xunit.ConsoleClient
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
                 var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
-                executionOptions.SetStopOnTestFail(stopOnFail);
                 if (maxThreadCount.HasValue)
                     executionOptions.SetMaxParallelThreads(maxThreadCount);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
+                if (stopOnFail)
+                    executionOptions.SetStopOnTestFail(stopOnFail);
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
@@ -427,7 +428,7 @@ namespace Xunit.ConsoleClient
                         resultsSink.Finished.WaitOne();
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
-                        if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
+                        if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
                         {
                             Console.WriteLine("Canceling due to test failure...");
                             cancel = true;

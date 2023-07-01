@@ -167,7 +167,7 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
-    /// Gets a flag to stop testing on test failure. If the flag is not present, returns the 
+    /// Gets a flag to stop testing on test failure. If the flag is not present, returns the
     /// default value (<c>false</c>).
     /// </summary>
     public static bool StopOnTestFailOrDefault(this ITestFrameworkExecutionOptions executionOptions)

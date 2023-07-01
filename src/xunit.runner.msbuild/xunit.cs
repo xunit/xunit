@@ -324,7 +324,7 @@ namespace Xunit.Runner.MSBuild
                         if (resultsSink.ExecutionSummary.Failed != 0)
                         {
                             ExitCode = 1;
-                            if (stopOnFail == true)
+                            if (executionOptions.GetStopOnTestFailOrDefault())
                             {
                                 Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
                                 Cancel();
