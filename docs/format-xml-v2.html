@@ -40,6 +40,7 @@ breadcrumb: Documentation
   <li><a href="#test">test</a></li>
   <li><a href="#trait">trait</a></li>
   <li><a href="#traits">traits</a></li>
+  <li><a href="#warnings">warnings</a></li>
 </ul>
 
 <p>
@@ -747,6 +748,12 @@ breadcrumb: Documentation
       <td>0..1</td>
       <td class="wrapped-wide">Container for 1 or more <a href="#trait"><code>trait</code></a> elements.</td>
     </tr>
+    <tr>
+      <th><a href="#warnings"><code>&lt;warnings&gt;</code></a></th>
+      <td>2+</td>
+      <td>0..1</td>
+      <td class="wrapped-wide">Container for 1 or more <code>warning</code> elements.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -809,6 +816,33 @@ breadcrumb: Documentation
       <td>1+</td>
       <td>1..*</td>
       <td class="wrapped-wide">One trait element for every trait name/value pair associated with the test.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="warnings"><code>&lt;warnings&gt;</code> Element</h2>
+
+<p>The <code>warnings</code> element is a container for 1 or more <code>warning</code> elements.</p>
+
+<h3>Child Elements</h3>
+
+<table class="table xml-format">
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Schema</th>
+      <th>Cardinality</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>&lt;warning&gt;</code></a></th>
+      <td>2+</td>
+      <td>1..*</td>
+      <td class="wrapped-wide">Contains a warning message as a CDATA block.</td>
     </tr>
   </tbody>
 </table>
