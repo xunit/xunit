@@ -18,7 +18,7 @@ Installing this package installs xunit.core, xunit.assert, and xunit.analyzers.<
     <dependencies>
       <dependency id="xunit.core" version="[$PackageVersion$]" />
       <dependency id="xunit.assert" version="$PackageVersion$" />
-      <dependency id="xunit.analyzers" version="1.2.0-pre.27" />
+      <dependency id="xunit.analyzers" version="1.2.0-pre.48" />
     </dependencies>
   </metadata>
   <files>
