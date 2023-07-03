@@ -1,0 +1,93 @@
+---
+layout: default
+title: "Release Notes for Analyzers: July 3, 2023"
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes for Analyzers: July 3, 2023</h1>
+
+<h2>xUnit.net Analyzers 1.2.0 Pre-Release (build 48)</h2>
+
+<p>
+  This is co-released with the core framework release
+  <a href="../2.5.0-pre.44"><code>2.5.0-pre.44</code></a>.
+</p>
+
+<p>
+  This is the first official release to support the v3 source base. There was some mostly
+  coincidental support for v3, but now I've overhauled the tests so that by default, you
+  are running your tests against both v2 and v3, and then in certain specific scenarios
+  when needed you can run against just one or the other (for example, the xUnit3000 and
+  xUnit3001 extensibility analyzers and fixers are only applicable to v2, since they are
+  about v2-only types). The failure context now shows what you're running against (v2 or
+  v3) when reporting a failure, so it's easier to understand if/when you have issues with
+  your tests.
+</p>
+
+<p>
+  For those who contribute to the source of the analyzers, you'll notice that I did a lot of
+  housekeeping on the source base. New and updated base classes for analyzers and fixers have
+  been standardized across the board, the source has been cleaned up a bit, and most importantly,
+  all fixer tests now require you to pass the fixer key so that only the exact known fixer is
+  applied. This was kinda too loosely specified (optional integer indices), and I wanted to
+  ensure maximum compatibility (and it should also slightly improve performance because the
+  test system knows to only run the singular fixer).
+</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    Updated <a href="../../xunit.analyzers/rules/xUnit1010">xUnit1010</a>:
+    This was inadvertently triggering when you passed compatible data that had an explicit
+    conversion operator (for example, passing a string in the data row, and the argument type
+    in the test method supported an explicit conversion from string). This was working at
+    runtime but incorrectly triggering in the analyzer.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2734">xunit/xunit#2734</a>
+  </li>
+  <li>
+    Updated <a href="../../xunit.analyzers/rules/xUnit1019">xUnit1019</a>:
+    xUnit.net v3 now supports returning <code>ITheoryDataRow</code> in addition to <code>object[]</code>
+    to represent a row of data. This new interface allows you to provide additional metadata along
+    with a data row, including a skip message, a custom test display name, a timeout,
+    traits, and a flag which indicates whether the data row should only be run when running
+    explicit tests. The analyzer needed to be updated to not flag on this data type, when
+    used in v3 tests.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2735">xunit/xunit#2735</a>
+  </li>
+  <li>
+    Added <a href="../../xunit.analyzers/rules/xUnit1028">xUnit1028</a>:
+    Test method must have a valid return type. For v2 tests, that means <code>void</code> or
+    <code>Task</code>, and for v3 tests you can also return <code>ValueTask</code>. Any other
+    return value is invalid. In particular, this should help people who may be accidentally
+    returning <code>ValueTask</code> instead of <code>Task</code> for v2 tests, as v2 does
+    not support <code>ValueTask</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1415">xunit/xunit#1415</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2733">xunit/xunit#2733</a>
+  </li>
+  <li>
+    Added <a href="../../xunit.analyzers/rules/xUnit1029">xUnit1029</a>:
+    Disallow xUnit.net attributes on local functions. Attributes on local functions are relatively
+    new (introduced in C# 9). Adding the xUnit.net test attributes (like <code>[Fact]</code>) is
+    legal in a compiler sense, but we do not discover nor support them. This analyzer should trigger
+    on anything derived from <code>FactAttribute</code> or <code>DataAttribute</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2277">xunit/xunit#2277</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Updated <a href="../../xunit.analyzers/rules/xUnit2013">xUnit2013</a>:
+    This analyzer would correctly trigger when using properties like <code>.Count</code> from
+    a concrete collection type (f.e., <code>List&lt;int&gt;</code>) but not from an interface
+    (f.e., <code>ICollection&lt;int&gt;</code>).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2736">xunit/xunit#2736</a>
+  </li>
+  <li>
+    Added <a href="../../xunit.analyzers/rules/xUnit2020">xUnit2020</a>:
+    When running against v2 2.5+ or v3, you should use <code>Assert.Fail(message)</code>
+    rather than <code>Assert.True(false, message)</code> or <code>Assert.False(true, message)</code>.
+    For projects targeting older versions of xUnit.net, this analyzer & fixer does not trigger.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2521">xunit/xunit#2521</a>
+  </li>
+</ul>

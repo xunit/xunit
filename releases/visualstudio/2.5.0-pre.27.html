@@ -1,0 +1,39 @@
+---
+layout: default
+title: Release Notes for July 3, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: July 3, 2023</h1>
+
+<h2>
+  xunit.runner.visualstudio 2.5.0 Pre-Release (build 27)
+</h2>
+
+<p>
+  This is co-released with the core framework release
+  <a href="../2.5.0-pre.44"><code>2.5.0-pre.44</code></a>.
+</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    Added support for <a href="../docs/configuration-files#stopOnFail"><code>stopOnFail</code></a> configuration file
+    element.
+  </li>
+  <li>
+    Moved reporting of skip messages to the Messages output in Test Explorer, so that it can be filtered by this
+    in the Test Explorer UI. (Previously they had been reported as Output.)
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/110">xunit/visualstudio.xunit#110</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> The <code>DisableAppDomain</code> run setting from VSTest was supported for
+    execution but ignored for discovery. This has been fixed to be honored now for both, which should
+    dramatically improve discovery performance for any .NET Framework project which has
+    <a href="../../docs/configuration-files#appDomain"><code>appDomain</code></a> set to <code>denied</code>.
+    In simple testing with 10k tests on a machine with an AMD 5900X CPU and 64GB of RAM, this cut discovery
+    time roughly in half, bringing it in line with the discovery time for .NET Core projects (which never
+    support app domains).
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/331">xunit/visualstudio.xunit#331</a>
+  </li>
+</ul>
