@@ -336,7 +336,7 @@ namespace Xunit.ConsoleClient
 
             xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
-            return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
+            return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed + summary.Errors);
         }
 
         XElement ExecuteAssembly(object consoleLock,
@@ -428,7 +428,7 @@ namespace Xunit.ConsoleClient
                         resultsSink.Finished.WaitOne();
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
-                        if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
+                        if ((resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0) && executionOptions.GetStopOnTestFailOrDefault())
                         {
                             Console.WriteLine("Canceling due to test failure...");
                             cancel = true;
