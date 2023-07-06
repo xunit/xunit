@@ -1,0 +1,102 @@
+---
+layout: default
+title: Release Notes for July 6, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: July 6, 2023</h1>
+
+<h2>Hello, 2.5.0!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.5.0 (<a href="../2.5.0">release notes</a>)</li>
+  <li>xUnit.net Analyzers 1.2.0 (<a href="../analyzers/1.2.0">release notes</a>)</li>
+  <li><strong>xUnit.net Visual Studio adapter 2.5.0</strong></li>
+</ul>
+
+<p>
+  It's been 14 months since the release of
+  <a href="https://github.com/xunit/visualstudio.xunit/releases/tag/v2.4.5">2.4.5 RTM</a>.
+</p>
+
+<p class="note">
+  This version has updated the minimum framework support to .NET Framework 4.6.2+ and .NET 6.0+, and
+  has removed support for UWP. Users who require support for UWP or older version of .NET/.NET Core
+  should continue to use an older build of this adapter.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉 And we would especially like to thank
+  <a href="https://github.com/clairernovotny">Claire Novotny</a> who had been maintaining the
+  Visual Studio adapter for several years.
+</p>
+
+<p><em>
+  Note that we have moved away from Twitter for our occasional updates, and now make those available
+  on our Mastodon account: <a href="https://fosstodon.org/@xunit"><code>@xunit@fosstodon.org</code></a>.
+  You may follow along by <a href="https://docs.joinmastodon.org/user/signup/">creating a Mastodon account</a>
+  and following our account, or via a news reader using the <a href="https://fosstodon.org/@xunit.rss">RSS feed</a>.
+</em></p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.4.5 to 2.5.0.</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    Added assembly-wide <code>ExcludeFromCodeCoverageAttribute</code> to all the xUnit.net assemblies.
+    This should resolve issues with <code>dotnet test ---collect "Code Coverage"</code> (the new
+    cross-platform code coverage system) incorrectly showing coverage for the adapter.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2682">xunit/xunit#2682</a>
+  </li>
+  <li>
+    JSON configuration files can now use the new <a href="/docs/configuration-files#failSkips"><code>failSkips</code></a>
+    configuration element to convert skipped tests into failed tests.
+  </li>
+  <li>
+    Added support for <a href="../docs/configuration-files#stopOnFail"><code>stopOnFail</code></a> configuration file
+    element.
+  </li>
+  <li>
+    Moved reporting of skip messages to the Messages output in Test Explorer. This allows users to filter by skip
+    reasons in the Test Explorer UI (since Messages is a searchable field). Previously, these had been reported
+    in the Test Explorer UI as Output.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/110">xunit/visualstudio.xunit#110</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> The <code>DisableAppDomain</code> run setting from VSTest was supported for
+    execution but ignored for discovery. This has been fixed to be honored now for both, which should
+    dramatically improve discovery performance for any .NET Framework projects when VSTest has indicated
+    that app domains are not required. In simple testing with 10k tests on a machine with an AMD 5900X CPU
+    and 64GB of RAM, this cut discovery time roughly in half, bringing it in line with the discovery time
+    for .NET Core projects (which have never supported app domains).
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/331">xunit/visualstudio.xunit#331</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a performance issue with reporter discovery related to scanning every single DLL
+    in your output folder looking for types which implement reporters. <strong><em>Now we only scan libraries named</em></strong>
+    <code>*reporters*.dll</code> <strong><em>which may break any custom reporters you are using from first or
+    third party assemblies without an appropriate name.</em></strong>
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/317">xunit/visualstudio.xunit#317</a>
+  </li>
+  <li>
+    <p><strong>BUG:</strong> Fixed an issue where data-driven tests with only a params array could not
+    be run with an empty `[InlineData]` declaration. For example, this worked:</p>
+{% highlight csharp %}
+[Theory]
+[InlineData(new int[] { })]
+public void MyTest(params int[] values)
+{% endhighlight %}
+    <p>But this would not:</p>
+{% highlight csharp %}
+[Theory]
+[InlineData]
+public void MyTest(params int[] values)
+{% endhighlight %}
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/371">xunit/visualstudio.xunit#371</a>
+  </li>
+</ul>
