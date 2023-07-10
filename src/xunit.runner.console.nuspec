@@ -10,6 +10,7 @@
     <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
     <icon>_content/logo-128-transparent.png</icon>
     <readme>_content/README.md</readme>
+    <releaseNotes>https://xunit.net/releases/$PackageVersion$</releaseNotes>
     <description>Console runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Supports .NET 4.5.2 or later, .NET Core 1.x, and .NET Core 2.x.</description>
     <copyright>Copyright (C) .NET Foundation</copyright>
     <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
