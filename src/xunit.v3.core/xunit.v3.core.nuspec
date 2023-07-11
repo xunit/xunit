@@ -10,6 +10,7 @@
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
 		<description>Includes the core library for writing tests using xUnit.net (xunit.v3.core.dll). Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
