@@ -48,7 +48,7 @@
         <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageReadmeFile>_content/README.md</PackageReadmeFile>
-        <Product>xUnit.net Testing Framework</Product>
+        <Product>xUnit.net v3 Testing Framework</Product>
         <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
       </PropertyGroup>
 

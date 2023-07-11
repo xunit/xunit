@@ -3,7 +3,7 @@
 	<metadata>
 		<id>xunit.v3.runner.msbuild</id>
 		<version>$PackageVersion$</version>
-		<title>xUnit.net [Runner: MSBuild]</title>
+		<title>xUnit.net v3 [Runner: MSBuild]</title>
 		<authors>jnewkirk,bradwilson</authors>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>

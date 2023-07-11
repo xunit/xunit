@@ -3,7 +3,7 @@
 	<metadata>
 		<id>xunit.v3</id>
 		<version>$PackageVersion$</version>
-		<title>xUnit.net</title>
+		<title>xUnit.net v3</title>
 		<authors>jnewkirk,bradwilson</authors>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>

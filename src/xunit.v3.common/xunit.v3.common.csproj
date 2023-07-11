@@ -5,7 +5,7 @@
     <Description>Includes common code shared between xunit.v3.core and xunit.v3.runner.common (xunit.v3.common.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>xUnit.net [Common Library]</Title>
+    <Title>xUnit.net v3 [Common Library]</Title>
   </PropertyGroup>
 
   <ItemGroup>
