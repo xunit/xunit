@@ -1,0 +1,118 @@
+---
+layout: default
+title: Release Notes for October 27, 2017
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.3.1
+  - /releases/2.3.1.html
+---
+
+<h1>Release Notes: October 27, 2017</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.3.1!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.3.1. This is primarily a bug fix release. The
+  complete list of issues fixed since 2.3 is listed below.
+</p>
+
+<h2>What's New</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Removed external dependencies. This primarily caused issues with developers who wanted to use a newer
+    version of JSON.NET than we were linked against (9.0.1), but also affected uses of
+    <code>Microsoft.DotNet.InternalAbstractions</code> and
+    <code>Microsoft.Extensions.DependencyModel</code>.
+  </li>
+</ul>
+
+<h3>dotnet xunit runner</h3>
+<ul>
+  <li>Optimized assembly resolution lookup performance.</li>
+  <li>
+    Made the <code>-quiet</code> switch cause less output from <code>dotnet xunit</code> itself, as well
+    as switching the default MSBuild verbosity to <code>quiet</code>.
+  </li>
+  <li>
+    When exiting with Ctrl+C, the standard Windows exit code (<code>0xC000013A</code>, or <code>-1073741510</code>)
+    is now correctly used. In addition, Ctrl+C handling has been improved (for example, when attempting to stop during
+    a build, the runner would previously move onto the next target framework instead of immediately stopping).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where hitting Ctrl+C did not correctly terminate all the
+    child processes created by <code>dotnet xunit</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Assembly resolution sometimes failed on case-sensitive file systems (this
+    primarily affected Linux users, as Windows and OS X by default use case-preserving but
+    case-insensitive file systems).
+  </li>
+  <li>
+    <strong>BUG:</strong> Unmanaged library lookup would sometimes fail because of names which didn't
+    match the filename (for example, asking for 'foo' but the library is really 'libfoo'). This primarily
+    affected Linux and OS X users where dynamic libraries tend to have prefixes like 'lib'.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    When exiting with Ctrl+C, the standard Windows exit code (<code>0xC000013A</code>, or <code>-1073741510</code>)
+    is now correctly used.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where the XML results file was being over-written without
+    erasing the old contents, the end result of which could be corrupted XML files.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where MSBuild runner reporters were not working. This was
+    most obviously affecting TeamCity and AppVeyor users who lost their test reporting.
+  </li>
+  <li>
+    <strong>BUG:</strong> The XML results output file was being left open longer than intended. Now
+    it should be closed by the time the <code>&lt;xunit&gt;</code> task has completed.
+  </li>
+  <li>
+    <strong>BUG:</strong> All reports other than XML v2 (for example, HTML and NUnit) were failing
+    to output correctly, instead causing a null reference exception.
+  </li>
+</ul>
+
+<h3>Visual Studio runner</h3>
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed issues with the performance-optimized serialization that were
+    causing <code>[Fact]</code> tests to be broken with Live Unit Testing.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where test classes with mixed facts and theories
+    and class/collection fixtures ended up with two fixtures being created (one for the
+    facts and one for the theories).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where sometimes source file mappings were broken,
+    especially with projects whose name started with 'n'. (Yes, really.)
+  </li>
+</ul>
+
+<h3>Runner reporters</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with the JSON reporter which caused floating point numbers
+    to use the current computer's locale to format numbers, instead of the invariant locale. This
+    caused invalid JSON to be generated on systems which use non-period decimal separators.
+  </li>
+</ul>

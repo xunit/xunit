@@ -1,0 +1,94 @@
+---
+layout: default
+title: Release Notes for November 6, 2016
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2016-11-06.html
+  - /releases/2.2-beta4
+  - /releases/2.2-beta4.html
+---
+
+<h1>Release Notes: November 6, 2016</h1>
+
+<p class="note">
+  We will be deprecating <code>dotnet-test-xunit</code> once .NET CLI Preview 3 ships. The
+  new Visual Studio runner (2.2 beta 4) supports .NET Core tests from the command line
+  (<code>dotnet test</code>) as well as inside the next release of Visual Studio "15".
+  There will be no more stand-alone .NET Core runner package.
+</p>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Special Thanks</h2>
+
+<p>
+  We wanted to highlight the amazing work that <a href="https://github.com/hughbe">Hugh Bellamy</a>
+  has done recently. The majority of the new features that shipped in Beta 4 were
+  provided by him, and there's more to come. Kudos, Hugh!
+</p>
+
+<h2>xUnit.net 2.2 v2 Beta 4</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Added support to <code>[MemberData]</code> to allow it to use members
+    from derived types.
+  </li>
+  <li>
+    Dramatically improved support for generics in test methods (for complete coverage,
+    see the <a href="https://github.com/xunit/xunit/blob/2.2-beta4/test/test.xunit.execution/ResolveGenericMethodTests.cs">unit
+    tests</a>).
+  </li>
+  <li>Added support for theory methods with optional parameters.</li>
+  <li>Added support for theory methods with params arrays.</li>
+  <li>Added support for inherited traits attributes on test classes.</li>
+  <li>Added support for serializing multi-dimensional arrays in theory data.</li>
+  <li>Added a completion timestamp to xUnit v2 XML, and the HTML report.</li>
+  <li>Added a guard against theory data enumerators throwing.</li>
+  <li>Added a guard against theory data providers returning <code>null</code>.</li>
+  <li>More performance improvements.</li>
+  <li><strong>BUG:</strong> Fixed an issue with serializing negative zero floats/doubles.</li>
+  <li><string>BUG:</strong> Fixed a bug with invalid characters written to <code>ITestOutputHelper</code>.
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li><code>Assert.All</code> now includes the faulty item in the failure message.</li>
+  <li>
+    Improve compatibility of <code>Assert.Equal</code> when given two equivalent collections
+    that are different types (f.e., <code>string[]</code> and <code>List&lt;string&gt;</code>).
+  </li>
+  <li>Added a guard against <code>IEnumerable</code> implementations throwing.</li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    Added wildcard support (<code>*</code> and <code>?</code>) in the <code>-method</code>
+    command line option.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    There is a slight breaking contract with <code>XunitFilters</code> wherein
+    <code>IncludedMethods</code> was changed from exposed as <code>HashSet&lt;string&gt;</code>
+    to <code>ICollection&lt;string&gt;</code>, in order to better support the new
+    wildcard method feature. Hopefully this will have minimal impact on runner
+    authors.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.2 Beta 4</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+
+<ul>
+  <li>Added support for .NET Core with .NET CLI Preview 3.</li>
+</ul>

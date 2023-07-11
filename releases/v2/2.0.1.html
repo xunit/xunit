@@ -1,0 +1,45 @@
+---
+layout: default
+title: Release Notes for July 13, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-07-13.html
+  - /releases/2.0.1
+  - /releases/2.0.1.html
+---
+
+<h1>Release Notes: July 13, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Visual Studio Runner 2.0.1</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue when running xUnit.net 1.9.2 tests where
+    where theories would sometimes not correctly show all results, despite being
+    run. Test totals, test results, and test icon indicators in Test Explorer
+    should now all be working as expected.
+  </li>
+  <li>
+    <strong>BUG:</strong> Test discovery failures were being reported with error
+    messages, which caused Team Build to report projects with mixed .NET and
+    C/C++ projects to be "Partially Successful", even though all appropriate
+    unit tests passed.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where tests will very long names (longer
+    than ~ 450 characters) would cause discovery errors, due to limitations on the
+    SQL Server tables used by the Test Explorer.
+  </li>
+  <li>
+    <strong>BUG:</strong> Diagnostic message output was missing the xUnit.net
+    banner and execution time.
+  </li>
+</ul>

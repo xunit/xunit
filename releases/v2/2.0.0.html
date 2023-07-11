@@ -1,0 +1,309 @@
+---
+layout: default
+title: Release Notes for March 16, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-03-16.html
+  - /releases/2.0
+  - /releases/2.0.html
+---
+
+<h1>Release Notes: March 16, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.0!</h2>
+
+<p>The day is finally here: we shipped 2.0 RTM today.</p>
+<p>
+  If you don't want to read a bunch of release notes and just want to get started,
+  <a href="/docs/getting-started.html">this documentation</a> is for you.
+</p>
+<p>Our 2½ year journey included 20 alphas, 5 betas, and 4 release candidates:</p>
+<table class="table">
+  <tr>
+    <th>
+      January 2012<br />
+      July 2012<br />
+      August 2012<br />
+      August 2013<br />
+      March 2014<br />
+      January 2015<br />
+      March 2015
+    </th>
+    <td class="wrapped">
+      Shipped 1.9<br />
+      Shipped 1.9.1<br />
+      First public alpha of 2.0<br />
+      Shipped 1.9.2<br />
+      First public beta of 2.0<br />
+      First release candidate of 2.0<br />
+      Shipped 2.0
+    </td>
+  </tr>
+</table>
+
+<h2>Thank You!</h2>
+
+<p>
+  The community drove this release as much as anything else, and that
+  feedback&mdash;whether it came through using the product, reporting issues,
+  or contributing code&mdash;was directly responsible for its success. There
+  are a few people that we want to call out:
+</p>
+<ul>
+  <li><a href="https://github.com/onovotny">Oren Novotny</a> (who drove most of the devices work)</li>
+  <li><a href="https://github.com/citizenmatt">Matt Ellis</a> (<a href="https://www.jetbrains.com/resharper/">Resharper</a> runner)</li>
+  <li><a href="https://github.com/adamralph">Adam Ralph</a> (<a href="https://github.com/xbehave/xbehave.net">xBehave.net</a>)</li>
+  <li><a href="https://github.com/remcomulder">Remco Mulder</a> (<a href="https://www.ncrunch.net/">NCrunch</a>)</li>
+  <li>The <a href="https://github.com/aspnet">ASP.NET team</a> (especially <a href="https://github.com/bricelam">Brice Lambson</a> and <a href="https://github.com/davidfowl">David Fowler</a>)</li>
+  <li>The <a href="https://github.com/CenturyLinkCloud">CenturyLink Cloud</a> dev team (for being our guinea pigs)</li>
+</ul>
+
+<h2>What's New</h2>
+
+<p>
+  Unlike traditional release notes (which cover incremental builds from previous
+  drops), these will cover the major design shift from v1 to v2, and some
+  discussion about what motivated some of these changes. The first thing to
+  make clear: we will continue to support 1.9.2 through our new 2.0 runners,
+  so your upgrade path is incremental. We have no plans to release any fixes
+  for 1.9.2 unless they are complete showstoppers, but given its age, we don't
+  expect that to ever happen.
+</p>
+<p>
+  One of the reasons that this process took so long is that there is almost no
+  code in the framework itself that remains from the v1 timeframe, other than
+  some of the assertion library. From an internal implementation standpoint (and
+  an extensibility standpoint), this is an entirely new product.
+</p>
+
+<h3>Consumability</h3>
+
+<p>
+  The #1 feature for xUnit.net v2 was to improve consumability. To us, that
+  falls into several separate but related buckets of functionality:
+</p>
+
+<p>
+  <strong>More Platforms.</strong> xUnit.net 1.x only directly supported
+  writing and running unit tests on the desktop CLR. For 2.0, we have
+  added support for Portable Class Libraries, Universal Applications
+  (those that target Windows Phone 8.1, Windows 8.1, and Windows 10),
+  Modern Windows 8 Applications, Windows Phone 8 Silverlight Applications,
+  MonoAndroid Applications, MonoTouch Applications, and iOS Unified
+  Applications. In addition, in 2.1 we are shipping support for ASP.NET
+  5 projects running on Windows, Linux, and OS X.
+</p>
+<p>
+  <strong>Separated Assertions.</strong> A common theme among xUnit.net users
+  was that they wanted the ability to choose assertion libraries other than
+  ours. In 2.0, we have separated the core framework from the assertion
+  library, and we offer the asserts in either binary or source form. By
+  bringing in assertions as source, you can extend the <code>Assert</code>
+  class itself with your own assertion methods.
+</p>
+<p>
+  <strong>No more installers.</strong> We moved to a NuGet based distribution
+  model in 1.7, and with 2.0, we've finally cut ties with all other
+  distribution mechanisms. Even support for running tests inside of
+  Visual Studio is shipped as NuGet package!
+</p>
+<p>
+  <strong>More Visual Studio.</strong> We regularly test our code with Visual
+  Studio 2012, 2013, and the CTP builds of 2015. (Earlier versions of Visual
+  Studio are no longer supported, since the minimum .NET version required for
+  unit test projects is .NET 4.5.)
+</p>
+<p>
+  <strong>Lots of Samples.</strong> Our
+  <a href="https://github.com/xunit/samples.xunit">samples</a> project has
+  samples ranging from simple assertion enhancement all the way up to
+  writing your own replacement unit testing framework.
+</p>
+
+<h3>Integrated Theory Support</h3>
+
+<p>
+  One of the very first things we did for 2.0 was to remove the
+  <code>xunit.extensions</code> project, and integrate the theory support
+  directly into xUnit.net core. It did help us to have this as an
+  extension when we were driving the v1 design, but we heard from many
+  (if not most) of our users that they were all using theories.
+</p>
+<p>
+  The rest of the code in <code>xunit.extensions</code> was moved primarily
+  into sample projects. We may ship some of these samples as source-based
+  NuGet packages in the near future, based on developer demand.
+</p>
+<p>
+  For more information on migrating v1 tests that use <code>xunit.extensions</code>,
+  please see
+  <a href="/docs/upgrade-extensions.html">Upgrading xunit.extensions</a>.
+</p>
+
+<h3>Parallelism</h3>
+
+<p>
+  One of the premiere new features in xUnit.net 2.0 is support for parallelism.
+  Back in the old v1 days, people would occasionally hack together MSBuild
+  scripts to run multiple assemblies in parallel; this desire to get tests
+  running faster drove us to make parallelism a part of the framework itself
+  as well as the runners.
+</p>
+<p>
+  The first and most visible part of this decision is the new default behavior
+  of xUnit.net to run your tests in parallel. Tests in the same test class
+  will not be run in parallel against each other, but tests in different test
+  classes will. We call the delineation of tests which can run in parallel
+  against each other <em>test collections</em>. In order to prevent tests from
+  running in parallel against each other, you put them in the same test
+  collection. The default behavior in 2.0 (in the absence of any other
+  configuration) is create a test collection for each test class.
+</p>
+<p>
+  This will undoubtedly be the most surprising change for users moving from
+  xUnit.net v1 (or other test frameworks). We decided to make this the default
+  behavior because we believe that unit tests should be small, self-contained,
+  and fast. By running them in parallel, we can better utilize modern computers,
+  which typcially have somewhere between 2 and 12 virtual CPUs sitting at the
+  ready.
+</p>
+<p>
+  Of course, we provide a way to influence parallelism. For more information
+  on how you can tweak these settings, please see
+  <a href="/docs/running-tests-in-parallel.html">Running Tests in Parallel</a>.
+</p>
+<p>
+  One of the "victims" of the new parallelism system is that we've removed the
+  <code>Timeout</code> property from the <code>[Fact]</code> attribute. In a
+  world where many things are running at once, and the system cannot reliably
+  determine how much time a given set of code has been running, we needed to
+  remove this feature. In addition, if you want test timings to be accurate,
+  you will need to turn off all parallelism; otherwise, the test timing numbers
+  will be unreliable.
+</p>
+<p>
+  Finally, while xUnit.net 1.x half-heartedly supported asynchronous tests,
+  this has been embraced fully by 2.0. This means many of the extensibility
+  points in the system are now async, and we have full support for async
+  code in the assertion library. You can even decorate your test methods with
+  <code>async void</code> instead of <code>async Task</code>, and we'll still
+  be able to wait for your tests to finish. (Just to be clear: returning
+  <code>Task</code> still works just fine; the <code>async void</code> feature
+  is something you can choose to use or not.)
+</p>
+
+<h3>Test Collections</h3>
+
+<p>
+  We mentioned test collections in the section above on parallelism, but it's
+  worth mentioning it separately as a feature, since it has more utility value
+  than just setting parallelism boundaries.
+</p>
+<p>
+  The old <code>IUseFixture&lt;T&gt;</code> interface in xUnit.net v1 has been
+  replaced by two new interfaces: <code>IClassFixture&lt;T&gt;</code> and
+  <code>ICollectionFixture&lt;T&gt;</code>. In addition, the mechanism for
+  injecting fixture values into your tests has changed from property setters
+  to constructor arguments. Class fixtures are created once and shared amongst
+  all tests in the same class (much like the old <code>IUseFixture</code>).
+  Collection fixtures work the same way, except that the single instance is
+  shared amongst all tests in the same test collection.
+</p>
+<p>
+  For more information on using test collections, please see
+  <a href="/docs/shared-context.html">Shared Context between Tests</a>.
+</p>
+
+<h3>Test Output</h3>
+
+<p>
+  In xUnit.net v1, we captured output written to standard output, standard error,
+  the debug channel, and the trace channel, and we surfaced this output up to
+  the test runners (which displayed them in a way that was appropriate to the
+  test). In addition, the output was placed into the XML output, if you saved
+  the result of your test runs.
+</p>
+<p>
+  With xUnit.net v2, we have stopped capturing these sources. The primary reason
+  is that these are shared resources, and it's impossible to know which of
+  the many unit tests running in parallel might be writing to the console
+  or the tracing system. Instead, tests can accept <code>ITestOutputHelper</code>
+  as a constructor argument, and use that to provide output that is reported
+  up to the runners (and placed into the XML results). It can be used from
+  the constructor, from within the test, and from within
+  <code>IDisposable.Dispose()</code> (if it's defined).
+</p>
+<p>
+  For more information on using test output, please see the
+  <a href="https://github.com/xunit/samples.xunit/blob/main/TestOutputExample">TestOutputExample</a>
+  sample project.
+</p>
+
+<h3>New Extensibility Model</h3>
+
+<p>
+  One of the more common reasons people chose xUnit.net 1.x was because it was
+  extremely easy to extend. Those extensibility points offered some measure
+  of control over the test framework, but we repeatedly heard from our users
+  about use cases they weren't able to accomplish with our extension points.
+</p>
+<p>
+  The re-design of the internal engine of xUnit.net 2.0 was driven primarily
+  around our desire to dramatically improve the extensibility of the core
+  testing framework itself. We are aware that people write extensions for a
+  large number of reasons ranging from simply adding new assertions and
+  assert comparers all the way up to writing new test frameworks that can
+  leverage the runner infrastructure provided by xUnit.net. We wanted to ensure
+  that these users could not only do what they already did, but given them
+  many more options for extending xUnit.net.
+</p>
+<p>
+  The <a href="https://github.com/xunit/samples.xunit">Samples</a> project on
+  GitHub contains several levels of extensibility samples. Over the next few
+  weeks and months, we will be writing documentation (on this site) to go along
+  with these samples, to help developers understand how to best exploit the
+  power of the new xUnit.net v2 engine.
+</p>
+
+<h3>Move to GitHub</h3>
+
+<p>
+  xUnit.net got its start not just on CodePlex, but inside of it. Jim and Brad
+  developed the early versions of xUnit.net while they were on the CodePlex
+  team. Our decision to move from CodePlex wasn't easy, but our community was
+  pushing us to make the switch. It was good for us, because we saw an
+  immediate and dramatic uptick in community contribution.
+</p>
+<p>
+  The <a href="https://github.com/xunit">xUnit.net organization</a> is home
+  to almost all of the projects related to xUnit.net. They include:
+</p>
+<ul>
+  <li><a href="https://github.com/xunit/xunit">Core xUnit.net Framework</a></li>
+  <li><a href="https://github.com/xunit/visualstudio.xunit">xUnit.net runner for Visual Studio</a></li>
+  <li><a href="https://github.com/xunit/devices.xunit">xUnit.net runner for Devices</a></li>
+  <li><a href="https://github.com/xunit/resharper-xunit">xUnit.net runner for Resharper</a></li>
+  <li><a href="https://github.com/xunit/xamarinstudio.xunit">xUnit.net runner for Xamarin Studio</a></li>
+  <li><a href="https://github.com/xunit/samples.xunit">xUnit.net Samples</a></li>
+  <li><a href="https://github.com/xunit/visualstudio.xunit.integration">Integration tests for Visual Studio runner</a></li>
+  <li><a href="https://github.com/xunit/xunit/tree/gh-pages">Source code for this web site</a></li>
+  <li><a href="https://github.com/xunit/media">xUnit.net Media Resources (logos)</a></li>
+</ul>
+<p>
+  With all these projects come a lot of NuGet packages. If you want to know what's
+  in each package and where to start, please see
+  <a href="/docs/nuget-packages.html">What NuGet Packages Should I Use?</a>.
+</p>
+<p>
+  You can visit our
+  <a href="https://ci.appveyor.com/account/xunit/projects">AppVeyor</a> page to see our CI build
+  status, and use our <a href="https://www.myget.org/F/xunit/">MyGet feed</a>
+  to try our our CI builds.
+</p>
+
+<h2>Thank You! (Again)</h2>
+
+<p>Seriously, thank you to everybody who uses this framework. Happy coding!</p>
+<p>- Jim &amp; Brad</p>

@@ -1,0 +1,65 @@
+---
+layout: default
+title: Release Notes for May 31, 2023
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.5.0-pre.22
+  - /releases/2.5.0-pre.22.html
+---
+
+<h1>Release Notes: May 31, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.0 Pre-Release (build 22)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.2.0-pre.9"><code>1.2.0-pre.9</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.0-pre.15"><code>2.5.0-pre.15</code></a>.
+</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Added assembly-wide <code>ExcludeFromCodeCoverageAttribute</code> to all the xUnit.net assemblies.
+    This should resolve issues with <code>dotnet test ---collect "Code Coverage"</code> (the new
+    cross-platform code coverage system) incorrectly showing coverage for xUnit.net itself.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2682">xunit/xunit#2682</a>
+  </li>
+  <li>
+    Updated support for TeamCity, to better support flow IDs, which should now correctly show hierarchy
+    with test collections, as well as supported nested flows via <code>TEAMCITY_PROCESS_FLOW_ID</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2385">xunit/xunit#2385</a>
+  </li>
+</ul>
+
+<h3>Runners</h3>
+<ul>
+  <li>
+    We are now shipping .NET 4.8 and 4.8.1 versions of <code>xunit.console.exe</code> and
+    <code>xunit.console.x86.exe</code>. New MSBuild parameters are available (when referencing
+    the <code>xunit.runner.console</code> NuGet package) which point to the console runner
+    executable on disk:
+    <ul>
+      <li><code>XunitConsole48Path</code></li>
+      <li><code>XunitConsole48PathX86</code></li>
+      <li><code>XunitConsole481Path</code></li>
+      <li><code>XunitConsole481PathX86</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where a malformed <code>FactAttribute</code>-derived class
+    could cause tests to become inappropriately ignored due to an exception throw during discovery.
+    Now, when a test method is decorated with a misbehaving attribute, the test will still be
+    discovered, and when run it will fail with information about the failure. Unaffected tests
+    in the same class will no longer be affected by this failure.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2719">xunit/xunit#2719</a>
+  </li>
+</ul>

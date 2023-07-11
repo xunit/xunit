@@ -1,0 +1,144 @@
+---
+layout: default
+title: Release Notes for October 5, 2016
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2016-10-05.html
+  - /releases/2.2-beta3
+  - /releases/2.2-beta3.html
+---
+
+<h1>Release Notes: October 5, 2016</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>
+  Since the last release, we have moved to <a href="https://www.dotnetfoundation.org/">The
+  .NET Foundation</a>. The most visible sign of this is that you'll see the foundation
+  CLA bot monitoring our pull requests. We are also operating under their
+  <a href="https://www.dotnetfoundation.org/code-of-conduct">Code of Conduct</a>.
+  Thank you to the .NET Foundation for our new home!
+</p>
+
+<h2>xUnit.net v2 2.2 Beta 3</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Test discovery and execution performance has been dramatically improved when
+    app domains are being used (the default behavior). This performance improvement
+    requires runner changes; the shipped runners (Console, MSBuild, TestDriven.Net,
+    and Visual Studio) have all been updated.
+  </li>
+  <li>
+    Support for detecting hung unit tests has been added. It is a configuration
+    option which can be enabled in your
+    <a href="/docs/configuration-files">configuration file</a>.
+  </li>
+  <li>
+    Support for F# async tests was added. For an example of how to write an F#
+    async test, please see our
+    <a href="https://github.com/xunit/xunit/blob/2f3be8c3b8a43abe93302df44dcefbc259cfcc91/test/test.xunit.runner.utility/Frameworks/v2/Xunit2Tests.cs#L240-L249">acceptance
+    test</a> for this feature.
+  </li>
+  <li>Performance of the AppVeyor runner reporter was improved.</li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where async fixtures could end up
+    being initialized multiple times.
+  </li>
+  <li>
+    <strong>BUG:</strong> The automatic environmental support for the AppVeyor
+    and TeamCity runner reporters was incorrectly triggering if the environment
+    variable was present (but empty).
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>Added support for using NuGet v3 to pull in Assert as source.</li>
+  <li>
+    <code>xunit.assert.source</code> is now correctly marked as a development-time
+    dependency in the NuGet package.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    A new <code>-noautoreporters</code> switch was added to disable any automatic
+    environmentally enabled runner reporters (for example, AppVeyor or TeamCity).
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    A new <code>NoAutoReporters</code> property was added to disable any automatic
+    environmentally enabled runner reporters (for example, AppVeyor or TeamCity).
+  </li>
+  <li>
+    The deprecation properties <code>TeamCity</code> and <code>Verbose</code>
+    were officially removed. The <code>Reporter</code> property (with a value of
+    <code>teamcity</code> or <code>verbose</code>) should be used instead.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    A new interface <code>IMessageSinkWithTypes</code> was added as part of the
+    work to dramatically improve the discovery and execution performance of
+    v2 unit tests. Runners which have custom message sinks should implement this
+    new interface rather than the older <code>IMessageSink</code> interface.
+    Most of the methods in the system have been updated (or extended) to accept
+    both interface types. When that wasn't possible, two classes were added that
+    can wrap implementations of one into the other (for more information, see
+    <code>MessageSinkAdapter.Wrap</code> and
+    <code>MessageSinkWithTypesAdapter.Wrap</code>).
+  </li>
+  <li>
+    The visitor classes (based on <code>IMessageSink</code>) have been deprecated
+    due to their poor performance. New event-based sink classes (based on
+    <code>IMessageSinkWithTypes</code>) have replaced them. The new sink classes
+    use events that can be subscribed to; these replace the old virtual methods
+    in the visitor classes. The new sink classes have a significantly improved
+    class hiearchy.
+  </li>
+  <li>
+    Runner reporter authors should return message hanlders that implement both
+    <code>IMessageSink</code> and <code>IMessageSinkWithTypes</code> for best
+    compatibility and performance. The <code>DefaultRunnerReporter</code> and
+    <code>DefaultRunnerReporterMessageHandler</code> base classes has been
+    deprecated, and replaced with <code>DefaultRunnerReporterWithTypes</code> and
+    <code>DefaultRunnerReporterWithTypesMessageHandler</code>, which implement
+    the new high-performance message sink interface.
+  </li>
+  <li>
+    <code>TestDiscoverySink</code> now includes the ability to cancel test
+    discovery; <code>TestDiscoveryVisitor</code> did not include this ability.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with null refs happening in
+    <code>TestRunner.cs</code>.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.2 Beta 3</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with unit test DLL paths that surfaced
+    when using <code>vstest.console.exe</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with source information for referenced
+    assemblies (other than the assembly under test), which would manifest as
+    misisng source information for test base classes in other assemblies.
+  </li>
+</ul>

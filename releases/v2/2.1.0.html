@@ -1,0 +1,132 @@
+---
+layout: default
+title: Release Notes for September 27, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-09-27.html
+  - /releases/2.1
+  - /releases/2.1.html
+---
+
+<h1>Release Notes: September 27, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.1!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.1. This includes 2.1 RTM builds of the core
+  framework and the Visual Studio runner.
+</p>
+<p>
+  It has been approximately 6 months since we shipped 2.0. Since that release
+  was a ground-up rewrite, we spent the intervening time listening to developer
+  feedback, improving the core framework as well as adding features that we
+  weren't able to get into 2.0.
+</p>
+<p>
+  The DNX runner continues to remain in beta, tracking individual releases of the
+  DNX framework; we expect that it will reach RTM when DNX does, early in 2016.
+  Today's release includes a refreshed DNX runner Beta 5 build
+  (<code>2.1.0-beta5a-build188</code>) which is linked against xUnit.net 2.1 RTM.
+</p>
+<p>
+  Once again, we'd like to thank all the users who contributed to the success
+  of xUnit.net through usage, feedback, and code contributions. With this release
+  including new support for Universal Windows Applications, we leaned heavily
+  again on <a href="https://github.com/onovotny">Oren Novotny</a> and the team
+  at Microsoft responsible for the Universal Windows tooling.
+</p>
+
+<h2>What's New</h2>
+
+<ul>
+  <li>
+    Added support for Universal Windows Applications. For information about
+    getting started with UWP, you can see our documentation:
+    <ul>
+      <li><a href="/docs/getting-started-uwp.html">Running tests inside Visual Studio</a></li>
+      <li><a href="/docs/getting-started-devices-uwp.html">Running tests with Devices Runner</a></li>
+    </ul>
+  </li>
+  <li>
+    A configuration feature (via <code>App.config</code>) was part of the 2.0
+    release, but only available to desktop unit tests. Configuration in 2.1
+    now includes JSON support, and is available on all platforms (assuming
+    that the runner correctly reads and obeys the configuration file, of
+    course). For more information, see
+    <a href="/docs/configuration-files">Configuration Files</a></li>.
+  </li>
+  <li>
+    Added a new <code>IAsyncLifetime</code> interface, which can be implemented
+    by test classes and fixture classes to get asynchronous lifetime support
+    (creation and disposal). This should make writing asynchronous setup and
+    teardown code much simpler, because developers can use the <code>async</code>
+    keyword.
+  </li>
+  <li>
+    Class fixture classes can now use constructor injection to get access to
+    collection fixtures.
+  </li>
+  <li>The <code>[ClassData]</code> attribute has be brought back.</li>
+  <li>
+    Attributes which derive from <code>BeforeAfterTestAttribute</code> can now
+    be decorated onto test collection definition classes, and will be run for
+    all tests in the test collection.
+  </li>
+  <li>
+    Added support for desktop projects to run without app domains (in the console
+    and MSBuild runners). This substantially improves startup and execution
+    performance, at the cost of isolation.
+  </li>
+  <li>
+    A new <code>AssemblyRunner</code> class was added to the runner utility
+    libraries, that makes it substantially simpler for users who want to
+    leverage xUnit.net to do non-testing activities (for example, to write
+    a Best Practices Analyzer). Sample code:
+    <a href="https://github.com/xunit/samples.xunit/blob/main/TestRunner/Program.cs">https://github.com/xunit/samples.xunit/blob/main/TestRunner/Program.cs</a>
+  </li>
+  <li>
+    A new extensibility feature was added to the text-based runners (console,
+    MSBuild, and DNX) which allows developers to completely control the output
+    from the runner. This feature&mdash;runner reporters&mdash;is how support
+    for TeamCity and AppVeyor is implemented now.
+  </li>
+  <li>
+    Runners which will immediately execute tests (like the console and MSBuild
+    runners) no longer pre-enumerate theory data, to help improve discovery
+    performance and reduce memory usage.
+  </li>
+  <li>Removed support for Windows 8 applications.</li>
+  <li>
+    The execution libraries (<code>xunit.execution.*.dll</code>) that shipped in
+    2.0 were consolidated down in two: <code>xunit.execution.desktop.dll</code>
+    (for desktop usage, including AppDomain support) and
+    <code>xunit.execution.dotnet.dll</code> (for all other usage, including
+    DNX, Windows, Windows Phone, Android, and iOS). By reducing the execution
+    library count from 7 to 2, it makes it simpler for developers to provide
+    extensions to the testing framework.
+  </li>
+  <li>
+    The runner utility libraries (<code>xunit.runner.utility.*.dll</code>) were
+    also reduced down to two: <code>xunit.runner.utility.desktop.dll</code>
+    (which can run all tests) and <code>xunit.runner.utility.dotnet.dll</code>
+    (which can run tests linked again <code>xunit.execution.dotnet.dll</code>).
+    Since the runner libraries are intended to be backward compatible, they
+    can run tests written against xUnit.net 1.9.2 and 2.0.
+  </li>
+</ul>
+
+<h2>Release Notes</h2>
+
+<p>The following individual releases contributed to 2.1:</p>
+
+<ul>
+  <li><a href="2.1.0-beta1-build2945">March 21st (2.1 Beta 1)</a></li>
+  <li><a href="2.1.0-beta2-build2981">May 3rd (2.1 Beta 2)</a></li>
+  <li><a href="2.1.0-beta3-build3029">June 30th (2.1 Beta 3)</a></li>
+  <li><a href="2.0.1">July 13th (VS Runner 2.0.1)</a></li>
+  <li><a href="2.1.0-beta4-build3109">August 4th (2.1 Beta 4)</a></li>
+  <li><a href="2.1.0-rc1-build3168.html">September 6th (2.1 RC 1)</a></li>
+  <li><a href="2.1.0-rc2-build3176.html">September 20th (2.1 RC 2)</a></li>
+</ul>

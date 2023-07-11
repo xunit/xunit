@@ -1,0 +1,79 @@
+---
+layout: default
+title: Release Notes for November 19, 2014
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2014-11-19.html
+  - /releases/2.0-beta5
+  - /releases/2.0-beta5.html
+---
+
+<h1>Release Notes: November 19, 2014</h1>
+
+<h2>Important notes</h2>
+
+<p class="important">This release of the Visual Studio runner officially deprecates the VSIX package. If you've previously installed the VSIX package, you will have runner conflicts until you've removed the VSIX package. For more information, see the <a href="https://xunit.net/docs/getting-started/netfx/visual-studio">Getting Started</a> page.</p>
+
+<h2>All projects</h2>
+
+<ul>
+  <li>Switched from Symbolsource to GitHubLink for source-level debugging.</li>
+</ul>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.0 Beta 5</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Added support for ASP.NET 5.0 (Beta 1). Runners will be forthcoming shortly.</li>
+  <li>Added support for Windows Phone 8 (Silverlight).</li>
+  <li>Added <code>ITestOutputHelper</code> (taken as a test class constructor dependency) to let tests report output.</li>
+  <li>Added predicate support to <code>Assert.Contains</code> and <code>Assert.DoesNotContain</code>.</li>
+  <li>Updated <code>Assert.Contains</code> to include the collection in the assertion failure message.</li>
+  <li>Removed <code>Assert.DoesNotThrow</code>.</li>
+  <li>Switch tasks (used for parallelization) to use a custom thread pool.</li>
+  <li>Updated assertion failures to object formatting that is consistent with theory parameter values.</li>
+  <li><strong>BUG:</strong> Fixed an issue when running xUnit.net v1 tests that throw exceptions without stack traces.</li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>Allow theory data providers to explicitly opt out of pre-enumeration (for expensive data sources, like databases).</li>
+  <li>Added <code>ITest</code> to be able to differentiate between multiple tests for a single test case.</li>
+  <li>Added <code>ITestOutput</code> message to report real-time output capture from tests.</li>
+  <li>Added <code>IDiagnosticMessage</code> to report diagnostic information (not wired up yet).</li>
+  <li>Added <code>ITestCollectionOrderer</code> to allow end-user customization of the run order of test collections.</li>
+  <li>Convert runner extensibility points (<code>TestXxxRunner</code> and friends) to be async.</li>
+  <li>Made <code>TestMethodTestCase.SetData</code> virtual.</li>
+</ul>
+
+<h3>Console and MSBuild Runners</h3>
+<ul>
+  <li>Grand total time in Console and MSBuild runners includes both aggregate time and clock time.</li>
+  <li>The console runner can now run multiple assemblies.</li>
+  <li>Console runner supports <code>-class</code> and <code>-method</code> to run specific test classes and test methods.</li>
+  <li>Added <code>Discovering</code> and <code>Discovered</code> output to the MSBuild runner.</li>
+  <li>Removed unused <code>-silent</code> option from console runner.</li>
+  <li><strong>BUG:</strong> Output for v1 XML was accidentally duplicating output when running mulitple assemblies.</li>
+  <li><strong>BUG:</strong> Running assemblies without any tests previously silently failed in the Console and MSBuild runners.</li>
+</ul>
+
+<h2>Visual Studio runner 0.99.9</h2>
+
+<ul>
+  <li>Update <code>xunit.runner.visualstudio</code> to support PCLs.</li>
+  <li>Removed the VSIX. All deployments are done via NuGet only now.</li>
+  <li><strong>BUG:</strong> Fix linking issues that prevented using the NuGet package with xUnit.net 1.x tests.</li>
+  <li><strong>BUG:</strong> Fix issues where Win8, Win8.1, and WPA8.1 tests didn't run without the VSIX.</li>
+  <li><strong>BUG:</strong> Fix issue where Visual Studio runner could not run private test methods.</li>
+</ul>
+
+<h2>Samples</h2>
+
+<ul>
+  <li>Added <code>[STAFact]</code> and <code>[STATheory]</code> sample (from <a href="https://github.com/Haacked">@Haacked</a>)</li>
+  <li>Added <code>[RetryFact]</code> sample</li>
+  <li>Added test collection ordering sample</li>
+  <li>Added observation sample <em>(currently being fixed for beta 5)</em></li>
+</ul>

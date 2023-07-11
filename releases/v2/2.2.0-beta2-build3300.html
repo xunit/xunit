@@ -1,0 +1,69 @@
+---
+layout: default
+title: Release Notes for June 27, 2016
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2016-06-27.html
+  - /releases/2.2-beta2
+  - /releases/2.2-beta2.html
+---
+
+<h1>Release Notes: June 27, 2016</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.2 Beta 2</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Adds support for .NET Core 1.0 RTM.</li>
+  <li>Adds support for .NET Core SDK 1.0 Preview 2.</li>
+  <li>
+    Adds support for the new <code>netstandard</code> target frameworks.
+    To use these new NuGet packages, you will need NuGet 3.4+ (for VS2015)
+    or NuGet 2.12+ (for VS2012 and VS2013).
+  </li>
+  <li>
+    <strong>BUG:</strong> Improved reliability when reporting to AppVeyor with
+    a longer timeout.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Moved <code>IExecutionVisitor</code> and <code>XmlAggregateVisitor</code>
+    into <code>xunit.runner.utility</code>; if you were previously hand-copying
+    these files into your runner, you can remove your copy now in favor of the
+    one that ships in the runner DLL.
+  </li>
+</ul>
+
+<h2>.NET CLI Runner 2.2 Preview 2</h2>
+
+<p><em>
+  For information on using xUnit.net with the .NET CLI, see
+  <a href="/docs/getting-started-dotnet-core.html">Getting started with
+  xUnit.net (.NET Core / ASP.NET Core)</a>
+</em></p>
+
+<ul>
+  <li>Adds support for .NET Core 1.0 RTM.</li>
+  <li>Adds support for .NET Core SDK 1.0 Preview 2.</li>
+</ul>
+
+<h2>Visual Studio Runner 2.2 Beta 2</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+
+<ul>
+  <li>
+    Support for running PCL-based unit test libraries within Visual Studio has been
+    removed. It is recommended that all unit tests target a specific device, and any
+    shared code can be reused through the shared library feature in Visual Studio.
+  </li>
+</ul>

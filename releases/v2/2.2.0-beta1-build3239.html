@@ -1,0 +1,109 @@
+---
+layout: default
+title: Release Notes for December 20, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-12-20.html
+  - /releases/2.2-beta1
+  - /releases/2.2-beta1.html
+---
+
+<h1>Release Notes: December 20, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.2 Beta 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Added event assertions:
+    <ul>
+      <li><code>Assert.Raises</code></li>
+      <li><code>Assert.RaisesAsync</code></li>
+      <li><code>Assert.RaisesAny</code></li>
+      <li><code>Assert.RaisesAnyAsync</code></li>
+    </ul>
+    Assertion is done with three lambdas:
+    <ul>
+      <li>A subscription lambda (i.e., <code>handler => myClass.MyEvent += handler</code>)</li>
+      <li>An unsubscription lambda (i.e., <code>handler => myClass.MyEvent -= handler</code>)</li>
+      <li>An action which causes the event to be raised</li>
+    </ul>
+    For examples, see the <a href="https://github.com/xunit/xunit/blob/dd20821043bcb23eeecd03d0468f08c4b5378c0b/test/test.xunit.assert/Asserts/EventAssertsTests.cs">unit tests</a>.
+  </li>
+  <li>Added <code>Assert.PropertyChangedAsync</code>.</li>
+  <li>Added support for sets to <code>Assert.Equal</code>.</li>
+  <li>Added <code>Skip</code> property to theory data attributes.</li>
+  <li>Added support for trait attributes at the assembly level.</li>
+  <li>Updated <code>NUnitXml.xslt</code> to be compatible with NUnit 2.5 output.</li>
+  <li>Improved console runner error message when an unknown switch is passed.</li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where PCL unit tests were run in desktop
+    mode instead of PCL mode, which caused issues when linking against PCL-based
+    extensibility libraries.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue when running unit tests from UNC paths
+    (not mapped to a drive letter).
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>ArgumentFormatter</code> was causing a null
+    reference exception when attempting to format an unbound generic type.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where  trying to perform multiple XML
+    transformations at the same time caused a file sharing violation.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>Added a new JSON reporter with the <code>-json</code> switch.</li>
+  <li>Made console runner exit codes consistent and predictable.</li>
+  <li>
+    Ensured <code>xunit.runner.console</code> NuGet package is marked with
+    <code>developmentDependency=true</code>.
+  </li>
+</ul>
+
+<h3>MSBuild Runner</h3>
+<ul>
+  <li>
+    Added <code>IgnoreFailures</code> option, which allows the task to return
+    a success exit code even when one or more tests have failed.
+  </li>
+  <li>Added a new JSON reporter with the <code>json</code> reporter type.</li>
+  <li>
+    Ensured <code>xunit.runner.msbuild</code> NuGet package is marked with
+    <code>developmentDependency=true</code>.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>Added additional diagnostic messages to <code>TheoryDiscoverer</code>.
+</ul>
+
+<h2>Visual Studio Runner 2.2 Beta 1</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>
+    Ensured <code>xunit.runner.visualstudio</code> NuGet package is marked with
+    <code>developmentDependency=true</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a significant memory leak issue when running
+    multiple test assemblies.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where FullyQualifiedName filtering didn't
+    work with multiple tests of the same name.
+  </li>
+</ul>

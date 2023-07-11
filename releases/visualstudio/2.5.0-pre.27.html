@@ -12,13 +12,13 @@ breadcrumb: Release Notes
 
 <p>
   This is co-released with the core framework release
-  <a href="../2.5.0-pre.44"><code>2.5.0-pre.44</code></a>.
+  <a href="/releases/v2/2.5.0-pre.44"><code>2.5.0-pre.44</code></a>.
 </p>
 
 <h3>Features and Fixes</h3>
 <ul>
   <li>
-    Added support for <a href="../docs/configuration-files#stopOnFail"><code>stopOnFail</code></a> configuration file
+    Added support for <a href="/docs/configuration-files#stopOnFail"><code>stopOnFail</code></a> configuration file
     element.
   </li>
   <li>
@@ -30,7 +30,7 @@ breadcrumb: Release Notes
     <strong>BUG:</strong> The <code>DisableAppDomain</code> run setting from VSTest was supported for
     execution but ignored for discovery. This has been fixed to be honored now for both, which should
     dramatically improve discovery performance for any .NET Framework project which has
-    <a href="../../docs/configuration-files#appDomain"><code>appDomain</code></a> set to <code>denied</code>.
+    <a href="/docs/configuration-files#appDomain"><code>appDomain</code></a> set to <code>denied</code>.
     In simple testing with 10k tests on a machine with an AMD 5900X CPU and 64GB of RAM, this cut discovery
     time roughly in half, bringing it in line with the discovery time for .NET Core projects (which never
     support app domains).

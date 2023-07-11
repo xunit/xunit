@@ -1,0 +1,63 @@
+---
+layout: default
+title: Release Notes for July 3, 2023
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.5.0-pre.44
+  - /releases/2.5.0-pre.44.html
+---
+
+<h1>Release Notes: July 3, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.0 Pre-Release (build 44)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.2.0-pre.48"><code>1.2.0-pre.48</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.0-pre.27"><code>2.5.0-pre.27</code></a>.
+</p>
+
+<p class="note">
+  This version removes support for UWP projects. If you need continued support for UWP, please continue
+  to use an older build of this project. UWP has been officially deprecated by Microsoft and we have similarly
+  removed official support for UWP from the core framework (and the Visual Studio/VSTest runner adapter).
+</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    Added overloads of <code>Assert.Contains</code> and <code>Assert.DoesNotContain</code> for the concrete type
+    <code>ConcurrentDictionary</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1857">xunit/xunit#1857</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Restored an inadvertently removed constructor from <code>XunitException</code> which
+    was breaking libraries like Fluent Assertions.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2737">xunit/xunit#2737</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> The type restriction on the obsoleted versions of <code>Assert.ThrowsAny&lt;T&gt;</code> for
+    <code>Func&lt;Task&gt;</code> and <code>Func&lt;ValueTask&gt;</code> was set for <code>ArgumentException</code>,
+    but should've been <code>Exception</code>.
+  </li>
+</ul>
+
+<h3>Runners</h3>
+<ul>
+  <li>
+    Added support for <a href="/docs/configuration-files#stopOnFail"><code>stopOnFail</code></a> configuration file
+    element in the console and MSBuild runners.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Updated <code>TestFrameworkOptions.ForExecution</code> to read the <code>stopOnFail</code> configuration file
+    element and propagate the setting into the execution options.
+  </li>
+</ul>

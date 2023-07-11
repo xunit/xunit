@@ -1,0 +1,199 @@
+---
+layout: default
+title: Release Notes for September 6, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-09-06.html
+  - /releases/2.1-rc1
+  - /releases/2.1-rc1.html
+---
+
+<h1>Release Notes: September 6, 2015</h1>
+
+<p>
+  With this release, the core xUnit.net framework has been moved to release
+  candidate, while the DNX runner will continue on its beta path. There have
+  been significant improvements in the core framework that are ready for
+  production use, whereas the DNX runner remains on a beta path while DNX
+  itself does.
+</p>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.1 RC 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    A new <code>IAsyncLifetime</code> interface is available, which can be
+    placed onto test classes, class fixtures, and collection fixtures. This
+    allows asynchonous initialization (<code>InitializeAsync</code>) and
+    cleanup (<code>DisposeAsync</code>).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed several bugs with DNX, especially when running
+    under Mono on Linux and OS X.
+  </li>
+  <li>
+    <strong>BUG:</strong> The 'unlimited' thread option wasn't working
+    correctly (it was incorrectly limiting the active threads).
+  </li>
+  <li>
+    <strong>BUG:</strong> The <code>&lt;collection&gt;</code> elements were
+    not correctly generated in the XML output (tests were not always grouped
+    into the correct collection).
+  </li>
+  <li>
+    <strong>BUG:</strong> Using a <code>Task</code> in theory data might cause
+    the discoverer to hang while it attempted to create a string representation
+    of the task.
+  </li>
+  <li>
+    <strong>BUG:</strong> There was an issue ordering test cases when running
+    on UWP. Now, test cases are always randomized (with no attempt at stability)
+    for tests running on UWP.
+  </li>
+  <li>
+    <strong>BUG:</strong> Some theories passing <code>Type</code> objects from
+    types in the GAC could cause the Visual Studio runner to fail.
+  </li>
+  <li>
+    <strong>BUG:</strong> There was an error in the implementation of worker
+    threads that could cause unexpected failures of the test platform itself.
+  </li>
+</ul>
+
+<h3>Configuration File</h3>
+
+<p><em>
+  For information on using configuration files with xUnit.net, see
+  <a href="/docs/configuration-files">Configuration Files</a>.
+</em></p>
+
+<ul>
+  <li>
+    You can now use <code>&lt;AssemblyName&gt;.xunit.runner.json</code> instead of
+    just <code>xunit.runner.json</code> if you need to be able to disambiguate
+    between configuration files for multiple test assemblies in the same
+    output folder.
+  </li>
+  <li>
+    A new <code>shadowCopy</code> configuration file element was added, a
+    boolean value with a default of <code>true</code>. This value is only used
+    when app domains are being used; it is ignored when app domains are not
+    available or not being used.
+  </li>
+  <li>
+    The <code>useAppDomain</code> configuration file element was renamed
+    to <code>appDomain</code> and it value is now an enumeration rather
+    than a boolean. This value is only used when app domain support is
+    available (unit tests that target the desktop CLR, being run by a
+    desktop runner).
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    The platform-specific execution and runner libraries have been replaced with
+    just two libraries: <code>desktop</code> (for anything which targets the
+    desktop CLR only, and includes support for app domains), and
+    <code>dotnet</code> (for everything else, including PCLs, which does not
+    include support for app domains). The new runner libraries can run older tests,
+    but the older runner libraries cannot run the newer <code>dotnet</code> tests
+    (since it's a new platform), so runner authors for non-desktop platforms are
+    strongly encouraged to upgrade to the 2.1 runner libraries for maximum
+    compatibility. Developers who write extensions to xUnit.net can now do so
+    with just two versions instead of eight.
+  </li>
+  <li>
+    A new class called <code>AssemblyRunner</code> has been added to the
+    <code>xunit.runner.utility</code> library which makes it easy to write a
+    simple test runner. This is useful for developers who want to reuse the
+    test framework in an embedded fashion (for example, as a Best Practices
+    Analyzer). There is a <a href="https://github.com/xunit/samples.xunit/tree/main/TestRunner">sample
+    project</a> which shows how it is used.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>
+    Added a <code>-failskips</code> switch which turns skipped tests into
+    failures.
+  </li>
+  <li>
+    Added a <code>-namespace</code> filter which allows for filtering tests
+    based on their namespace. This filter works for partial namespaces; for
+    example, passing </code>-namespace Foo</code> would run tests in the
+    <code>Foo</code> namespace, plus tests in all the child namespaces of
+    <code>Foo</code> (like <code>Foo.Bar</code> or <code>Foo.Bar.Baz</code>).
+  </li>
+</ul>
+
+<h3>MSBuild Runner</h3>
+<ul>
+  <li>
+    Added a <code>FailSkips="true"</code> attribute which turns skipped tests
+    into failures.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.1 RC 1</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>
+    The Visual Studio runner will respect the new <code>shadowCopy</code> option
+    in configuration files. Note: if you turn off shadow copying, then your
+    test assembly files will be locked during discovery and execution, preventing
+    you from building or cleaning your project.
+  </li>
+</ul>
+
+<h2>DNX Runner 2.1 Beta 5</h2>
+
+<p><em>
+  For information on using xUnit.net from DNX projects, see
+  <a href="/docs/getting-started-dnx.html">Getting Started with DNX</a>.
+</em></p>
+
+<ul>
+  <li>
+    Added support for DNX 1.0 Beta 7. This runner <strong>will not work</strong>
+    with previous versions of DNX, because of extensive changes to the DNX
+    framework itself.
+  </li>
+  <li>
+    Added a <code>-namespace</code> filter which allows for filtering tests
+    based on their namespace. This filter works for partial namespaces; for
+    example, passing </code>-namespace Foo</code> would run tests in the
+    <code>Foo</code> namespace, plus tests in all the child namespaces of
+    <code>Foo</code> (like <code>Foo.Bar</code> or <code>Foo.Bar.Baz</code>).
+  </li>
+</ul>
+
+<h2>Devices Runner 1.2 RC 3</h2>
+
+<ul>
+  <li>
+    The view models are now display platform independent, and some of the
+    runners are using native UI elements rather than Xamarin Forms. This should
+    allow further device runners to be added without a reliance on the
+    available of Xamarin Forms.
+  </li>
+  <li>
+    Updated UWP support, including support for .NET Native. There are currently two
+    known issues with .NET Native:
+    <ul>
+      <li><a href="https://github.com/xunit/xunit/issues/571">Theories fail to enumerate correctly</a></li>
+      <li><a href="https://github.com/xunit/xunit/issues/572">Code optimization can generate incorrect stack traces</a></li>
+    </ul>
+    Using a Debug build of your unit tests can work around these issues for now.
+  </li>
+</ul>

@@ -1,0 +1,93 @@
+---
+layout: default
+title: Release Notes for February 23, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-02-23.html
+  - /releases/2.0-rc3
+  - /releases/2.0-rc3.html
+---
+
+<h1>Release Notes: February 23, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.0 RC 3</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Fixed several issues related to the new serialization system:
+    <ul>
+      <li>Added support for <code>Boolean</code> (and nullable)</li>
+      <li>Added support for <code>Enums</code> (and nullable)</li>
+      <li>Added support for <code>DateTime</code> (and nullable)</li>
+      <li>Added support for <code>DateTimeOffset</code> (and nullable)</li>
+      <li>Added support for <code>Type</code></li>
+      <li>Fixed an issue where null strings were treated as empty strings</li>
+      <li>Fixed issues related to serializing generics</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>
+    Added <code>-nunit</code> switch to output NUnit XML (currently only
+    supports a single assembly due to limitations in the NUnit XML format).
+  </li>
+  <li>
+    Assemblies which don't run any tests are no longer treated as an error.
+    These assemblies show up in yellow in the assembly run summary so that
+    users can more easily tell that no tests were run for that assembly.
+  </li>
+</ul>
+
+<h3>MSBuild Runner</h3>
+<ul>
+  <li>Assemblies which don't run any tests are no longer treated as an error.</li>
+</ul>
+
+<h3>Mono</h3>
+<ul>
+  <li>Fixed several issues related to compiling the xUnit.net source with xbuild</li>
+</ul>
+
+<h2>Visual Studio Runner 2.0 RC 3</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<p>
+  <strong>Note:</strong> This release supports all released versions of
+  xUnit.net v1, as well as v2 2.0 RC3 or later. It does not support any earlier
+  versions of xUnit.net v2.
+</p>
+
+<ul>
+  <li>
+    Fixed an issue with test case serialization that was causing expected
+    dictionary errors ("An item with the same key has already been added").
+  </li>
+</ul>
+
+
+<h2>ASP.NET 5 Runner 2.0 RC 3</h2>
+
+<p><em>
+  For information on using xUnit.net from within ASP.NET 5, see
+  <a href="/docs/getting-started-aspnet.html">Getting started with xUnit.net and
+  ASP.NET 5</a>.
+</em></p>
+
+<p>
+  <strong>Note:</strong> This release supports xUnit.net v2 2.0 RC3 or later. It does not support
+  any earlier versions of xUnit.net v2.
+</p>
+
+<ul>
+  <li>No functional changes (just updated to use RC3).
+</ul>

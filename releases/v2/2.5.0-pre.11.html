@@ -1,0 +1,139 @@
+---
+layout: default
+title: Release Notes for May 6, 2023
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.5.0-pre.11
+  - /releases/2.5.0-pre.11.html
+---
+
+<h1>Release Notes: May 6, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.5.0 Pre-Release (build 11)</h2>
+
+<p>
+  The majority of this release is the overhaul of the assertion library, for message consistency and
+  clarity. This also included a pass to remove unsafe double-enumeration and improve performance when
+  asserting against enumerables. In most cases, the display for enumerable should be at least as good
+  as previous releases; however, there is a case where we don't know whether an <code>IEnumerable</code>
+  implementation is safe for either re-enumeration and/or complete enumeration (since an enumerable
+  can in theory enumerate forever). In those cases, you may see enumerables represented with just
+  a <code>[···]</code> rendering (especially in theory data parameter rendering).
+</p>
+
+<p>
+  For a list of some example changes, see <a href="2.5.0-assertions">this list of comparisons between
+  assertion messages in 2.4.2 and 2.5.0.</a>
+</p>
+
+<p>
+  This release also brings in <code>xunit.analyzers</code> version
+  <a href="/releases/analyzers/1.2.0-pre.7"><code>1.2.0-pre.7</code></a>.
+</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Four new types are supported for serialization, which means they can be used in theory data
+    without breaking your ability to run the individual test cases in Test Explorer. These are:
+    <ul>
+      <li><code>TimeSpan</code> (supported on all frameworks)</li>
+      <li><code>BigInteger</code> (supported on all frameworks except .NET Framework)</li>
+      <li><code>DateOnly</code> (supported on .NET 6 and later)</li>
+      <li><code>TimeOnly</code> (supported on .NET 6 and later)</li>
+    </ul>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2640">xunit/xunit#2640</a>
+  </li>
+  <li>
+    The <code>DiagnosticMessage</code> class now implements <code>ToString()</code> and outputs the
+    message, for simpler debugging for extensibility authors.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where you could not run static test methods inherited
+    from base classes.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2704">xunit/xunit#2704</a>
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <code>Assert.Contains</code> behaved unexpectedly with dictionaries and sets. This is
+    because these both have custom logic for their <code>Contains</code> function that is
+    contrary to our normal container comparison logic. Their constructors allow you to pass
+    key comparers; normally, comparers are only used when looking things up. This fixes
+    this so it will have consistent behavior with the framework.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2671">xunit/xunit#2671</a>
+  </li>
+  <li>
+    Added <code>Assert.Equal(DateTime, DateTime)</code> and
+    <code>Assert.Equal(DateTimeOffset, DateTimeOffset)</code> overloads.
+  </li>
+  <li>
+    Added <code>Assert.Equal(DateTime, DateTime, TimeSpan)</code> and
+    <code>Assert.Equal(DateTimeOffset, DateTimeOffset, TimeSpan)</code> overloads. They specify a
+    precision (in time span) that the two times must be within one another. This precision works
+    in both directions: expected earlier than actual, or expected later than actual.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2588">xunit/xunit#2588</a>
+  </li>
+  <li>
+    Added <code>Assert.Equal(T, T, Func&lt;T, T, bool&gt; comparer)</code> and
+    <code>Assert.NotEqual(T, T, Func&lt;T, T, bool&gt; comparer)</code> overloads. This allows the
+    dev to write an inline comparison function rather than being forced to implement one of the
+    equality interfaces (like <code>IEqualityComparer&lt;T&gt;</code>) in a separate class.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2692">xunit/xunit#2692</a>
+  </li>
+  <li>
+    <code>Assert.Equal()</code> for strings has a new flag: <code>ignoreAllWhiteSpace</code> indicates
+    that all whitespace should be ignored. The difference between this and <code>ignoreWhiteSpaceDifferences</code>
+    is that the latter requires at least one piece of whitespace. Examples:<br />
+    Fails: <code>Assert.Equal("a b", "ab", ignoreWhiteSpaceDifferences: true);</code><br />
+    Passes: <code>Assert.Equal("a b", "ab", ignoreAllWhiteSpace: true);</code>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2440">xunit/xunit#2440</a>
+  </li>
+  <li>
+    <code>Assert.Equivalent</code> with two equal values that are of different (but compatible)
+    types previous failed. After discussion with the community, this was fixed to now pass.
+    Example of code that now passes that previously failed: <code>Assert.Equivalent(12, 12L);</code>
+    <a class="issue-link" href="https://mastodon.social/@bradwilson/110256246057729371">Poll on Mastodon</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>Assert.Throws&lt;ArgumentException&gt;()</code> threw an
+    exception when you passed a null parameter name, despite being legal in <code>ArgumentException</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2396">xunit/xunit#2396</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>Assert.Equivalent</code> was not appropriately handling reference
+    types inside of value types.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2431">xunit/xunit#2431</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>Assert.Equivalent</code> was inadvertently comparing non-public
+    properties.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2621">xunit/xunit#2621</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>Assert.Equivalent</code> was incorrectly trying to compare
+    indexer properties (which are more like functions than properties). Now, this will skip
+    indexer properties.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2698">xunit/xunit#2698</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> The argument formatter did not correctly pretty-print rank-1 variable
+    bound arrays properly. They are now show as <code>type[*]</code> correctly.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2534">xunit/xunit#2534</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Resolved a compiler argument ambiguity problem by adding overloads
+    <code>Assert.Equal(float, float, int precision)</code> and
+    <code>Assert.Equal(float, float, int precision, MidpointRounding)</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2393">xunit/xunit#2393</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>IAssertionException</code> was accidentally always public,
+    even when importing via source and setting `XUNIT_VISIBILITY_INTERNAL`.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2703">xunit/xunit#2703</a>
+  </li>
+</ul>

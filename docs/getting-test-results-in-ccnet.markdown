@@ -11,7 +11,7 @@ If you're using CruiseControl.NET for continuous integration services, you can s
 * Configure the xUnit.net MSBuild task to output with the `Xml=` attribute, as shown below:
 
 {% highlight xml %}
-<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Test">
 
   <UsingTask
     AssemblyFile="xunit.runner.msbuild.dll"

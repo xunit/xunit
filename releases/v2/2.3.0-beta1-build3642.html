@@ -1,0 +1,84 @@
+---
+layout: default
+title: Release Notes for April 6, 2017
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2017-04-06.html
+  - /releases/2.3-beta1
+  - /releases/2.3-beta1.html
+---
+
+<h1>Release Notes: April 6, 2017</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.3 Beta 1</h2>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <code>Assert.Empty</code> will now include the collection in the error message
+    when the assert fails.
+  </li>
+  <li>
+    Added support for <code>IComparable&lt;&gt;</code> in <code>Assert.Equal</code>.
+  <li>
+    Improved compatibility with <code>IEquatable&lt;&gt;</code> and
+    <code>Assert.Equal</code>.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    The console runner has been ported to support .NET Core, through a new
+    <code>dotnet xunit</code> command line tool. For more information on using the
+    new .NET Core SDK console runner, see
+    <a href="/docs/getting-started-dotnet-core.html">Getting Started with xUnit.net
+    (.NET Core / ASP.NET Core)</a>.
+  </li>
+  <li>
+    When importing the <code>xunit.runner.console</code> NuGet package, you now have
+    access to two properties which point to the on-disk location of the console
+    runner executable: <code>XunitConsolePath</code> points to <code>xunit.console.exe</code>,
+    and <code>XunitConsolePathX86</code> points to <code>xunit.console.x86.exe</code>.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Added a <code>netcoreapp1.0</code> version of <code>xunit.runner.utility</code>
+    and <code>xunit.runner.reporters</code>.
+  </li>
+  <li>
+    Started the process of separating user diagnostic messages from internal diagnostic
+    messages. Runners have new options (as do configuration files) for enabling one vs.
+    the other. This should make debugging extensibility projects simpler. This work is
+    ongoing, so if you see internal diagnostic messages showing up without the switch,
+    please feel free to <a href="https://github.com/xunit/xunit/issues">file an issue</a>.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.3 Beta 1</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+
+<ul>
+  <li>
+    We've incorporated more performance improvements, especially when testing
+    desktop CLR projects.
+  </li>
+  <li>
+    Skipped messages now show the skip reason in the output of the test. Previously,
+    the skip message was not available.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue introduced in 2.2 RTM which caused
+    CodeLens to stop working for <code>[Fact]</code> tests.
+  </li>
+</ul>

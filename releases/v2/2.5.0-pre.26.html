@@ -1,0 +1,40 @@
+---
+layout: default
+title: Release Notes for June 14, 2023
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.5.0-pre.26
+  - /releases/2.5.0-pre.26.html
+---
+
+<h1>Release Notes: June 14, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.0 Pre-Release (build 26)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.2.0-pre.24"><code>1.2.0-pre.24</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.0-pre.20"><code>2.5.0-pre.20</code></a>.
+</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    Added a new assertion: <code>Assert.IsNotAssignableFrom</code>. It performs the opposite action of
+    <code>Assert.IsAssignableFrom</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2727">xunit/xunit#2727</a>
+  </li>
+</ul>
+
+<h3>Runners</h3>
+<ul>
+  <li>
+    JSON configuration files can now use the new <a href="/docs/configuration-files#failSkips"><code>failSkips</code></a>
+    configuration element to convert skipped tests into failed tests. This aligns with the <code>-failSkips</code>
+    console runner command line option and the <Code>FailSkips</Code> MSBuild runner property.
+  </li>
+</ul>

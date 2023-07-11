@@ -1,0 +1,52 @@
+---
+layout: default
+title: Release Notes for June 8, 2017
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.3-beta3
+  - /releases/2.3-beta3.html
+---
+
+<h1>Release Notes: June 8, 2017</h1>
+
+<p class="note">
+  Support for UWP projects in Visual Studio 2017 15.2 is currently broken. UWP users can either
+  stick with 2.2, or use 15.3 Preview.
+</p>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.3 Beta 3</h2>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    <b>BUG:</b> Fixed an issue where the <code>xunit.runner.console</code> NuGet package caused
+    MSBuild errors after being installed.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    Added an <code>XunitTest</code> target when imported <code>xunit.runner.msbuild</code> which
+    will run the the current assembly. This allows you to run <code>msbuild /t:XunitTest</code>
+    against your unit test projects without modifying the project file. Note: you can override
+    several options by defining <code>&lt;PropertyGroup&gt;</code> items. For a complete list
+    of supported property names, see:
+    <a href="https://github.com/xunit/xunit/blob/v2/src/xunit.runner.msbuild/build/xunit.runner.msbuild.targets#L7-L25">xunit.runner.msbuild.targets</a>.
+  </li>
+</ul>
+
+<h3>Visual Studio runner</h3>
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+<ul>
+  <li>
+    Exceptions thrown by VSTest during filtering (most commonly, when attempting to filter
+    against non-existent traits) will now be reported as warnings instead of errors.
+  </li>
+</ul>

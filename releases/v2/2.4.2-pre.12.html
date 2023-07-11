@@ -1,0 +1,125 @@
+---
+layout: default
+title: Release Notes for October 3, 2021
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.4.2-pre.12
+  - /releases/2.4.2-pre.12.html
+---
+
+<h1>Release Notes: October 3, 2021</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.4.2 Pre-Release (build 12)</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>DisposalTracker</code> was not properly made thread
+    safe. This typically only surfaced in acceptance tests, but was also an edge case for the .NET team.
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    The assertion library is now nullable enabled.
+  </li>
+  <li>
+    Argument formatting for <code>float</code> values is now done to 9 digits of precision, and formatting
+    for <code>double</code> values is now done to 17 digits of precision. This better matches the maximum
+    precision for
+    <a href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types">floating-point
+    numeric types</a> in .NET. This may result in displayed values being slightly different than the
+    previous default formatting allowed (both for argument formatting and assertion error messages).
+  </li>
+  <li>
+    Improved the output of expected and actual values when they're multi-line, so that they are properly
+    indented when displayed in failure messages.
+  </li>
+  <li>
+    Formatted dictionary entries (in arguments and assert messages) should be easier now to copy/paste as
+    usable C# code.
+  </li>
+  <li>
+    An overload of <code>Assert.All</code> was added which will pass not only the item to the verification
+    lambda but also the item's index in the collection.
+  </li>
+  <li>
+    Added <code>Assert.Equal(float expected, float actual, float tolerance)</code>.
+  </li>
+  <li>
+    Added <code>Assert.Equal(double expected, double actual, double tolerance)</code>.
+  </li>
+  <li>
+    Added <code>Assert.Equal(double expected, double actual, int precision, MidpointRounding rounding)</code>.
+  </li>
+  <li>
+    Improve <code>Assert.Equal&lt;T&gt;(T expected, T actual)</code> to include the mismatched item index
+    when <code>expected</code> and <code>actual</code> are collections.
+  </li>
+  <li>
+    Improve the list of whitespace recognized by <code>Assert.Equal(string? expected, string? actual, bool
+    ignoreCase = false, bool ignoreLineEndingDifferences = false, bool ignoreWhiteSpaceDifferences = false)</code>
+    to include: TABULATION (U+0009), SPACE (U+0020), NO-BREAK SPACE (U+00A0), OGHAM SPACE MARK (U+1680), MONGOLIAN
+    VOWEL SEPARATOR (U+180E), EN QUAD (U+2000), EM QUAD (U+2001), EN SPACE (U+2002), EM SPACE (U+2003), THREE-PER-EM
+    SPACE (U+2004), FOUR-PER-EM SPACE (U+2005), SIX-PER-EM SPACE (U+2006), FIGURE SPACE (U+2007), PUNCTUATION SPACE
+    (U+2008), THIN SPACE (U+2009), HAIR SPACE (U+200A), ZERO WIDTH SPACE (U+200B), NARROW NO-BREAK SPACE (U+202F),
+    MEDIUM MATHEMATICAL SPACE (U+205F), IDEOGRAPHIC SPACE (U+3000), and ZERO WIDTH NO-BREAK SPACE (U+FEFF).
+  </li>
+  <li>
+    <code>Assert.Empty</code> now shows the contents of the collection on failure.
+  </li>
+  <li>
+    Added <code>Assert.Equivalent(object? expected, object? actual, bool strict = false)</code>. The following
+    rules are used to determine equivalence:
+    <ul>
+      <li>
+        If one of the values is <code>null</code>, they are only equivalent if they are both <code>null</code>.
+      </li>
+      <li>
+        If the values are value types (or <code>string</code>), then <code>Object.Equals</code> is called to
+        perform the equivalence test. Note that these values must be of the same type (for example, a value of
+        <code>12</code> as <code>Int32</code> is not equivalent to a value of <code>12</code> as <code>Int64</code>).
+      </li>
+      <li>
+        If the values are collections, then each value in the expected collection is compared against all the values
+        in the actual collection to find one that's equivalent. If an equivalent value is found in the actual collection,
+        it is removed from the actual collection (so it can only match as equivalent one time). This process repeats for
+        every value in the expected collection. If any value in the expected collection cannot find an equivalent in the
+        actual collection, then an error is reported. If <code>strict</code> is true, then any values left over in the actual
+        collection will also cause an error to be reported.
+      </li>
+      <li>
+        If none of the other tests were used, then the expected and actual values are treated as a complex type.
+        For every public property or field in the expected object, an equivalent public property or field must exist
+        in the actual object with an equivalent value; any unmatched value on the expected object will cause an error
+        to be reported. If <code>strict</code> is true, then any public property/field that wasn't matched against
+        a value on the expected object will also cause an error to be reported.
+      </li>
+    </ul>
+    In the case of collections and complex types, the comparison are deep: that is, every value in the collection or
+    every public property/field gets an equivalence test against it. If the value in the collection or complex object
+    is itself a collection or complex object, then the above process repeats. Circular references in either the expected
+    or actual values (regardless of how deep the loop goes) will be reported as failures. For examples of usage, please
+    see the <a href="https://github.com/xunit/xunit/blob/v2/test/test.xunit.assert/Asserts/EquivalenceAssertsTests.cs">unit
+    tests</a>, as they are fairly comprehensive.
+  </li>
+  <li>
+    Added <code>Assert.Fail(message)</code>. Previously developers would be forced to use something like
+    <code>Assert.True(false, message)</code>.
+  </li>
+  <li>
+    Added <code>Assert.Multiple(params Action[] checks)</code> which allows the developer to run several assertions
+    as individual lambdas, and collect up all the failures into a single failure. If there is only a single failure,
+    it will show as normal; if there are multiple failures, a new message shows that there were multiple failures,
+    which includes all the failure messages and associated stack traces.
+  </li>
+  <li>
+    <code>Assert.Raises</code> and friends no longer require the event type to be derived from <code>EventArgs</code>.
+  </li>
+  <li>
+    <code>Assert.Single</code> now shows the item count of the collection on failure.
+  </li>
+</ul>

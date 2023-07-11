@@ -11,12 +11,12 @@ breadcrumb: Release Notes
 <p>Today, we're shipping three new releases:</p>
 
 <ul>
-  <li>xUnit.net Core Framework v2 2.5.0 (<a href="../2.5.0">release notes</a>)</li>
+  <li>xUnit.net Core Framework v2 2.5.0 (<a href="/releases/v2/2.5.0">release notes</a>)</li>
   <li><strong>xUnit.net Analyzers 1.2.0</strong></li>
-  <li>xUnit.net Visual Studio adapter 2.5.0 (<a href="../visualstudio/2.5.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.0 (<a href="/releases/visualstudio/2.5.0">release notes</a>)</li>
 </ul>
 
-<p>It's been 7 months since the release of <aa href="1.1.0">1.1.0 RTM</a>.</p>
+<p>It's been 7 months since the release of <a href="1.1.0">1.1.0 RTM</a>.</p>
 
 <p>
   This update includes a few new analyzers, lots of updates and bug fixes, and is the first version
@@ -50,7 +50,7 @@ breadcrumb: Release Notes
 <h3>Usage Analyzers</h3>
 <ul>
   <li>
-    Updated <a href="../../xunit.analyzers/rules/xUnit1019">xUnit1019</a>:
+    Updated <a href="/xunit.analyzers/rules/xUnit1019">xUnit1019</a>:
     xUnit.net v3 now supports returning <code>ITheoryDataRow</code> in addition to <code>object[]</code>
     to represent a row of data. This new interface allows you to provide additional metadata along
     with a data row, including a skip message, a custom test display name, a timeout,
@@ -60,7 +60,7 @@ breadcrumb: Release Notes
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2735">xunit/xunit#2735</a>
   </li>
   <li>
-    Updated <a href="../../xunit.analyzers/rules/xUnit1010">xUnit1026</a>:
+    Updated <a href="/xunit.analyzers/rules/xUnit1010">xUnit1026</a>:
     We will now ignore unused parameters when the name matches the discard logic specified by
     <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0060">IDE0060</a>.
     That includes parameters named simply <code>_</code> as well parameters named starting with an
@@ -68,7 +68,7 @@ breadcrumb: Release Notes
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2730">xunit/xunit#2730</a>
   </li>
   <li>
-    Added <a href="../../xunit.analyzers/rules/xUnit1028">xUnit1028</a>:
+    Added <a href="/xunit.analyzers/rules/xUnit1028">xUnit1028</a>:
     Test method must have a valid return type. For v2 tests, that means <code>void</code> or
     <code>Task</code>, and for v3 tests you can also return <code>ValueTask</code>. Any other
     return value is invalid. In particular, this should help people who may be accidentally
@@ -78,7 +78,7 @@ breadcrumb: Release Notes
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2733">xunit/xunit#2733</a>
   </li>
   <li>
-    Added <a href="../../xunit.analyzers/rules/xUnit1029">xUnit1029</a>:
+    Added <a href="/xunit.analyzers/rules/xUnit1029">xUnit1029</a>:
     Disallow xUnit.net attributes on local functions. Attributes on local functions are relatively
     new (introduced in C# 9). Adding the xUnit.net test attributes (like <code>[Fact]</code>) is
     legal in a compiler sense, but we do not discover nor support them. This analyzer should trigger
@@ -86,7 +86,7 @@ breadcrumb: Release Notes
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2277">xunit/xunit#2277</a>
   </li>
   <li>
-    <strong>BUG:</strong> Fixed an issue with <a href="../xunit.analyzers/rules/xUnit1010">xUnit1010</a>
+    <strong>BUG:</strong> Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1010">xUnit1010</a>
     where the analyzer was inadvertently triggering when you passed compatible data that had an explicit
     conversion operator (for example, passing a string in the data row, and the argument type in the test
     method supported an explicit conversion from string). This was working at runtime but incorrectly
@@ -94,26 +94,26 @@ breadcrumb: Release Notes
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2734">xunit/xunit#2734</a>
   </li>
   <li>
-    <strong>BUG:</strong> Fixed an issue with common code for <a href="../../xunit.analyzers/rules/xUnit1010">xUnit1010</a>
-    and <a href="../../xunit.analyzers/rules/xUnit1012">xUnit1012</a> that was causing an exception in the analyzer
+    <strong>BUG:</strong> Fixed an issue with common code for <a href="/xunit.analyzers/rules/xUnit1010">xUnit1010</a>
+    and <a href="/xunit.analyzers/rules/xUnit1012">xUnit1012</a> that was causing an exception in the analyzer
     when the user was passing an explicit empty array to provide values for a <code>params</code>-style array in the
     test method. A secondary issue (for non-empty explicit arrays) was also discovered and fixed at the same time.
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2711">xunit/xunit#2711</a>
   </li>
   <li>
     <strong>BUG:</strong> Fixed a crash in <code>RemoveMethodParameterFix</code> (shared by
-    <a href="../xunit.analyzers/rules/xUnit1022">xUnit1022</a> and
-    <a href="../xunit.analyzers/rules/xUnit1026">xUnit1026</a>) caused by specifically
+    <a href="/xunit.analyzers/rules/xUnit1022">xUnit1022</a> and
+    <a href="/xunit.analyzers/rules/xUnit1026">xUnit1026</a>) caused by specifically
     malformed code in the text editor.
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2675">xunit/xunit#2675</a>
   </li>
   <li>
-    <strong>BUG:</strong> Fixed an issue with <a href="../xunit.analyzers/rules/xUnit1025">xUnit1025</a>
+    <strong>BUG:</strong> Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1025">xUnit1025</a>
     where the analyzer was throwing an exception with specific input data (see the attached bug).
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2662">xunit/xunit#2662</a>
   </li>
   <li>
-    <strong>BUG:</strong> Fixed an issue with <a href="../xunit.analyzers/rules/xUnit1033">xUnit1033</a>
+    <strong>BUG:</strong> Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1033">xUnit1033</a>
     where the fixer ("Generate constructor") generated a constructor that should've been public, but wasn't.
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2721">xunit/xunit#2721</a>
   </li>
@@ -122,20 +122,20 @@ breadcrumb: Release Notes
 <h3>Assertion Analyzers</h3>
 <ul>
   <li>
-    Updated <a href="../../xunit.analyzers/rules/xUnit2013">xUnit2013</a>:
+    Updated <a href="/xunit.analyzers/rules/xUnit2013">xUnit2013</a>:
     This analyzer would correctly trigger when using properties like <code>.Count</code> from
     a concrete collection type (f.e., <code>List&lt;int&gt;</code>) but not from an interface
     (f.e., <code>ICollection&lt;int&gt;</code>).
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2736">xunit/xunit#2736</a>
   </li>
   <li>
-    Updated <a href="../../xunit.analyzers/rules/xUnit2018">xUnit2018</a>:
+    Updated <a href="/xunit.analyzers/rules/xUnit2018">xUnit2018</a>:
     We included support for the new <code>Assert.IsNotAssignableFrom</code> assertion. This includes an updated
     message in the analyzer, and updated code generation for the fixer.
     <a class="issue-link" href="https://github.com/xunit/xunit/issues/2727">xunit/xunit#2727</a>
   </li>
   <li>
-    Added <a href="../../xunit.analyzers/rules/xUnit2020">xUnit2020</a>:
+    Added <a href="/xunit.analyzers/rules/xUnit2020">xUnit2020</a>:
     When running against v2 2.5.0+ or v3, you should use <code>Assert.Fail(message)</code>
     rather than <code>Assert.True(false, message)</code> or <code>Assert.False(true, message)</code>.
     For projects targeting older versions of xUnit.net, this analyzer & fixer does not trigger.

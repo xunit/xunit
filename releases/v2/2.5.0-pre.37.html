@@ -1,0 +1,74 @@
+---
+layout: default
+title: Release Notes for June 21, 2023
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.5.0-pre.37
+  - /releases/2.5.0-pre.37.html
+---
+
+<h1>Release Notes: June 21, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.0 Pre-Release (build 37)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.2.0-pre.27"><code>1.2.0-pre.27</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.0-pre.22"><code>2.5.0-pre.22</code></a>.
+</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    Added <code>Assert.NotNull</code> and <code>Assert.Null</code> overloads explicitly for <code>Nullable&lt;T&gt;</code>
+    struct values. Both include new messages, and the <code>NotNull</code> variant returns the unwrapped <code>T</code>
+    value. This prevents boxing, and makes it trivial to use the non-null value. (We don't need this with the reference
+    versions, since the type doesn't change, it just sheds its nullability, which we automatically do with
+    the <code>[NotNull]</code> attribute.)
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2516">xunit/xunit#2516</a>
+  </li>
+  <li>
+    Fixed an issue where using the assertion library as source, combined with <code>xunit.analyzers</code>, causes
+    compilation to report <code>xUnit2007</code> and <code>xUnit2015</code> warnings. These warnings aren't applicable
+    to the assertion library itself, so they've been suppressed with pragmas. This means you should no longer need to
+    ignore or disable those warnings when using <code>xunit.assert.source</code> (or the Git submodule).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2472">xunit/xunit#2472</a>
+  </li>
+</ul>
+
+<h3>Runners</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with the console runner where sometimes, when using newer versions of Windows
+    Terminal, the output of pointer characters (&#x2193; and &#x2191;) would be garbled as &#xFFFD;.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Fixed a performance issue with reporter discovery related to scanning every single DLL in your output folder looking
+    for types which implement reporters. <strong><em>Now we only scan libraries named</em></strong> <code>*reporters*.dll</code>
+    <strong><em>which may break any custom reporters you are using from first or third party assemblies without an appropriate
+    name.</em></strong>
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/317">xunit/visualstudio.xunit#317</a>
+  </li>
+  <li>
+    This release makes <code>ArgumentFormatter</code> and <code>CollectionTracker</code> public (in the assertion library).
+    The former is used to pretty print values in assertion failures as well arguments for display names of data-driven
+    tests. The latter is a newly introduced class whose job is to prevent double enumeration while tracking the last few
+    values visited, so that they can be printed when assertion failures happen without requiring a second enumeration.
+  </li>
+  <li>
+    We added several pragmas to disable warnings that would occur when <code>XUNIT_NULLABLE</code> was not defined,
+    but your project had <code>&lt;nullable&gt;enable&lt;/nullable&gt;</code>. You should always define <code>XUNIT_NULLABLE</code>
+    when importing <code>xunit.assert.source</code> (or the Git submodule) when you have nullable enabled, but at least now
+    if you forget to do that, there won't be any compiler warnings as a result of you using our non-nullable path. Note
+    that we had to use pragmas to disable warnings rather than just using <code>#nullable disable</code> in the files,
+    since that pragma didn't exist in C# prior to version 8 (and we set a minimum C# version of 6).
+  </li>
+</ul>

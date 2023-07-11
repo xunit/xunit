@@ -1,0 +1,163 @@
+---
+layout: default
+title: Release Notes for March 9, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-03-09.html
+  - /releases/2.0-rc4
+  - /releases/2.0-rc4.html
+---
+
+<h1>Release Notes: March 9, 2015</h1>
+
+<p class="important">
+  Support for ASP.NET 5 has been removed from this build in preparation for
+  RTM. Once 2.0 goes RTM, a new beta build (2.1 Beta 1) will be released which
+  restores ASP.NET 5 support. If you're using ASP.NET 5, you can continue to
+  use <a href="/docs/getting-started-aspnet.html">this documentation</a>
+  (and continue to use <code>rc3</code> in your version numbers).
+</p>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.0 RC 4</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    The old NuGet package <code>xunit.runners</code> was split into two separate
+    packages: <code>xunit.runner.console</code> and
+    <code>xunit.runner.msbuild</code>. The latter automatically makes the
+    <code>&lt;xunit&gt;</code> task available from within the project file
+    (.csproj, .vbproj, etc.). With this new behavior, you can easily add
+    targets which invoke the MSBuild runner, and you won't need to update
+    your projects by hand when upgrading to a new version of xUnit.net.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a serialization issue related to open generic
+    types (f.e., <code>IEnumerable&lt;&gt;</code>).
+  </li>
+  <li>
+    <strong>BUG:</strong> Resolved an issue where enum types were not always
+    able to be deserialized, but which wasn't discovered until the
+    deserialization was attempted. Now, enums from GAC assemblies will just
+    refuse serialization; the end result of this is that theories which use
+    GAC-based enum values (like those from the CLR itself) will not be
+    individually runnable from within Visual Studio (there will be a single
+    test case for all theory data members).
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Improved diagnostics around incorrectly configured and misbehaving
+    test collection orderers and test case orders.
+  </li>
+  <li>
+    A <code>-serialize</code> switch was added to the console runner to force
+    it to serialize and de-serialize all discovered test cases. This should
+    aid developers who need to debug through their test case serialization
+    code, without forcing them to use the MSBuild or Visual Studio runners.
+  </li>
+  <li>
+    <p>
+      Developers who write extensibility libraries that are linked against the
+      execution library can now decorate their assemblies and extensibility
+      points to indicate that they support multiple platforms. This is useful
+      for any type which is serialized (such as test cases) or for any time you
+      need to provide a type name and assembly name to an extensibility
+      registration attribute.
+    </p>
+    <p>
+      There are three steps that the developer should do to opt into this new
+      behavior:
+    </p>
+    <ol>
+      <li>
+        Name your assemblies with the correct platform suffixes (for example,
+        <code>MyAssembly.desktop.dll</code>). The currently supported suffixes
+        are:
+        <ul>
+          <li><code>desktop</code> (for desktop CLR)</li>
+          <li><code>iOS-Universal</code> (for Xamarin iOS Universal)</li>
+          <li><code>MonoAndroid</code> (for Xamarin Mono Android)</li>
+          <li><code>MonoTouch</code> (for Xamarin Mono Touch)</li>
+          <li><code>universal</code> (for universal Windows 8.1/Windows Phone 8.1)</li>
+          <li><code>win8</code> (for Modern Windows 8)</li>
+          <li><code>wp8</code> (for Windows Phone 8 Silverlight)</li>
+        </ul>
+        <p>
+          Note that on some platforms, the file system may be case sensitive,
+          so please use the exact casing shown here.
+        </p>
+      </li>
+      <li>
+        <p>
+          Decorate your assemblies with an attribute which lets the system know
+          that it is a platform specific assembly:<br />
+          <code>[assembly: PlatformSpecificAssembly]</code>
+          (<a href="https://github.com/xunit/xunit/blob/219c18e8be841c38a50f2f4dd4285f902ea5af5d/src/xunit.execution/Properties/AssemblyInfo.cs#L22">example</a>).
+        </p>
+      </li>
+      <li>
+        <p>
+          Decorate your extensibility point registrations with an assembly name
+          that substitutes <code>{Platform}</code> for the platform part of
+          the assembly name
+          (<a href="https://github.com/xunit/xunit/blob/219c18e8be841c38a50f2f4dd4285f902ea5af5d/src/xunit.core/FactAttribute.cs#L12">example</a>).
+        </p>
+      </li>
+    </ol>
+    <p>
+      Note: Developers who are writing extensions but only
+      intend to support the desktop platform do not need to do any of these
+      steps.
+    </p>
+  </li>
+  <li>
+    The <code>MemberDataAttribute</code> class implementation was split into
+    a base class (<code>MemberDataAttributeBase</code>) which better facilitates
+    behavior reuse.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with NUnit output and multiple test
+    assemblies.
+  </li>
+</ul>
+
+<h3>TestDriven.NET Runner</h3>
+<ul>
+  <li>The progress bar during runs should be more useful now. :)</li>
+</ul>
+
+<h3>Mono</h3>
+<ul>
+  <li>
+    A new solution file (<code>xunit.xbuild.sln</code>) has been added to
+    facilitate Mono builds on Linux and OS X using XBuild. A build shell
+    script will be added before RTM to make this process easier.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.0 RC 4</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<p>
+  <strong>Note:</strong> This release supports all released versions of
+  xUnit.net v1, as well as v2 2.0 RC 4 or later. It does not support any
+  earlier versions of xUnit.net v2.
+</p>
+
+<ul>
+  <li>There were no issues fixed for this release.</li>
+</ul>

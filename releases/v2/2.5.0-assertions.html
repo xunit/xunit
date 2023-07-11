@@ -1,0 +1,525 @@
+---
+layout: default
+title: Assertion Updates in 2.5.0
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.5.0-assertions
+  - /releases/2.5.0-assertions.html
+---
+
+<h1>Assertion Updates in v2 2.5.0</h1>
+
+<p>
+  This page lists several example message updates for assertion failures, comparing 2.4.2 to 2.5.0
+  output. This list is not comprehensive, but rather a list of some of the more obvious improvements
+  in clarity and consistency.
+</p>
+
+<h2>Updated messages</h2>
+<ul>
+  <li><a href="#all"><code>Assert.All</code></a></li>
+  <li><a href="#collection"><code>Assert.Collection</code></a></li>
+  <li><a href="#contains"><code>Assert.Contains</code></a></li>
+  <li><a href="#distinct"><code>Assert.Distinct</code></a></li>
+  <li><a href="#empty"><code>Assert.Empty</code></a></li>
+  <li><a href="#endswith"><code>Assert.EndsWith</code></a></li>
+  <li><a href="#equal"><code>Assert.Equal</code></a></li>
+  <li><a href="#multiple"><code>Assert.Multiple</code></a></li>
+  <li><a href="#single"><code>Assert.Single</code></a></li>
+  <li><a href="#throws"><code>Assert.Throws</code></a></li>
+</ul>
+
+
+<h2 id="all">Assert.All</h2>
+
+<p>
+  When more than one failure occurs, the list of failures is printed. Note that the list in 2.4.2 was
+  printed in reverse order; the order is correct now in 2.5.0.
+</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 3, 4 };
+
+    Assert.All(data, item => Assert.True(item % 2 == 0));
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.All() Failure: 2 out of 3 items in the collection did not pass.
+[1]: Item: 3
+     Xunit.Sdk.TrueException: Assert.True() Failure
+     Expected: True
+     Actual:   False
+        at Xunit.Assert.True(Nullable`1 condition, String userMessage) in /_/src/xunit.assert/Asserts/BooleanAsserts.cs:line 132
+        at Xunit.Assert.True(Boolean condition) in /_/src/xunit.assert/Asserts/BooleanAsserts.cs:line 87
+        at Examples.<>c.<Sample>b__0_0(Int32 item) in C:\Dev\repro\comparison\xunit-2.4.2\Examples.cs:line 8
+        at Xunit.Assert.<>c__DisplayClass11_0`1.<All>b__0(T item, Int32 index) in /_/src/xunit.assert/Asserts/CollectionAsserts.cs:line 34
+        at Xunit.Assert.All[T](IEnumerable`1 collection, Action`2 action) in /_/src/xunit.assert/Asserts/CollectionAsserts.cs:line 61
+[0]: Item: 1
+     Xunit.Sdk.TrueException: Assert.True() Failure
+     Expected: True
+     Actual:   False
+        at Xunit.Assert.True(Nullable`1 condition, String userMessage) in /_/src/xunit.assert/Asserts/BooleanAsserts.cs:line 132
+        at Xunit.Assert.True(Boolean condition) in /_/src/xunit.assert/Asserts/BooleanAsserts.cs:line 87
+        at Examples.<>c.<Sample>b__0_0(Int32 item) in C:\Dev\repro\comparison\xunit-2.4.2\Examples.cs:line 8
+        at Xunit.Assert.<>c__DisplayClass11_0`1.<All>b__0(T item, Int32 index) in /_/src/xunit.assert/Asserts/CollectionAsserts.cs:line 34
+        at Xunit.Assert.All[T](IEnumerable`1 collection, Action`2 action) in /_/src/xunit.assert/Asserts/CollectionAsserts.cs:line 61
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.All() Failure: 2 out of 3 items in the collection did not pass.
+[0]: Item:  1
+     Error: Assert.True() Failure
+            Expected: True
+            Actual:   False
+[1]: Item:  3
+     Error: Assert.True() Failure
+            Expected: True
+            Actual:   False
+</pre>
+
+
+<h2 id="collection">Assert.Collection</h2>
+
+<p>
+  In 2.4.2, length check happens first and fails fast. In 2.5.0, comparisons happen before length checks, which
+  often makes it easier to spot the rogue item in the collection.
+</p>
+
+<h3>Sample test (correct length)</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 3, 4 };
+
+    Assert.Collection(
+        data,
+        item => Assert.Equal(1, item),
+        item => Assert.Equal(2, item),
+        item => Assert.Equal(5, item)
+    );
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Collection() Failure
+Collection: [1, 3, 4]
+Error during comparison of item at index 1
+Inner exception: Assert.Equal() Failure
+        Expected: 2
+        Actual:   3
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Collection() Failure: Item comparison failure
+                ↓ (pos 1)
+Collection: [1, 3, 4]
+Error:      Assert.Equal() Failure: Values differ
+            Expected: 2
+            Actual:   3
+</pre>
+
+<h3>Sample test (mismatched length, with incorrect items)</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 2, 3, 4 };
+
+    Assert.Collection(
+        data,
+        item => Assert.Equal(1, item),
+        item => Assert.Equal(2, item),
+        item => Assert.Equal(5, item)
+    );
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Collection() Failure
+Collection: [1, 2, 3, 4]
+Expected item count: 3
+Actual item count:   4
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Collection() Failure: Item comparison failure
+                   ↓ (pos 2)
+Collection: [1, 2, 3, 4]
+Error:      Assert.Equal() Failure: Values differ
+            Expected: 5
+            Actual:   3
+</pre>
+
+<h3>Sample test (mismatched length, with correct items)</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 2, 3, 4 };
+
+    Assert.Collection(
+        data,
+        item => Assert.Equal(1, item),
+        item => Assert.Equal(2, item),
+        item => Assert.Equal(3, item)
+    );
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Collection() Failure
+Collection: [1, 2, 3, 4]
+Expected item count: 3
+Actual item count:   4
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Collection() Failure: Mismatched item count
+Collection:     [1, 2, 3, 4]
+Expected count: 3
+Actual count:   4
+</pre>
+
+
+<h2 id="contains">Assert.Contains</h2>
+
+<p>
+  In addition to the updated consistency in messaging, this also shows how unnecessary types are no
+  longer printed. When types are important (for example, if two collections are compared and they're
+  of different types), they are still provided.
+</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 2, 3, 4 };
+
+    Assert.Contains(5, data);
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Contains() Failure
+Not found: 5
+In value:  Int32[] [1, 2, 3, 4]
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Contains() Failure: Item not found in collection
+Collection: [1, 2, 3, 4]
+Not found:  5
+</pre>
+
+
+<h2 id="distinct">Assert.Distinct</h2>
+
+<p>This is a simple consistency update.</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 2, 3, 2 };
+
+    Assert.Distinct(data);
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Distinct() Failure: The item 2 occurs multiple times in [1, 2, 3, 2].
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Distinct() Failure: Duplicate item found
+Collection: [1, 2, 3, 2]
+Item:       2
+</pre>
+
+
+<h2 id="empty">Assert.Empty</h2>
+
+<p>This removes unnecessary information along with using a consistent message.</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    var data = new[] { 1, 2, 3, 2 };
+
+    Assert.Empty(data);
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Empty() Failure
+Expected: &lt;empty&gt;
+Actual:   [1, 2, 3, 2]
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Empty() Failure: Collection was not empty
+Collection: [1, 2, 3, 2]
+</pre>
+
+
+<h2 id="endswith">Assert.EndsWith</h2>
+
+<p>
+  The 2.4.2 version of this assertion only showed the exact end of the string that was
+  being compared. The 2.5.0 version now prints as much of the string as is reasonable,
+  using our standard truncation mechanism.
+</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    Assert.EndsWith("ending", "This is a relatively long string with a variant end");
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.EndsWith() Failure:
+Expected:    ending
+Actual:   ···nt end
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.EndsWith() Failure: String end does not match
+String:       ···"relatively long string with a variant end"
+Expected end: "ending"
+</pre>
+
+
+<h2 id="equal">Assert.Equal</h2>
+
+<p>
+  <code>Assert.Equal</code> is a heavy lifting function, with many overloads (19 and counting!) and many ways data
+  can be handled. Below are a couple examples of those changes.
+</p>
+
+<h3>Sample test (strings)</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    Assert.Equal(
+        "This is a relatively long string with a difference embedded in the middle somewhere",
+        "This is a relatively long string that has a difference embedded in the middle somewhere"
+    );
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Equal() Failure
+                                 ↓ (pos 33)
+Expected: ···atively long string with a difference embedded in the middle ···
+Actual:   ···atively long string that has a difference embedded in the mid···
+                                 ↑ (pos 33)
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Equal() Failure: Strings differ
+                                  ↓ (pos 33)
+Expected: ···"atively long string with a difference emb"···
+Actual:   ···"atively long string that has a difference"···
+                                  ↑ (pos 33)
+</pre>
+
+<h3>Sample test (collections)</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    Assert.Equal(
+        new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+        new[] { 1, 2, 3, 4, 0, 6, 7, 8, 9 }
+    );
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Equal() Failure
+                      ↓ (pos 4)
+Expected: [..., 3, 4, 5, 6, 7, ...]
+Actual:   [..., 3, 4, 0, 6, 7, ...]
+                      ↑ (pos 4)
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Equal() Failure: Collections differ
+                      ↓ (pos 4)
+Expected: [···, 3, 4, 5, 6, 7, ···]
+Actual:   [···, 3, 4, 0, 6, 7, ···]
+                      ↑ (pos 4)
+</pre>
+
+
+<h2 id="multiple">Assert.Multiple</h2>
+
+<p>This is a simple consistency update.</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    Assert.Multiple(
+        () => Assert.Equal(12, 24),
+        () => Assert.Null("Hello world")
+    );
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Multiple failures were encountered:
+---- Assert.Equal() Failure
+Expected: 12
+Actual:   24
+---- Assert.Null() Failure
+Expected: (null)
+Actual:   Hello world
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Multiple() Failure: Multiple failures were encountered
+---- Assert.Equal() Failure: Values differ
+Expected: 12
+Actual:   24
+---- Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   "Hello world"
+</pre>
+
+
+<h2 id="single">Assert.Single</h2>
+
+<p>This is an extreme example of a needed consistency update.</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    Assert.Single(new[] { 1, 2, 3 });
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+The collection was expected to contain a single element, but it contained 3 elements.
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Single() Failure: The collection contained 3 items
+Collection: [1, 2, 3]
+</pre>
+
+
+<h2 id="throws">Assert.Throws</h2>
+
+<p>
+  The overload of <code>Assert.Throws</code> that can test the parameter name for any instance of
+  <code>ArgumentException</code> now returns a much more meaningful message.
+</p>
+
+<h3>Sample test</h3>
+
+{% highlight csharp %}
+[Fact]
+public void Sample()
+{
+    void thrower() => throw new ArgumentException("Hello world", "someArg");
+
+    Assert.Throws<ArgumentException>("otherArg", thrower);
+}
+{% endhighlight %}
+
+<h4>Output from 2.4.2</h4>
+
+<pre>
+Assert.Equal() Failure
+          ↓ (pos 0)
+Expected: otherArg
+Actual:   someArg
+          ↑ (pos 0)
+</pre>
+
+<h4>Output from 2.5.0</h4>
+
+<pre>
+Assert.Throws() Failure: Incorrect parameter name
+Exception: typeof(System.ArgumentException)
+Expected:  "otherArg"
+Actual:    "someArg"
+</pre>

@@ -1,0 +1,97 @@
+---
+layout: default
+title: Release Notes for June 30, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-06-30.html
+  - /releases/2.1-beta3
+  - /releases/2.1-beta3.html
+---
+
+<h1>Release Notes: June 30, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.1 Beta 3</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Added support for DNX Beta 5.</li>
+  <li>
+    Removed support for Windows 8 applications. If you are unit testing Windows store
+    applications, xUnit.net supports 8.1 and later.
+  </li>
+  <li>Improved performance when running with many rows of theory data.</li>
+  <li>
+    <strong>BUG:</strong> Fixed several issues with data types not working correctly
+    in data theories.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with device runners where it would fail to
+    run tests because it could not find the unit test assembly.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>
+    Introduced a new "runner reporter" feature, which allows 3rd parties to write
+    reporter assemblies to control the output during unit test execution.
+  </li>
+  <li>Turned off pre-enumeration of theories to improve performance.</li>
+  <li>Added a new <code>-nocolor</code> option.</li>
+  <li>Added a new <code>-verbose</code> option.</li>
+</ul>
+
+<h3>MSBuild Runner</h3>
+<ul>
+  <li>
+    Introduced a new "runner reporter" feature, which allows 3rd parties to write
+    reporter assemblies to control the output during unit test execution.
+  </li>
+  <li>
+    Added support for reporting tests to AppVeyor. This is normally automatically
+    detected during execution, but can be forced with <code>Reporter="appveyor"</code>.
+  </li>
+  <li>Turned off pre-enumeration of theories to improve performance.</li>
+  <li>Added a new <code>NoColor</code> option.</li>
+  <li>Added a new <code>NUnit</code> option to transform results into NUnit format.</li>
+  <li>Deprecated <code>TeamCity="true"</code> in favor of <code>Reporter="teamcity"</code>.</li>
+  <li>Deprecated <code>Verbose="true"</code> in favor of <code>Reporter="verbose"</code>.</li>
+</ul>
+
+<h2>Visual Studio Runner 2.1 Beta 3</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>
+    Removed support for Windows 8 applications. If you are unit testing Windows store
+    applications, xUnit.net supports 8.1 and later.
+  </li>
+</ul>
+
+<h2>DNX Runner 2.1 Beta 3</h2>
+
+<p><em>
+  For information on using xUnit.net from DNX projects, see
+  <a href="/docs/getting-started-dnx.html">Getting Started with DNX</a>.
+</em></p>
+
+<ul>
+  <li>Added support for DNX Beta 5.</li>
+  <li>
+    Introduced a new "runner reporter" feature, which allows 3rd parties to write
+    reporter assemblies to control the output during unit test execution.
+  </li>
+  <li>
+    Added support for reporting tests to AppVeyor. This is normally automatically
+    detected during execution, but can be forced with <code>-appveyor</code>.
+  </li>
+  <li>Added a new <code>-nocolor</code> option.</li>
+  <li>Added a new <code>-verbose</code> option.</li>
+</ul>

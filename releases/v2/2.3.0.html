@@ -1,0 +1,170 @@
+---
+layout: default
+title: Release Notes for October 6, 2017
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.3
+  - /releases/2.3.html
+---
+
+<h1>Release Notes: October 6, 2017</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.3!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.3; this includes RTM builds of the core framework
+  and the Visual Studio runner. Ah, the sweet feeling of blue lights:
+</p>
+
+<p><img class="border" src="/images/releases/2.3.png" width="448" /></p>
+
+<p>
+  It's been nearly 8 months since the release of <a href="2.2.0">2.2 RTM</a>. That was
+  strongly aligned with .NET Core 1.0, and in the intervening time, that team has now
+  shipped a substantial 2.0 update. Similarly, xUnit.net 2.3 feels like it has a much
+  improved experience for .NET Core users (both 1.x and 2.x).
+</p>
+
+<p>
+  One of the core reasons we've done xUnit.net has been to improve the day-to-day
+  unit testing experience for .NET developers. At a previous job, we had discussions
+  about adding Roslyn code analyzers to xUnit.net as a way to make our guidance
+  more concrete. These rules and fixes would represent our knowledge with issues
+  commonly faced by unit testers in general, and xUnit.net users in particular.
+  <a href="https://github.com/marcind">Marcin Dobosz</a>, one of our co-workers at
+  the time, has stepped up and has done a tremendous job with the
+  <a href="https://github.com/xunit/xunit.analyzers">xUnit.net Analyzers</a> project.
+  Although this hasn't yet reached 1.0 status, we've already started including them
+  when you reference the <code>xunit</code> meta-package; as a result, you will see
+  our guidance light up as warnings and errors in your code.
+</p>
+
+<p>
+  Visual Studio 2017 has seen some substantial improvements since its release 7
+  months ago, with some great things on the horizon with 15.4 and 15.5. We are
+  currently working on updated templates for the next release of the .NET SDK
+  and a future update to Visual Studio 2017 which will include 2.3 references.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success
+  of xUnit.net through usage, feedback, and code contributions. We had too many
+  contributors this time around to thank individually, so know that every bug
+  reported, every line of code PR'd, every conversation contributed to on Slack,
+  were all appreciated!
+</p>
+
+<h2>What's New</h2>
+
+<h3>Core Framework</h3>
+<ul>
+  <li>
+    As mentioned above, the <code>xunit</code> meta-package now includes a reference
+    to the <code>xunit.analyzers</code> package automatically. We feel most users
+    will benefit from these helpful rules and fixes. If you decide you would
+    like to opt out, please remove your reference to <code>xunit</code>, and instead
+    add references to <code>xunit.core</code> and <code>xunit.assert</code>.
+  </li>
+  <li>
+    A significant amount of work was put into general performance improvements.
+    The largest performance gains will be experienced by users who are running
+    tests in the desktop CLR with app domains enabled (the default behavior).
+    Additionally, we have spent time optimizing performance in the Visual Studio
+    Test Explorer experience.
+  </li>
+  <li>
+    We added the ability to disable cross-collection parallelization for individual
+    test collections, via the test collection definition (by setting
+    <code>[CollectionDefinition(DisableParallelization = true)]</code>). Parallel-capable
+    test collections will be run first (in parallel), followed by parallel-disabled
+    test collections (run sequentially).
+  </li>
+  <li>
+    There have been several improvements to the assertion library, as well as new
+    command line options (and MSBuild properties) to the test runners. Make sure to
+    check out Intellisense and the command line runner help to see what's new!
+  </li>
+</ul>
+
+<h3>.NET Core</h3>
+<ul>
+  <li>
+    A new runner for .NET Core has been added: <code>dotnet xunit</code>. This gives
+    a first class experience for running xUnit.net tests that mirrors the functionality
+    available to desktop CLR users via <code>xunit.console.exe</code>. We have updated
+    <a href="/docs/getting-started-dotnet-core">Getting Started with .NET Core</a>
+    to show how to incorporate support for <code>dotnet xunit</code>.
+  </li>
+  <li>
+    The .NET Core console runner is also available directly via the
+    <code>xunit.runner.console</code> NuGet package, and can be run via
+    <code>dotnet C:\Path\to\xunit.console.dll C:\Path\to\TestLibrary.dll</code>.
+    There are additional properties via MSBuild that can be used to automatically
+    locate the runner; see the
+    <a href="https://github.com/xunit/xunit.integration/tree/main/console">xUnit.net Integration Project</a>
+    for examples of how to use this directly from your <code>.csproj</code> files.
+  </li>
+  <li>
+    This is the first version to fully support .NET Core 2.0, and the support for
+    .NET Core 1.0 has been greatly improved. In particular, users who noticed that
+    we were copying large numbers of dependent DLLs will be happy to note that we
+    have found a way around that. Also, any users who were previously trying to
+    use libraries with native components (for example, <code>System.Data.SqlClient</code>)
+    from .NET Core should now be able to properly use these packages (this fix
+    affects all versions of .NET Core).
+  </li>
+</ul>
+
+<h2>Breaking Changes</h2>
+
+<p class="important">
+  The <code>xunit.runner.console</code> NuGet package has been changed; notably, the path
+  to the <code>net452</code> executables has moved from <code>tools\</code> to
+  <code>tools\net452\</code>. You will need to update any paths which previously hard-coded
+  this path.
+</p>
+
+<p class="important">
+  The <code>xunit.runner.msbuild</code> NuGet package has been changed; notably, the names
+  of the MSBuild runner DLLs now include the target platform. This means if you had a
+  hard-coded path to <code>xunit.runner.msbuild.dll</code>, this will need to be replaced
+  with <code>xunit.runner.msbuild.net452.dll</code>.
+</p>
+
+<h2>Important Notes</h2>
+
+<p class="note">
+  If you are using Visual Studio 2013, you must use NuGet 2.12 or
+  later to use xUnit.net 2.3, because support for <code>netstandard</code> is
+  required. You will not be able to use xUnit.net 2.3 with Visual Studio 2012
+  (if Visual Studio 2012 support is important, please stick with xUnit.net 2.1,
+  the last version that officially supported 2012).
+</p>
+
+<p class="note">
+  As a reminder: If you're extending xUnit.net and want to publish your extension
+  as a NuGet package, you should import <code>xunit.extensibility.core</code> and/or
+  <code>xunit.extensibility.execution</code>, not <code>xunit</code> or
+  <code>xunit.core</code>. If you do this wrong, you might have problems generating
+  your NuGet package via <code>dotnet pack</code>.
+</p>
+
+<h2>Release Notes</h2>
+
+<p>
+  These release notes just include the highlights of what's new. You can review the
+  individual release notes which contributed to 2.3:
+</p>
+
+<p>
+  <a href="2.3.0-rc3-build3818" class="prerelease">RC 3</a>
+  <a href="2.3.0-rc2-build3812" class="prerelease">RC 2</a>
+  <a href="2.3.0-rc1-build3809" class="prerelease">RC 1</a>
+  <a href="2.3.0-beta5-build3769" class="prerelease">Beta 5</a>
+  <a href="2.3.0-beta4-build3742" class="prerelease">Beta 4</a>
+  <a href="2.3.0-beta3-build3705" class="prerelease">Beta 3</a>
+  <a href="2.3.0-beta2-build3682" class="prerelease">Beta 2</a>
+  <a href="2.3.0-beta1-build3642" class="prerelease">Beta 1</a>
+</p>

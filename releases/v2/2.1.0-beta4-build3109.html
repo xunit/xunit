@@ -1,0 +1,180 @@
+---
+layout: default
+title: Release Notes for August 4, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-08-04.html
+  - /releases/2.1-beta4
+  - /releases/2.1-beta4.html
+---
+
+<h1>Release Notes: August 4, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.1 Beta 4</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Added support for Universal Windows Platform.</li>
+  <li>Added support for DNX Beta 6.</li>
+  <li>Added support for the new <code>dotnet</code> NuGet target framework.</li>
+  <li>
+    Added the ability to <a href="/docs/configuration-files">configure
+    your unit test projects using JSON</a>, supported by all project types.
+    The <code>App.config</code>-based configuration system continues to be
+    supported for desktop and PCL projects only.
+  </li>
+  <li>
+    Added output into the default runner reporter, so the three text-based
+    runners (console, MSBuild, and DNX) should now show test output.
+  </li>
+  <li>
+    You can now use constructor injection to get access to your collection
+    fixtures from within your class fixtures' constructors.
+  </li>
+  <li>
+    Using <code>BeforeAfterTestAttribute</code>-derived classes is now supported
+    on test collection definitions (in addition to being supported on test
+    classes and test methods).
+  </li>
+  <li>Brought back <code>[ClassData]</code> from the v1 code base.</li>
+  <li>
+    Improved reporting of serialization issues (mostly affects the Visual Studio
+    runner).
+  </li>
+  <li>
+    The paths used by the NuGet packages for PCL259 libraries have been
+    made shorter. Hopefully this will alleviate some issues related to
+    exceeding <code>MAX_PATH</code> on the file system when using xUnit.net.
+  </li>
+  <li>
+    <strong>BUG:</strong> The serialization system could not correct roundtrip
+    <code>float.MinValue</code>, <code>float.MaxValue</code>,
+    <code>double.MinValue</code> or <code>double.MaxValue</code>. This primarily
+    affect theories using these values, when run in Visual Studio.
+  </li>
+  <li>
+    <strong>BUG:</strong> Environmentally enabled reporters (like TeamCity and
+    AppVeyor) should override explicitly chosen reporters.
+  </li>
+  <li>
+    <strong>BUG:</strong> xUnit.net was unable to load signed test assemblies.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Runner authors can now opt out of using app domains when running on
+    the desktop CLR. The flag is passed to <code>XunitFrontController</code>,
+    <code>Xunit1</code>, <code>Xunit2</code>, and <code>Xunit2Discoverer</code>.
+    This is a breaking API change, so that authors will be aware of the impact
+    of this potential change.
+  </li>
+  <li>
+    The discovery systems in <code>FactAttributeDiscoverer</code> and
+    <code>TheoryAttributeDiscoverer</code> have been enhanced
+  </li>
+  <li>
+    Added <code>ITestFrameworkExecutionStarting</code> and
+    <code>ITestFrameworkExecutionFinished</code> messages for runner reporters.
+  </li>
+  <li>
+    Added <code>TestInvoker.CallTestMethod</code> as an extensibility point.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a bug where types which implemented
+    <code>IXunitSerializable</code> but did not actually serialize anything
+    were not working.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>Added a </code>-noappdomain</code> switch to disable using app domains.</li>
+  <li><strong>BUG:</strong> XSL-T transforms were being opened as read/write</li>
+</ul>
+
+<h3>MSBuild Runner</h3>
+<ul>
+  <li>
+    Added an <code>AppDomains</code> property to the <code>xunit</code> task, to
+    disable using app domains.
+  </li>
+</ul>
+
+<h3>TestDriven.NET runner</h3>
+<ul>
+  <li>
+    Turned off shadow copying when using TestDriven.NET. This was the behavior
+    in v1, but it was inadvertently turned on when the code was moved to v2 2.0.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.1 Beta 4</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>
+    Added support for Universal Windows Platform. To write unit tests for UWP,
+    create a new UWP unit test project, then remove the reference to MSTest.
+    Add your xUnit.net package references.
+  </li>
+  <li>
+    Added support for using traits to filter tests when using
+    <code>vstest.console.exe</code> and Visual Studio Online.
+  </li>
+  <li>
+    Added a bunch of new diagnostic messages, which should help when debugging
+    test discovery and execution issues.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where some tests may not have been
+    run when using Visual Studio 2015 (in particular, theories from v1 or
+    any v2 theory will non-serializable data).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with test discovery being broken when
+    the display name of a test is longer than ~ 450 characters.
+  </li>
+</ul>
+
+<h2>DNX Runner 2.1 Beta 4</h2>
+
+<p><em>
+  For information on using xUnit.net from DNX projects, see
+  <a href="/docs/getting-started-dnx.html">Getting Started with DNX</a>.
+</em></p>
+
+<ul>
+  <li>Added support for DNX Beta 6.</li>
+  <li>
+    The <code>xunit.assert.source</code> NuGet package is now usable via DNX.
+    Unlike with older services, you will not see (or be able to edit) the
+    source for the built-in assertions, but you can extend the built-in
+    <code>Assert</code> class (which is a partial class).
+  </li>
+  <li>
+    Due to the switch to <code>dotnet</code> libraries for DNX, the ability to
+    limit the number of threads running tests has been temporarily removed from
+    the DNX runner. This functionality will be restored once <code>dnx451</code>
+    is retired, as the feature now requires <code>dnx46</code>. You can still
+    enable/disable parallelism (and when enabled, the system will use the
+    built-in thread pool to run the tests).
+  </li>
+  <li>
+    <strong>BUG:</strong> If the destination folder for the XML report does
+    not exist, it will be created.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where the DNX runner would append
+    to the XML file when writing the XML report, rather than overwriting it
+    (as was intended).
+  </li>
+</ul>

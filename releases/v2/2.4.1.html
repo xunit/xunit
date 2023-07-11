@@ -1,0 +1,104 @@
+---
+layout: default
+title: Release Notes for October 28, 2018
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 28, 2018</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.4.1!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.4.1; this includes RTM builds of the core
+  framework and the Visual Studio runner. This build is primarily a maintenance
+  release for 2.4, and represents what we hope is the final build in the 2.x
+  lifetime.
+</p>
+
+<p>
+  It's been 3 months since the release of <a href="2.4.0">2.4 RTM</a>. The small
+  number of issues fixed here are due to the relative stability of the codebase
+  especially as we turn our focus to working on 3.0.
+</p>
+
+<p>
+  xUnit.net version 1.x was really about perfecting the experience of writing
+  unit tests for the desktop CLR. Version 2.x expanded support for many
+  platforms, including .NET Core, Xamarin (iOS and Android), UWP, and others
+  along the way. Now that we've reached the edges with the current platforms,
+  it's time for us to focus on 3.0. The <a
+  href="https://github.com/xunit/xunit/issues?q=is%3Aopen+is%3Aissue+label%3A%22target%3A+3.0%22">3.0
+  issues list</a> is where you can track our work towards the next major
+  version. Please feel free to open any new issue for any bug or missing feature
+  that you'd like considered for the 3.0 time frame.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of
+  xUnit.net through usage, feedback, and code contributions. We had too many
+  contributors this time around to thank individually, so know that every bug
+  reported, every line of code PR'd, every conversation contributed to on Slack,
+  were all appreciated!
+</p>
+
+<h2>Release Notes</h2>
+
+<p><em>
+  These release notes reflect the entirety of the changes between 2.4 and 2.4.1.
+</em></p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with xunit.abstractions not correctly
+    installing with older versions of Visual Studio (pre-2017).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with ByRef types with .NET Core 2.1.
+  </li>
+  <li>
+    <strong>BUG:</strong> Removed an unnecessary first chance exception related
+    to attempting to load configuration files.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where synchronous and asynchronous
+    disposal of test classes were running in parallel. The documented behavior
+    is that asynchronous disposal (via <code>IAsyncLifetime</code>) runs to
+    completion before synchronous disposal (via <code>IDisposable</code>).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue caused in 2.4 by introducing new
+    <code>netstandard2.0</code> libraries. Developers who were using desktop CLR
+    versions older than 4.7.2 could encounter assembly loading issues. We rolled
+    this change back, which should resolve the issue for those users. For more
+    information on this problems caused by the original change, see <a
+    href="https://github.com/dotnet/standard/issues/481">this Github issue</a>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where generic test methods weren't
+    correctly resolved when passing a <code>Func&lt;T&gt;</code>.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>-nocolor</code> was not
+    honored (when trying to get any reports other than XML v2 from the .NET Core
+    1.x runner).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with XML element order with the NUnit
+    report.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with XML element order with the NUnit
+    report.
+  </li>
+</ul>

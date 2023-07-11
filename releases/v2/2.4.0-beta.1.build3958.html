@@ -1,0 +1,155 @@
+---
+layout: default
+title: Release Notes for February 11, 2018
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.4-beta1
+  - /releases/2.4-beta1.html
+---
+
+<h1>Release Notes: February 11, 2018</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.4 Beta 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    A new feature called "test method display options" is available. This features some built-in transformations
+    of test names automatically, in an attempt to generate more readable test names. This comprises a set of flags
+    that can be enabled for individual transformations. For more information, see the <code>methodDisplayOptions</code>
+    section of <a href="/docs/configuration-files">Configuration Files</a>.
+  </li>
+  <li>
+    Support for reporting tests to VSTS has been added. Like our support for TeamCity and AppVeyor, this is a reporter
+    that is automatically enabled when tests are running inside of VSTS. Documentation on how to enable this (with
+    a sample YAML build definition) will be forthcoming shortly.
+  </li>
+  <li>
+    Data theories can now pass <code>DateTime</code>, <code>DateTimeOffset</code>, and <code>Guid</code> values
+    as strings, and they will be converted automatically to the matching argument type. This is most useful
+    with <code>[InlineData]</code>, which does not allow any of these types natively.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where implicit and explicit conversion operator methods were not always
+    used when converting theory data.
+  </li>
+  <li>
+    <strong>BUG:</strong> JSON configuration for <code>maxParallelThreads</code> did not properly support the special
+    values of <code>0</code> and <code>-1</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with some incorrectly escaped characters when reporting to TeamCity
+    (which caused some test names to get mangled or truncated).
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue when <code>Assert.All</code> encountered a <code>null</code>
+    data element.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    Swapped <code>-noappdomain</code> for <code>-appdomains [required|ifavailable|denied]</code>, to
+    better align with the values from configuration files. The old switch is still supported, but no
+    longer listed in the help page. The default value is <code>ifavailable</code>.
+  </li>
+  <li>
+    Updated <code>-help</code> to show that <code>-method</code> can take wildcards.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where invoking the console runner without arguments could throw
+    an exception rather than showing the help page.
+  </li>
+</ul>
+
+<h3>dotnet xunit runner</h3>
+<ul>
+  <li>
+    When targeting <code>netcoreapp2.0</code> or later, you can now generate the full set of output
+    reports: HTML, XML v1, XML v2, and NUnit 2.5. (When targeting <code>netcoreapp1.0</code>, you are
+    still limited to just XML v2 reports.)
+  </li>
+  <li>
+    Swapped <code>-noappdomain</code> for <code>-appdomains [required|ifavailable|denied]</code>, to
+    better align with the values from configuration files. The old switch is still supported, but no
+    longer listed in the help page. The default value is <code>ifavailable</code>.
+  </li>
+  <li>
+    Updated <code>-help</code> to show that <code>-method</code> can take wildcards.
+  </li>
+  <li>Optimized (and cached) assembly resolution for .NET Core projects.</li>
+  <li>
+    <strong>BUG:</strong> Fixed issues related to running on operating systems that were currently
+    unknown to .NET Core (for example, macOS 10.13). This usually surfaced as an inability to load
+    platform-specific assemblies when running on these platforms.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed issues related to libraries not loading from the dependency list. This surfaced
+    most commonly as failures with MVC TestHost.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue related to .NET SDK 2.0.3 which was causing failures to find the
+    <code>2.0</code> runtime (when the <code>2.0.0</code> runtime was the one desired).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with using relative paths instead of absolute paths when setting
+    the working directory for executing tests.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    Updated the <code>AppDomains='value'</code> attribute to accept all the legal values (<code>required</code>,
+    <code>ifavailable</code>, and <code>denied</code>), to better align with the values from configuration files.
+    This was previously a boolean value, so the old values are still supported (<code>true</code> maps to
+    <code>required</code>, and <code>false</code> maps to <code>denied</code>). The default value is
+    <code>ifavailable</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> The <code>FailSkips</code> attribute was previously not settable. This
+    has been fixed.
+  </li>
+</ul>
+
+<h3>VSTest plugin (for dotnet test and Visual Studio Test Explorer)</h3>
+<ul>
+  <li>
+    The RunSettings file can now include a reporter (i.e., <code>quiet</code>, <code>teamcity</code>, etc.)
+    The element is at <code>/RunSettings/RunConfiguration/ReporterSwitch</code>, with the reporter switch
+    name being the inner text of the element (i.e.,
+    <code>&lt;ReporterSwitch&gt;quiet&lt;/ReporterSwitch&gt;</code>).
+  </li>
+  <li>
+    Experimental support for Test Platform v2 with UWP has been added, for future Visual Studio releases.
+  </li>
+  <li>
+    <strong>BUG:</strong> In some cases, having a trait with an empty value caused test discovery and/or
+    execution failure.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with test method names that contained colons. This was most commonly
+    seen with F# tests.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where passing incompatible test method data to params arrays on
+    data theories caused test discovery to fail (and would show as forever discovering in the Test Explorer UI).
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    The reflection abstraction for CLR attributes now allows field setters (in addition to property setters)
+    when reflecting on attribute constructor arguments. While there were no attributes in xUnit.net itself
+    that used field setters, this will allow extensibility authors to write custom extension attributes that
+    use fields rather than properties for optional attribute arguments.
+  </li>
+</ul>

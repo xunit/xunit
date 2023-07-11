@@ -17,12 +17,10 @@ xUnit.net includes a runner which can be used from your MSBuild scripts to run u
 
 Here is an example MSBuild file using the &lt;xunit&gt; task to run a single assembly:
 
-**xUnit.net v2.x**
+**xUnit.net v2**
 
 {% highlight xml %}
-<Project
-    DefaultTargets="Test"
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Test">
 
   <UsingTask
     AssemblyFile="path\to\xunit.runner.msbuild.net452.dll"
@@ -35,12 +33,10 @@ Here is an example MSBuild file using the &lt;xunit&gt; task to run a single ass
 </Project>
 {% endhighlight %}
 
-**xUnit.net v3.x**
+**xUnit.net v3**
 
 {% highlight xml %}
-<Project
-    DefaultTargets="Test"
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Test">
 
   <UsingTask
     AssemblyFile="path\to\xunit.v3.runner.msbuild.dll"
@@ -59,12 +55,10 @@ Often, you will want to run multiple assemblies. You can use an [&lt;ItemGroup&g
 
 Here is an example MSBuild file using the &lt;xunit&gt; task to run several assemblies:
 
-**xUnit.net v2.x**
+**xUnit.net v2**
 
 {% highlight xml %}
-<Project
-    DefaultTargets="Test"
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Test">
 
   <UsingTask
     AssemblyFile="path\to\xunit.runner.msbuild.net452.dll"
@@ -81,12 +75,10 @@ Here is an example MSBuild file using the &lt;xunit&gt; task to run several asse
 </Project>
 {% endhighlight %}
 
-**xUnit.net v3.x**
+**xUnit.net v3**
 
 {% highlight xml %}
-<Project
-    DefaultTargets="Test"
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Test">
 
   <UsingTask
     AssemblyFile="path\to\xunit.v3.runner.msbuild.dll"

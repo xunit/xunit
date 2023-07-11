@@ -1,0 +1,334 @@
+---
+layout: default
+title: Release Notes for August 1, 2022
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.4.2
+  - /releases/2.4.2.html
+---
+
+<h1>Release Notes: August 1, 2022</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.4.2!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.4.2; this includes RTM builds of the core
+  framework and analyzers (now at version 1.0.0! 🎉).
+</p>
+
+<p>
+  It's been nearly 4 years since the release of <a href="2.4.1">2.4.1 RTM</a>.
+  This release includes a few targeted bug fixes for the core framework, and
+  an updated assertion library with many of the new v3 assertions being
+  back-ported to v2. This new assertion library includes several new assertions
+  and overloads of existing assertions, improvements to output for failing tests,
+  and nullable annotations.
+</p>
+
+<p>
+  We did not intend to ship any more v2 releases; that said, we also did not intend
+  for the v3 development process to take as long as it has. We felt it was necessary
+  to address a couple specific high-friction issues (including two from the .NET Team at
+  Microsoft); the new assertions are merely an extra reason to encourage the upgrade (and
+  help tide teams over who might be waiting for v3 with some of the new features).
+</p>
+
+<p>
+  You will notice that we have not changed any of the minimum requirements for
+  this release, despite the fact that .NET 4.5.2 and .NET Core 1.0 are quite old
+  at this point. We did not want to disrupt the workflow of those who may still
+  be stuck on older (even out of support) versions of .NET Framework or .NET Core.
+  <em>You should not consider this an endorsement that you use these older
+  versions of .NET Framework or .NET Core; this was merely about making as few
+  changes as possible to minimize compatibility issues, especially with third party
+  extensibility libraries and test runners. <strong>Please upgrade to supported
+  versions as soon as possible, as some of them are not even receiving security patches
+  at this point in time.</strong></em>
+</p>
+
+<p>
+  This need to stick to the older target frameworks is the reason we are unable
+  to ship the new assertions based on <code>Span</code>, <code>Memory</code> and
+  <code>ValueTask</code>. If you wish you be able to consume these, they are part
+  of the source package <code>xunit.assert.source</code>, which you could use
+  (instead of <code>xunit.assert</code>), and then define the appropriate constants
+  in the project (using
+  <a href="https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-properties">&lt;DefineConstants&gt;</a>
+  in your project file) to enable more advanced features. For more information on the
+  constants and available features, please see the
+  <a href="https://github.com/xunit/assert.xunit#annotations">Assertion library</a>
+  home page README.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of
+  xUnit.net through usage, feedback, and code contributions.
+</p>
+
+<h2>Release Notes</h2>
+
+<p><em>
+  These release notes reflect the entirety of the changes between 2.4.1 and 2.4.2.
+</em></p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where placing <code>Skip</code> on an
+    <code>[InlineData]</code> attribute was being ignored by Visual Studio Test Explorer.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/266">xunit/visualstudio.xunit#266</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>decimal</code> values weren't
+    usable in generic theories because the type coercion logic was not accounting for
+    the possibility of multiple type-compatible <code>op_Implicit</code> or
+    <code>op_Explicit</code> methods.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2418">xunit/xunit#2418</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where type inference for generic test methods
+    was not done correctly when one of the test data values was <code>null</code> (it
+    would incorrectly use <code>object</code> to close all the generic types rather than
+    continuing to inspect the subsequent non-<code>null</code> values for their
+    correct types).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2401">xunit/xunit#2401</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a bug in <code>DisposalTracker</code> which was a race
+    condition that could cause objects to fail to get disposed and/or cause objects to
+    get disposed twice.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1855">xunit/xunit#1855</a>
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+
+<h4>New assertions</h4>
+<ul>
+  <li>
+    Added <code>Assert.Distinct</code> to verify that a collection does not contain any duplicate values.
+    <a class="issue-link" href="https://github.com/xunit/assert.xunit/pull/35">xunit/assert.xunit#35</a>
+  </li>
+  <li>
+    Added <code>Assert.Equivalent</code> to check for object equivalence. Object equivalence
+    is intended to be a looser kind of assertion than <code>Assert.Equal</code>. This assertion
+    allows an optional <code>strict</code> flag to influence its behavior. The rules for equivalence
+    are as follows:
+    <ul>
+      <li>
+        <code>null</code> values are only ever equivalent to other <code>null</code> values (regardless
+        of <code>strict</code>).
+      </li>
+      <li>
+        For value types and strings, equivalence and equality are the same (regardless of <code>strict</code>).
+        In particular, this means that types must match exactly (for example, <code>int</code> and
+        <code>long</code> values are never equivalent, even if they have the same underlying value; or,
+        in code form: <code>Assert.Equivalent(12, 12L);</code> will fail).
+      </li>
+      <li>
+        For collections, the items in the two collections are compared for equivalence <em>regardless of their
+        order in the collection</em> (meaning <code>[1, 2]</code> is equivalent to <code>[2, 1]</code>) and
+        <em>regardless of the collection type</em> (for example, <code>List&lt;int&gt;</code> can be compared
+        against <code>int[]</code>). The <code>strict</code> parameter influences this comparison by requiring
+        that all values in the <code>expected</code> list are in the <code>actual</code> list (meaning
+        <code>expected: [1, 2]</code> is equivalent to <code>actual: [2, 3, 1]</code> when <code>strict</code>
+        is <code>false</code>, but <em>not equivalent</em> when <code>strict</code> is <code>true</code>). Another
+        way to think of this is that <code>strict: false</code> allows <code>actual</code> to be a <em>strict
+        superset</em> of <code>expected</code>, whereas <code>strict: true</code> does not.
+      </li>
+      <li>
+        Reference types which point to the same instance are always equivalent (regardless of <code>strict</code>).
+        Circular references are not allowed, and will be surfaced as test failures. For all other reference types,
+        the public non-static fields and readable properties are compared for equivalence <em>without regard to the
+        types of the two values</em> and <em>without regard to which values came from fields vs. properties</em>.
+        Like collections, the <code>strict</code> flag indicates whether <code>actual</code> is allowed to be a
+        strict superset of <code>expected</code> (<code>strict: false</code>) or an exact match (<code>strict:
+        true</code>). Reference types inspected in this way determine the equivalence of individual field/property
+        values by using these same sets of rules when comparing the field/property values. This includes reference
+        type values (meaning the reference type equivalence is considered to be "deep", not "shallow").
+      </li>
+      <li>
+        <code>KeyValuePair&lt;,&gt;</code> is handled specially: the keys are checked for equivalence
+        against each other, as are the values; this allows embedded collections inside of keys and/or
+        values inside a KeyValuePair.
+      </li>
+    </ul>
+    It's somewhat challenging to describe these rules in plain English, so please see the comprehensive
+    test suite linked below for codified versions of all these rules.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1604">xunit/xunit#1604</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/blob/f110e5bee5dfd4c08339587c9c3df9292fcb597c/test/test.xunit.assert/Asserts/EquivalenceAssertsTests.cs">Assert.Equivalent test suite</a>
+  </li>
+  <li>
+    Added <code>Assert.Fail</code> which unilaterally fails the test with the given message.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2105">xunit/xunit#2105</a>
+  </li>
+  <li>
+    Added <code>Assert.Multiple</code> which allows the developer to run several independent
+    assertions (expressed as <code>Action</code>s) and then collect up all the failures into
+    a single failure. This behavior differs from the default behavior (which stops running
+    assertions upon the first failure).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1920">xunit/xunit#1920</a>
+  </li>
+</ul>
+
+<h4>New overloads</h4>
+<ul>
+  <li>
+    Added an overload of <code>Assert.All</code> which takes an <code>Action&lt;T, int&gt;</code> so
+    the inspecting action get access to both the value and its index in the collection.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2082">xunit/xunit#2082</a>
+  </li>
+  <li>
+    Add overload of <code>Assert.Equal</code> for doubles which includes a <code>MidpointRounding</code>
+    flag.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2074">xunit/xunit#2074</a>
+  </li>
+  <li>
+    Add overload of <code>Assert.Equal</code> for floats and doubles that allows specifying a
+    tolerance (rather than a precision).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1293">xunit/xunit#1293</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1984">xunit/xunit#1984</a>
+  </li>
+</ul>
+
+<h4>Message improvement</h4>
+<ul>
+  <li>
+    Improved the output of <code>Assert.Collection</code> with a pointer-style message (like string
+    assertions) that make it easier to identify the failing part of the collection.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/994">xunit/xunit#994</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1924">xunit/xunit#1924</a>
+  </li>
+  <li>
+    Improved the output of <code>Assert.Empty</code> to match other expected/actual exceptions.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1806">xunit/xunit#1806</a>
+  </li>
+  <li>
+    Improved the output of <code>Assert.Single</code> to improve the output message when
+    being used with a "match" expression (it used to say the collection was empty, but
+    now correctly mentions the fact that you were matching specific values).
+    <a class="issue-link" href="https://github.com/xunit/assert.xunit/pull/28">xunit/assert.xunit#28</a>
+  </li>
+  <li>
+    Improved the output from exceptions which show expected and actual values which are multi-line
+    values, so that the lines are properly indented.
+    <a class="issue-link" href="https://github.com/xunit/xunit/commit/8b67420306018ca37f6cd91a65a559a381964829">xunit/xunit commit 8b67420</a>
+  </li>
+</ul>
+
+<h4>Bugs fixed</h4>
+<ul>
+  <li>
+    Updated the white space list <code>Assert.Equal</code> for strings with <code>ignoreWhiteSpace: true</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1931">xunit/xunit#1931</a>
+  </li>
+  <li>
+    There are times during <code>Assert.Equal</code> with collections that can iterate multiple times
+    (which is generally considered bad form with <code>IEnumerable</code>). The most egregious case of
+    this was fixed, though there is still at least one more possibility during test failure to end
+    up enumerating a second time.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2402">xunit/xunit#2402</a>
+  </li>
+</ul>
+
+<h4>Other improvements</h4>
+<ul>
+  <li>
+    All appropriate assertions have been annotated for nullability:
+    <ul>
+      <li>
+        <code>Assert.NotNull</code> tells the compiler that the <code>object</code> parameter will
+        not <code>null</code> if the function doesn't throw. <code>Assert.Null</code> similarly
+        tells the compiler that the <code>object</code> parameter may be <code>null</code> if
+        the function doesn't throw.
+      </li>
+      <li>
+        <code>Assert.Contains</code> and <code>Assert.DoesNotContain</code> for dictionaries requires
+        the dictionary key type to be non-nullable.
+      </li>
+      <li>
+        <code>Assert.Single</code> against non-generic <code>IEnumerable</code> indicates the return
+        value may be <code>null</code>.
+      </li>
+      <li>
+        Many assertion parameters were updated to indicate when <code>null</code> parameter values
+        are acceptable and when they aren't, as well as updating return signatures to indicate when
+        returned values may or may not be <code>null</code>.
+      </li>
+      <li>
+        A few assertions (<code>True</code>, <code>False</code>, and <code>Fail</code>) are marked as
+        never returning (aka, throwing) based on the input data.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Marked <code>XunitException</code>'s constructors which take inner exceptions as <code>public</code>.
+    <a class="issue-link" href="https://github.com/xunit/assert.xunit/pull/33">xunit/assert.xunit#33</a>
+  </li>
+  <li>
+    The event assertions (<code>Assert.Raises</code>, <code>Assert.RaisesAny</code>, and
+    <code>Assert.RaisesAsync</code>) no longer express type requirements for <code>EventArgs</code>.
+  </li>
+</ul>
+
+<h3>Runner utility (and all runners)</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Updated the output when running tests inside TeamCity to improve the way
+    TeamCity parsed test output (missing its flow ID and a flag to indicate the text was parsable).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2397">xunit/xunit#2397</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed in issue with incorrect lock order when coloring console
+    output.
+    <a class="issue-link" href="https://github.com/xunit/xunit/pull/2228">xunit/xunit#2228</a>
+  </li>
+</ul>
+
+<h2>A note about <code>xunit.runner.visualstudio</code></h2>
+
+<p>
+  The <code>xunit.runner.visualstudio</code> package has a separate lifecycle and
+  separate minimum framework requirements from xUnit.net core. Use this table
+  to determine which version you should use (pick the <em>lowest version</em> of
+  the combination of target frameworks you're using):
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>2.4.1</th>
+      <th>2.4.3</th>
+      <th>2.4.5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>.NET Framework</th>
+      <td>4.5.2</td>
+      <td>4.5.2</td>
+      <td>4.6.2</td>
+    </tr>
+    <tr>
+      <th>.NET Core</th>
+      <td>1.0</td>
+      <td>2.1</td>
+      <td>3.1</td>
+    </tr>
+    <tr>
+      <th>UWP</th>
+      <td>10.0.10240</td>
+      <td>10.0.16299</td>
+      <td>10.0.16299</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Visual Studio does not allow mixed versions of this package in your solution, so do not mix versions; doing
+  so may cause problems running your projects that need the older version of the runner package. Choose the
+  lowest version of the package that applies to <em>all</em> of the test projects in your solution.
+</p>

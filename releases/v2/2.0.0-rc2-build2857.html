@@ -1,0 +1,173 @@
+---
+layout: default
+title: Release Notes for February 17, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-02-17.html
+  - /releases/2.0-rc2
+  - /releases/2.0-rc2.html
+---
+
+<h1>Release Notes: February 17, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.0 RC 2</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li><strong>BUG:</strong> Times in the XML report weren't written in the invariant culture.</li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    Removed all dependencies on .NET serialization, instead standardizing on the
+    <code>IXunitSerializable</code> interface. This means anybody implementing
+    serialization for test cases no longer has to implement it twice, and can now
+    remove the <code>[Serialization]</code> constructor and remove the implementation
+    of <code>ISerializable</code>. The new serialization system supports most of the
+    built-in intrinsic types (<code>int</code>, <code>long</code>, <code>float</code>,
+    <code>double</code>, <code>decimal</code>, <code>string</code>, and their
+    nullable counterparts), any type which implements <code>IXunitSerializable</code>,
+    and arrays which contain supported serializable types. (Note: the old
+    interface <code>IGetTypeData</code> is no longer supported. Extenders should
+    implement <code>IXunitSerializable</code> instead.)
+  </li>
+  <li>
+    We added an instance of <code>IMessageSink</code> that is used solely for receiving
+    diagnostic messages. Runners can optionally pass this when they create either
+    <code>XunitFrontController</code> or <code>Xunit2</code>, and it is propagated
+    throughout the system. All extensibility points (implementations of
+    <code>IDataDiscoverer</code>, <code>ITestCaseOrderer</code>,
+    <code>ITestCollectionOrderer</code>, <code>ITestFrameworkTypeDiscoverer</code>,
+    <code>ITraitDiscoverer</code>, <code>IXunitTestCaseDiscoverer</code>,
+    <code>IXunitTestCollectionFactory</code>, <code>ITestFramework</code>,
+    <code>ITestFrameworkDiscoverer</code>, and <code>ITestFrameworkExecutor</code>)
+    can now get access to this message sink by adding <code>IMessageSink</code> as
+    a constructor parameter.
+  </li>
+  <li>
+    We removed <code>EnvironmentalWarning</code> and <code>IMessageAggregator</code>.
+    Anything which had previously been reporting environmental warnings during discovery
+    has now been converted to use the diagnostic message sink described above. In
+    addition, several code locations that previously could not log issues (because they
+    happened outside of discovery or execution) are now able to report diagnostic
+    messages. This should aid developers writing extensibility points because we can
+    now report more issues related to creating and using these extensions. (We also
+    updated <code>IDiscoveryCompleteMessage</code> to remove the <code>Warnings</code>
+    property.)
+  </li>
+  <li>Exposed <code>XunitTestInvoker.BeforeAfterAttributes</code> to inheritors.</li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where assembly-level test collection and
+    parallelization configuration options were being ignored.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>Added a <code>-nologo</code> switch to suppress the runner header/copyright.</li>
+  <li>Added a <code>-quiet</code> switch to suppress discovery/execution meta-messages.</li>
+  <li>Added a <code>-debug</code> switch to launch the debugger on startup.</li>
+  <li>
+    Diagnostic messages are now being reported to the console as warnings.
+    <blockquote>Diagnostic messages are turned off by default. To enable
+    diagnostic messages for a given assembly, please see
+    <a href="/docs/configuration-files">Configuring xUnit.net</a>.</blockquote>
+  <li>
+    Skips are written to STDOUT instead of STDERR, as some build systems which monitor STDERR
+    to fail a build (which was causing them to fail when skipped tests were present).
+  </li>
+  <li>
+    <strong>BUG:</strong> TeamCity v9 was seemingly incorrectly reporting the number of tests,
+    because it was combining similar tests together and treating them as multiple invocations
+    of the same test.
+  </li>
+</ul>
+
+<h3>MSBuild Runner</h3>
+<ul>
+  <li>
+    Diagnostic messages are now being reported to MSBuild as warnings.
+    <blockquote>Diagnostic messages are turned off by default. To enable
+    diagnostic messages for a given assembly, please see
+    <a href="/docs/configuration-files">Configuring xUnit.net</a>.</blockquote>
+  </li>
+  <li>
+    <strong>BUG:</strong> TeamCity v9 was seemingly incorrectly reporting the number of tests,
+    because it was combining similar tests together and treating them as multiple invocations
+    of the same test.
+  </li>
+</ul>
+
+
+<h2>Visual Studio Runner 2.0 RC2</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<p>
+  <strong>Note:</strong> This release supports all released versions of
+  xUnit.net v1, as well as v2 2.0 RC2 or later. It does not support any earlier
+  versions of xUnit.net v2.
+</p>
+
+<ul>
+  <li>
+    Diagnostic messages are now being reported to Visual Studio as warnings.
+    You can see these messages in the Test pane of the Output window. Note:
+    diagnostic messages are only supported during execution for desktop and PCL
+    projects (they are not supported for Windows app tests or Windows Phone
+    app tests). Diagnostic messages are supported during discovery for all
+    platforms, since discovery always happens in the desktop CLR.
+    <blockquote>Diagnostic messages are turned off by default. To enable
+    diagnostic messages for a given assembly, please see
+    <a href="/docs/configuration-files">Configuring xUnit.net</a>.</blockquote>
+  </li>
+  <li>
+    <strong>BUG:</strong> Runners for Windows 8/8.1 apps and Windows Phone
+    8.1 apps were inadvertantly broken (some tests would only run under some
+    circumstances).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fact methods with parameters were not showing the
+    error correctly inside of the Visual Studio runner.
+  </li>
+</ul>
+
+
+<h2>ASP.NET 5 Runner 2.0 RC2</h2>
+
+<p><em>
+  For information on using xUnit.net from within ASP.NET 5, see
+  <a href="/docs/getting-started-aspnet.html">Getting started with xUnit.net and
+  ASP.NET 5</a>.
+</em></p>
+
+<p>
+  <strong>Note:</strong> This release supports xUnit.net v2 2.0 RC2 or later. It does not support
+  any earlier versions of xUnit.net v2.
+</p>
+
+<ul>
+  <li>Added a <code>-nologo</code> switch to suppress the runner header/copyright.</li>
+  <li>Added a <code>-quiet</code> switch to suppress discovery/execution meta-messages.</li>
+  <li>
+    Added a <code>-debug</code> switch to launch the debugger on startup. Note that this only
+    works with the desktop CLR, as Core CLR does not support <code>Debugger.Launch()</code>.
+  </li>
+  <li>
+    The runner currently supports only console invocation. Support for running tests inside
+    of Visual Studio will come in a later release, once the support in ASP.NET has stabilized.
+  </li>
+  <li>
+    <strong>BUG:</strong> The command line runner was not reporting enough information when
+    assembly load failures happened (in particular, compilation errors were not being)
+    reported.
+  </li>
+  <li><strong>BUG:</strong> The <code>-?</code> was being ignored.</li>
+</ul>

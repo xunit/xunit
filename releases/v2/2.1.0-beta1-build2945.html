@@ -1,0 +1,63 @@
+---
+layout: default
+title: Release Notes for March 21, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-03-21.html
+  - /releases/2.1-beta1
+  - /releases/2.1-beta1.html
+---
+
+<h1>Release Notes: March 21, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.1 Beta 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Added support for ASP.NET 5 Beta 3.</li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    <code>TestInvoker.InvokeTestMethodAsync</code> was accidentally made public
+    just before the 2.0 release. It has been restored back to protected, as was
+    originally intended.
+  </li>
+  <li>
+    <code>TestCollection.Serialize</code> and <code>TestCollection.Deserialize</code>
+    has been made virtual, so developers can re-use the implementation while
+    enhancing the serialization behavior.
+  </li>
+  <li>
+    <strong>BUG:</strong> <code>TestInvoker</code> would invoke unit tests even if
+    the user had requested cancellation. This has been fixed.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.1 Beta 1</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>There were no issues fixed for this release.</li>
+</ul>
+
+<h2>ASP.NET Runner 2.1 Beta 1</h2>
+
+<ul>
+  <li>Added support for ASP.NET 5 Beta 3.</li>
+  <li>
+    The ability to run tests from inside of Visual Studio 2015 is back. This
+    has been validated with VS 2015 CTP 6.
+  </li>
+  <li>
+    A <code>build.sh</code> script (supporting Linux and OS X) has been added.
+  </li>
+</ul>

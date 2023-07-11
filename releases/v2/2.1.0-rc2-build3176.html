@@ -1,0 +1,60 @@
+---
+layout: default
+title: Release Notes for September 20, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-09-20.html
+  - /releases/2.1-rc2
+  - /releases/2.1-rc2.html
+---
+
+<h1>Release Notes: September 20, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.1 RC 2</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>AsyncTestSyncContext</code>
+    throwing exceptions with the Devices Runner.
+  </li>
+  <li>
+    <strong>BUG:</strong> Changed the way test assemblies are loaded on the desktop,
+    which should fix some usage of "no app domain" mode.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+
+<ul>
+  <li>
+    Added a new <code>TraitHelper</code> class to <code>xunit.extensibility.exection</code>
+    to make it easier to determine the traits that are decorated on a test method.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.1 RC 2</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>There are no significant changes in this runner.</li>
+</ul>
+
+<h2>Devices Runner 1.2 RC 4</h2>
+
+<ul>
+  <li>
+    New <code>[UIFact]</code> and <code>[UITheory]</code> attributes are available
+    to ensure that the test runs on the UI thread. If you separate your device runner
+    and unit test projects, the unit test project will need to take a reference to
+    <code>xunit.runner.devices</code> to get access to the new attributes.
+  </li>
+  <li>Several small bug fixes.</li>
+</ul>

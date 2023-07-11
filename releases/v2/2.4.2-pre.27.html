@@ -1,0 +1,59 @@
+---
+layout: default
+title: Release Notes for July 24, 2022
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.4.2-pre.27
+  - /releases/2.4.2-pre.27.html
+---
+
+<h1>Release Notes: July 24, 2022</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.4.2 Pre-Release (build 27)</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Type inference gets confused when one theory parameter is null
+    (<a href="https://github.com/xunit/xunit/issues/2401">xunit/xunit#2401</a>)
+  </li>
+  <li>
+    <strong>BUG:</strong> Converting theory data failed when there were multiple <code>op_Implicit</code>
+    and/or <code>op_Explicit</code> methods that might qualify for conversion.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a deserialization issue with skipped theories
+    (<a href="https://github.com/xunit/visualstudio.xunit/issues/266">xunit/visualstudio#266</a>)
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with missing flow IDs when reporting results to TeamCity
+    (<a href="https://github.com/xunit/xunit/issues/2397">xunit/xunit#2397</a>)
+  </li>
+  <li>
+    <strong>BUG:</strong> Fix Console colors concurrency handling
+    (<a href="https://github.com/xunit/xunit/pull/2228">xunit/xunit#2228</a>)
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>Added <code>Assert.Distinct</code>, which ensures that every item in a collection is distinct.</li>
+  <li>
+    Updated <code>KeyValuePair&lt;TKey,TValue&gt;</code> argument formatting. Old format: <code>[Key, Value]</code>
+    New format: <code>[Key] = Value</code>. We also stopped special-casing dictionaries (they're just printed
+    out as <code>KeyValuePair</code> collections). This is most obviously visible in <code>Assert.Equivalent</code>
+    when dictionaries are missing entries (or contain extra entries in strict mode).
+  </li>
+  <li>
+    Updated <code>Assert.Equivalent</code> for <code>KeyValuePair&lt;TKey,TValue&gt;</code> to use equivalence for
+    key vs. key and value vs. value. This is most obviously visible when testing for dictionary equivalence when
+    the key or value is a collection (now those are recursively called into <code>Assert.Equivalent</code>, whereas
+    they were previously using simple equality tests).
+  </li>
+  <li>
+    <strong>BUG:</strong> When <code>Assert.Equal</code> failed, it was causing a second
+    enumeration, which could fail and/or have a significant performance penalty.
+  </li>
+</ul>

@@ -1,0 +1,138 @@
+---
+layout: default
+title: Release Notes for February 19, 2017
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2017-02-19.html
+  - /releases/2.2
+  - /releases/2.2.html
+---
+
+<h1>Release Notes: February 19, 2017</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.2!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.2. This includes 2.2 RTM builds of the core
+  framework and the Visual Studio runner.
+</p>
+<p>
+  It has been approximately 17 months since we shipped 2.1. The delay of the final
+  release of 2.2 had been pushed back to align roughly with the release of
+  .NET Core 1.0. While that was released back in June of last year, the pieces we relied
+  upon (namely, the .NET CLI SDK) have remained in pre-release; their RTM is
+  just a couple weeks away with the shipping of Visual Studio 2017.
+</p>
+<p>
+  We have just begun work on a new runner for .NET Core which will supplant (and
+  dramatically improve) the command-line test runner experience when compared to
+  <code>dotnet test</code>. Beta releases of that runner will start shipping soon.
+</p>
+<p>
+  Once again, we'd like to thank all the users who contributed to the success
+  of xUnit.net through usage, feedback, and code contributions. We had too many
+  contributors this time around to thank individually, so know that every bug
+  reported, every line of code PR'd, every conversation contributed to on Slack,
+  were all appreciated!
+</p>
+<p>
+  Important note: If you are using Visual Studio 2013, you must use NuGet 2.12 or
+  later to use xUnit.net 2.2, because support for <code>netstandard</code> is
+  required. You will not be able to use xUnit.net 2.2 with Visual Studio 2012
+  (if Visual Studio 2012 support is important, please stick with xUnit.net 2.1).
+</p>
+
+<h2>What's New</h2>
+
+<ul>
+  <li>
+    The minimum version of .NET required for desktop CLR unit tests is now
+    .NET 4.5.2. This change was made since both 4.5 and 4.5.1 are now out
+    of official support. This change only affects your unit test projects;
+    your production code is still free to target lower versions of .NET.
+    (Note: Because we support <code>netstandard1.1</code>, you will still
+    be able to link your desktop unit test projects that target 4.5 and
+    4.5.1, but they will not show up in the Visual Studio runner, and
+    they will not get desktop features like AppDomain isolation. Make sure
+    you upgrade the .NET version of your projects <em>before</em> installing
+    the new NuGet packages.)
+  </li>
+  <li>
+    We have removed support for Windows 8.x Store applications, as well
+    as Windows Phone 8.x applications. We continue to support Universal
+    Windows applications (from Windows 10 RTM forward). The removal of this
+    support also affects the Visual Studio runner. For users who continue to
+    need to target these outdated platforms, they should stick with version
+    2.1 of both xUnit.net and the Visual Studio runner.
+  </li>
+  <li>
+    The Visual Studio runner has been updated to support .NET Core in Visual
+    Studio 2017, as well as from the command line (with <code>dotnet test</code>).
+    Both the .NET CLI SDK and Visual Studio 2017 ship with templates for
+    making xUnit.net projects. (Note: .NET Core support is limited to Visual
+    Studio 2017--aka, MSBuild SDK-style projects. We have discontinued support
+    for Visual Studio 2015--aka, project.json-style projects.)
+  </li>
+  <li>
+    We have enabled support for detecting when tests may be running too long.
+    This feature is turned off by default, but can be enabled in your
+    <a href="/docs/configuration-files">configuration file</a>.
+  </li>
+  <li>
+    Several new and improved assertions, including:
+    <ul>
+      <li>
+        Added support for <code>IStructuralEquatable</code> to
+        <code>Assert.Equal</code>
+      </li>
+      <li>
+        Improved <code>Assert.All</code> to include the failing item when
+        reporting assertion failures
+      </li>
+      <li>
+        Improved <code>Assert.Collection</code> to include the collection when
+        reporting assertion failures
+      </li>
+      <li>
+        Improved handling of multi-rank arrays so that <code>[1,2]</code> and
+        <code>[[1],[2]]</code> no longer incorrectly show as equal
+      </li>
+      <li>
+        Improved handling of <code>ISet</code> implementations which are either
+        not generic, or have more generic parameters than just the item type
+      </li>
+      <li>
+        Properly disposing enumerators in <code>Assert.Empty</code> and
+        <code>Assert.NotEmpty</code>
+      </li>
+    </ul>
+    Special thanks to <a href="https://github.com/hughbe">Hugh Bellamy</a> for
+    contributing to most of this work.
+  </li>
+  <li>
+    We have moved to traditional symbols packages, away from the previous practice
+    of including "munged" symbols which automatically downloaded source files from
+    GitHub. This was done to support portable PDB files, but has the additional
+    benefit of making smaller packages (since the PDB file is no longer included).
+    These symbols are hosted at: <code>https://nuget.smbsrc.net/</code>.
+  </li>
+</ul>
+
+<h2>Release Notes</h2>
+
+<p>The following individual releases contributed to 2.2:</p>
+
+<ul>
+  <li><a href="2.2.0-beta4-build3444">November 6, 2016 (2.2 Beta 4)</a></li>
+  <li><a href="2.2.0-beta3-build3402">October 5, 2016 (2.2 Beta 3)</a></li>
+  <li><a href="2.2.0-beta2-build3300">June 27, 2016 (2.2 Beta 2)</a></li>
+  <li><a href="2.2.0-beta1-build3239">December 20, 2015 (2.2 Beta 1)</a></li>
+</ul>
+
+<p>
+  In addition, there were several RC builds that did not include release
+  notes. The content of those releases have been rolled up into the
+  text above.
+</p>

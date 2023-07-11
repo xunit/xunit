@@ -1,0 +1,120 @@
+---
+layout: default
+title: Release Notes for October 2, 2017
+breadcrumb: Release Notes
+redirect_from:
+  - /releases/2.3-rc1
+  - /releases/2.3-rc1.html
+---
+
+<h1>Release Notes: October 2, 2017</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.3 RC 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    The need to have referenced DLL files copied during build has been removed.
+    This should significantly increase build performance, as well as reduce disk
+    space usage.
+  </li>
+  <li>Updated <code>TheoryData</code> to support up to 10 data parameters.</li>
+  <li>Ongoing performance work.</li>
+</ul>
+
+<h3>dotnet xunit runner</h3>
+<ul>
+  <li>Added a new <code>-stoponfail</code> switch to stop running tests after the first test failure.</li>
+  <li>
+    Added a new <code>-msbuildverbosity</code> switch to allow the user to choose which verbosity
+    level to use when invoking <code>msbuild.exe</code> or <code>dotnet msbuild</code>. This value
+    defaults to <code>minimal</code>, which was previously the hardcoded value.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed several issues related to .NET Core 1.1 and 2.0. The runner will now
+    dynamically detect the exact version of the framework that the tests were linked against (for
+    example, <code>1.0.4</code>) and run with that framework. The user can still override this default
+    choice by passing the <code>-fxversion</code> switch.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>The console runner will now ensure the directory for results files (XML, HTML, etc.) exists.</li>
+  <li>Added a new <code>-stoponfail</code> switch to stop running tests after the first test failure.</li>
+  <li>
+    <strong>[.NET Core]</strong> The console runner no longer requires you to pass the <code>.deps.json</code>
+    file to <code>dotnet exec</code>, as this file is discovered automatically now. As a result, you can
+    invoke the console runner with multiple tests assemblies, as follows:
+
+    <blockquote class="padded"><code>dotnet /path/to/xunit.console.dll /path/to/tests1.dll /path/to/tests2.dll</code></blockquote>
+
+    You will commonly find <code>xunit.console.dll</code> in the NuGet package cache (for example,
+    <code>C:\Users\MyUsername\.NuGet\packages</code>), or if you're inside a project that takes a
+    package reference to <code>xunit.runner.console</code>, you can use the MSBuild property
+    <code>$(XunitConsoleNetCoreAppPath)</code> (for .NET Core 1.x) or
+    <code>$(XunitConsoleNetCore2AppPath)</code> (for .NET Core 2.x). For an example, please see the
+    <a href="https://github.com/xunit/xunit.integration/blob/503b15462d08dfd13a416a60a9086b6a51428393/console/v2x_netcoreapp10/v2x_netcoreapp10.csproj#L12-L14">console
+    runner integration test project</a>.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>Added a new <code>StopOnFail</code> attribute to stop running tests after the first test failure.</li>
+  <li>
+    The .NET Core MSBuild runner has been removed. Users who wish to run .NET Core tests
+    from within an MSBuild project should considering using the <code>&lt;Exec&gt;</code>
+    task to run <code>dotnet xunit</code> or <code>dotnet test</code>, or to add targets
+    to your <code>.csproj</code> files that can directly invoke the console runner.
+    For an example, please see the
+    <a href="https://github.com/xunit/xunit.integration/blob/503b15462d08dfd13a416a60a9086b6a51428393/console/v2x_netcoreapp10/v2x_netcoreapp10.csproj#L12-L14">console
+    runner integration test project</a>.
+  </li>
+</ul>
+
+<h3>Runner Utility</h3>
+<ul>
+  <li>
+    A new <code>NetCoreAssemblyDependencyResolver</code> class was added which can be
+    used by runner authors to provide support for loading dependencies of test assemblies
+    by reading the <code>.deps.json</code> file that's generated, and resolving those
+    dependencies from the user's local NuGet cache. To use it, call its constructor
+    with the full path to the test assembly on disk, just before creating the controller
+    (for example, <code>XunitFrontController</code>). The object is disposable, so placing
+    it inside a <code>using</code> block is strongly advised. For an example, please see
+    <a href="https://github.com/xunit/xunit/blob/2c85a423aa7b3aff3ddfe45fb689dfb7585169f3/src/xunit.console/ConsoleRunner.cs#L358-L362">ConsoleRunner.cs</a>
+    in the console runner.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>Added <code>sbyte</code> and <code>Nullable&lt;sbyte&gt;</code> as serializable types.</li>
+  <li>
+    <code>MemberDataAttributeBase</code> can support data that is expressed as the non-generic
+    <code>IEnumerable</code>, in addition to the generic <code>IEnumerable&lt;T&gt;</code>.
+  </li>
+  <li>
+    Added the <code>xunit.console</code> NuGet package. Unlike the runner package (<code>xunit.runner.console</code>),
+    this contains the .NET Core console runner as a linkable library, to be consume by developers who
+    wish to write a simple console runner that wraps the existing console runner.
+  </li>
+</ul>
+
+<h3>Visual Studio runner</h3>
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+<ul>
+  <li>
+    The GUID that appeared on the end of the tooltip for test cases in the Visual Studio
+    Test Explorer UI has been removed. The tooltip will now just show the fully qualified
+    name of the test method (regardless of the display name of the test).
+  </li>
+  <li>Ongoing performance work.</li>
+</ul>

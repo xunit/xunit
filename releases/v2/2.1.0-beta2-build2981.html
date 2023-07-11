@@ -1,0 +1,93 @@
+---
+layout: default
+title: Release Notes for May 3, 2015
+breadcrumb: Release Notes
+redirect_from:
+  - /release-notes/2015-05-03.html
+  - /releases/2.1-beta2
+  - /releases/2.1-beta2.html
+---
+
+<h1>Release Notes: May 3, 2015</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net v2 2.1 Beta 2</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Added support for DNX Beta 4 (including ASP.NET 5 Beta 4).</li>
+  <li>Display of generics in theory test names was dramatically improved.</li>
+  <li>Added support for unsigned types in serialization.</li>
+  <li>Added test case output support for TeamCity.</li>
+  <li>
+    <strong>BUG:</strong> xUnit.net v1 support was inconsistent about
+    sending ClassFinished and CollectionFinished messages.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where arrays of types other than
+    object were causing serialization issues.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with XML output where illegal
+    characters were trying to be written.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with Mono where some ASP.NET v5
+    tests would lose access to ambient runtime values.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with Xamarin device runner projects
+    where <code>xunit.execution.{platform}</code> was not being linked into
+    the project.
+  </li>
+</ul>
+
+<h3>Console Runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where some exceptions without stack
+    traces were causing runner failures.
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.1 Beta 2</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="/docs/running-tests-in-vs.html">Running xUnit.net tests in Visual
+  Studio</a>.
+</em></p>
+
+<ul>
+  <li>
+    <strong>BUG:</strong> Test discovery failures were being reported with error
+    messages, which caused Team Build to report projects with mixed .NET and
+    C/C++ projects to be "Partially Successful", even though all appropriate
+    unit tests passed.
+  </li>
+  <li>
+    <strong>BUG:</strong> Diagnostic message output was missing the xUnit.net
+    banner and execution time.
+  </li>
+</ul>
+
+<h2>DNX Runner 2.1 Beta 2</h2>
+
+<p class="note">
+  The ASP.NET runner has been renamed to the DNX runner, and is now capable of running
+  unit tests for all DNX-based projects (not just ASP.NET v5). The runner package has
+  been renamed (<code>xunit.runner.aspnet</code> => <code>xunit.runner.dnx</code>) as
+  has the GitHub project (now at
+  <a href="https://github.com/xunit/dnx.xunit">https://github.com/xunit/dnx.xunit</a>).
+</p>
+
+<ul>
+  <li>Added support for DNX Beta 4 (including ASP.NET 5 Beta 4).</li>
+  <li>Support for running tests in Visual Studio requires VS 2015 RC or later.</li>
+  <li>
+    Source line mappings are now available in Visual Studio when running DNX
+    tests, which means you can click on test method names in Test Explorer to jump
+    directly to the unit test now.
+  </li>
+</ul>
