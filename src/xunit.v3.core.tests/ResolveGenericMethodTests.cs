@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -522,6 +521,7 @@ public class ResolveGenericMethodTests
 		Assert.Equal(expected, actual.Select(t => ((ReflectionTypeInfo)t).Type));
 	}
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
 	public static void NoGenericParameters_NoParameters() { }
 	public static void NoGenericParameters_OneParameter(int i) { }
 	public static void OneGenericParameter_NotUsed_NoParameters<T>() { }
@@ -582,6 +582,7 @@ public class ResolveGenericMethodTests
 
 	public static void OneGenericParameter_GenericInterface<T>(Generic1Interface<T> x) { }
 	public static void TwoGenericParameters_GenericInterface<T, U>(Generic2Interface<T, U> x) { }
+#pragma warning restore xUnit1013 // Public method should be marked as test
 
 	public class GenericClass<T> { }
 	public class GenericClass2<T, U> { }

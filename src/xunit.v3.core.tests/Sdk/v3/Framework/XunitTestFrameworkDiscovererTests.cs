@@ -112,12 +112,18 @@ public class XunitTestFrameworkDiscovererTests
 			Assert.Equal($"Test method '{typeof(ClassWithTooManyFactAttributesOnTestMethod).FullName}.{nameof(ClassWithTooManyFactAttributesOnTestMethod.TestMethod)}' has multiple [Fact]-derived attributes", errorTestCase.ErrorMessage);
 		}
 
+#pragma warning disable xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
+#pragma warning disable xUnit1003 // Theory methods must have test data
+#pragma warning disable xUnit1006 // Theory methods should have parameters
 		class ClassWithTooManyFactAttributesOnTestMethod
 		{
 			[Fact]
 			[Theory]
 			public void TestMethod() { }
 		}
+#pragma warning restore xUnit1006 // Theory methods should have parameters
+#pragma warning restore xUnit1003 // Theory methods must have test data
+#pragma warning restore xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
 
 		[Fact]
 		public static async ValueTask DoesNotDiscoverNonFactDecoratedTestMethod()
@@ -165,8 +171,8 @@ public class XunitTestFrameworkDiscovererTests
 
 			Assert.Collection(
 				discoverer.FindTestsForType_TestCases.Select(t => t.TestCaseDisplayName).OrderBy(x => x),
-				displayName => Assert.Equal($"{typeof(TheoryWithInlineData).FullName}.{nameof(TheoryWithInlineData.TheoryMethod)}(value: \"Hello world\")", displayName),
-				displayName => Assert.Equal($"{typeof(TheoryWithInlineData).FullName}.{nameof(TheoryWithInlineData.TheoryMethod)}(value: 42)", displayName)
+				displayName => Assert.Equal($"{typeof(TheoryWithInlineData).FullName}.{nameof(TheoryWithInlineData.TheoryMethod)}(_: \"Hello world\")", displayName),
+				displayName => Assert.Equal($"{typeof(TheoryWithInlineData).FullName}.{nameof(TheoryWithInlineData.TheoryMethod)}(_: 42)", displayName)
 			);
 		}
 
@@ -188,7 +194,7 @@ public class XunitTestFrameworkDiscovererTests
 			[Theory]
 			[InlineData("Hello world")]
 			[InlineData(42)]
-			public static void TheoryMethod(object value) { }
+			public static void TheoryMethod(object _) { }
 		}
 
 		[Fact]

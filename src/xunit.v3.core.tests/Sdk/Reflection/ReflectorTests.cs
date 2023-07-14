@@ -1132,12 +1132,15 @@ public class ReflectorTests
 
 	public class AmbiguousMethodFromBaseClass_NonGenericToGeneric
 	{
+#pragma warning disable xUnit1024 // Test methods cannot have overloads
 		class Parent
 		{
 			public virtual void TheMethod(int x) { }
 
 			[Fact]
+#pragma warning disable xUnit1001 // Fact methods cannot have parameters
 			public virtual void TheMethod<T>(T t, long y) { }
+#pragma warning restore xUnit1001 // Fact methods cannot have parameters
 		}
 
 		class Child : Parent
@@ -1146,6 +1149,7 @@ public class ReflectorTests
 
 			public override void TheMethod<T>(T t, long y) { }
 		}
+#pragma warning restore xUnit1024 // Test methods cannot have overloads
 
 		[Fact]
 		public void NonTest_ReturnsNothing()
@@ -1172,12 +1176,15 @@ public class ReflectorTests
 
 	public class AmbiguousMethodFromBaseClass_GenericCountMismatch
 	{
+#pragma warning disable xUnit1024 // Test methods cannot have overloads
 		class Parent
 		{
 			public virtual void TheMethod<T1>(T1 t1) { }
 
 			[Fact]
+#pragma warning disable xUnit1001 // Fact methods cannot have parameters
 			public virtual void TheMethod<T1, T2>(T1 t1, T2 t2) { }
+#pragma warning restore xUnit1001 // Fact methods cannot have parameters
 		}
 
 		class Child : Parent
@@ -1186,6 +1193,7 @@ public class ReflectorTests
 
 			public override void TheMethod<T1, T2>(T1 t1, T2 t2) { }
 		}
+#pragma warning restore xUnit1024 // Test methods cannot have overloads
 
 		[Fact]
 		public void NonTest_ReturnsNothing()

@@ -344,8 +344,10 @@ public class TestInvokerTests
 			Assert.True(false);
 		}
 
+#pragma warning disable xUnit1001 // Fact methods cannot have parameters
 		[Fact]
-		public void FactWithParameter(int x) { }
+		public void FactWithParameter(int _) { }
+#pragma warning restore xUnit1001 // Fact methods cannot have parameters
 	}
 
 	class DisposableClass : IDisposable

@@ -51,7 +51,9 @@ public class IdentityAssertsTests
 		[Fact]
 		public void EqualValueTypeValuesAreNotSameBecauseOfBoxing()
 		{
+#pragma warning disable xUnit2005 // Do not use identity check on value type
 			Assert.Throws<SameException>(() => Assert.Same(0, 0));
+#pragma warning restore xUnit2005 // Do not use identity check on value type
 		}
 	}
 }

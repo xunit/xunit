@@ -126,7 +126,9 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int>();
 
+#pragma warning disable xUnit2011 // Do not use empty collection check
 			Assert.Collection(list);
+#pragma warning restore xUnit2011 // Do not use empty collection check
 		}
 
 		[Fact]

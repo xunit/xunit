@@ -23,11 +23,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal($"No data found for {typeof(NoDataAttributesClass).FullName}.{nameof(NoDataAttributesClass.TheoryMethod)}", failure.Messages.Single());
 	}
 
+#pragma warning disable xUnit1003 // Theory methods must have test data
 	class NoDataAttributesClass
 	{
 		[Theory]
-		public void TheoryMethod(int x) { }
+		public void TheoryMethod(int _) { }
 	}
+#pragma warning restore xUnit1003 // Theory methods must have test data
 
 	[Fact]
 	public async ValueTask NullMemberData_ThrowsInvalidOperationException()
@@ -53,7 +55,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		[Theory]
 		[MemberData(nameof(InitializedInConstructor))]
-		public void NullMemberData(string str1, string str2) { }
+		public void NullMemberData(string _1, string _2) { }
 	}
 
 	[Fact]
@@ -75,7 +77,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	class EmptyTheoryDataClass
 	{
 		[Theory, EmptyTheoryData]
-		public void TheoryMethod(int x) { }
+		public void TheoryMethod(int _) { }
 	}
 
 	[Fact]
@@ -90,8 +92,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 		Assert.Collection(
 			testCases.Select(tc => tc.TestCaseDisplayName).OrderBy(x => x),
-			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(x: 2112)", displayName),
-			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(x: 42)", displayName)
+			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(_: 2112)", displayName),
+			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(_: 42)", displayName)
 		);
 	}
 
@@ -125,7 +127,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	class MultipleDataClass
 	{
 		[Theory, MultipleData]
-		public void TheoryMethod(int x) { }
+		public void TheoryMethod(int _) { }
 	}
 
 	[Fact]
@@ -142,12 +144,12 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
-				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(x: 2112)", testCase.TestCaseDisplayName);
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(_: 2112)", testCase.TestCaseDisplayName);
 				Assert.Equal("Skip this attribute", testCase.SkipReason);
 			},
 			testCase =>
 			{
-				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(x: 42)", testCase.TestCaseDisplayName);
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(_: 42)", testCase.TestCaseDisplayName);
 				Assert.Equal("Skip this attribute", testCase.SkipReason);
 			}
 		);
@@ -156,7 +158,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	class MultipleDataClassSkipped
 	{
 		[Theory, MultipleData(Skip = "Skip this attribute")]
-		public void TheoryMethod(int x) { }
+		public void TheoryMethod(int _) { }
 	}
 
 	[Fact]
@@ -188,7 +190,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	class ThrowingDataClass
 	{
 		[Theory, ThrowingData]
-		public void TheoryWithMisbehavingData(string a) { }
+		public void TheoryWithMisbehavingData(string _) { }
 	}
 
 	[Fact]
@@ -243,7 +245,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	class NonSerializableDataClass
 	{
 		[Theory, NonSerializableData]
-		public void TheoryMethod(object a) { }
+		public void TheoryMethod(object _) { }
 	}
 
 	[Fact]
@@ -260,7 +262,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		[Theory]
 		[NoSuchDataDiscoverer]
-		public void Test() { }
+		public void Test(object _) { }
 	}
 
 	[DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
@@ -286,7 +288,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		[Theory]
 		[NotADataDiscoverer]
-		public void Test() { }
+		public void Test(object _) { }
 	}
 
 	[DataDiscoverer(typeof(TheoryDiscovererTests))]
@@ -320,7 +322,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(foo))]
 		[MemberData(nameof(bar))]
-		public static void TheoryMethod(int x) { }
+		public static void TheoryMethod(int _) { }
 	}
 
 	[Fact]
@@ -345,7 +347,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[Theory]
 		[MemberData(nameof(foo), DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(bar), DisableDiscoveryEnumeration = true)]
-		public static void TheoryMethod(int x) { }
+		public static void TheoryMethod(int _) { }
 	}
 
 	[Fact]
@@ -370,7 +372,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[Theory]
 		[MemberData(nameof(foo), DisableDiscoveryEnumeration = false)]
 		[MemberData(nameof(bar), DisableDiscoveryEnumeration = true)]
-		public static void TheoryMethod(int x) { }
+		public static void TheoryMethod(int _) { }
 	}
 
 	[Fact]
@@ -384,11 +386,13 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal("I have no data", skip.Reason);
 	}
 
+#pragma warning disable xUnit1003 // Theory methods must have test data
 	class SkippedWithNoData
 	{
 		[Theory(Skip = "I have no data")]
-		public void TestMethod(int value) { }
+		public void TestMethod(int _) { }
 	}
+#pragma warning restore xUnit1003 // Theory methods must have test data
 
 	[Fact]
 	public async ValueTask SkippedTheoryWithData()
@@ -406,7 +410,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[Theory(Skip = "I have data")]
 		[InlineData(42)]
 		[InlineData(2112)]
-		public void TestMethod(int value) { }
+		public void TestMethod(int _) { }
 	}
 
 	[Fact]

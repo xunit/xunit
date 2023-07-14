@@ -87,7 +87,7 @@ public class TestIntrospectionHelperTests
 
 			var details = _GetTestCaseDetails(discoveryOptions, testMethod, new[] { testArg });
 
-			Assert.Equal($"{typeof(ClassWithGenericTestMethod).FullName}.{nameof(ClassWithGenericTestMethod.OpenGeneric)}<{expectedGenericType.Name}>(value: {ArgumentFormatter.Format(testArg)})", details.TestCaseDisplayName);
+			Assert.Equal($"{typeof(ClassWithGenericTestMethod).FullName}.{nameof(ClassWithGenericTestMethod.OpenGeneric)}<{expectedGenericType.Name}>(_: {ArgumentFormatter.Format(testArg)})", details.TestCaseDisplayName);
 			var closedMethod = details.ResolvedTestMethod;
 			var closedMethodInfo = Assert.IsAssignableFrom<_IReflectionMethodInfo>(closedMethod.Method).MethodInfo;
 			Assert.True(closedMethodInfo.IsGenericMethod);
@@ -202,11 +202,13 @@ public class TestIntrospectionHelperTests
 			Assert.Equal(42, details.Timeout);
 		}
 
+#pragma warning disable xUnit1003 // Theory methods must have test data
 		class ClassWithGenericTestMethod
 		{
 			[Theory]
-			public void OpenGeneric<T>(T value) { }
+			public void OpenGeneric<T>(T _) { }
 		}
+#pragma warning restore xUnit1003 // Theory methods must have test data
 	}
 
 	public class GetTraits

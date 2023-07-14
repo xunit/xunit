@@ -234,7 +234,7 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(1, 2, 3, 4, 5, 6)]
 			public void TwoParameters_ManyPassed(int i, params object?[] array)
 			{
-				Assert.Equal(i, 1);
+				Assert.Equal(1, i);
 				Assert.Equal(new object?[] { 2, 3, 4, 5, 6 }, array);
 			}
 
@@ -390,15 +390,15 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
-				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Double>(source: [4, 5, 6, 7], ", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", displayName),
-				displayName => Assert.StartsWith(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Single>(source: [4, 5, 6, 7]", displayName)
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Double>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(_1: [4, 5, 6, 7], _2: ", displayName),
+				displayName => Assert.StartsWith("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Single>(_1: [4, 5, 6, 7], _2: ", displayName)
 			);
 		}
 
@@ -419,7 +419,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(TestData))]
-			public void TestMethod<TResult>(IEnumerable<int> source, Func<int, TResult> selector)
+			public void TestMethod<TResult>(IEnumerable<int> _1, Func<int, TResult> _2)
 			{ }
 		}
 
@@ -432,17 +432,17 @@ public class Xunit3TheoryAcceptanceTests
 				testMessages.OfType<TestSkippedWithDisplayName>().OrderBy(x => x.TestDisplayName),
 				skipped =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedDataRow(x: 0, y: null)", skipped.TestDisplayName);
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedDataRow(_: 0, y: null)", skipped.TestDisplayName);
 					Assert.Equal("Don't run this!", skipped.Reason);
 				},
 				skipped =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedInlineData(x: 0, y: null)", skipped.TestDisplayName);
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedInlineData(_: 0, y: null)", skipped.TestDisplayName);
 					Assert.Equal("Don't run this!", skipped.Reason);
 				},
 				skipped =>
 				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedMemberData(x: 0, y: null)", skipped.TestDisplayName);
+					Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedMemberData(_: 0, y: null)", skipped.TestDisplayName);
 					Assert.Equal("Don't run this!", skipped.Reason);
 				},
 				skipped =>
@@ -453,9 +453,9 @@ public class Xunit3TheoryAcceptanceTests
 			);
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedDataRow(x: 42, y: \"Hello, world!\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedInlineData(x: 42, y: \"Hello, world!\")", passed.TestDisplayName),
-				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedMemberData(x: 42, y: \"Hello, world!\")", passed.TestDisplayName)
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedDataRow(_: 42, y: \"Hello, world!\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedInlineData(_: 42, y: \"Hello, world!\")", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithSkips.SkippedMemberData(_: 42, y: \"Hello, world!\")", passed.TestDisplayName)
 			);
 		}
 
@@ -464,7 +464,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory(Skip = "Don't run this!")]
 			[InlineData(42, "Hello, world!")]
 			[InlineData(0, null)]
-			public void SkippedTheory(int x, string y)
+			public void SkippedTheory(int _, string y)
 			{
 				Assert.NotNull(y);
 			}
@@ -472,7 +472,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, "Hello, world!")]
 			[InlineData(0, null, Skip = "Don't run this!")]
-			public void SkippedInlineData(int x, string y)
+			public void SkippedInlineData(int _, string y)
 			{
 				Assert.NotNull(y);
 			}
@@ -480,7 +480,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, "Hello, world!")]
 			[MemberData(nameof(MemberDataSource), Skip = "Don't run this!")]
-			public void SkippedMemberData(int x, string y)
+			public void SkippedMemberData(int _, string y)
 			{
 				Assert.NotNull(y);
 			}
@@ -492,7 +492,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(DataRowSource))]
-			public void SkippedDataRow(int x, string y)
+			public void SkippedDataRow(int _, string y)
 			{
 				Assert.NotNull(y);
 			}
@@ -512,14 +512,14 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Collection(
 				results.OfType<TestPassedWithDisplayName>().Select(p => p.TestDisplayName).OrderBy(x => x),
 				// Embedded (T1, Empty<T2>)
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<Int32, Int32>(value: 1, value2: Empty<Int32>)", displayName),
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<Object, Int32>(value: null, value2: Empty<Int32>)", displayName),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<String, Int32>(value: ""1"", value2: Empty<Int32>)", displayName),
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<Int32, Int32>(_1: 1, _2: Empty<Int32>)", displayName),
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<Object, Int32>(_1: null, _2: Empty<Int32>)", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Embedded<String, Int32>(_1: ""1"", _2: Empty<Int32>)", displayName),
 				// Simple (T1, T2)
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32, Object>(value1: 42, value2: null)", displayName),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", displayName),
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Object, Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData+Empty<Int32>>(value1: null, value2: Empty<Int32>)", displayName),
-				displayName => Assert.Equal($@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<String, Double>(value1: ""Hello, world!"", value2: {21.12:G17})", displayName)
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32, Object>(_1: 42, _2: null)", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Int32[], List<String>>(_1: [1, 2, 3], _2: [""a"", ""b"", ""c""])", displayName),
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<Object, Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData+Empty<Int32>>(_1: null, _2: Empty<Int32>)", displayName),
+				displayName => Assert.Equal($@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest_Simple<String, Double>(_1: ""Hello, world!"", _2: {21.12:G17})", displayName)
 			);
 		}
 
@@ -533,7 +533,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory, MemberData(nameof(GenericData_Embedded))]
-			public void GenericTest_Embedded<T1, T2>(T1 value, Empty<T2> value2) { }
+			public void GenericTest_Embedded<T1, T2>(T1 _1, Empty<T2> _2) { }
 
 			public struct Empty<T>
 			{
@@ -549,7 +549,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory, MemberData(nameof(GenericData_Simple))]
-			public void GenericTest_Simple<T1, T2>(T1 value1, T2 value2) { }
+			public void GenericTest_Simple<T1, T2>(T1 _1, T2 _2) { }
 		}
 
 		[Fact]
@@ -558,7 +558,7 @@ public class Xunit3TheoryAcceptanceTests
 			var results = await RunForResultsAsync(typeof(GenericWithNonSerializableData));
 
 			var displayName = Assert.Single(results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName));
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", displayName);
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit3TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(_: GenericWithNonSerializableData { })", displayName);
 		}
 
 		class GenericWithNonSerializableData
@@ -572,7 +572,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory, MemberData(nameof(GenericData))]
-			public void GenericTest<T>(T value) { }
+			public void GenericTest<T>(T _) { }
 		}
 	}
 
@@ -587,23 +587,23 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName)
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, _: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, _: \"Member forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, _: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, _: \"Member inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, _: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, _: \"Member forced false\")", passed.TestDisplayName)
 			);
 			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 			Assert.Collection(
 				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Inline forced true\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Member forced true\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Inline forced true\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Member forced true\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, y: \"Inline inherited\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, y: \"Member inherited\")", notRun.TestDisplayName)
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, _: \"Inline forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, _: \"Member forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, _: \"Inline forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, _: \"Member forced true\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, _: \"Inline inherited\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, _: \"Member inherited\")", notRun.TestDisplayName)
 			);
 		}
 
@@ -616,21 +616,21 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, y: \"Inline forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, y: \"Member forced false\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName)
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, _: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, _: \"Member forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, _: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, _: \"Member inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, _: \"Inline forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, _: \"Member forced false\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, _: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, _: \"Member inherited\")", passed.TestDisplayName)
 			);
 			Assert.Collection(
 				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName)
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, _: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, _: \"Member forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, _: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, _: \"Member forced true\")", failed.TestDisplayName)
 			);
 			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 			Assert.Empty(testMessages.OfType<TestNotRunWithDisplayName>());
@@ -645,25 +645,25 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, y: \"Inline inherited\")", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, y: \"Member inherited\")", passed.TestDisplayName)
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 42, _: \"Inline inherited\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 43, _: \"Member inherited\")", passed.TestDisplayName)
 			);
 			Assert.Collection(
 				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Inline forced true\")", failed.TestDisplayName),
-				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, y: \"Member forced true\")", failed.TestDisplayName)
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, _: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 0, _: \"Member forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, _: \"Inline forced true\")", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 0, _: \"Member forced true\")", failed.TestDisplayName)
 			);
 			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 			Assert.Collection(
 				testMessages.OfType<TestNotRunWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, y: \"Inline forced false\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, y: \"Member forced false\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, y: \"Inline inherited\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, y: \"Member inherited\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, y: \"Inline forced false\")", notRun.TestDisplayName),
-				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, y: \"Member forced false\")", notRun.TestDisplayName)
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2112, _: \"Inline forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 2113, _: \"Member forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 42, _: \"Inline inherited\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse)}(x: 43, _: \"Member inherited\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2112, _: \"Inline forced false\")", notRun.TestDisplayName),
+				notRun => Assert.Equal($"{typeof(ClassUnderTest_ExplicitAcceptanceTests).FullName}.{nameof(ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue)}(x: 2113, _: \"Member forced false\")", notRun.TestDisplayName)
 			);
 		}
 
@@ -681,7 +681,7 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(0, "Inline forced true", Explicit = true)]
 			[InlineData(2112, "Inline forced false", Explicit = false)]
 			[MemberData(nameof(MemberDataSource))]
-			public void TestWithTheoryExplicitFalse(int x, string y)
+			public void TestWithTheoryExplicitFalse(int x, string _)
 			{
 				Assert.NotEqual(0, x);
 			}
@@ -691,7 +691,7 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(0, "Inline forced true", Explicit = true)]
 			[InlineData(2112, "Inline forced false", Explicit = false)]
 			[MemberData(nameof(MemberDataSource))]
-			public void TestWithTheoryExplicitTrue(int x, string y)
+			public void TestWithTheoryExplicitTrue(int x, string _)
 			{
 				Assert.NotEqual(0, x);
 			}
@@ -705,23 +705,23 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_SkipTests), preEnumerateTheories);
 
 			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 42)", passed.TestDisplayName);
+			Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 42)", passed.TestDisplayName);
 			Assert.Collection(
 				testMessages.OfType<TestSkippedWithDisplayName>().OrderBy(x => x.TestDisplayName),
 				// Skip per data row
 				skipped =>
 				{
-					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 2112)", skipped.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 2112)", skipped.TestDisplayName);
 					Assert.Equal("Skip from InlineData", skipped.Reason);
 				},
 				skipped =>
 				{
-					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 2113)", skipped.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 2113)", skipped.TestDisplayName);
 					Assert.Equal("Skip from theory data row", skipped.Reason);
 				},
 				skipped =>
 				{
-					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(x: 43)", skipped.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 43)", skipped.TestDisplayName);
 					Assert.Equal("Skip from MemberData", skipped.Reason);
 				},
 				// Single skipped theory, not one per data row
@@ -745,14 +745,14 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(42)]
 			[InlineData(2112, Skip = "Skip from InlineData")]
 			[MemberData(nameof(DataSource), Skip = "Skip from MemberData")]
-			public void TestWithNoSkipOnTheory(int x)
+			public void TestWithNoSkipOnTheory(int _)
 			{ }
 
 			[Theory(Skip = "Skip from theory")]
 			[InlineData(42)]
 			[InlineData(2112, Skip = "Skip from InlineData")]
 			[MemberData(nameof(DataSource), Skip = "Skip from MemberData")]
-			public void TestWithSkipOnTheory(int x)
+			public void TestWithSkipOnTheory(int _)
 			{ }
 		}
 
@@ -765,14 +765,14 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				passed => Assert.Equal("Default Member Test(x: 43)", passed.TestDisplayName),
-				passed => Assert.Equal("One Test Default (Member)(x: 1)", passed.TestDisplayName),
-				passed => Assert.Equal("Override Member Test(x: 45)", passed.TestDisplayName),
-				passed => Assert.Equal("Theory Display Name(x: 44)", passed.TestDisplayName),
-				passed => Assert.Equal("Three Test Override (Member)(x: 3)", passed.TestDisplayName),
-				passed => Assert.Equal("Two Test Override (Inline)(x: 2)", passed.TestDisplayName),
-				passed => Assert.Equal($"{typeof(ClassUnderTest_TestDisplayNameTests).FullName}.{nameof(ClassUnderTest_TestDisplayNameTests.TestWithDefaultName)}(x: 42)", passed.TestDisplayName),
-				passed => Assert.Equal("Zero Test Default (Inline)(x: 0)", passed.TestDisplayName)
+				passed => Assert.Equal("Default Member Test(_: 43)", passed.TestDisplayName),
+				passed => Assert.Equal("One Test Default (Member)(_: 1)", passed.TestDisplayName),
+				passed => Assert.Equal("Override Member Test(_: 45)", passed.TestDisplayName),
+				passed => Assert.Equal("Theory Display Name(_: 44)", passed.TestDisplayName),
+				passed => Assert.Equal("Three Test Override (Member)(_: 3)", passed.TestDisplayName),
+				passed => Assert.Equal("Two Test Override (Inline)(_: 2)", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_TestDisplayNameTests).FullName}.{nameof(ClassUnderTest_TestDisplayNameTests.TestWithDefaultName)}(_: 42)", passed.TestDisplayName),
+				passed => Assert.Equal("Zero Test Default (Inline)(_: 0)", passed.TestDisplayName)
 			);
 		}
 
@@ -788,7 +788,7 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(42)]
 			[InlineData(0, TestDisplayName = "Zero Test Default (Inline)")]
 			[MemberData(nameof(DefaultMemberDataSource), TestDisplayName = "Default Member Test")]
-			public void TestWithDefaultName(int x)
+			public void TestWithDefaultName(int _)
 			{ }
 
 			public static List<TheoryDataRow> OverrideMemberDataSource = new()
@@ -801,7 +801,7 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(44)]
 			[InlineData(2, TestDisplayName = "Two Test Override (Inline)")]
 			[MemberData(nameof(OverrideMemberDataSource), TestDisplayName = "Override Member Test")]
-			public void TestWithOverriddenName(int x)
+			public void TestWithOverriddenName(int _)
 			{ }
 		}
 
@@ -816,7 +816,7 @@ public class Xunit3TheoryAcceptanceTests
 				testMessages.OfType<_TestStarting>().OrderBy(x => x.TestDisplayName),
 				starting =>
 				{
-					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(x: 0)", starting.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(_: 0)", starting.TestDisplayName);
 					Assert.Collection(
 						starting.Traits["Location"].OrderBy(x => x),
 						trait => Assert.Equal("Class", trait),
@@ -827,7 +827,7 @@ public class Xunit3TheoryAcceptanceTests
 				},
 				starting =>
 				{
-					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(x: 2112)", starting.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(_: 2112)", starting.TestDisplayName);
 					Assert.Collection(
 						starting.Traits["Location"].OrderBy(x => x),
 						trait => Assert.Equal("Class", trait),
@@ -838,7 +838,7 @@ public class Xunit3TheoryAcceptanceTests
 				},
 				starting =>
 				{
-					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(x: 42)", starting.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(_: 42)", starting.TestDisplayName);
 					Assert.Collection(
 						starting.Traits["Location"].OrderBy(x => x),
 						trait => Assert.Equal("Class", trait),
@@ -864,7 +864,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Trait("Location", "Method")]
 			[InlineData(0, Traits = new[] { "Location", "InlineData", "Discarded" })]
 			[MemberData(nameof(MemberDataSource), Traits = new[] { "Location", "MemberData", "Discarded" })]
-			public void TestMethod(int x)
+			public void TestMethod(int _)
 			{ }
 		}
 	}
@@ -927,9 +927,9 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest));
 
 			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(_1: 42, _2: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)", failed.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(_1: 0, _2: 0, z: null)", failed.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -938,7 +938,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, 21.12, "Hello, world!")]
 			[InlineData(0, 0.0, null)]
-			public void TestMethod(int x, double y, string z)
+			public void TestMethod(int _1, double _2, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -950,14 +950,14 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTestForNullValues));
 
 			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passed.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(_: null)", passed.TestDisplayName);
 		}
 
 		class ClassUnderTestForNullValues
 		{
 			[Theory]
 			[InlineData(null!)]
-			public void TestMethod(string value) { }
+			public void TestMethod(string _) { }
 		}
 
 		[Fact]
@@ -973,7 +973,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[InlineData(new[] { 42, 2112 }, new[] { "SELF", "PARENT1", "PARENT2", "PARENT3" }, null, 10.5, "Hello, world!")]
-			public void TestMethod(int[] v1, string[] v2, float[] v3, double v4, string v5) { }
+			public void TestMethod(int[] _1, string[] _2, float[] _3, double _4, string _5) { }
 		}
 
 		[Fact]
@@ -1002,8 +1002,8 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: A)", displayName),
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: B)", displayName)
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(_: A)", displayName),
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(_: B)", displayName)
 			);
 		}
 
@@ -1017,7 +1017,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(SomeEnum.A)]
 			[InlineData(SomeEnum.B)]
-			async Task TestMethod(SomeEnum x)
+			async Task TestMethod(SomeEnum _)
 			{
 				await Task.Run(() => "Any statement, to prevent a C# compiler error");
 			}
@@ -1049,8 +1049,10 @@ public class Xunit3TheoryAcceptanceTests
 		class ClassUnderTest_IncompatibleReturnType
 		{
 			[Theory]
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
 			[ClassData(typeof(ClassWithIncompatibleReturnType))]
-			public void TestMethod(int z) { }
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+			public void TestMethod(int _) { }
 		}
 
 		[Fact]
@@ -1075,8 +1077,10 @@ public class Xunit3TheoryAcceptanceTests
 		class ClassUnderTest_IncomptableValueData
 		{
 			[Theory]
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
 			[ClassData(typeof(ClassWithIncompatibleValueData))]
-			public void TestMethod(int z) { }
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+			public void TestMethod(int _) { }
 		}
 
 		class ClassDataSource
@@ -1109,6 +1113,7 @@ public class Xunit3TheoryAcceptanceTests
 #pragma warning restore CS1998
 		}
 
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
 		class ClassUnderTest_IAsyncEnumerable
 		{
 			[Theory]
@@ -1118,7 +1123,9 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.DoesNotContain("fail", z);
 			}
 		}
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
 
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
 		class ClassUnderTest_IEnumerable
 		{
 			[Theory]
@@ -1128,6 +1135,7 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.DoesNotContain("fail", z);
 			}
 		}
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
 	}
 
 	public class MissingDataTests : AcceptanceTestV3
@@ -1143,12 +1151,14 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Could not find public static member (property, field, or method) named 'Foo' on Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData", failed.Messages.Single());
 		}
 
+#pragma warning disable xUnit1015 // MemberData must reference an existing member
 		class ClassWithMissingData
 		{
 			[Theory]
 			[MemberData("Foo")]
-			public void TestViaMissingData(int x, double y, string z) { }
+			public void TestViaMissingData(int _1, double _2, string _3) { }
 		}
+#pragma warning restore xUnit1015 // MemberData must reference an existing member
 	}
 
 	public class DataConversionTests : AcceptanceTestV3
@@ -1159,17 +1169,19 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithIncompatibleData));
 
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failed.TestDisplayName);
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(_: ""Foo"")", failed.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Object of type 'System.String' cannot be converted to type 'System.Int32'.", failed.Messages.Single());
 		}
 
+#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		class ClassWithIncompatibleData
 		{
 			[Theory]
 			[InlineData("Foo")]
-			public void TestViaIncompatibleData(int x) { }
+			public void TestViaIncompatibleData(int _) { }
 		}
+#pragma warning restore xUnit1010 // The value is not convertible to the method parameter type
 
 		[Fact]
 		public async ValueTask ImplicitlyConvertibleDataPasses()
@@ -1177,14 +1189,14 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithImplicitlyConvertibleData));
 
 			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passed.TestDisplayName);
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(_: 42)", passed.TestDisplayName);
 		}
 
 		class ClassWithImplicitlyConvertibleData
 		{
 			[Theory]
 			[InlineData(42)]
-			public void TestViaImplicitData(int? x) { }
+			public void TestViaImplicitData(int? _) { }
 		}
 
 		[Fact]
@@ -1193,7 +1205,7 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithIConvertibleData));
 
 			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(x: 42)", passed.TestDisplayName);
+			Assert.Equal(@"Xunit3TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(_: 42)", passed.TestDisplayName);
 		}
 
 		class MyConvertible : IConvertible
@@ -1294,7 +1306,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(Data))]
-			public void TestViaIConvertible(int x) { }
+			public void TestViaIConvertible(int _) { }
 		}
 	}
 
@@ -1328,6 +1340,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
+#pragma warning disable xUnit1017 // MemberData must reference a static member
 		class ClassWithNonStaticData
 		{
 			public IEnumerable<object?[]>? FieldDataSource = null;
@@ -1338,16 +1351,17 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
-			public void FieldTestMethod(int x, double y, string z) { }
+			public void FieldTestMethod(int _1, double _2, string _3) { }
 
 			[Theory]
 			[MemberData(nameof(MethodDataSource))]
-			public void MethodTestMethod(int x, double y, string z) { }
+			public void MethodTestMethod(int _1, double _2, string _3) { }
 
 			[Theory]
 			[MemberData(nameof(PropertyDataSource))]
-			public void PropertyTestMethod(int x, double y, string z) { }
+			public void PropertyTestMethod(int _1, double _2, string _3) { }
 		}
+#pragma warning restore xUnit1017 // MemberData must reference a static member
 
 		[Fact]
 		public async ValueTask IncompatibleDataReturnType_Throws()
@@ -1399,17 +1413,19 @@ public class Xunit3TheoryAcceptanceTests
 
 			public static int IncompatibleProperty => 42;
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(IncompatibleField))]
-			public void FieldTestMethod(int x) { }
+			public void FieldTestMethod(int _) { }
 
 			[Theory]
 			[MemberData(nameof(IncompatibleMethod))]
-			public void MethodTestMethod(int x) { }
+			public void MethodTestMethod(int _) { }
 
 			[Theory]
 			[MemberData(nameof(IncompatibleProperty))]
-			public void PropertyTestMethod(int x) { }
+			public void PropertyTestMethod(int _) { }
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		[Fact]
@@ -1448,17 +1464,19 @@ public class Xunit3TheoryAcceptanceTests
 
 			public static IEnumerable<int> IncompatiblePropertyData => new[] { 42 };
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(IncompatibleFieldData))]
-			public void FieldTestMethod(int x) { }
+			public void FieldTestMethod(int _) { }
 
 			[Theory]
 			[MemberData(nameof(IncompatibleMethodData))]
-			public void MethodTestMethod(int x) { }
+			public void MethodTestMethod(int _) { }
 
 			[Theory]
 			[MemberData(nameof(IncompatiblePropertyData))]
-			public void PropertyTestMethod(int x) { }
+			public void PropertyTestMethod(int _) { }
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		[Theory]
@@ -1597,6 +1615,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static IAsyncEnumerable<object?> MethodDataSource() => dataAsync;
 			public static IAsyncEnumerable<object?> PropertyDataSource => dataAsync;
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(AsyncEnumerable_FieldBaseDataSource))]
@@ -1623,6 +1642,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				Assert.DoesNotContain("fail", z);
 			}
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		class ClassUnderTest_IEnumerable : DataBase
@@ -1631,6 +1651,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable MethodDataSource() => data;
 			public static IEnumerable PropertyDataSource => data;
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(Enumerable_FieldBaseDataSource))]
@@ -1657,6 +1678,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				Assert.DoesNotContain("fail", z);
 			}
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		class ClassUnderTest_TaskOfIAsyncEnumerable : DataBase
@@ -1665,6 +1687,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static Task<IAsyncEnumerable<object?>> MethodDataSource() => Task.FromResult(dataAsync);
 			public static Task<IAsyncEnumerable<object?>> PropertyDataSource => Task.FromResult(dataAsync);
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(TaskOfAsyncEnumerable_FieldBaseDataSource))]
@@ -1691,6 +1714,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				Assert.DoesNotContain("fail", z);
 			}
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		class ClassUnderTest_TaskOfIEnumerable : DataBase
@@ -1699,6 +1723,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static Task<IEnumerable> MethodDataSource() => Task.FromResult<IEnumerable>(data);
 			public static Task<IEnumerable> PropertyDataSource => Task.FromResult<IEnumerable>(data);
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(TaskOfEnumerable_FieldBaseDataSource))]
@@ -1725,6 +1750,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				Assert.DoesNotContain("fail", z);
 			}
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		class ClassUnderTest_ValueTaskOfIAsyncEnumerable : DataBase
@@ -1733,6 +1759,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static ValueTask<IAsyncEnumerable<object?>> MethodDataSource() => new(dataAsync);
 			public static ValueTask<IAsyncEnumerable<object?>> PropertyDataSource => new(dataAsync);
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(ValueTaskOfAsyncEnumerable_FieldBaseDataSource))]
@@ -1759,6 +1786,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				Assert.DoesNotContain("fail", z);
 			}
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
 		class ClassUnderTest_ValueTaskOfIEnumerable : DataBase
@@ -1767,6 +1795,7 @@ public class Xunit3TheoryAcceptanceTests
 			public static ValueTask<IEnumerable> MethodDataSource() => new(data);
 			public static ValueTask<IEnumerable> PropertyDataSource => new(data);
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[Theory]
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(ValueTaskOfEnumerable_FieldBaseDataSource))]
@@ -1793,6 +1822,7 @@ public class Xunit3TheoryAcceptanceTests
 			{
 				Assert.DoesNotContain("fail", z);
 			}
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 	}
 
@@ -1815,7 +1845,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(DataSource), 21.12)]
-			public void TestViaMethodData(int x, double y, string z) { }
+			public void TestViaMethodData(int _1, double _2, string _3) { }
 		}
 
 		[Fact]
@@ -1850,9 +1880,9 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithParameterizedMethodData));
 
 			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
+			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(_1: 42, _2: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
-			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.TestDisplayName);
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(_1: 0, _2: 0, z: null)", failed.TestDisplayName);
 			Assert.Empty(testMessages.OfType<_TestSkipped>());
 		}
 
@@ -1868,7 +1898,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(DataSource), 84)]
-			public void TestViaMethodData(int x, double y, string z)
+			public void TestViaMethodData(int _1, double _2, string z)
 			{
 				Assert.NotNull(z);
 			}
@@ -1891,7 +1921,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[MemberData(nameof(DataSource), 42, "Hello world")]
 			[MemberData(nameof(DataSource), 21.12, null)]
-			public void TestViaMethodData(int x, double y, string z) { }
+			public void TestViaMethodData(int _1, double _2, string _3) { }
 		}
 
 		[Fact]
@@ -1905,12 +1935,14 @@ public class Xunit3TheoryAcceptanceTests
 
 		public abstract class BaseClassWithTestWithoutData
 		{
+#pragma warning disable xUnit1015 // MemberData must reference an existing member
 			[Theory]
 			[MemberData(nameof(TestData))]
 			public void Test(int x)
 			{
 				Assert.Equal(42, x);
 			}
+#pragma warning restore xUnit1015 // MemberData must reference an existing member
 		}
 
 		public class SubClassWithTestData : BaseClassWithTestWithoutData
@@ -1931,8 +1963,8 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 2112)", displayName),
-				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(unused: 42)", displayName)
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(_: 2112)", displayName),
+				displayName => Assert.Equal("Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithCustomDataWithInternalDataCtor.Passing(_: 42)", displayName)
 			);
 			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
@@ -1956,7 +1988,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[MyCustomData]
-			public void Passing(int unused) { }
+			public void Passing(int _) { }
 		}
 
 		[Fact]
@@ -1973,7 +2005,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[MyData((object?)null)]
-			public void TestMethod(object? data)
+			public void TestMethod(object? _)
 			{ }
 		}
 
@@ -1998,10 +2030,10 @@ public class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				results.OfType<TestPassedWithDisplayName>().Select(passed => passed.TestDisplayName).OrderBy(x => x),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""3"")", displayName),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""4"")", displayName),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: 1)", displayName),
-				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: 2)", displayName)
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(_: ""3"")", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(_: ""4"")", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(_: 1)", displayName),
+				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(_: 2)", displayName)
 			);
 		}
 
@@ -2046,7 +2078,7 @@ public class Xunit3TheoryAcceptanceTests
 			[SingleMemberData(nameof(IEnumerableIntMethod))]
 			[SingleMemberData(nameof(IEnumerableStringMethod))]
 			[SingleMemberData(nameof(IEnumerableObjectMethod))]
-			public void Passing(object unused) { }
+			public void Passing(object _) { }
 		}
 	}
 
@@ -2057,10 +2089,10 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest));
 
-			var equalFailure = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>(), msg => msg.TestDisplayName == $"Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 42, y: {21.12:G17}, z: ClassUnderTest {{ }})");
+			var equalFailure = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>(), msg => msg.TestDisplayName == $"Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 42, _: {21.12:G17}, z: ClassUnderTest {{ }})");
 			Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-			var notNullFailure = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>(), msg => msg.TestDisplayName == "Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 0, y: 0, z: null)");
+			var notNullFailure = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>(), msg => msg.TestDisplayName == "Xunit3TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestMethod(x: 0, _: 0, z: null)");
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
 
@@ -2077,7 +2109,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(Data))]
-			public void TestMethod(int x, double y, object z)
+			public void TestMethod(int x, double _, object z)
 			{
 				Assert.Equal(0, x); // Fails the first data item
 				Assert.NotNull(z);  // Fails the second data item
@@ -2098,17 +2130,19 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal(methodStarting.TestMethodUniqueID, methodFinished.TestMethodUniqueID);
 		}
 
+#pragma warning disable xUnit1024 // Test methods cannot have overloads
 		class ClassUnderTest
 		{
 			[Theory]
 			[InlineData(42)]
-			public void Theory(int value)
+			public void Theory(int _)
 			{ }
 
 			[Theory]
 			[InlineData("42")]
-			public void Theory(string value)
+			public void Theory(string _)
 			{ }
 		}
+#pragma warning restore xUnit1024 // Test methods cannot have overloads
 	}
 }

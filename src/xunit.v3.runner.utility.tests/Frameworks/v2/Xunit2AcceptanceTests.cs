@@ -24,7 +24,7 @@ public class Xunit2AcceptanceTests
 			sink.Finished.WaitOne();
 
 			Assert.IsType<_DiscoveryStarting>(sink.Messages.First());
-			Assert.False(sink.Messages.Any(msg => msg is _TestCaseDiscovered));
+			Assert.DoesNotContain(sink.Messages, msg => msg is _TestCaseDiscovered);
 		}
 
 		public class CSharp

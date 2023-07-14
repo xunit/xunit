@@ -697,12 +697,14 @@ public class Xunit3AcceptanceTests
 			Assert.Equal("Test method 'Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
 		}
 
+#pragma warning disable xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
 		class ClassWithMultipleFacts
 		{
 			[Fact]
 			[MyCustomFact]
 			public void Passing() { }
 		}
+#pragma warning restore xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
 
 		// https://github.com/xunit/xunit/issues/2719
 		[Fact]

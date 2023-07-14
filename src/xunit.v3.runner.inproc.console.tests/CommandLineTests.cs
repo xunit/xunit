@@ -340,14 +340,14 @@ public class CommandLineTests
 			var project = commandLine.Parse();
 
 			var filters = project.Assemblies.Single().Configuration.Filters;
-			Assert.Equal(0, filters.IncludedTraits.Count);
-			Assert.Equal(0, filters.ExcludedTraits.Count);
-			Assert.Equal(0, filters.IncludedNamespaces.Count);
-			Assert.Equal(0, filters.ExcludedNamespaces.Count);
-			Assert.Equal(0, filters.IncludedClasses.Count);
-			Assert.Equal(0, filters.ExcludedClasses.Count);
-			Assert.Equal(0, filters.IncludedMethods.Count);
-			Assert.Equal(0, filters.ExcludedMethods.Count);
+			Assert.Empty(filters.IncludedTraits);
+			Assert.Empty(filters.ExcludedTraits);
+			Assert.Empty(filters.IncludedNamespaces);
+			Assert.Empty(filters.ExcludedNamespaces);
+			Assert.Empty(filters.IncludedClasses);
+			Assert.Empty(filters.ExcludedClasses);
+			Assert.Empty(filters.IncludedMethods);
+			Assert.Empty(filters.ExcludedMethods);
 		}
 
 		static readonly (string Switch, Expression<Func<XunitProject, ICollection<string>>> Accessor)[] SwitchOptionsList =
@@ -462,8 +462,8 @@ public class CommandLineTests
 
 				var traits = accessor.Compile().Invoke(project);
 
-				Assert.Equal(1, traits.Count);
-				Assert.Equal(1, traits["foo"].Count());
+				Assert.Single(traits);
+				Assert.Single(traits["foo"]);
 				Assert.Contains("bar", traits["foo"]);
 			}
 
@@ -479,7 +479,7 @@ public class CommandLineTests
 
 				var traits = accessor.Compile().Invoke(project);
 
-				Assert.Equal(1, traits.Count);
+				Assert.Single(traits);
 				Assert.Equal(2, traits["foo"].Count());
 				Assert.Contains("bar", traits["foo"]);
 				Assert.Contains("baz", traits["foo"]);
@@ -498,9 +498,9 @@ public class CommandLineTests
 				var traits = accessor.Compile().Invoke(project);
 
 				Assert.Equal(2, traits.Count);
-				Assert.Equal(1, traits["foo"].Count());
+				Assert.Single(traits["foo"]);
 				Assert.Contains("bar", traits["foo"]);
-				Assert.Equal(1, traits["baz"].Count());
+				Assert.Single(traits["baz"]);
 				Assert.Contains("biff", traits["baz"]);
 			}
 

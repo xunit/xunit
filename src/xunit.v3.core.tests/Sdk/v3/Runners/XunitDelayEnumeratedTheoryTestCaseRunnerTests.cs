@@ -24,10 +24,10 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(1, summary.Failed);
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
-		Assert.Equal($"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")", passedStarting.TestDisplayName);
+		Assert.Equal($"Display Name(x: 42, _1: {21.12:G17}, _2: \"Hello\")", passedStarting.TestDisplayName);
 		var failed = messageBus.Messages.OfType<_TestFailed>().Single();
 		var failedStarting = messageBus.Messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
-		Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failedStarting.TestDisplayName);
+		Assert.Equal("Display Name(x: 0, _1: 0, _2: \"World!\")", failedStarting.TestDisplayName);
 	}
 
 	[Fact]
@@ -75,18 +75,18 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(2, summary.Failed);
 		Assert.Collection(
 			messageBus.Messages.OfType<_TestPassed>().Select(p => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
-			displayName => Assert.Equal($"Display Name(x: 1, y: {2.1:G17}, z: \"not skipped\")", displayName)
+			displayName => Assert.Equal($"Display Name(x: 1, _1: {2.1:G17}, _2: \"not skipped\")", displayName)
 		);
 		Assert.Collection(
 			messageBus.Messages.OfType<_TestFailed>().Select(p => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
-			displayName => Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", displayName),
-			displayName => Assert.Equal("Display Name(x: 0, y: 0, z: \"SomeData2 not skipped\")", displayName)
+			displayName => Assert.Equal("Display Name(x: 0, _1: 0, _2: \"also not skipped\")", displayName),
+			displayName => Assert.Equal("Display Name(x: 0, _1: 0, _2: \"SomeData2 not skipped\")", displayName)
 		);
 		Assert.Collection(
 			messageBus.Messages.OfType<_TestSkipped>().Select(p => messageBus.Messages.OfType<_TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
-			displayName => Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", displayName),
-			displayName => Assert.Equal($"Display Name(x: 18, y: {36.48:G17}, z: \"SomeData2 skipped\")", displayName),
-			displayName => Assert.Equal($"Display Name(x: 42, y: {21.12:G17}, z: \"Hello\")", displayName)
+			displayName => Assert.Equal("Display Name(x: 0, _1: 0, _2: \"World!\")", displayName),
+			displayName => Assert.Equal($"Display Name(x: 18, _1: {36.48:G17}, _2: \"SomeData2 skipped\")", displayName),
+			displayName => Assert.Equal($"Display Name(x: 42, _1: {21.12:G17}, _2: \"Hello\")", displayName)
 		);
 	}
 
@@ -132,7 +132,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		var summary = await runner.RunAsync();
 		var passed = messageBus.Messages.OfType<_TestPassed>().Single();
 		var passedStarting = messageBus.Messages.OfType<_TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
-		Assert.Equal("Display Name(c: [ClassWithThrowingEnumerator { }])", passedStarting.TestDisplayName);
+		Assert.Equal("Display Name(_: [ClassWithThrowingEnumerator { }])", passedStarting.TestDisplayName);
 	}
 
 	class ClassWithThrowingEnumerator
@@ -144,7 +144,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 
 		[Theory]
 		[MemberData(nameof(TestData))]
-		public void Test(ClassWithThrowingEnumerator[] c) { }
+		public void Test(ClassWithThrowingEnumerator[] _) { }
 
 		public IEnumerator GetEnumerator()
 		{
@@ -187,14 +187,14 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 
 		[Theory]
 		[MemberData(nameof(SomeData))]
-		public void TestWithData(int x, double y, string z)
+		public void TestWithData(int x, double _1, string _2)
 		{
-			Assert.NotEqual(x, 0);
+			Assert.NotEqual(0, x);
 		}
 
 		[Theory]
 		[MemberData(nameof(DisposableData))]
-		public void TestWithDisposableData(IDisposable x)
+		public void TestWithDisposableData(IDisposable _)
 		{
 			Assert.True(false);
 		}
@@ -204,9 +204,9 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		[MemberData(nameof(SomeData), Skip = "Skipped")]
 		[MemberData(nameof(SomeData2))]
 		[InlineData(0, 0.0, "also not skipped")]
-		public void TestWithSomeDataSkipped(int x, double y, string z)
+		public void TestWithSomeDataSkipped(int x, double _1, string _2)
 		{
-			Assert.NotEqual(x, 0);
+			Assert.NotEqual(0, x);
 		}
 
 		public static IEnumerable<object[]> ThrowingData
@@ -219,7 +219,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 
 		[Theory]
 		[MemberData(nameof(ThrowingData))]
-		public void TestWithThrowingData(int x) { }
+		public void TestWithThrowingData(int _) { }
 	}
 
 	class TestableXunitDelayEnumeratedTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestCaseRunner

@@ -72,8 +72,10 @@ public class FactDiscovererTests
 		[Fact]
 		public void FactWithNoParameters() { }
 
+#pragma warning disable xUnit1001 // Fact methods cannot have parameters
 		[Fact]
-		public void FactWithParameters(int x) { }
+		public void FactWithParameters(int _) { }
+#pragma warning restore xUnit1001 // Fact methods cannot have parameters
 
 		[Fact]
 		public void GenericFact<T>() { }

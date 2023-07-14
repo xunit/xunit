@@ -87,6 +87,7 @@
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
         <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
+        <NoWarn>$(NoWarn);xUnit1000</NoWarn>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
       </PropertyGroup>
@@ -99,6 +100,7 @@
         <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
         <PackageReference Include="System.CodeDom" Version="$(SystemCodeDomVersion)" />
         <PackageReference Include="System.ComponentModel.TypeConverter" Version="$(SystemComponentModelTypeConverterVersion)" />
+        <PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" PrivateAssets="all" />
       </ItemGroup>
 
       <ItemGroup>
