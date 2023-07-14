@@ -6,6 +6,8 @@
     "intrinsics",
     "junit",
     "mscorlib",
+    "NETFRAMEWORK",
+    "NETSTANDARD",
     "noappdomain",
     "noautoreporters",
     "noclass",
@@ -25,6 +27,7 @@
     "vsts",
     "xmlv"
   ],
+  "dotnet.defaultSolution": "xunit.sln",
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
