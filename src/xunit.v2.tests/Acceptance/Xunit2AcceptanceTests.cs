@@ -252,7 +252,7 @@ public class Xunit2AcceptanceTests
 			var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
 			Assert.StartsWith("System.AggregateException : ", combinedMessage);
 			Assert.Contains(
-				"---- Assert.Equal() Failure" + Environment.NewLine +
+				"---- Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"Expected: 2" + Environment.NewLine +
 				"Actual:   3" + Environment.NewLine +
 				"---- System.DivideByZeroException : ",

@@ -24,9 +24,9 @@
     <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
-    <XunitAnalyzersVersion>1.0.0</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.2.0</XunitAnalyzersVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.4.2</XunitV2Version>
+    <XunitV2Version>2.5.0</XunitV2Version>
   </PropertyGroup>
 
 </Project>
