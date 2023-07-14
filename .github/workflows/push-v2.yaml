@@ -40,6 +40,7 @@ jobs:
           SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
           SIGN_SUBSCRIPTION: ${{ secrets.SIGN_SUBSCRIPTION }}
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
+          SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
         run: .\build.ps1 -target CI
 

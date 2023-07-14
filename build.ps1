@@ -149,6 +149,7 @@ function __target__signpackages() {
                 ' --base-directory "' + $packageOutputFolder + '"' + `
                 ' --description "xUnit.net"' + `
                 ' --description-url https://github.com/xunit' + `
+                ' --timestamp-url ' + $env:SIGN_TIMESTAMP_URI + `
                 ' --azure-key-vault-url ' + $env:SIGN_VAULT_URI + `
                 ' --azure-key-vault-client-id ' + $env:SIGN_APP_ID + `
                 ' --azure-key-vault-client-secret "' + $env:SIGN_APP_SECRET + '"' + `
