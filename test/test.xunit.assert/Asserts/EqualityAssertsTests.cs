@@ -3046,6 +3046,7 @@ public class EqualityAssertsTests
 				);
 			}
 
+			[Fact]
 			public void NotEqual()
 			{
 				Assert.NotEqual("foo", "bar");
@@ -3428,13 +3429,17 @@ public class EqualityAssertsTests
 		[Fact]
 		public static void Equal()
 		{
+#pragma warning disable xUnit2006 // Do not use invalid string equality check
 			Assert.StrictEqual("actual", "actual");
+#pragma warning restore xUnit2006 // Do not use invalid string equality check
 		}
 
 		[Fact]
 		public static void NotEqual_Strings()
 		{
+#pragma warning disable xUnit2006 // Do not use invalid string equality check
 			var ex = Record.Exception(() => Assert.StrictEqual("bob", "jim"));
+#pragma warning restore xUnit2006 // Do not use invalid string equality check
 
 			Assert.IsType<StrictEqualException>(ex);
 			Assert.Equal(

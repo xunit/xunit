@@ -5,6 +5,7 @@ using Xunit.Sdk;
 
 public class ExceptionAssertsTests
 {
+#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
 	public class Throws_NonGeneric
 	{
 		public class WithAction
@@ -175,6 +176,7 @@ public class ExceptionAssertsTests
 			}
 		}
 	}
+#pragma warning restore xUnit2015 // Do not use typeof expression to check the exception type
 
 	public class Throws_Generic
 	{

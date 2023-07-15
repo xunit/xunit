@@ -209,9 +209,11 @@ public class ArgumentFormatterTests
 		}
 
 		[CulturedTheory]
+#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		[InlineData(0, "Value0")]
 		[InlineData(1, "Value1")]
 		[InlineData(42, "42")]
+#pragma warning restore xUnit1010 // The value is not convertible to the method parameter type
 		public static void NonFlags(NonFlagsEnum enumValue, string expected)
 		{
 			var actual = ArgumentFormatter.Format(enumValue);
@@ -228,11 +230,13 @@ public class ArgumentFormatterTests
 		}
 
 		[CulturedTheory]
+#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		[InlineData(0, "Nothing")]
 		[InlineData(1, "Value1")]
 		[InlineData(3, "Value1 | Value2")]
 		// This is expected, not "Value1 | Value2 | 4"
 		[InlineData(7, "7")]
+#pragma warning restore xUnit1010 // The value is not convertible to the method parameter type
 		public static void Flags(FlagsEnum enumValue, string expected)
 		{
 			var actual = ArgumentFormatter.Format(enumValue);
