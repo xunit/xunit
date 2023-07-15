@@ -1109,6 +1109,48 @@ public class CollectionAssertsTests
 					ex.Message
 				);
 			}
+
+			[Fact]
+			public static void WithCollectionValues_Equal()
+			{
+				var expected = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test2@example.com" },
+				};
+				var actual = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test2@example.com" },
+				};
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public static void WithCollectionValues_NotEqual()
+			{
+				var expected = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test2@example.com" },
+				};
+				var actual = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test3@example.com" },
+				};
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test2@example.com\"]]" + Environment.NewLine +
+					"Actual:   [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test3@example.com\"]]",
+					ex.Message
+				);
+			}
 		}
 	}
 
@@ -1411,6 +1453,48 @@ public class CollectionAssertsTests
 					["d"] = 4,
 					["e"] = 5,
 					["f"] = 6,
+				};
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public static void WithCollectionValues_Equal()
+			{
+				var expected = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test2@example.com" },
+				};
+				var actual = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test2@example.com" },
+				};
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+					"Expected: Not [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test2@example.com\"]]" + Environment.NewLine +
+					"Actual:       [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test2@example.com\"]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public static void WithCollectionValues_NotEqual()
+			{
+				var expected = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test2@example.com" },
+				};
+				var actual = new Dictionary<string, List<string>>
+				{
+					["toAddresses"] = new List<string> { "test1@example.com" },
+					["ccAddresses"] = new List<string> { "test3@example.com" },
 				};
 
 				Assert.NotEqual(expected, actual);
