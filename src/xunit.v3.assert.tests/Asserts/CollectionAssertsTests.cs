@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
@@ -1152,6 +1153,113 @@ public class CollectionAssertsTests
 				);
 			}
 		}
+
+		public class Sets
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new HashSet<int> { 42, 2112 };
+				var actual = new HashSet<int> { 2112, 42 };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void Equal_WithInternalComparer()
+			{
+				var comparer = new BitArrayComparer();
+				var expected = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, false }) };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void Equal_WithExternalComparer()
+			{
+				var expected = new HashSet<BitArray> { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray> { new BitArray(new[] { true, false }) };
+
+				Assert.Equal(expected, actual, new BitArrayComparer());
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new HashSet<int> { 42, 2112 };
+				var actual = new HashSet<int> { 2600, 42 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [42, 2112]" + Environment.NewLine +
+					"Actual:   [2600, 42]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual_WithInternalComparer()
+			{
+				var comparer = new BitArrayComparer();
+				var expected = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, true }) };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [[True, False]]" + Environment.NewLine +
+					"Actual:   [[True, True]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual_WithExternalComparer()
+			{
+				var expected = new HashSet<BitArray> { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray> { new BitArray(new[] { true, true }) };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, new BitArrayComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: HashSets differ" + Environment.NewLine +
+					"Expected: [[True, False]]" + Environment.NewLine +
+					"Actual:   [[True, True]]",
+					ex.Message
+				);
+			}
+
+			public class BitArrayComparer : IEqualityComparer<BitArray>
+			{
+				public bool Equals(
+					BitArray? x,
+					BitArray? y) =>
+						ToBitString(x) == ToBitString(y);
+
+				public int GetHashCode(BitArray obj) =>
+					ToBitString(obj).GetHashCode();
+
+				static string ToBitString(BitArray? bitArray)
+				{
+					if (bitArray == null)
+						return string.Empty;
+
+					var sb = new StringBuilder(bitArray.Length);
+
+					for (int idx = 0; idx < bitArray.Length; ++idx)
+						sb.Append(bitArray[idx] ? '1' : '0');
+
+					return sb.ToString();
+				}
+			}
+		}
 	}
 
 	public class NotEmpty
@@ -1498,6 +1606,113 @@ public class CollectionAssertsTests
 				};
 
 				Assert.NotEqual(expected, actual);
+			}
+		}
+
+		public class Sets
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new HashSet<int> { 42, 2112 };
+				var actual = new HashSet<int> { 2112, 42 };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: HashSets are equal" + Environment.NewLine +
+					"Expected: Not [42, 2112]" + Environment.NewLine +
+					"Actual:       [2112, 42]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void Equal_WithInternalComparer()
+			{
+				var comparer = new BitArrayComparer();
+				var expected = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, false }) };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: HashSets are equal" + Environment.NewLine +
+					"Expected: Not [[True, False]]" + Environment.NewLine +
+					"Actual:       [[True, False]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void Equal_WithExternalComparer()
+			{
+				var expected = new HashSet<BitArray> { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray> { new BitArray(new[] { true, false }) };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, new BitArrayComparer()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: HashSets are equal" + Environment.NewLine +
+					"Expected: Not [[True, False]]" + Environment.NewLine +
+					"Actual:       [[True, False]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new HashSet<int> { 42, 2112 };
+				var actual = new HashSet<int> { 2600, 42 };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void NotEqual_WithInternalComparer()
+			{
+				var comparer = new BitArrayComparer();
+				var expected = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray>(comparer) { new BitArray(new[] { true, true }) };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void NotEqual_WithExternalComparer()
+			{
+				var expected = new HashSet<BitArray> { new BitArray(new[] { true, false }) };
+				var actual = new HashSet<BitArray> { new BitArray(new[] { true, true }) };
+
+				Assert.NotEqual(expected, actual, new BitArrayComparer());
+			}
+
+			public class BitArrayComparer : IEqualityComparer<BitArray>
+			{
+				public bool Equals(
+					BitArray? x,
+					BitArray? y) =>
+						ToBitString(x) == ToBitString(y);
+
+				public int GetHashCode(BitArray obj) =>
+					ToBitString(obj).GetHashCode();
+
+				static string ToBitString(BitArray? bitArray)
+				{
+					if (bitArray == null)
+						return string.Empty;
+
+					var sb = new StringBuilder(bitArray.Length);
+
+					for (int idx = 0; idx < bitArray.Length; ++idx)
+						sb.Append(bitArray[idx] ? '1' : '0');
+
+					return sb.ToString();
+				}
 			}
 		}
 	}
