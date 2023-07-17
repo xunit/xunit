@@ -176,15 +176,22 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(p => p?.GetType()).ToArray();
 		for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
 		{
-			methodInfo =
-				reflectionType
-					.GetRuntimeMethods()
-					.FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
+			var runtimeMethodsWithGivenName = reflectionType
+				.GetRuntimeMethods().Where(m => m.Name == MemberName);
+			methodInfo = runtimeMethodsWithGivenName
+				.FirstOrDefault(m => ParameterTypesCompatible(m.GetParameters(), parameterTypes));
 
 			if (methodInfo != null)
+			{
 				break;
-		}
+			}
 
+			if (runtimeMethodsWithGivenName.Any(m => m.GetParameters().Any(p => p.IsOptional)))
+			{
+				throw new ArgumentException($"Method named '{MemberName}' containing optional parameters was found. Only methods without optional parameters are supported. Please use overloads if necessary.");
+			}
+		}
+		
 		if (methodInfo == null || !methodInfo.IsStatic)
 			return null;
 
