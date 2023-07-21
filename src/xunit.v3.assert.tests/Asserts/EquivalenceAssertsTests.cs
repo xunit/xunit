@@ -61,6 +61,15 @@ public class EquivalenceAssertsTests
 		}
 
 		[Fact]
+		public void DateTimeOffset_Success()
+		{
+			var expected = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
+			var actual = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
 		public void StringToDateTime_Success()
 		{
 			var expected = "2022-12-01T01:03:01.0000000";
@@ -82,6 +91,23 @@ public class EquivalenceAssertsTests
 				"Assert.Equivalent() Failure" + Environment.NewLine +
 				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
 				"Actual:   2011-09-13T18:22:00.0000000",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void DateTimeOffset_Failure()
+		{
+			var expected = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
+			var actual = new DateTimeOffset(2011, 9, 13, 18, 22, 0, TimeSpan.Zero);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000+00:00" + Environment.NewLine +
+				"Actual:   2011-09-13T18:22:00.0000000+00:00",
 				ex.Message
 			);
 		}
@@ -1497,6 +1523,80 @@ public class EquivalenceAssertsTests
 				"Actual:   \"There\"",
 				ex.Message
 			);
+		}
+	}
+
+	public class Tuples
+	{
+		[Fact]
+		public void Equivalent()
+		{
+			var expected = Tuple.Create(42, "Hello world");
+			var actual = Tuple.Create(42, "Hello world");
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void NotEquivalent()
+		{
+			var expected = Tuple.Create(42, "Hello world");
+			var actual = Tuple.Create(2112, "Hello world");
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Item1'" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   2112",
+				ex.Message
+			);
+		}
+	}
+
+	public class ValueTuples
+	{
+		[Fact]
+		public void Equivalent()
+		{
+			var expected = (answer: 42, greeting: "Hello world");
+			var actual = (answer: 42, greeting: "Hello world");
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void NotEquivalent()
+		{
+			var expected = (answer: 42, greeting: "Hello world");
+			var actual = (answer: 2112, greeting: "Hello world");
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Item1'" + Environment.NewLine +
+				"Expected: 42" + Environment.NewLine +
+				"Actual:   2112",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void ValueTupleInsideClass_Equivalent()
+		{
+			var expected = new Person { ID = 42, Relationships = (parent: new Person { ID = 2112 }, child: null) };
+			var actual = new Person { ID = 42, Relationships = (parent: new Person { ID = 2112 }, child: null) };
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		class Person
+		{
+			public int ID { get; set; }
+
+			public (Person? parent, Person? child) Relationships;
 		}
 	}
 
