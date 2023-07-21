@@ -1,0 +1,36 @@
+---
+layout: default
+title: Release Notes for July 20, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: July 20, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xunit.runner.visualstudio 2.5.1 Pre-Release (build 4)
+</h2>
+
+<p>
+  This is co-released with core framework release v2
+  <a href="/releases/v2/2.5.1-pre.11"><code>2.5.1-pre.11</code></a>.
+</p>
+
+<p class="note">
+  Users have reported sporadic problems restoring the version 2.5.0 NuGet packages. This is a result of .NET Foundation's
+  code signing system changing the default time stamp server from DigiCert to Microsoft, which is not supported on .NET SDK
+  6.0.3xx (which is associated with Visual Studio 2022 LTS release 17.2). Users who were trying to stick with purely LTS
+  builds of tools experienced <a href="https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu3003">NU3003</a>
+  ("The package signature is invalid or cannot be verified on this platform."). We have manually reverted back to the
+  DigiCert time stamp service, which will allow users relying on LTS tooling to be able to restore our packages again.<br />
+  <br />
+  At this point in time, it is unclear whether this will be fixable for .NET SDK 6.0.3xx or not (and whether the proposed
+  fix in <a href="https://github.com/dotnet/sdk/issues/33928">this issue</a> will actually work on all OSes or just
+  Windows). Regardless of whether this change is applied or not, it is our intention to permanently stick with the DigiCert
+  time stamp service because it provides maximum compatibility with currently shipping versions of the SDK.
+</p>
+
+<p>
+  This release contains no new features or bug fixes other than the aforementioned issue with package signature verification.
+</p>

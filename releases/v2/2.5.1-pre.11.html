@@ -1,0 +1,87 @@
+---
+layout: default
+title: Release Notes for July 20, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: July 20, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.1 Pre-Release (build 11)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.3.0-pre.6"><code>1.3.0-pre.6</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.1-pre.4"><code>2.5.1-pre.4</code></a>.
+</p>
+
+<p>
+  The 2.5.1 release will be primarily focused on fixing issues introduced with the newly overhauled assertion
+  library, as well as integrating in any other bug fixes along the way that we've discovered.
+</p>
+
+<p class="note">
+  Users have reported sporadic problems restoring the version 2.5.0 NuGet packages. This is a result of .NET Foundation's
+  code signing system changing the default time stamp server from DigiCert to Microsoft, which is not supported on .NET SDK
+  6.0.3xx (which is associated with Visual Studio 2022 LTS release 17.2). Users who were trying to stick with purely LTS
+  builds of tools experienced <a href="https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu3003">NU3003</a>
+  ("The package signature is invalid or cannot be verified on this platform."). We have manually reverted back to the
+  DigiCert time stamp service, which will allow users relying on LTS tooling to be able to restore our packages again.<br />
+  <br />
+  At this point in time, it is unclear whether this will be fixable for .NET SDK 6.0.3xx or not (and whether the proposed
+  fix in <a href="https://github.com/dotnet/sdk/issues/33928">this issue</a> will actually work on all OSes or just
+  Windows). Regardless of whether this change is applied or not, it is our intention to permanently stick with the DigiCert
+  time stamp service because it provides maximum compatibility with currently shipping versions of the SDK.
+</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    The <code>BitArray</code> class has been marked as "safe to re-enumerate", so when it is printed in error messages
+    and/or theory data, it will show the bit values (as an array of <code>True</code> and <code>False</code>) rather
+    than the placeholder <code>[&#xB7;&#xB7;&#xB7;]</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where proper nullable annotations were accidentally left off of the new
+    <code>Assert.NotNull&lt;T&gt;()</code> overload designed for nullable value types.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2750">xunit/xunit#2750</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a regression in <code>Assert.Equal</code> with dictionaries where the <code>TValue</code>
+    was a collection class (like an array or <code>List&lt;T&gt;</code>).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2755">xunit/xunit#2755</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>Assert.Equal</code> with <code>HashSet</code> values, where the
+    internal comparer (passed during construction of the <code>HashSet</code>) and/or the external comparer (passed
+    to <code>Assert.Equal</code>) was not being used, causing false positives or negatives. Part of the implementation
+    of this fix also resolves a potential issue (never reported) with internal type <code>AssertEqualityComparerAdapter</code>
+    and an implementation of <code>GetHashCode</code> that was throwing; it now correctly delegates to the instance
+    of <code>IEqualityComparer&lt;T&gt;</code> that it is wrapping.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2743">xunit/xunit#2743</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>Assert.Equivalent</code> with some tuple values where the comparison
+    was failing, even when the values should've been equivalent. This involved rewriting some sketchy logic related to
+    <code>IComparable</code> which had previously been added just to support <code>DateTime</code> and <code>DateTimeOffset</code>;
+    now, instead, we explicitly handle those two types and never try to use <code>IComparable</code>. This is more in line
+    with the originally intended purpose of <code>Assert.Equivalent</code>, but it may now surface as unexpected false
+    negatives if any developers were relying on us calling their <code>IComparable</code> implementation. The new logic is
+    the correct intention, and developers should not assume that we will use <code>IComparable</code> (or any other
+    similar interface) for <code>Assert.Equivalent</code>. Note that this <em>does not affect</em> our implementation
+    of <code>Assert.Equal</code>, which still consults several equality-testing interfaces.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2758">xunit/xunit#2758</a>
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where the factory methods in the assert library's exception classes were not all
+    properly marked as public as intended.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2741">xunit/xunit#2741</a>
+  </li>
+</ul>
