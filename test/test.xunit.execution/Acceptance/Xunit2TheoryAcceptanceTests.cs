@@ -1147,6 +1147,34 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.NotNull(z);
             }
         }
+
+        [Fact]
+        public void OptionalParametersNotSupported()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithDataMethodsWithOptionalParameters));
+
+            var failing = Assert.Single(testMessages.OfType<ITestFailed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithDataMethodsWithOptionalParameters.TestMethod", failing.Test.DisplayName);
+            Assert.Equal($"Method '{typeof(ClassWithDataMethodsWithOptionalParameters).FullName}.{nameof(ClassWithDataMethodsWithOptionalParameters.DataMethodWithOptionalParameters)}' contains optional parameters, which are not currently supported. Please use overloads if necessary.", failing.Messages.Single());
+        }
+
+        class ClassWithDataMethodsWithOptionalParameters
+        {
+            public static IEnumerable<object[]> DataMethodWithOptionalParameters(string name, int scenarios = 444)
+            {
+                for (int i = 1; i <= scenarios; i++)
+                    yield return new object[] { name, i };
+            }
+
+            [Theory]
+            [MemberData(nameof(DataMethodWithOptionalParameters), "MyFirst")]
+            [MemberData(nameof(DataMethodWithOptionalParameters), "MySecond")]
+            public void TestMethod(string name, int scenario)
+            {
+                Assert.True(name.Length > 0);
+                Assert.True(scenario > 0);
+            }
+        }
     }
 
     public class PropertyDataTests : AcceptanceTestV2

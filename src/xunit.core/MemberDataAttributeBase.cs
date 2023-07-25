@@ -104,10 +104,16 @@ namespace Xunit
             var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(p => p?.GetType()).ToArray();
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
             {
-                methodInfo = reflectionType.GetRuntimeMethods()
-                                           .FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
+                var runtimeMethodsWithGivenName = reflectionType.GetRuntimeMethods()
+                                                                .Where(m => m.Name == MemberName)
+                                                                .ToArray();
+                methodInfo = runtimeMethodsWithGivenName.FirstOrDefault(m => ParameterTypesCompatible(m.GetParameters(), parameterTypes));
+
                 if (methodInfo != null)
                     break;
+
+                if (runtimeMethodsWithGivenName.Any(m => m.GetParameters().Any(p => p.IsOptional)))
+                    throw new ArgumentException($"Method '{type.FullName}.{MemberName}' contains optional parameters, which are not currently supported. Please use overloads if necessary.");
             }
 
             if (methodInfo == null || !methodInfo.IsStatic)
