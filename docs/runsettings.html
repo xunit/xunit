@@ -43,7 +43,7 @@ breadcrumb: Documentation
 </em></p>
 
 <p class="note">
-  RunSettings as expressed as XML, and XML element names are case-sensitive. Please carefully verify that you are using
+  RunSettings are expressed as XML, and XML element names are case-sensitive. Please carefully verify that you are using
   the correct casing for the XML element names. This also applies to the command line switches for <code>dotnet test</code>,
   as they are transparently translated into XML elements behind the scenes.
 </p>
@@ -241,7 +241,7 @@ breadcrumb: Documentation
         Set this to <code>true</code> to disable automatically enabled reporters (for example,
         reporters that automatically detect and enable support for AppVeyor, TeamCity, or
         Azure Pipelines). This is typically only used in debugging scenarios when trying to
-        determine why tests are reporting into your CI environment.
+        determine why tests aren't properly reporting into your CI environment.
       </p>
       <p><em>
         Valid values: <code>true</code>, <code>false</code><br />
@@ -317,7 +317,7 @@ breadcrumb: Documentation
         the console reporter. In Visual Studio, you can do this by opening the Options settings,
         navigating to <code>Test</code> &gt; <code>General</code>, and the setting the drop down
         under "Logging Level" to "Diagnostic" (the logs in Visual Studio will appear in the Output
-        window, under "Tests". From the command line, you can pass <code>--logger "console;verbosity=normal"</code>
+        window, under "Tests"). From the command line, you can pass <code>--logger "console;verbosity=normal"</code>
         on the <code>dotnet test</code> command line.
       </p>
       <p><em>
