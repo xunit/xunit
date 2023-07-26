@@ -166,6 +166,11 @@ pre, code {
   font-weight: 400;
   font-size: 15px;
 }
+h1 code {
+  background: inherit;
+  color: inherit;
+  font-size: inherit;
+}
 h1+h2 {
   margin-top: -0.25em;
   margin-bottom: 1em;

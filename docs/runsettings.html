@@ -1,0 +1,358 @@
+---
+layout: default
+title: RunSettings and xunit.runner.visualstudio
+breadcrumb: Documentation
+---
+
+<h1>RunSettings and <code>xunit.runner.visualstudio</code></h1>
+
+<ul>
+  <li><a href="#runsettings">Format of the <code>.RunSettings</code> file</a></li>
+  <li><a href="#switches">Format of the <code>dotnet test</code> command line switches</a></li>
+  <ul>
+    <li><a href="#AppDomain"><code>AppDomain</code></a></li>
+    <li><a href="#DiagnosticMessages"><code>DiagnosticMessages</code></a></li>
+    <li><a href="#FailSkips"><code>FailSkips</code></a></li>
+    <li><a href="#InternalDiagnosticMessages"><code>InternalDiagnosticMessages</code></a></li>
+    <li><a href="#LongRunningTestSeconds"><code>LongRunningTestSeconds</code></a></li>
+    <li><a href="#MaxParallelThreads"><code>MaxParallelThreads</code></a></li>
+    <li><a href="#MethodDisplay"><code>MethodDisplay</code></a></li>
+    <li><a href="#MethodDisplayOptions"><code>MethodDisplayOptions</code></a></li>
+    <li><a href="#NoAutoReporters"><code>NoAutoReporters</code></a></li>
+    <li><a href="#ParallelizeAssembly"><code>ParallelizeAssembly</code></a></li>
+    <li><a href="#ParallelizeTestCollections"><code>ParallelizeTestCollections</code></a></li>
+    <li><a href="#PreEnumerateTheories"><code>PreEnumerateTheories</code></a></li>
+    <li><a href="#ReporterSwitch"><code>ReporterSwitch</code></a></li>
+    <li><a href="#ShadowCopy"><code>ShadowCopy</code></a></li>
+    <li><a href="#StopOnFail"><code>StopOnFail</code></a></li>
+  </ul>
+</ul>
+
+<p>
+  Beginning with version 2.5.1 of <code>xunit.runner.visualstudio</code>, you can provide xUnit.net configuration
+  settings via RunSettings. This includes a <code>.RunSettings</code> file to be used by Test Explorer,
+  <code>dotnet test</code>, and <code>vstest.console.exe</code>, as well as by command line switches directly
+  when calling <code>dotnet test</code>.
+</p>
+
+<p><em>
+  For more information on using <code>.RunSettings</code> files, please see the
+  <a href="https://learn.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file">Visual Studio documentation</a>.
+  For more information on using command line switches for RunSettings with <code>dotnet test</code>, please see the
+  <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test">dotnet test documentation</a>.
+</em></p>
+
+<p class="note">
+  RunSettings as expressed as XML, and XML element names are case-sensitive. Please carefully verify that you are using
+  the correct casing for the XML element names. This also applies to the command line switches for <code>dotnet test</code>,
+  as they are transparently translated into XML elements behind the scenes.
+</p>
+
+<h2 id="runsettings">Format of the <code>.RunSettings</code> file</h2>
+
+<p>
+  The <code>.RunSettings</code> file is simply an XML file with a specific format. You will place your values inside an <code>xUnit</code>
+  section in the configuration file. For example, to disable app domains and parallelization:
+</p>
+
+{% highlight xml %}
+<RunSettings>
+  <xUnit>
+    <AppDomain>denied</AppDomain>
+    <ParallelizeTestCollections>false</ParallelizeTestCollections>
+  </xUnit>
+</RunSettings>
+{% endhighlight %}
+
+<p>
+  The link above will explain how you can use this <code>.RunSettings</code> file in various contexts, including in Test Explorer
+  inside Visual Studio, from the <code>dotnet test</code> command line, and from the <code>vstest.console.exe</code> command line.
+</p>
+
+<h2 id="switches">Format of the <code>dotnet test</code> command line switches</h2>
+
+<p>
+  When passing RunSettings via the <code>dotnet test</code> command line, you will format them as <code>xUnit.key=value</code> pairs.
+  For example, to disable app domains and parallelization:
+</p>
+
+<pre>
+  dotnet test path/to/myproject -- xUnit.AppDomain=denied xUnit.ParallelizeTestCollections=false
+</pre>
+
+<h2 id="items">Supported configuration items</h2>
+
+<table class="table">
+  <tr>
+    <th>Key</th>
+    <th>Supported Values</th>
+  </tr>
+  <tr>
+    <th id="AppDomain"><code>AppDomain</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v1-v2</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to determine whether App Domains are used. By default, they
+        will be used when available (the <code>ifAvailable</code> value). If you
+        set this to <code>required</code>, it will require that app domains are
+        available; if you set this to <code>denied</code>, it will not use app domains.
+        <em>Note that App Domains are only supported with .NET Framework tests, and
+        only with tests linked against xUnit.net framework v1 or v2.</em>
+      </p>
+      <p><em>
+        Valid values: <code>required</code>, <code>ifAvailable</code>, <code>denied</code><br />
+        Default value: <code>ifAvailable</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="DiagnosticMessages"><code>DiagnosticMessages</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to <code>true</code> to include diagnostic information during test
+        discovery and execution. Each runner has a unique method of presenting diagnostic
+        messages.
+      </p>
+      <p>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="FailSkips"><code>FailSkips</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v1+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to enable skipped tests to be treated as errors.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="InternalDiagnosticMessages"><code>InternalDiagnosticMessages</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to <code>true</code> to include internals diagnostic information during test
+        discovery and execution. Each runner has a unique method of presenting diagnostic
+        messages. Internal diagnostics often include information that is only useful when debugging
+        the test framework itself.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="LongRunningTestSeconds"><code>LongRunningTestSeconds</code><br />xunit.runner.visualstudio 2.5.1+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to enable long-running (hung) test detection. When the runner is
+        idle waiting for tests to finished, it will report that fact once the timeout
+        has passed. Use a value of <code>0</code> to disable the feature, or a positive
+        integer value to enable the feature (time in seconds).
+      </p>
+      <p>
+        <strong>NOTE:</strong> Long running test messages are diagnostic messages. You
+        must enable diagnostic messages in order to see the long running test warnings.
+      </p>
+      <p><em>
+        Valid values: Any integer &gt;= 0<br />
+        Default value: <code>0</code> (disabled)
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="MaxParallelThreads"><code>MaxParallelThreads</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to override the maximum number of threads to be used when parallelizing
+        tests within this assembly. Use a value of <code>0</code> to indicate that you would
+        like the default behavior; use a value of <code>-1</code> to indicate that you do not
+        wish to limit the number of threads used for parallelization.
+      </p>
+      <p><em>
+        Valid values: Any integer &gt;= -1<br />
+        Default value: the number of logical processors in your PC
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="MethodDisplay"><code>MethodDisplay</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to override the default display name for test cases. If you set this
+        to <code>method</code>, the display name will be just the method (without the
+        class name); if this set this value to <code>classAndMethod</code>, the
+        default display name will be the fully qualified class name and method name.
+      </p>
+      <p><em>
+        Valid values: <code>method</code>, <code>classAndMethod</code><br />
+        Default value: <code>classAndMethod</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="MethodDisplayOptions"><code>MethodDisplayOptions</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to automatically perform transforms on default test names. This value
+        can either be <code>all</code>, <code>none</code>, or a comma-separated
+        combination of one or more of the following values:
+      </p>
+      <ul>
+        <li><code>replaceUnderscoreWithSpace</code> Replaces all underscores with spaces</li>
+        <li>
+          <code>useOperatorMonikers</code> Replaces operator names with matching symbols
+          <ul>
+            <li><code>eq</code> becomes <code>=</code></li>
+            <li><code>ne</code> becomes <code>!=</code></li>
+            <li><code>lt</code> becomes <code>&lt;</code></li>
+            <li><code>le</code> becomes <code>&lt;=</code></li>
+            <li><code>gt</code> becomes <code>&gt;</code></li>
+            <li><code>ge</code> becomes <code>&gt;=</code></li>
+          </ul>
+        </li>
+        <li>
+          <code>useEscapeSequences</code> Replaces escape sequences in the format <code>Xnn</code>
+          or <code>Unnnn</code> with their ASCII or Unicode character equivalents. Examples:
+          <ul>
+            <li><code>X2C</code> becomes <code>,</code></li>
+            <li><code>U1D0C</code> becomes <code>&#x1d0c;</code></li>
+          </ul>
+        </li>
+        <li>
+          <code>replacePeriodWithComma</code> Replaced periods with a comma and a space. This
+          option is typically only useful if <code>methodDisplay</code> is <code>classAndMethod</code>.
+        </li>
+      </ul>
+      <p><em>
+        Valid values: <code>all</code>, <code>none</code>, or comma separated flags<br />
+        Default value: <code>none</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="NoAutoReporters"><code>NoAutoReporters</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v1+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to disable automatically enabled reporters (for example,
+        reporters that automatically detect and enable support for AppVeyor, TeamCity, or
+        Azure Pipelines). This is typically only used in debugging scenarios when trying to
+        determine why tests are reporting into your CI environment.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="ParallelizeAssembly"><code>ParallelizeAssembly</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> if this assembly is willing to participate in
+        parallelization with other assemblies. Test runners can use this information to
+        automatically enable parallelization across assemblies if all the assemblies
+        agree to it.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="ParallelizeTestCollections"><code>ParallelizeTestCollections</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> if the assembly is willing to run tests inside
+        this assembly in parallel against each other. Tests in the same test collection
+        will be run sequentially against each other, but tests in different test
+        collections will be run in parallel against each other. Set this to
+        <code>false</code> to disable all parallelization within this test assembly.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>true</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="PreEnumerateTheories"><code>PreEnumerateTheories</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to pre-enumerate theories so that there is an
+        individual test case for each theory data row. Set this to <code>false</code>
+        to return a single test case for each theory without pre-enumerating the
+        data ahead of time (this is how xUnit.net v1 used to behave). This is
+        most useful for developers running tests inside Visual Studio, who wish to
+        have the Code Lens test runner icons on their theory methods, since Code
+        Lens does not support multiple tests from a single method.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>true</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="ReporterSwitch"><code>ReporterSwitch</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v1+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to use a different reporter than the default. There are four reporters
+        that ship with <code>xunit.runner.visualstudio</code> with behavior that deviates from
+        the default:
+      </p>
+      <ul>
+        <li><code>quiet</code> will only print failure information</li>
+        <li><code>verbose</code> will print messages when tests start abd finish</li>
+        <li><code>json</code> will print messages in a JSON format</li>
+        <li><code>teamcity</code> will print TeamCity-formatted messages</li>
+      </ul>
+      <p>
+        Note: In order to see the reporter output, you will need to change the verbosity level of
+        the console reporter. In Visual Studio, you can do this by opening the Options settings,
+        navigating to <code>Test</code> &gt; <code>General</code>, and the setting the drop down
+        under "Logging Level" to "Diagnostic" (the logs in Visual Studio will appear in the Output
+        window, under "Tests". From the command line, you can pass <code>--logger "console;verbosity=normal"</code>
+        on the <code>dotnet test</code> command line.
+      </p>
+      <p><em>
+        Valid values: <code>quiet</code>, <code>verbose</code>, <code>json</code>, <code>teamcity</code><br />
+        Default value: unset
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="ShadowCopy"><code>ShadowCopy</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v1-v2</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to use shadow copying when running tests in
+        separate App Domains; set to <code>false</code> to run tests without shadow
+        copying. When running tests without App Domains, this value is ignored.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>true</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="StopOnFail"><code>StopOnFail</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to stop running further tests once a test has failed.
+        (Because of the asynchronous nature of test execution, this will not necessarily happen
+        immediately; any test that is already in flight may complete, which may result in multiple
+        test failures reported.)
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+</table>
