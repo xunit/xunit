@@ -1,4 +1,4 @@
-name: xUnit.net CI Build
+name: "xUnit.net CI Build (main)"
 on:
   push:
     branches:
@@ -80,7 +80,8 @@ jobs:
 
       - name: "Build target: PublishPackages"
         env:
-          PublishToken: ${{ secrets.PublishToken }}
+          PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
+          PUSH_URI: ${{ secrets.PUSH_URI }}
           SIGN_APP_ID: ${{ secrets.SIGN_APP_ID }}
           SIGN_APP_SECRET: ${{ secrets.SIGN_APP_SECRET }}
           SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}

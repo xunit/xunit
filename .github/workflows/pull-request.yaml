@@ -1,4 +1,4 @@
-name: xUnit.net PR Build
+name: "xUnit.net PR Build (main)"
 on:
   - pull_request
   - workflow_dispatch
