@@ -5,7 +5,7 @@ breadcrumb: Documentation
 ---
 
 <h1>Current state of the xUnit.net v3 alpha</h1>
-<h2>As of: 2021 October 6 (<code>0.1.0-pre.449</code>)</h2>
+<h2>As of: 2023 July 27 (<code>0.1.1-pre.267</code>)</h2>
 
 <p>
   The purpose of this document is to give a general state of the alpha
@@ -26,6 +26,7 @@ breadcrumb: Documentation
     <code><a href="https://f.feedz.io/xunit/xunit/nuget/index.json">https://f.feedz.io/xunit/xunit/nuget/index.json</a></code>
   </li>
 </ul>
+
 
 <h2>Table of contents</h2>
 
@@ -52,7 +53,7 @@ breadcrumb: Documentation
 </p>
 <ul>
   <li>.NET Framework 4.7.2 (or later)</li>
-  <li>.NET Core 3.1 (or later)</li>
+  <li>.NET 6 (or later)</li>
 </ul>
 <p>
   Also new for v3: Mono is officially supported on Linux and macOS for .NET Framework
@@ -61,7 +62,7 @@ breadcrumb: Documentation
 </p>
 <p>
   The full list of planned runtimes for v3 can be found in our
-  <a href="https://github.com/xunit/xunit/issues/2133#issuecomment-674340390">roadmap</a>.
+  <a href="https://github.com/xunit/xunit/issues/2330">roadmap</a>.
 </p>
 
 <h3>Unit test projects are applications now</h3>
@@ -127,7 +128,7 @@ breadcrumb: Documentation
 </p>
 <p>
   Note that currently the <code>xunit.v3.core</code> (and <code>xunit.v3</code>) NuGet
-  package shows target frameworks of <code>net472</code> and <code>netcoreapp3.1</code>
+  package shows target frameworks of <code>net472</code> and <code>net6.0</code>
   because of the in-process runner requirement. Developers who extend xUnit.net will
   instead use the <code>xunit.v3.extensibility.core</code> NuGet package, which is
   single-targeted against <code>netstandard2.0</code>. Extensibility authors will no
@@ -149,9 +150,10 @@ breadcrumb: Documentation
 
 <p>
   The CI builds are hosted on <a href="https://feedz.io/org/xunit/repository/xunit/search">feedz.io</a>.
-  In order to download packages from this feed, you need to configure it with a <code>nuget.config</code>
-  file. Regardless of whether you're planning to upgrade an existing project from v2 to v3, or start a new
-  v3 project, you must take this step first or else package restore of the v3 packages will fail.
+  In order to download packages from this feed, you need to configure it with a
+  <code>nuget.config</code> file. Regardless of whether you're planning to upgrade
+  an existing project from v2 to v3, or start a new v3 project, you must take this
+  step first or else package restore of the v3 packages will fail.
 </p>
 <p>
   In your solution folder, create a file named <code>nuget.config</code> and add the following
@@ -232,11 +234,10 @@ breadcrumb: Documentation
 <h3>Update target framework</h3>
 
 <p>
-  There are new <a href="https://github.com/xunit/xunit/issues/2133#issuecomment-674340390">minimum
-  target framework versions</a>; make sure to update your target framework(s) if you're currently
-  targeting something that's too old.
+  There are new <a href="https://github.com/xunit/xunit/issues/2330">minimum target framework
+  versions</a>; make sure to update your target framework(s) if you're currently targeting something
+  that's too old.
 </p>
-<p>The current packages only support .NET Framework and .NET Core (including .NET 5).</p>
 
 
 <h2 id="creating-test-project">Creating a new v3 test project</h2>
@@ -245,7 +246,7 @@ breadcrumb: Documentation
   Since there is no project template yet for xUnit.net v3, you should
   create a project using <code>dotnet new console</code> from the .NET
   SDK command line tool. We currently support C#, F#, and VB.NET,
-  targeting .NET Framework 4.7.2+ and/or .NET Core 3.1+.
+  targeting .NET Framework 4.7.2+ and/or .NET 6+.
 </p>
 <p>After creation, edit your project file to make it look like this:</p>
 
@@ -254,11 +255,11 @@ breadcrumb: Documentation
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.1.0-pre.449" />
+    <PackageReference Include="xunit.v3" Version="0.1.1-pre.267" />
   </ItemGroup>
 
 </Project>
@@ -277,11 +278,11 @@ breadcrumb: Documentation
   which can be directly run on Windows or run via Mono on Linux and
   macOS. The executable has many of the same command line options that
   you're accustomed to having access to with the stand-alone console
-  runner; simply run <code>myapp.exe -?</code> to get a help page full
+  runner; simply run <code>MyTests.exe -?</code> to get a help page full
   of available options.
 </p>
 <p>
-  .NET Core projects can be run with <code>dotnet run</code> (advanced
+  .NET projects can be run with <code>dotnet run</code> (advanced
   users can also use <code>dotnet exec</code>). To run a project, use
   a command like <code>dotnet run --project src/MyTests/MyTests.csproj</code>.
   This also supports command line options; to specify them with dotnet run,
@@ -291,13 +292,9 @@ breadcrumb: Documentation
 </p>
 <p>
   If your test project is multi-targeted, you must specify <code>--framework</code>
-  when using dotnet run. Note that dotnet run is also able to run .NET Framework
-  projects (assuming you have Mono installed), so you can use dotnet run for
-  both types of project if you wish.
-</p>
-<p>
-  The difference in available options from the stand-alone runner and the
-  in-process runner
+  when using <code>dotnet run</code>. Note that <code>dotnet run</code> is also able
+  to run .NET Framework projects (assuming you have Mono installed), so you can use
+  <code>dotnet run</code> for both types of project if you wish.
 </p>
 
 
@@ -363,7 +360,7 @@ End Class
 
 {% highlight xml %}
 <PropertyGroup>
-    <XunitAutoGeneratedEntryPoint>false</XunitAutoGeneratedEntryPoint>
+  <XunitAutoGeneratedEntryPoint>false</XunitAutoGeneratedEntryPoint>
 </PropertyGroup>
 {% endhighlight %}
 
