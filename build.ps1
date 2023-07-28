@@ -2,7 +2,7 @@
 
 param(
     [ValidateSet('Build','BuildAll','CI','FormatSource','PackageRestore','Packages','Restore','Test',
-                 '_AnalyzeSource', '_Packages','_Publish','_PushMyGet','_SignPackages','_Test32','_Test64','_TestCore')]
+                 '_AnalyzeSource', '_Packages','_Publish','_PushPackages','_SignPackages','_Test32','_Test64','_TestCore')]
     [string]$target = "BuildAll",
     [string]$configuration = "Release"
 )
@@ -71,7 +71,7 @@ function __target_buildall() {
 function __target_ci() {
     __target_buildall
     __target__signpackages
-    __target__pushmyget
+    __target__pushpackages
 }
 
 function __target_formatsource() {
@@ -124,15 +124,15 @@ function __target__publish() {
         _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp2.0" $configuration "publish"
 }
 
-function __target__pushmyget() {
-    _build_step "Pushing packages to MyGet"
-        if ($null -eq $env:PublishToken) {
-            Write-Host -ForegroundColor Yellow "Skipping MyGet push because environment variable 'PublishToken' is not set."
+function __target__pushpackages() {
+    _build_step "Pushing packages"
+        if (($null -eq $env:PUSH_APIKEY) -or ($null -eq $env:PUSH_URI)) {
+            Write-Host -ForegroundColor Yellow "Skipping package push because of one or more missing environment variables: 'PUSH_APIKEY', 'PUSH_URI'"
             Write-Host ""
         } else {
             Get-ChildItem -Filter *.nupkg $packageOutputFolder | ForEach-Object {
-                $cmd = '& dotnet nuget push --source https://www.myget.org/F/xunit/api/v2/package --api-key ' + $env:PublishToken + ' "' + $_.FullName + '"'
-                $message = $cmd.Replace($env:PublishToken, "[redacted]")
+                $cmd = '& dotnet nuget push --source ' + $env:PUSH_URI + ' --api-key ' + $env:PUSH_APIKEY + ' "' + $_.FullName + '"'
+                $message = $cmd.Replace($env:PUSH_APIKEY, "[redacted]")
                 _exec $cmd $message
             }
         }
@@ -143,7 +143,6 @@ function __target__signpackages() {
         _build_step "Signing NuGet packages"
             _exec "& dotnet tool restore"
 
-            # --baseDirectory "' + $packageOutputFolder + '" --input **/*.nupkg'
             $cmd = `
                 '& dotnet sign code azure-key-vault **/*.nupkg' + `
                 ' --base-directory "' + $packageOutputFolder + '"' + `

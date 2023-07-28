@@ -30,31 +30,31 @@ For project documentation, please visit the [xUnit.net project home](https://xun
       <th>v2 core framework</th>
       <td><a href="https://www.nuget.org/packages/xunit"><img src="https://img.shields.io/nuget/v/xunit.svg?logo=nuget"></a></td>
       <td><a href="https://www.nuget.org/packages/xunit/absoluteLatest"><img src="https://img.shields.io/nuget/vpre/xunit.svg?logo=nuget"></td>
-      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit"><img src="https://img.shields.io/myget/xunit/vpre/xunit.svg?label=myget&amp;logo=nuget"></td>
+      <td><a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit%2Flatest"></td>
       <td><a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=v2"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dv2&amp;label=build"></td>
     <tr>
     <tr>
       <th>v3 core framework (<a href="https://xunit.net/docs/v3-alpha">alpha docs</a>)</th>
       <td>N/A</td>
       <td>N/A</td>
-      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit.v3"><img src="https://img.shields.io/myget/xunit/vpre/xunit.v3.svg?label=myget&amp;logo=nuget"></td>
+      <td><a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3%2Flatest"></td>
       <td><a href="https://actions-badge.atrox.dev/xunit/xunit/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit%2Fbadge%3Fref%3Dmain&amp;label=build"></td>
     <tr>
     <tr>
       <th>xunit.analyzers</th>
       <td><a href="https://www.nuget.org/packages/xunit.analyzers"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?logo=nuget"></a></td>
       <td><a href="https://www.nuget.org/packages/xunit.analyzers/absoluteLatest"><img src="https://img.shields.io/nuget/vpre/xunit.analyzers.svg?logo=nuget"></a></td>
-      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?label=myget&amp;logo=nuget"></a></td>
+      <td><a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest"></a></td>
       <td><a href="https://actions-badge.atrox.dev/xunit/xunit.analyzers/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit.analyzers%2Fbadge%3Fref%3Dmain&amp;label=build"></a></td>
     </tr>
     <tr>
       <th>xunit.runner.visualstudio</th>
       <td><a href="https://www.nuget.org/packages/xunit.runner.visualstudio"><img src="https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?logo=nuget"></a></td>
       <td><a href="https://www.nuget.org/packages/xunit.runner.visualstudio/absoluteLatest"><img src="https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?logo=nuget"></a></td>
-      <td><a href="https://myget.org/feed/xunit/package/nuget/xunit.runner.visualstudio"><img src="https://img.shields.io/myget/xunit/vpre/xunit.runner.visualstudio.svg?label=myget&amp;logo=nuget"></a></td>
+      <td><a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.runner.visualstudio"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.runner.visualstudio%2Flatest"></a></td>
       <td><a href="https://actions-badge.atrox.dev/xunit/xunit.runner.visualstudio/goto?ref=main"><img src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fvisualstudio.xunit%2Fbadge%3Fref%3Dmain&amp;label=build"></a></td>
     </tr>
   </tbody>
 </table>
 
-*For complete CI package lists, please visit the [MyGet gallery](https://www.myget.org/gallery/xunit/).*
+*For complete CI package lists, please visit the [feedz.io package search](https://feedz.io/org/xunit/repository/xunit/search).*
