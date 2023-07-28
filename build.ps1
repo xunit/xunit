@@ -15,15 +15,6 @@ if ($null -eq $PSScriptRoot) {
     exit -1
 }
 
-$buildModuleFile = join-path $PSScriptRoot "tools\build\xunit-build-module.psm1"
-
-if ((test-path $buildModuleFile) -eq $false) {
-    write-host "Could not find build module. Did you forget to 'git submodule update --init'?" -ForegroundColor Red
-    exit -1
-}
-
-Set-StrictMode -Version 2
-Import-Module $buildModuleFile -Scope Local -Force -ArgumentList "4.5.1"
 Set-Location $PSScriptRoot
 
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
@@ -34,6 +25,68 @@ $dotnetFormatCommand = "& dotnet dotnet-format --folder --exclude src/common/Ass
 
 # Helper functions
 
+function _build_step([string] $message) {
+    Write-Host -ForegroundColor White $("==> " + $message + " <==")
+    Write-Host ""
+}
+
+function _exec([string] $command, [string] $message = "") {
+    if ($message -eq "") {
+        $message = $command
+    }
+    Write-Host -ForegroundColor DarkGray ("EXEC: " + $message)
+    Write-Host ""
+    Invoke-Expression $command
+    Write-Host ""
+
+    if ($LASTEXITCODE -ne 0) {
+        exit 1
+    }
+}
+
+function _fatal([string] $message) {
+    Write-Host -ForegroundColor Red ("Error: " + $message)
+    exit -1
+}
+
+function _mkdir([string] $path) {
+    if ((test-path $path) -eq $false) {
+        New-Item -Type directory -Path $path | out-null
+    }
+}
+
+function _msbuild([string] $project, [string] $configuration, [string] $target = "build", [string] $verbosity = "minimal", [string] $message = "", [string] $binlogFile = "") {
+    $cmd = "msbuild " + $project + " /t:" + $target + " /p:Configuration=" + $configuration + " /v:" + $verbosity + " /m"
+    if ($binlogFile -ne "") {
+        $cmd = $cmd + " /bl:" + $binlogFile
+    }
+    _exec $cmd $message
+}
+
+function _require([string] $command, [string] $message) {
+    if ($null -eq (get-command $command -ErrorAction SilentlyContinue)) {
+        _fatal $message
+    }
+}
+
+function _verify_version([string]$version, [string]$minVersion, [string]$appName) {
+    $dashIndex = $version.IndexOf('-')
+    if ($dashIndex -gt -1) {
+        $version = $version.Substring(0, $dashIndex)
+    }
+
+    if ([version]$version -lt [version]$minVersion) {
+        _fatal ("Unsupported " + $appName + " version '$version' (must be '$minVersion' or later).")
+    }
+}
+
+function _verify_dotnetsdk_version([string]$minVersion) {
+    _verify_version (& dotnet --version) $minVersion ".NET SDK"
+}
+
+function _verify_msbuild_version([string]$minVersion) {
+    _verify_version (& msbuild /nologo /ver) $minVersion "MSBuild"
+}
 function _xunit_x64([string]$command) {
     _exec ("src\xunit.console\bin\" + $configuration + "\net452\xunit.console.exe " + $command)
 }
@@ -125,8 +178,10 @@ function __target__publish() {
 }
 
 function __target__pushpackages() {
-    _build_step "Pushing packages"
-        if (($null -eq $env:PUSH_APIKEY) -or ($null -eq $env:PUSH_URI)) {
+    _build_step "Pushing NuGet packages"
+        if (($null -eq $env:PUSH_APIKEY) -or
+            ($null -eq $env:PUSH_URI))
+        {
             Write-Host -ForegroundColor Yellow "Skipping package push because of one or more missing environment variables: 'PUSH_APIKEY', 'PUSH_URI'"
             Write-Host ""
         } else {
@@ -139,8 +194,17 @@ function __target__pushpackages() {
 }
 
 function __target__signpackages() {
-    if ($null -ne $env:SIGN_APP_SECRET) {
-        _build_step "Signing NuGet packages"
+    _build_step "Signing NuGet packages"
+        if (($null -eq $env:SIGN_APP_ID) -or
+            ($null -eq $env:SIGN_APP_SECRET) -or
+            ($null -eq $env:SIGN_CERT_NAME) -or
+            ($null -eq $env:SIGN_TENANT) -or
+            ($null -eq $env:SIGN_TIMESTAMP_URI) -or
+            ($null -eq $env:SIGN_VAULT_URI))
+        {
+            Write-Host -ForegroundColor Yellow "Skipping package sign because of one or more missing environment variables: 'SIGN_APP_ID', 'SIGN_APP_SECRET', 'SIGN_CERT_NAME', 'SIGN_TENANT', 'SIGN_TIMESTAMP_URI', 'SIGN_VAULT_URI'"
+            Write-Host ""
+        } else {
             _exec "& dotnet tool restore"
 
             $cmd = `
@@ -161,7 +225,7 @@ function __target__signpackages() {
             $msg = $msg.Replace($env:SIGN_TENANT, '[redacted]')
             $msg = $msg.Replace($env:SIGN_CERT_NAME, '[redacted]')
             _exec $cmd $msg
-    }
+        }
 }
 
 function __target__test32() {
