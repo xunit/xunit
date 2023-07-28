@@ -15,15 +15,15 @@ breadcrumb: Documentation
   release. In particular, save yourself a lot of grief by checking out
   the "Known issues" section. :)
 </p>
-<p>The packages from CI builds are available on MyGet.</p>
+<p>The packages from CI builds are available on feedz.io.</p>
 <ul>
   <li>
-    Gallery:
-    <code><a href="https://www.myget.org/gallery/xunit">https://www.myget.org/gallery/xunit</a></code>
+    Package list:
+    <code><a href="https://feedz.io/org/xunit/repository/xunit/search">https://feedz.io/org/xunit/repository/xunit/search</a></code>
   </li>
   <li>
     NuGet.config feed URL:
-    <code><a href="https://www.myget.org/F/xunit/api/v3/index.json">https://www.myget.org/F/xunit/api/v3/index.json</a></code>
+    <code><a href="https://f.feedz.io/xunit/xunit/nuget/index.json">https://f.feedz.io/xunit/xunit/nuget/index.json</a></code>
   </li>
 </ul>
 
@@ -31,7 +31,7 @@ breadcrumb: Documentation
 
 <ul>
   <li><a href="#v2-changes">Big changes from v2</a></li>
-  <li><a href="#myget-feed">Add nuget.config with MyGet feed URL</a></li>
+  <li><a href="#feed">Add nuget.config with CI package feed URL</a></li>
   <li><a href="#migrating-from-v2">Migrating a test project from v2 to v3</a></li>
   <li><a href="#creating-test-project">Creating a new v3 test project</a></li>
   <li><a href="#running-test-project">Running a v3 test project</a></li>
@@ -145,14 +145,13 @@ breadcrumb: Documentation
 </p>
 
 
-<h2 id="myget-feed">Add nuget.config with MyGet feed URL</h2>
+<h2 id="feed">Add nuget.config with CI package feed URL</h2>
 
 <p>
-  The CI builds are hosted on <a href="https://www.myget.org/gallery/xunit">the xUnit.net
-  MyGet gallery</a>. In order to download packages from this feed, you need to configure it
-  with a <code>nuget.config</code> file. Regardless of whether you're planning to upgrade
-  an existing project from v2 to v3, or start a new v3 project, you must take this step
-  first or else package restore of the v3 packages will fail.
+  The CI builds are hosted on <a href="https://feedz.io/org/xunit/repository/xunit/search">feedz.io</a>.
+  In order to download packages from this feed, you need to configure it with a <code>nuget.config</code>
+  file. Regardless of whether you're planning to upgrade an existing project from v2 to v3, or start a new
+  v3 project, you must take this step first or else package restore of the v3 packages will fail.
 </p>
 <p>
   In your solution folder, create a file named <code>nuget.config</code> and add the following
@@ -164,8 +163,8 @@ breadcrumb: Documentation
 <configuration>
   <packageSources>
     <clear />
-    <add key="myget-xunit" value="https://www.myget.org/F/xunit/api/v3/index.json" />
     <add key="nuget" value="https://api.nuget.org/v3/index.json" />
+    <add key="xunit-ci" value="https://f.feedz.io/xunit/xunit/nuget/index.json" />
   </packageSources>
 </configuration>
 {% endhighlight %}
@@ -175,7 +174,7 @@ breadcrumb: Documentation
 </em></p>
 <p>
   If you already have a <code>nuget.config</code> file, you can simply merge the
-  <code>&lt;add key="myget-xunit" ...&gt;</code> line into it.
+  <code>&lt;add key="xunit-ci" ...&gt;</code> line into it.
 </p>
 
 
