@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: "Build for PR"
+    name: "Build for PR (v2)"
     runs-on: windows-2022
     env:
       DOTNET_NOLOGO: true
