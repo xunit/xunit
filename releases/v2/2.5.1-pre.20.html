@@ -1,0 +1,29 @@
+---
+layout: default
+title: Release Notes for August 7, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: August 7, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.1 Pre-Release (build 20)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.3.0-pre.13"><code>1.3.0-pre.13</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.1-pre.10"><code>2.5.1-pre.10</code></a>.
+</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Using <code>[MemberData]</code> against a method with optional parameters (where you don't specify the values) is
+    not supported in v2. We have added a message alerting you to this, where previously we would just fail to find
+    a matching method.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1985">xunit/xunit#1985</a>
+  </li>
+</ul>

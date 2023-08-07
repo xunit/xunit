@@ -1,0 +1,33 @@
+---
+layout: default
+title: Release Notes for August 7, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: August 7, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xunit.runner.visualstudio 2.5.1 Pre-Release (build 10)
+</h2>
+
+<p>
+  This is co-released with core framework release v2
+  <a href="/releases/v2/2.5.1-pre.20"><code>2.5.1-pre.20</code></a>.
+</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    We have added the ability to pass configuration values via RunSettings (either via a RunSettings file, or via
+    the command line with <code>dotnet test</code>). See <a href="/docs/runsettings">the documentation</a> for how
+    to use this feature.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/378">xunit/visualstudio.xunit#378</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where sometimes you could not filter tests by <code>FullyQualifiedName</code>
+    and/or <code>DisplayName</code> (during discovery).
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/380">xunit/visualstudio.xunit#380</a>
+  </li>
+</ul>

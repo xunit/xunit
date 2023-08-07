@@ -1,0 +1,51 @@
+---
+layout: default
+title: Release Notes for August 7, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: August 7, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net Analyzers 1.3.0 Pre-Release (build 13)</h2>
+
+<p>
+  This is co-released with core framework release v2
+  <a href="/releases/v2/2.5.1-pre.20"><code>2.5.1-pre.20</code></a>.
+</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have added a fixer for <a href="/xunit.analyzers/rules/xUnit1029">xUnit1029</a> which removes the
+    <code>[Fact]</code> or <code>[Theory]</code> attribute from the local function.
+  </li>
+  <li>
+    We have introduced a new analyzer (<a href="/xunit.analyzers/rules/xUnit1030">xUnit1030</a>) that will
+    flag usage of <code>ConfigureAwait</code> on tasks as being problematic. Calling this on a task
+    inside a test method will cause the remainder of the test method to be run on a thread pool thread
+    rather than the original thread (which is used to limit the number of tests that run concurrently
+    in parallel).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2628">xunit/xunit#2628</a>
+  </li>
+  <li>
+    We have introduced a new analyzer (<a href="/xunit.analyzers/rules/xUnit1031">xUnit1031</a>) that will
+    flag usage of blocking task operations in a test method as being problematic. The operations that
+    are flagged include:
+    <ul>
+      <li><code>Task.GetAwaiter().GetResult()</code></li>
+      <li><code>Task.Wait()</code></li>
+      <li><code>Task.WaitAll()</code></li>
+      <li><code>Task.WaitAny()</code></li>
+      <li><code>Task<T>.GetAwaiter().GetResult()</code></li>
+      <li><code>Task<T>.Result</code></li>
+      <li><code>ValueTask.GetAwaiter().GetResult()</code></li>
+      <li><code>ValueTask<T>.GetAwaiter.GetResult()</code></li>
+      <li><code>ValueTask<T>.Result</code></li>
+    </ul>
+    Calling these inside a test method could cause performance issues and/or cause the test to become
+    deadlocked, due to the limited number of threads available for running tests in parallel.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1390">xunit/xunit#1390</a>
+  </li>
+</ul>
