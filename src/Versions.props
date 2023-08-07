@@ -5,7 +5,7 @@
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
     <ILRepackVersion>2.0.13</ILRepackVersion>
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
-    <MicrosoftNetCoreAppRefVersion>6.0.11</MicrosoftNetCoreAppRefVersion>
+    <MicrosoftNetCoreAppRefVersion>6.0.20</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>1.1.1</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
@@ -24,9 +24,9 @@
     <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
-    <XunitAnalyzersVersion>1.2.0</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.3.0-pre.13</XunitAnalyzersVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.5.0</XunitV2Version>
+    <XunitV2Version>2.5.1-pre.20</XunitV2Version>
   </PropertyGroup>
 
 </Project>

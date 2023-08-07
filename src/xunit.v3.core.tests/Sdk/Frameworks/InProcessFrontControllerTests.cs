@@ -98,8 +98,10 @@ public class InProcessFrontControllerTests
 				.Do(callInfo =>
 				{
 					var callback = callInfo.Arg<Func<_ITestCase, ValueTask<bool>>>();
+#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(validTestCase).GetAwaiter().GetResult();
 					callback(invalidTestCase).GetAwaiter().GetResult();
+#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
 				});
 			ValueTask<bool> frontControllerCallback(
 				_ITestCase testCase,
@@ -163,8 +165,10 @@ public class InProcessFrontControllerTests
 				.Do(callInfo =>
 				{
 					var callback = callInfo.Arg<Func<_ITestCase, ValueTask<bool>>>();
+#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(validTestCase).GetAwaiter().GetResult();
 					callback(invalidTestCase).GetAwaiter().GetResult();
+#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
 				});
 			frontController
 				.Executor
