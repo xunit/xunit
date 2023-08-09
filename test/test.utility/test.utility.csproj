@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSubstitute" Version="4.4.0" />
+    <PackageReference Include="NSubstitute" Version="[4.4.0]" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
 
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <PackageReference Include="FSharp.Compiler.Service" Version="9.0.1" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="[9.0.1]" />
     <PackageReference Include="FSharp.Core" Version="4.7.2" />
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj" />
   </ItemGroup>
