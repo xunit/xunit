@@ -1910,6 +1910,31 @@ public class CollectionAssertsTests
 				ex.Message
 			);
 		}
+
+		[Fact]
+		public static void StringAsCollection_Match()
+		{
+			var collection = "H";
+
+			var value = Assert.Single(collection);
+
+			Assert.Equal('H', value);
+		}
+
+		[Fact]
+		public static void StringAsCollection_NoMatch()
+		{
+			var collection = "Hello";
+
+			var ex = Record.Exception(() => Assert.Single(collection));
+
+			Assert.IsType<SingleException>(ex);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection contained 5 items" + Environment.NewLine +
+				"Collection: ['H', 'e', 'l', 'l', 'o']",
+				ex.Message
+			);
+		}
 	}
 
 	public class Single_Generic_WithPredicate
@@ -1977,6 +2002,32 @@ public class CollectionAssertsTests
 				"Expected:      (predicate expression)" + Environment.NewLine +
 				$"Collection:    [1, 2, 3, 4, 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
 				"Match indices: 3, 8",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void StringAsCollection_Match()
+		{
+			var collection = "H";
+
+			var value = Assert.Single(collection, c => c != 'Q');
+
+			Assert.Equal('H', value);
+		}
+
+		[Fact]
+		public static void StringAsCollection_NoMatch()
+		{
+			var collection = "H";
+
+			var ex = Record.Exception(() => Assert.Single(collection, c => c == 'Q'));
+
+			Assert.IsType<SingleException>(ex);
+			Assert.Equal(
+				"Assert.Single() Failure: The collection did not contain any matching items" + Environment.NewLine +
+				"Expected:   (predicate expression)" + Environment.NewLine +
+				"Collection: ['H']",
 				ex.Message
 			);
 		}
