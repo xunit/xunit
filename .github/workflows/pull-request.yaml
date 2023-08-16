@@ -24,15 +24,22 @@ jobs:
         uses: microsoft/setup-msbuild@v1
         if: matrix.os == 'windows-2022'
 
+      - name: Replace global.json
+        run: cp .github/workflows/.global.json global.json
+        shell: bash
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
             6.0.x
-            7.0.x
 
       - name: Get .NET information
         run: dotnet --info
+
+      - name: Get Mono information
+        run: mono --version
+        if: ${{ matrix.os != 'windows-2022' }}
 
       - name: "Build target: BuildAll"
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
