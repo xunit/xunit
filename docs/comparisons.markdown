@@ -13,7 +13,7 @@ breadcrumb: Documentation
 ## Attributes
 
 {: .table .smaller }
-| NUnit 3.x                           | MSTest 15.x           | xUnit.net 2.x                         | Comments |
+| NUnit 3.x                           | MSTest 15.x           | xUnit.net v2                          | Comments |
 | :---------------------------------- | :-------------------- | :------------------------------------ | :------- |
 | `[Test]`                            | `[TestMethod]`        | `[Fact]`                              | Marks a test method. |
 | `[TestFixture]`                     | `[TestClass]`         | *n/a*                                 | xUnit.net does not require an attribute for a test class; it looks for all test methods in all public (exported) classes in the assembly.
@@ -39,39 +39,42 @@ breadcrumb: Documentation
 
 ## Assertions
 
-NUnit uses a [Constraint Model](https://github.com/nunit/docs/wiki/Constraint-Model). All the assertions start with `Assert.That` followed by a constraint. In the table below, we compare NUnit constraints, MSTest asserts, and xUnit asserts.
+NUnit uses a [Constraint Model](https://github.com/nunit/docs/wiki/Constraint-Model). All the assertions start with `Assert.That` followed by a constraint. In the table below, we compare NUnit constraints, MSTest asserts, and xUnit.net asserts.
 
 {: .table .smaller }
-| NUnit 3.x (Constraint)      | MSTest 15.x           | xUnit.net 2.x      | Comments |
-| :------------------------- | :-------------------- | :----------------- | :------- |
-| `Is.EqualTo`               | `AreEqual`            | `Equal`            | MSTest and xUnit.net support generic versions of this method |
-| `Is.Not.EqualTo`           | `AreNotEqual`         | `NotEqual`         | MSTest and xUnit.net support generic versions of this method |
-| `Is.Not.SameAs`            | `AreNotSame`          | `NotSame`          | |
-| `Is.SameAs`                | `AreSame`             | `Same`             | |
-| `Does.Contain`             | `Contains`            | `Contains`         | |
-| `Does.Not.Contain`         | `DoesNotContain`      | `DoesNotContain`   | |
-| `Throws.Nothing`           | *n/a*                 | *n/a*              | Ensures that the code does not throw any exceptions. See [Note 5](#note5) |
-| *n/a*                      | `Fail`                | *n/a*              | xUnit.net alternative: `Assert.True(false, "message")` |
-| `Is.GreaterThan`           | *n/a*                 | *n/a*              | xUnit.net alternative: `Assert.True(x > y)` |
-| `Is.InRange`               | *n/a*                 | `InRange`          | Ensures that a value is in a given inclusive range |
-| `Is.AssignableFrom`        | *n/a*                 | `IsAssignableFrom` | |
-| `Is.Empty`                 | *n/a*                 | `Empty`            | |
-| `Is.False`                 | `IsFalse`             | `False`            | |
-| `Is.InstanceOf<T>`         | `IsInstanceOfType`    | `IsType<T>`        | |
-| `Is.NaN`                   | *n/a*                 | *n/a*              | xUnit.net alternative: `Assert.True(double.IsNaN(x))` |
-| `Is.Not.AssignableFrom<T>` | *n/a*                 | *n/a*              | xUnit.net alternative: `Assert.False(obj is Type)` |
-| `Is.Not.Empty`             | *n/a*                 | `NotEmpty`         | |
-| `Is.Not.InstanceOf<T>`     | `IsNotInstanceOfType` | `IsNotType<T>`      | |
-| `Is.Not.Null`              | `IsNotNull`           | `NotNull`          | |
-| `Is.Null`                  | `IsNull`              | `Null`             | |
-| `Is.True`                  | `IsTrue`              | `True`             | |
-| `Is.LessThan`              | *n/a*                 | *n/a*              | xUnit.net alternative: `Assert.True(x < y)` |
-| `Is.Not.InRange`           | *n/a*                 | `NotInRange`       | Ensures that a value is not in a given inclusive range |
-| `Throws.TypeOf<T>`         | *n/a*                 | `Throws<T>`         | Ensures that the code throws an exact exception |
+| NUnit 3.x (Constraint)     | MSTest 15.x           | xUnit.net v2          | Comments |
+| :------------------------- | :-------------------- | :-------------------- | :------- |
+| `Is.EqualTo`               | `AreEqual`            | `Equal`               | MSTest and xUnit.net support generic versions of this method |
+| `Is.Not.EqualTo`           | `AreNotEqual`         | `NotEqual`            | MSTest and xUnit.net support generic versions of this method |
+| `Is.Not.SameAs`            | `AreNotSame`          | `NotSame`             | |
+| `Is.SameAs`                | `AreSame`             | `Same`                | |
+| `Does.Contain`             | `Contains`            | `Contains`            | |
+| `Does.Not.Contain`         | `DoesNotContain`      | `DoesNotContain`      | |
+| `Throws.Nothing`           | *n/a*                 | *n/a*                 | Ensures that the code does not throw any exceptions. See [Note 5](#note5) |
+| *n/a*                      | `Fail`                | `Fail`                | `Assert.Fail` is new in v2 2.5. Prior versions can use: `Assert.True(false, "message")` |
+| `Is.GreaterThan`           | *n/a*                 | *n/a*                 | xUnit.net alternative: `Assert.True(x > y)` |
+| `Is.InRange`               | *n/a*                 | `InRange`             | Ensures that a value is in a given inclusive range |
+| `Is.AssignableFrom`        | *n/a*                 | `IsAssignableFrom`    | |
+| `Is.Empty`                 | *n/a*                 | `Empty`               | |
+| `Is.False`                 | `IsFalse`             | `False`               | |
+| `Is.InstanceOf<T>`         | `IsInstanceOfType`    | `IsType<T>`           | |
+| `Is.NaN`                   | *n/a*                 | *n/a*                 | xUnit.net alternative: `Assert.True(double.IsNaN(x))` |
+| `Is.Not.AssignableFrom<T>` | *n/a*                 | `IsNotAssignableFrom` | `Assert.IsNotAssignableFrom` is new in v2 2.5. Prior versions can use: `Assert.False(obj is Type)` |
+| `Is.Not.Empty`             | *n/a*                 | `NotEmpty`            | |
+| `Is.Not.InstanceOf<T>`     | `IsNotInstanceOfType` | `IsNotType<T>`        | |
+| `Is.Not.Null`              | `IsNotNull`           | `NotNull`             | |
+| `Is.Null`                  | `IsNull`              | `Null`                | |
+| `Is.True`                  | `IsTrue`              | `True`                | |
+| `Is.LessThan`              | *n/a*                 | *n/a*                 | xUnit.net alternative: `Assert.True(x < y)` |
+| `Is.Not.InRange`           | *n/a*                 | `NotInRange`          | Ensures that a value is not in a given inclusive range |
+| `Throws.TypeOf<T>`         | *n/a*                 | `Throws<T>`           | Ensures that the code throws an exact exception |
+| *n/a*                      | *n/a*                 | `Equivalent`          | New in v2 2.5. See [Note 6](#note6) |
 
 ## Attribute Notes
 
 <a name="note5"></a>**Note 5:** Older versions of xUnit.net provided an `Assert.DoesNotThrow` which was later removed. It revealed itself to be an anti-pattern of sorts; every line of code is itself an implicit "does not throw" check, since any thrown exceptions would cause the test to fail. Simply "not throwing" is not generally a sufficient validation, so it would be expected that additional assertions would exist.
+
+<a name="note6"></A>**Note 6:** `Assert.Equivalent` differs from `Assert.Equal` is the "level of equality" that is expected from the two values. For example, `Assert.Equal` requires that both values are the same (or a compatible) type, whereas `Assert.Equivalent` will simply compare all the public fields and properties of the two values to ensure they contain the same values, even if they aren't the same type. Equivalence comes with a "strictness" switch which allows the developer to say whether the expected value contains the complete set of values that the actual value should contain ('strict') vs. only a subset of values ('not strict'). When strict comparisons are done, an "extra" properties on the actual object vs. the expected object cause failure, whereas they are ignored for non-strict comparisons.
 
 ## Sources
 
