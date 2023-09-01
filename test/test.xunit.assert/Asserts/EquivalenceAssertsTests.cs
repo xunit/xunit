@@ -1497,6 +1497,29 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class DepthLimit
+	{
+		[Fact]
+		public void PreventArbitrarilyLargeDepthObjectTree()
+		{
+			var expected = new InfiniteRecursionClass();
+			var actual = new InfiniteRecursionClass();
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Exceeded the maximum depth 50 with 'Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent'; check for infinite recursion or circular references",
+				ex.Message
+			);
+		}
+
+		class InfiniteRecursionClass
+		{
+			public InfiniteRecursionClass Parent => new();
+		}
+	}
+
 	public class Indexers
 	{
 		[Fact]
