@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Xunit;
 using Xunit.Sdk;
@@ -49,85 +50,6 @@ public class EquivalenceAssertsTests
 			object? actual)
 		{
 			Assert.Equivalent(expected, actual);
-		}
-
-		[Fact]
-		public void DateTime_Success()
-		{
-			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
-			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
-
-			Assert.Equivalent(expected, actual);
-		}
-
-		[Fact]
-		public void DateTimeOffset_Success()
-		{
-			var expected = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
-			var actual = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
-
-			Assert.Equivalent(expected, actual);
-		}
-
-		[Fact]
-		public void StringToDateTime_Success()
-		{
-			var expected = "2022-12-01T01:03:01.0000000";
-			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
-
-			Assert.Equivalent(expected, actual);
-		}
-
-		[Fact]
-		public void DateTime_Failure()
-		{
-			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
-			var actual = new DateTime(2011, 9, 13, 18, 22, 0);
-
-			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
-
-			Assert.IsType<EquivalentException>(ex);
-			Assert.Equal(
-				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
-				"Actual:   2011-09-13T18:22:00.0000000",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void DateTimeOffset_Failure()
-		{
-			var expected = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
-			var actual = new DateTimeOffset(2011, 9, 13, 18, 22, 0, TimeSpan.Zero);
-
-			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
-
-			Assert.IsType<EquivalentException>(ex);
-			Assert.Equal(
-				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: 2022-12-01T01:03:01.0000000+00:00" + Environment.NewLine +
-				"Actual:   2011-09-13T18:22:00.0000000+00:00",
-				ex.Message
-			);
-		}
-
-		[Fact]
-		public void DateTimeToString_Failure()
-		{
-			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
-			var actual = "2022-12-01T01:03:01.0000000";
-
-			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
-
-			Assert.IsType<EquivalentException>(ex);
-			Assert.Equal(
-				"Assert.Equivalent() Failure" + Environment.NewLine +
-				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
-				"Actual:   \"2022-12-01T01:03:01.0000000\"",
-				ex.Message
-			);
-			Assert.IsType<ArgumentException>(ex.InnerException);  // Thrown by DateTime.CompareTo
 		}
 
 		[Fact]
@@ -1467,6 +1389,148 @@ public class EquivalenceAssertsTests
 				"In:       [4, 1]",
 				ex.Message
 			);
+		}
+	}
+
+	public class SpecialCases
+	{
+		// DateTime
+
+		[Fact]
+		public void DateTime_Success()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DateTime_Failure()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = new DateTime(2011, 9, 13, 18, 22, 0);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
+				"Actual:   2011-09-13T18:22:00.0000000",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void DateTimeToString_Failure()
+		{
+			var expected = new DateTime(2022, 12, 1, 1, 3, 1);
+			var actual = "2022-12-01T01:03:01.0000000";
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000" + Environment.NewLine +
+				"Actual:   \"2022-12-01T01:03:01.0000000\"",
+				ex.Message
+			);
+			Assert.IsType<ArgumentException>(ex.InnerException);  // Thrown by DateTime.CompareTo
+		}
+
+		[Fact]
+		public void StringToDateTime_Success()
+		{
+			var expected = "2022-12-01T01:03:01.0000000";
+			var actual = new DateTime(2022, 12, 1, 1, 3, 1);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		// DateTimeOffset
+
+		[Fact]
+		public void DateTimeOffset_Success()
+		{
+			var expected = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
+			var actual = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DateTimeOffset_Failure()
+		{
+			var expected = new DateTimeOffset(2022, 12, 1, 1, 3, 1, TimeSpan.Zero);
+			var actual = new DateTimeOffset(2011, 9, 13, 18, 22, 0, TimeSpan.Zero);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 2022-12-01T01:03:01.0000000+00:00" + Environment.NewLine +
+				"Actual:   2011-09-13T18:22:00.0000000+00:00",
+				ex.Message
+			);
+		}
+
+		// DirectoryInfo
+
+		[Fact]
+		public void DirectoryInfo_Success()
+		{
+			var assemblyPath = Path.GetDirectoryName(typeof(SpecialCases).Assembly.Location);
+			Assert.NotNull(assemblyPath);
+
+			var expected = new DirectoryInfo(assemblyPath);
+			var actual = new DirectoryInfo(assemblyPath);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void DirectoryInfo_Failure()
+		{
+			var assemblyPath = Path.GetDirectoryName(typeof(SpecialCases).Assembly.Location);
+			Assert.NotNull(assemblyPath);
+			var assemblyParentPath = Path.GetDirectoryName(assemblyPath);
+			Assert.NotNull(assemblyParentPath);
+			Assert.NotEqual(assemblyPath, assemblyParentPath);
+
+			var expected = new FileInfo(assemblyPath);
+			var actual = new FileInfo(assemblyParentPath);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.StartsWith("Assert.Equivalent() Failure: Mismatched value on member 'FullName'" + Environment.NewLine, ex.Message);
+		}
+
+		// FileInfo
+
+		[Fact]
+		public void FileInfo_Success()
+		{
+			var assembly = typeof(SpecialCases).Assembly.Location;
+			var expected = new FileInfo(assembly);
+			var actual = new FileInfo(assembly);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void FileInfo_Failure()
+		{
+			var expected = new FileInfo(typeof(SpecialCases).Assembly.Location);
+			var actual = new FileInfo(typeof(Assert).Assembly.Location);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.StartsWith("Assert.Equivalent() Failure: Mismatched value on member 'FullName'" + Environment.NewLine, ex.Message);
 		}
 	}
 
