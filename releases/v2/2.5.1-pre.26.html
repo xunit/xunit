@@ -1,0 +1,59 @@
+---
+layout: default
+title: Release Notes for September 2, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 2, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.1 Pre-Release (build 26)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.3.0-pre.19"><code>1.3.0-pre.19</code></a> and
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.1-pre.11"><code>2.5.1-pre.11</code></a>.
+</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with improper disposal of enumerators by <code>CollectionTracker</code>.
+    The collection tracker was attempting to use its enumerator after it had been disposed, which manifested
+    in this particular case as a stray <code>NullReferenceException</code> with <code>Assert.Single</code>
+    using a string of 5 characters of fewer, but in reality caused unexpected behavior depending on the
+    specific enumerator implementation. This could impact any assertion that inspected a collection.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2762">xunit/xunit#2762</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>FileInfo</code> and <code>DirectoryInfo</code> were
+    causing a stack overflow in <code>Assert.Equivalent</code>, because they create an endless loop of objects
+    in their hierarchy (through the <code>Root</code> property of <code>DirectoryInfo</code>). There were
+    two fixes added:
+    <ol>
+      <li>
+        We now set a maximum object traversal depth of 50, which is a number much higher than we
+        assume anybody would be realistically testing against. If you exceed this, it throws an exception
+        which tells you the path it followed to get to level 50, and suggests that you might have an
+        infinite loop in your object hierarchy. This should prevent us from crashing with a stack overflow
+        if there are any future situations like this (whether they come from built-in types or your own
+        custom classes).
+      </li>
+      <li>
+        We special cased <code>FileSystemInfo</code>, the base class for <code>FileInfo</code> and
+        <code>DirectoryInfo</code>. When two of these are compared against each other, they only compare
+        the value of the <code>FullName</code> property. Analysis shows that every other property is in
+        some way derived from the item on disk (whether it's a file or a directory), so comparing the
+        full names should be a good test of equivalency.
+      </li>
+    </ol>
+    It's important to note that these fixes only apply to <code>Assert.Equivalent</code>. If you try to
+    compare two instances of these classes with <code>Assert.Equal</code>, they will show up as not equal,
+    because they are reference types which don't implement any of the equality interfaces in .NET that
+    you would normally expect/need when comparing equality.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2767">xunit/xunit#2767</a>
+  </li>
+</ul>

@@ -1,0 +1,26 @@
+---
+layout: default
+title: Release Notes for September 2, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 2, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>xUnit.net Analyzers 1.3.0 Pre-Release (build 19)</h2>
+
+<p>
+  This is co-released with core framework release v2
+  <a href="/releases/v2/2.5.1-pre.26"><code>2.5.1-pre.26</code></a>.
+</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have introduced a new analyzer (<a href="/xunit.analyzers/rules/xUnit1032">xUnit1032</a>) that will
+    flag test classes embedded inside a generic class. As there is no way for xUnit.net to know how to close
+    the outer generic class to create instances of the inner test class, this is an error.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2528">xunit/xunit#2528</a>
+  </li>
+</ul>
