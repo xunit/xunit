@@ -1477,7 +1477,7 @@ public class EquivalenceAssertsTests
 			);
 		}
 
-		// DirectoryInfo
+		// FileSystemInfo-derived types
 
 		[Fact]
 		public void DirectoryInfo_Success()
@@ -1509,8 +1509,6 @@ public class EquivalenceAssertsTests
 			Assert.StartsWith("Assert.Equivalent() Failure: Mismatched value on member 'FullName'" + Environment.NewLine, ex.Message);
 		}
 
-		// FileInfo
-
 		[Fact]
 		public void FileInfo_Success()
 		{
@@ -1531,6 +1529,42 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.StartsWith("Assert.Equivalent() Failure: Mismatched value on member 'FullName'" + Environment.NewLine, ex.Message);
+		}
+
+		[Fact]
+		public void FileInfoToDirectoryInfo_Failure_TopLevel()
+		{
+			var location = typeof(SpecialCases).Assembly.Location;
+			var expected = new FileInfo(location);
+			var actual = new DirectoryInfo(location);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Types did not match" + Environment.NewLine +
+				"Expected type: System.IO.FileInfo" + Environment.NewLine +
+				"Actual type:   System.IO.DirectoryInfo",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public void FileInfoToDirectoryInfo_Failure_Embedded()
+		{
+			var location = typeof(SpecialCases).Assembly.Location;
+			var expected = new { Info = new FileInfo(location) };
+			var actual = new { Info = new DirectoryInfo(location) };
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Types did not match in member 'Info'" + Environment.NewLine +
+				"Expected type: System.IO.FileInfo" + Environment.NewLine +
+				"Actual type:   System.IO.DirectoryInfo",
+				ex.Message
+			);
 		}
 	}
 
