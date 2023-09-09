@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using Xunit.Sdk;
+using SerializationHelper = Xunit.Sdk.SerializationHelper;
 
 public class TestCaseSerializerTests
 {

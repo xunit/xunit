@@ -3,10 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 using Xunit.Serialization;
 
+#if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Serializes and de-serializes objects. Serialization of objects is typically limited to supporting
@@ -14,7 +17,7 @@ namespace Xunit.Sdk
     /// Serializing values with this is not guaranteed to be cross-compatible and should not be used for
     /// anything durable.
     /// </summary>
-    static class SerializationHelper
+    public static class SerializationHelper
     {
         static readonly ConcurrentDictionary<Type, string> typeToTypeNameMap = new ConcurrentDictionary<Type, string>();
 
@@ -37,15 +40,7 @@ namespace Xunit.Sdk
             if (deserializedType == null)
                 throw new ArgumentException($"Could not load type '{pieces[0]}' from serialization value '{serializedValue}'", nameof(serializedValue));
 
-            if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
-                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(serializedValue));
-
-            var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
-            var arraySerializer = obj as XunitSerializationInfo.ArraySerializer;
-            if (arraySerializer != null)
-                obj = arraySerializer.ArrayData;
-
-            return (T)obj;
+            return (T)XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
         }
 
         /// <summary>
@@ -162,10 +157,16 @@ namespace Xunit.Sdk
             return assembly.GetType(typeName);
         }
 
+#if XUNIT_FRAMEWORK
         /// <summary>
-        /// Gets an assembly qualified type name for serialization, with special dispensation for types which
-        /// originate in the execution assembly.
+        /// Gets an assembly qualified type name for serialization, with special handling for types which
+        /// live in assembly decorated by <see cref="PlatformSpecificAssemblyAttribute"/>.
         /// </summary>
+#else
+        /// <summary>
+        /// Gets an assembly qualified type name for serialization.
+        /// </summary>
+#endif
         public static string GetTypeNameForSerialization(Type type)
         {
             // Use the abstract Type instead of concretes like RuntimeType
@@ -220,9 +221,11 @@ namespace Xunit.Sdk
             }
         }
 
-        /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
+        /// <summary>
+        /// Determines whether the given <paramref name="value"/> is serializable with <see cref="Serialize"/>.
+        /// </summary>
         /// <param name="value">The object to test for serializability.</param>
-        /// <returns>true if the object can be serialized; otherwise, false.</returns>
+        /// <returns>Returns <c>true</c> if the object can be serialized; <c>false</c>, otherwise.</returns>
         public static bool IsSerializable(object value)
         {
             return XunitSerializationInfo.CanSerializeObject(value);
@@ -238,16 +241,7 @@ namespace Xunit.Sdk
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var array = value as object[];
-            if (array != null)
-                value = new XunitSerializationInfo.ArraySerializer(array);
-
-            var serializable = value as IXunitSerializable;
-            if (serializable == null)
-                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
-
-            var serializationInfo = new XunitSerializationInfo(serializable);
-            return $"{GetTypeNameForSerialization(value.GetType())}:{serializationInfo.ToSerializedString()}";
+            return $"{GetTypeNameForSerialization(value.GetType())}:{XunitSerializationInfo.Serialize(value)}";
         }
 
         static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
@@ -290,16 +284,6 @@ namespace Xunit.Sdk
             return results;
         }
 
-        /// <summary>
-        /// Retrieves a substring from the string, with whitespace trimmed on both ends.
-        /// </summary>
-        /// <param name="str">The string.</param>
-        /// <param name="startIndex">The starting index.</param>
-        /// <param name="length">The length.</param>
-        /// <returns>
-        /// A substring starting no earlier than startIndex and ending no later
-        /// than startIndex + length.
-        /// </returns>
         static string SubstringTrim(string str, int startIndex, int length)
         {
             int endIndex = startIndex + length;

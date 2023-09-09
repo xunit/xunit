@@ -4,10 +4,16 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Xunit.Abstractions;
+
+#if XUNIT_FRAMEWORK
 using Xunit.Sdk;
+#endif
+
+#if !NETFRAMEWORK
+using System.Numerics;
+#endif
 
 #if !NET35
-using System.Numerics;
 using System.Reflection;
 #endif
 

@@ -13,9 +13,7 @@
     <Compile Include="..\..\src\common\Guard.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\Json.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\NewReflectionExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\..\src\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
-    <Compile Include="..\..\src\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\AssemblyResolution\**\*.cs" LinkBase="Common\AssemblyResolution" />
     <Compile Include="..\..\src\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Common\RunnerUtility" />
   </ItemGroup>

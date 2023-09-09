@@ -7,6 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using IAttributeInfo = Xunit.Abstractions.IAttributeInfo;
+using SerializationHelper = Xunit.Sdk.SerializationHelper;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 

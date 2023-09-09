@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using SerializationHelper = Xunit.Sdk.SerializationHelper;
 
 public class SerializationTests
 {
