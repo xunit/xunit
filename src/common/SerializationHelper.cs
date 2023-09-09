@@ -9,7 +9,10 @@ using Xunit.Serialization;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// Serializes and de-serializes objects
+    /// Serializes and de-serializes objects. Serialization of objects is typically limited to supporting
+    /// the VSTest-based test runners (Visual Studio Test Explorer, Visual Studio Code, dotnet test, etc.).
+    /// Serializing values with this is not guaranteed to be cross-compatible and should not be used for
+    /// anything durable.
     /// </summary>
     static class SerializationHelper
     {
@@ -43,36 +46,6 @@ namespace Xunit.Sdk
                 obj = arraySerializer.ArrayData;
 
             return (T)obj;
-        }
-
-        /// <summary>
-        /// Serializes an object.
-        /// </summary>
-        /// <param name="value">The value to serialize</param>
-        /// <returns>The serialized value</returns>
-        public static string Serialize(object value)
-        {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            var array = value as object[];
-            if (array != null)
-                value = new XunitSerializationInfo.ArraySerializer(array);
-
-            var serializable = value as IXunitSerializable;
-            if (serializable == null)
-                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
-
-            var serializationInfo = new XunitSerializationInfo(serializable);
-            return $"{GetTypeNameForSerialization(value.GetType())}:{serializationInfo.ToSerializedString()}";
-        }
-
-        /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
-        /// <param name="value">The object to test for serializability.</param>
-        /// <returns>true if the object can be serialized; otherwise, false.</returns>
-        public static bool IsSerializable(object value)
-        {
-            return XunitSerializationInfo.CanSerializeObject(value);
         }
 
         /// <summary>
@@ -247,27 +220,34 @@ namespace Xunit.Sdk
             }
         }
 
-        /// <summary>
-        /// Retrieves a substring from the string, with whitespace trimmed on both ends.
-        /// </summary>
-        /// <param name="str">The string.</param>
-        /// <param name="startIndex">The starting index.</param>
-        /// <param name="length">The length.</param>
-        /// <returns>
-        /// A substring starting no earlier than startIndex and ending no later
-        /// than startIndex + length.
-        /// </returns>
-        static string SubstringTrim(string str, int startIndex, int length)
+        /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
+        /// <param name="value">The object to test for serializability.</param>
+        /// <returns>true if the object can be serialized; otherwise, false.</returns>
+        public static bool IsSerializable(object value)
         {
-            int endIndex = startIndex + length;
+            return XunitSerializationInfo.CanSerializeObject(value);
+        }
 
-            while (startIndex < endIndex && char.IsWhiteSpace(str[startIndex]))
-                startIndex++;
+        /// <summary>
+        /// Serializes an object.
+        /// </summary>
+        /// <param name="value">The value to serialize</param>
+        /// <returns>The serialized value</returns>
+        public static string Serialize(object value)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
 
-            while (endIndex > startIndex && char.IsWhiteSpace(str[endIndex - 1]))
-                endIndex--;
+            var array = value as object[];
+            if (array != null)
+                value = new XunitSerializationInfo.ArraySerializer(array);
 
-            return str.Substring(startIndex, endIndex - startIndex);
+            var serializable = value as IXunitSerializable;
+            if (serializable == null)
+                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
+
+            var serializationInfo = new XunitSerializationInfo(serializable);
+            return $"{GetTypeNameForSerialization(value.GetType())}:{serializationInfo.ToSerializedString()}";
         }
 
         static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
@@ -308,6 +288,29 @@ namespace Xunit.Sdk
             }
 
             return results;
+        }
+
+        /// <summary>
+        /// Retrieves a substring from the string, with whitespace trimmed on both ends.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <param name="startIndex">The starting index.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>
+        /// A substring starting no earlier than startIndex and ending no later
+        /// than startIndex + length.
+        /// </returns>
+        static string SubstringTrim(string str, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+
+            while (startIndex < endIndex && char.IsWhiteSpace(str[startIndex]))
+                startIndex++;
+
+            while (endIndex > startIndex && char.IsWhiteSpace(str[endIndex - 1]))
+                endIndex--;
+
+            return str.Substring(startIndex, endIndex - startIndex);
         }
     }
 }

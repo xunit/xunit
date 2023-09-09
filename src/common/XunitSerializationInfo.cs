@@ -113,65 +113,41 @@ namespace Xunit.Serialization
             data[key] = new XunitSerializationTriple(key, value, type);
         }
 
-        /// <inheritdoc/>
-        public T GetValue<T>(string key)
+        internal static bool CanSerializeObject(object value)
         {
-            return (T)GetValue(key, typeof(T));
-        }
+            if (value == null)
+                return true;
 
-        /// <inheritdoc/>
-        public object GetValue(string key, Type type)
-        {
-            XunitSerializationTriple val;
+            var valueType = value.GetType();
 
-            if (data.TryGetValue(key, out val))
-                return val.Value;
+            if (valueType.IsArray)
+            {
+                var vector = value as object[];
+                if (vector != null)
+                {
+                    // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
+                    foreach (object obj in vector)
+                        if (!CanSerializeObject(obj))
+                            return false;
+                }
+                else
+                {
+                    foreach (object obj in ((Array)value))
+                        if (!CanSerializeObject(obj))
+                            return false;
+                }
+                return true;
+            }
 
-            if (type.IsValueType())
-                return Activator.CreateInstance(type);
+            foreach (Type supportedType in supportedSerializationTypes)
+                if (supportedType.IsAssignableFrom(valueType))
+                    return true;
 
-            return null;
-        }
+            Type typeToCheck = valueType;
+            if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
+                return typeToCheck.IsFromLocalAssembly();
 
-        /// <summary>
-        /// Returns BASE64 encoded string that represents the entirety of the data.
-        /// </summary>
-        public string ToSerializedString()
-        {
-            return ToBase64(string.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
-        }
-
-        /// <summary>
-        /// Returns a triple for a key/value pair of data in a complex object
-        /// </summary>
-        /// <param name="triple">The triple to be serialized</param>
-        /// <returns>The serialized version of the triple</returns>
-        public static string SerializeTriple(XunitSerializationTriple triple)
-        {
-            var serializedType = SerializationHelper.GetTypeNameForSerialization(triple.Type);
-            var serializedValue = Serialize(triple.Value);
-            // Leaving off the colon is how we indicate null-ness
-            if (serializedValue == null)
-                return $"{triple.Key}:{serializedType}";
-
-            return $"{triple.Key}:{serializedType}:{serializedValue}";
-        }
-
-        /// <summary>
-        /// Returns the triple values out of a serialized triple.
-        /// </summary>
-        /// <param name="value">The serialized triple</param>
-        /// <returns>The de-serialized triple</returns>
-        public static XunitSerializationTriple DeserializeTriple(string value)
-        {
-            var pieces = value.Split(new[] { ':' }, 3);
-            if (pieces.Length < 2)
-                throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
-
-            var pieceType = SerializationHelper.GetType(pieces[1]);
-            var deserializedValue = pieces.Length == 3 ? Deserialize(pieceType, pieces[2]) : null;
-
-            return new XunitSerializationTriple(pieces[0], deserializedValue, pieceType);
+            return false;
         }
 
         /// <summary>
@@ -310,6 +286,49 @@ namespace Xunit.Serialization
         }
 
         /// <summary>
+        /// Returns the triple values out of a serialized triple.
+        /// </summary>
+        /// <param name="value">The serialized triple</param>
+        /// <returns>The de-serialized triple</returns>
+        public static XunitSerializationTriple DeserializeTriple(string value)
+        {
+            var pieces = value.Split(new[] { ':' }, 3);
+            if (pieces.Length < 2)
+                throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
+
+            var pieceType = SerializationHelper.GetType(pieces[1]);
+            var deserializedValue = pieces.Length == 3 ? Deserialize(pieceType, pieces[2]) : null;
+
+            return new XunitSerializationTriple(pieces[0], deserializedValue, pieceType);
+        }
+
+        static string FromBase64(string serializedValue)
+        {
+            var bytes = Convert.FromBase64String(serializedValue);
+            return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+        }
+
+        /// <inheritdoc/>
+        public T GetValue<T>(string key)
+        {
+            return (T)GetValue(key, typeof(T));
+        }
+
+        /// <inheritdoc/>
+        public object GetValue(string key, Type type)
+        {
+            XunitSerializationTriple val;
+
+            if (data.TryGetValue(key, out val))
+                return val.Value;
+
+            if (type.IsValueType())
+                return Activator.CreateInstance(type);
+
+            return null;
+        }
+
+        /// <summary>
         /// Serializes an object.
         /// </summary>
         /// <param name="value">The value to be serialized</param>
@@ -442,53 +461,34 @@ namespace Xunit.Serialization
             throw new ArgumentException($"We don't know how to serialize type {valueType.FullName}", nameof(value));
         }
 
-        internal static bool CanSerializeObject(object value)
+        /// <summary>
+        /// Returns a triple for a key/value pair of data in a complex object
+        /// </summary>
+        /// <param name="triple">The triple to be serialized</param>
+        /// <returns>The serialized version of the triple</returns>
+        public static string SerializeTriple(XunitSerializationTriple triple)
         {
-            if (value == null)
-                return true;
+            var serializedType = SerializationHelper.GetTypeNameForSerialization(triple.Type);
+            var serializedValue = Serialize(triple.Value);
+            // Leaving off the colon is how we indicate null-ness
+            if (serializedValue == null)
+                return $"{triple.Key}:{serializedType}";
 
-            var valueType = value.GetType();
-
-            if (valueType.IsArray)
-            {
-                var vector = value as object[];
-                if (vector != null)
-                {
-                    // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
-                    foreach (object obj in vector)
-                        if (!CanSerializeObject(obj))
-                            return false;
-                }
-                else
-                {
-                    foreach (object obj in ((Array)value))
-                        if (!CanSerializeObject(obj))
-                            return false;
-                }
-                return true;
-            }
-
-            foreach (Type supportedType in supportedSerializationTypes)
-                if (supportedType.IsAssignableFrom(valueType))
-                    return true;
-
-            Type typeToCheck = valueType;
-            if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
-                return typeToCheck.IsFromLocalAssembly();
-
-            return false;
-        }
-
-        static string FromBase64(string serializedValue)
-        {
-            var bytes = Convert.FromBase64String(serializedValue);
-            return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+            return $"{triple.Key}:{serializedType}:{serializedValue}";
         }
 
         static string ToBase64(string value)
         {
             var bytes = Encoding.UTF8.GetBytes(value);
             return Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>
+        /// Returns BASE64 encoded string that represents the entirety of the data.
+        /// </summary>
+        public string ToSerializedString()
+        {
+            return ToBase64(string.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
         }
 
         internal class ArraySerializer : IXunitSerializable
