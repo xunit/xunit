@@ -24,7 +24,7 @@ breadcrumb: Release Notes
   <li>
     We have made <code>SerializationHelper</code> public. This class can be used to perform the serialization
     that we normally use in <code>xunit.runner.visualstudio</code>. This code is shared on both sides of the
-    system, so it's available as <code>Xunit.SerializationHelper</code> in <code>xunit.runner.utility</code>
+    system, so it's available as <code>Xunit.SerializationHelper</code> in <code>xunit.runner.utility.*</code>
     for runner authors, and <code>Xunit.Sdk.SerializationHelper</code> in <code>xunit.execution.*</code> for
     extensibility authors. Note that the code is slightly different in that the execution version supports
     assemblies marked with <code>PlatformSpecificAssemblyAttribute</code> to transform their assembly
