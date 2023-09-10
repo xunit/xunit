@@ -1,0 +1,83 @@
+---
+layout: default
+title: Release Notes for September 9, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 9, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.1 Pre-Release (build 33)
+</h2>
+
+<p>
+  This is co-released with
+  <code>xunit.runner.visualstudio</code> version <a href="/releases/visualstudio/2.5.1-pre.15"><code>2.5.1-pre.15</code></a>.
+  There have been no changes to the analyzers, so this version continues to reference
+  <code>xunit.analyzers</code> version <a href="/releases/analyzers/1.3.0-pre.19.html"><code>1.3.0-pre.19</code></a>.
+</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    We have made <code>SerializationHelper</code> public. This class can be used to perform the serialization
+    that we normally use in <code>xunit.runner.visualstudio</code>. This code is shared on both sides of the
+    system, so it's available as <code>Xunit.SerializationHelper</code> in <code>xunit.runner.utility</code>
+    for runner authors, and <code>Xunit.Sdk.SerializationHelper</code> in <code>xunit.execution.*</code> for
+    extensibility authors. Note that the code is slightly different in that the execution version supports
+    assemblies marked with <code>PlatformSpecificAssemblyAttribute</code> to transform their assembly
+    names in types to include the <code>{Platform}</code> tag as appropriate. (This is behavior that only
+    applies to the execution side, and only for v2 tests.) This class can serialize any type that is supported
+    by xUnit.net's built-in serialization, which includes:
+    <ul>
+      <li><code>char</code></li>
+      <li><code>string</code></li>
+      <li><code>byte</code> and <code>sbyte</code></li>
+      <li><code>short</code> and <code>ushort</code></li>
+      <li><code>int</code> and <code>uint</code></li>
+      <li><code>long</code> and <code>ulong</code></li>
+      <li><code>float</code> and <code>double</code></li>
+      <li><code>decimal</code></li>
+      <li><code>bool</code></li>
+      <li><code>DateTime</code>, <code>DateTimeOffset</code>, and <code>TimeSpan</code></li>
+      <li><code>BigInteger</code> (.NET Core only)</li>
+      <li><code>Type</code></li>
+      <li>Enums (not in the GAC)</li>
+      <li>Types which implement <code>IXunitSerializable</code></li>
+      <li>Arrays which contain values of supported types</li>
+    </ul>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2770">xunit/xunit#2770</a>
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    Added an overload of <code>Assert.RaisesAny</code> and <code>Assert.RaisesAnyAsync</code> to support
+    event handlers which return raw <code>EventArgs</code>. This overload is non-generic (the generic overloads
+    are still used to obtain specific event data types). The need for this overload comes from the fact
+    that the delegate types for <code>EventHandler</code> and <code>EventHandler&lt;T&gt;</code> are not
+    compatible, so a non-generic version was required. These are the <code>Any</code> variants because they
+    support events which return <code>EventArgs</code> or any type that is derived from it; if you want
+    strong typing, you should follow up the <code>Assert.RaisesAny</code> or <code>Assert.RaisesAnyAsync</code>
+    with an assertion like <code>Assert.IsType</code> for the specific type you want to verify.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2773">xunit/xunit#2773</a>
+  </li>
+  <li>
+    Updated the <code>xunit.assert.source</code> NuGet package to include a <code>.editorconfig</code> file
+    that marks all files in the package as "auto-generated" so that they will be skipped for source analysis.
+    Previously, they would end up running against the analyzer rules for the importing project, and frequently
+    run afoul of things like not matching the desired coding style and formatting rules.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>Assert.Equivalent</code> when comparing two values
+    which derive from <code>FileSystemInfo</code> but weren't the same concrete type. This comparison now
+    just outright fails for mismatched types.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>AssertHelper</code> when imported via <code>xunit.assert.source</code>
+    with .NET Standard 1.2 - 1.6 (complaining about the unavailability of the <code>AppDomain</code> type).
+  </li>
+</ul>
