@@ -36,13 +36,6 @@ breadcrumb: Documentation
   when calling <code>dotnet test</code>.
 </p>
 
-<p><em>
-  For more information on using <code>.RunSettings</code> files, please see the
-  <a href="https://learn.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file">Visual Studio documentation</a>.
-  For more information on using command line switches for RunSettings with <code>dotnet test</code>, please see the
-  <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test">dotnet test documentation</a>.
-</em></p>
-
 <p class="note">
   RunSettings are expressed as XML, and XML element names are case-sensitive. Please carefully verify that you are using
   the correct casing for the XML element names. This also applies to the command line switches for <code>dotnet test</code>,
@@ -65,10 +58,10 @@ breadcrumb: Documentation
 </RunSettings>
 {% endhighlight %}
 
-<p>
-  The link above will explain how you can use this <code>.RunSettings</code> file in various contexts, including in Test Explorer
-  inside Visual Studio, from the <code>dotnet test</code> command line, and from the <code>vstest.console.exe</code> command line.
-</p>
+<p><em>
+  For more information on using <code>.RunSettings</code> files, please see the
+  <a href="https://learn.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file">Visual Studio documentation</a>.
+</em></p>
 
 <h2 id="switches">Format of the <code>dotnet test</code> command line switches</h2>
 
@@ -80,6 +73,11 @@ breadcrumb: Documentation
 <pre>
   dotnet test path/to/myproject -- xUnit.AppDomain=denied xUnit.ParallelizeTestCollections=false
 </pre>
+
+<p><em>
+  For more information on using command line switches for RunSettings with <code>dotnet test</code>, please see the
+  <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test">dotnet test documentation</a>.
+</em></p>
 
 <h2 id="items">Supported configuration items</h2>
 
