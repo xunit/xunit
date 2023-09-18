@@ -1,0 +1,85 @@
+---
+layout: default
+title: Release Notes for September 17, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 17, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, 1.3.0!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.5.1 (<a href="/releases/v2/2.5.1">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.3.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.5.1 (<a href="/releases/visualstudio/2.5.1">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 months since the release of <a href="1.2.0">1.2.0 RTM</a>.</p>
+
+<p>
+  This update includes three new analyzers, an update to an existing analyzer (to better support
+  extensibility authors), and a new fixer.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.2.0 to 1.3.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have updated <a href="/xunit.analyzers/rules/xUnit1028">xUnit1028</a> to only trigger when the user is
+    has provided an invalid test method return type with a test method decorated with <code>[Fact]</code> or
+    <code>[Theory]</code>. Since third party libraries may allow other returned types, they will no longer
+    trigger this warning. (Third party extensions which provide their own analyzers should consider having
+    a similar rule if you change the valid return types for test methods, including the case where you
+    provide <code>FactAttribute</code> overrides but still have the same return type limitations.)
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2749">xunit/xunit#2749</a>
+  </li>
+  <li>
+    We have added a fixer for <a href="/xunit.analyzers/rules/xUnit1029">xUnit1029</a> which removes the
+    <code>[Fact]</code> or <code>[Theory]</code> attribute from the local function.
+  </li>
+  <li>
+    We have introduced a new analyzer (<a href="/xunit.analyzers/rules/xUnit1030">xUnit1030</a>) that will
+    flag usage of <code>ConfigureAwait</code> on tasks as being problematic. Calling this on a task
+    inside a test method will cause the remainder of the test method to be run on a thread pool thread
+    rather than the original thread (which is used to limit the number of tests that run concurrently
+    in parallel).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2628">xunit/xunit#2628</a>
+  </li>
+  <li>
+    We have introduced a new analyzer (<a href="/xunit.analyzers/rules/xUnit1031">xUnit1031</a>) that will
+    flag usage of blocking task operations in a test method as being problematic. The operations that
+    are flagged include:
+    <ul>
+      <li><code>Task.GetAwaiter().GetResult()</code></li>
+      <li><code>Task.Wait()</code></li>
+      <li><code>Task.WaitAll()</code></li>
+      <li><code>Task.WaitAny()</code></li>
+      <li><code>Task<T>.GetAwaiter().GetResult()</code></li>
+      <li><code>Task<T>.Result</code></li>
+      <li><code>ValueTask.GetAwaiter().GetResult()</code></li>
+      <li><code>ValueTask<T>.GetAwaiter.GetResult()</code></li>
+      <li><code>ValueTask<T>.Result</code></li>
+    </ul>
+    Calling these inside a test method could cause performance issues and/or cause the test to become
+    deadlocked, due to the limited number of threads available for running tests in parallel.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1390">xunit/xunit#1390</a>
+  </li>
+  <li>
+    We have introduced a new analyzer (<a href="/xunit.analyzers/rules/xUnit1032">xUnit1032</a>) that will
+    flag test classes embedded inside a generic class. As there is no way for xUnit.net to know how to close
+    the outer generic class to create instances of the inner test class, this is an error.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2528">xunit/xunit#2528</a>
+  </li>
+</ul>

@@ -1,0 +1,198 @@
+---
+layout: default
+title: Release Notes for September 17, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 17, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.5.1!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.5.1</strong></li>
+  <li>xUnit.net Analyzers 1.3.0 (<a href="/releases/analyzers/1.3.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.1 (<a href="/releases/visualstudio/2.5.1">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 months since the release of v2 <a href="2.4.2">2.5.0 RTM</a>.</p>
+
+<p>
+  The introduction of the new assertion library in 2.5.0 (along with issues associated with the new package
+  signing system used by .NET Foundation) necessitated this fairly quick point release. Most of what's been
+  done for 2.5.1 is cleaning up issues discovered as people moved from 2.4.x to 2.5.0, some of which ended
+  being showstopping issues. Hopefully we have resolved them all. 🤞
+</p>
+
+<p class="note">
+  Users reported sporadic problems restoring the version 2.5.0 NuGet packages. As noted above, this is a
+  result of .NET Foundation's code signing system changing the default time stamp server from DigiCert to
+  Microsoft, which is not supported on .NET SDK 6.0.3xx (which is associated with Visual Studio 2022 LTS
+  release 17.2). Users who were trying to stick with purely LTS builds of tools experienced
+  <a href="https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu3003">NU3003</a>
+  ("The package signature is invalid or cannot be verified on this platform."). We have since reverted
+  back to the DigiCert time stamp service, which will allow users relying on LTS tooling to be able to
+  restore our packages again.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.0 to 2.5.1.</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Using <code>[MemberData]</code> against a method with optional parameters (where you don't specify the values) is
+    not supported in v2. We have added a message alerting you to this, where previously we would just fail to find
+    a matching method.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1985">xunit/xunit#1985</a>
+  </li>
+  <li>
+    We have made <code>SerializationHelper</code> public. This class can be used to perform the serialization
+    that we normally use in <code>xunit.runner.visualstudio</code>. This code is shared on both sides of the
+    system, so it's available as <code>Xunit.SerializationHelper</code> in <code>xunit.runner.utility.*</code>
+    for runner authors, and <code>Xunit.Sdk.SerializationHelper</code> in <code>xunit.execution.*</code> for
+    extensibility authors. Note that the code is slightly different in that the execution version supports
+    assemblies marked with <code>PlatformSpecificAssemblyAttribute</code> to transform their assembly
+    names in types to include the <code>{Platform}</code> tag as appropriate. (This is behavior that only
+    applies to the execution side, and only for v2 tests.) This class can serialize any type that is supported
+    by xUnit.net's built-in serialization, which includes:
+    <ul>
+      <li><code>char</code></li>
+      <li><code>string</code></li>
+      <li><code>byte</code> and <code>sbyte</code></li>
+      <li><code>short</code> and <code>ushort</code></li>
+      <li><code>int</code> and <code>uint</code></li>
+      <li><code>long</code> and <code>ulong</code></li>
+      <li><code>float</code> and <code>double</code></li>
+      <li><code>decimal</code></li>
+      <li><code>bool</code></li>
+      <li><code>DateTime</code>, <code>DateTimeOffset</code>, and <code>TimeSpan</code></li>
+      <li><code>BigInteger</code> (.NET Core only)</li>
+      <li><code>Type</code></li>
+      <li>Enums (not in the GAC)</li>
+      <li>Types which implement <code>IXunitSerializable</code></li>
+      <li>Arrays which contain values of supported types</li>
+    </ul>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2770">xunit/xunit#2770</a>
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    The <code>BitArray</code> class has been marked as "safe to re-enumerate", so when it is printed in error messages
+    and/or theory data, it will show the bit values (as an array of <code>True</code> and <code>False</code>) rather
+    than the placeholder <code>[&#xB7;&#xB7;&#xB7;]</code>.
+  </li>
+  <li>
+    Added an overload of <code>Assert.RaisesAny</code> and <code>Assert.RaisesAnyAsync</code> to support
+    event handlers which return raw <code>EventArgs</code>. This overload is non-generic (the generic overloads
+    are still used to obtain specific event data types). The need for this overload comes from the fact
+    that the delegate types for <code>EventHandler</code> and <code>EventHandler&lt;T&gt;</code> are not
+    compatible, so a non-generic version was required. These are the <code>Any</code> variants because they
+    support events which return <code>EventArgs</code> or any type that is derived from it; if you want
+    strong typing, you should follow up the <code>Assert.RaisesAny</code> or <code>Assert.RaisesAnyAsync</code>
+    with an assertion like <code>Assert.IsType</code> for the specific type you want to verify.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2773">xunit/xunit#2773</a>
+  </li>
+  <li>
+    Updated the <code>xunit.assert.source</code> NuGet package to include a <code>.editorconfig</code> file
+    that marks all files in the package as "auto-generated" so that they will be skipped for source analysis.
+    Previously, they would end up running against the analyzer rules for the importing project, and frequently
+    run afoul of things like not matching the desired coding style and formatting rules.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where proper nullable annotations were accidentally left off of the new
+    <code>Assert.NotNull&lt;T&gt;()</code> overload designed for nullable value types.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2750">xunit/xunit#2750</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a regression in <code>Assert.Equal</code> with dictionaries where the <code>TValue</code>
+    was a collection class (like an array or <code>List&lt;T&gt;</code>).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2755">xunit/xunit#2755</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>Assert.Equal</code> with <code>HashSet</code> values, where the
+    internal comparer (passed during construction of the <code>HashSet</code>) and/or the external comparer (passed
+    to <code>Assert.Equal</code>) was not being used, causing false positives or negatives. Part of the implementation
+    of this fix also resolves a potential issue (never reported) with internal type <code>AssertEqualityComparerAdapter</code>
+    and an implementation of <code>GetHashCode</code> that was throwing; it now correctly delegates to the instance
+    of <code>IEqualityComparer&lt;T&gt;</code> that it is wrapping.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2743">xunit/xunit#2743</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>Assert.Equivalent</code> with some tuple values where the comparison
+    was failing, even when the values should've been equivalent. This involved rewriting some sketchy logic related to
+    <code>IComparable</code> which had previously been added just to support <code>DateTime</code> and <code>DateTimeOffset</code>;
+    now, instead, we explicitly handle those two types and never try to use <code>IComparable</code>. This is more in line
+    with the originally intended purpose of <code>Assert.Equivalent</code>, but it may now surface as unexpected false
+    negatives if any developers were relying on us calling their <code>IComparable</code> implementation. The new logic is
+    the correct intention, and developers should not assume that we will use <code>IComparable</code> (or any other
+    similar interface) for <code>Assert.Equivalent</code>. Note that this <em>does not affect</em> our implementation
+    of <code>Assert.Equal</code>, which still consults several equality-testing interfaces.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2758">xunit/xunit#2758</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with improper disposal of enumerators by <code>CollectionTracker</code>.
+    The collection tracker was attempting to use its enumerator after it had been disposed, which manifested
+    in this particular case as a stray <code>NullReferenceException</code> with <code>Assert.Single</code>
+    using a string of 5 characters of fewer, but in reality caused unexpected behavior depending on the
+    specific enumerator implementation. This could impact any assertion that inspected a collection.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2762">xunit/xunit#2762</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>FileInfo</code> and <code>DirectoryInfo</code> were
+    causing a stack overflow in <code>Assert.Equivalent</code>, because they create an endless loop of objects
+    in their hierarchy (through the <code>Root</code> property of <code>DirectoryInfo</code>). There were
+    two fixes added:
+    <ol>
+      <li>
+        We now set a maximum object traversal depth of 50, which is a number much higher than we
+        assume anybody would be realistically testing against. If you exceed this, it throws an exception
+        which tells you the path it followed to get to level 50, and suggests that you might have an
+        infinite loop in your object hierarchy. This should prevent us from crashing with a stack overflow
+        if there are any future situations like this (whether they come from built-in types or your own
+        custom classes).
+      </li>
+      <li>
+        We special cased <code>FileSystemInfo</code>, the base class for <code>FileInfo</code> and
+        <code>DirectoryInfo</code>. When two of these are compared against each other, they only compare
+        the value of the <code>FullName</code> property. Analysis shows that every other property is in
+        some way derived from the item on disk (whether it's a file or a directory), so comparing the
+        full names should be a good test of equivalency.
+      </li>
+    </ol>
+    It's important to note that these fixes only apply to <code>Assert.Equivalent</code>. If you try to
+    compare two instances of these classes with <code>Assert.Equal</code>, they will show up as not equal,
+    because they are reference types which don't implement any of the equality interfaces in .NET that
+    you would normally expect/need when comparing equality.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2767">xunit/xunit#2767</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>Assert.Equivalent</code> when comparing two values
+    which derive from <code>FileSystemInfo</code> but weren't the same concrete type. This comparison now
+    just outright fails for mismatched types.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <code>AssertHelper</code> when imported via <code>xunit.assert.source</code>
+    with .NET Standard 1.2 - 1.6 (complaining about the unavailability of the <code>AppDomain</code> type).
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where the factory methods in the assert library's exception classes were not all
+    properly marked as public as intended.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2741">xunit/xunit#2741</a>
+  </li>
+</ul>

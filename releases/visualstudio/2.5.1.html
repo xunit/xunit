@@ -1,0 +1,57 @@
+---
+layout: default
+title: Release Notes for September 17, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 17, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, 2.5.1!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.5.1 (<a href="/releases/v2/2.5.1">release notes</a>)</li>
+  <li>xUnit.net Analyzers 1.3.0 (<a href="/releases/analyzers/1.3.0">release notes</a>)</li>
+  <li><strong>xUnit.net Visual Studio adapter 2.5.1</strong></li>
+</ul>
+
+<p>It's been 2 months since the release of <a href="2.5.0">2.5.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.0 to 2.5.1.</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    We have added the ability to pass configuration values via RunSettings (either via a RunSettings file, or via
+    the command line with <code>dotnet test</code>). See <a href="/docs/runsettings">the documentation</a> for how
+    to use this feature.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/378">xunit/visualstudio.xunit#378</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where sometimes you could not filter tests by <code>FullyQualifiedName</code>
+    and/or <code>DisplayName</code> (during discovery).
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/380">xunit/visualstudio.xunit#380</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where file copies of <code>xunit.runner.utility.*.dll</code> and
+    <code>xunit.runner.reporters.*.dll</code> could overwrite versions being used by runner authors, which
+    would manifest as runtime issues like missing method exceptions. Fixing this required IL merging the
+    output so those two DLLs don't exist on disk any more in the final <code>xunit.runner.visualstudio</code>
+    NuGet package. Note that we still ship and copy <code>xunit.abstractions.dll</code> because that DLL has
+    been frozen in time since we shipped v2 2.0 of the core framework (in 2015); any copy operations would
+    result in the same file. We cannot IL merge this dependency, because it's needed on disk so that it has
+    the same  identity in both the runner process and the <code>AppDomain</code> that's created to run .NET
+    Framework tests.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/383">xunit/visualstudio.xunit#383</a>
+  </li>
+</ul>
