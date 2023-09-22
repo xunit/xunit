@@ -1152,6 +1152,80 @@ public class CollectionAssertsTests
 					ex.Message
 				);
 			}
+
+			[Fact]
+			public void ComplexEmbeddedValues_Equal()
+			{
+				var expected = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value" }
+							}
+						}
+					}
+				};
+				var actual = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value" }
+							}
+						}
+					}
+				};
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void ComplexEmbeddedValues_NotEqual()
+			{
+				var expected = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value1" }
+							}
+						}
+					}
+				};
+				var actual = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value2" }
+							}
+						}
+					}
+				};
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value1\"]]]]]" + Environment.NewLine +
+					"Actual:   [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value2\"]]]]]",
+					ex.Message
+				);
+			}
 		}
 
 		public class Sets
@@ -1603,6 +1677,80 @@ public class CollectionAssertsTests
 				{
 					["toAddresses"] = new List<string> { "test1@example.com" },
 					["ccAddresses"] = new List<string> { "test3@example.com" },
+				};
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void ComplexEmbeddedValues_Equal()
+			{
+				var expected = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value" }
+							}
+						}
+					}
+				};
+				var actual = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value" }
+							}
+						}
+					}
+				};
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+					"Expected: Not [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value\"]]]]]" + Environment.NewLine +
+					"Actual:       [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value\"]]]]]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void ComplexEmbeddedValues_NotEqual()
+			{
+				var expected = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value1" }
+							}
+						}
+					}
+				};
+				var actual = new Dictionary<string, object>()
+				{
+					["key"] = new Dictionary<string, object>()
+					{
+						["key"] = new List<Dictionary<string, object>>()
+						{
+							new Dictionary<string, object>()
+							{
+								["key"] = new List<object> { "value2" }
+							}
+						}
+					}
 				};
 
 				Assert.NotEqual(expected, actual);
