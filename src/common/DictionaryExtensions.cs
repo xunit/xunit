@@ -41,7 +41,7 @@ static class DictionaryExtensions
     public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TKey, TValue>(this IEnumerable<TValue> values,
                                                                                            Func<TValue, TKey> keySelector,
                                                                                            IEqualityComparer<TKey> comparer = null)
-        => ToDictionaryIgnoringDuplicateKeys(values, keySelector, x => x);
+        => ToDictionaryIgnoringDuplicateKeys(values, keySelector, x => x, comparer);
 
     public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TInput, TKey, TValue>(this IEnumerable<TInput> inputValues,
                                                                                                    Func<TInput, TKey> keySelector,
