@@ -57,21 +57,10 @@ namespace Xunit
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
             this.shadowCopyFolder = shadowCopyFolder;
-            this.sourceInformationProvider = sourceInformationProvider;
-            this.diagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
+            this.sourceInformationProvider = sourceInformationProvider ?? NullSourceInformationProvider.Instance;
+            this.diagnosticMessageSink = diagnosticMessageSink ?? NullMessageSink.Instance;
 
             Guard.FileExists("assemblyFileName", assemblyFileName);
-
-            if (this.sourceInformationProvider == null)
-            {
-#if NETSTANDARD
-                this.sourceInformationProvider = new NullSourceInformationProvider();
-#else
-                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
-#endif
-                toDispose.Push(this.sourceInformationProvider);
-            }
-
         }
 
         ITestCaseBulkDeserializer BulkDeserializer

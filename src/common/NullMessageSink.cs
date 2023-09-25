@@ -17,6 +17,11 @@ namespace Xunit
         , IMessageSinkWithTypes
 #endif
     {
+        /// <summary>
+        /// Gets the singleton instance of the <see cref="NullMessageSink"/>.
+        /// </summary>
+        public static NullMessageSink Instance { get; } = new NullMessageSink();
+
         /// <inheritdoc/>
         public void Dispose() { }
 
