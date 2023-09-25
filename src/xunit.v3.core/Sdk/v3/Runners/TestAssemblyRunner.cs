@@ -68,6 +68,8 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 	/// <returns>Test collections in run order (and associated, not-yet-ordered test cases).</returns>
 	protected List<Tuple<_ITestCollection, List<TTestCase>>> OrderTestCollections(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var testCollectionOrderer = GetTestCollectionOrderer(ctxt);
 		var testCasesByCollection =
 			ctxt.TestCases
@@ -109,82 +111,75 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		await ctxt.InitializeAsync();
+		Guard.ArgumentNotNull(ctxt);
+
+		SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+		var totalSummary = new RunSummary();
 
 		try
 		{
-			SetTestContext(ctxt, TestEngineStatus.Initializing);
+			var assemblyFolder = Path.GetDirectoryName(ctxt.TestAssembly.Assembly.AssemblyPath);
+			if (assemblyFolder != null)
+				Directory.SetCurrentDirectory(assemblyFolder);
+		}
+		catch { }
 
-			var totalSummary = new RunSummary();
+		var testAssemblyStartingMessage = new _TestAssemblyStarting
+		{
+			AssemblyName = ctxt.TestAssembly.Assembly.Name,
+			AssemblyPath = ctxt.TestAssembly.Assembly.AssemblyPath,
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+			ConfigFilePath = ctxt.TestAssembly.ConfigFileName,
+			Seed = ctxt.Seed,
+			StartTime = DateTimeOffset.Now,
+			TargetFramework = ctxt.TargetFramework,
+			TestEnvironment = ctxt.TestFrameworkEnvironment,
+			TestFrameworkDisplayName = ctxt.TestFrameworkDisplayName,
+		};
 
+		if (ctxt.MessageBus.QueueMessage(testAssemblyStartingMessage))
+		{
 			try
 			{
-				var assemblyFolder = Path.GetDirectoryName(ctxt.TestAssembly.Assembly.AssemblyPath);
-				if (assemblyFolder != null)
-					Directory.SetCurrentDirectory(assemblyFolder);
-			}
-			catch { }
+				await AfterTestAssemblyStartingAsync(ctxt);
 
-			var testAssemblyStartingMessage = new _TestAssemblyStarting
-			{
-				AssemblyName = ctxt.TestAssembly.Assembly.Name,
-				AssemblyPath = ctxt.TestAssembly.Assembly.AssemblyPath,
-				AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
-				ConfigFilePath = ctxt.TestAssembly.ConfigFileName,
-				Seed = ctxt.Seed,
-				StartTime = DateTimeOffset.Now,
-				TargetFramework = ctxt.TargetFramework,
-				TestEnvironment = ctxt.TestFrameworkEnvironment,
-				TestFrameworkDisplayName = ctxt.TestFrameworkDisplayName,
-			};
+				SetTestContext(ctxt, TestEngineStatus.Running);
 
-			if (ctxt.MessageBus.QueueMessage(testAssemblyStartingMessage))
-			{
-				try
+				// Want clock time, not aggregated run time
+				var clockTimeStopwatch = Stopwatch.StartNew();
+				totalSummary = await RunTestCollectionsAsync(ctxt);
+				totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
+
+				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+				ctxt.Aggregator.Clear();
+				await BeforeTestAssemblyFinishedAsync(ctxt);
+
+				if (ctxt.Aggregator.HasExceptions)
 				{
-					await AfterTestAssemblyStartingAsync(ctxt);
-
-					SetTestContext(ctxt, TestEngineStatus.Running);
-
-					// Want clock time, not aggregated run time
-					var clockTimeStopwatch = Stopwatch.StartNew();
-					totalSummary = await RunTestCollectionsAsync(ctxt);
-					totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
-
-					SetTestContext(ctxt, TestEngineStatus.CleaningUp);
-
-					ctxt.Aggregator.Clear();
-					await BeforeTestAssemblyFinishedAsync(ctxt);
-
-					if (ctxt.Aggregator.HasExceptions)
-					{
-						var cleanupFailure = _TestAssemblyCleanupFailure.FromException(ctxt.Aggregator.ToException()!, ctxt.TestAssembly.UniqueID);
-						ctxt.MessageBus.QueueMessage(cleanupFailure);
-					}
-				}
-				finally
-				{
-					var assemblyFinished = new _TestAssemblyFinished
-					{
-						AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
-						ExecutionTime = totalSummary.Time,
-						FinishTime = DateTimeOffset.Now,
-						TestsFailed = totalSummary.Failed,
-						TestsNotRun = totalSummary.NotRun,
-						TestsSkipped = totalSummary.Skipped,
-						TestsTotal = totalSummary.Total,
-					};
-
-					ctxt.MessageBus.QueueMessage(assemblyFinished);
+					var cleanupFailure = _TestAssemblyCleanupFailure.FromException(ctxt.Aggregator.ToException()!, ctxt.TestAssembly.UniqueID);
+					ctxt.MessageBus.QueueMessage(cleanupFailure);
 				}
 			}
+			finally
+			{
+				var assemblyFinished = new _TestAssemblyFinished
+				{
+					AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+					ExecutionTime = totalSummary.Time,
+					FinishTime = DateTimeOffset.Now,
+					TestsFailed = totalSummary.Failed,
+					TestsNotRun = totalSummary.NotRun,
+					TestsSkipped = totalSummary.Skipped,
+					TestsTotal = totalSummary.Total,
+				};
 
-			return totalSummary;
+				ctxt.MessageBus.QueueMessage(assemblyFinished);
+			}
 		}
-		finally
-		{
-			await ctxt.DisposeAsync();
-		}
+
+		return totalSummary;
 	}
 
 	/// <summary>
@@ -226,6 +221,10 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 	/// <param name="testAssemblyStatus">The current test assembly status.</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
-		TestEngineStatus testAssemblyStatus) =>
-			TestContext.SetForTestAssembly(ctxt.TestAssembly, testAssemblyStatus, ctxt.CancellationTokenSource.Token);
+		TestEngineStatus testAssemblyStatus)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTestAssembly(ctxt.TestAssembly, testAssemblyStatus, ctxt.CancellationTokenSource.Token);
+	}
 }

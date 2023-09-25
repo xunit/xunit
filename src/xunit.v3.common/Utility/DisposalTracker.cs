@@ -53,6 +53,8 @@ public class DisposalTracker : IAsyncDisposable
 		}
 	}
 
+#pragma warning disable CA2000 // The purpose of these methods is to track objects for later disposal
+
 	/// <summary>
 	/// Add an action to the list of things to be done during disposal.
 	/// </summary>
@@ -67,6 +69,8 @@ public class DisposalTracker : IAsyncDisposable
 	public void AddAsyncAction(Func<ValueTask> cleanupAction) =>
 		Add(new AsyncDisposableWrapper(cleanupAction));
 
+#pragma warning restore CA2000
+
 	void AddInternal(object? @object)
 	{
 		if (@object != null)
@@ -80,6 +84,8 @@ public class DisposalTracker : IAsyncDisposable
 	/// <param name="collection">The objects to be disposed.</param>
 	public void AddRange(IEnumerable<object?> collection)
 	{
+		Guard.ArgumentNotNull(collection);
+
 		lock (trackedObjects)
 		{
 			GuardNotDisposed();
@@ -112,10 +118,13 @@ public class DisposalTracker : IAsyncDisposable
 	{
 		lock (trackedObjects)
 		{
-			GuardNotDisposed();
+			if (disposed)
+				return;
 
 			disposed = true;
 		}
+
+		GC.SuppressFinalize(this);
 
 		var exceptions = new List<Exception>();
 
@@ -146,7 +155,7 @@ public class DisposalTracker : IAsyncDisposable
 			throw new ObjectDisposedException(GetType().FullName);
 	}
 
-	class AsyncDisposableWrapper : IAsyncDisposable
+	sealed class AsyncDisposableWrapper : IAsyncDisposable
 	{
 		readonly Func<ValueTask> cleanupAction;
 
@@ -157,7 +166,7 @@ public class DisposalTracker : IAsyncDisposable
 			cleanupAction();
 	}
 
-	class DisposableWrapper : IDisposable
+	sealed class DisposableWrapper : IDisposable
 	{
 		readonly Action cleanupAction;
 

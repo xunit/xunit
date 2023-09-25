@@ -173,7 +173,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetMethodAccessor(Type? type)
 	{
 		MethodInfo? methodInfo = null;
-		var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(p => p?.GetType()).ToArray();
+		var parameterTypes = Parameters == null ? Array.Empty<Type>() : Parameters.Select(p => p?.GetType()).ToArray();
 		for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
 		{
 			methodInfo =

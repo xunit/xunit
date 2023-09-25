@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -42,8 +43,12 @@ public abstract class TestInvoker<TContext>
 	/// <returns>The return value from the test method invocation</returns>
 	protected virtual object? CallTestMethod(
 		TContext ctxt,
-		object? testClassInstance) =>
-			ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
+		object? testClassInstance)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
+	}
 
 	/// <summary>
 	/// Creates the test class, unless the test method is static or there have already been errors. Note that
@@ -59,6 +64,8 @@ public abstract class TestInvoker<TContext>
 	/// time spent creating the class</returns>
 	protected virtual object? CreateTestClass(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		return ctxt.Aggregator.Run(() =>
 		{
 			if (!ctxt.TestMethod.IsStatic && !ctxt.Aggregator.HasExceptions)
@@ -118,8 +125,12 @@ public abstract class TestInvoker<TContext>
 	/// method other than Activator.CreateInstance.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
-	protected virtual object? CreateTestClassInstance(TContext ctxt) =>
-		Activator.CreateInstance(ctxt.TestClass, ctxt.ConstructorArguments);
+	protected virtual object? CreateTestClassInstance(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return Activator.CreateInstance(ctxt.TestClass, ctxt.ConstructorArguments);
+	}
 
 	/// <summary>
 	/// Invokes the test method on the given test class instance. This method sets up support for "async void"
@@ -135,6 +146,8 @@ public abstract class TestInvoker<TContext>
 		TContext ctxt,
 		object? testClassInstance)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var oldSyncContext = default(SynchronizationContext);
 		var asyncSyncContext = default(AsyncTestSyncContext);
 
@@ -188,88 +201,62 @@ public abstract class TestInvoker<TContext>
 	}
 
 	/// <summary>
-	/// Creates the test class (if necessary), and invokes the test method.
+	/// Creates the test class (if necessary), and invokes the test method. It is assumed the context is fresh, so it is
+	/// initialized and disposed in this method, so disposing it elsewhere is unnecessary.
 	/// </summary>
 	/// <param name="ctxt">The invoker context</param>
 	/// <returns>Returns the time (in seconds) spent creating the test class, running
 	/// the test, and disposing of the test class.</returns>
 	protected async ValueTask<decimal> RunAsync(TContext ctxt)
 	{
-		await ctxt.InitializeAsync();
+		Guard.ArgumentNotNull(ctxt);
 
-		try
+		return await ctxt.Aggregator.RunAsync(async () =>
 		{
-			return await ctxt.Aggregator.RunAsync(async () =>
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				return 0m;
+
+			SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+			object? testClassInstance = null;
+			var elapsedTime = ExecutionTimer.Measure(() => { testClassInstance = CreateTestClass(ctxt); });
+
+			var asyncDisposable = testClassInstance as IAsyncDisposable;
+			var disposable = testClassInstance as IDisposable;
+
+			var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
+			var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
+			var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
+			var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
+			var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
+			var testUniqueID = ctxt.Test.UniqueID;
+
+			try
 			{
-				if (ctxt.CancellationTokenSource.IsCancellationRequested)
-					return 0m;
-
-				SetTestContext(ctxt, TestEngineStatus.Initializing);
-
-				object? testClassInstance = null;
-				var elapsedTime = ExecutionTimer.Measure(() => { testClassInstance = CreateTestClass(ctxt); });
-
-				var asyncDisposable = testClassInstance as IAsyncDisposable;
-				var disposable = testClassInstance as IDisposable;
-
-				var testAssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID;
-				var testCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID;
-				var testClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID;
-				var testMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
-				var testCaseUniqueID = ctxt.Test.TestCase.UniqueID;
-				var testUniqueID = ctxt.Test.UniqueID;
+				if (testClassInstance is IAsyncLifetime asyncLifetime)
+					elapsedTime += await ExecutionTimer.MeasureAsync(asyncLifetime.InitializeAsync);
 
 				try
 				{
-					if (testClassInstance is IAsyncLifetime asyncLifetime)
-						elapsedTime += await ExecutionTimer.MeasureAsync(asyncLifetime.InitializeAsync);
-
-					try
+					if (!ctxt.CancellationTokenSource.IsCancellationRequested)
 					{
-						if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-						{
-							elapsedTime += await ExecutionTimer.MeasureAsync(() => BeforeTestMethodInvokedAsync(ctxt));
+						elapsedTime += await ExecutionTimer.MeasureAsync(() => BeforeTestMethodInvokedAsync(ctxt));
 
-							SetTestContext(ctxt, TestEngineStatus.Running);
+						SetTestContext(ctxt, TestEngineStatus.Running);
 
-							if (!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions)
-								elapsedTime += TimeSpan.FromSeconds((double)await InvokeTestMethodAsync(ctxt, testClassInstance));
+						if (!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions)
+							elapsedTime += TimeSpan.FromSeconds((double)await InvokeTestMethodAsync(ctxt, testClassInstance));
 
-							SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestResultState.FromException((decimal)elapsedTime.TotalSeconds, ctxt.Aggregator.ToException()));
+						SetTestContext(ctxt, TestEngineStatus.CleaningUp, TestResultState.FromException((decimal)elapsedTime.TotalSeconds, ctxt.Aggregator.ToException()));
 
-							elapsedTime += await ExecutionTimer.MeasureAsync(() => AfterTestMethodInvokedAsync(ctxt));
-						}
-					}
-					finally
-					{
-						if (asyncDisposable != null || disposable != null)
-						{
-							var testClassDisposeStarting = new _TestClassDisposeStarting
-							{
-								AssemblyUniqueID = testAssemblyUniqueID,
-								TestCaseUniqueID = testCaseUniqueID,
-								TestClassUniqueID = testClassUniqueID,
-								TestCollectionUniqueID = testCollectionUniqueID,
-								TestMethodUniqueID = testMethodUniqueID,
-								TestUniqueID = testUniqueID
-							};
-
-							if (!ctxt.MessageBus.QueueMessage(testClassDisposeStarting))
-								ctxt.CancellationTokenSource.Cancel();
-						}
-
-						if (asyncDisposable != null)
-							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(asyncDisposable.DisposeAsync));
+						elapsedTime += await ExecutionTimer.MeasureAsync(() => AfterTestMethodInvokedAsync(ctxt));
 					}
 				}
 				finally
 				{
-					if (disposable != null)
-						elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(disposable.Dispose));
-
 					if (asyncDisposable != null || disposable != null)
 					{
-						var testClassDisposeFinished = new _TestClassDisposeFinished
+						var testClassDisposeStarting = new _TestClassDisposeStarting
 						{
 							AssemblyUniqueID = testAssemblyUniqueID,
 							TestCaseUniqueID = testCaseUniqueID,
@@ -279,18 +266,38 @@ public abstract class TestInvoker<TContext>
 							TestUniqueID = testUniqueID
 						};
 
-						if (!ctxt.MessageBus.QueueMessage(testClassDisposeFinished))
+						if (!ctxt.MessageBus.QueueMessage(testClassDisposeStarting))
 							ctxt.CancellationTokenSource.Cancel();
 					}
-				}
 
-				return (decimal)elapsedTime.TotalSeconds;
-			}, 0m);
-		}
-		finally
-		{
-			await ctxt.DisposeAsync();
-		}
+					if (asyncDisposable != null)
+						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(asyncDisposable.DisposeAsync));
+				}
+			}
+			finally
+			{
+				if (disposable != null)
+					elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(disposable.Dispose));
+
+				if (asyncDisposable != null || disposable != null)
+				{
+					var testClassDisposeFinished = new _TestClassDisposeFinished
+					{
+						AssemblyUniqueID = testAssemblyUniqueID,
+						TestCaseUniqueID = testCaseUniqueID,
+						TestClassUniqueID = testClassUniqueID,
+						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodUniqueID = testMethodUniqueID,
+						TestUniqueID = testUniqueID
+					};
+
+					if (!ctxt.MessageBus.QueueMessage(testClassDisposeFinished))
+						ctxt.CancellationTokenSource.Cancel();
+				}
+			}
+
+			return (decimal)elapsedTime.TotalSeconds;
+		}, 0m);
 	}
 
 	[SecuritySafeCritical]
@@ -306,6 +313,10 @@ public abstract class TestInvoker<TContext>
 	protected virtual void SetTestContext(
 		TContext ctxt,
 		TestEngineStatus testStatus,
-		TestResultState? testState = null) =>
-			TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState);
+		TestResultState? testState = null)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState);
+	}
 }

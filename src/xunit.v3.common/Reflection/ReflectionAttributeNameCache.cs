@@ -4,7 +4,7 @@ using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
-class ReflectionAttributeNameCache
+static class ReflectionAttributeNameCache
 {
 	static readonly ConcurrentDictionary<string, Type?> attributeTypeCache = new();
 

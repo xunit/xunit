@@ -381,8 +381,13 @@ public class TestCollectionRunnerTests
 			return default;
 		}
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(TestCollection, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, TokenSource));
+		public async ValueTask<RunSummary> RunAsync()
+		{
+			await using var ctxt = new TestCollectionRunnerContext<_ITestCase>(TestCollection, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, TokenSource);
+			await ctxt.InitializeAsync();
+
+			return await RunAsync(ctxt);
+		}
 
 		protected override ValueTask<RunSummary> RunTestClassAsync(
 			TestCollectionRunnerContext<_ITestCase> ctxt,

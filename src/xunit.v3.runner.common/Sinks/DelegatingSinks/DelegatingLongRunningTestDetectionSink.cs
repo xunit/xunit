@@ -90,6 +90,8 @@ public class DelegatingLongRunningTestDetectionSink : IExecutionSink
 	/// <inheritdoc/>
 	public virtual void Dispose()
 	{
+		GC.SuppressFinalize(this);
+
 		((IDisposable?)stopEvent)?.Dispose();
 		innerSink.Dispose();
 	}

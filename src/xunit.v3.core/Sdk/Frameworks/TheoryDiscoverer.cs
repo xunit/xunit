@@ -115,26 +115,26 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// </remarks>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
-	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+	/// <param name="factAttribute">The theory attribute attached to the test method.</param>
 	/// <returns>Returns zero or more test cases represented by the test method.</returns>
 	public virtual async ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
-		_IAttributeInfo theoryAttribute)
+		_IAttributeInfo factAttribute)
 	{
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(testMethod);
-		Guard.ArgumentNotNull(theoryAttribute);
+		Guard.ArgumentNotNull(factAttribute);
 
 		// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped theory may
 		// not actually have any data (which is quasi-legal, since it's skipped).
-		var theoryAttributeSkipReason = theoryAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
+		var theoryAttributeSkipReason = factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
 		if (theoryAttributeSkipReason != null)
-			return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+			return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 
 		var preEnumerate =
 			discoveryOptions.PreEnumerateTheoriesOrDefault()
-			&& !theoryAttribute.GetNamedArgument<bool>(nameof(TheoryAttribute.DisableDiscoveryEnumeration));
+			&& !factAttribute.GetNamedArgument<bool>(nameof(TheoryAttribute.DisableDiscoveryEnumeration));
 
 		if (preEnumerate)
 		{
@@ -153,7 +153,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					}
 					catch (InvalidCastException)
 					{
-						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							results.Add(
@@ -179,7 +179,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 					if (discoverer == null)
 					{
-						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							results.Add(
@@ -204,12 +204,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					}
 
 					if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
-						return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+						return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 
 					var data = await discoverer.GetData(dataAttribute, testMethod.Method);
 					if (data == null)
 					{
-						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
 						results.Add(
 							new ExecutionErrorTestCase(
@@ -251,12 +251,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 								testMethod.Method.Name
 							);
 
-							return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+							return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 						}
 
 						try
 						{
-							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, resolvedData));
+							results.AddRange(await CreateTestCasesForDataRow(discoveryOptions, testMethod, factAttribute, dataRow, resolvedData));
 						}
 						catch (Exception ex)
 						{
@@ -267,14 +267,14 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 								ex.Message
 							);
 
-							return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+							return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 						}
 					}
 				}
 
 				if (results.Count == 0)
 				{
-					var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+					var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
 					results.Add(
 						new ExecutionErrorTestCase(
@@ -300,6 +300,6 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			}
 		}
 
-		return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
+		return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 	}
 }

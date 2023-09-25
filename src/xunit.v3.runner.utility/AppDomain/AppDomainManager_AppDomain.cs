@@ -12,7 +12,7 @@ using Xunit.v3;
 
 namespace Xunit;
 
-class AppDomainManager_AppDomain : IAppDomainManager
+sealed class AppDomainManager_AppDomain : IAppDomainManager
 {
 	readonly _IMessageSink diagnosticMessageSink;
 
@@ -69,11 +69,7 @@ class AppDomainManager_AppDomain : IAppDomainManager
 
 		setup.ConfigurationFile = configFilename;
 
-		var result = AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), AppDomain.CurrentDomain.Evidence, setup, new PermissionSet(PermissionState.Unrestricted));
-		if (result == null)
-			throw new InvalidOperationException("Could not create App Domain");
-
-		return result;
+		return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), AppDomain.CurrentDomain.Evidence, setup, new PermissionSet(PermissionState.Unrestricted));
 	}
 
 	public TObject? CreateObjectFrom<TObject>(
@@ -118,7 +114,7 @@ class AppDomainManager_AppDomain : IAppDomainManager
 		}
 	}
 
-	public virtual void Dispose()
+	public void Dispose()
 	{
 		if (AppDomain != null)
 		{
@@ -153,7 +149,9 @@ class AppDomainManager_AppDomain : IAppDomainManager
 			}
 			catch (Exception ex)
 			{
+#pragma warning disable CA1508 // failure can be set in CleanupThread
 				if (failure == null)
+#pragma warning restore CA1508
 					failure = ex;
 				else
 					failure = new AggregateException(failure, ex);

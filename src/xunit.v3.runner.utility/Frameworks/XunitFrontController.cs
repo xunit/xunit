@@ -51,14 +51,19 @@ public class XunitFrontController : IFrontController
 	public string TestFrameworkDisplayName => innerDiscoverer.TestFrameworkDisplayName;
 
 	/// <inheritdoc/>
-	public ValueTask DisposeAsync()
+	public async ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
 
-		return innerDiscoverer.DisposeAsync();
+		GC.SuppressFinalize(this);
+
+		await innerDiscoverer.DisposeAsync();
+
+		if (innerController is not null)
+			await innerController.DisposeAsync();
 	}
 
 	/// <inheritdoc/>

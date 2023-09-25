@@ -73,7 +73,7 @@ static class Xunit1ExceptionUtility
 			messages.Add(match.Groups["message"].Value);
 		}
 
-		if (exceptionTypes.Count > 0 && exceptionTypes[0] == "")
+		if (exceptionTypes.Count > 0 && exceptionTypes[0]?.Length == 0)
 			exceptionTypes[0] = outermostExceptionType;
 
 		var stackTraces = NestedStackTracesRegex.Split(nestedStackTraces);

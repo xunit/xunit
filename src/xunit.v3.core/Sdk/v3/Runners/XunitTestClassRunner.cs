@@ -29,6 +29,8 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <inheritdoc/>
 	protected override ValueTask AfterTestClassStartingAsync(XunitTestClassRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var ordererAttribute = ctxt.Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
 		if (ordererAttribute != null)
 		{
@@ -87,6 +89,8 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <inheritdoc/>
 	protected override async ValueTask BeforeTestClassFinishedAsync(XunitTestClassRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var disposeAsyncTasks =
 			ctxt.ClassFixtureMappings
 				.Values
@@ -131,6 +135,9 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		XunitTestClassRunnerContext ctxt,
 		Type fixtureType)
 	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(fixtureType);
+
 		var ctors =
 			fixtureType
 				.GetConstructors()
@@ -231,7 +238,7 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 	/// <returns></returns>
-	public ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> RunAsync(
 		_ITestClass testClass,
 		_IReflectionTypeInfo @class,
 		IReadOnlyCollection<IXunitTestCase> testCases,
@@ -249,7 +256,10 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		Guard.ArgumentNotNull(assemblyFixtureMappings);
 		Guard.ArgumentNotNull(collectionFixtureMappings);
 
-		return RunAsync(new(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings));
+		await using var ctxt = new XunitTestClassRunnerContext(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
@@ -260,6 +270,8 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		object?[] constructorArguments)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		if (testMethod != null && method != null)
 			return XunitTestMethodRunner.Instance.RunAsync(
 				ctxt.TestClass,
@@ -280,6 +292,8 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <inheritdoc/>
 	protected override ConstructorInfo? SelectTestClassConstructor(XunitTestClassRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var ctors =
 			ctxt.Class
 				.Type
@@ -302,6 +316,10 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		ParameterInfo parameter,
 		[MaybeNullWhen(false)] out object argumentValue)
 	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(constructor);
+		Guard.ArgumentNotNull(parameter);
+
 		if (parameter.ParameterType == typeof(ITestContextAccessor))
 		{
 			argumentValue = TestContextAccessor.Instance;

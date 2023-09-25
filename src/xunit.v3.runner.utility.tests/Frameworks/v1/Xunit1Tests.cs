@@ -918,8 +918,8 @@ public class Xunit1Tests
 			Assert.Equal(exception.InnerException.GetType().FullName, testFailed.ExceptionTypes[1]);
 			Assert.Equal(exception.Message, testFailed.Messages[0]);
 			Assert.Equal(exception.InnerException.Message, testFailed.Messages[1]);
-			Assert.Equal(exception.StackTrace, testFailed.StackTraces[0]);
-			Assert.Equal(exception.InnerException.StackTrace, testFailed.StackTraces[1]);
+			Assert.Equal(exception.StackTrace, testFailed.StackTraces[0], ignoreLineEndingDifferences: true);
+			Assert.Equal(exception.InnerException.StackTrace, testFailed.StackTraces[1], ignoreLineEndingDifferences: true);
 		}
 
 		[Fact]
@@ -1025,8 +1025,8 @@ public class Xunit1Tests
 			Assert.Equal(exception.InnerException.GetType().FullName, errorMessage.ExceptionTypes[1]);
 			Assert.Equal(exception.Message, errorMessage.Messages[0]);
 			Assert.Equal(exception.InnerException.Message, errorMessage.Messages[1]);
-			Assert.Equal(exception.StackTrace, errorMessage.StackTraces[0]);
-			Assert.Equal(exception.InnerException.StackTrace, errorMessage.StackTraces[1]);
+			Assert.Equal(exception.StackTrace, errorMessage.StackTraces[0], ignoreLineEndingDifferences: true);
+			Assert.Equal(exception.InnerException.StackTrace, errorMessage.StackTraces[1], ignoreLineEndingDifferences: true);
 		}
 
 		Exception GetNestedExceptions()
@@ -1040,7 +1040,6 @@ public class Xunit1Tests
 			{
 				return e;
 			}
-
 		}
 
 		void ThrowOuterException()
@@ -1200,8 +1199,8 @@ public class AmbiguouslyNamedTestMethods
 				: this(appDomainSupport, assemblyFileName ?? OsSpecificAssemblyPath, configFileName, shadowCopy, shadowCopyFolder, Substitute.For<_ISourceInformationProvider>())
 		{ }
 
-		public new Xunit1TestCase? Deserialize(string value) =>
-			base.Deserialize(value);
+		public Xunit1TestCase? Deserialize(string value) =>
+			SerializationHelper.Deserialize<Xunit1TestCase>(value);
 
 		public new void Find(
 			_IMessageSink messageSink,
@@ -1222,8 +1221,8 @@ public class AmbiguouslyNamedTestMethods
 			bool markAllAsNotRun = false) =>
 				base.Run(testCases.CastOrToReadOnlyCollection(), messageSink, markAllAsNotRun);
 
-		public new string Serialize(Xunit1TestCase testCase) =>
-			base.Serialize(testCase);
+		public string Serialize(Xunit1TestCase testCase) =>
+			SerializationHelper.Serialize(testCase);
 
 		TestableXunit1(
 			AppDomainSupport appDomainSupport,

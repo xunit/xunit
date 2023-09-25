@@ -10,7 +10,7 @@ namespace Xunit.Runners;
 public abstract class TestInfo
 {
 	/// <summary/>
-	public TestInfo(
+	protected TestInfo(
 		string typeName,
 		string methodName,
 		Dictionary<string, List<string>>? traits,

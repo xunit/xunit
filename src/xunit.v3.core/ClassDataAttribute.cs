@@ -1,3 +1,5 @@
+#pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,6 +52,8 @@ public class ClassDataAttribute : DataAttribute
 	/// <inheritdoc/>
 	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
 	{
+		Guard.ArgumentNotNull(testMethod);
+
 		var classInstance = Activator.CreateInstance(Class);
 
 		if (classInstance is IEnumerable dataItems)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Threading;
+using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
@@ -13,7 +14,7 @@ namespace Xunit.Sdk;
 /// </summary>
 public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 {
-	bool disposed = false;
+	bool disposed;
 	readonly ManualResetEvent terminate = new(initialState: false);
 	readonly List<Thread> workerThreads;
 	readonly ConcurrentQueue<(SendOrPostCallback callback, object? state, ExecutionContext? context)> workQueue = new();
@@ -41,9 +42,11 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		terminate.Set();
 
@@ -77,6 +80,8 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 		SendOrPostCallback d,
 		object? state)
 	{
+		Guard.ArgumentNotNull(d);
+
 		d(state);
 	}
 

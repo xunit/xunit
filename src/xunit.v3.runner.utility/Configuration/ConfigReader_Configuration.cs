@@ -4,6 +4,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -25,6 +26,8 @@ public static class ConfigReader_Configuration
 		string? assemblyFileName,
 		string? configFileName = null)
 	{
+		Guard.ArgumentNotNull(configuration);
+
 		if (configFileName == null && !string.IsNullOrWhiteSpace(assemblyFileName))
 			configFileName = assemblyFileName + ".config";
 
@@ -67,10 +70,10 @@ public static class ConfigReader_Configuration
 		return GetValue<bool>(settings, key,
 			value =>
 			{
-				return (value.ToLowerInvariant()) switch
+				return (value.ToUpperInvariant()) switch
 				{
-					"true" => true,
-					"false" => false,
+					"TRUE" => true,
+					"FALSE" => false,
 					_ => null,
 				};
 			});

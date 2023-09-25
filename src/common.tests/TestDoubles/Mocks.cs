@@ -19,16 +19,16 @@ public static partial class Mocks
 		string? runnerSwitch = null,
 		string? description = null,
 		bool isEnvironmentallyEnabled = false,
-		_IMessageSink? messageSink = null)
+		IRunnerReporterMessageHandler? messageHandler = null)
 	{
 		description ??= "The runner reporter description";
-		messageSink ??= Substitute.For<_IMessageSink, InterfaceProxy<_IMessageSink>>();
+		messageHandler ??= Substitute.For<IRunnerReporterMessageHandler, InterfaceProxy<IRunnerReporterMessageHandler>>();
 
 		var result = Substitute.For<IRunnerReporter, InterfaceProxy<IRunnerReporter>>();
 		result.Description.Returns(description);
 		result.IsEnvironmentallyEnabled.ReturnsForAnyArgs(isEnvironmentallyEnabled);
 		result.RunnerSwitch.Returns(runnerSwitch);
-		result.CreateMessageHandler(null!, null!).ReturnsForAnyArgs(messageSink);
+		result.CreateMessageHandler(null!, null!).ReturnsForAnyArgs(messageHandler);
 		return result;
 	}
 }

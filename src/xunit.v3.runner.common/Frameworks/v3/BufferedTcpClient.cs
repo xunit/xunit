@@ -17,12 +17,14 @@ namespace Xunit.Runner.v3;
 /// </summary>
 public class BufferedTcpClient : IAsyncDisposable
 {
-	bool disposed = false;
+	bool disposed;
 	readonly DisposalTracker disposalTracker = new();
 	Exception? fault;
 	readonly TaskCompletionSource<int> finishedSource = new();
 	readonly Action<ReadOnlyMemory<byte>> receiveHandler;
+#pragma warning disable CA2213 // This value comes from the constructor, so we don't own it
 	readonly Socket socket;
+#pragma warning restore CA2213
 	readonly List<Task> tasks = new();
 	readonly AutoResetEvent writeEvent = new(initialState: false);
 	readonly ConcurrentQueue<byte[]> writeQueue = new();
@@ -44,7 +46,7 @@ public class BufferedTcpClient : IAsyncDisposable
 	public async ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(typeof(BufferedTcpClient).FullName);
+			return;
 
 		if (fault != null)
 		{
@@ -55,11 +57,15 @@ public class BufferedTcpClient : IAsyncDisposable
 
 		disposed = true;
 
+		GC.SuppressFinalize(this);
+
 		finishedSource.TrySetResult(0);
 		writeEvent.Set();
 
 		await Task.WhenAll(tasks);
 		await disposalTracker.DisposeAsync();
+
+		writeEvent.Dispose();
 	}
 
 	/// <summary>
@@ -159,7 +165,7 @@ public class BufferedTcpClient : IAsyncDisposable
 		await writer.FlushAsync();
 	}
 
-	bool TryFindCommand(
+	static bool TryFindCommand(
 		ref ReadOnlySequence<byte> buffer,
 		out byte[]? line)
 	{

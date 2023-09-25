@@ -63,9 +63,11 @@ public class Xunit1Executor : IXunit1Executor
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		appDomain?.Dispose();
 	}

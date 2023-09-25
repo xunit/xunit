@@ -1,10 +1,9 @@
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="VerboseReporter" />.
+/// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="VerboseReporter" />.
 /// </summary>
 public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 {

@@ -9,7 +9,7 @@ namespace Xunit;
 /// <summary>
 /// Allows the user to record actions for a test.
 /// </summary>
-public class Record
+public static class Record
 {
 	/// <summary>
 	/// Records any exception which is thrown by the given code.

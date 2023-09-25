@@ -110,6 +110,8 @@ public static class ReflectionExtensions
 	/// <returns>The default value for the given type.</returns>
 	public static object? GetDefaultValue(this Type type)
 	{
+		Guard.ArgumentNotNull(type);
+
 		if (type.IsValueType)
 			return Activator.CreateInstance(type);
 
@@ -201,19 +203,19 @@ public static class ReflectionExtensions
 	public static bool Implements(
 		this Type type,
 		Type interfaceType) =>
-			type.GetInterfaces().Contains(interfaceType);
+			Guard.ArgumentNotNull(type).GetInterfaces().Contains(interfaceType);
 
 	/// <summary/>
 	public static bool Implements(
 		this _ITypeInfo typeInfo,
 		Type interfaceType) =>
-			typeInfo.Interfaces.Any(i => i.Equal(interfaceType));
+			Guard.ArgumentNotNull(typeInfo).Interfaces.Any(i => i.Equal(interfaceType));
 
 	/// <summary/>
 	public static bool Implements(
 		this _ITypeInfo typeInfo,
 		_ITypeInfo interfaceTypeInfo) =>
-			typeInfo.Interfaces.Any(i => i.Equal(interfaceTypeInfo));
+			Guard.ArgumentNotNull(typeInfo).Interfaces.Any(i => i.Equal(interfaceTypeInfo));
 
 	/// <summary/>
 	public static bool IsAssignableFrom(
@@ -232,6 +234,9 @@ public static class ReflectionExtensions
 		this _ITypeInfo typeInfo,
 		_ITypeInfo otherTypeInfo)
 	{
+		Guard.ArgumentNotNull(typeInfo);
+		Guard.ArgumentNotNull(otherTypeInfo);
+
 		if (typeInfo.IsInterface)
 			return otherTypeInfo.Interfaces.Any(i => i.Equal(typeInfo));
 
@@ -320,11 +325,11 @@ public static class ReflectionExtensions
 
 	/// <summary/>
 	public static bool IsNullableEnum(this Type type) =>
-		isNullableEnumCache.GetOrAdd(type, t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>) && t.GetGenericArguments()[0].IsEnum);
+		isNullableEnumCache.GetOrAdd(Guard.ArgumentNotNull(type), t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>) && t.GetGenericArguments()[0].IsEnum);
 
 	/// <summary/>
 	public static bool IsNullableEnum(this _ITypeInfo typeInfo) =>
-		typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition().Equal(typeof(Nullable<>)) && typeInfo.GetGenericArguments()[0].IsEnum;
+		Guard.ArgumentNotNull(typeInfo).IsGenericType && typeInfo.GetGenericTypeDefinition().Equal(typeof(Nullable<>)) && typeInfo.GetGenericArguments()[0].IsEnum;
 
 	static string ParameterToDisplayValue(
 		string parameterName,
@@ -342,7 +347,7 @@ public static class ReflectionExtensions
 		bool isMatchingOperator(
 			MethodInfo m,
 			string name) =>
-				m.Name.Equals(name) &&
+				m.Name.Equals(name, StringComparison.Ordinal) &&
 				m.IsSpecialName &&  // Filter out non-operator methods that might bear this reserved name
 				m.IsStatic &&
 				!IsByRefLikeType(m.ReturnType) &&
@@ -354,7 +359,7 @@ public static class ReflectionExtensions
 		// We need to check both possibilities.
 		foreach (var conversionDeclaringType in new[] { parameterType, argumentValueType })
 		{
-			var runtimeMethods = conversionDeclaringType.GetRuntimeMethods();
+			var runtimeMethods = conversionDeclaringType.GetRuntimeMethods().ToArray();
 
 			var implicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Implicit"));
 			if (implicitMethod != null)
@@ -419,6 +424,8 @@ public static class ReflectionExtensions
 		_IParameterInfo[] parameterInfos)
 	{
 		Guard.ArgumentNotNull(genericType);
+		Guard.ArgumentNotNull(parameters);
+		Guard.ArgumentNotNull(parameterInfos);
 
 		for (var idx = 0; idx < parameterInfos.Length; ++idx)
 		{
@@ -568,6 +575,7 @@ public static class ReflectionExtensions
 		object?[] arguments)
 	{
 		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(arguments);
 
 		var parameters = testMethod.GetParameters();
 		var hasParamsParameter = false;

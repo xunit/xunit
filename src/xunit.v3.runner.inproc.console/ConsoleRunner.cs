@@ -24,7 +24,7 @@ public class ConsoleRunner
 	readonly string[] args;
 	volatile bool cancel;
 	readonly object consoleLock;
-	bool executed = false;
+	bool executed;
 	bool failed;
 	IRunnerLogger? logger;
 	IReadOnlyList<IRunnerReporter>? runnerReporters;
@@ -185,7 +185,9 @@ public class ConsoleRunner
 
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
+#pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
 			await using var disposalTracker = new DisposalTracker();
+#pragma warning restore CA2007
 			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
 			disposalTracker.Add(testFramework);
 
@@ -215,7 +217,7 @@ public class ConsoleRunner
 		Environment.Exit(1);
 	}
 
-	void PrintHeader() =>
+	static void PrintHeader() =>
 		Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 
 	/// <summary>
@@ -302,7 +304,9 @@ public class ConsoleRunner
 
 			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
 
+#pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
 			await using var disposalTracker = new DisposalTracker();
+#pragma warning restore CA2007
 			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
 			disposalTracker.Add(testFramework);
 

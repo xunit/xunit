@@ -50,7 +50,8 @@ public class TestClass : _ITestClass, IXunitSerializable
 	public string UniqueID =>
 		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
-	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+	/// <inheritdoc/>
+	public void Deserialize(IXunitSerializationInfo info)
 	{
 		testCollection = Guard.NotNull("Could not retrieve TestCollection from serialization", info.GetValue<_ITestCollection>("tc"));
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
@@ -65,7 +66,8 @@ public class TestClass : _ITestClass, IXunitSerializable
 		@class = Reflector.Wrap(type);
 	}
 
-	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+	/// <inheritdoc/>
+	public void Serialize(IXunitSerializationInfo info)
 	{
 		info.AddValue("tc", TestCollection);
 		info.AddValue("can", Class.Assembly.Name);

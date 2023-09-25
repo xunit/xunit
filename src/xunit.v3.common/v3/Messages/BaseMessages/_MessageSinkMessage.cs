@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -98,11 +99,13 @@ public class _MessageSinkMessage
 	/// <param name="propertyValue">The property value</param>
 	/// <param name="propertyName">The property name</param>
 	/// <param name="invalidProperties">The hash set to contain the invalid property name list</param>
-	protected void ValidateNullableProperty(
+	protected static void ValidateNullableProperty(
 		object? propertyValue,
 		string propertyName,
 		HashSet<string> invalidProperties)
 	{
+		Guard.ArgumentNotNull(invalidProperties);
+
 		if (propertyValue == null)
 			invalidProperties.Add(propertyName);
 	}

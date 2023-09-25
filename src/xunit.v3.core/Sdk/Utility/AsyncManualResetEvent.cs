@@ -34,7 +34,7 @@ namespace Xunit.Sdk;
 
 class AsyncManualResetEvent : IValueTaskSource
 {
-	volatile bool signaled = false;
+	volatile bool signaled;
 	readonly ConcurrentQueue<Action> continuations = new();
 
 	public AsyncManualResetEvent(bool signaled = false)

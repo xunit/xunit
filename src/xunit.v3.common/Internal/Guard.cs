@@ -28,6 +28,8 @@ public static class Guard
 		[CallerArgumentExpression("argValue")] string? argName = null)
 			where T : Enum
 	{
+		ArgumentNotNull(validValues);
+
 		if (!validValues.Contains(argValue))
 			throw new ArgumentException($"Enum value {argValue} not in valid set: [{string.Join(",", validValues)}]", argName?.TrimStart('@'));
 

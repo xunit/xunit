@@ -14,6 +14,8 @@ public class PreserveWorkingFolder : IDisposable
 	/// <summary/>
 	public PreserveWorkingFolder(_IAssemblyInfo assemblyInfo)
 	{
+		Guard.ArgumentNotNull(assemblyInfo);
+
 		originalWorkingFolder = Directory.GetCurrentDirectory();
 
 		if (!string.IsNullOrWhiteSpace(assemblyInfo.AssemblyPath))
@@ -27,6 +29,8 @@ public class PreserveWorkingFolder : IDisposable
 	/// <summary/>
 	public void Dispose()
 	{
+		GC.SuppressFinalize(this);
+
 		try
 		{
 			if (!string.IsNullOrWhiteSpace(originalWorkingFolder))

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Sdk;
@@ -18,8 +19,8 @@ public static class Reflector
 {
 	static readonly ConcurrentDictionary<(Type enumType, Type valueType), Delegate> enumConverters = new();
 
-	internal readonly static object?[] EmptyArgs = new object?[0];
-	internal readonly static Type[] EmptyTypes = new Type[0];
+	internal readonly static object?[] EmptyArgs = Array.Empty<object?>();
+	internal readonly static Type[] EmptyTypes = Array.Empty<Type>();
 
 	readonly static MethodInfo EnumerableCast =
 		typeof(Enumerable)
@@ -50,6 +51,8 @@ public static class Reflector
 		object? arg,
 		Type type)
 	{
+		Guard.ArgumentNotNull(type);
+
 		if (arg != null && !type.IsAssignableFrom(arg.GetType()))
 		{
 			try
@@ -91,7 +94,7 @@ public static class Reflector
 					if (type == typeof(DateTimeOffset))
 						return DateTimeOffset.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
 
-					return Convert.ChangeType(arg, type);
+					return Convert.ChangeType(arg, type, CultureInfo.CurrentCulture);
 				}
 			}
 			catch { } // Eat conversion-related exceptions; they'll get re-surfaced during execution
@@ -133,6 +136,8 @@ public static class Reflector
 		IReadOnlyCollection<CustomAttributeTypedArgument> collection,
 		Type elementType)
 	{
+		Guard.ArgumentNotNull(collection);
+
 		var result = Array.CreateInstance(elementType, collection.Count);
 		var idx = 0;
 

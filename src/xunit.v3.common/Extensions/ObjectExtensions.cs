@@ -49,9 +49,14 @@ public static class ObjectExtensions
 		await task;
 
 	/// <summary/>
-	public static T ValidateNullablePropertyValue<T>(this object @object, T? value, string propertyName)
-		where T : class
+	public static T ValidateNullablePropertyValue<T>(
+		this object @object,
+		T? value,
+		string propertyName)
+			where T : class
 	{
+		Guard.ArgumentNotNull(@object);
+
 		if (value is null)
 			throw new UnsetPropertyException(propertyName, @object.GetType());
 
@@ -59,9 +64,14 @@ public static class ObjectExtensions
 	}
 
 	/// <summary/>
-	public static T ValidateNullablePropertyValue<T>(this object @object, T? value, string propertyName)
-		where T : struct
+	public static T ValidateNullablePropertyValue<T>(
+		this object @object,
+		T? value,
+		string propertyName)
+			where T : struct
 	{
+		Guard.ArgumentNotNull(@object);
+
 		if (value is null)
 			throw new UnsetPropertyException(propertyName, @object.GetType());
 

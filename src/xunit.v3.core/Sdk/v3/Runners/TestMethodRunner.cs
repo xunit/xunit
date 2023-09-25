@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -43,78 +44,71 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		await ctxt.InitializeAsync();
+		Guard.ArgumentNotNull(ctxt);
+
+		SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+		var methodSummary = new RunSummary();
+		var testCollection = ctxt.TestCases.First().TestCollection;
+		var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = testCollection.UniqueID;
+		var testClassUniqueID = ctxt.TestClass.UniqueID;
+		var testMethodUniqueID = ctxt.TestMethod.UniqueID;
+
+		var methodStarting = new _TestMethodStarting
+		{
+			AssemblyUniqueID = testAssemblyUniqueID,
+			TestClassUniqueID = testClassUniqueID,
+			TestCollectionUniqueID = testCollectionUniqueID,
+			TestMethod = ctxt.TestMethod.Method.Name,
+			TestMethodUniqueID = testMethodUniqueID
+		};
+
+		if (!ctxt.MessageBus.QueueMessage(methodStarting))
+		{
+			ctxt.CancellationTokenSource.Cancel();
+			return methodSummary;
+		}
 
 		try
 		{
-			SetTestContext(ctxt, TestEngineStatus.Initializing);
+			await AfterTestMethodStarting(ctxt);
 
-			var methodSummary = new RunSummary();
-			var testCollection = ctxt.TestCases.First().TestCollection;
-			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = testCollection.UniqueID;
-			var testClassUniqueID = ctxt.TestClass.UniqueID;
-			var testMethodUniqueID = ctxt.TestMethod.UniqueID;
+			SetTestContext(ctxt, TestEngineStatus.Running);
 
-			var methodStarting = new _TestMethodStarting
+			methodSummary = await RunTestCasesAsync(ctxt);
+
+			SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+			ctxt.Aggregator.Clear();
+			await BeforeTestMethodFinished(ctxt);
+
+			if (ctxt.Aggregator.HasExceptions)
 			{
-				AssemblyUniqueID = testAssemblyUniqueID,
-				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID,
-				TestMethod = ctxt.TestMethod.Method.Name,
-				TestMethodUniqueID = testMethodUniqueID
-			};
-
-			if (!ctxt.MessageBus.QueueMessage(methodStarting))
-			{
-				ctxt.CancellationTokenSource.Cancel();
-				return methodSummary;
-			}
-
-			try
-			{
-				await AfterTestMethodStarting(ctxt);
-
-				SetTestContext(ctxt, TestEngineStatus.Running);
-
-				methodSummary = await RunTestCasesAsync(ctxt);
-
-				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
-
-				ctxt.Aggregator.Clear();
-				await BeforeTestMethodFinished(ctxt);
-
-				if (ctxt.Aggregator.HasExceptions)
-				{
-					var methodCleanupFailure = _TestMethodCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID);
-					if (!ctxt.MessageBus.QueueMessage(methodCleanupFailure))
-						ctxt.CancellationTokenSource.Cancel();
-				}
-
-				return methodSummary;
-			}
-			finally
-			{
-				var testMethodFinished = new _TestMethodFinished
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					ExecutionTime = methodSummary.Time,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestMethodUniqueID = testMethodUniqueID,
-					TestsFailed = methodSummary.Failed,
-					TestsNotRun = methodSummary.NotRun,
-					TestsTotal = methodSummary.Total,
-					TestsSkipped = methodSummary.Skipped
-				};
-
-				if (!ctxt.MessageBus.QueueMessage(testMethodFinished))
+				var methodCleanupFailure = _TestMethodCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID, testMethodUniqueID);
+				if (!ctxt.MessageBus.QueueMessage(methodCleanupFailure))
 					ctxt.CancellationTokenSource.Cancel();
 			}
+
+			return methodSummary;
 		}
 		finally
 		{
-			await ctxt.DisposeAsync();
+			var testMethodFinished = new _TestMethodFinished
+			{
+				AssemblyUniqueID = testAssemblyUniqueID,
+				ExecutionTime = methodSummary.Time,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestsFailed = methodSummary.Failed,
+				TestsNotRun = methodSummary.NotRun,
+				TestsTotal = methodSummary.Total,
+				TestsSkipped = methodSummary.Skipped
+			};
+
+			if (!ctxt.MessageBus.QueueMessage(testMethodFinished))
+				ctxt.CancellationTokenSource.Cancel();
 		}
 	}
 
@@ -125,6 +119,8 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected virtual async ValueTask<RunSummary> RunTestCasesAsync(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var summary = new RunSummary();
 
 		foreach (var testCase in ctxt.TestCases)
@@ -155,6 +151,10 @@ public abstract class TestMethodRunner<TContext, TTestCase>
 	/// <param name="testMethodStatus">The current test method status.</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
-		TestEngineStatus testMethodStatus) =>
-			TestContext.SetForTestMethod(ctxt.TestMethod, testMethodStatus, ctxt.CancellationTokenSource.Token);
+		TestEngineStatus testMethodStatus)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTestMethod(ctxt.TestMethod, testMethodStatus, ctxt.CancellationTokenSource.Token);
+	}
 }

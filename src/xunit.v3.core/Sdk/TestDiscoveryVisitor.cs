@@ -23,7 +23,7 @@ class TestDiscoveryVisitor : _IMessageSink, IDisposable
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
 

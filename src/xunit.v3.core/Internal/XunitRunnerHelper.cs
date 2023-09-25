@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -15,6 +16,9 @@ public static class XunitRunnerHelper
 		IMessageBus messageBus,
 		string messageFormat)
 	{
+		Guard.ArgumentNotNull(testCases);
+		Guard.ArgumentNotNull(messageBus);
+
 		var result = new RunSummary();
 
 		foreach (var testCase in testCases)
@@ -63,7 +67,7 @@ public static class XunitRunnerHelper
 				ExceptionParentIndices = new[] { -1 },
 				ExceptionTypes = new string?[] { null },
 				ExecutionTime = 0m,
-				Messages = new[] { string.Format(messageFormat, testCase.TestCaseDisplayName) },
+				Messages = new[] { string.Format(CultureInfo.CurrentCulture, messageFormat, testCase.TestCaseDisplayName) },
 				Output = string.Empty,
 				StackTraces = new string?[] { null },
 				TestCaseUniqueID = testCase.UniqueID,

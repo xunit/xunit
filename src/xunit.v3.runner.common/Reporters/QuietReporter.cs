@@ -21,8 +21,10 @@ public class QuietReporter : IRunnerReporter
 	public string RunnerSwitch => "quiet";
 
 	/// <inheritdoc/>
-	public ValueTask<_IMessageSink> CreateMessageHandler(
+	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
 		_IMessageSink? diagnosticMessageSink) =>
+#pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 			new(new QuietReporterMessageHandler(logger));
+#pragma warning restore CA2000
 }

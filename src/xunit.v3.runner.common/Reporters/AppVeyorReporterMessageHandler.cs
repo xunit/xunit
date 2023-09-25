@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -10,7 +10,7 @@ using Xunit.v3;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="AppVeyorReporter" />.
+/// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="AppVeyorReporter" />.
 /// </summary>
 public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandler
 {
@@ -42,18 +42,34 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		get
 		{
 			lock (clientLock)
-			{
-				if (client == null)
-					client = new AppVeyorClient(Logger, baseUri);
-			}
+				client ??= new AppVeyorClient(Logger, baseUri);
 
 			return client;
 		}
 	}
 
 	/// <inheritdoc/>
+	public override async ValueTask DisposeAsync()
+	{
+		await base.DisposeAsync();
+
+		GC.SuppressFinalize(this);
+
+		lock (clientLock)
+		{
+			client?.Dispose();
+			client = null;
+
+			if (assembliesInFlight != 0)
+				Logger.LogWarning($"{nameof(AppVeyorReporterMessageHandler)} disposed with {assembliesInFlight} assemblies in flight");
+		}
+	}
+
+	/// <inheritdoc/>
 	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestAssemblyFinished(args);
 
 		lock (clientLock)
@@ -62,7 +78,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 			if (assembliesInFlight == 0)
 			{
-				client?.Dispose(CancellationToken.None);
+				client?.Dispose();
 				client = null;
 			}
 		}
@@ -71,6 +87,8 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// <inheritdoc/>
 	protected override void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestAssemblyStarting(args);
 
 		lock (clientLock)
@@ -90,14 +108,16 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// <inheritdoc/>
 	protected override void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestStarting(args);
 
 		var testName = args.Message.TestDisplayName;
 		var testMethods = assemblyInfoByUniqueID[args.Message.AssemblyUniqueID].testMethods;
 
 		lock (testMethods)
-			if (testMethods.ContainsKey(testName))
-				testName = $"{testName} {testMethods[testName]}";
+			if (testMethods.TryGetValue(testName, out var testIdx))
+				testName = $"{testName} {testIdx}";
 
 		Client.AddTest(GetRequestMessage(
 			testName,
@@ -110,6 +130,8 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// <inheritdoc/>
 	protected override void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		var testPassed = args.Message;
 		var metadata = MetadataCache.TryGetTestMetadata(testPassed);
 		if (metadata != null)
@@ -133,6 +155,8 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// <inheritdoc/>
 	protected override void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		var testSkipped = args.Message;
 		var metadata = MetadataCache.TryGetTestMetadata(testSkipped);
 		if (metadata != null)
@@ -156,6 +180,8 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// <inheritdoc/>
 	protected override void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		var testFailed = args.Message;
 		var metadata = MetadataCache.TryGetTestMetadata(testFailed);
 		if (metadata != null)
@@ -200,7 +226,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		}
 	}
 
-	Dictionary<string, object?> GetRequestMessage(
+	static Dictionary<string, object?> GetRequestMessage(
 		string testName,
 		string testFramework,
 		string fileName,

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Threading;
@@ -68,15 +69,17 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, TestAssembly)
 				?? new CollectionPerClassTestCollectionFactory(TestAssembly);
 
-			var threadCountText = MaxParallelThreads < 0 ? "unlimited" : MaxParallelThreads.ToString();
+			var threadCountText = MaxParallelThreads < 0 ? "unlimited" : MaxParallelThreads.ToString(CultureInfo.CurrentCulture);
 
-			return $"{base.TestFrameworkEnvironment} [{testCollectionFactory?.DisplayName}, {(DisableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
+			return $"{base.TestFrameworkEnvironment} [{testCollectionFactory.DisplayName}, {(DisableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
 		}
 	}
 
 	/// <inheritdoc/>
 	public override async ValueTask DisposeAsync()
 	{
+		GC.SuppressFinalize(this);
+
 		if (syncContext is IAsyncDisposable asyncDisposable)
 			await asyncDisposable.DisposeAsync();
 		else if (syncContext is IDisposable disposable)

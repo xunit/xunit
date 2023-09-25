@@ -39,10 +39,13 @@
   <Choose>
     <When Condition=" !$(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
+        <AnalysisLevel>latest-All</AnalysisLevel>
         <Authors>jnewkirk;bradwilson</Authors>
         <Company>.NET Foundation</Company>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <Nullable>enable</Nullable>
         <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>

@@ -9,7 +9,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class TestClassRunnerTests
+public static class TestClassRunnerTests
 {
 	[Fact]
 	public static async ValueTask Messages()
@@ -153,7 +153,7 @@ public class TestClassRunnerTests
 	{
 		var messageBus = new SpyMessageBus(msg => !(msg is _TestClassCleanupFailure));
 		var runner = TestableTestClassRunner.Create(messageBus);
-		runner.BeforeTestClassFinished_Callback = aggregator => aggregator.Add(new Exception());
+		runner.BeforeTestClassFinished_Callback = aggregator => aggregator.Add(new DivideByZeroException());
 
 		await runner.RunAsync();
 
@@ -241,7 +241,7 @@ public class TestClassRunnerTests
 		Assert.Same(runner.TestClass, runner.BeforeTestClassFinished_Context.TestClass);
 	}
 
-	public class TestCaseOrderer
+	public static class TestCaseOrderer
 	{
 		[Fact]
 		public static async ValueTask TestsOrdererIsUsedToDetermineRunOrder()
@@ -447,7 +447,7 @@ public class TestClassRunnerTests
 			if (testCases == null)
 				testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
 			if (availableArguments == null)
-				availableArguments = new object[0];
+				availableArguments = Array.Empty<object>();
 
 			var firstTest = testCases.First();
 
@@ -486,8 +486,13 @@ public class TestClassRunnerTests
 			return default;
 		}
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(TestClass, @class, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, TokenSource));
+		public async ValueTask<RunSummary> RunAsync()
+		{
+			await using var ctxt = new TestClassRunnerContext<_ITestCase>(TestClass, @class, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, TokenSource);
+			await ctxt.InitializeAsync();
+
+			return await RunAsync(ctxt);
+		}
 
 		protected override ValueTask<RunSummary> RunTestMethodAsync(
 			TestClassRunnerContext<_ITestCase> ctxt,

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit.Sdk;
@@ -63,7 +64,7 @@ public partial struct StackFrameInfo
 			{
 				var match = stackFrameRegex.Match(frame);
 				if (match.Success)
-					return new StackFrameInfo(match.Groups["file"].Value, int.Parse(match.Groups["line"].Value));
+					return new StackFrameInfo(match.Groups["file"].Value, int.Parse(match.Groups["line"].Value, CultureInfo.InvariantCulture));
 			}
 		}
 

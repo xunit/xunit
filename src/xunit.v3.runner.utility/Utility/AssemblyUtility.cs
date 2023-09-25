@@ -9,7 +9,7 @@ namespace Xunit;
 /// <summary>
 /// Utility functions for assemblies.
 /// </summary>
-public class AssemblyUtility
+public static class AssemblyUtility
 {
 	/// <summary>
 	/// Gets the target framework name for the given assembly (on disk). This uses Mono Cecil

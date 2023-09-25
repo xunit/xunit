@@ -86,7 +86,7 @@ csharp_style_expression_bodied_constructors = false
 csharp_style_expression_bodied_indexers = true
 csharp_style_expression_bodied_lambdas = true
 csharp_style_expression_bodied_local_functions = false
-csharp_style_expression_bodied_methods = false
+csharp_style_expression_bodied_methods = when_on_single_line
 csharp_style_expression_bodied_operators = false
 csharp_style_expression_bodied_properties = true
 
@@ -220,7 +220,34 @@ dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
-#### Roslyn diagnostics ####
+#### Code quality rules ####
 
-dotnet_diagnostic.CA1851.severity = warning
-dotnet_diagnostic.IDE1006.severity = none
+# Analyzer configuration
+
+dotnet_code_quality.CA1062.null_check_validation_methods = Xunit.Internal.Guard.ArgumentNotNull``1(``0,System.String)|Xunit.Internal.Guard.ArgumentNotNull``1(System.Nullable{``0},System.String)|Xunit.Internal.Guard.ArgumentNotNull``1(System.String,``0,System.String)|Xunit.Internal.Guard.ArgumentNotNullOrEmpty``1(``0,System.String)|Xunit.Internal.Guard.ArgumentNotNullOrEmpty``1(System.String,``0,System.String)
+
+# Analyzer severity
+
+dotnet_diagnostic.CA1002.severity  = none  # Do not expose generic lists
+dotnet_diagnostic.CA1008.severity  = none  # Add a member to enum that has a value of zero
+dotnet_diagnostic.CA1031.severity  = none  # Modify method to catch a more specific allowed exception type
+dotnet_diagnostic.CA1032.severity  = none  # Add missing constructor to exception
+dotnet_diagnostic.CA1034.severity  = none  # Do not nest types
+dotnet_diagnostic.CA1050.severity  = none  # Declare types in namespaces
+dotnet_diagnostic.CA1051.severity  = none  # Do not declare visible instance fields
+dotnet_diagnostic.CA1054.severity  = none  # URI parameters should not be strings
+dotnet_diagnostic.CA1063.severity  = none  # Ensure that Dispose is declared as public and sealed
+dotnet_diagnostic.CA1200.severity  = none  # Avoid using cref tags with a prefix
+dotnet_diagnostic.CA1303.severity  = none  # Do not pass literals as localized parameters
+dotnet_diagnostic.CA1707.severity  = none  # Remove the underscores from type name
+dotnet_diagnostic.CA1710.severity  = none  # Identifiers should have correct suffix
+dotnet_diagnostic.CA1711.severity  = none  # Identifiers should not have incorrect suffix
+dotnet_diagnostic.CA1716.severity  = none  # Rename virtual/interface member so that it no longer conflicts with the reserved language keyword
+dotnet_diagnostic.CA1720.severity  = none  # Identifier contains type name
+dotnet_diagnostic.CA1810.severity  = none  # Do not use static constructors
+dotnet_diagnostic.CA1815.severity  = none  # Override equals and operator equals on value types
+dotnet_diagnostic.CA1819.severity  = none  # Properties should not return arrays
+dotnet_diagnostic.CA2007.severity  = none  # Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA2211.severity  = none  # Non-constant fields should not be visible
+dotnet_diagnostic.IDE0040.severity = none  # Add accessibility modifiers
+dotnet_diagnostic.IDE1006.severity = none  # Naming rule violation

@@ -62,7 +62,7 @@ public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
 

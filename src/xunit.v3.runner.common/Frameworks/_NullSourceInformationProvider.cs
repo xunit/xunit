@@ -1,10 +1,12 @@
+using System.Threading.Tasks;
+
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// A null implementation of <see cref="_ISourceInformationProvider"/> which always returns empty
 /// source information. Get the singleton via <see cref="Instance"/>.
 /// </summary>
-public class _NullSourceInformationProvider : _ISourceInformationProvider
+public sealed class _NullSourceInformationProvider : _ISourceInformationProvider
 {
 	_NullSourceInformationProvider() { }
 
@@ -14,7 +16,11 @@ public class _NullSourceInformationProvider : _ISourceInformationProvider
 	public static _NullSourceInformationProvider Instance { get; } = new _NullSourceInformationProvider();
 
 	/// <inheritdoc/>
-	(string? sourceFile, int? sourceLine) _ISourceInformationProvider.GetSourceInformation(
+	public ValueTask DisposeAsync() =>
+		default;
+
+	/// <inheritdoc/>
+	public (string? sourceFile, int? sourceLine) GetSourceInformation(
 		string? testClassName,
 		string? testMethodName) =>
 			(null, null);

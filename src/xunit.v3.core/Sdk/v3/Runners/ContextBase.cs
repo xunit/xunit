@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -46,8 +47,12 @@ public class ContextBase : IAsyncLifetime
 	public IMessageBus MessageBus { get; }
 
 	/// <inheritdoc/>
-	public virtual ValueTask DisposeAsync() =>
-		default;
+	public virtual ValueTask DisposeAsync()
+	{
+		GC.SuppressFinalize(this);
+
+		return default;
+	}
 
 	/// <inheritdoc/>
 	public virtual ValueTask InitializeAsync() =>

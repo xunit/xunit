@@ -185,6 +185,8 @@ public class ResultSink : TestMessageSink
 
 	public override async ValueTask DisposeAsync()
 	{
+		GC.SuppressFinalize(this);
+
 		await base.DisposeAsync();
 		Finished.Dispose();
 	}

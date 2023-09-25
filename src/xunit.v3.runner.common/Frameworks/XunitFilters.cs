@@ -288,7 +288,7 @@ public class XunitFilters
 		lastCacheUpdate = includedMethods.LastMutation;
 	}
 
-	string WildcardToRegex(string pattern) =>
+	static string WildcardToRegex(string pattern) =>
 		$"^{Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".")}$";
 
 	// This class wraps HashSet<T>, tracking the last mutation date, and using itself

@@ -1,3 +1,6 @@
+#pragma warning disable CA1019 // The attribute arguments are always read via reflection
+#pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
+
 using System;
 
 namespace Xunit;

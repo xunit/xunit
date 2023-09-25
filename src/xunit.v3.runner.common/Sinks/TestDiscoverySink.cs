@@ -46,15 +46,17 @@ public class TestDiscoverySink : _IMessageSink, IDisposable
 	/// <summary>
 	/// The list of discovered test cases.
 	/// </summary>
-	public List<_TestCaseDiscovered> TestCases { get; } = new List<_TestCaseDiscovered>();
+	public List<_TestCaseDiscovered> TestCases { get; } = new();
 
 	/// <inheritdoc/>
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		Finished.Dispose();
 	}

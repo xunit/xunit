@@ -35,6 +35,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>The test class constructor arguments.</returns>
 	protected virtual object?[] CreateTestClassConstructorArguments(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var isStaticClass = ctxt.Class.Type.IsAbstract && ctxt.Class.Type.IsSealed;
 		if (!isStaticClass && !ctxt.Aggregator.HasExceptions)
 		{
@@ -68,7 +70,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 			}
 		}
 
-		return new object[0];
+		return Array.Empty<object>();
 	}
 
 	/// <summary>
@@ -106,75 +108,68 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		await ctxt.InitializeAsync();
+		Guard.ArgumentNotNull(ctxt);
+
+		SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+		var classSummary = new RunSummary();
+		var testCollection = ctxt.TestCases.First().TestCollection;
+		var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = testCollection.UniqueID;
+		var testClassUniqueID = ctxt.TestClass.UniqueID;
+
+		var classStarting = new _TestClassStarting
+		{
+			AssemblyUniqueID = testAssemblyUniqueID,
+			TestClass = ctxt.TestClass.Class.Name,
+			TestClassUniqueID = testClassUniqueID,
+			TestCollectionUniqueID = testCollectionUniqueID
+		};
+
+		if (!ctxt.MessageBus.QueueMessage(classStarting))
+		{
+			ctxt.CancellationTokenSource.Cancel();
+			return classSummary;
+		}
 
 		try
 		{
-			SetTestContext(ctxt, TestEngineStatus.Initializing);
+			await AfterTestClassStartingAsync(ctxt);
 
-			var classSummary = new RunSummary();
-			var testCollection = ctxt.TestCases.First().TestCollection;
-			var testAssemblyUniqueID = testCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = testCollection.UniqueID;
-			var testClassUniqueID = ctxt.TestClass.UniqueID;
+			SetTestContext(ctxt, TestEngineStatus.Running);
 
-			var classStarting = new _TestClassStarting
+			classSummary = await RunTestMethodsAsync(ctxt);
+
+			SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+			ctxt.Aggregator.Clear();
+			await BeforeTestClassFinishedAsync(ctxt);
+
+			if (ctxt.Aggregator.HasExceptions)
 			{
-				AssemblyUniqueID = testAssemblyUniqueID,
-				TestClass = ctxt.TestClass.Class.Name,
-				TestClassUniqueID = testClassUniqueID,
-				TestCollectionUniqueID = testCollectionUniqueID
-			};
-
-			if (!ctxt.MessageBus.QueueMessage(classStarting))
-			{
-				ctxt.CancellationTokenSource.Cancel();
-				return classSummary;
-			}
-
-			try
-			{
-				await AfterTestClassStartingAsync(ctxt);
-
-				SetTestContext(ctxt, TestEngineStatus.Running);
-
-				classSummary = await RunTestMethodsAsync(ctxt);
-
-				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
-
-				ctxt.Aggregator.Clear();
-				await BeforeTestClassFinishedAsync(ctxt);
-
-				if (ctxt.Aggregator.HasExceptions)
-				{
-					var classCleanupFailure = _TestClassCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
-					if (!ctxt.MessageBus.QueueMessage(classCleanupFailure))
-						ctxt.CancellationTokenSource.Cancel();
-				}
-
-				return classSummary;
-			}
-			finally
-			{
-				var classFinished = new _TestClassFinished
-				{
-					AssemblyUniqueID = testAssemblyUniqueID,
-					ExecutionTime = classSummary.Time,
-					TestClassUniqueID = testClassUniqueID,
-					TestCollectionUniqueID = testCollectionUniqueID,
-					TestsFailed = classSummary.Failed,
-					TestsNotRun = classSummary.NotRun,
-					TestsTotal = classSummary.Total,
-					TestsSkipped = classSummary.Skipped
-				};
-
-				if (!ctxt.MessageBus.QueueMessage(classFinished))
+				var classCleanupFailure = _TestClassCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID, testClassUniqueID);
+				if (!ctxt.MessageBus.QueueMessage(classCleanupFailure))
 					ctxt.CancellationTokenSource.Cancel();
 			}
+
+			return classSummary;
 		}
 		finally
 		{
-			await ctxt.DisposeAsync();
+			var classFinished = new _TestClassFinished
+			{
+				AssemblyUniqueID = testAssemblyUniqueID,
+				ExecutionTime = classSummary.Time,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestsFailed = classSummary.Failed,
+				TestsNotRun = classSummary.NotRun,
+				TestsTotal = classSummary.Total,
+				TestsSkipped = classSummary.Skipped
+			};
+
+			if (!ctxt.MessageBus.QueueMessage(classFinished))
+				ctxt.CancellationTokenSource.Cancel();
 		}
 	}
 
@@ -185,6 +180,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected virtual async ValueTask<RunSummary> RunTestMethodsAsync(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var summary = new RunSummary();
 		IReadOnlyCollection<TTestCase> orderedTestCases;
 
@@ -256,6 +253,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <returns>The constructor to be used for creating the test class.</returns>
 	protected virtual ConstructorInfo? SelectTestClassConstructor(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var result = ctxt.Class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
 		if (result == null)
 			ctxt.Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
@@ -271,8 +270,12 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <param name="testClassStatus">The current test class status.</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
-		TestEngineStatus testClassStatus) =>
-			TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token);
+		TestEngineStatus testClassStatus)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token);
+	}
 
 	/// <summary>
 	/// Tries to supply a test class constructor argument. By default, always fails. Override to

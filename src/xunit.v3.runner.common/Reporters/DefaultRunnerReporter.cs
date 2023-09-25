@@ -23,8 +23,10 @@ public class DefaultRunnerReporter : IRunnerReporter
 	public virtual string? RunnerSwitch => null;
 
 	/// <inheritdoc/>
-	public virtual ValueTask<_IMessageSink> CreateMessageHandler(
+	public virtual ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
 		_IMessageSink? diagnosticMessageSink) =>
+#pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 			new(new DefaultRunnerReporterMessageHandler(logger));
+#pragma warning restore CA2000
 }

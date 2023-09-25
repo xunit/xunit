@@ -26,6 +26,8 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 		IXunitTestCase testCase,
 		ref object?[]? testMethodArguments)
 	{
+		Guard.ArgumentNotNull(testCase);
+
 		// TODO: This means XunitTestFramework can never run test cases without a class & method
 		var testClass = testCase.TestClass?.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestClass.Class does not map to a Type object", nameof(testCase));
 		var testMethod = testCase.TestMethod?.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod.Method does not map to a MethodInfo object", nameof(testCase));
@@ -73,12 +75,20 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 		string? displayName,
 		int testIndex,
 		IReadOnlyDictionary<string, IReadOnlyList<string>> traits,
-		int timeout) =>
-			new XunitTest(ctxt.TestCase, @explicit, displayName ?? ctxt.DisplayName, testIndex, traits, timeout);
+		int timeout)
+	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(traits);
+
+		return new XunitTest(ctxt.TestCase, @explicit, displayName ?? ctxt.DisplayName, testIndex, traits, timeout);
+	}
 
 	/// <inheritdoc/>
-	protected override ValueTask<RunSummary> RunTestsAsync(TContext ctxt) =>
-		XunitTestRunner.Instance.RunAsync(
+	protected override ValueTask<RunSummary> RunTestsAsync(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return XunitTestRunner.Instance.RunAsync(
 			CreateTest(ctxt, @explicit: null, displayName: null, testIndex: 0, ctxt.TestCase.Traits, ctxt.TestCase.Timeout),
 			ctxt.MessageBus,
 			ctxt.TestClass,
@@ -91,4 +101,5 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 			ctxt.CancellationTokenSource,
 			ctxt.BeforeAfterTestAttributes
 		);
+	}
 }

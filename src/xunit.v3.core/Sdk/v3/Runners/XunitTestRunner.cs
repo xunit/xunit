@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -26,6 +27,8 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 	/// <inheritdoc/>
 	protected override async ValueTask<(decimal ExecutionTime, string Output)?> InvokeTestAsync(XunitTestRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var output = string.Empty;
 		var testOutputHelper = TestContext.Current?.TestOutputHelper as TestOutputHelper;
 
@@ -48,8 +51,11 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-	protected virtual ValueTask<decimal> InvokeTestMethodAsync(XunitTestRunnerContext ctxt) =>
-		XunitTestInvoker.Instance.RunAsync(
+	protected virtual ValueTask<decimal> InvokeTestMethodAsync(XunitTestRunnerContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return XunitTestInvoker.Instance.RunAsync(
 			ctxt.Test,
 			ctxt.TestClass,
 			ctxt.ConstructorArguments,
@@ -61,6 +67,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 			ctxt.Aggregator,
 			ctxt.CancellationTokenSource
 		);
+	}
 
 	/// <summary>
 	/// Runs the test.
@@ -77,7 +84,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
-	public ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> RunAsync(
 		_ITest test,
 		IMessageBus messageBus,
 		Type testClass,
@@ -88,19 +95,28 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterAttributes) =>
-			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, explicitOption, aggregator, cancellationTokenSource, beforeAfterAttributes));
+		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterAttributes)
+	{
+		await using var ctxt = new XunitTestRunnerContext(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, explicitOption, aggregator, cancellationTokenSource, beforeAfterAttributes);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
+	}
 
 	/// <inheritdoc/>
 	protected override void SetTestContext(
 		XunitTestRunnerContext ctxt,
 		TestEngineStatus testStatus,
-		TestResultState? testState = null) =>
-			TestContext.SetForTest(
-				ctxt.Test,
-				testStatus,
-				ctxt.CancellationTokenSource.Token,
-				testState,
-				testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current?.TestOutputHelper
-			);
+		TestResultState? testState = null)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTest(
+			ctxt.Test,
+			testStatus,
+			ctxt.CancellationTokenSource.Token,
+			testState,
+			testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current?.TestOutputHelper
+		);
+	}
 }

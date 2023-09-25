@@ -1,3 +1,5 @@
+#pragma warning disable CA1040 // The only data this interface needs to convey is the generic type
+
 using System;
 
 namespace Xunit;

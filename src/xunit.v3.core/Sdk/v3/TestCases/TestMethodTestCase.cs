@@ -86,13 +86,16 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 	public _ITestClass TestClass =>
 		TestMethod.TestClass;
 
-	string? _ITestCaseMetadata.TestClassName =>
+	/// <inheritdoc/>
+	public string? TestClassName =>
 		TestMethod.TestClass.Class.SimpleName;
 
-	string? _ITestCaseMetadata.TestClassNamespace =>
+	/// <inheritdoc/>
+	public string? TestClassNamespace =>
 		TestMethod.TestClass.Class.Namespace;
 
-	string? _ITestCaseMetadata.TestClassNameWithNamespace =>
+	/// <inheritdoc/>
+	public string? TestClassNameWithNamespace =>
 		TestMethod.TestClass.Class.Name;
 
 	/// <inheritdoc/>
@@ -103,7 +106,8 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 	public object?[] TestMethodArguments =>
 		this.ValidateNullablePropertyValue(testMethodArguments, nameof(TestMethodArguments));
 
-	string _ITestCaseMetadata.TestMethodName =>
+	/// <inheritdoc/>
+	public string TestMethodName =>
 		TestMethod.Method.Name;
 
 	/// <inheritdoc/>
@@ -138,8 +142,12 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 		Deserialize(info);
 
 	/// <inheritdoc/>
-	public virtual ValueTask DisposeAsync() =>
-		disposalTracker.DisposeAsync();
+	public virtual ValueTask DisposeAsync()
+	{
+		GC.SuppressFinalize(this);
+
+		return disposalTracker.DisposeAsync();
+	}
 
 	/// <inheritdoc/>
 	protected virtual void Serialize(IXunitSerializationInfo info)

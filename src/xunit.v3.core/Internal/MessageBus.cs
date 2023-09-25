@@ -55,9 +55,11 @@ public class MessageBus : IMessageBus
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		shutdownRequested = true;
 

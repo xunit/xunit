@@ -20,6 +20,8 @@ namespace Xunit.Runner.v2;
 /// </summary>
 public class Xunit2 : IFrontController
 {
+#pragma warning disable CA2213 // Disposable fields in this class are disposed via DisposalTracker
+
 #if NETFRAMEWORK
 	static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
 	static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
@@ -35,6 +37,8 @@ public class Xunit2 : IFrontController
 	readonly ITestFrameworkDiscoverer remoteDiscoverer;
 	readonly ITestFrameworkExecutor? remoteExecutor;
 	readonly ITestFramework remoteFramework;
+
+#pragma warning restore CA2213 // Disposable fields should be disposed
 
 	Xunit2(
 		_IMessageSink diagnosticMessageSink,
@@ -204,9 +208,11 @@ public class Xunit2 : IFrontController
 	public virtual ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return default;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		return DisposalTracker.DisposeAsync();
 	}
@@ -669,14 +675,7 @@ public class Xunit2 : IFrontController
 
 	// Inner classes
 
-	class DescriptorCallback : LongLivedMarshalByRefObject
-	{
-		public List<string>? Results;
-
-		public void Callback(List<string> results) => Results = results;
-	}
-
-	class DeserializeCallback : LongLivedMarshalByRefObject
+	sealed class DeserializeCallback : LongLivedMarshalByRefObject
 	{
 		public List<KeyValuePair<string?, ITestCase?>>? Results;
 
@@ -684,13 +683,13 @@ public class Xunit2 : IFrontController
 	}
 
 	// This message sink filters out _DiscoveryComplete (to let us run multiple discoveries at once) as well
-	// as only reported discovered test cases which pass the filter.
-	class FilteringMessageSink : _IMessageSink, IDisposable
+	// as only reporting discovered test cases which pass the filter.
+	sealed class FilteringMessageSink : _IMessageSink, IDisposable
 	{
 		readonly Action<_TestCaseDiscovered>? discoveryCallback;
 		readonly Predicate<_TestCaseDiscovered> filter;
 		readonly _IMessageSink innerMessageSink;
-		volatile int testCasesToRun = 0;
+		volatile int testCasesToRun;
 
 		public FilteringMessageSink(
 			_IMessageSink innerMessageSink,

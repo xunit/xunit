@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="VstsReporter" />.
+/// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="VstsReporter" />.
 /// </summary>
 public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 {
@@ -54,6 +55,23 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	}
 
 	/// <inheritdoc/>
+	public override async ValueTask DisposeAsync()
+	{
+		await base.DisposeAsync();
+
+		GC.SuppressFinalize(this);
+
+		lock (clientLock)
+		{
+			client?.Dispose();
+			client = null;
+
+			if (assembliesInFlight != 0)
+				Logger.LogWarning($"{nameof(VstsReporterMessageHandler)} disposed with {assembliesInFlight} assemblies in flight");
+		}
+	}
+
+	/// <inheritdoc/>
 	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 	{
 		base.HandleTestAssemblyFinished(args);
@@ -65,7 +83,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			if (assembliesInFlight == 0)
 			{
 				// Drain the queue
-				client?.Dispose(CancellationToken.None);
+				client?.Dispose();
 				client = null;
 			}
 		}
@@ -83,6 +101,8 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	/// <inheritdoc/>
 	protected override void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestStarting(args);
 
 		var testStarting = args.Message;
@@ -101,6 +121,8 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	/// <inheritdoc/>
 	protected override void HandleTestPassed(MessageHandlerArgs<_TestPassed> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		var testPassed = args.Message;
 
 		VstsUpdateTest(testPassed.TestUniqueID, "Passed", Convert.ToInt64(testPassed.ExecutionTime * 1000), stdOut: testPassed.Output);
@@ -111,6 +133,8 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	/// <inheritdoc/>
 	protected override void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		var testSkipped = args.Message;
 
 		VstsUpdateTest(testSkipped.TestUniqueID, "NotExecuted", Convert.ToInt64(testSkipped.ExecutionTime * 1000));
@@ -121,6 +145,8 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 	/// <inheritdoc/>
 	protected override void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		var testFailed = args.Message;
 
 		VstsUpdateTest(

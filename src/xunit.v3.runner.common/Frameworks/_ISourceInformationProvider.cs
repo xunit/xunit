@@ -1,3 +1,5 @@
+using System;
+
 namespace Xunit.Runner.Common;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Xunit.Runner.Common;
 /// this via DiaSession from Visual Studio). It's used to supplement test case metadata when the discovery
 /// process itself cannot provide source file and line information.
 /// </summary>
-public interface _ISourceInformationProvider
+public interface _ISourceInformationProvider : IAsyncDisposable
 {
 	/// <summary>
 	/// Returns the source information for a test case.

@@ -32,7 +32,9 @@ public class DefaultTestCaseOrderer : ITestCaseOrderer
 		return result;
 	}
 
-	List<TTestCase> Randomize<TTestCase>(List<TTestCase> testCases)
+#pragma warning disable CA5394 // Cryptograph randomness is not necessary here
+
+	static List<TTestCase> Randomize<TTestCase>(List<TTestCase> testCases)
 	{
 		var result = new List<TTestCase>(testCases.Count);
 		var randomizer = Randomizer.Current;
@@ -47,7 +49,9 @@ public class DefaultTestCaseOrderer : ITestCaseOrderer
 		return result;
 	}
 
-	int Compare<TTestCase>(
+#pragma warning restore CA5394
+
+	static int Compare<TTestCase>(
 		TTestCase x,
 		TTestCase y)
 			where TTestCase : notnull, _ITestCase

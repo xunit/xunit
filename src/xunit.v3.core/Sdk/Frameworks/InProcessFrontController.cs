@@ -104,7 +104,7 @@ public class InProcessFrontController
 
 		try
 		{
-			var cts = new CancellationTokenSource();
+			using var cts = new CancellationTokenSource();
 
 			await discoverer.Value.Find(
 				async testCase =>

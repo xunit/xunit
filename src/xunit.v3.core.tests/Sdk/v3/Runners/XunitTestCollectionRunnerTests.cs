@@ -316,8 +316,13 @@ public class XunitTestCollectionRunnerTests
 					assemblyFixtures.ToDictionary(fixture => fixture.GetType())
 				);
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(testCollection, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings));
+		public async ValueTask<RunSummary> RunAsync()
+		{
+			await using var ctxt = new XunitTestCollectionRunnerContext(testCollection, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings);
+			await ctxt.InitializeAsync();
+
+			return await RunAsync(ctxt);
+		}
 
 		protected override ValueTask<RunSummary> RunTestClassesAsync(XunitTestCollectionRunnerContext ctxt)
 		{

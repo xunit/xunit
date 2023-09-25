@@ -27,6 +27,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	/// <inheritdoc/>
 	protected override async ValueTask AfterTestCaseStartingAsync(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		await base.AfterTestCaseStartingAsync(ctxt);
 
 		if (ctxt.TestCase.TestMethod == null)
@@ -122,6 +124,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	/// <inheritdoc/>
 	protected override ValueTask BeforeTestCaseFinishedAsync(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		ctxt.Aggregator.Aggregate(ctxt.CleanupAggregator);
 
 		return base.BeforeTestCaseFinishedAsync(ctxt);
@@ -140,7 +144,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
-	public ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> RunAsync(
 		IXunitTestCase testCase,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
@@ -157,12 +161,17 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 
 		var (testClass, testMethod, beforeAfterTestAttributes) = Initialize(testCase, ref testMethodArguments);
 
-		return RunAsync(new(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes));
+		await using var ctxt = new XunitDelayEnumeratedTheoryTestCaseRunnerContext(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<RunSummary> RunTestsAsync(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		if (ctxt.DiscoveryException != null)
 			return RunTest_DataDiscoveryException(ctxt);
 
@@ -204,7 +213,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 		return runSummary;
 	}
 
-	RunSummary RunTest_DataDiscoveryException(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
+	static RunSummary RunTest_DataDiscoveryException(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
 		// Use -1 for the index here so we don't collide with any legitimate test IDs that might've been used
 		var test = new XunitTest(ctxt.TestCase, @explicit: null, ctxt.DisplayName, testIndex: -1, ctxt.TestCase.Traits, timeout: 0);

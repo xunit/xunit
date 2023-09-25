@@ -8,7 +8,7 @@ namespace Xunit.Runners;
 public abstract class TestExecutedInfo : TestInfo
 {
 	/// <summary/>
-	public TestExecutedInfo(
+	protected TestExecutedInfo(
 		string typeName,
 		string methodName,
 		Dictionary<string, List<string>>? traits,

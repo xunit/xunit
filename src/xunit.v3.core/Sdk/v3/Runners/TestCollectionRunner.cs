@@ -46,72 +46,65 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
 	{
-		await ctxt.InitializeAsync();
+		Guard.ArgumentNotNull(ctxt);
 
-		try
+		SetTestContext(ctxt, TestEngineStatus.Initializing);
+
+		var collectionSummary = new RunSummary();
+		var testAssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = ctxt.TestCollection.UniqueID;
+
+		var collectionStarting = new _TestCollectionStarting
 		{
-			SetTestContext(ctxt, TestEngineStatus.Initializing);
+			AssemblyUniqueID = testAssemblyUniqueID,
+			TestCollectionClass = ctxt.TestCollection.CollectionDefinition?.Name,
+			TestCollectionDisplayName = ctxt.TestCollection.DisplayName,
+			TestCollectionUniqueID = testCollectionUniqueID
+		};
 
-			var collectionSummary = new RunSummary();
-			var testAssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID;
-			var testCollectionUniqueID = ctxt.TestCollection.UniqueID;
-
-			var collectionStarting = new _TestCollectionStarting
+		if (!ctxt.MessageBus.QueueMessage(collectionStarting))
+			ctxt.CancellationTokenSource.Cancel();
+		else
+		{
+			try
 			{
-				AssemblyUniqueID = testAssemblyUniqueID,
-				TestCollectionClass = ctxt.TestCollection.CollectionDefinition?.Name,
-				TestCollectionDisplayName = ctxt.TestCollection.DisplayName,
-				TestCollectionUniqueID = testCollectionUniqueID
-			};
+				await AfterTestCollectionStartingAsync(ctxt);
 
-			if (!ctxt.MessageBus.QueueMessage(collectionStarting))
-				ctxt.CancellationTokenSource.Cancel();
-			else
-			{
-				try
+				SetTestContext(ctxt, TestEngineStatus.Running);
+
+				collectionSummary = await RunTestClassesAsync(ctxt);
+
+				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+
+				ctxt.Aggregator.Clear();
+				await BeforeTestCollectionFinishedAsync(ctxt);
+
+				if (ctxt.Aggregator.HasExceptions)
 				{
-					await AfterTestCollectionStartingAsync(ctxt);
-
-					SetTestContext(ctxt, TestEngineStatus.Running);
-
-					collectionSummary = await RunTestClassesAsync(ctxt);
-
-					SetTestContext(ctxt, TestEngineStatus.CleaningUp);
-
-					ctxt.Aggregator.Clear();
-					await BeforeTestCollectionFinishedAsync(ctxt);
-
-					if (ctxt.Aggregator.HasExceptions)
-					{
-						var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID);
-						if (!ctxt.MessageBus.QueueMessage(collectionCleanupFailure))
-							ctxt.CancellationTokenSource.Cancel();
-					}
-				}
-				finally
-				{
-					var collectionFinished = new _TestCollectionFinished
-					{
-						AssemblyUniqueID = testAssemblyUniqueID,
-						ExecutionTime = collectionSummary.Time,
-						TestCollectionUniqueID = testCollectionUniqueID,
-						TestsFailed = collectionSummary.Failed,
-						TestsNotRun = collectionSummary.NotRun,
-						TestsTotal = collectionSummary.Total,
-						TestsSkipped = collectionSummary.Skipped
-					};
-
-					if (!ctxt.MessageBus.QueueMessage(collectionFinished))
+					var collectionCleanupFailure = _TestCollectionCleanupFailure.FromException(ctxt.Aggregator.ToException()!, testAssemblyUniqueID, testCollectionUniqueID);
+					if (!ctxt.MessageBus.QueueMessage(collectionCleanupFailure))
 						ctxt.CancellationTokenSource.Cancel();
 				}
 			}
+			finally
+			{
+				var collectionFinished = new _TestCollectionFinished
+				{
+					AssemblyUniqueID = testAssemblyUniqueID,
+					ExecutionTime = collectionSummary.Time,
+					TestCollectionUniqueID = testCollectionUniqueID,
+					TestsFailed = collectionSummary.Failed,
+					TestsNotRun = collectionSummary.NotRun,
+					TestsTotal = collectionSummary.Total,
+					TestsSkipped = collectionSummary.Skipped
+				};
 
-			return collectionSummary;
+				if (!ctxt.MessageBus.QueueMessage(collectionFinished))
+					ctxt.CancellationTokenSource.Cancel();
+			}
 		}
-		finally
-		{
-			await ctxt.DisposeAsync();
-		}
+
+		return collectionSummary;
 	}
 
 	/// <summary>
@@ -121,6 +114,8 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected virtual async ValueTask<RunSummary> RunTestClassesAsync(TContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var summary = new RunSummary();
 
 		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance))
@@ -163,6 +158,10 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 	/// <param name="testCollectionStatus">The current test collection status.</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
-		TestEngineStatus testCollectionStatus) =>
-			TestContext.SetForTestCollection(ctxt.TestCollection, testCollectionStatus, ctxt.CancellationTokenSource.Token);
+		TestEngineStatus testCollectionStatus)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTestCollection(ctxt.TestCollection, testCollectionStatus, ctxt.CancellationTokenSource.Token);
+	}
 }

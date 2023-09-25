@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Xunit.Internal;
 
 namespace Xunit.v3;
 
@@ -27,6 +28,10 @@ public class TestCollectionComparer : IEqualityComparer<_ITestCollection>
 	}
 
 	/// <inheritdoc/>
-	public int GetHashCode(_ITestCollection obj) =>
-		obj.UniqueID.GetHashCode();
+	public int GetHashCode(_ITestCollection obj)
+	{
+		Guard.ArgumentNotNull(obj);
+
+		return obj.UniqueID.GetHashCode();
+	}
 }

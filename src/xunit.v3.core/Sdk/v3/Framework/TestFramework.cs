@@ -23,9 +23,11 @@ public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	public virtual async ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		await DisposalTracker.DisposeAsync();
 	}

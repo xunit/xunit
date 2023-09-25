@@ -1,3 +1,7 @@
+#pragma warning disable CA1044 // The write-only properties in this class cannot be converted to methods becuase of MSBuild task requirements
+#pragma warning disable CA1721 // Properties with names that are confusing is okay because of MSBuild task requirements
+#pragma warning disable CA1724 // The name of this type is a shipped contract (and part of the MSBuild UX)
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -121,7 +125,10 @@ public class xunit : MSBuildTask, ICancelableTask
 		cancel = true;
 	}
 
-	public override bool Execute()
+	public override bool Execute() =>
+		ExecuteAsync().GetAwaiter().GetResult();
+
+	async Task<bool> ExecuteAsync()
 	{
 		Guard.ArgumentNotNull(Assemblies);
 
@@ -133,28 +140,28 @@ public class xunit : MSBuildTask, ICancelableTask
 			assembliesElement = TransformFactory.CreateAssembliesElement();
 
 		var appDomains = default(AppDomainSupport?);
-		switch (AppDomains?.ToLowerInvariant())
+		switch (AppDomains?.ToUpperInvariant())
 		{
 			case null:
 				break;
 
-			case "ifavailable":
+			case "IFAVAILABLE":
 				appDomains = AppDomainSupport.IfAvailable;
 				break;
 
-			case "true":
-			case "required":
+			case "TRUE":
+			case "REQUIRED":
 				appDomains = AppDomainSupport.Required;
 				break;
 
-			case "false":
-			case "denied":
+			case "FALSE":
+			case "DENIED":
 				appDomains = AppDomainSupport.Denied;
 				break;
 
 			default:
 				lock (logLock)
-					Log.LogError("AppDomains value '{0}' is invalid: must be 'ifavailable', 'required', or 'denied'", AppDomains);
+					Log.LogError("AppDomains value '{0}' is invalid: must be one of 'IfAvailable', 'Required', or 'Denied'", AppDomains);
 
 				return false;
 		}
@@ -189,7 +196,7 @@ public class xunit : MSBuildTask, ICancelableTask
 		}
 
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
-		var globalDiagnosticsMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? false, internalDiagnosticMessages ?? false);
+		await using var globalDiagnosticsMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? false, internalDiagnosticMessages ?? false);
 
 		using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), globalDiagnosticsMessageSink))
 		{
@@ -198,7 +205,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				return false;
 
 			logger = new MSBuildLogger(Log);
-			reporterMessageHandler = reporter.CreateMessageHandler(logger, globalDiagnosticsMessageSink).GetAwaiter().GetResult();
+			reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticsMessageSink);
 
 			if (!NoLogo)
 				lock (logLock)
@@ -231,11 +238,11 @@ public class xunit : MSBuildTask, ICancelableTask
 					};
 
 				if (Explicit != null)
-					projectAssembly.Configuration.ExplicitOption = Explicit.ToLowerInvariant() switch
+					projectAssembly.Configuration.ExplicitOption = Explicit.ToUpperInvariant() switch
 					{
-						"off" => ExplicitOption.Off,
-						"on" => ExplicitOption.On,
-						"only" => ExplicitOption.Only,
+						"OFF" => ExplicitOption.Off,
+						"ON" => ExplicitOption.On,
+						"ONLY" => ExplicitOption.Only,
 						_ => throw new ArgumentException($"Invalid value for Explicit ('{Explicit}'); valid values are 'off', 'on', and 'only'"),
 					};
 
@@ -256,7 +263,7 @@ public class xunit : MSBuildTask, ICancelableTask
 			if (parallelizeAssemblies.GetValueOrDefault())
 			{
 				var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
-				var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
+				var results = await Task.WhenAll(tasks);
 				foreach (var assemblyElement in results.WhereNotNull())
 					assembliesElement!.Add(assemblyElement);
 			}
@@ -272,7 +279,7 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			clockTime.Stop();
 
-			if (completionMessages.Count > 0)
+			if (!completionMessages.IsEmpty)
 			{
 				var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
 				foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
@@ -311,6 +318,8 @@ public class xunit : MSBuildTask, ICancelableTask
 		XunitProjectAssembly assembly,
 		AppDomainSupport? appDomains)
 	{
+		Guard.ArgumentNotNull(assembly);
+
 		if (cancel)
 			return null;
 
@@ -345,7 +354,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				executionOptions.SetStopOnTestFail(stopOnFail);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
-			var diagnosticMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? assembly.Configuration.DiagnosticMessagesOrDefault, internalDiagnosticMessages ?? assembly.Configuration.InternalDiagnosticMessagesOrDefault, assemblyDisplayName);
+			await using var diagnosticMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? assembly.Configuration.DiagnosticMessagesOrDefault, internalDiagnosticMessages ?? assembly.Configuration.InternalDiagnosticMessagesOrDefault, assemblyDisplayName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -449,7 +458,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 					continue;
 
-				var ctor = type.GetConstructor(new Type[0]);
+				var ctor = type.GetConstructor(Array.Empty<Type>());
 				if (ctor == null)
 				{
 					lock (logLock)
@@ -458,7 +467,7 @@ public class xunit : MSBuildTask, ICancelableTask
 					continue;
 				}
 
-				result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+				result.Add((IRunnerReporter)ctor.Invoke(Array.Empty<object>()));
 			}
 		}
 
@@ -477,12 +486,14 @@ public class xunit : MSBuildTask, ICancelableTask
 			reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
 			if (reporter == null)
 			{
+#pragma warning disable CA1308 // The switch list is lowercased because it's presented in the UI that way
 				var switchableReporters =
 					reporters
 						.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch))
 						.Select(r => r.RunnerSwitch!.ToLowerInvariant())
 						.OrderBy(x => x)
 						.ToList();
+#pragma warning restore CA1308
 
 				lock (logLock)
 					if (switchableReporters.Count == 0)

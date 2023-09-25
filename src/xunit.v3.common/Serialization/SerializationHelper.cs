@@ -70,9 +70,11 @@ public static class SerializationHelper
 		};
 
 		if (dateOnlyFromDayNumber != null)
-			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, new object[] { int.Parse(v) }));
+			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, new object[] { int.Parse(v, CultureInfo.InvariantCulture) }));
 		if (timeOnlyCtor != null)
-			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke(new object[] { long.Parse(v) }));
+			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke(new object[] { long.Parse(v, CultureInfo.InvariantCulture) }));
+
+#pragma warning disable CA1065 // These thrown exceptions are done in lambdas, not directly in the static constructor
 
 		serializersByTypeIdx = new()
 		{
@@ -83,7 +85,7 @@ public static class SerializationHelper
 			{ TypeIndex.Object, (_, __) => string.Empty },
 
 			{ TypeIndex.String, (v, _) => ToBase64((string)v) },
-			{ TypeIndex.Char, (v, _) => Convert.ToUInt16(v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Char, (v, _) => Convert.ToUInt16(v, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Byte, (v, _) => ((byte)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.SByte, (v, _) => ((sbyte)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Int16, (v, _) => ((short)v).ToString(CultureInfo.InvariantCulture) },
@@ -106,6 +108,8 @@ public static class SerializationHelper
 			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call GetValue on an instance of '{dateOnlyType!.SafeName()}': {v}"));
 		if (timeOnlyTicks != null)
 			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call Ticks on an instance of '{timeOnlyType!.SafeName()}': {v}"));
+
+#pragma warning restore CA1065
 
 		typesByTypeIdx = new()
 		{
@@ -166,13 +170,13 @@ public static class SerializationHelper
 		var isArray = false;
 		var isNullable = false;
 
-		if (typeIdxText.EndsWith("[]"))
+		if (typeIdxText.EndsWith("[]", StringComparison.Ordinal))
 		{
 			isArray = true;
 			typeIdxText = typeIdxText.Substring(0, typeIdxText.Length - 2);
 		}
 
-		if (typeIdxText.EndsWith("?"))
+		if (typeIdxText.EndsWith("?", StringComparison.Ordinal))
 		{
 			isNullable = true;
 			typeIdxText = typeIdxText.Substring(0, typeIdxText.Length - 1);
@@ -494,6 +498,8 @@ public static class SerializationHelper
 	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
 	public static Type? SerializedTypeNameToType(string assemblyQualifiedTypeName)
 	{
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
 		var firstOpenSquare = assemblyQualifiedTypeName.IndexOf('[');
 		if (firstOpenSquare > 0)
 		{
@@ -705,7 +711,7 @@ public static class SerializationHelper
 		return Convert.ToBase64String(bytes);
 	}
 
-	class ArraySerializer : IXunitSerializable
+	sealed class ArraySerializer : IXunitSerializable
 	{
 		Array? array;
 		readonly Type? elementType;

@@ -28,6 +28,8 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 	/// <inheritdoc/>
 	protected override async ValueTask AfterTestAssemblyStartingAsync(XunitTestAssemblyRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		await CreateAssemblyFixturesAsync(ctxt);
 		await base.AfterTestAssemblyStartingAsync(ctxt);
 	}
@@ -35,6 +37,8 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 	/// <inheritdoc/>
 	protected override async ValueTask BeforeTestAssemblyFinishedAsync(XunitTestAssemblyRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var disposeAsyncTasks =
 			ctxt.AssemblyFixtureMappings
 				.Values
@@ -81,6 +85,9 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		XunitTestAssemblyRunnerContext ctxt,
 		Type fixtureType)
 	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(fixtureType);
+
 		var ctors =
 			fixtureType
 				.GetConstructors()
@@ -158,11 +165,11 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 
 	/// <inheritdoc/>
 	protected override ITestCaseOrderer GetTestCaseOrderer(XunitTestAssemblyRunnerContext ctxt) =>
-		ctxt.AssemblyTestCaseOrderer ?? base.GetTestCaseOrderer(ctxt);
+		Guard.ArgumentNotNull(ctxt).AssemblyTestCaseOrderer ?? base.GetTestCaseOrderer(ctxt);
 
 	/// <inheritdoc/>
 	protected override ITestCollectionOrderer GetTestCollectionOrderer(XunitTestAssemblyRunnerContext ctxt) =>
-		ctxt.AssemblyTestCollectionOrderer ?? base.GetTestCollectionOrderer(ctxt);
+		Guard.ArgumentNotNull(ctxt).AssemblyTestCollectionOrderer ?? base.GetTestCollectionOrderer(ctxt);
 
 	/// <summary>
 	/// Runs the test assembly.
@@ -182,14 +189,19 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		Guard.ArgumentNotNull(executionMessageSink);
 		Guard.ArgumentNotNull(executionOptions);
 
-		// Note: This method always needs to be async, so that it will ensure we restore any sync
-		// context that might be set further downstream.
-		return await RunAsync(new(testAssembly, testCases, executionMessageSink, executionOptions));
+		await using var ctxt = new XunitTestAssemblyRunnerContext(testAssembly, testCases, executionMessageSink, executionOptions);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
 	}
+
+#pragma warning disable CA2012 // We guarantee that parallel ValueTasks are only awaited once
 
 	/// <inheritdoc/>
 	protected override async ValueTask<RunSummary> RunTestCollectionsAsync(XunitTestAssemblyRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		if (ctxt.DisableParallelization)
 			return await base.RunTestCollectionsAsync(ctxt);
 
@@ -246,19 +258,27 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		};
 	}
 
+#pragma warning restore CA2012
+
 	/// <inheritdoc/>
 	protected override ValueTask<RunSummary> RunTestCollectionAsync(
 		XunitTestAssemblyRunnerContext ctxt,
 		_ITestCollection testCollection,
-		IReadOnlyCollection<IXunitTestCase> testCases) =>
-			XunitTestCollectionRunner.Instance.RunAsync(
-				testCollection,
-				testCases,
-				ctxt.ExplicitOption,
-				ctxt.MessageBus,
-				GetTestCaseOrderer(ctxt),
-				ctxt.Aggregator.Clone(),
-				ctxt.CancellationTokenSource,
-				ctxt.AssemblyFixtureMappings
-			);
+		IReadOnlyCollection<IXunitTestCase> testCases)
+	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(testCollection);
+		Guard.ArgumentNotNull(testCases);
+
+		return XunitTestCollectionRunner.Instance.RunAsync(
+			testCollection,
+			testCases,
+			ctxt.ExplicitOption,
+			ctxt.MessageBus,
+			GetTestCaseOrderer(ctxt),
+			ctxt.Aggregator.Clone(),
+			ctxt.CancellationTokenSource,
+			ctxt.AssemblyFixtureMappings
+		);
+	}
 }

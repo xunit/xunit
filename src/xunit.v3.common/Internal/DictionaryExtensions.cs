@@ -106,7 +106,7 @@ public static class DictionaryExtensions
 	/// <summary/>
 	public static IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> ToReadOnly<TKey, TValue>(this Dictionary<TKey, List<TValue>> dictionary)
 		where TKey : notnull =>
-			dictionary.ToDictionary(
+			Guard.ArgumentNotNull(dictionary).ToDictionary(
 				kvp => kvp.Key,
 				kvp => (IReadOnlyList<TValue>)kvp.Value.AsReadOnly(),
 				dictionary.Comparer
@@ -117,7 +117,7 @@ public static class DictionaryExtensions
 		this IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> dictionary,
 		IEqualityComparer<TKey>? comparer)
 			where TKey : notnull =>
-				dictionary.ToDictionary(
+				Guard.ArgumentNotNull(dictionary).ToDictionary(
 					kvp => kvp.Key,
 					kvp => kvp.Value.ToList(),
 					comparer

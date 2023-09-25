@@ -14,7 +14,7 @@ public static class ExtensibilityPointFactory
 		Type type,
 		object?[]? ctorArgs)
 	{
-		ctorArgs ??= new object[0];
+		ctorArgs ??= Array.Empty<object>();
 
 		try
 		{

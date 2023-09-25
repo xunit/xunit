@@ -62,7 +62,8 @@ public class TestAssembly : _ITestAssembly, IXunitSerializable
 	public Version Version =>
 		this.ValidateNullablePropertyValue(version, nameof(Version));
 
-	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+	/// <inheritdoc/>
+	public void Deserialize(IXunitSerializationInfo info)
 	{
 		var versionString = Guard.NotNull("Could not retrieve Version from serialization", info.GetValue<string>("v"));
 		version = new Version(versionString);
@@ -78,7 +79,8 @@ public class TestAssembly : _ITestAssembly, IXunitSerializable
 		uniqueID = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, ConfigFileName);
 	}
 
-	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+	/// <inheritdoc/>
+	public void Serialize(IXunitSerializationInfo info)
 	{
 		info.AddValue("ap", Assembly.AssemblyPath);
 		info.AddValue("cfn", ConfigFileName);

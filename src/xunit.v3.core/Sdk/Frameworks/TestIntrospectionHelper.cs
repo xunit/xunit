@@ -122,6 +122,12 @@ public static class TestIntrospectionHelper
 		ITheoryDataRow dataRow,
 		object?[] testMethodArguments)
 	{
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(theoryAttribute);
+		Guard.ArgumentNotNull(dataRow);
+		Guard.ArgumentNotNull(testMethodArguments);
+
 		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, testMethodArguments, dataRow.Timeout, dataRow.TestDisplayName);
 
 		if (dataRow.Explicit.HasValue)

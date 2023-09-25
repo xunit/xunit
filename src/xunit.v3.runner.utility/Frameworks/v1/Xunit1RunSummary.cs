@@ -1,5 +1,7 @@
 #if NETFRAMEWORK
 
+using Xunit.Internal;
+
 namespace Xunit.Runner.v1;
 
 /// <summary>
@@ -43,6 +45,8 @@ public class Xunit1RunSummary
 	/// <param name="other">The other result.</param>
 	public void Aggregate(Xunit1RunSummary other)
 	{
+		Guard.ArgumentNotNull(other);
+
 		Total += other.Total;
 		Failed += other.Failed;
 		Skipped += other.Skipped;

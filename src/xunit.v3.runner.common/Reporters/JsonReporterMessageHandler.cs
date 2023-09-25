@@ -1,12 +1,14 @@
+using System;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="JsonReporter" />.
+/// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="JsonReporter" />.
 /// </summary>
-public class JsonReporterMessageHandler : _IMessageSink
+public class JsonReporterMessageHandler : IRunnerReporterMessageHandler
 {
 	readonly IRunnerLogger logger;
 
@@ -17,6 +19,14 @@ public class JsonReporterMessageHandler : _IMessageSink
 	public JsonReporterMessageHandler(IRunnerLogger logger)
 	{
 		this.logger = logger;
+	}
+
+	/// <inheritdoc/>
+	public ValueTask DisposeAsync()
+	{
+		GC.SuppressFinalize(this);
+
+		return default;
 	}
 
 	/// <inheritdoc/>

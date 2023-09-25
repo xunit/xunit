@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -28,6 +29,8 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 	/// <inheritdoc/>
 	protected override ValueTask AfterTestMethodInvokedAsync(XunitTestInvokerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var testUniqueID = ctxt.Test.UniqueID;
 
 		// At this point, this list has been pruned to only the attributes that were successfully run
@@ -81,6 +84,8 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 	/// <inheritdoc/>
 	protected override ValueTask BeforeTestMethodInvokedAsync(XunitTestInvokerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var testUniqueID = ctxt.Test.UniqueID;
 
 		// At this point, this list is the full attribute list from the call to RunAsync. We attempt to
@@ -157,6 +162,8 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 	/// <inheritdoc/>
 	protected override object? CreateTestClassInstance(XunitTestInvokerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		// We allow for Func<T> when the argument is T, such that we should be able to get the value just before
 		// invoking the test. So we need to do a transform on the arguments.
 		object?[]? actualCtorArguments = null;
@@ -184,9 +191,9 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 					if (ctorArgumentParamType != ctorArgumentValueType &&
 						ctorArgumentValueType == typeof(Func<>).MakeGenericType(ctorArgumentParamType))
 					{
-						var invokeMethod = ctorArgumentValueType.GetMethod("Invoke", new Type[0]);
+						var invokeMethod = ctorArgumentValueType.GetMethod("Invoke", Array.Empty<Type>());
 						if (invokeMethod != null)
-							actualCtorArguments[idx] = invokeMethod.Invoke(ctxt.ConstructorArguments[idx], new object?[0]);
+							actualCtorArguments[idx] = invokeMethod.Invoke(ctxt.ConstructorArguments[idx], Array.Empty<object?>());
 					}
 				}
 			}
@@ -200,6 +207,8 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		XunitTestInvokerContext ctxt,
 		object? testClassInstance)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		return
 			ctxt.Test.Timeout > 0
 				? InvokeTimeoutTestMethodAsync(ctxt, testClassInstance, ctxt.Test.Timeout)
@@ -248,7 +257,7 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 	/// <param name="cancellationTokenSource">The cancellation token source used to cancel test execution</param>
 	/// <returns>Returns the time (in seconds) spent creating the test class, running
 	/// the test, and disposing of the test class.</returns>
-	public ValueTask<decimal> RunAsync(
+	public async ValueTask<decimal> RunAsync(
 		_ITest test,
 		Type testClass,
 		object?[] constructorArguments,
@@ -258,6 +267,11 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource) =>
-			RunAsync(new(test, testClass, constructorArguments, testMethod, testMethodArguments, explicitOption, messageBus, aggregator, cancellationTokenSource, beforeAfterTestAttributes));
+		CancellationTokenSource cancellationTokenSource)
+	{
+		await using var ctxt = new XunitTestInvokerContext(test, testClass, constructorArguments, testMethod, testMethodArguments, explicitOption, messageBus, aggregator, cancellationTokenSource, beforeAfterTestAttributes);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
+	}
 }

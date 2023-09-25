@@ -1,3 +1,4 @@
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
@@ -36,7 +37,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogMessage(StackFrameInfo.None, string.Format(messageFormat, args));
+		logger.LogMessage(StackFrameInfo.None, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -55,7 +56,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogMessage(stackFrame, string.Format(messageFormat, args));
+		logger.LogMessage(stackFrame, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -87,7 +88,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogImportantMessage(StackFrameInfo.None, string.Format(messageFormat, args));
+		logger.LogImportantMessage(StackFrameInfo.None, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -106,7 +107,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogImportantMessage(stackFrame, string.Format(messageFormat, args));
+		logger.LogImportantMessage(stackFrame, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -138,7 +139,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogWarning(StackFrameInfo.None, string.Format(messageFormat, args));
+		logger.LogWarning(StackFrameInfo.None, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -157,7 +158,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogWarning(stackFrame, string.Format(messageFormat, args));
+		logger.LogWarning(stackFrame, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -189,7 +190,7 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogError(StackFrameInfo.None, string.Format(messageFormat, args));
+		logger.LogError(StackFrameInfo.None, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 
 	/// <summary>
@@ -208,6 +209,6 @@ public static class IRunnerLoggerExtensions
 		Guard.ArgumentNotNull(logger);
 		Guard.ArgumentNotNull(messageFormat);
 
-		logger.LogError(stackFrame, string.Format(messageFormat, args));
+		logger.LogError(stackFrame, string.Format(CultureInfo.CurrentCulture, messageFormat, args));
 	}
 }

@@ -465,7 +465,12 @@ public class TestInvokerTests
 			return base.InvokeTestMethodAsync(ctxt, testClassInstance);
 		}
 
-		public ValueTask<decimal> RunAsync() =>
-			RunAsync(new(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, ExplicitOption.Off, messageBus, Aggregator, TokenSource));
+		public async ValueTask<decimal> RunAsync()
+		{
+			await using var ctxt = new TestInvokerContext(test, testClass, Array.Empty<object>(), testMethod, testMethodArguments, ExplicitOption.Off, messageBus, Aggregator, TokenSource);
+			await ctxt.InitializeAsync();
+
+			return await RunAsync(ctxt);
+		}
 	}
 }

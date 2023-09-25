@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -10,11 +11,11 @@ using Xunit.v3;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="DefaultRunnerReporter" />.
+/// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="DefaultRunnerReporter" />.
 /// </summary>
-public class DefaultRunnerReporterMessageHandler : TestMessageSink
+public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerReporterMessageHandler
 {
-	readonly string? defaultDirectory = null;
+	readonly string? defaultDirectory;
 	readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
 	readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new(StringComparer.OrdinalIgnoreCase);
 
@@ -315,8 +316,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 		if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
 		{
 			var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
-			var threadCountText = threadCount < 0 ? "unlimited" : threadCount.ToString();
+			var threadCountText = threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.InvariantCulture);
+#pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
+#pragma warning restore CA1308
 			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit}{(executionStarting.Seed == null ? "" : $", seed = {executionStarting.Seed}")})");
 		}
 		else
@@ -667,32 +670,35 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink
 				).OrderBy(summary => summary.AssemblyDisplayName)
 				.ToList();
 
-		var totalTestsRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Total);
-		var totalTestsFailed = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Failed);
-		var totalTestsSkipped = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Skipped);
-		var totalTestsNotRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.NotRun);
-		var totalTime = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Time).ToString("0.000s");
-		var totalErrors = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Errors);
 		var longestAssemblyName = summariesWithDisplayName.Max(summary => summary.AssemblyDisplayName.Length);
-		var longestTotal = totalTestsRun.ToString().Length;
-		var longestFailed = totalTestsFailed.ToString().Length;
-		var longestSkipped = totalTestsSkipped.ToString().Length;
-		var longestNotRun = totalTestsNotRun.ToString().Length;
-		var longestTime = totalTime.Length;
-		var longestErrors = totalErrors.ToString().Length;
+		var allTotal = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Total).ToString(CultureInfo.CurrentCulture);
+		var allErrors = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Errors).ToString(CultureInfo.CurrentCulture);
+		var allFailed = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Failed).ToString(CultureInfo.CurrentCulture);
+		var allSkipped = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Skipped).ToString(CultureInfo.CurrentCulture);
+		var allNotRun = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.NotRun).ToString(CultureInfo.CurrentCulture);
+		var allTime = summaries.SummariesByAssemblyUniqueID.Sum(summary => summary.Summary.Time).ToString("0.000s", CultureInfo.CurrentCulture);
 
 		foreach (var (summary, assemblyUniqueID, assemblyDisplayName) in summariesWithDisplayName)
 		{
 			if (summary.Total == 0)
-				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(longestTotal)}");
+				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(allTotal.Length)}");
 			else
-				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {summary.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Skipped.ToString().PadLeft(longestSkipped)}, Not Run: {summary.NotRun.ToString().PadLeft(longestNotRun)}, Time: {summary.Time.ToString("0.000s").PadLeft(longestTime)}");
+			{
+				var total = summary.Total.ToString(CultureInfo.CurrentCulture).PadLeft(allTotal.Length);
+				var errors = summary.Errors.ToString(CultureInfo.CurrentCulture).PadLeft(allErrors.Length);
+				var failed = summary.Failed.ToString(CultureInfo.CurrentCulture).PadLeft(allFailed.Length);
+				var skipped = summary.Skipped.ToString(CultureInfo.CurrentCulture).PadLeft(allSkipped.Length);
+				var notRun = summary.NotRun.ToString(CultureInfo.CurrentCulture).PadLeft(allNotRun.Length);
+				var time = summary.Time.ToString("0.000s", CultureInfo.CurrentCulture).PadLeft(allTime.Length);
+
+				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {total}, Errors: {errors}, Failed: {failed}, Skipped: {skipped}, Not Run: {notRun}, Time: {time}");
+			}
 		}
 
 		if (summaries.SummariesByAssemblyUniqueID.Count > 1)
 		{
-			logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(longestTotal, '-')}          {"-".PadRight(longestErrors, '-')}          {"-".PadRight(longestFailed, '-')}           {"-".PadRight(longestSkipped, '-')}           {"-".PadRight(longestNotRun, '-')}        {"-".PadRight(longestTime, '-')}");
-			logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}           {totalTestsNotRun}        {totalTime} ({summaries.ElapsedClockTime.TotalSeconds:0.000s})");
+			logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(allTotal.Length, '-')}          {"-".PadRight(allErrors.Length, '-')}          {"-".PadRight(allFailed.Length, '-')}           {"-".PadRight(allSkipped.Length, '-')}           {"-".PadRight(allNotRun.Length, '-')}        {"-".PadRight(allTime.Length, '-')}");
+			logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {allTotal}          {allErrors}          {allFailed}           {allSkipped}           {allNotRun}        {allTime} ({summaries.ElapsedClockTime.TotalSeconds:0.000s})");
 		}
 	}
 

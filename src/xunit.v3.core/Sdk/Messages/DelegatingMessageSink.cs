@@ -28,10 +28,6 @@ public class DelegatingMessageSink : _IMessageSink
 	}
 
 	/// <inheritdoc/>
-	public void Dispose()
-	{ }
-
-	/// <inheritdoc/>
 	public virtual bool OnMessage(_MessageSinkMessage message)
 	{
 		callback?.Invoke(message);

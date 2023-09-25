@@ -21,7 +21,11 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestAssemblyRunnerContext{TTestCase}"/> class.
 	/// </summary>
-	public TestAssemblyRunnerContext(
+	/// <param name="testAssembly">The test assembly</param>
+	/// <param name="testCases">The test cases from the assembly</param>
+	/// <param name="executionMessageSink">The message sink to send execution messages to</param>
+	/// <param name="executionOptions">The options used during test execution</param>
+	protected TestAssemblyRunnerContext(
 		_ITestAssembly testAssembly,
 		IReadOnlyCollection<TTestCase> testCases,
 		_IMessageSink executionMessageSink,
@@ -115,6 +119,8 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()
 	{
+		GC.SuppressFinalize(this);
+
 		messageBus?.Dispose();
 
 		try

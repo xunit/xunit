@@ -37,6 +37,7 @@ public class TestAssemblyRunnerTests
 					var starting = Assert.IsAssignableFrom<_TestAssemblyStarting>(msg);
 #if NETFRAMEWORK
 					Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.AssemblyPath);
+					Assert.NotNull(runner.TestAssembly);
 					Assert.Equal(runner.TestAssembly.ConfigFileName, starting.ConfigFilePath);
 					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
 #else
@@ -121,6 +122,7 @@ public class TestAssemblyRunnerTests
 			var cleanupFailure = Assert.Single(messages.OfType<_TestAssemblyCleanupFailure>());
 #if NETFRAMEWORK
 			Assert.Equal(thisAssembly.GetLocalCodeBase(), assemblyStarting.AssemblyPath);
+			Assert.NotNull(runner.TestAssembly);
 			Assert.Equal(runner.TestAssembly.ConfigFileName, assemblyStarting.ConfigFilePath);
 #endif
 			Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
@@ -235,23 +237,27 @@ public class TestAssemblyRunnerTests
 		}
 	}
 
-	public class TestCaseOrderer
+	public static class TestCaseOrderer
 	{
 		[Fact]
-		public static void DefaultTestCaseOrderer()
+		public static async ValueTask DefaultTestCaseOrderer()
 		{
 			var runner = TestableTestAssemblyRunner.Create();
+
+			await runner.RunAsync();
 
 			Assert.IsType<DefaultTestCaseOrderer>(runner.DefaultTestCaseOrderer);
 		}
 	}
 
-	public class TestCollectionOrderer
+	public static class TestCollectionOrderer
 	{
 		[Fact]
-		public static void DefaultTestCollectionOrderer()
+		public static async ValueTask DefaultTestCollectionOrderer()
 		{
 			var runner = TestableTestAssemblyRunner.Create();
+
+			await runner.RunAsync();
 
 			Assert.IsType<DefaultTestCollectionOrderer>(runner.DefaultTestCollectionOrderer);
 		}
@@ -361,8 +367,10 @@ public class TestAssemblyRunnerTests
 	class TestableTestAssemblyRunner : TestAssemblyRunner<TestableTestAssemblyRunnerContext, _ITestCase>
 	{
 		readonly bool cancelInRunTestCollectionAsync;
-		readonly TestableTestAssemblyRunnerContext ctxt;
+		readonly _IMessageSink executionMessageSink;
+		readonly _ITestFrameworkExecutionOptions executionOptions;
 		readonly RunSummary result;
+		readonly _ITestCase[] testCases;
 		readonly ITestCollectionOrderer? testCollectionOrderer;
 
 		public List<Tuple<_ITestCollection, IReadOnlyCollection<_ITestCase>>> CollectionsRun = new();
@@ -372,21 +380,23 @@ public class TestAssemblyRunnerTests
 		public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
 		public bool BeforeTestAssemblyFinished_Called;
 		public TestContext? BeforeTestAssemblyFinished_Context;
-		public ITestCaseOrderer DefaultTestCaseOrderer;
-		public ITestCollectionOrderer DefaultTestCollectionOrderer;
+		public ITestCaseOrderer? DefaultTestCaseOrderer;
+		public ITestCollectionOrderer? DefaultTestCollectionOrderer;
 		public Exception? RunTestCollectionAsync_AggregatorResult;
 		public TestContext? RunTestCollectionAsync_Context;
+		public _ITestAssembly? TestAssembly;
 
 		TestableTestAssemblyRunner(
-			TestableTestAssemblyRunnerContext ctxt,
+			_ITestCase[] testCases,
+			_IMessageSink executionMessageSink,
+			_ITestFrameworkExecutionOptions executionOptions,
 			RunSummary result,
 			bool cancelInRunTestCollectionAsync,
 			ITestCollectionOrderer? testCollectionOrderer)
 		{
-			DefaultTestCaseOrderer = GetTestCaseOrderer(ctxt);
-			DefaultTestCollectionOrderer = GetTestCollectionOrderer(ctxt);
-
-			this.ctxt = ctxt;
+			this.testCases = testCases;
+			this.executionMessageSink = executionMessageSink;
+			this.executionOptions = executionOptions;
 			this.result = result;
 			this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
 			this.testCollectionOrderer = testCollectionOrderer;
@@ -398,19 +408,16 @@ public class TestAssemblyRunnerTests
 			_ITestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null,
 			bool cancelInRunTestCollectionAsync = false,
-			ITestCollectionOrderer? testCollectionOrderer = null)
-		{
-			var ctxt = new TestableTestAssemblyRunnerContext(
-				Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
-				testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
-				executionMessageSink ?? SpyMessageSink.Create(),
-				executionOptions ?? _TestFrameworkOptions.ForExecution()
-			);
+			ITestCollectionOrderer? testCollectionOrderer = null) =>
+				new(
+					testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
+					executionMessageSink ?? SpyMessageSink.Create(),
+					executionOptions ?? _TestFrameworkOptions.ForExecution(),
+					result ?? new RunSummary(),
+					cancelInRunTestCollectionAsync,
+					testCollectionOrderer
+				);
 
-			return new(ctxt, result ?? new RunSummary(), cancelInRunTestCollectionAsync, testCollectionOrderer);
-		}
-
-		public _ITestAssembly TestAssembly => ctxt.TestAssembly;
 
 		protected override ITestCollectionOrderer GetTestCollectionOrderer(TestableTestAssemblyRunnerContext ctxt) =>
 			testCollectionOrderer ?? base.GetTestCollectionOrderer(ctxt);
@@ -431,8 +438,17 @@ public class TestAssemblyRunnerTests
 			return default;
 		}
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(ctxt);
+		public async ValueTask<RunSummary> RunAsync()
+		{
+			await using var ctxt = new TestableTestAssemblyRunnerContext(Mocks.TestAssembly(Assembly.GetExecutingAssembly()), testCases, executionMessageSink, executionOptions);
+			await ctxt.InitializeAsync();
+
+			DefaultTestCaseOrderer = GetTestCaseOrderer(ctxt);
+			DefaultTestCollectionOrderer = GetTestCollectionOrderer(ctxt);
+			TestAssembly = ctxt.TestAssembly;
+
+			return await RunAsync(ctxt);
+		}
 
 		protected override ValueTask<RunSummary> RunTestCollectionAsync(
 			TestableTestAssemblyRunnerContext ctxt,

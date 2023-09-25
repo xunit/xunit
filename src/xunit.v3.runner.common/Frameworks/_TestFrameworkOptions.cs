@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using Xunit.Internal;
@@ -60,8 +61,11 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
 	/// </summary>
 	/// <param name="configuration">The configuration to copy values from.</param>
-	public static _ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration) =>
-		ForDiscovery(
+	public static _ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration)
+	{
+		Guard.ArgumentNotNull(configuration);
+
+		return ForDiscovery(
 			configuration.Culture,
 			configuration.DiagnosticMessages,
 			configuration.IncludeSourceInformation,
@@ -70,6 +74,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 			configuration.MethodDisplayOptions,
 			configuration.PreEnumerateTheories
 		);
+	}
 
 	/// <summary>
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
@@ -118,8 +123,11 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 	/// </summary>
 	/// <param name="configuration">The configuration to copy values from.</param>
-	public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration) =>
-		ForExecution(
+	public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration)
+	{
+		Guard.ArgumentNotNull(configuration);
+
+		return ForExecution(
 			configuration.Culture,
 			configuration.DiagnosticMessages,
 			!configuration.ParallelizeTestCollections,
@@ -129,6 +137,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 			configuration.Seed,
 			configuration.StopOnFail
 		);
+	}
 
 	/// <summary>
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
@@ -156,7 +165,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 				return (TValue)(object)result;
 
 			var targetType = typeof(TValue).UnwrapNullable();
-			return (TValue)Convert.ChangeType(result, targetType);
+			return (TValue)Convert.ChangeType(result, targetType, CultureInfo.InvariantCulture);
 		}
 
 		return default;
@@ -179,7 +188,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 			if (typeof(TValue) == typeof(string))
 				properties[name] = (string)(object)value;
 			else
-				properties[name] = (string)Convert.ChangeType(value, typeof(string));
+				properties[name] = (string)Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture);
 		}
 	}
 

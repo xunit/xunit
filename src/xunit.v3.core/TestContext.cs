@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -20,16 +21,16 @@ public class TestContext
 	readonly List<string>? warnings;
 
 	TestContext(
-		CancellationToken cancellationToken,
 		_IMessageSink? diagnosticMessageSink,
 		_IMessageSink? internalDiagnosticMessageSink,
 		TestPipelineStage pipelineStage,
+		CancellationToken cancellationToken,
 		List<string>? warnings = null)
 	{
-		CancellationToken = cancellationToken;
 		DiagnosticMessageSink = diagnosticMessageSink;
 		InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
 		PipelineStage = pipelineStage;
+		CancellationToken = cancellationToken;
 		this.warnings = warnings;
 	}
 
@@ -199,7 +200,7 @@ public class TestContext
 		object? arg0)
 	{
 		if (DiagnosticMessageSink != null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, arg0) });
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0) });
 	}
 
 	/// <summary>
@@ -215,7 +216,7 @@ public class TestContext
 		object? arg1)
 	{
 		if (DiagnosticMessageSink != null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, arg0, arg1) });
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1) });
 	}
 
 	/// <summary>
@@ -233,7 +234,7 @@ public class TestContext
 		object? arg2)
 	{
 		if (DiagnosticMessageSink != null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, arg0, arg1, arg2) });
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2) });
 	}
 
 	/// <summary>
@@ -247,7 +248,7 @@ public class TestContext
 		params object?[] args)
 	{
 		if (DiagnosticMessageSink != null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(format, args) });
+			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
 	}
 
 	internal void SendInternalDiagnosticMessage(string message)
@@ -261,7 +262,7 @@ public class TestContext
 		object? arg0)
 	{
 		if (InternalDiagnosticMessageSink != null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, arg0) });
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0) });
 	}
 
 	internal void SendInternalDiagnosticMessage(
@@ -270,7 +271,7 @@ public class TestContext
 		object? arg1)
 	{
 		if (InternalDiagnosticMessageSink != null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, arg0, arg1) });
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1) });
 	}
 
 	internal void SendInternalDiagnosticMessage(
@@ -280,7 +281,7 @@ public class TestContext
 		object? arg2)
 	{
 		if (InternalDiagnosticMessageSink != null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, arg0, arg1, arg2) });
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2) });
 	}
 
 	internal void SendInternalDiagnosticMessage(
@@ -288,7 +289,7 @@ public class TestContext
 		params object?[] args)
 	{
 		if (InternalDiagnosticMessageSink != null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(format, args) });
+			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
 	}
 
 	/// <summary>
@@ -304,7 +305,7 @@ public class TestContext
 		_IMessageSink? diagnosticMessageSink,
 		bool diagnosticMessages,
 		bool internalDiagnosticMessages) =>
-			local.Value = new TestContext(default, diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, TestPipelineStage.Initialization);
+			local.Value = new TestContext(diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, TestPipelineStage.Initialization, default);
 
 	/// <summary>
 	/// Sets the test context for execution of a test. This assumes an existing test context already exists from which
@@ -336,7 +337,7 @@ public class TestContext
 		if (Current.TestOutputHelper == null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, Current.warnings ?? new())
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? new())
 		{
 			Test = test,
 			TestStatus = testStatus,
@@ -380,7 +381,7 @@ public class TestContext
 				? TestPipelineStage.Discovery
 				: TestPipelineStage.TestAssemblyExecution;
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, pipelineStage)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, pipelineStage, cancellationToken)
 		{
 			TestAssembly = testAssembly,
 			TestAssemblyStatus = testAssemblyStatus,
@@ -404,7 +405,7 @@ public class TestContext
 		Guard.ArgumentEnumValid(testCaseStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCaseExecution)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCaseExecution, cancellationToken)
 		{
 			TestCase = testCase,
 			TestCaseStatus = testCaseStatus,
@@ -440,7 +441,7 @@ public class TestContext
 		Guard.ArgumentEnumValid(testClassStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestClassExecution)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestClassExecution, cancellationToken)
 		{
 			TestClass = testClass,
 			TestClassStatus = testClassStatus,
@@ -470,7 +471,7 @@ public class TestContext
 		Guard.ArgumentEnumValid(testCollectionStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCollectionExecution)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCollectionExecution, cancellationToken)
 		{
 			TestCollection = testCollection,
 			TestCollectionStatus = testCollectionStatus,
@@ -497,7 +498,7 @@ public class TestContext
 		Guard.ArgumentEnumValid(testMethodStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(cancellationToken, Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestMethodExecution)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestMethodExecution, cancellationToken)
 		{
 			TestMethod = testMethod,
 			TestMethodStatus = testMethodStatus,

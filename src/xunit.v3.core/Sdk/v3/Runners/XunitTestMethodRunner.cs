@@ -29,7 +29,7 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
-	public ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> RunAsync(
 		_ITestClass testClass,
 		_ITestMethod testMethod,
 		_IReflectionTypeInfo @class,
@@ -45,18 +45,26 @@ public class XunitTestMethodRunner : TestMethodRunner<XunitTestMethodRunnerConte
 		Guard.ArgumentNotNull(messageBus);
 		Guard.ArgumentNotNull(constructorArguments);
 
-		return RunAsync(new(testClass, testMethod, @class, method, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments));
+		await using var ctxt = new XunitTestMethodRunnerContext(testClass, testMethod, @class, method, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
 	protected override ValueTask<RunSummary> RunTestCaseAsync(
 		XunitTestMethodRunnerContext ctxt,
-		IXunitTestCase testCase) =>
-			testCase.RunAsync(
-				ctxt.ExplicitOption,
-				ctxt.MessageBus,
-				ctxt.ConstructorArguments,
-				ctxt.Aggregator,
-				ctxt.CancellationTokenSource
-			);
+		IXunitTestCase testCase)
+	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(testCase);
+
+		return testCase.RunAsync(
+			ctxt.ExplicitOption,
+			ctxt.MessageBus,
+			ctxt.ConstructorArguments,
+			ctxt.Aggregator,
+			ctxt.CancellationTokenSource
+		);
+	}
 }

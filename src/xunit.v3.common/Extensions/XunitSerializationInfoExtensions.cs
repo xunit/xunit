@@ -1,3 +1,5 @@
+using Xunit.Internal;
+
 namespace System.Runtime.Serialization;
 
 /// <summary>
@@ -14,5 +16,5 @@ public static class XunitSerializationInfoExtensions
 	public static T? GetValue<T>(
 		this SerializationInfo info,
 		string name) =>
-			(T?)info.GetValue(name, typeof(T));
+			(T?)Guard.ArgumentNotNull(info).GetValue(name, typeof(T));
 }

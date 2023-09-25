@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
@@ -29,17 +30,19 @@ public class VstsReporter : IRunnerReporter
 	public string? RunnerSwitch => null;
 
 	/// <inheritdoc/>
-	public ValueTask<_IMessageSink> CreateMessageHandler(
+	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
 		_IMessageSink? diagnosticMessageSink)
 	{
 		var collectionUri = Guard.NotNull("Environment variable SYSTEM_TEAMFOUNDATIONCOLLECTIONURI is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"));
 		var teamProject = Guard.NotNull("Environment variable SYSTEM_TEAMPROJECT is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT"));
 		var accessToken = Guard.NotNull("Environment variable VSTS_ACCESS_TOKEN is not set", Environment.GetEnvironmentVariable("VSTS_ACCESS_TOKEN"));
-		var buildId = Convert.ToInt32(Guard.NotNull("Environment variable BUILD_BUILDID is not set", Environment.GetEnvironmentVariable("BUILD_BUILDID")));
+		var buildId = Convert.ToInt32(Guard.NotNull("Environment variable BUILD_BUILDID is not set", Environment.GetEnvironmentVariable("BUILD_BUILDID")), CultureInfo.InvariantCulture);
 
 		var baseUri = $"{collectionUri}{teamProject}/_apis/test/runs";
 
+#pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 		return new(new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId));
+#pragma warning restore CA2000
 	}
 }

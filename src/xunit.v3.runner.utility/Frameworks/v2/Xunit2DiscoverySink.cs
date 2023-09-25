@@ -38,7 +38,7 @@ public class Xunit2DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IM
 	/// </summary>
 	public List<ITestCase> TestCases { get; } = new();
 
-	void Dispatch<TMessage>(
+	static void Dispatch<TMessage>(
 		IMessageSinkMessage message,
 		HashSet<string>? messageTypes,
 		Action<TMessage> handler)
@@ -53,9 +53,11 @@ public class Xunit2DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IM
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		Finished.Dispose();
 	}

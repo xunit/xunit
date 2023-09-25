@@ -48,9 +48,11 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
 	}
@@ -88,7 +90,7 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 		return LoadAssembly(new AssemblyName(args.Name));
 	}
 
-	Assembly? ResolveAndLoadAssembly(
+	static Assembly? ResolveAndLoadAssembly(
 		string pathWithoutExtension,
 		out string? resolvedAssemblyPath)
 	{
@@ -116,8 +118,12 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		string assemblyFileName,
-		_IMessageSink? diagnosticMessageSink = null) =>
-			new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, diagnosticMessageSink);
+		_IMessageSink? diagnosticMessageSink = null)
+	{
+		Guard.ArgumentNotNull(assemblyFileName);
+
+		return new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName))!, diagnosticMessageSink);
+	}
 
 	/// <summary>
 	/// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
@@ -127,8 +133,12 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		Type typeInAssembly,
-		_IMessageSink? diagnosticMessageSink = null) =>
-			new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, diagnosticMessageSink);
+		_IMessageSink? diagnosticMessageSink = null)
+	{
+		Guard.ArgumentNotNull(typeInAssembly);
+
+		return new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, diagnosticMessageSink);
+	}
 }
 
 #endif

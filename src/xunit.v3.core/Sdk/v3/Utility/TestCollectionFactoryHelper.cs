@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit.Internal;
 
 namespace Xunit.v3;
 
@@ -17,6 +18,8 @@ public static class TestCollectionFactoryHelper
 	/// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="_ITypeInfo"/></returns>
 	public static Dictionary<string, _ITypeInfo> GetTestCollectionDefinitions(_IAssemblyInfo assemblyInfo)
 	{
+		Guard.ArgumentNotNull(assemblyInfo);
+
 		var attributeTypesByName =
 			assemblyInfo
 				.GetTypes(false)

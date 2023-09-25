@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -12,7 +13,7 @@ namespace Xunit.Runner.v1;
 /// <summary>
 /// Contains the data required to serialize a test case for xUnit.net v1.
 /// </summary>
-public class Xunit1TestCase : IXunitSerializable
+public sealed class Xunit1TestCase : IXunitSerializable
 {
 	string? assemblyUniqueID;
 	string? testCollectionUniqueID;
@@ -137,7 +138,6 @@ public class Xunit1TestCase : IXunitSerializable
 		}
 	}
 
-
 	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
 	{
 		AssemblyUniqueID = Guard.NotNull("Could not retrieve AssemblyUniqueID from serialization", info.GetValue<string>("id"));
@@ -156,7 +156,7 @@ public class Xunit1TestCase : IXunitSerializable
 
 		var sourceLineNumberText = info.GetValue<string>("SourceLineNumber");
 		if (sourceLineNumberText != null)
-			SourceLineNumber = int.Parse(sourceLineNumberText);
+			SourceLineNumber = int.Parse(sourceLineNumberText, CultureInfo.InvariantCulture);
 	}
 
 	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
@@ -164,7 +164,7 @@ public class Xunit1TestCase : IXunitSerializable
 		info.AddValue("id", AssemblyUniqueID);
 		info.AddValue("sr", SkipReason);
 		info.AddValue("sp", SourceFilePath);
-		info.AddValue("sl", SourceLineNumber?.ToString());
+		info.AddValue("sl", SourceLineNumber?.ToString(CultureInfo.InvariantCulture));
 		info.AddValue("coid", TestCollectionUniqueID);
 		info.AddValue("cadn", TestCaseDisplayName);
 		info.AddValue("caid", TestCaseUniqueID);
@@ -225,8 +225,11 @@ public class Xunit1TestCase : IXunitSerializable
 	/// <summary>
 	/// Converts the test case to <see cref="_TestCaseFinished"/>.
 	/// </summary>
-	public _TestCaseFinished ToTestCaseFinished(Xunit1RunSummary testCaseResults) =>
-		new()
+	public _TestCaseFinished ToTestCaseFinished(Xunit1RunSummary testCaseResults)
+	{
+		Guard.ArgumentNotNull(testCaseResults);
+
+		return new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = testCaseResults.Time,
@@ -239,6 +242,7 @@ public class Xunit1TestCase : IXunitSerializable
 			TestsTotal = testCaseResults.Total,
 			TestsSkipped = testCaseResults.Skipped,
 		};
+	}
 
 	/// <summary>
 	/// Converts the test case to <see cref="_TestCaseFinished"/> for a not-run test case.
@@ -353,8 +357,11 @@ public class Xunit1TestCase : IXunitSerializable
 	/// <summary>
 	/// Converts the test case to <see cref="_TestMethodFinished"/>.
 	/// </summary>
-	public _TestMethodFinished ToTestMethodFinished(Xunit1RunSummary testMethodResults) =>
-		new()
+	public _TestMethodFinished ToTestMethodFinished(Xunit1RunSummary testMethodResults)
+	{
+		Guard.ArgumentNotNull(testMethodResults);
+
+		return new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = testMethodResults.Time,
@@ -366,6 +373,7 @@ public class Xunit1TestCase : IXunitSerializable
 			TestsTotal = testMethodResults.Total,
 			TestsSkipped = testMethodResults.Skipped
 		};
+	}
 
 	/// <summary>
 	/// Converts the test case to <see cref="_TestMethodFinished"/> for a not-run test.

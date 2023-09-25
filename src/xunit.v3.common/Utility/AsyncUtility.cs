@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
@@ -24,6 +25,8 @@ public static class AsyncUtility
 	/// <returns>Returns <c>true</c> if the method is async; returns <c>false</c> otherwise.</returns>
 	public static bool IsAsync(MethodInfo method)
 	{
+		Guard.ArgumentNotNull(method);
+
 		if (IsAsyncVoid(method))
 			return true;
 
@@ -40,7 +43,7 @@ public static class AsyncUtility
 	/// <param name="method">The method to test</param>
 	/// <returns>Returns <c>true</c> if the method is async void; returns <c>false</c> otherwise.</returns>
 	public static bool IsAsyncVoid(MethodInfo method) =>
-		method.ReturnType == typeof(void) && method.GetCustomAttribute<AsyncStateMachineAttribute>() != null;
+		Guard.ArgumentNotNull(method).ReturnType == typeof(void) && method.GetCustomAttribute<AsyncStateMachineAttribute>() != null;
 
 	/// <summary>
 	/// Given an object, will attempt to convert instances of <see cref="Task"/> or

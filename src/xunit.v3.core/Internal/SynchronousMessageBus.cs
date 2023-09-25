@@ -1,3 +1,4 @@
+using System;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -18,7 +19,9 @@ public class SynchronousMessageBus : IMessageBus
 
 	/// <summary/>
 	public void Dispose()
-	{ }
+	{
+		GC.SuppressFinalize(this);
+	}
 
 	/// <summary/>
 	public bool QueueMessage(_MessageSinkMessage message)

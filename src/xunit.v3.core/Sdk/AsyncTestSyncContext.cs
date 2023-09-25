@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
@@ -96,6 +97,8 @@ public class AsyncTestSyncContext : SynchronizationContext
 	{
 		try
 		{
+			Guard.ArgumentNotNull(d);
+
 			if (innerContext != null)
 				innerContext.Send(d, state);
 			else

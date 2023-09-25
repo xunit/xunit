@@ -1,3 +1,5 @@
+#pragma warning disable CA1019 // The attribute arguments are always read via reflection
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -85,19 +84,15 @@ public class Xunit1 : IFrontController
 	protected virtual IXunit1Executor CreateExecutor() =>
 		new Xunit1Executor(diagnosticMessageSink, appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
-	/// <summary>
-	/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
-	/// </summary>
-	protected Xunit1TestCase? Deserialize(string value) =>
-		SerializationHelper.Deserialize<Xunit1TestCase>(value);
-
 	/// <inheritdoc/>
 	public async ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		await disposalTracker.DisposeAsync();
 		executor?.Dispose();
@@ -171,7 +166,9 @@ public class Xunit1 : IFrontController
 		var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; });
 		Executor.EnumerateTests(handler);
 
+#pragma warning disable CA1508 // This is incorrectly detected as a dead condition; the callback handler above can set the value during EnumerateTests
 		if (assemblyXml != null)
+#pragma warning restore CA1508
 		{
 			var methodNodes = assemblyXml.SelectNodes("//method")?.Cast<XmlNode>();
 			if (methodNodes != null)
@@ -298,6 +295,9 @@ public class Xunit1 : IFrontController
 		_IMessageSink messageSink,
 		bool markAllAsNotRun)
 	{
+		Guard.ArgumentNotNull(testCases);
+		Guard.ArgumentNotNull(messageSink);
+
 		var results = new Xunit1RunSummary();
 		var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
 		var testCasesList = testCases.ToList();
@@ -361,7 +361,7 @@ public class Xunit1 : IFrontController
 		var testCases =
 			settings
 				.SerializedTestCases
-				.Select(tc => Deserialize(tc))
+				.Select(serialized => SerializationHelper.Deserialize<Xunit1TestCase>(serialized))
 				.WhereNotNull()
 				.CastOrToReadOnlyCollection();
 
@@ -485,12 +485,6 @@ public class Xunit1 : IFrontController
 
 		return results;
 	}
-
-	/// <summary>
-	/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
-	/// </summary>
-	protected string Serialize(Xunit1TestCase testCase) =>
-		SerializationHelper.Serialize(testCase);
 
 	// Factory methods
 

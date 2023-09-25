@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Xunit.Runner.Common;
 
-class AppVeyorClient
+class AppVeyorClient : IDisposable
 {
 	ConcurrentQueue<IDictionary<string, object?>> addQueue = new();
 	readonly string baseUri;
@@ -40,14 +40,17 @@ class AppVeyorClient
 		workEvent.Set();
 	}
 
-	public void Dispose(CancellationToken cancellationToken)
+	public void Dispose()
 	{
 		// Free up to process any remaining work
 		shouldExit = true;
 		workEvent.Set();
 
-		finished.Wait(cancellationToken);
+		finished.Wait();
 		finished.Dispose();
+
+		workEvent.Dispose();
+		client.Dispose();
 	}
 
 	async Task RunLoop()
@@ -92,10 +95,7 @@ class AppVeyorClient
 		{
 			var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-			var request = new HttpRequestMessage(method, baseUri)
-			{
-				Content = new ByteArrayContent(bodyBytes)
-			};
+			using var request = new HttpRequestMessage(method, baseUri) { Content = new ByteArrayContent(bodyBytes) };
 			request.Content.Headers.ContentType = jsonMediaType;
 			request.Headers.Accept.Add(jsonMediaType);
 

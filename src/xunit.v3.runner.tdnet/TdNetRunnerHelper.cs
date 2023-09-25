@@ -17,7 +17,9 @@ public class TdNetRunnerHelper : IAsyncDisposable
 {
 	bool disposed;
 	readonly DisposalTracker disposalTracker = new();
+#pragma warning disable CA2213 // This object is disposed in the disposal tracker
 	readonly IFrontController? frontController;
+#pragma warning restore CA2213
 	readonly XunitProjectAssembly? projectAssembly;
 	readonly ITestListener? testListener;
 	readonly object testListenerLock = new();
@@ -49,7 +51,10 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
 		var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+#pragma warning disable CA2000 // This object is disposed in the disposal tracker
 		var diagnosticMessageSink = TdNetDiagnosticMessageSink.TryCreate(testListener, testListenerLock, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName);
+		disposalTracker.Add(diagnosticMessageSink);
+#pragma warning restore CA2000
 
 		frontController = Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: diagnosticMessageSink);
 		disposalTracker.Add(frontController);
@@ -70,7 +75,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
 
 		if (type == null || type.FullName == null)
-			return new _TestCaseDiscovered[0];
+			return Array.Empty<_TestCaseDiscovered>();
 
 		var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
 		settings.Filters.IncludedClasses.Add(type.FullName);
@@ -82,7 +87,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 	{
 		try
 		{
-			var sink = new TestDiscoverySink();
+			using var sink = new TestDiscoverySink();
 			disposalTracker.Add(sink);
 			discoveryAction(sink);
 			sink.Finished.WaitOne();
@@ -93,16 +98,18 @@ public class TdNetRunnerHelper : IAsyncDisposable
 			lock (testListenerLock)
 				testListener?.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
 
-			return new _TestCaseDiscovered[0];
+			return Array.Empty<_TestCaseDiscovered>();
 		}
 	}
 
 	public ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return default;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		return disposalTracker.DisposeAsync();
 	}
@@ -150,6 +157,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		Type type,
 		TestRunState initialRunState = TestRunState.NoTests)
 	{
+		Guard.ArgumentNotNull(type);
+
 		var state = Run(Discover(type), initialRunState);
 
 		foreach (var memberInfo in type.GetMembers())
@@ -166,6 +175,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		MethodInfo method,
 		TestRunState initialRunState = TestRunState.NoTests)
 	{
+		Guard.ArgumentNotNull(method);
+
 		var testCases = Discover(method.ReflectedType).Where(tc =>
 		{
 			if (tc.TestClassNameWithNamespace == null || tc.TestMethodName == null)

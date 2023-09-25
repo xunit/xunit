@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
 /// <summary>
 /// Utility methods related to <see cref="Type"/>.
 /// </summary>
-public class TypeHelper
+public static class TypeHelper
 {
 	/// <summary>
 	/// Converts an assembly qualified type name into a <see cref="Type"/> object.
@@ -17,6 +18,8 @@ public class TypeHelper
 	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
 	public static Type? GetType(string assemblyQualifiedTypeName)
 	{
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
 		var firstOpenSquare = assemblyQualifiedTypeName.IndexOf('[');
 		if (firstOpenSquare > 0)
 		{

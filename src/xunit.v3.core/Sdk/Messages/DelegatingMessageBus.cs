@@ -37,7 +37,11 @@ public class DelegatingMessageBus : IMessageBus
 
 	/// <inheritdoc/>
 	public void Dispose()
-	{ }
+	{
+		GC.SuppressFinalize(this);
+
+		innerMessageBus.Dispose();
+	}
 }
 
 /// <summary>

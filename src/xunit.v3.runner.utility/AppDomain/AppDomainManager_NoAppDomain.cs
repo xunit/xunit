@@ -5,7 +5,7 @@ using Xunit.Internal;
 
 namespace Xunit;
 
-class AppDomainManager_NoAppDomain : IAppDomainManager
+sealed class AppDomainManager_NoAppDomain : IAppDomainManager
 {
 	public bool HasAppDomain => false;
 

@@ -734,7 +734,7 @@ public class Xunit2MessageAdapter
 		};
 	}
 
-	_MessageSinkMessage? TryConvert<TMessage>(
+	static _MessageSinkMessage? TryConvert<TMessage>(
 		IMessageSinkMessage message,
 		HashSet<string>? messageTypes,
 		Func<TMessage, _MessageSinkMessage> converter)
@@ -767,17 +767,17 @@ public class Xunit2MessageAdapter
 		}
 	}
 
-	string? UniqueIDForTestClass(
+	static string? UniqueIDForTestClass(
 		string testCollectionUniqueID,
 		ITestClass? testClass) =>
 			UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testClass?.Class?.Name);
 
-	string UniqueIDForTestCollection(
+	static string UniqueIDForTestCollection(
 		string assemblyUniqueID,
 		ITestCollection testCollection) =>
 			UniqueIDGenerator.ForTestCollection(assemblyUniqueID, testCollection.DisplayName, testCollection.CollectionDefinition?.Name);
 
-	string? UniqueIDForTestMethod(
+	static string? UniqueIDForTestMethod(
 		string? classUniqueID,
 		ITestMethod testMethod) =>
 			UniqueIDGenerator.ForTestMethod(classUniqueID, testMethod.Method.Name);

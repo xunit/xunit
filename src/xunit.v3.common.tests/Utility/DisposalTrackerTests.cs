@@ -9,10 +9,15 @@ public class DisposalTrackerTests
 {
 	public class AfterDisposed : IAsyncLifetime
 	{
+		readonly DisposableClass classToDispose = new();
 		readonly DisposalTracker classUnderTest = new();
 
-		public ValueTask InitializeAsync() =>
-			classUnderTest.DisposeAsync();
+		public ValueTask InitializeAsync()
+		{
+			classUnderTest.Add(classToDispose);
+
+			return classUnderTest.DisposeAsync();
+		}
 
 		public ValueTask DisposeAsync() => default;
 
@@ -26,15 +31,21 @@ public class DisposalTrackerTests
 		}
 
 		[Fact]
-		public async ValueTask DisposeAsyncThrows()
+		public async ValueTask DisposeAsyncDoesNotDoubleDispose()
 		{
-			var classUnderTest = new DisposalTracker();
+			Assert.Equal(1, classToDispose.DisposeCount);  // Already disposed in InitializeAsync
+
 			await classUnderTest.DisposeAsync();
 
-			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+			Assert.Equal(1, classToDispose.DisposeCount);
+		}
 
-			Assert.NotNull(ex);
-			Assert.IsType<ObjectDisposedException>(ex);
+		class DisposableClass : IDisposable
+		{
+			public int DisposeCount;
+
+			public void Dispose() =>
+				DisposeCount++;
 		}
 	}
 

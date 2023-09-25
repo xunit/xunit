@@ -36,9 +36,11 @@ public class DelegatingFailSkipSink : IExecutionSink
 	public void Dispose()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		innerSink.Dispose();
 	}

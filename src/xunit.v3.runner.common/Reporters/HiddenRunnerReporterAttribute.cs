@@ -8,5 +8,5 @@ namespace Xunit.Runner.Common;
 /// (since it's the default fallback).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public class HiddenRunnerReporterAttribute : Attribute
+public sealed class HiddenRunnerReporterAttribute : Attribute
 { }

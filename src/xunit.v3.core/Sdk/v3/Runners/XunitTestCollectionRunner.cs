@@ -28,6 +28,8 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// <inheritdoc/>
 	protected override async ValueTask AfterTestCollectionStartingAsync(XunitTestCollectionRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		await CreateCollectionFixturesAsync(ctxt);
 
 		ctxt.TestCaseOrderer = GetTestCaseOrderer(ctxt) ?? ctxt.TestCaseOrderer;
@@ -36,6 +38,8 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// <inheritdoc/>
 	protected override async ValueTask BeforeTestCollectionFinishedAsync(XunitTestCollectionRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var disposeAsyncTasks =
 			ctxt.CollectionFixtureMappings
 				.Values
@@ -80,6 +84,9 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		XunitTestCollectionRunnerContext ctxt,
 		Type fixtureType)
 	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(fixtureType);
+
 		var ctors =
 			fixtureType
 				.GetConstructors()
@@ -166,6 +173,8 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// <param name="ctxt">The context that describes the current test collection</param>
 	protected virtual ITestCaseOrderer? GetTestCaseOrderer(XunitTestCollectionRunnerContext ctxt)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		if (ctxt.TestCollection.CollectionDefinition != null)
 		{
 			var ordererAttribute = ctxt.TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
@@ -218,7 +227,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
-	public ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> RunAsync(
 		_ITestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
@@ -235,7 +244,10 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		Guard.ArgumentNotNull(cancellationTokenSource);
 		Guard.ArgumentNotNull(assemblyFixtureMappings);
 
-		return RunAsync(new(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings));
+		await using var ctxt = new XunitTestCollectionRunnerContext(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings);
+		await ctxt.InitializeAsync();
+
+		return await RunAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
@@ -245,6 +257,9 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		_IReflectionTypeInfo? @class,
 		IReadOnlyCollection<IXunitTestCase> testCases)
 	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(testCases);
+
 		if (testClass != null && @class != null)
 			return XunitTestClassRunner.Instance.RunAsync(
 				testClass,

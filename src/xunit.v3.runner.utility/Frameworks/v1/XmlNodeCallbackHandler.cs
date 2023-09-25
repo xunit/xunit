@@ -1,8 +1,10 @@
 #if NETFRAMEWORK
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 using System.Xml;
 
 namespace Xunit.Runner.v1;
@@ -55,6 +57,8 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 		return true;
 	}
 
+#pragma warning disable CA1033 // These are not intended to be part of the public interface of this class
+
 	string ICallbackEventHandler.GetCallbackResult() => @continue.ToString();
 
 	void ICallbackEventHandler.RaiseCallbackEvent(string eventArgument)
@@ -63,7 +67,8 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 		{
 			// REVIEW: Would this be cheaper with XDocument instead of XmlDocument?
 			var doc = new XmlDocument();
-			doc.LoadXml(eventArgument);
+			using var xmlReader = XmlReader.Create(new StringReader(eventArgument), new XmlReaderSettings() { XmlResolver = null });
+			doc.Load(xmlReader);
 			LastNode = doc.ChildNodes[0];
 			@continue = OnXmlNode(LastNode);
 
@@ -71,6 +76,8 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 				LastNodeArrived.Set();
 		}
 	}
+
+#pragma warning restore CA1033
 }
 
 #endif

@@ -227,7 +227,7 @@ public abstract class CommandLineParserBase
 				if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 					continue;
 
-				var ctor = type.GetConstructor(new Type[0]);
+				var ctor = type.GetConstructor(Array.Empty<Type>());
 				if (ctor == null)
 				{
 					if (!Project.Configuration.NoColorOrDefault)
@@ -241,7 +241,7 @@ public abstract class CommandLineParserBase
 					continue;
 				}
 
-				result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+				result.Add((IRunnerReporter)ctor.Invoke(Array.Empty<object>()));
 			}
 		}
 
@@ -261,9 +261,14 @@ public abstract class CommandLineParserBase
 	}
 
 	/// <summary/>
-	protected static bool IsConfigFile(string fileName) =>
-		fileName.EndsWith(".config", StringComparison.OrdinalIgnoreCase) ||
-		fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+	protected static bool IsConfigFile(string fileName)
+	{
+		Guard.ArgumentNotNull(fileName);
+
+		return
+			fileName.EndsWith(".config", StringComparison.OrdinalIgnoreCase) ||
+			fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+	}
 
 	/// <summary/>
 	protected abstract Assembly LoadAssembly(string dllFile);
@@ -386,11 +391,11 @@ public abstract class CommandLineParserBase
 		if (option.Value == null)
 			throw new ArgumentException("missing argument for -explicit");
 
-		var explicitOption = option.Value.ToLowerInvariant() switch
+		var explicitOption = option.Value.ToUpperInvariant() switch
 		{
-			"off" => ExplicitOption.Off,
-			"on" => ExplicitOption.On,
-			"only" => ExplicitOption.Only,
+			"OFF" => ExplicitOption.Off,
+			"ON" => ExplicitOption.On,
+			"ONLY" => ExplicitOption.Only,
 			_ => throw new ArgumentException("invalid argument for -explicit"),
 		};
 

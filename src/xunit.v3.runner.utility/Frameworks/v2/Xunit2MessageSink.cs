@@ -37,6 +37,8 @@ public class Xunit2MessageSink : LongLivedMarshalByRefObject, IMessageSink, IMes
 	/// <inheritdoc/>
 	public void Dispose()
 	{
+		GC.SuppressFinalize(this);
+
 		(v3MessageSink as IDisposable)?.Dispose();
 	}
 

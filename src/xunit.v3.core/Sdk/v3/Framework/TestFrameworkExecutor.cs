@@ -54,9 +54,11 @@ public abstract class TestFrameworkExecutor<TTestCase> : _ITestFrameworkExecutor
 	public virtual ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return default;
 
 		disposed = true;
+
+		GC.SuppressFinalize(this);
 
 		return DisposalTracker.DisposeAsync();
 	}

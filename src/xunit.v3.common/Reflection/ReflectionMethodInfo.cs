@@ -15,7 +15,7 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 {
 	static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
 
-	IReadOnlyCollection<_IParameterInfo>? cachedParameters = null;
+	IReadOnlyCollection<_IParameterInfo>? cachedParameters;
 	readonly Lazy<_ITypeInfo> returnType;
 	readonly Lazy<_ITypeInfo> type;
 
@@ -187,7 +187,7 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 		return cachedParameters;
 	}
 
-	class GenericTypeComparer : IEqualityComparer
+	sealed class GenericTypeComparer : IEqualityComparer
 	{
 		bool IEqualityComparer.Equals(object? x, object? y)
 		{

@@ -77,7 +77,7 @@ public class CommandLine : CommandLineParserBase
 		var argsStartIndex = 0;
 
 		int? seed = null;
-		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(":"))
+		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(":", StringComparison.OrdinalIgnoreCase))
 		{
 			var seedValueText = Args[argsStartIndex].Substring(1);
 			if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out int parsedValue) || parsedValue < 0)
@@ -88,7 +88,7 @@ public class CommandLine : CommandLineParserBase
 		}
 
 		string? configFileName = null;
-		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith("-") && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith("-", StringComparison.OrdinalIgnoreCase) && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
 		{
 			configFileName = Args[argsStartIndex];
 			++argsStartIndex;

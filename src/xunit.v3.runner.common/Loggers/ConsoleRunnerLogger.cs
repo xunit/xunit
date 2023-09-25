@@ -47,6 +47,8 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		StackFrameInfo stackFrame,
 		string message)
 	{
+		Guard.ArgumentNotNull(message);
+
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Red))
 				WriteLine(Console.Error, message);
@@ -57,6 +59,8 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		StackFrameInfo stackFrame,
 		string message)
 	{
+		Guard.ArgumentNotNull(message);
+
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Gray))
 				WriteLine(Console.Out, message);
@@ -67,6 +71,8 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		StackFrameInfo stackFrame,
 		string message)
 	{
+		Guard.ArgumentNotNull(message);
+
 		lock (LockObject)
 			using (SetColor(ConsoleColor.DarkGray))
 				WriteLine(Console.Out, message);
@@ -75,6 +81,8 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	/// <inheritdoc/>
 	public void LogRaw(string message)
 	{
+		Guard.ArgumentNotNull(message);
+
 		lock (LockObject)
 			WriteLine(Console.Out, message);
 	}
@@ -84,6 +92,8 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		StackFrameInfo stackFrame,
 		string message)
 	{
+		Guard.ArgumentNotNull(message);
+
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Yellow))
 				WriteLine(Console.Out, message);
@@ -99,6 +109,9 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		TextWriter target,
 		string message)
 	{
+		Guard.ArgumentNotNull(target);
+		Guard.ArgumentNotNull(message);
+
 		var text = useColors ? message : RemoveAnsiSgr(message);
 		target.WriteLine(text);
 	}

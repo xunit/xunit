@@ -67,7 +67,9 @@ public abstract class TestFrameworkDiscoverer<TTestCase> : _ITestFrameworkDiscov
 	public virtual ValueTask DisposeAsync()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			return default;
+
+		GC.SuppressFinalize(this);
 
 		disposed = true;
 

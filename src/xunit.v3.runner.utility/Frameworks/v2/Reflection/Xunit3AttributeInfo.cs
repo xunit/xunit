@@ -8,7 +8,7 @@ using Xunit.v3;
 namespace Xunit.Runner.v2;
 
 /// <summary>
-/// Provides a class which wraps <see cref="IAttributeInfo"/> instances to implement <see cref="_IAttributeInfo"/>.
+/// Provides a class which wraps v2 <see cref="IAttributeInfo"/> instances to implement v3 <see cref="_IAttributeInfo"/>.
 /// </summary>
 public class Xunit3AttributeInfo : _IAttributeInfo
 {
@@ -21,9 +21,13 @@ public class Xunit3AttributeInfo : _IAttributeInfo
 		V2AttributeInfo = Guard.ArgumentNotNull(v2AttributeInfo);
 	}
 
+#pragma warning disable CA1065 // This is satisfying a contract
+
 	/// <inheritdoc/>
 	public _ITypeInfo AttributeType =>
 		throw new NotImplementedException("This is only available on v3 attributes");
+
+#pragma warning restore CA1065
 
 	/// <summary>
 	/// Gets the underlying xUnit.net v2 <see cref="IAttributeInfo"/> that this class is wrapping.

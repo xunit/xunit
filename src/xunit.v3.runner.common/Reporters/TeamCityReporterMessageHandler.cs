@@ -1,13 +1,15 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink" /> that supports <see cref="TeamCityReporter" />.
+/// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="TeamCityReporter" />.
 /// </summary>
 public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandler
 {
@@ -38,6 +40,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleErrorMessage(args);
 
 		var error = args.Message;
@@ -50,6 +54,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestAssemblyCleanupFailure(args);
 
 		var cleanupFailure = args.Message;
@@ -62,6 +68,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestAssemblyFinished(args);
 
 		var assemblyFinished = args.Message;
@@ -76,6 +84,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestAssemblyStarting(args);
 
 		var assemblyStarting = args.Message;
@@ -90,6 +100,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCaseCleanupFailure(args);
 
 		var cleanupFailure = args.Message;
@@ -102,6 +114,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCaseFinished(args);
 
 		metadataCache.TryRemove(args.Message);
@@ -112,6 +126,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCaseStarting(args);
 
 		metadataCache.Set(args.Message);
@@ -122,6 +138,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestClassCleanupFailure(args);
 
 		var cleanupFailure = args.Message;
@@ -134,6 +152,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestClassFinished(args);
 
 		metadataCache.TryRemove(args.Message);
@@ -144,6 +164,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestClassStarting(args);
 
 		metadataCache.Set(args.Message);
@@ -154,6 +176,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCollectionCleanupFailure(args);
 
 		var cleanupFailure = args.Message;
@@ -166,6 +190,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCollectionFinished(args);
 
 		var testCollectionFinished = args.Message;
@@ -180,6 +206,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCollectionStarting(args);
 
 		var testCollectionStarting = args.Message;
@@ -194,6 +222,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestCleanupFailure(args);
 
 		var cleanupFailure = args.Message;
@@ -206,6 +236,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestFailed(args);
 
 		var testFailed = args.Message;
@@ -219,6 +251,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestFinished(MessageHandlerArgs<_TestFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestFinished(args);
 
 		var testFinished = args.Message;
@@ -239,6 +273,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestMethodCleanupFailure(args);
 
 		var cleanupFailure = args.Message;
@@ -251,6 +287,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestMethodFinished(args);
 
 		metadataCache.TryRemove(args.Message);
@@ -261,6 +299,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestMethodStarting(args);
 
 		metadataCache.Set(args.Message);
@@ -271,6 +311,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestSkipped(args);
 
 		var testSkipped = args.Message;
@@ -283,6 +325,8 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	protected override void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
 	{
+		Guard.ArgumentNotNull(args);
+
 		base.HandleTestStarting(args);
 
 		var testStarting = args.Message;
@@ -309,7 +353,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		string messageType,
 		string? arguments = null,
 		string? flowId = null) =>
-			Logger.LogRaw($"##teamcity[{messageType} timestamp='{TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff"))}+0000'{(flowId != null ? $" flowId='{TeamCityEscape(flowId)}'" : "")}{(arguments != null ? " " + arguments : "")}]");
+			Logger.LogRaw($"##teamcity[{messageType} timestamp='{TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture))}+0000'{(flowId != null ? $" flowId='{TeamCityEscape(flowId)}'" : "")}{(arguments != null ? " " + arguments : "")}]");
 
 	void LogSuiteFinished(
 		string name,
@@ -374,7 +418,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 					else
 					{
 						sb.Append("|0x");
-						sb.Append(((int)ch).ToString("x4"));
+						sb.Append(((int)ch).ToString("x4", CultureInfo.CurrentCulture));
 					}
 					break;
 			}

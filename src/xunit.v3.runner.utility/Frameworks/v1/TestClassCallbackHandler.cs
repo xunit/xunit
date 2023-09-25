@@ -17,7 +17,7 @@ namespace Xunit.Runner.v1;
 /// </summary>
 public class TestClassCallbackHandler : XmlNodeCallbackHandler
 {
-	volatile int currentTestIndex = 0;
+	volatile int currentTestIndex;
 	readonly Dictionary<string, Predicate<XmlNode>> handlers;
 	readonly _IMessageSink messageSink;
 	readonly IList<Xunit1TestCase> testCases;

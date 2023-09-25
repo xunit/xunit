@@ -21,7 +21,7 @@ public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 		return result;
 	}
 
-	int Compare<TTestCollection>(
+	static int Compare<TTestCollection>(
 		TTestCollection x,
 		TTestCollection y)
 			where TTestCollection : _ITestCollection

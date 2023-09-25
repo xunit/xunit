@@ -90,8 +90,13 @@ public class XunitTestAssemblyRunnerTests
 			);
 		}
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(testAssembly, testCases, executionMessageSink, executionOptions));
+		public async ValueTask<RunSummary> RunAsync()
+		{
+			await using var ctxt = new XunitTestAssemblyRunnerContext(testAssembly, testCases, executionMessageSink, executionOptions);
+			await ctxt.InitializeAsync();
+
+			return await RunAsync(ctxt);
+		}
 
 		protected override ValueTask<RunSummary> RunTestCollectionAsync(
 			XunitTestAssemblyRunnerContext ctxt,

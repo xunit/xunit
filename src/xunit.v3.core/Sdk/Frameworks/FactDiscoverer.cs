@@ -72,7 +72,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 		return new(new[] { testCase });
 	}
 
-	ExecutionErrorTestCase ErrorTestCase(
+	static ExecutionErrorTestCase ErrorTestCase(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		_ITestMethod testMethod,
 		_IAttributeInfo factAttribute,

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Sdk;
@@ -17,6 +18,9 @@ public class InlineDataDiscoverer : IDataDiscoverer
 		_IAttributeInfo dataAttribute,
 		_IMethodInfo testMethod)
 	{
+		Guard.ArgumentNotNull(dataAttribute);
+		Guard.ArgumentNotNull(testMethod);
+
 		// The data from GetConstructorArguments does not maintain its original form (in particular, collections
 		// end up as generic IEnumerable<T>). So we end up needing to call .ToArray() on the enumerable so that
 		// we can restore the correct argument type from InlineDataAttribute.

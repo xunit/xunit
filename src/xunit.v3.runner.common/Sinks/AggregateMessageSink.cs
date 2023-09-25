@@ -23,6 +23,8 @@ public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()
 	{
+		GC.SuppressFinalize(this);
+
 		var tracker = default(DisposalTracker);
 
 		lock (disposalTracker)
@@ -45,16 +47,11 @@ public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 		where TDispatcher : class, _IMessageSink, new()
 	{
 		if (value == null)
-		{
 			lock (AggregatedSinks)
 			{
-				if (value == null)
-				{
-					value = new TDispatcher();
-					AggregatedSinks.Add(value);
-				}
+				value = new TDispatcher();
+				AggregatedSinks.Add(value);
 			}
-		}
 
 		return value;
 	}

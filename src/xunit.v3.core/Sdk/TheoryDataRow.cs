@@ -9,6 +9,7 @@ namespace Xunit.Sdk;
 public class TheoryDataRow : ITheoryDataRow
 {
 	readonly object?[] data;
+	Dictionary<string, List<string>> traits = new();
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryDataRow"/> class, encapsulating the
@@ -32,10 +33,18 @@ public class TheoryDataRow : ITheoryDataRow
 	/// <inheritdoc/>
 	public int? Timeout { get; set; }
 
+#pragma warning disable CA2227 // This is purposefully writable because of (de)serialization
+
 	/// <summary>
 	/// Gets or sets the traits for the theory data row.
 	/// </summary>
-	public Dictionary<string, List<string>> Traits { get; set; } = new();
+	public Dictionary<string, List<string>> Traits
+	{
+		get => traits;
+		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));
+	}
+
+#pragma warning restore CA2227
 
 	/// <summary>
 	/// Adds a single trait name/value pair to the theory data row.

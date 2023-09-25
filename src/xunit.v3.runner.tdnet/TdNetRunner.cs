@@ -25,7 +25,7 @@ public class TdNetRunner : ITestRunner
 		}
 		finally
 		{
-			ThreadPool.QueueUserWorkItem(_ => helper.DisposeAsync());
+			ThreadPool.QueueUserWorkItem(async _ => await helper.DisposeAsync());
 		}
 	}
 
@@ -50,7 +50,7 @@ public class TdNetRunner : ITestRunner
 		}
 		finally
 		{
-			ThreadPool.QueueUserWorkItem(_ => helper.DisposeAsync());
+			ThreadPool.QueueUserWorkItem(async _ => await helper.DisposeAsync());
 		}
 	}
 
@@ -68,7 +68,7 @@ public class TdNetRunner : ITestRunner
 		}
 		finally
 		{
-			ThreadPool.QueueUserWorkItem(_ => helper.DisposeAsync());
+			ThreadPool.QueueUserWorkItem(async _ => await helper.DisposeAsync());
 		}
 	}
 }

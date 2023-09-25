@@ -104,6 +104,8 @@ public class TransformFactory
 	/// <param name="assembliesElement"></param>
 	public static void FinishAssembliesElement(XElement assembliesElement)
 	{
+		Guard.ArgumentNotNull(assembliesElement);
+
 		var assemblyElements = assembliesElement.DescendantNodes().OfType<XElement>().ToList();
 
 		var start = default(string);
@@ -118,7 +120,7 @@ public class TransformFactory
 		start ??= DateTimeOffset.MinValue.ToString("o", CultureInfo.InvariantCulture);
 		finish ??= DateTimeOffset.MinValue.ToString("o", CultureInfo.InvariantCulture);
 
-		var finishTimestamp = DateTime.Parse(finish).ToString(CultureInfo.InvariantCulture);
+		var finishTimestamp = DateTime.Parse(finish, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
 
 		assembliesElement.Add(
 			new XAttribute("start-rtf", start),

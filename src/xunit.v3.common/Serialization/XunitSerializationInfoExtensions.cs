@@ -1,4 +1,5 @@
 using System;
+using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
@@ -20,7 +21,7 @@ public static class XunitSerializationInfoExtensions
 		this IXunitSerializationInfo info,
 		string key,
 		T value) =>
-			info.AddValue(key, value, value?.GetType() ?? typeof(T));
+			Guard.ArgumentNotNull(info).AddValue(key, value, value?.GetType() ?? typeof(T));
 
 	/// <summary>
 	/// Adds a value to the serialization. Supported value types include the built-in
@@ -39,7 +40,7 @@ public static class XunitSerializationInfoExtensions
 		string key,
 		object? value,
 		Type? valueType) =>
-			info.AddValue(key, value, Reflector.Wrap(valueType));
+			Guard.ArgumentNotNull(info).AddValue(key, value, Reflector.Wrap(valueType));
 
 	/// <summary>
 	/// Gets a strongly-typed value from the serialization.
@@ -51,5 +52,5 @@ public static class XunitSerializationInfoExtensions
 	public static T? GetValue<T>(
 		this IXunitSerializationInfo info,
 		string key) =>
-			(T?)info.GetValue(key);
+			(T?)Guard.ArgumentNotNull(info).GetValue(key);
 }

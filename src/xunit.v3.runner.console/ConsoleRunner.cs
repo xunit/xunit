@@ -15,7 +15,7 @@ using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole;
 
-class ConsoleRunner
+sealed class ConsoleRunner
 {
 	readonly string[] args;
 	volatile bool cancel;
@@ -167,7 +167,7 @@ class ConsoleRunner
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName);
 			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly);
 
-			var discoverySink = new TestDiscoverySink(() => cancel);
+			using var discoverySink = new TestDiscoverySink(() => cancel);
 
 			var settings = new FrontControllerFindSettings(discoveryOptions, assembly.Configuration.Filters);
 			controller.Find(discoverySink, settings);
@@ -191,7 +191,7 @@ class ConsoleRunner
 		Environment.Exit(1);
 	}
 
-	void PrintHeader()
+	static void PrintHeader()
 	{
 #if NET472
 		var buildTarget = $"net472";
@@ -261,7 +261,7 @@ class ConsoleRunner
 
 		clockTime.Stop();
 
-		if (completionMessages.Count > 0)
+		if (!completionMessages.IsEmpty)
 		{
 			var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
 			foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))

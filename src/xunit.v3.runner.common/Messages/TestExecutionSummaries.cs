@@ -20,7 +20,7 @@ public class TestExecutionSummaries : _MessageSinkMessage
 	/// Gets the summaries of all the tests run. The key is the unique ID of the test
 	/// assembly; the value is the summary of test execution for that assembly.
 	/// </summary>
-	public List<(string AssemblyUniqueID, ExecutionSummary Summary)> SummariesByAssemblyUniqueID { get; } = new List<(string AssemblyUniqueID, ExecutionSummary Summary)>();
+	public List<(string AssemblyUniqueID, ExecutionSummary Summary)> SummariesByAssemblyUniqueID { get; } = new();
 
 	/// <summary>
 	/// Add assembly summary information.

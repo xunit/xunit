@@ -34,7 +34,7 @@ public class XunitTestCaseRunner : XunitTestCaseRunnerBase<XunitTestCaseRunnerCo
 	/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
 	/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
-	public ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> RunAsync(
 		IXunitTestCase testCase,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
@@ -51,6 +51,8 @@ public class XunitTestCaseRunner : XunitTestCaseRunnerBase<XunitTestCaseRunnerCo
 
 		var (testClass, testMethod, beforeAfterTestAttributes) = Initialize(testCase, ref testMethodArguments);
 
-		return RunAsync(new(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes));
+		await using var context = new XunitTestCaseRunnerContext(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterTestAttributes);
+
+		return await RunAsync(context);
 	}
 }

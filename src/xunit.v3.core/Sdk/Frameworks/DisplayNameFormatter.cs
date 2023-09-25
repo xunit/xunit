@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Sdk;
@@ -57,6 +58,8 @@ public class DisplayNameFormatter
 	/// <returns>The formatted display name.</returns>
 	public string Format(string displayName)
 	{
+		Guard.ArgumentNotNull(displayName);
+
 		var context = new FormatContext(displayName);
 
 		while (context.HasMoreText)
@@ -151,7 +154,7 @@ public class DisplayNameFormatter
 				Next?.Evaluate(context, character);
 		}
 
-		bool TryConsumeMoniker(
+		static bool TryConsumeMoniker(
 			FormatContext context,
 			string token)
 		{

@@ -24,8 +24,10 @@ public class TeamCityReporter : IRunnerReporter
 	public string RunnerSwitch => "teamCity";
 
 	/// <inheritdoc/>
-	public ValueTask<_IMessageSink> CreateMessageHandler(
+	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
 		_IMessageSink? diagnosticMessageSink) =>
+#pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 			new(new TeamCityReporterMessageHandler(logger, Environment.GetEnvironmentVariable("TEAMCITY_PROCESS_FLOW_ID")));
+#pragma warning restore CA2000
 }

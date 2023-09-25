@@ -51,7 +51,8 @@ public class TestMethod : _ITestMethod, IXunitSerializable
 	public string UniqueID =>
 		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
-	void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+	/// <inheritdoc/>
+	public void Deserialize(IXunitSerializationInfo info)
 	{
 		testClass = Guard.NotNull("Could not retrieve TestClass from serialization", info.GetValue<_ITestClass>("tc"));
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
@@ -60,7 +61,8 @@ public class TestMethod : _ITestMethod, IXunitSerializable
 		method = Guard.NotNull($"Could not find test method {methodName} on test class {testClass.Class.Name}", TestClass.Class.GetMethod(methodName, true));
 	}
 
-	void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+	/// <inheritdoc/>
+	public void Serialize(IXunitSerializationInfo info)
 	{
 		info.AddValue("mn", Method.Name);
 		info.AddValue("tc", TestClass);

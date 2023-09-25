@@ -89,12 +89,16 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
 	{
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(discoveryCallback);
+
 		var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 		if (factAttributes.Count > 1)
 		{
 			var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
 			var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttributes[0]);
-			var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
+			await using var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
 			return await discoveryCallback(testCase);
 		}
 
@@ -135,6 +139,10 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
 		Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
 	{
+		Guard.ArgumentNotNull(testClass);
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(discoveryCallback);
+
 		foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
 		{
 			var testMethod = new TestMethod(testClass, method);
@@ -147,7 +155,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 			catch (Exception ex)
 			{
 				var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute.Value);
-				var errorTestCase = new ExecutionErrorTestCase(
+				await using var errorTestCase = new ExecutionErrorTestCase(
 					testMethod,
 					details.TestCaseDisplayName,
 					details.UniqueID,
@@ -167,8 +175,10 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	/// <param name="discovererType">The discoverer type.</param>
 	/// <returns>Returns the test case discoverer instance, if known; may return <c>null</c>
 	/// when an error occurs (which is logged to the diagnostic message sink).</returns>
-	protected IXunitTestCaseDiscoverer? GetDiscoverer(Type discovererType)
+	protected static IXunitTestCaseDiscoverer? GetDiscoverer(Type discovererType)
 	{
+		Guard.ArgumentNotNull(discovererType);
+
 		try
 		{
 			return ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(discovererType);

@@ -1,4 +1,5 @@
 using System;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -86,6 +87,8 @@ public class TestResultState
 	/// <summary/>
 	public static TestResultState FromTestResult(_TestResultMessage testResult)
 	{
+		Guard.ArgumentNotNull(testResult);
+
 		var result = new TestResultState { ExecutionTime = testResult.ExecutionTime };
 
 		if (testResult is _TestPassed)

@@ -1,3 +1,5 @@
+#pragma warning disable CA1812 // This class is instantiated in a remote AppDomain
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,7 @@ namespace Xunit.Runner.v2;
 /// interface list is much faster than attempting to do cross-AppDomain casts. This class is created
 /// remotely in <see cref="Xunit2.CreateOptimizedRemoteMessageSink"/>.
 /// </summary>
-class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink
+sealed class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink, IDisposable
 {
 	readonly ReaderWriterLockSlim cacheLock = new();
 	readonly Dictionary<Type, HashSet<string>> interfaceCache = new();
@@ -25,6 +27,11 @@ class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink
 		Guard.ArgumentNotNull(runnerSink);
 
 		this.runnerSink = runnerSink;
+	}
+
+	public void Dispose()
+	{
+		cacheLock.Dispose();
 	}
 
 	HashSet<string> GetMessageTypes(IMessageSinkMessage message)

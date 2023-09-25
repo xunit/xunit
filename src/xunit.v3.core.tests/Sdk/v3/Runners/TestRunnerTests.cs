@@ -416,7 +416,12 @@ public class TestRunnerTests
 			return new((runTime, output));
 		}
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, ExplicitOption.Off, aggregator, TokenSource));
+		public async ValueTask<RunSummary> RunAsync()
+		{
+			await using var ctxt = new TestRunnerContext(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, ExplicitOption.Off, aggregator, TokenSource);
+			await ctxt.InitializeAsync();
+
+			return await RunAsync(ctxt);
+		}
 	}
 }

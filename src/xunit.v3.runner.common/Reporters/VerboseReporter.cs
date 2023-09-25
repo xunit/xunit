@@ -22,8 +22,10 @@ public class VerboseReporter : IRunnerReporter
 	public string RunnerSwitch => "verbose";
 
 	/// <inheritdoc/>
-	public ValueTask<_IMessageSink> CreateMessageHandler(
+	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
 		_IMessageSink? diagnosticMessageSink) =>
+#pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 			new(new VerboseReporterMessageHandler(logger));
+#pragma warning restore CA2000
 }

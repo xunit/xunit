@@ -268,8 +268,10 @@ public class MessageMetadataCache
 	{
 		lock (cache)
 		{
+#pragma warning disable CA1854 // This isn't getting a value, it's setting one
 			if (cache.ContainsKey(uniqueID))
 				throw new InvalidOperationException($"Key '{uniqueID}' already exists in the message metadata cache.{Environment.NewLine}Old item: {cache[uniqueID]}{Environment.NewLine}New item: {metadata}");
+#pragma warning restore CA1854
 
 			cache.Add(uniqueID, metadata);
 		}

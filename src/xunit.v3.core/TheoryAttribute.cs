@@ -1,3 +1,5 @@
+#pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
+
 using System;
 using Xunit.Sdk;
 

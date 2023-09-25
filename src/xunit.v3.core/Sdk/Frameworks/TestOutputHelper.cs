@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xunit.Internal;
@@ -68,7 +69,7 @@ public class TestOutputHelper : _ITestOutputHelper
 		Guard.ArgumentNotNull(format);
 		Guard.ArgumentNotNull(args);
 
-		QueueTestOutput(string.Format(format, args) + Environment.NewLine);
+		QueueTestOutput(string.Format(CultureInfo.CurrentCulture, format, args) + Environment.NewLine);
 	}
 
 	class TestState
@@ -143,7 +144,7 @@ public class TestOutputHelper : _ITestOutputHelper
 				else if (ch == 0x1b)
 					HandleEscapeCharacter(builder, s, i);
 				else if (ch < 32 && !char.IsWhiteSpace(ch)) // C0 control char
-					builder.AppendFormat(@"\x{0}", (+ch).ToString("x2"));
+					builder.AppendFormat(CultureInfo.CurrentCulture, @"\x{0}", (+ch).ToString("x2", CultureInfo.CurrentCulture));
 				else if (char.IsSurrogatePair(s, i))
 				{
 					// For valid surrogates, append like normal
@@ -152,7 +153,7 @@ public class TestOutputHelper : _ITestOutputHelper
 				}
 				// Check for stray surrogates/other invalid chars
 				else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
-					builder.AppendFormat(@"\x{0}", (+ch).ToString("x4"));
+					builder.AppendFormat(CultureInfo.CurrentCulture, @"\x{0}", (+ch).ToString("x4", CultureInfo.CurrentCulture));
 				else
 					builder.Append(ch); // Append the char like normal
 			}

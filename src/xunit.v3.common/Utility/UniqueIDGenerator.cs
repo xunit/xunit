@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -13,11 +14,12 @@ namespace Xunit.Sdk;
 /// Generates unique IDs from multiple string inputs. Used to compute the unique
 /// IDs that are used inside the test framework.
 /// </summary>
-public class UniqueIDGenerator : IDisposable
+public sealed class UniqueIDGenerator : IDisposable
 {
 	bool disposed;
 	HashAlgorithm hasher;
 	Stream stream;
+	readonly object streamLock = new();
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="UniqueIDGenerator"/> class.
@@ -36,7 +38,7 @@ public class UniqueIDGenerator : IDisposable
 	{
 		Guard.ArgumentNotNull(value);
 
-		lock (stream)
+		lock (streamLock)
 		{
 			if (disposed)
 				throw new ObjectDisposedException(nameof(UniqueIDGenerator), "Cannot use UniqueIDGenerator after you have called Compute or Dispose");
@@ -54,7 +56,7 @@ public class UniqueIDGenerator : IDisposable
 	/// <returns>The computed unique ID</returns>
 	public string Compute()
 	{
-		lock (stream)
+		lock (streamLock)
 		{
 			if (disposed)
 				throw new ObjectDisposedException(nameof(UniqueIDGenerator), "Cannot use UniqueIDGenerator after you have called Compute or Dispose");
@@ -72,7 +74,7 @@ public class UniqueIDGenerator : IDisposable
 	/// <inheritdoc/>
 	public void Dispose()
 	{
-		lock (stream)
+		lock (streamLock)
 		{
 			if (!disposed)
 			{
@@ -121,7 +123,7 @@ public class UniqueIDGenerator : IDisposable
 
 		using var generator = new UniqueIDGenerator();
 		generator.Add(testCaseUniqueID);
-		generator.Add(testIndex.ToString());
+		generator.Add(testIndex.ToString(CultureInfo.InvariantCulture));
 		return generator.Compute();
 	}
 
