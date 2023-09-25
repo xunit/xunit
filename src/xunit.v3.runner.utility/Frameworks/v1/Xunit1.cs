@@ -510,13 +510,10 @@ public class Xunit1 : IFrontController
 		Guard.ArgumentNotNull(projectAssembly);
 		var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
 
-		if (diagnosticMessageSink == null)
-			diagnosticMessageSink = _NullMessageSink.Instance;
-
 		return new Xunit1(
-			diagnosticMessageSink,
+			diagnosticMessageSink ?? _NullMessageSink.Instance,
 			projectAssembly.Configuration.AppDomainOrDefault,
-			sourceInformationProvider ?? new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink),
+			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
 			assemblyFileName,
 			projectAssembly.ConfigFileName,
 			projectAssembly.Configuration.ShadowCopyOrDefault,

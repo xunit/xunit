@@ -111,8 +111,7 @@ public class XunitFrontController : IFrontController
 	/// search for references to specific xUnit.net reference assemblies to determine which version
 	/// of xUnit.net the tests were written against.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-	/// <returns></returns>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 	public static IFrontControllerDiscoverer ForDiscovery(
 		_IAssemblyInfo assemblyInfo,
 		XunitProjectAssembly projectAssembly,
@@ -126,18 +125,6 @@ public class XunitFrontController : IFrontController
 
 		var innerDiscoverer = default(IFrontControllerDiscoverer);
 		var assemblyFileName = projectAssembly.AssemblyFileName;
-
-		if (diagnosticMessageSink == null)
-			diagnosticMessageSink = _NullMessageSink.Instance;
-
-		if (sourceInformationProvider == null)
-		{
-			sourceInformationProvider = _NullSourceInformationProvider.Instance;
-#if NETFRAMEWORK
-			if (assemblyFileName != null)
-				sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink);
-#endif
-		}
 
 		var v2PathPattern = new Regex(@"^xunit\.execution\..*\.dll$");
 		var v2ExecutionReference = referenceList.FirstOrDefault(reference => v2PathPattern.IsMatch(Path.GetFileNameWithoutExtension(reference)));
@@ -156,12 +143,11 @@ public class XunitFrontController : IFrontController
 	}
 
 	/// <summary>
-	/// Returns an implementation of <see cref="IFrontController"/> which can be used
-	/// for both discovery and execution.
+	/// Returns an implementation of <see cref="IFrontController"/> which can be used for both discovery and execution.
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
-	/// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+	/// <param name="sourceInformationProvider">The optional source information provider.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
 		_ISourceInformationProvider? sourceInformationProvider = null,
@@ -173,18 +159,7 @@ public class XunitFrontController : IFrontController
 		var assemblyFileName = projectAssembly.AssemblyFileName;
 		var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
-		if (diagnosticMessageSink == null)
-			diagnosticMessageSink = _NullMessageSink.Instance;
-
 #if NETFRAMEWORK
-		if (sourceInformationProvider == null)
-		{
-			if (assemblyFileName == null)
-				sourceInformationProvider = _NullSourceInformationProvider.Instance;
-			else
-				sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink);
-		}
-
 		if (assemblyFolder != null)
 		{
 			if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
@@ -197,9 +172,6 @@ public class XunitFrontController : IFrontController
 			}
 		}
 #else
-		if (sourceInformationProvider == null)
-			sourceInformationProvider = _NullSourceInformationProvider.Instance;
-
 		innerController = Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
 #endif
 

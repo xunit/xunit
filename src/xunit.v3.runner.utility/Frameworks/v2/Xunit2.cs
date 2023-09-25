@@ -614,17 +614,10 @@ public class Xunit2 : IFrontController
 		_IMessageSink? diagnosticMessageSink = null,
 		bool verifyAssembliesOnDisk = true)
 	{
-		var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
-
 		Guard.ArgumentNotNull(assemblyInfo);
+		Guard.ArgumentNotNull(projectAssembly);
 
-		if (diagnosticMessageSink == null)
-			diagnosticMessageSink = _NullMessageSink.Instance;
-
-#if NETFRAMEWORK
-		if (sourceInformationProvider == null && assemblyInfo.AssemblyPath != null)
-			sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyInfo.AssemblyPath, diagnosticMessageSink);
-#endif
+		var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
 
 		return new Xunit2(
 			diagnosticMessageSink ?? _NullMessageSink.Instance,
@@ -660,17 +653,10 @@ public class Xunit2 : IFrontController
 		var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
 		var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
 
-		if (diagnosticMessageSink == null)
-			diagnosticMessageSink = _NullMessageSink.Instance;
-
 		return new Xunit2(
-			diagnosticMessageSink,
+			diagnosticMessageSink ?? _NullMessageSink.Instance,
 			appDomainSupport,
-#if NETSTANDARD
 			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
-#else
-			sourceInformationProvider ?? new VisualStudioSourceInformationProvider(assemblyFileName, diagnosticMessageSink),
-#endif
 			assemblyInfo: null,
 			assemblyFileName,
 			GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk),
