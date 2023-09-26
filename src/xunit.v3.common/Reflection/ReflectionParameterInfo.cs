@@ -40,7 +40,7 @@ public class ReflectionParameterInfo : _IReflectionParameterInfo
 	public _IAttributeInfo? GetCustomAttribute(_ITypeInfo attributeType)
 	{
 		var customAttributeData = ParameterInfo.CustomAttributes.FirstOrDefault(cad => attributeType.Equal(cad.AttributeType));
-		if (customAttributeData == null)
+		if (customAttributeData is null)
 			return null;
 
 		return Reflector.Wrap(customAttributeData);

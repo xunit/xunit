@@ -34,7 +34,7 @@ public class TestOutputHelper : _ITestOutputHelper
 		IMessageBus messageBus,
 		_ITest test)
 	{
-		if (state != null)
+		if (state is not null)
 			throw new InvalidOperationException("Attempted to initialize a TestOutputHelper that has already been initialized");
 
 		state = new TestState(messageBus, test);

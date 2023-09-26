@@ -39,7 +39,7 @@ public static partial class Mocks
 		bool disableTestParallelization = false,
 		int maxParallelThreads = 0)
 	{
-		var ctorArgs = collectionBehavior == null ? EmptyObjects : new object[] { collectionBehavior };
+		var ctorArgs = collectionBehavior is null ? EmptyObjects : new object[] { collectionBehavior };
 		return CollectionBehaviorAttribute(disableTestParallelization, maxParallelThreads, ctorArgs);
 	}
 
@@ -141,11 +141,11 @@ public static partial class Mocks
 		string fullyQualifiedTypeName,
 		_IAttributeInfo[]? attributes)
 	{
-		if (attributes == null)
+		if (attributes is null)
 			return EmptyAttributeInfos;
 
 		var attributeType = Type.GetType(fullyQualifiedTypeName);
-		if (attributeType == null)
+		if (attributeType is null)
 			return EmptyAttributeInfos;
 
 		return

@@ -69,9 +69,9 @@ public static class SerializationHelper
 			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
 		};
 
-		if (dateOnlyFromDayNumber != null)
+		if (dateOnlyFromDayNumber is not null)
 			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, new object[] { int.Parse(v, CultureInfo.InvariantCulture) }));
-		if (timeOnlyCtor != null)
+		if (timeOnlyCtor is not null)
 			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke(new object[] { long.Parse(v, CultureInfo.InvariantCulture) }));
 
 #pragma warning disable CA1065 // These thrown exceptions are done in lambdas, not directly in the static constructor
@@ -104,9 +104,9 @@ public static class SerializationHelper
 			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
 		};
 
-		if (dateOnlyDayNumber != null)
+		if (dateOnlyDayNumber is not null)
 			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call GetValue on an instance of '{dateOnlyType!.SafeName()}': {v}"));
-		if (timeOnlyTicks != null)
+		if (timeOnlyTicks is not null)
 			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call Ticks on an instance of '{timeOnlyType!.SafeName()}': {v}"));
 
 #pragma warning restore CA1065
@@ -139,9 +139,9 @@ public static class SerializationHelper
 			{ TypeIndex.BigInteger, typeof(BigInteger) },
 		};
 
-		if (dateOnlyType != null)
+		if (dateOnlyType is not null)
 			typesByTypeIdx.Add(TypeIndex.DateOnly, dateOnlyType);
-		if (timeOnlyType != null)
+		if (timeOnlyType is not null)
 			typesByTypeIdx.Add(TypeIndex.TimeOnly, timeOnlyType);
 
 		typeIndicesByType = typesByTypeIdx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
@@ -222,7 +222,7 @@ public static class SerializationHelper
 			return default;
 
 		var type = SerializedTypeNameToType(FromBase64(pieces[0]));
-		if (type == null)
+		if (type is null)
 			throw new InvalidOperationException($"Serialized type name '{pieces[0]}' could not be converted into a Type object.");
 
 		return converter(type, pieces[1]);
@@ -305,7 +305,7 @@ public static class SerializationHelper
 	/// <returns>Returns <c>true</c> if the object can be serialized; <c>false</c>, otherwise.</returns>
 	public static bool IsSerializable(object? value)
 	{
-		if (value == null)
+		if (value is null)
 			return true;
 
 		return IsSerializable(value, value.GetType());
@@ -321,8 +321,8 @@ public static class SerializationHelper
 		object? value,
 		Type? type)
 	{
-		if (type == null || type == typeof(object))
-			return value == null;
+		if (type is null || type == typeof(object))
+			return value is null;
 
 		// You usually get instances of RuntimeType, not the abstract Type
 		if (typeof(Type).IsAssignableFrom(type))
@@ -351,8 +351,8 @@ public static class SerializationHelper
 		object? value,
 		_ITypeInfo? typeInfo)
 	{
-		if (typeInfo == null || typeInfo.Equal(typeof(object)))
-			return value == null;
+		if (typeInfo is null || typeInfo.Equal(typeof(object)))
+			return value is null;
 
 		// You usually get instances of RuntimeType, not the abstract Type
 		if (TypeInfo_Type.IsAssignableFrom(typeInfo))
@@ -397,9 +397,9 @@ public static class SerializationHelper
 	{
 		typeInfo ??= Reflector.Wrap(value?.GetType()) ?? TypeInfo_Object;
 
-		if (value == null && !typeInfo.IsNullable())
+		if (value is null && !typeInfo.IsNullable())
 			throw new ArgumentException($"Cannot serialize a null value as type '{typeInfo.Name}' because it's type-incompatible", nameof(value));
-		if (value != null && !typeInfo.IsAssignableFrom(value.GetType()))
+		if (value is not null && !typeInfo.IsAssignableFrom(value.GetType()))
 			throw new ArgumentException($"Cannot serialize a value of type '{value.GetType().SafeName()}' as type '{typeInfo.Name}' because it's type-incompatible", nameof(value));
 
 		var coreValueTypeInfo = typeInfo;
@@ -419,7 +419,7 @@ public static class SerializationHelper
 		else
 		{
 			var kvp = typeIndicesByType.FirstOrDefault(kvp => nonNullableCoreValueTypeInfo.Equal(kvp.Key));
-			if (kvp.Key == null)
+			if (kvp.Key is null)
 				throw new ArgumentException($"Cannot serialize a value of type '{typeInfo.Name}': unsupported type for serialization", nameof(value));
 			typeIdx = kvp.Value;
 		}
@@ -429,7 +429,7 @@ public static class SerializationHelper
 
 		var typeIdxText = $"{(int)typeIdx}{(coreValueTypeInfo != nonNullableCoreValueTypeInfo ? "?" : "")}{(isArray ? "[]" : "")}";
 
-		if (value == null)
+		if (value is null)
 			return typeIdxText;
 
 		if (isArray)
@@ -462,7 +462,7 @@ public static class SerializationHelper
 
 	static string SerializeTraits(Dictionary<string, List<string>>? value)
 	{
-		if (value == null || value.Count == 0)
+		if (value is null || value.Count == 0)
 			return string.Empty;
 
 		var result = new StringBuilder();
@@ -537,7 +537,7 @@ public static class SerializationHelper
 
 					var genericDefinitionName = assemblyQualifiedTypeName.Substring(0, firstOpenSquare) + assemblyQualifiedTypeName.Substring(lastOpenSquare);
 					var genericDefinition = SerializedTypeNameToType(genericDefinitionName);
-					if (genericDefinition == null)
+					if (genericDefinition is null)
 						return null;
 
 					// Push array ranks so we can get down to the actual generic definition
@@ -545,7 +545,7 @@ public static class SerializationHelper
 					while (true)
 					{
 						var elementType = genericDefinition.GetElementType();
-						if (elementType == null)
+						if (elementType is null)
 							break;
 
 						arrayRanks.Push(genericDefinition.GetArrayRank());
@@ -573,7 +573,7 @@ public static class SerializationHelper
 		var typeName = parts[0];
 		var assemblyName = parts[1];
 		var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
-		if (assembly == null)
+		if (assembly is null)
 		{
 			try
 			{
@@ -582,7 +582,7 @@ public static class SerializationHelper
 			catch { }
 		}
 
-		if (assembly == null)
+		if (assembly is null)
 			return null;
 
 		return assembly.GetType(typeName);
@@ -671,7 +671,7 @@ public static class SerializationHelper
 		while (true)
 		{
 			var elementType = typeToMap.GetElementType();
-			if (elementType == null)
+			if (elementType is null)
 				break;
 
 			arrayRanks.Push(typeToMap.GetArrayRank());

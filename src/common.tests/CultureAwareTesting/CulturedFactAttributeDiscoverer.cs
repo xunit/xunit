@@ -17,7 +17,7 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 		var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
 		var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();
 
-		if (cultures == null || cultures.Length == 0)
+		if (cultures is null || cultures.Length == 0)
 			cultures = new[] { "en-US", "fr-FR" };
 
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);

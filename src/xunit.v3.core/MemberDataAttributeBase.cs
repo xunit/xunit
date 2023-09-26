@@ -76,11 +76,11 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		Guard.ArgumentNotNull(testMethod);
 
 		var type = MemberType ?? testMethod.DeclaringType;
-		if (type == null)
+		if (type is null)
 			return new(default(IReadOnlyCollection<ITheoryDataRow>));
 
 		var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
-		if (accessor == null)
+		if (accessor is null)
 		{
 			var parameterText = Parameters?.Length > 0 ? $" with parameter types: {string.Join(", ", Parameters.Select(p => p?.GetType().FullName ?? "(null)"))}" : "";
 			throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}{parameterText}");
@@ -95,7 +95,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			var result = new List<ITheoryDataRow>();
 
 			foreach (var dataItem in dataItems)
-				if (dataItem != null)
+				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
 			return new(result.CastOrToReadOnlyCollection());
@@ -118,7 +118,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			var result = new List<ITheoryDataRow>();
 
 			await foreach (var dataItem in asyncDataItems)
-				if (dataItem != null)
+				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
 			return result.CastOrToReadOnlyCollection();
@@ -131,7 +131,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			var result = new List<ITheoryDataRow>();
 
 			foreach (var dataItem in dataItems)
-				if (dataItem != null)
+				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
 			return result.CastOrToReadOnlyCollection();
@@ -157,14 +157,14 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetFieldAccessor(Type? type)
 	{
 		FieldInfo? fieldInfo = null;
-		for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
+		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
 		{
 			fieldInfo = reflectionType.GetRuntimeField(MemberName);
-			if (fieldInfo != null)
+			if (fieldInfo is not null)
 				break;
 		}
 
-		if (fieldInfo == null || !fieldInfo.IsStatic)
+		if (fieldInfo is null || !fieldInfo.IsStatic)
 			return null;
 
 		return () => fieldInfo.GetValue(null);
@@ -173,19 +173,19 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetMethodAccessor(Type? type)
 	{
 		MethodInfo? methodInfo = null;
-		var parameterTypes = Parameters == null ? Array.Empty<Type>() : Parameters.Select(p => p?.GetType()).ToArray();
-		for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
+		var parameterTypes = Parameters is null ? Array.Empty<Type>() : Parameters.Select(p => p?.GetType()).ToArray();
+		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
 		{
 			methodInfo =
 				reflectionType
 					.GetRuntimeMethods()
 					.FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
 
-			if (methodInfo != null)
+			if (methodInfo is not null)
 				break;
 		}
 
-		if (methodInfo == null || !methodInfo.IsStatic)
+		if (methodInfo is null || !methodInfo.IsStatic)
 			return null;
 
 		return () => methodInfo.Invoke(null, Parameters);
@@ -194,14 +194,14 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetPropertyAccessor(Type? type)
 	{
 		PropertyInfo? propInfo = null;
-		for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.BaseType)
+		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
 		{
 			propInfo = reflectionType.GetRuntimeProperty(MemberName);
-			if (propInfo != null)
+			if (propInfo is not null)
 				break;
 		}
 
-		if (propInfo == null || propInfo.GetMethod == null || !propInfo.GetMethod.IsStatic)
+		if (propInfo is null || propInfo.GetMethod is null || !propInfo.GetMethod.IsStatic)
 			return null;
 
 		return () => propInfo.GetValue(null, null);
@@ -215,7 +215,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			return false;
 
 		for (var idx = 0; idx < parameters.Length; ++idx)
-			if (parameterTypes[idx] != null && !parameters[idx].ParameterType.IsAssignableFrom(parameterTypes[idx]!))
+			if (parameterTypes[idx] is not null && !parameters[idx].ParameterType.IsAssignableFrom(parameterTypes[idx]!))
 				return false;
 
 		return true;

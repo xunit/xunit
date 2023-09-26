@@ -74,7 +74,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
 		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
 
-		if (type == null || type.FullName == null)
+		if (type is null || type.FullName is null)
 			return Array.Empty<_TestCaseDiscovered>();
 
 		var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
@@ -164,7 +164,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		foreach (var memberInfo in type.GetMembers())
 		{
 			var childType = memberInfo as Type;
-			if (childType != null)
+			if (childType is not null)
 				state = RunClass(childType, state);
 		}
 
@@ -179,15 +179,15 @@ public class TdNetRunnerHelper : IAsyncDisposable
 
 		var testCases = Discover(method.ReflectedType).Where(tc =>
 		{
-			if (tc.TestClassNameWithNamespace == null || tc.TestMethodName == null)
+			if (tc.TestClassNameWithNamespace is null || tc.TestMethodName is null)
 				return false;
 
 			var typeInfo = Type.GetType(tc.TestClassNameWithNamespace);
-			if (typeInfo == null)
+			if (typeInfo is null)
 				return false;
 
 			var methodInfo = typeInfo.GetMethod(tc.TestMethodName, BindingFlags.Public);
-			if (methodInfo == null)
+			if (methodInfo is null)
 				return false;
 
 			if (methodInfo == method)

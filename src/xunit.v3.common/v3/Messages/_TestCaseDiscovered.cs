@@ -48,7 +48,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	{
 		get
 		{
-			if (testClassName == null && TestMethodName != null)
+			if (testClassName is null && TestMethodName is not null)
 				throw new InvalidOperationException($"Illegal null {nameof(TestClassName)} on an instance of '{GetType().FullName}' when {nameof(TestMethodName)} is not null");
 
 			return testClassName;
@@ -65,7 +65,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	{
 		get
 		{
-			if (testClassNameWithNamespace == null && testClassName != null)
+			if (testClassNameWithNamespace is null && testClassName is not null)
 				throw new InvalidOperationException($"Illegal null {nameof(TestClassNameWithNamespace)} on an instance of '{GetType().FullName}' when {nameof(TestClassName)} is not null");
 
 			return testClassNameWithNamespace;
@@ -95,9 +95,9 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 		ValidateNullableProperty(serialization, nameof(Serialization), invalidProperties);
 		ValidateNullableProperty(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
 
-		if (TestMethodName != null)
+		if (TestMethodName is not null)
 			ValidateNullableProperty(testClassName, nameof(TestClassName), invalidProperties);
-		if (testClassName != null)
+		if (testClassName is not null)
 			ValidateNullableProperty(testClassNameWithNamespace, nameof(TestClassNameWithNamespace), invalidProperties);
 	}
 }

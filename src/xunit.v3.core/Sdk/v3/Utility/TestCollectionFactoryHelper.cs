@@ -24,7 +24,7 @@ public static class TestCollectionFactoryHelper
 			assemblyInfo
 				.GetTypes(false)
 				.Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName!).FirstOrDefault() })
-				.Where(list => list.Attribute != null)
+				.Where(list => list.Attribute is not null)
 				.GroupBy(
 					list => list.Attribute!.GetConstructorArguments().Cast<string>().Single(),
 					list => list.Type,

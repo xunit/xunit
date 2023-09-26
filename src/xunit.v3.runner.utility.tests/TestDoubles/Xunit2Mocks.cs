@@ -63,7 +63,7 @@ namespace Xunit.Runner.v2
 			attributes ??= new IReflectionAttributeInfo[0];
 
 			var result = Substitute.For<IAssemblyInfo, InterfaceProxy<IAssemblyInfo>>();
-			result.Name.Returns(assemblyFileName == null ? "assembly:" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
+			result.Name.Returns(assemblyFileName is null ? "assembly:" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
 			result.AssemblyPath.Returns(assemblyFileName);
 			result.GetType("").ReturnsForAnyArgs(types?.FirstOrDefault());
 			result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
@@ -127,11 +127,11 @@ namespace Xunit.Runner.v2
 			string fullyQualifiedTypeName,
 			IReflectionAttributeInfo[]? attributes)
 		{
-			if (attributes == null)
+			if (attributes is null)
 				return Enumerable.Empty<IAttributeInfo>();
 
 			var attributeType = Type.GetType(fullyQualifiedTypeName);
-			if (attributeType == null)
+			if (attributeType is null)
 				return Enumerable.Empty<IAttributeInfo>();
 
 			return attributes.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType())).ToList();
@@ -248,7 +248,7 @@ namespace Xunit.Runner.v2
 			string uniqueID = "test-case-uniqueid")
 		{
 			var sourceInformation =
-				sourceFileName != null
+				sourceFileName is not null
 					? new SourceInformation { FileName = sourceFileName, LineNumber = sourceLineNumber }
 					: null;
 

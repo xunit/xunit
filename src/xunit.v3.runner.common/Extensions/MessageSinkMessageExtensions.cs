@@ -22,7 +22,7 @@ public static partial class MessageSinkMessageExtensions
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (callback != null && message is TMessage castMessage)
+		if (callback is not null && message is TMessage castMessage)
 		{
 			var args = new MessageHandlerArgs<TMessage>(castMessage);
 			callback(args);

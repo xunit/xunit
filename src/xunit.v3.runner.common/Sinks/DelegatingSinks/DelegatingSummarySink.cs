@@ -136,7 +136,7 @@ public class DelegatingSummarySink : IExecutionSink
 		ExecutionSummary.Errors = errors;
 
 		var metadata = metadataCache.TryRemove(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			completionCallback?.Invoke(ExecutionSummary, metadata);
 		else
 			completionCallback?.Invoke(ExecutionSummary, null);

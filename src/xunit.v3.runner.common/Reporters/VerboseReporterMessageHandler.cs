@@ -26,7 +26,7 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
-			if (metadata != null)
+			if (metadata is not null)
 				Logger.LogMessage($"    {Escape(metadata.TestDisplayName)} [FINISHED] Time: {args.Message.ExecutionTime}s");
 			else
 				Logger.LogMessage($"    <unknown test> [FINISHED] Time: {args.Message.ExecutionTime}s");
@@ -37,7 +37,7 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			Guard.ArgumentNotNull(args);
 
 			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
-			if (metadata != null)
+			if (metadata is not null)
 				Logger.LogMessage($"    {Escape(metadata.TestDisplayName)} [NOT RUN]");
 			else
 				Logger.LogMessage($"    <unknown test> [NOT RUN]");

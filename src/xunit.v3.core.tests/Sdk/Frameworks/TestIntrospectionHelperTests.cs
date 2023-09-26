@@ -23,7 +23,7 @@ public class TestIntrospectionHelperTests
 		object?[]? testMethodArguments = null)
 	{
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
-		if (factAttribute == null)
+		if (factAttribute is null)
 			throw new ArgumentException($"Could not locate the FactAttribute on test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'", nameof(testMethod));
 
 		return TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute, testMethodArguments);

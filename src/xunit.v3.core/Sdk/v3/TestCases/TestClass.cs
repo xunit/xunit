@@ -60,7 +60,7 @@ public class TestClass : _ITestClass, IXunitSerializable
 		var typeName = Guard.NotNull("Could not retrieve ClassTypeName from serialization", info.GetValue<string>("ctn"));
 
 		var type = TypeHelper.GetType(assemblyName, typeName);
-		if (type == null)
+		if (type is null)
 			throw new InvalidOperationException($"Failed to deserialize type '{typeName}' in assembly '{assemblyName}'");
 
 		@class = Reflector.Wrap(type);

@@ -27,18 +27,18 @@ public static class StackFrameTransformer
 		string? stackFrame,
 		string? defaultDirectory)
 	{
-		if (stackFrame == null)
+		if (stackFrame is null)
 			return null;
 
 		var match = regex.Match(stackFrame);
 		if (match == Match.Empty)
 			return stackFrame;
 
-		if (defaultDirectory != null)
+		if (defaultDirectory is not null)
 			defaultDirectory = defaultDirectory.TrimEnd('\\', '/');
 
 		var file = match.Groups["file"].Value;
-		if (defaultDirectory != null && file.StartsWith(defaultDirectory, StringComparison.OrdinalIgnoreCase))
+		if (defaultDirectory is not null && file.StartsWith(defaultDirectory, StringComparison.OrdinalIgnoreCase))
 			file = file.Substring(defaultDirectory.Length + 1);
 
 		return $"{file}({match.Groups["line"].Value},0): at {match.Groups["method"].Value}";
@@ -54,7 +54,7 @@ public static class StackFrameTransformer
 		string? stack,
 		string? defaultDirectory)
 	{
-		if (stack == null)
+		if (stack is null)
 			return null;
 
 		return string.Join(

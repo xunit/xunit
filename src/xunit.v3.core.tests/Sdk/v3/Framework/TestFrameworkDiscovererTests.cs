@@ -217,7 +217,7 @@ public class TestFrameworkDiscovererTests
 			FindTestsForType_CurrentCulture = CultureInfo.CurrentCulture;
 			FindTestsForType_TestClasses.Add(testClass);
 
-			if (FindTestsForType_Exception != null)
+			if (FindTestsForType_Exception is not null)
 				throw FindTestsForType_Exception;
 
 			return new(true);

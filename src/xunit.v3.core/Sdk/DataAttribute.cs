@@ -23,7 +23,7 @@ public abstract class DataAttribute : Attribute
 	static DataAttribute()
 	{
 		tupleType = Type.GetType("System.Runtime.CompilerServices.ITuple");
-		if (tupleType == null)
+		if (tupleType is null)
 			return;
 
 		tupleIndexerGetter = tupleType.GetProperty("Item")?.GetMethod;
@@ -144,7 +144,7 @@ public abstract class DataAttribute : Attribute
 		{
 			var dataRowTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-			if (theoryDataRow.Traits != null)
+			if (theoryDataRow.Traits is not null)
 				foreach (var kvp in theoryDataRow.Traits)
 					dataRowTraits.GetOrAdd(kvp.Key).AddRange(kvp.Value);
 
@@ -173,12 +173,12 @@ public abstract class DataAttribute : Attribute
 				Traits = traits,
 			};
 
-		if (tupleType != null && tupleIndexerGetter != null && tupleLengthGetter != null)
+		if (tupleType is not null && tupleIndexerGetter is not null && tupleLengthGetter is not null)
 		{
 			if (tupleType.IsAssignableFrom(dataRow.GetType()))
 			{
 				var countObj = tupleLengthGetter.Invoke(dataRow, null);
-				if (countObj != null)
+				if (countObj is not null)
 				{
 					var count = (int)countObj;
 					var data = new object?[count];

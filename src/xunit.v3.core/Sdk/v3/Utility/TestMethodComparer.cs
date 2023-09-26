@@ -18,9 +18,9 @@ public class TestMethodComparer : IEqualityComparer<_ITestMethod?>
 		_ITestMethod? x,
 		_ITestMethod? y)
 	{
-		if (x == null && y == null)
+		if (x is null && y is null)
 			return true;
-		if (x == null || y == null)
+		if (x is null || y is null)
 			return false;
 
 		return x.UniqueID == y.UniqueID;
@@ -28,5 +28,5 @@ public class TestMethodComparer : IEqualityComparer<_ITestMethod?>
 
 	/// <inheritdoc/>
 	public int GetHashCode(_ITestMethod? obj) =>
-		obj == null ? 0 : obj.Method.Name.GetHashCode();
+		obj is null ? 0 : obj.Method.Name.GetHashCode();
 }

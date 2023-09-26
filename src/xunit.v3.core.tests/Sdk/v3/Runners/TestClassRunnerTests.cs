@@ -444,15 +444,15 @@ public static class TestClassRunnerTests
 			Exception? aggregatorSeedException = null,
 			bool cancelInRunTestMethodAsync = false)
 		{
-			if (testCases == null)
+			if (testCases is null)
 				testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
-			if (availableArguments == null)
+			if (availableArguments is null)
 				availableArguments = Array.Empty<object>();
 
 			var firstTest = testCases.First();
 
 			var aggregator = new ExceptionAggregator();
-			if (aggregatorSeedException != null)
+			if (aggregatorSeedException is not null)
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestClassRunner(
@@ -523,10 +523,10 @@ public static class TestClassRunnerTests
 			out object argumentValue)
 		{
 			var resultValue = availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType()));
-			if (resultValue == null)
+			if (resultValue is null)
 			{
 				var result = base.TryGetConstructorArgument(ctxt, constructor, index, parameter, out resultValue);
-				if (result == false || resultValue == null)
+				if (result == false || resultValue is null)
 				{
 					argumentValue = null!;
 					return false;

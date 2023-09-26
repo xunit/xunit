@@ -61,7 +61,7 @@ public class XunitTest : _ITest
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
 		Timeout = timeout;
 
-		if (traits == null)
+		if (traits is null)
 			Traits = EmptyDictionary;
 		else
 		{

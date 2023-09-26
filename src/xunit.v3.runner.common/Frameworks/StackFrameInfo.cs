@@ -54,11 +54,11 @@ public partial struct StackFrameInfo
 	/// <returns>The stack frame info</returns>
 	public static StackFrameInfo FromErrorMetadata(_IErrorMetadata? errorMetadata)
 	{
-		if (errorMetadata == null)
+		if (errorMetadata is null)
 			return None;
 
 		var stackTraces = ExceptionUtility.CombineStackTraces(errorMetadata);
-		if (stackTraces != null)
+		if (stackTraces is not null)
 		{
 			foreach (var frame in stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries))
 			{
@@ -81,7 +81,7 @@ public partial struct StackFrameInfo
 		try
 		{
 			var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
-			if (getResourceStringMethod != null)
+			if (getResourceStringMethod is not null)
 			{
 				wordAt = (string?)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
 				wordsInLine = (string?)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });

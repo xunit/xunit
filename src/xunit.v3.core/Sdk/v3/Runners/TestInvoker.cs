@@ -165,7 +165,7 @@ public abstract class TestInvoker<TContext>
 					async () =>
 					{
 						var parameterCount = ctxt.TestMethod.GetParameters().Length;
-						var valueCount = ctxt.TestMethodArguments == null ? 0 : ctxt.TestMethodArguments.Length;
+						var valueCount = ctxt.TestMethodArguments is null ? 0 : ctxt.TestMethodArguments.Length;
 						if (parameterCount != valueCount)
 						{
 							ctxt.Aggregator.Add(
@@ -180,10 +180,10 @@ public abstract class TestInvoker<TContext>
 							var valueTask = AsyncUtility.TryConvertToValueTask(result);
 							if (valueTask.HasValue)
 								await valueTask.Value;
-							else if (asyncSyncContext != null)
+							else if (asyncSyncContext is not null)
 							{
 								var ex = await asyncSyncContext.WaitForCompletionAsync();
-								if (ex != null)
+								if (ex is not null)
 									ctxt.Aggregator.Add(ex);
 							}
 						}
@@ -195,7 +195,7 @@ public abstract class TestInvoker<TContext>
 		}
 		finally
 		{
-			if (asyncSyncContext != null)
+			if (asyncSyncContext is not null)
 				SetSynchronizationContext(oldSyncContext);
 		}
 	}
@@ -254,7 +254,7 @@ public abstract class TestInvoker<TContext>
 				}
 				finally
 				{
-					if (asyncDisposable != null || disposable != null)
+					if (asyncDisposable is not null || disposable is not null)
 					{
 						var testClassDisposeStarting = new _TestClassDisposeStarting
 						{
@@ -270,16 +270,16 @@ public abstract class TestInvoker<TContext>
 							ctxt.CancellationTokenSource.Cancel();
 					}
 
-					if (asyncDisposable != null)
+					if (asyncDisposable is not null)
 						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(asyncDisposable.DisposeAsync));
 				}
 			}
 			finally
 			{
-				if (disposable != null)
+				if (disposable is not null)
 					elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(disposable.Dispose));
 
-				if (asyncDisposable != null || disposable != null)
+				if (asyncDisposable is not null || disposable is not null)
 				{
 					var testClassDisposeFinished = new _TestClassDisposeFinished
 					{

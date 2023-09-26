@@ -146,9 +146,9 @@ public class TestClassCallbackHandlerTests
 		/// <param name="test">The current <see cref="_ITest"/></param>
 		public override void After(MethodInfo methodUnderTest, _ITest test)
 		{
-			if (originalCulture != null)
+			if (originalCulture is not null)
 				CultureInfo.CurrentCulture = originalCulture;
-			if (originalUICulture != null)
+			if (originalUICulture is not null)
 				CultureInfo.CurrentUICulture = originalUICulture;
 		}
 	}

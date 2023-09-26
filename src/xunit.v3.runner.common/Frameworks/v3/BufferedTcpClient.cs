@@ -48,7 +48,7 @@ public class BufferedTcpClient : IAsyncDisposable
 		if (disposed)
 			return;
 
-		if (fault != null)
+		if (fault is not null)
 		{
 			var tcs = new TaskCompletionSource<int>();
 			tcs.SetException(fault);
@@ -171,7 +171,7 @@ public class BufferedTcpClient : IAsyncDisposable
 	{
 		var position = buffer.PositionOf(TcpEngineMessages.EndOfMessage[0]);
 
-		if (position == null)
+		if (position is null)
 		{
 			line = default;
 			return false;

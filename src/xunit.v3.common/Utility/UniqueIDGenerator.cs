@@ -147,10 +147,10 @@ public sealed class UniqueIDGenerator : IDisposable
 
 		generator.Add(parentUniqueID);
 
-		if (testMethodArguments != null)
+		if (testMethodArguments is not null)
 			generator.Add(SerializationHelper.Serialize(testMethodArguments));
 
-		if (testMethodGenericTypes != null)
+		if (testMethodGenericTypes is not null)
 			for (var idx = 0; idx < testMethodGenericTypes.Length; idx++)
 				generator.Add(testMethodGenericTypes[idx].ToSimpleTypeName());
 
@@ -171,7 +171,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	{
 		Guard.ArgumentNotNull(testCollectionUniqueID);
 
-		if (className == null)
+		if (className is null)
 			return null;
 
 		using var generator = new UniqueIDGenerator();
@@ -214,7 +214,7 @@ public sealed class UniqueIDGenerator : IDisposable
 		string? testClassUniqueID,
 		string? methodName)
 	{
-		if (testClassUniqueID == null || methodName == null)
+		if (testClassUniqueID is null || methodName is null)
 			return null;
 
 		using var generator = new UniqueIDGenerator();

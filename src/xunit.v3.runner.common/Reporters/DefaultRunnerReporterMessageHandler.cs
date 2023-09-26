@@ -92,7 +92,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// <returns>The escaped text</returns>
 	protected virtual string Escape(string? text)
 	{
-		if (text == null)
+		if (text is null)
 			return string.Empty;
 
 		return text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0");
@@ -108,7 +108,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		string? text,
 		string indent)
 	{
-		if (text == null)
+		if (text is null)
 			return string.Empty;
 
 		return
@@ -138,7 +138,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// <param name="assemblyFilename">The test assembly filename</param>
 	protected _ITestFrameworkExecutionOptions GetExecutionOptions(string? assemblyFilename)
 	{
-		if (assemblyFilename != null)
+		if (assemblyFilename is not null)
 			using (ReaderWriterLockWrapper.ReadLock())
 				if (executionOptionsByAssembly.TryGetValue(assemblyFilename, out var result))
 					return result;
@@ -213,7 +213,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// </summary>
 	protected virtual void LogWarnings(string[]? warnings)
 	{
-		if (warnings == null || warnings.Length == 0)
+		if (warnings is null || warnings.Length == 0)
 			return;
 
 		Logger.LogMessage(StackFrameInfo.None, "      Warnings:");
@@ -320,7 +320,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 #pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
 #pragma warning restore CA1308
-			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit}{(executionStarting.Seed == null ? "" : $", seed = {executionStarting.Seed}")})");
+			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit}{(executionStarting.Seed is null ? "" : $", seed = {executionStarting.Seed}")})");
 		}
 		else
 			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");
@@ -335,7 +335,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetAssemblyMetadata(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", args.Message);
 		else
 			LogError($"Test Assembly Cleanup Failure (<unknown test assembly>)", args.Message);
@@ -374,7 +374,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetTestCaseMetadata(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			LogError($"Test Case Cleanup Failure ({metadata.TestCaseDisplayName})", args.Message);
 		else
 			LogError("Test Case Cleanup Failure (<unknown test case>)", args.Message);
@@ -411,7 +411,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetClassMetadata(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			LogError($"Test Class Cleanup Failure ({metadata.TestClass})", args.Message);
 		else
 			LogError("Test Class Cleanup Failure (<unknown test class>)", args.Message);
@@ -448,7 +448,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetTestMetadata(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			LogError($"Test Cleanup Failure ({metadata.TestDisplayName})", args.Message);
 		else
 			LogError("Test Cleanup Failure (<unknown test>)", args.Message);
@@ -463,7 +463,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetCollectionMetadata(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", args.Message);
 		else
 			LogError($"Test Collection Cleanup Failure (<unknown test collection>)", args.Message);
@@ -516,7 +516,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		lock (Logger.LockObject)
 		{
-			if (metadata != null)
+			if (metadata is not null)
 				Logger.LogError(frameInfo, $"    {Escape(metadata.TestDisplayName)} [FAIL]");
 			else
 				Logger.LogError(frameInfo, "    <unknown test> [FAIL]");
@@ -551,7 +551,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		var cleanupFailure = args.Message;
 		var metadata = MetadataCache.TryGetMethodMetadata(args.Message);
-		if (metadata != null)
+		if (metadata is not null)
 			LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
 		else
 			LogError("Test Method Cleanup Failure (<unknown test method>)", cleanupFailure);
@@ -596,7 +596,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 			lock (Logger.LockObject)
 			{
 				var testMetadata = MetadataCache.TryGetTestMetadata(testPassed);
-				if (testMetadata != null)
+				if (testMetadata is not null)
 					Logger.LogImportantMessage($"    {Escape(testMetadata.TestDisplayName)} [PASS]");
 				else
 					Logger.LogImportantMessage("    <unknown test> [PASS]");
@@ -620,7 +620,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		{
 			var testSkipped = args.Message;
 			var testMetadata = MetadataCache.TryGetTestMetadata(testSkipped);
-			if (testMetadata != null)
+			if (testMetadata is not null)
 				Logger.LogWarning($"    {Escape(testMetadata.TestDisplayName)} [SKIP]");
 			else
 				Logger.LogWarning("    <unknown test> [SKIP]");

@@ -707,7 +707,7 @@ public class DelegatingXmlCreationSinkTests
 		var errorElement = Assert.Single(assemblyElement.Element("errors")!.Elements());
 		Assert.Equal(messageType, errorElement.Attribute("type")!.Value);
 
-		if (name == null)
+		if (name is null)
 			Assert.Null(errorElement.Attribute("name"));
 		else
 			Assert.Equal(name, errorElement.Attribute("name")!.Value);

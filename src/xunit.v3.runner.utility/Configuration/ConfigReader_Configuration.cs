@@ -28,7 +28,7 @@ public static class ConfigReader_Configuration
 	{
 		Guard.ArgumentNotNull(configuration);
 
-		if (configFileName == null && !string.IsNullOrWhiteSpace(assemblyFileName))
+		if (configFileName is null && !string.IsNullOrWhiteSpace(assemblyFileName))
 			configFileName = assemblyFileName + ".config";
 
 		if (configFileName?.EndsWith(".config", StringComparison.Ordinal) == true && File.Exists(configFileName))
@@ -37,7 +37,7 @@ public static class ConfigReader_Configuration
 			{
 				var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
 				var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
-				if (config != null && config.AppSettings != null)
+				if (config is not null && config.AppSettings is not null)
 				{
 					var settings = config.AppSettings.Settings;
 
@@ -118,7 +118,7 @@ public static class ConfigReader_Configuration
 			where T : struct
 	{
 		var settingsKey = settings.AllKeys.FirstOrDefault(k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
-		if (settingsKey == null)
+		if (settingsKey is null)
 			return default;
 
 		return converter(settings[settingsKey].Value);

@@ -119,7 +119,7 @@ public class ConsoleRunner
 
 			var failCount = 0;
 
-			if (project.Configuration.List != null)
+			if (project.Configuration.List is not null)
 				await ListProject(project);
 			else
 				failCount = await RunProject(project, reporterMessageHandler);
@@ -256,7 +256,7 @@ public class ConsoleRunner
 			reporterMessageHandler
 		);
 
-		if (assemblyElement != null)
+		if (assemblyElement is not null)
 			assembliesElement?.Add(assemblyElement);
 
 		clockTime.Stop();
@@ -266,7 +266,7 @@ public class ConsoleRunner
 
 		Directory.SetCurrentDirectory(originalWorkingFolder);
 
-		if (assembliesElement != null)
+		if (assembliesElement is not null)
 		{
 			TransformFactory.FinishAssembliesElement(assembliesElement);
 			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
@@ -322,9 +322,9 @@ public class ConsoleRunner
 				() => cancel
 			);
 
-			if (assemblyElement != null)
+			if (assemblyElement is not null)
 				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-			if (longRunningSeconds > 0 && diagnosticMessageSink != null)
+			if (longRunningSeconds > 0 && diagnosticMessageSink is not null)
 				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 			if (assembly.Configuration.FailSkipsOrDefault)
 				resultsSink = new DelegatingFailSkipSink(resultsSink);
@@ -349,7 +349,7 @@ public class ConsoleRunner
 			failed = true;
 
 			var e = ex;
-			while (e != null)
+			while (e is not null)
 			{
 				Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
 

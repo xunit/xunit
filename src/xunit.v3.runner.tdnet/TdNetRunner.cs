@@ -39,11 +39,11 @@ public class TdNetRunner : ITestRunner
 		try
 		{
 			var type = member as Type;
-			if (type != null)
+			if (type is not null)
 				return helper.RunClass(type);
 
 			var method = member as MethodInfo;
-			if (method != null)
+			if (method is not null)
 				return helper.RunMethod(method);
 
 			return TestRunState.NoTests;
@@ -63,7 +63,7 @@ public class TdNetRunner : ITestRunner
 
 		try
 		{
-			var testCases = helper.Discover().Where(tc => ns == null || tc.TestClassNamespace == ns).ToList();
+			var testCases = helper.Discover().Where(tc => ns is null || tc.TestClassNamespace == ns).ToList();
 			return helper.Run(testCases);
 		}
 		finally

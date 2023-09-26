@@ -31,7 +31,7 @@ public static class AssemblyUtility
 						.GetCustomAttributes()
 						.FirstOrDefault(ca => ca.AttributeType.FullName == typeof(TargetFrameworkAttribute).FullName);
 
-				if (targetFrameworkAttribute != null)
+				if (targetFrameworkAttribute is not null)
 				{
 					var ctorArg = targetFrameworkAttribute.ConstructorArguments[0];
 					if (ctorArg.Value is string targetFramework)

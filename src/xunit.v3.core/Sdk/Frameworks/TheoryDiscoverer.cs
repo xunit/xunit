@@ -81,7 +81,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		IXunitTestCase testCase;
 
 		// TODO: How do we get source information in here?
-		if (details.SkipReason != null)
+		if (details.SkipReason is not null)
 			testCase = new XunitTestCase(
 				details.ResolvedTestMethod,
 				details.TestCaseDisplayName,
@@ -129,7 +129,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped theory may
 		// not actually have any data (which is quasi-legal, since it's skipped).
 		var theoryAttributeSkipReason = factAttribute.GetNamedArgument<string>(nameof(FactAttribute.Skip));
-		if (theoryAttributeSkipReason != null)
+		if (theoryAttributeSkipReason is not null)
 			return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 
 		var preEnumerate =
@@ -177,7 +177,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						continue;
 					}
 
-					if (discoverer == null)
+					if (discoverer is null)
 					{
 						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
@@ -207,7 +207,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 
 					var data = await discoverer.GetData(dataAttribute, testMethod.Method);
-					if (data == null)
+					if (data is null)
 					{
 						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 

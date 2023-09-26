@@ -134,7 +134,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testPassed = args.Message;
 		var metadata = MetadataCache.TryGetTestMetadata(testPassed);
-		if (metadata != null)
+		if (metadata is not null)
 		{
 			var testMethods = assemblyInfoByUniqueID[testPassed.AssemblyUniqueID].testMethods;
 
@@ -159,7 +159,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testSkipped = args.Message;
 		var metadata = MetadataCache.TryGetTestMetadata(testSkipped);
-		if (metadata != null)
+		if (metadata is not null)
 		{
 			var testMethods = assemblyInfoByUniqueID[testSkipped.AssemblyUniqueID].testMethods;
 
@@ -184,7 +184,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testFailed = args.Message;
 		var metadata = MetadataCache.TryGetTestMetadata(testFailed);
-		if (metadata != null)
+		if (metadata is not null)
 		{
 			var testMethods = assemblyInfoByUniqueID[testFailed.AssemblyUniqueID].testMethods;
 

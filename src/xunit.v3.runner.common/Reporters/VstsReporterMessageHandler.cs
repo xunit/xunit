@@ -46,7 +46,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		{
 			lock (clientLock)
 			{
-				if (client == null)
+				if (client is null)
 					client = new VstsClient(Logger, baseUri, accessToken, buildId);
 			}
 
@@ -110,7 +110,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		var classMetadata = MetadataCache.TryGetClassMetadata(testStarting);
 		var methodMetadata = MetadataCache.TryGetMethodMetadata(testStarting);
 
-		if (assemblyMetadata != null && classMetadata != null && methodMetadata != null)
+		if (assemblyMetadata is not null && classMetadata is not null && methodMetadata is not null)
 		{
 			var testName = $"{classMetadata.TestClass}.{methodMetadata.TestMethod}";
 

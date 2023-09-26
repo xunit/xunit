@@ -429,14 +429,14 @@ public class StringAssertsTests
 		{
 			var message = "Assert.Equal() Failure: Strings differ";
 
-			if (expectedPointer != null)
+			if (expectedPointer is not null)
 				message += Environment.NewLine + "           " + expectedPointer;
 
 			message +=
 				Environment.NewLine + "Expected: " + ArgumentFormatter.Format(expected) +
 				Environment.NewLine + "Actual:   " + ArgumentFormatter.Format(actual);
 
-			if (actualPointer != null)
+			if (actualPointer is not null)
 				message += Environment.NewLine + "           " + actualPointer;
 
 			var ex = Record.Exception(

@@ -133,7 +133,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 
 	ValueTask CreateCollectionFixturesAsync(XunitTestCollectionRunnerContext ctxt)
 	{
-		if (ctxt.TestCollection.CollectionDefinition == null || ctxt.TestCollection.CollectionDefinition is not _IReflectionTypeInfo collectionDefinition)
+		if (ctxt.TestCollection.CollectionDefinition is null || ctxt.TestCollection.CollectionDefinition is not _IReflectionTypeInfo collectionDefinition)
 			return default;
 
 		var declarationType = collectionDefinition.Type;
@@ -175,15 +175,15 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (ctxt.TestCollection.CollectionDefinition != null)
+		if (ctxt.TestCollection.CollectionDefinition is not null)
 		{
 			var ordererAttribute = ctxt.TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-			if (ordererAttribute != null)
+			if (ordererAttribute is not null)
 			{
 				try
 				{
 					var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
-					if (testCaseOrderer != null)
+					if (testCaseOrderer is not null)
 						return testCaseOrderer;
 
 					var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(ordererAttribute);
@@ -260,7 +260,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCases);
 
-		if (testClass != null && @class != null)
+		if (testClass is not null && @class is not null)
 			return XunitTestClassRunner.Instance.RunAsync(
 				testClass,
 				@class,

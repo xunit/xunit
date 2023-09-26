@@ -135,7 +135,7 @@ public class BufferedTcpClientTests
 
 		public async ValueTask DisposeAsync()
 		{
-			if (bufferedClient != null)
+			if (bufferedClient is not null)
 				await bufferedClient.DisposeAsync();
 
 			foreach (var cleanupTask in cleanupTasks)

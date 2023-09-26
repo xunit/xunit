@@ -44,8 +44,8 @@ public class Xunit2DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IM
 		Action<TMessage> handler)
 			where TMessage : class, IMessageSinkMessage
 	{
-		var castMessage = messageTypes == null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
-		if (castMessage != null)
+		var castMessage = messageTypes is null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
+		if (castMessage is not null)
 			handler(castMessage);
 	}
 

@@ -71,7 +71,7 @@ class AsyncManualResetEvent : IValueTaskSource
 		if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) != 0)
 		{
 			var executionContext = ExecutionContext.Capture();
-			if (executionContext != null)
+			if (executionContext is not null)
 			{
 				var executionNext = next;
 				next = () => ExecutionContext.Run(executionContext, s => ((Action)s!).Invoke(), executionNext);
@@ -81,7 +81,7 @@ class AsyncManualResetEvent : IValueTaskSource
 		if ((flags & ValueTaskSourceOnCompletedFlags.UseSchedulingContext) != 0)
 		{
 			var syncContext = SynchronizationContext.Current;
-			if (syncContext != null && syncContext.GetType() != typeof(SynchronizationContext))
+			if (syncContext is not null && syncContext.GetType() != typeof(SynchronizationContext))
 			{
 				var syncContextNext = next;
 				next = () => syncContext.Post(s => ((Action)s!).Invoke(), syncContextNext);

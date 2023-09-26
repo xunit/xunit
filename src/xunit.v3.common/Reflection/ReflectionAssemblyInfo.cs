@@ -40,11 +40,11 @@ public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 	{
 		get
 		{
-			if (Assembly.FullName != null)
+			if (Assembly.FullName is not null)
 				return Assembly.FullName;
 
 			var assemblyPath = AssemblyPath;
-			if (assemblyPath != null)
+			if (assemblyPath is not null)
 				return Path.GetFileNameWithoutExtension(assemblyPath);
 
 			return "<unknown>";
@@ -77,7 +77,7 @@ public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 	{
 		var type = Assembly.GetType(typeName);
 
-		return type == null ? null : Reflector.Wrap(type);
+		return type is null ? null : Reflector.Wrap(type);
 	}
 
 	/// <inheritdoc/>

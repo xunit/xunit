@@ -67,7 +67,7 @@ public class TestResultState
 	{
 		var result = new TestResultState { ExecutionTime = executionTime };
 
-		if (exception == null)
+		if (exception is null)
 			result.Result = TestResult.Passed;
 		else
 		{

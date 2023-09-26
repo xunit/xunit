@@ -353,7 +353,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		string messageType,
 		string? arguments = null,
 		string? flowId = null) =>
-			Logger.LogRaw($"##teamcity[{messageType} timestamp='{TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture))}+0000'{(flowId != null ? $" flowId='{TeamCityEscape(flowId)}'" : "")}{(arguments != null ? " " + arguments : "")}]");
+			Logger.LogRaw($"##teamcity[{messageType} timestamp='{TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture))}+0000'{(flowId is not null ? $" flowId='{TeamCityEscape(flowId)}'" : "")}{(arguments is not null ? " " + arguments : "")}]");
 
 	void LogSuiteFinished(
 		string name,
@@ -368,7 +368,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		string flowId,
 		string? parentFlowId = null)
 	{
-		LogMessage("flowStarted", parentFlowId != null ? $"parent='{TeamCityEscape(parentFlowId)}'" : null, flowId);
+		LogMessage("flowStarted", parentFlowId is not null ? $"parent='{TeamCityEscape(parentFlowId)}'" : null, flowId);
 		LogMessage("testSuiteStarted", $"name='{TeamCityEscape(name)}'", flowId);
 	}
 
@@ -380,7 +380,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	[return: NotNullIfNotNull("value")]
 	public static string? TeamCityEscape(string? value)
 	{
-		if (value == null)
+		if (value is null)
 			return null;
 
 		var sb = new StringBuilder(value.Length);
@@ -430,7 +430,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	string ToAssemblyName(_TestAssemblyMessage message)
 	{
 		var metadata = metadataCache.TryGetAssemblyMetadata(message);
-		if (metadata == null)
+		if (metadata is null)
 			return "<unknown test assembly>";
 
 		return metadata.AssemblyPath ?? metadata.SimpleAssemblyName();
@@ -445,7 +445,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	string ToTestCollectionName(_TestCollectionMessage message)
 	{
 		var metadata = metadataCache.TryGetCollectionMetadata(message);
-		if (metadata == null)
+		if (metadata is null)
 			return "<unknown test collection>";
 
 		return $"{metadata.TestCollectionDisplayName} ({message.TestCollectionUniqueID})";
@@ -454,11 +454,11 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	string ToTestMethodName(_TestMethodMessage message)
 	{
 		var testMethodMetadata = metadataCache.TryGetMethodMetadata(message);
-		if (testMethodMetadata == null)
+		if (testMethodMetadata is null)
 			return "<unknown test method>";
 
 		var testClassMetadata = metadataCache.TryGetClassMetadata(message);
-		if (testClassMetadata == null)
+		if (testClassMetadata is null)
 			return testMethodMetadata.TestMethod;
 
 		return $"{testClassMetadata.TestClass}.{testMethodMetadata.TestMethod}";

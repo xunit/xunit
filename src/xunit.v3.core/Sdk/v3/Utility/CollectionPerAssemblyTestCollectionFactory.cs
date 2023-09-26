@@ -45,7 +45,7 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 		Guard.ArgumentNotNull(testClass);
 
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
-		if (collectionAttribute == null)
+		if (collectionAttribute is null)
 			return defaultCollection;
 
 		var collectionName = collectionAttribute.GetConstructorArguments().Cast<string>().Single();

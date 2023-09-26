@@ -168,7 +168,7 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 		// invoking the test. So we need to do a transform on the arguments.
 		object?[]? actualCtorArguments = null;
 
-		if (ctxt.ConstructorArguments != null)
+		if (ctxt.ConstructorArguments is not null)
 		{
 			var ctorParams =
 				ctxt
@@ -185,14 +185,14 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext>
 				actualCtorArguments[idx] = ctxt.ConstructorArguments[idx];
 
 				var ctorArgumentValueType = ctxt.ConstructorArguments[idx]?.GetType();
-				if (ctorArgumentValueType != null)
+				if (ctorArgumentValueType is not null)
 				{
 					var ctorArgumentParamType = ctorParams[idx].ParameterType;
 					if (ctorArgumentParamType != ctorArgumentValueType &&
 						ctorArgumentValueType == typeof(Func<>).MakeGenericType(ctorArgumentParamType))
 					{
 						var invokeMethod = ctorArgumentValueType.GetMethod("Invoke", Array.Empty<Type>());
-						if (invokeMethod != null)
+						if (invokeMethod is not null)
 							actualCtorArguments[idx] = invokeMethod.Invoke(ctxt.ConstructorArguments[idx], Array.Empty<object?>());
 					}
 				}

@@ -25,7 +25,7 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 		Type = Guard.ArgumentNotNull(type);
 
 		assembly = new(() => Reflector.Wrap(Type.Assembly));
-		baseType = new(() => Type.BaseType == null ? null : Reflector.Wrap(Type.BaseType!));
+		baseType = new(() => Type.BaseType is null ? null : Reflector.Wrap(Type.BaseType!));
 		interfaces = new(() => Type.GetInterfaces().Select(i => Reflector.Wrap(i)).CastOrToReadOnlyCollection());
 	}
 
@@ -115,7 +115,7 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 			GetRuntimeMethods()
 				.FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
 
-		if (method == null)
+		if (method is null)
 			return null;
 
 		return Reflector.Wrap(method);

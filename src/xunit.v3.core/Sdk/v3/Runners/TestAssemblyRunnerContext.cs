@@ -125,7 +125,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 
 		try
 		{
-			if (startupCurrentDirectory != null)
+			if (startupCurrentDirectory is not null)
 				Directory.SetCurrentDirectory(startupCurrentDirectory);
 		}
 		catch { }

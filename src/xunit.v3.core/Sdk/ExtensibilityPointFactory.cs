@@ -28,7 +28,7 @@ public static class ExtensibilityPointFactory
 				TestContext.Current?.SendDiagnosticMessage(
 					"Could not find constructor for '{0}' with arguments type(s): {1}",
 					type.FullName,
-					string.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))
+					string.Join(", ", ctorArgs.Select(a => a is null ? "(unknown)" : a.GetType().FullName))
 				);
 
 			throw;
@@ -71,7 +71,7 @@ public static class ExtensibilityPointFactory
 		Guard.ArgumentNotNull(dataDiscovererAttribute);
 
 		var discovererType = TypeFromAttributeConstructor(dataDiscovererAttribute);
-		if (discovererType == null)
+		if (discovererType is null)
 			return null;
 
 		return GetDataDiscoverer(discovererType);
@@ -94,7 +94,7 @@ public static class ExtensibilityPointFactory
 		Guard.ArgumentNotNull(testCaseOrdererAttribute);
 
 		var ordererType = TypeFromAttributeConstructor(testCaseOrdererAttribute);
-		if (ordererType == null)
+		if (ordererType is null)
 			return null;
 
 		return GetTestCaseOrderer(ordererType);
@@ -117,7 +117,7 @@ public static class ExtensibilityPointFactory
 		Guard.ArgumentNotNull(testCollectionOrdererAttribute);
 
 		var ordererType = TypeFromAttributeConstructor(testCollectionOrdererAttribute);
-		if (ordererType == null)
+		if (ordererType is null)
 			return null;
 
 		return GetTestCollectionOrderer(ordererType);
@@ -161,16 +161,16 @@ public static class ExtensibilityPointFactory
 		try
 		{
 			var testFrameworkAttr = testAssembly.GetCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault();
-			if (testFrameworkAttr != null)
+			if (testFrameworkAttr is not null)
 			{
 				var discovererAttr = testFrameworkAttr.GetCustomAttributes(typeof(TestFrameworkDiscovererAttribute)).FirstOrDefault();
-				if (discovererAttr != null)
+				if (discovererAttr is not null)
 				{
 					var discoverer = GetTestFrameworkTypeDiscoverer(discovererAttr);
-					if (discoverer != null)
+					if (discoverer is not null)
 					{
 						var discovererType = discoverer.GetTestFrameworkType(testFrameworkAttr);
-						if (discovererType != null)
+						if (discovererType is not null)
 							return discovererType;
 					}
 
@@ -206,7 +206,7 @@ public static class ExtensibilityPointFactory
 		Guard.ArgumentNotNull(testFrameworkDiscovererAttribute);
 
 		var testFrameworkDiscovererType = TypeFromAttributeConstructor(testFrameworkDiscovererAttribute);
-		if (testFrameworkDiscovererType == null)
+		if (testFrameworkDiscovererType is null)
 			return null;
 
 		return GetTestFrameworkTypeDiscoverer(testFrameworkDiscovererType);
@@ -229,7 +229,7 @@ public static class ExtensibilityPointFactory
 		Guard.ArgumentNotNull(traitDiscovererAttribute);
 
 		var discovererType = TypeFromAttributeConstructor(traitDiscovererAttribute);
-		if (discovererType == null)
+		if (discovererType is null)
 			return null;
 
 		return GetTraitDiscoverer(discovererType);
@@ -275,7 +275,7 @@ public static class ExtensibilityPointFactory
 
 	static Type GetTestCollectionFactoryType(_IAttributeInfo? collectionBehaviorAttribute)
 	{
-		if (collectionBehaviorAttribute == null)
+		if (collectionBehaviorAttribute is null)
 			return typeof(CollectionPerClassTestCollectionFactory);
 
 		var ctorArgs = collectionBehaviorAttribute.GetConstructorArguments().CastOrToReadOnlyList();
@@ -299,7 +299,7 @@ public static class ExtensibilityPointFactory
 		else if (ctorArgs.Count == 2 && ctorArgs[0] is string typeName && ctorArgs[1] is string assemblyName)
 		{
 			var result = TypeHelper.GetType(assemblyName, typeName);
-			if (result == null)
+			if (result is null)
 				TestContext.Current?.SendDiagnosticMessage("Unable to create test collection factory type '{0}, {1}'", assemblyName, typeName);
 			else
 			{
@@ -317,7 +317,7 @@ public static class ExtensibilityPointFactory
 
 	static string ToQuotedString(object? value)
 	{
-		if (value == null)
+		if (value is null)
 			return "null";
 
 		if (value is string stringValue)

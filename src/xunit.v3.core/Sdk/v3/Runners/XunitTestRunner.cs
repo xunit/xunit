@@ -32,12 +32,12 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext>
 		var output = string.Empty;
 		var testOutputHelper = TestContext.Current?.TestOutputHelper as TestOutputHelper;
 
-		if (testOutputHelper != null)
+		if (testOutputHelper is not null)
 			testOutputHelper.Initialize(ctxt.MessageBus, ctxt.Test);
 
 		var executionTime = await InvokeTestMethodAsync(ctxt);
 
-		if (testOutputHelper != null)
+		if (testOutputHelper is not null)
 		{
 			output = testOutputHelper.Output;
 			testOutputHelper.Uninitialize();

@@ -67,7 +67,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 
 		var @continue = true;
 		XmlNode? failureNode;
-		if ((failureNode = xml.SelectSingleNode("failure")) != null)
+		if ((failureNode = xml.SelectSingleNode("failure")) is not null)
 		{
 			var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
 			var errorMessage = new _ErrorMessage
@@ -97,7 +97,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 		SendTestCaseMessagesWhenAppropriate(testCase);
 
 		var result = TestClassResults.Continue;
-		if (testCase != null)
+		if (testCase is not null)
 		{
 			startSeen = true;
 			Interlocked.Increment(ref currentTestIndex);
@@ -115,11 +115,11 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 		var methodName = xml.Attributes?["method"]?.Value;
 		var testCase = FindTestCase(typeName, methodName);
 
-		if (testCase != null)
+		if (testCase is not null)
 		{
 			var time = decimal.Parse(xml.Attributes?["time"]?.Value ?? "0", CultureInfo.InvariantCulture);
 			var outputElement = xml.SelectSingleNode("output");
-			var output = outputElement == null ? string.Empty : outputElement.InnerText;
+			var output = outputElement is null ? string.Empty : outputElement.InnerText;
 			_MessageSinkMessage? resultMessage = null;
 
 			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
@@ -138,7 +138,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 				case "Fail":
 					testCaseResults.Failed++;
 					var failureNode = xml.SelectSingleNode("failure");
-					if (failureNode != null)
+					if (failureNode is not null)
 						resultMessage = testCase.ToTestFailed(time, output, failureNode, currentTestIndex);
 					break;
 
@@ -153,7 +153,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			if (!string.IsNullOrEmpty(output))
 				@continue = messageSink.OnMessage(testCase.ToTestOutput(output, currentTestIndex)) && @continue;
 
-			if (resultMessage != null)
+			if (resultMessage is not null)
 				@continue = messageSink.OnMessage(resultMessage) && @continue;
 
 			@continue = messageSink.OnMessage(testCase.ToTestFinished(time, output, currentTestIndex)) && @continue;
@@ -166,7 +166,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	/// <inheritdoc/>
 	public override bool OnXmlNode(XmlNode? node)
 	{
-		if (node != null)
+		if (node is not null)
 			if (handlers.TryGetValue(node.Name, out var handler))
 				TestClassResults.Continue = handler(node) && TestClassResults.Continue;
 
@@ -177,7 +177,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	{
 		var results = TestClassResults;
 
-		if (current != lastTestCase && lastTestCase != null)
+		if (current != lastTestCase && lastTestCase is not null)
 		{
 			var testCaseFinished = lastTestCase.ToTestCaseFinished(testCaseResults);
 
@@ -185,7 +185,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			testMethodResults.Aggregate(testCaseResults);
 			testCaseResults.Reset();
 
-			if (current == null || lastTestCase.TestMethod != current.TestMethod)
+			if (current is null || lastTestCase.TestMethod != current.TestMethod)
 			{
 				var testMethodFinished = lastTestCase.ToTestMethodFinished(testMethodResults);
 				results.Continue = messageSink.OnMessage(testMethodFinished) && results.Continue;
@@ -194,10 +194,10 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			}
 		}
 
-		if (current != lastTestCase && current != null)
+		if (current != lastTestCase && current is not null)
 		{
 			// Dispatch TestMethodStarting if we've moved onto a new method
-			if (lastTestCase == null || lastTestCase.TestMethod != current.TestMethod)
+			if (lastTestCase is null || lastTestCase.TestMethod != current.TestMethod)
 			{
 				var testMethodStarting = current.ToTestMethodStarting();
 				results.Continue = messageSink.OnMessage(testMethodStarting) && results.Continue;

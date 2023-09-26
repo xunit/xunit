@@ -344,7 +344,7 @@ public class XunitTestInvokerTests
 			XunitTestInvokerContext ctxt,
 			object? testClassInstance)
 		{
-			if (lambda == null)
+			if (lambda is null)
 				return base.InvokeTestMethodAsync(ctxt, testClassInstance);
 
 			Aggregator.Run(lambda);

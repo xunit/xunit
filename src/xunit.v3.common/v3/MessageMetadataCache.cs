@@ -250,7 +250,7 @@ public class MessageMetadataCache
 		string? uniqueID,
 		bool remove)
 	{
-		if (uniqueID == null)
+		if (uniqueID is null)
 			return null;
 
 		lock (cache)

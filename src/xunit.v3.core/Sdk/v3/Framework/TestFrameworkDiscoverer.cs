@@ -96,7 +96,7 @@ public abstract class TestFrameworkDiscoverer<TTestCase> : _ITestFrameworkDiscov
 			using (new CultureOverride(discoveryOptions.Culture()))
 			{
 				var typeInfos =
-					types == null
+					types is null
 						? AssemblyInfo.GetTypes(includePrivateTypes: false)
 						: types.Select(Reflector.Wrap).WhereNotNull().CastOrToReadOnlyList();
 

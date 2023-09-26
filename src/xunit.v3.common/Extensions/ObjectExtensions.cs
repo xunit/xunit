@@ -16,7 +16,7 @@ public static class ObjectExtensions
 	/// <summary/>
 	public static ValueTask<object?>? AsValueTask(this object? value)
 	{
-		if (value == null || awaitTaskMethod == null || awaitValueTaskMethod == null)
+		if (value is null || awaitTaskMethod is null || awaitValueTaskMethod is null)
 			return null;
 
 		var type = value.GetType();

@@ -17,7 +17,7 @@ public static class IAssemblyInfoExtensions
 		string? result = null;
 
 		var attrib = assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute)).FirstOrDefault();
-		if (attrib != null)
+		if (attrib is not null)
 			result = attrib.GetConstructorArguments().Cast<string>().First();
 
 		return result ?? AssemblyExtensions.UnknownTargetFramework;

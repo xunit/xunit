@@ -64,7 +64,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	{
 		get
 		{
-			if (filters == null)
+			if (filters is null)
 			{
 				var traitParser = new TraitParser(msg =>
 				{
@@ -94,7 +94,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	public string? MaxParallelThreads { get; set; }
 
 	protected bool NeedsXml =>
-		Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
+		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null;
 
 	public bool NoAutoReporters { get; set; }
 
@@ -201,7 +201,7 @@ public class xunit : MSBuildTask, ICancelableTask
 		using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), globalDiagnosticsMessageSink))
 		{
 			var reporter = GetReporter();
-			if (reporter == null)
+			if (reporter is null)
 				return false;
 
 			logger = new MSBuildLogger(Log);
@@ -216,7 +216,7 @@ public class xunit : MSBuildTask, ICancelableTask
 			{
 				var assemblyFileName = assembly.GetMetadata("FullPath");
 				var configFileName = assembly.GetMetadata("ConfigFile");
-				if (configFileName != null && configFileName.Length == 0)
+				if (configFileName is not null && configFileName.Length == 0)
 					configFileName = null;
 
 				var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
@@ -229,7 +229,7 @@ public class xunit : MSBuildTask, ICancelableTask
 
 				ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
 
-				if (Culture != null)
+				if (Culture is not null)
 					projectAssembly.Configuration.Culture = Culture switch
 					{
 						"default" => null,
@@ -237,7 +237,7 @@ public class xunit : MSBuildTask, ICancelableTask
 						_ => Culture,
 					};
 
-				if (Explicit != null)
+				if (Explicit is not null)
 					projectAssembly.Configuration.ExplicitOption = Explicit.ToUpperInvariant() switch
 					{
 						"OFF" => ExplicitOption.Off,
@@ -252,7 +252,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				project.Add(projectAssembly);
 			}
 
-			if (WorkingFolder != null)
+			if (WorkingFolder is not null)
 				Directory.SetCurrentDirectory(WorkingFolder);
 
 			var clockTime = Stopwatch.StartNew();
@@ -271,8 +271,8 @@ public class xunit : MSBuildTask, ICancelableTask
 			{
 				foreach (var assembly in project.Assemblies)
 				{
-					var assemblyElement = ExecuteAssembly(assembly, appDomains);
-					if (assemblyElement != null)
+					var assemblyElement = await ExecuteAssembly(assembly, appDomains);
+					if (assemblyElement is not null)
 						assembliesElement!.Add(assemblyElement);
 				}
 			}
@@ -290,23 +290,23 @@ public class xunit : MSBuildTask, ICancelableTask
 
 		Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
 
-		if (NeedsXml && assembliesElement != null)
+		if (NeedsXml && assembliesElement is not null)
 		{
 			TransformFactory.FinishAssembliesElement(assembliesElement);
 
-			if (Xml != null)
+			if (Xml is not null)
 				TransformFactory.Transform("xml", assembliesElement, Xml.GetMetadata("FullPath"));
 
-			if (XmlV1 != null)
+			if (XmlV1 is not null)
 				TransformFactory.Transform("xmlv1", assembliesElement, XmlV1.GetMetadata("FullPath"));
 
-			if (Html != null)
+			if (Html is not null)
 				TransformFactory.Transform("html", assembliesElement, Html.GetMetadata("FullPath"));
 
-			if (NUnit != null)
+			if (NUnit is not null)
 				TransformFactory.Transform("nunit", assembliesElement, NUnit.GetMetadata("FullPath"));
 
-			if (JUnit != null)
+			if (JUnit is not null)
 				TransformFactory.Transform("junit", assembliesElement, JUnit.GetMetadata("FullPath"));
 		}
 
@@ -380,9 +380,9 @@ public class xunit : MSBuildTask, ICancelableTask
 				(summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary)
 			);
 
-			if (assemblyElement != null)
+			if (assemblyElement is not null)
 				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-			if (longRunningSeconds > 0 && diagnosticMessageSink != null)
+			if (longRunningSeconds > 0 && diagnosticMessageSink is not null)
 				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
 			if (assembly.Configuration.FailSkipsOrDefault)
 				resultsSink = new DelegatingFailSkipSink(resultsSink);
@@ -413,11 +413,11 @@ public class xunit : MSBuildTask, ICancelableTask
 			var e = ex;
 
 			lock (logLock)
-				while (e != null)
+				while (e is not null)
 				{
 					Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
 
-					if (e.StackTrace != null)
+					if (e.StackTrace is not null)
 						foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
 							Log.LogError(stackLine);
 
@@ -455,11 +455,11 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			foreach (var type in types)
 			{
-				if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+				if (type is null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() is not null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 					continue;
 
 				var ctor = type.GetConstructor(Array.Empty<Type>());
-				if (ctor == null)
+				if (ctor is null)
 				{
 					lock (logLock)
 						Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
@@ -481,10 +481,10 @@ public class xunit : MSBuildTask, ICancelableTask
 		if (!NoAutoReporters)
 			reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
 
-		if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
+		if (reporter is null && !string.IsNullOrWhiteSpace(Reporter))
 		{
 			reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
-			if (reporter == null)
+			if (reporter is null)
 			{
 #pragma warning disable CA1308 // The switch list is lowercased because it's presented in the UI that way
 				var switchableReporters =

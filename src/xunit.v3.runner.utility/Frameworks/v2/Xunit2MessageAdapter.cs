@@ -258,7 +258,7 @@ public class Xunit2MessageAdapter
 		string? @class = null;
 
 		var typeName = testCase.TestMethod?.TestClass.Class.Name;
-		if (typeName != null)
+		if (typeName is not null)
 		{
 			var namespaceIdx = typeName.LastIndexOf('.');
 			if (namespaceIdx < 0)
@@ -292,7 +292,7 @@ public class Xunit2MessageAdapter
 			Traits = testCase.Traits.ToReadOnly(),
 		};
 
-		if (discoverer != null)
+		if (discoverer is not null)
 			result.Serialization = discoverer.Serialize(testCase);
 
 		return result;
@@ -742,8 +742,8 @@ public class Xunit2MessageAdapter
 	{
 		Guard.ArgumentNotNull(message);
 
-		var castMessage = messageTypes == null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
-		if (castMessage != null)
+		var castMessage = messageTypes is null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
+		if (castMessage is not null)
 			return converter(castMessage);
 
 		return null;

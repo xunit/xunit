@@ -30,7 +30,7 @@ public class MSBuildDiagnosticMessageSink : TestMessageSink
 			return null;
 
 		var result = new MSBuildDiagnosticMessageSink();
-		var prefix = assemblyDisplayName == null ? "" : $"[{assemblyDisplayName}]";
+		var prefix = assemblyDisplayName is null ? "" : $"[{assemblyDisplayName}]";
 		var indent = new string(' ', prefix.Length);
 
 		if (showDiagnosticMessages)

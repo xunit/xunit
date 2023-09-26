@@ -32,12 +32,12 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		Guard.ArgumentNotNull(ctxt);
 
 		var ordererAttribute = ctxt.Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-		if (ordererAttribute != null)
+		if (ordererAttribute is not null)
 		{
 			try
 			{
 				var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
-				if (testCaseOrderer != null)
+				if (testCaseOrderer is not null)
 					ctxt.TestCaseOrderer = testCaseOrderer;
 				else
 				{
@@ -272,7 +272,7 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (testMethod != null && method != null)
+		if (testMethod is not null && method is not null)
 			return XunitTestMethodRunner.Instance.RunAsync(
 				ctxt.TestClass,
 				testMethod,

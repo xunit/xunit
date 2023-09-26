@@ -77,7 +77,7 @@ public class TestProjectConfiguration
 	/// text to the console. If the flag is not set, returns <c>true</c> if the user has defined
 	/// the NO_COLOR environment variable, or <c>false</c> otherwise.
 	/// </summary>
-	public bool NoColorOrDefault => NoColor ?? Environment.GetEnvironmentVariable(EnvNameNoColor) != null;
+	public bool NoColorOrDefault => NoColor ?? Environment.GetEnvironmentVariable(EnvNameNoColor) is not null;
 
 	/// <summary>
 	/// Gets or sets a flag indicating that the test runner should not output the copyright

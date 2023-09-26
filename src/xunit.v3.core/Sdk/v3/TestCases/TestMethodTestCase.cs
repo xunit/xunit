@@ -57,7 +57,7 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 		this.uniqueID = Guard.ArgumentNotNull(uniqueID);
 
 		this.traits = new(StringComparer.OrdinalIgnoreCase);
-		if (traits != null)
+		if (traits is not null)
 			foreach (var kvp in traits)
 				this.traits.GetOrAdd(kvp.Key).AddRange(kvp.Value);
 
@@ -156,9 +156,9 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 		info.AddValue("tm", TestMethod);
 		info.AddValue("id", UniqueID);
 
-		if (SkipReason != null)
+		if (SkipReason is not null)
 			info.AddValue("sr", SkipReason);
-		if (SourceFilePath != null)
+		if (SourceFilePath is not null)
 			info.AddValue("sf", SourceFilePath);
 		if (SourceLineNumber.HasValue)
 			info.AddValue("sl", SourceLineNumber.Value);

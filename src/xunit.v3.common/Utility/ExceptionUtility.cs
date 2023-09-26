@@ -82,10 +82,10 @@ public static class ExceptionUtility
 
 		var innerExceptions = GetInnerExceptions(ex);
 
-		if (innerExceptions != null)
+		if (innerExceptions is not null)
 			foreach (var innerException in innerExceptions)
 				ExtractMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
-		else if (ex.InnerException != null && ex.StackTrace != ex.InnerException.StackTrace)
+		else if (ex.InnerException is not null && ex.StackTrace != ex.InnerException.StackTrace)
 			ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
 	}
 
@@ -115,7 +115,7 @@ public static class ExceptionUtility
 
 	static string? FilterStackTrace(string? stack)
 	{
-		if (stack == null)
+		if (stack is null)
 			return null;
 
 		var results = new List<string>();
@@ -134,7 +134,7 @@ public static class ExceptionUtility
 		string?[]? values,
 		int index)
 	{
-		if (values == null || index < 0 || values.Length <= index)
+		if (values is null || index < 0 || values.Length <= index)
 			return string.Empty;
 
 		return values[index] ?? string.Empty;
@@ -144,7 +144,7 @@ public static class ExceptionUtility
 		int[]? values,
 		int index)
 	{
-		if (values == null || values.Length <= index)
+		if (values is null || values.Length <= index)
 			return -1;
 
 		return values[index];

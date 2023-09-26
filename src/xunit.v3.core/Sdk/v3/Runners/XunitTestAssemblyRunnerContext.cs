@@ -94,7 +94,7 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 		await base.InitializeAsync();
 
 		collectionBehaviorAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-		if (collectionBehaviorAttribute != null)
+		if (collectionBehaviorAttribute is not null)
 		{
 			DisableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>(nameof(CollectionBehaviorAttribute.DisableTestParallelization));
 			MaxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>(nameof(CollectionBehaviorAttribute.MaxParallelThreads));
@@ -106,12 +106,12 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 			MaxParallelThreads = Environment.ProcessorCount;
 
 		var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-		if (testCaseOrdererAttribute != null)
+		if (testCaseOrdererAttribute is not null)
 		{
 			try
 			{
 				AssemblyTestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(testCaseOrdererAttribute);
-				if (AssemblyTestCaseOrderer == null)
+				if (AssemblyTestCaseOrderer is null)
 				{
 					var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
 
@@ -135,12 +135,12 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 		}
 
 		var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
-		if (testCollectionOrdererAttribute != null)
+		if (testCollectionOrdererAttribute is not null)
 		{
 			try
 			{
 				AssemblyTestCollectionOrderer = ExtensibilityPointFactory.GetTestCollectionOrderer(testCollectionOrdererAttribute);
-				if (AssemblyTestCollectionOrderer == null)
+				if (AssemblyTestCollectionOrderer is null)
 				{
 					var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
 

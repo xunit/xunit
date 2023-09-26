@@ -46,7 +46,7 @@ public class Xunit2SourceInformationProvider : LongLivedMarshalByRefObject, ISou
 	{
 		var className = testCase?.TestMethod?.TestClass?.Class?.Name;
 		var methodName = testCase?.TestMethod?.Method?.Name;
-		if (className == null || methodName == null)
+		if (className is null || methodName is null)
 			return null;
 
 		var (sourceFile, sourceLine) = v3Provider.GetSourceInformation(className, methodName);

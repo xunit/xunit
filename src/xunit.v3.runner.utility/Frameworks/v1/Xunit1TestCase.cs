@@ -131,7 +131,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		set
 		{
 			var newTraits = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
-			if (value != null)
+			if (value is not null)
 				foreach (var kvp in value)
 					newTraits[kvp.Key] = kvp.Value;
 			traits = newTraits;
@@ -155,7 +155,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		Traits = traits.ToReadOnly();
 
 		var sourceLineNumberText = info.GetValue<string>("SourceLineNumber");
-		if (sourceLineNumberText != null)
+		if (sourceLineNumberText is not null)
 			SourceLineNumber = int.Parse(sourceLineNumberText, CultureInfo.InvariantCulture);
 	}
 

@@ -101,7 +101,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(discoveryOptions);
 
 		var methodDisplayString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplay);
-		return methodDisplayString != null ? (TestMethodDisplay?)Enum.Parse(typeof(TestMethodDisplay), methodDisplayString) : null;
+		return methodDisplayString is not null ? (TestMethodDisplay?)Enum.Parse(typeof(TestMethodDisplay), methodDisplayString) : null;
 	}
 
 	/// <summary>
@@ -123,7 +123,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(discoveryOptions);
 
 		var methodDisplayOptionsString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplayOptions);
-		return methodDisplayOptionsString != null ? (TestMethodDisplayOptions?)Enum.Parse(typeof(TestMethodDisplayOptions), methodDisplayOptionsString) : null;
+		return methodDisplayOptionsString is not null ? (TestMethodDisplayOptions?)Enum.Parse(typeof(TestMethodDisplayOptions), methodDisplayOptionsString) : null;
 	}
 
 	/// <summary>
@@ -411,7 +411,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		var result = executionOptions.GetMaxParallelThreads();
-		if (result == null || result == 0)
+		if (result is null || result == 0)
 			return Environment.ProcessorCount;
 
 		return result.GetValueOrDefault();

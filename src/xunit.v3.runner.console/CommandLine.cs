@@ -63,7 +63,7 @@ public class CommandLine : CommandLineParserBase
 	{
 		if (!FileExists(assemblyFileName))
 			throw new ArgumentException($"assembly not found: {assemblyFileName}");
-		if (configFileName != null && !FileExists(configFileName))
+		if (configFileName is not null && !FileExists(configFileName))
 			throw new ArgumentException($"config file not found: {configFileName}");
 
 		var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
@@ -90,7 +90,7 @@ public class CommandLine : CommandLineParserBase
 
 	void OnAppDomains(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -appdomains");
 
 		var appDomainSupport = option.Value switch

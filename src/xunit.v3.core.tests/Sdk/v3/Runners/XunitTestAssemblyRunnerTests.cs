@@ -79,7 +79,7 @@ public class XunitTestAssemblyRunnerTests
 			IXunitTestCase[]? testCases = null,
 			_ITestFrameworkExecutionOptions? executionOptions = null)
 		{
-			if (testCases == null)
+			if (testCases is null)
 				testCases = new[] { TestData.XunitTestCase<ClassUnderTest>("Passing") };
 
 			return new TestableXunitTestAssemblyRunner(

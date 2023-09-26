@@ -24,7 +24,7 @@ public static class ConfigReader_Json
 		string? configFileName = null)
 	{
 		// If they provide a configuration file, we only read that, success or failure
-		if (configFileName != null)
+		if (configFileName is not null)
 			return configFileName.EndsWith(".json", StringComparison.Ordinal) && LoadFile(configuration, configFileName);
 
 		// If there's no assembly file, then we can't find co-located xunit.runner.json files
@@ -113,7 +113,7 @@ public static class ConfigReader_Json
 				else if (property.Value.ValueKind == JsonValueKind.String)
 				{
 					var stringValue = property.Value.GetString();
-					if (stringValue != null)
+					if (stringValue is not null)
 					{
 						if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 						{

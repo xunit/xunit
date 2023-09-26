@@ -143,7 +143,7 @@ public abstract class TestRunner<TContext>
 
 				var exception = ctxt.Aggregator.ToException();
 
-				if (exception == null)
+				if (exception is null)
 				{
 					testResult = new _TestPassed
 					{

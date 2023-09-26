@@ -68,7 +68,7 @@ public static class Guard
 		[CallerArgumentExpression("argValue")] string? argName = null)
 			where T : class
 	{
-		if (argValue == null)
+		if (argValue is null)
 			throw new ArgumentNullException(argName?.TrimStart('@'));
 
 		return argValue;
@@ -89,7 +89,7 @@ public static class Guard
 		string? argName = null)
 			where T : class
 	{
-		if (argValue == null)
+		if (argValue is null)
 			throw new ArgumentNullException(argName, message);
 
 		return argValue;
@@ -131,7 +131,7 @@ public static class Guard
 		string? argName = null)
 			where T : class, IEnumerable
 	{
-		if (argValue == null || !argValue.GetEnumerator().MoveNext())
+		if (argValue is null || !argValue.GetEnumerator().MoveNext())
 			throw new ArgumentException(message, argName);
 
 		return argValue;
@@ -184,7 +184,7 @@ public static class Guard
 		[NotNull] T? argValue,
 		[CallerArgumentExpression("argValue")] string? argName = null)
 	{
-		if (argValue == null)
+		if (argValue is null)
 			throw new ArgumentNullException(argName?.TrimStart('@'));
 
 		return argValue;
@@ -203,7 +203,7 @@ public static class Guard
 		[NotNull] T? value)
 			where T : class
 	{
-		if (value == null)
+		if (value is null)
 			throw new InvalidOperationException(message);
 
 		return value;

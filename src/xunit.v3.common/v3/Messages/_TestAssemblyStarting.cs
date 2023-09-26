@@ -70,7 +70,7 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}{(Seed == null ? "" : $" seed={Seed}")}";
+		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}{(Seed is null ? "" : $" seed={Seed}")}";
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

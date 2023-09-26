@@ -63,7 +63,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			CreateFailureElement(errorMetadata)
 		);
 
-		if (name != null)
+		if (name is not null)
 			errorElement.Add(new XAttribute("name", name));
 
 		errorsElement.Value.Add(errorElement);
@@ -74,7 +74,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		var result = new XElement("failure");
 
 		var exceptionType = errorMetadata.ExceptionTypes[0];
-		if (exceptionType != null)
+		if (exceptionType is not null)
 			result.Add(new XAttribute("exception-type", exceptionType));
 
 		var message = ExceptionUtility.CombineMessages(errorMetadata);
@@ -82,7 +82,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			result.Add(new XElement("message", new XCData(XmlEscape(message))));
 
 		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
-		if (stackTrace != null)
+		if (stackTrace is not null)
 			result.Add(new XElement("stack-trace", new XCData(stackTrace)));
 
 		return result;
@@ -108,18 +108,18 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			);
 
 		var type = testClassMetadata?.TestClass;
-		if (type != null)
+		if (type is not null)
 			testResultElement.Add(new XAttribute("type", type));
 
 		var method = testMethodMetadata?.TestMethod;
-		if (method != null)
+		if (method is not null)
 			testResultElement.Add(new XAttribute("method", method));
 
 		var testOutput = testResult.Output;
 		if (!string.IsNullOrWhiteSpace(testOutput))
 			testResultElement.Add(new XElement("output", new XCData(testOutput)));
 
-		if (testResult.Warnings != null && testResult.Warnings.Length > 0)
+		if (testResult.Warnings is not null && testResult.Warnings.Length > 0)
 		{
 			var warningsElement = new XElement("warnings");
 
@@ -130,15 +130,15 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		}
 
 		var fileName = testCaseMetadata.SourceFilePath;
-		if (fileName != null)
+		if (fileName is not null)
 			testResultElement.Add(new XAttribute("source-file", fileName));
 
 		var lineNumber = testCaseMetadata.SourceLineNumber;
-		if (lineNumber != null)
+		if (lineNumber is not null)
 			testResultElement.Add(new XAttribute("source-line", lineNumber.GetValueOrDefault()));
 
 		var traits = testCaseMetadata.Traits;
-		if (traits != null && traits.Count > 0)
+		if (traits is not null && traits.Count > 0)
 		{
 			var traitsElement = new XElement("traits");
 
@@ -221,11 +221,11 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName)
 		);
 
-		if (assemblyStarting.ConfigFilePath != null)
+		if (assemblyStarting.ConfigFilePath is not null)
 			assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
-		if (assemblyStarting.AssemblyPath != null)
+		if (assemblyStarting.AssemblyPath is not null)
 			assemblyElement.Add(new XAttribute("name", assemblyStarting.AssemblyPath));
-		if (assemblyStarting.TargetFramework != null)
+		if (assemblyStarting.TargetFramework is not null)
 			assemblyElement.Add(new XAttribute("target-framework", assemblyStarting.TargetFramework));
 
 		metadataCache.Set(assemblyStarting);
@@ -392,7 +392,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	/// <returns>The escaped value.</returns>
 	static string XmlEscape(string? value)
 	{
-		if (value == null)
+		if (value is null)
 			return string.Empty;
 
 		value =

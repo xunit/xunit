@@ -19,9 +19,9 @@ public class TestCollectionComparer : IEqualityComparer<_ITestCollection>
 		_ITestCollection? x,
 		_ITestCollection? y)
 	{
-		if (x == null && y == null)
+		if (x is null && y is null)
 			return true;
-		if (x == null || y == null)
+		if (x is null || y is null)
 			return false;
 
 		return x.UniqueID == y.UniqueID;

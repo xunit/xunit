@@ -346,11 +346,11 @@ public class TestCollectionRunnerTests
 			Exception? aggregatorSeedException = null,
 			bool cancelInRunTestClassAsync = false)
 		{
-			if (testCases == null)
+			if (testCases is null)
 				testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
 
 			var aggregator = new ExceptionAggregator();
-			if (aggregatorSeedException != null)
+			if (aggregatorSeedException is not null)
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestCollectionRunner(

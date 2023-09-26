@@ -61,7 +61,7 @@ public class ClassDataAttribute : DataAttribute
 			var result = new List<ITheoryDataRow>();
 
 			foreach (var dataItem in dataItems)
-				if (dataItem != null)
+				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
 			return new(result.CastOrToReadOnlyCollection());
@@ -80,7 +80,7 @@ public class ClassDataAttribute : DataAttribute
 			var result = new List<ITheoryDataRow>();
 
 			await foreach (var dataItem in asyncDataItems)
-				if (dataItem != null)
+				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
 			return result.CastOrToReadOnlyCollection();

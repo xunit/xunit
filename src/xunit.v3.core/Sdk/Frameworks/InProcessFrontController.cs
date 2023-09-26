@@ -114,7 +114,7 @@ public class InProcessFrontController
 						Interlocked.Increment(ref testCasesToRun);
 
 					var result = true;
-					if (discoveryCallback != null)
+					if (discoveryCallback is not null)
 					{
 						result = await discoveryCallback(testCase, willRun);
 

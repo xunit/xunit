@@ -62,7 +62,7 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 		object? value,
 		_ITypeInfo? valueTypeInfo = null)
 	{
-		if (valueTypeInfo == null)
+		if (valueTypeInfo is null)
 			valueTypeInfo = Reflector.Wrap(value?.GetType()) ?? SerializationHelper.TypeInfo_Object;
 
 		if (!SerializationHelper.IsSerializable(value, valueTypeInfo))

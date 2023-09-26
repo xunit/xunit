@@ -133,7 +133,7 @@ public class XunitFrontController : IFrontController
 
 		var v2PathPattern = new Regex(@"^xunit\.execution\..*\.dll$");
 		var v2ExecutionReference = referenceList.FirstOrDefault(reference => v2PathPattern.IsMatch(Path.GetFileNameWithoutExtension(reference)));
-		if (v2ExecutionReference != null)
+		if (v2ExecutionReference is not null)
 			innerDiscoverer = Xunit2.ForDiscovery(assemblyInfo, projectAssembly, v2ExecutionReference, sourceInformationProvider, diagnosticMessageSink);
 
 #if NETFRAMEWORK
@@ -141,7 +141,7 @@ public class XunitFrontController : IFrontController
 			innerDiscoverer = Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
 #endif
 
-		if (innerDiscoverer == null)
+		if (innerDiscoverer is null)
 			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in assembly reference list");
 
 		return new XunitFrontController(innerDiscoverer);
@@ -165,7 +165,7 @@ public class XunitFrontController : IFrontController
 		var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
 #if NETFRAMEWORK
-		if (assemblyFolder != null)
+		if (assemblyFolder is not null)
 		{
 			if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
 				innerController = Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
@@ -180,7 +180,7 @@ public class XunitFrontController : IFrontController
 		innerController = Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink);
 #endif
 
-		if (innerController == null)
+		if (innerController is null)
 			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder ?? "<unknown assembly folder>"}");
 
 		return new XunitFrontController(innerController);

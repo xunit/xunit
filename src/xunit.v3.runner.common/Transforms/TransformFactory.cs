@@ -82,7 +82,7 @@ public class TransformFactory
 			// macOS
 			Environment.GetEnvironmentVariable("HOST");
 
-		if (computer != null)
+		if (computer is not null)
 			result.Add(new XAttribute("computer", computer));
 
 		var user =
@@ -92,7 +92,7 @@ public class TransformFactory
 			Environment.GetEnvironmentVariable("LOGNAME") ??
 			Environment.GetEnvironmentVariable("USER");
 
-		if (user != null)
+		if (user is not null)
 			result.Add(new XAttribute("user", user));
 
 		return result;
@@ -169,7 +169,7 @@ public class TransformFactory
 
 		using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
 		using var xsltStream = typeof(TransformFactory).Assembly.GetManifestResourceStream($"Xunit.Runner.Common.Transforms.templates.{resourceName}");
-		if (xsltStream == null)
+		if (xsltStream is null)
 			throw new InvalidOperationException($"Could not load resource 'Xunit.Runner.Common.Transforms.templates.{resourceName}' from assembly '{typeof(TransformFactory).Assembly.Location}'");
 
 		using var xsltReader = XmlReader.Create(xsltStream);

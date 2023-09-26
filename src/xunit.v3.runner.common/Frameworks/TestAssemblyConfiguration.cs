@@ -133,7 +133,7 @@ public class TestAssemblyConfiguration
 	/// If the value is not set, returns the default value (<see cref="Environment.ProcessorCount"/>).
 	/// </summary>
 	public int MaxParallelThreadsOrDefault =>
-		MaxParallelThreads == null || MaxParallelThreads == 0
+		MaxParallelThreads is null || MaxParallelThreads == 0
 			? Environment.ProcessorCount
 			: MaxParallelThreads.Value;
 

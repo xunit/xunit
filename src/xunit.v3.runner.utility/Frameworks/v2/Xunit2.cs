@@ -78,7 +78,7 @@ public class Xunit2 : IFrontController
 
 		// We need both a v2 and v3 assembly info, so manufacture the things we're missing
 		IAssemblyInfo remoteAssemblyInfo;
-		if (assemblyInfo != null)
+		if (assemblyInfo is not null)
 			remoteAssemblyInfo = new Xunit2AssemblyInfo(assemblyInfo);
 		else
 		{
@@ -111,7 +111,7 @@ public class Xunit2 : IFrontController
 		DisposalTracker.Add(remoteDiscoverer);
 
 		// If we got an assembly file name, that means we can do execution as well as discovery.
-		if (assemblyFileName != null)
+		if (assemblyFileName is not null)
 		{
 #if NETFRAMEWORK
 			var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
@@ -159,14 +159,14 @@ public class Xunit2 : IFrontController
 		var callbackContainer = new DeserializeCallback();
 		Action<List<KeyValuePair<string?, ITestCase?>>> callback = callbackContainer.Callback;
 
-		if (bulkDeserializer == null)
+		if (bulkDeserializer is null)
 		{
 			if (AppDomain.HasAppDomain)
 			{
 				try
 				{
 					AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseBulkDeserializer", remoteDiscoverer, remoteExecutor, serializations, callback);
-					if (callbackContainer.Results != null)
+					if (callbackContainer.Results is not null)
 						return callbackContainer.Results;
 				}
 				catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseBulkDeserialize" doesn't exist
@@ -196,7 +196,7 @@ public class Xunit2 : IFrontController
 		{
 			var asssemblyName = typeof(OptimizedRemoteMessageSink).Assembly.GetName();
 			var optimizedSink = AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName!, v2MessageSink);
-			if (optimizedSink != null)
+			if (optimizedSink is not null)
 				return optimizedSink;
 		}
 		catch { }    // This really shouldn't happen, but falling back makes sense in catastrophic cases
@@ -391,7 +391,7 @@ public class Xunit2 : IFrontController
 			var testClassUniqueID = UniqueIDGenerator.ForTestClass(testCollectionUniqueID, testCasesByClass.Key);
 			var classTestCases = testCasesByClass.ToArray();
 
-			if (testCasesByClass.Key != null)
+			if (testCasesByClass.Key is not null)
 				messageSink.OnMessage(new _TestClassStarting
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,
@@ -405,7 +405,7 @@ public class Xunit2 : IFrontController
 				var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, testCasesByMethod.Key);
 				var methodTestCases = testCasesByMethod.ToArray();
 
-				if (testCasesByMethod.Key != null)
+				if (testCasesByMethod.Key is not null)
 					messageSink.OnMessage(new _TestMethodStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
@@ -495,7 +495,7 @@ public class Xunit2 : IFrontController
 					});
 				}
 
-				if (testCasesByMethod.Key != null)
+				if (testCasesByMethod.Key is not null)
 					messageSink.OnMessage(new _TestMethodFinished
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
@@ -510,7 +510,7 @@ public class Xunit2 : IFrontController
 					});
 			}
 
-			if (testCasesByClass.Key != null)
+			if (testCasesByClass.Key is not null)
 				messageSink.OnMessage(new _TestClassFinished
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,
@@ -726,7 +726,7 @@ public class Xunit2 : IFrontController
 
 				Interlocked.Increment(ref testCasesToRun);
 
-				if (discoveryCallback != null)
+				if (discoveryCallback is not null)
 					discoveryCallback(discovered);
 			}
 

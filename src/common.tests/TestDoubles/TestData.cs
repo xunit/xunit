@@ -757,7 +757,7 @@ public static class TestData
 		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, timeout: timeout);
 		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
-		if (traits == null)
+		if (traits is null)
 			traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		return new(
@@ -786,7 +786,7 @@ public static class TestData
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
-		if (traits == null)
+		if (traits is null)
 			traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		return new(

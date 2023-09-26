@@ -28,10 +28,10 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 		assemblyFileName = Path.GetFullPath(assemblyFileName);
 		Guard.FileExists(assemblyFileName);
 
-		if (configFileName == null)
+		if (configFileName is null)
 			configFileName = GetDefaultConfigFile(assemblyFileName);
 
-		if (configFileName != null)
+		if (configFileName is not null)
 			configFileName = Path.GetFullPath(configFileName);
 
 		AssemblyFileName = assemblyFileName;
@@ -116,7 +116,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 
 	public void Dispose()
 	{
-		if (AppDomain != null)
+		if (AppDomain is not null)
 		{
 			Exception? failure = null;
 
@@ -143,21 +143,21 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 					diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' timed out" });
 				else
 				{
-					if (cachePath != null)
+					if (cachePath is not null)
 						Directory.Delete(cachePath, true);
 				}
 			}
 			catch (Exception ex)
 			{
 #pragma warning disable CA1508 // failure can be set in CleanupThread
-				if (failure == null)
+				if (failure is null)
 #pragma warning restore CA1508
 					failure = ex;
 				else
 					failure = new AggregateException(failure, ex);
 			}
 
-			if (failure != null)
+			if (failure is not null)
 				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}" });
 		}
 	}

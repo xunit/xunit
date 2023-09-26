@@ -97,7 +97,7 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 			{
 				// Set workReady() to wake up other threads, since there might still be work on the queue (fixes #877)
 				workReady.Set();
-				if (work.context == null)    // Fix for #461, so we don't try to run on a null execution context
+				if (work.context is null)    // Fix for #461, so we don't try to run on a null execution context
 					RunOnSyncContext(work.callback, work.state);
 				else
 					ExecutionContext.Run(work.context, _ => RunOnSyncContext(work.callback, work.state), null);

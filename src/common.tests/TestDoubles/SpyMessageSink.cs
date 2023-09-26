@@ -28,7 +28,7 @@ public class SpyMessageSink : _IMessageSink
 			{
 				var message = callInfo.Arg<_MessageSinkMessage>();
 
-				if (messages != null)
+				if (messages is not null)
 					messages.Add(message);
 
 				return lambda(message);

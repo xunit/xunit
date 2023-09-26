@@ -667,6 +667,6 @@ public class CommandLineTests
 			path?.StartsWith("badConfig.") != true && path != "fileName";
 
 		protected override string? GetFullPath(string? fileName) =>
-			fileName == null ? null : $"/full/path/{fileName}";
+			fileName is null ? null : $"/full/path/{fileName}";
 	}
 }

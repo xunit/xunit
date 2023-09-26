@@ -35,7 +35,7 @@ public class XunitProjectAssembly
 	{
 		get
 		{
-			if (AssemblyFileName != null)
+			if (AssemblyFileName is not null)
 				return Path.GetFileNameWithoutExtension(AssemblyFileName);
 
 			return Assembly?.GetName()?.Name ?? "<unnamed dynamic assembly>";
@@ -65,10 +65,10 @@ public class XunitProjectAssembly
 	{
 		get
 		{
-			if (AssemblyFileName != null)
+			if (AssemblyFileName is not null)
 				return AssemblyFileName;
 
-			if (Assembly == null)
+			if (Assembly is null)
 				throw new InvalidOperationException($"Cannot get the UniqueID of a {GetType().FullName} instance when both {nameof(Assembly)} and {nameof(AssemblyFileName)} are null");
 
 			return $"{Assembly.FullName ?? "<unnamed dynamic assembly>"}::{Assembly.GetHashCode()}";

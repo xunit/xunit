@@ -21,7 +21,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	// Force users to use one of the factory methods
 	_TestFrameworkOptions(string? optionsJson = null)
 	{
-		if (optionsJson != null)
+		if (optionsJson is not null)
 			properties = JsonSerializer.Deserialize<Dictionary<string, string>>(optionsJson) ?? throw new ArgumentException("Invalid JSON", nameof(optionsJson));
 	}
 
@@ -158,7 +158,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 
 		if (properties.TryGetValue(name, out var result))
 		{
-			if (result == null)
+			if (result is null)
 				return default;
 
 			if (typeof(TValue) == typeof(string))
@@ -181,7 +181,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		string name,
 		TValue value)
 	{
-		if (value == null)
+		if (value is null)
 			properties.Remove(name);
 		else
 		{

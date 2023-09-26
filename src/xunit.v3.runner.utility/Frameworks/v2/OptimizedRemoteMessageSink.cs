@@ -50,7 +50,7 @@ sealed class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageS
 			cacheLock.ExitReadLock();
 		}
 
-		if (result == null)
+		if (result is null)
 		{
 			cacheLock.TryEnterWriteLock(-1);
 
@@ -70,7 +70,7 @@ sealed class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageS
 
 	public bool OnMessage(IMessageSinkMessage? message)
 	{
-		if (message != null)
+		if (message is not null)
 			return runnerSink.OnMessageWithTypes(message, GetMessageTypes(message));
 
 		return true;

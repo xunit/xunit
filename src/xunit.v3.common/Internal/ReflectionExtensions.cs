@@ -24,7 +24,7 @@ public static class ReflectionExtensions
 	/// <returns>A sequence of types.</returns>
 	static IEnumerable<_ITypeInfo> EnumerateTypeHierarchy(this _ITypeInfo type)
 	{
-		for (var current = type; current != null; current = current.BaseType)
+		for (var current = type; current is not null; current = current.BaseType)
 			yield return current;
 	}
 
@@ -33,9 +33,9 @@ public static class ReflectionExtensions
 		this _ITypeInfo? objA,
 		_ITypeInfo? objB)
 	{
-		if (objA == null)
-			return objB == null;
-		if (objB == null)
+		if (objA is null)
+			return objB is null;
+		if (objB is null)
 			return false;
 
 		return objA.Name == objB.Name && objA.Assembly.Name == objB.Assembly.Name;
@@ -46,9 +46,9 @@ public static class ReflectionExtensions
 		this _ITypeInfo? objA,
 		Type? objB)
 	{
-		if (objA == null)
-			return objB == null;
-		if (objB == null)
+		if (objA is null)
+			return objB is null;
+		if (objB is null)
 			return false;
 
 		return objA.Name == objB.FullName && (objA.Assembly.Name == objB.Assembly.FullName || objA.Assembly.Name == objB.Assembly.GetName().Name);
@@ -139,7 +139,7 @@ public static class ReflectionExtensions
 
 		baseDisplayName += ResolveGenericDisplay(genericTypes);
 
-		if (arguments == null)
+		if (arguments is null)
 			return baseDisplayName;
 
 		var parameterInfos = method.GetParameters().CastOrToArray();
@@ -242,7 +242,7 @@ public static class ReflectionExtensions
 
 		var nonNullableTypeInfo = typeInfo.UnwrapNullable();
 
-		for (var current = otherTypeInfo; current != null; current = current.BaseType)
+		for (var current = otherTypeInfo; current is not null; current = current.BaseType)
 			if (typeInfo.Equal(current) || (nonNullableTypeInfo != typeInfo && nonNullableTypeInfo.Equal(current)))
 				return true;
 
@@ -362,11 +362,11 @@ public static class ReflectionExtensions
 			var runtimeMethods = conversionDeclaringType.GetRuntimeMethods().ToArray();
 
 			var implicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Implicit"));
-			if (implicitMethod != null)
+			if (implicitMethod is not null)
 				return implicitMethod.Invoke(null, methodArguments);
 
 			var explicitMethod = runtimeMethods.FirstOrDefault(m => isMatchingOperator(m, "op_Explicit"));
-			if (explicitMethod != null)
+			if (explicitMethod is not null)
 				return explicitMethod.Invoke(null, methodArguments);
 		}
 
@@ -375,7 +375,7 @@ public static class ReflectionExtensions
 
 	static string ResolveGenericDisplay(_ITypeInfo[]? genericTypes)
 	{
-		if (genericTypes == null || genericTypes.Length == 0)
+		if (genericTypes is null || genericTypes.Length == 0)
 			return string.Empty;
 
 		var typeNames = new string[genericTypes.Length];
@@ -430,7 +430,7 @@ public static class ReflectionExtensions
 		for (var idx = 0; idx < parameterInfos.Length; ++idx)
 		{
 			var parameter = parameters[idx];
-			if (parameter != null)
+			if (parameter is not null)
 			{
 				var methodParameterType = parameterInfos[idx].ParameterType;
 				var passedParameterType = Reflector.Wrap(parameter.GetType());
@@ -483,13 +483,13 @@ public static class ReflectionExtensions
 		out _ITypeInfo? resultType)
 	{
 		var methodElementType = methodParameterType.GetElementType();
-		if (methodElementType != null)
+		if (methodElementType is not null)
 		{
 			var passedElementType = passedParameterType;
 			if (methodParameterType.IsArray && passedParameterType.IsArray)
 				passedElementType = passedParameterType.GetElementType();
 
-			if (passedElementType != null)
+			if (passedElementType is not null)
 				return genericType.ResolveGenericParameter(methodElementType, passedElementType, out resultType);
 		}
 
@@ -582,7 +582,7 @@ public static class ReflectionExtensions
 
 		// Params can only be added at the end of the parameter list
 		if (parameters.Length > 0)
-			hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute(typeof(ParamArrayAttribute)) != null;
+			hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute(typeof(ParamArrayAttribute)) is not null;
 
 		var nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
 		if (hasParamsParameter)
@@ -602,7 +602,7 @@ public static class ReflectionExtensions
 		{
 			var paramsParameter = parameters[parameters.Length - 1];
 			var paramsElementType = paramsParameter.ParameterType.GetElementType();
-			if (paramsElementType == null)
+			if (paramsElementType is null)
 				throw new InvalidOperationException("Cannot determine params element type");
 
 			if (arguments.Length < parameters.Length)
@@ -612,7 +612,7 @@ public static class ReflectionExtensions
 				newArguments[newArguments.Length - 1] = emptyParamsArray;
 			}
 			else if (arguments.Length == parameters.Length &&
-				(arguments[arguments.Length - 1] == null ||
+				(arguments[arguments.Length - 1] is null ||
 				(arguments[arguments.Length - 1]!.GetType().IsArray &&
 				arguments[arguments.Length - 1]!.GetType().GetElementType() == paramsElementType)))
 			{
@@ -726,7 +726,7 @@ public static class ReflectionExtensions
 		object? argumentValue,
 		Type parameterType)
 	{
-		if (argumentValue == null)
+		if (argumentValue is null)
 			return null;
 
 		// No need to perform conversion

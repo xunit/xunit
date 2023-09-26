@@ -53,14 +53,14 @@ public static class Reflector
 	{
 		Guard.ArgumentNotNull(type);
 
-		if (arg != null && !type.IsAssignableFrom(arg.GetType()))
+		if (arg is not null && !type.IsAssignableFrom(arg.GetType()))
 		{
 			try
 			{
 				if (type.IsArray)
 				{
 					var elementType = type.GetElementType();
-					if (elementType == null)
+					if (elementType is null)
 						throw new ArgumentException("Could not determine array element type", nameof(type));
 
 					if (arg is IReadOnlyCollection<CustomAttributeTypedArgument> attributeArguments)
@@ -114,9 +114,9 @@ public static class Reflector
 		object?[]? args,
 		Type[]? types)
 	{
-		if (args == null)
+		if (args is null)
 			args = EmptyArgs;
-		if (types == null)
+		if (types is null)
 			types = EmptyTypes;
 
 		if (args.Length == types.Length)
@@ -159,7 +159,7 @@ public static class Reflector
 	public static _IReflectionAssemblyInfo? Wrap(
 		Assembly? assembly,
 		params _IReflectionAttributeInfo[] additionalAssemblyAttributes) =>
-			assembly == null ? null : new ReflectionAssemblyInfo(assembly, additionalAssemblyAttributes);
+			assembly is null ? null : new ReflectionAssemblyInfo(assembly, additionalAssemblyAttributes);
 
 	/// <summary>
 	/// Converts an <see cref="Attribute"/> into an <see cref="_IAttributeInfo"/> using reflection.
@@ -168,7 +168,7 @@ public static class Reflector
 	/// <returns>The wrapper</returns>
 	[return: NotNullIfNotNull("attribute")]
 	public static _IReflectionAttributeInfo? Wrap(CustomAttributeData? attribute) =>
-		attribute == null ? null : new ReflectionAttributeInfo(attribute);
+		attribute is null ? null : new ReflectionAttributeInfo(attribute);
 
 	/// <summary>
 	/// Converts a <see cref="MethodInfo"/> into an <see cref="_IMethodInfo"/> using reflection.
@@ -177,7 +177,7 @@ public static class Reflector
 	/// <returns>The wrapper</returns>
 	[return: NotNullIfNotNull("method")]
 	public static _IReflectionMethodInfo? Wrap(MethodInfo? method) =>
-		method == null ? null : new ReflectionMethodInfo(method);
+		method is null ? null : new ReflectionMethodInfo(method);
 
 	/// <summary>
 	/// Converts a <see cref="ParameterInfo"/> into an <see cref="_IParameterInfo"/> using reflection.
@@ -186,7 +186,7 @@ public static class Reflector
 	/// <returns>The wrapper</returns>
 	[return: NotNullIfNotNull("parameter")]
 	public static _IReflectionParameterInfo? Wrap(ParameterInfo? parameter) =>
-		parameter == null ? null : new ReflectionParameterInfo(parameter);
+		parameter is null ? null : new ReflectionParameterInfo(parameter);
 
 	/// <summary>
 	/// Converts a <see cref="Type"/> into an <see cref="_ITypeInfo"/> using reflection.
@@ -195,5 +195,5 @@ public static class Reflector
 	/// <returns>The wrapper</returns>
 	[return: NotNullIfNotNull("type")]
 	public static _IReflectionTypeInfo? Wrap(Type? type) =>
-		type == null ? null : new ReflectionTypeInfo(type);
+		type is null ? null : new ReflectionTypeInfo(type);
 }

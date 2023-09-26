@@ -129,7 +129,7 @@ public class Xunit1TestCaseTests
 			TestMethodUniqueID = $"method-id: {typeName}:{methodName}",
 		};
 
-		if (traits != null)
+		if (traits is not null)
 			result.Traits = traits;
 
 		return result;

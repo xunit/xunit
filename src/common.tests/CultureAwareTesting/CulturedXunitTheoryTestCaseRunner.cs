@@ -36,9 +36,9 @@ public class CulturedXunitTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestC
 
 	protected override ValueTask BeforeTestCaseFinishedAsync(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
 	{
-		if (originalUICulture != null)
+		if (originalUICulture is not null)
 			CultureInfo.CurrentUICulture = originalUICulture;
-		if (originalCulture != null)
+		if (originalCulture is not null)
 			CultureInfo.CurrentCulture = originalCulture;
 
 		return base.BeforeTestCaseFinishedAsync(ctxt);

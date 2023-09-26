@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 static class EnvironmentHelper
 {
-	static readonly Lazy<bool> isMono = new Lazy<bool>(() => Type.GetType("Mono.Runtime") != null);
+	static readonly Lazy<bool> isMono = new Lazy<bool>(() => Type.GetType("Mono.Runtime") is not null);
 	static readonly string[] reporterEnvironmentVariables =
 	{
 		// AppVeyorReporter

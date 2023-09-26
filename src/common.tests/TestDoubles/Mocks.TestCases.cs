@@ -190,7 +190,7 @@ public static partial class Mocks
 
 		// Ensure that there's a FactAttribute, or else it's not technically a test method
 		var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.AttributeType));
-		if (factAttribute == null)
+		if (factAttribute is null)
 		{
 			factAttribute = FactAttribute(displayName, @explicit, skip, timeout);
 			methodAttributes = methodAttributes.Concat(new[] { factAttribute }).ToArray();

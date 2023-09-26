@@ -51,7 +51,7 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 	/// <returns>Return <c>true</c> to continue running tests; <c>false</c> to stop running tests.</returns>
 	public virtual bool OnXmlNode(XmlNode? node)
 	{
-		if (callback != null)
+		if (callback is not null)
 			return callback(node);
 
 		return true;
@@ -63,7 +63,7 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 
 	void ICallbackEventHandler.RaiseCallbackEvent(string eventArgument)
 	{
-		if (eventArgument != null)
+		if (eventArgument is not null)
 		{
 			// REVIEW: Would this be cheaper with XDocument instead of XmlDocument?
 			var doc = new XmlDocument();
@@ -72,7 +72,7 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 			LastNode = doc.ChildNodes[0];
 			@continue = OnXmlNode(LastNode);
 
-			if (lastNodeName != null && LastNode?.Name == lastNodeName)
+			if (lastNodeName is not null && LastNode?.Name == lastNodeName)
 				LastNodeArrived.Set();
 		}
 	}

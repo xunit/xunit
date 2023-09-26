@@ -21,10 +21,10 @@ static class Xunit1ExceptionUtility
 		var indices = new List<int>();
 		var parentIndex = -1;
 
-		while (exception != null)
+		while (exception is not null)
 		{
 			var stackTrace = exception.StackTrace;
-			var rethrowIndex = stackTrace == null ? -1 : stackTrace.IndexOf("$$RethrowMarker$$", StringComparison.Ordinal);
+			var rethrowIndex = stackTrace is null ? -1 : stackTrace.IndexOf("$$RethrowMarker$$", StringComparison.Ordinal);
 			if (rethrowIndex > -1)
 				stackTrace = stackTrace!.Substring(0, rethrowIndex);
 
@@ -50,10 +50,10 @@ static class Xunit1ExceptionUtility
 		Guard.ArgumentNotNull(failureNode);
 
 		var exceptionTypeAttribute = failureNode.Attributes?["exception-type"];
-		var exceptionType = exceptionTypeAttribute != null ? exceptionTypeAttribute.Value : string.Empty;
+		var exceptionType = exceptionTypeAttribute is not null ? exceptionTypeAttribute.Value : string.Empty;
 		var message = failureNode.SelectSingleNode("message")?.InnerText;
 		var stackTraceNode = failureNode.SelectSingleNode("stack-trace");
-		var stackTrace = stackTraceNode == null ? string.Empty : stackTraceNode.InnerText;
+		var stackTrace = stackTraceNode is null ? string.Empty : stackTraceNode.InnerText;
 
 		return ConvertToErrorMetadata(exceptionType, message ?? "<unknown message>", stackTrace);
 	}

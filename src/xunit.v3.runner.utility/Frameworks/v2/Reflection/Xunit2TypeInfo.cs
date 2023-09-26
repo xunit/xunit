@@ -20,7 +20,7 @@ public class Xunit2TypeInfo : LongLivedMarshalByRefObject, ITypeInfo
 		V3TypeInfo = Guard.ArgumentNotNull(v3TypeInfo);
 
 		Assembly = new Xunit2AssemblyInfo(V3TypeInfo.Assembly);
-		BaseType = V3TypeInfo.BaseType == null ? null : new Xunit2TypeInfo(V3TypeInfo.BaseType);
+		BaseType = V3TypeInfo.BaseType is null ? null : new Xunit2TypeInfo(V3TypeInfo.BaseType);
 		Interfaces = V3TypeInfo.Interfaces.Select(i => new Xunit2TypeInfo(i)).ToList();
 	}
 
@@ -74,7 +74,7 @@ public class Xunit2TypeInfo : LongLivedMarshalByRefObject, ITypeInfo
 	public IMethodInfo? GetMethod(string methodName, bool includePrivateMethod)
 	{
 		var v3MethodInfo = V3TypeInfo.GetMethod(methodName, includePrivateMethod);
-		return v3MethodInfo == null ? null : new Xunit2MethodInfo(v3MethodInfo);
+		return v3MethodInfo is null ? null : new Xunit2MethodInfo(v3MethodInfo);
 	}
 
 	/// <inheritdoc/>

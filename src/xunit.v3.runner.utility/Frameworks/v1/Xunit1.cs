@@ -116,7 +116,7 @@ public class Xunit1 : IFrontController
 			testCase =>
 			{
 				var msg = testCase.ToTestCaseDiscovered(includeSerialization: true);
-				if (filter == null || filter(msg))
+				if (filter is null || filter(msg))
 				{
 					messageSink.OnMessage(msg);
 					++testCasesToRun;
@@ -167,38 +167,38 @@ public class Xunit1 : IFrontController
 		Executor.EnumerateTests(handler);
 
 #pragma warning disable CA1508 // This is incorrectly detected as a dead condition; the callback handler above can set the value during EnumerateTests
-		if (assemblyXml != null)
+		if (assemblyXml is not null)
 #pragma warning restore CA1508
 		{
 			var methodNodes = assemblyXml.SelectNodes("//method")?.Cast<XmlNode>();
-			if (methodNodes != null)
+			if (methodNodes is not null)
 			{
 				foreach (var methodXml in methodNodes)
 				{
 					var typeName = methodXml.Attributes?["type"]?.Value;
 					var methodName = methodXml.Attributes?["method"]?.Value;
-					if (typeName == null || methodName == null)
+					if (typeName is null || methodName is null)
 						continue;
 
 					string? displayName = null;
 					var displayNameAttribute = methodXml.Attributes?["name"];
-					if (displayNameAttribute != null)
+					if (displayNameAttribute is not null)
 						displayName = displayNameAttribute.Value;
 
 					string? skipReason = null;
 					var skipReasonAttribute = methodXml.Attributes?["skip"];
-					if (skipReasonAttribute != null)
+					if (skipReasonAttribute is not null)
 						skipReason = skipReasonAttribute.Value;
 
 					var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 					var traitNodes = methodXml.SelectNodes("traits/trait")?.Cast<XmlNode>();
-					if (traitNodes != null)
+					if (traitNodes is not null)
 						foreach (var traitNode in traitNodes)
 						{
 							var traitName = traitNode.Attributes?["name"]?.Value;
 							var traitValue = traitNode.Attributes?["value"]?.Value;
 
-							if (traitName != null && traitValue != null)
+							if (traitName is not null && traitValue is not null)
 								traits.Add(traitName, traitValue);
 						}
 
@@ -249,7 +249,7 @@ public class Xunit1 : IFrontController
 			{
 				var include = true;
 
-				if (filter != null)
+				if (filter is not null)
 				{
 					var msg = testCase.ToTestCaseDiscovered(includeSerialization: false);
 					include = filter(msg);

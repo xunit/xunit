@@ -43,7 +43,7 @@ public static class AsyncUtility
 	/// <param name="method">The method to test</param>
 	/// <returns>Returns <c>true</c> if the method is async void; returns <c>false</c> otherwise.</returns>
 	public static bool IsAsyncVoid(MethodInfo method) =>
-		Guard.ArgumentNotNull(method).ReturnType == typeof(void) && method.GetCustomAttribute<AsyncStateMachineAttribute>() != null;
+		Guard.ArgumentNotNull(method).ReturnType == typeof(void) && method.GetCustomAttribute<AsyncStateMachineAttribute>() is not null;
 
 	/// <summary>
 	/// Given an object, will attempt to convert instances of <see cref="Task"/> or
@@ -57,7 +57,7 @@ public static class AsyncUtility
 	/// returns <c>null</c> otherwise.</returns>
 	public static ValueTask? TryConvertToValueTask(object? obj)
 	{
-		if (obj == null)
+		if (obj is null)
 			return null;
 
 		if (obj is ValueTask valueTask)
@@ -74,7 +74,7 @@ public static class AsyncUtility
 		var type = obj.GetType();
 		if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
 		{
-			if (fSharpStartAsTaskOpenGenericMethod == null)
+			if (fSharpStartAsTaskOpenGenericMethod is null)
 			{
 				fSharpStartAsTaskOpenGenericMethod =
 					type
@@ -83,7 +83,7 @@ public static class AsyncUtility
 						.GetRuntimeMethods()
 						.FirstOrDefault(m => m.Name == "StartAsTask");
 
-				if (fSharpStartAsTaskOpenGenericMethod == null)
+				if (fSharpStartAsTaskOpenGenericMethod is null)
 					throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
 			}
 

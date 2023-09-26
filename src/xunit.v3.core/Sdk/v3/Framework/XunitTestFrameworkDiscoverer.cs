@@ -44,7 +44,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 			: base(assemblyInfo)
 	{
 		var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-		var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>(nameof(CollectionBehaviorAttribute.DisableTestParallelization));
+		var disableParallelization = collectionBehaviorAttribute is not null && collectionBehaviorAttribute.GetNamedArgument<bool>(nameof(CollectionBehaviorAttribute.DisableTestParallelization));
 
 		testAssembly = new TestAssembly(assemblyInfo, configFileName);
 		TestCollectionFactory =
@@ -103,27 +103,27 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		}
 
 		var factAttribute = factAttributes.FirstOrDefault();
-		if (factAttribute == null)
+		if (factAttribute is null)
 			return true;
 
 		var factAttributeType = (factAttribute as _IReflectionAttributeInfo)?.Attribute.GetType();
 
 		Type? discovererType = null;
-		if (factAttributeType == null || !DiscovererTypeCache.TryGetValue(factAttributeType, out discovererType))
+		if (factAttributeType is null || !DiscovererTypeCache.TryGetValue(factAttributeType, out discovererType))
 		{
 			var testCaseDiscovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
-			if (testCaseDiscovererAttribute != null)
+			if (testCaseDiscovererAttribute is not null)
 				discovererType = ExtensibilityPointFactory.TypeFromAttributeConstructor(testCaseDiscovererAttribute);
 
-			if (factAttributeType != null)
+			if (factAttributeType is not null)
 				DiscovererTypeCache[factAttributeType] = discovererType;
 		}
 
-		if (discovererType == null)
+		if (discovererType is null)
 			return true;
 
 		var discoverer = GetDiscoverer(discovererType);
-		if (discoverer == null)
+		if (discoverer is null)
 			return true;
 
 		foreach (var testCase in await discoverer.Discover(discoveryOptions, testMethod, factAttribute))

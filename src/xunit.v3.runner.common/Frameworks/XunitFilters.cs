@@ -113,7 +113,7 @@ public class XunitFilters
 			return true;
 
 		// No class == pass
-		if (testCase.TestClassNameWithNamespace == null)
+		if (testCase.TestClassNameWithNamespace is null)
 			return true;
 
 		// Exact match == do not pass
@@ -130,7 +130,7 @@ public class XunitFilters
 			return true;
 
 		// No method == pass
-		if (testCase.TestMethodName == null)
+		if (testCase.TestMethodName is null)
 			return true;
 
 		var methodName = $"{testCase.TestClassNameWithNamespace}.{testCase.TestMethodName}";
@@ -154,7 +154,7 @@ public class XunitFilters
 			return true;
 
 		// No namespace == pass
-		if (testCase.TestClassNamespace == null)
+		if (testCase.TestClassNamespace is null)
 			return true;
 
 		// Exact match or starts-with match == do not pass
@@ -189,7 +189,7 @@ public class XunitFilters
 			return true;
 
 		// No class == do not pass
-		if (testCase.TestClassNameWithNamespace == null)
+		if (testCase.TestClassNameWithNamespace is null)
 			return false;
 
 		// Exact match == pass
@@ -206,7 +206,7 @@ public class XunitFilters
 			return true;
 
 		// No method == do not pass
-		if (testCase.TestMethodName == null)
+		if (testCase.TestMethodName is null)
 			return false;
 
 		var methodName = $"{testCase.TestClassNameWithNamespace}.{testCase.TestMethodName}";
@@ -230,7 +230,7 @@ public class XunitFilters
 			return true;
 
 		// No namespace == do not pass
-		if (testCase.TestClassNamespace == null)
+		if (testCase.TestClassNamespace is null)
 			return false;
 
 		// Exact match or starts-with match == pass

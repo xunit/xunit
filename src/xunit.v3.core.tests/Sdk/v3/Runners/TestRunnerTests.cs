@@ -370,9 +370,9 @@ public class TestRunnerTests
 			Action? lambda = null)
 		{
 			var aggregator = new ExceptionAggregator();
-			if (aggregatorSeedException != null)
+			if (aggregatorSeedException is not null)
 				aggregator.Add(aggregatorSeedException);
-			if (testCase == null)
+			if (testCase is null)
 				testCase = Mocks.TestCase<object>("ToString");
 			var test = Mocks.Test(testCase, displayName, "test-id");
 
@@ -408,7 +408,7 @@ public class TestRunnerTests
 
 		protected override ValueTask<(decimal ExecutionTime, string Output)?> InvokeTestAsync(TestRunnerContext ctxt)
 		{
-			if (lambda != null)
+			if (lambda is not null)
 				aggregator.Run(lambda);
 
 			InvokeTestAsync_Called = true;

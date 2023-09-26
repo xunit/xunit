@@ -13,7 +13,7 @@ class CultureOverride : IDisposable
 		lastCulture = CultureInfo.CurrentCulture;
 		lastUICulture = CultureInfo.CurrentUICulture;
 
-		if (culture != null)
+		if (culture is not null)
 		{
 			var newCulture = new CultureInfo(culture, useUserOverride: false);
 			CultureInfo.CurrentCulture = newCulture;

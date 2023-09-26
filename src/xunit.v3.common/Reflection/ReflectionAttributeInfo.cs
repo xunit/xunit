@@ -79,7 +79,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	{
 		var results = Enumerable.Empty<_IAttributeInfo>();
 
-		if (type != null)
+		if (type is not null)
 		{
 			List<ReflectionAttributeInfo>? list = null;
 			foreach (var attr in type.CustomAttributes)
@@ -91,12 +91,12 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 				}
 			}
 
-			if (list != null)
+			if (list is not null)
 				list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
 
 			results = list ?? Enumerable.Empty<_IAttributeInfo>();
 
-			if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
+			if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list is null))
 				results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage));
 		}
 
@@ -110,7 +110,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 			if (namedArgument.MemberName.Equals(argumentName, StringComparison.Ordinal))
 			{
 				var result = Reflector.ConvertArgument(namedArgument.TypedValue.Value, typeof(TValue));
-				return result == null ? default : (TValue)result;
+				return result is null ? default : (TValue)result;
 			}
 
 		return default;
@@ -143,7 +143,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 		}
 
 		var attribute = (Attribute?)attributeData.Constructor.Invoke(Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
-		if (attribute == null)
+		if (attribute is null)
 			throw new ArgumentException($"Unable to create attribute of type '{attributeData.AttributeType.FullName}'", nameof(attributeData));
 
 		attributeType = attribute.GetType();
@@ -155,7 +155,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 			var memberName = namedArg.MemberName;
 
 			var propInfo = attributeType.GetRuntimeProperty(memberName);
-			if (propInfo != null)
+			if (propInfo is not null)
 				try
 				{
 					propInfo.SetValue(attribute, typedValue);
@@ -167,7 +167,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 			else
 			{
 				var fieldInfo = attributeType.GetRuntimeField(memberName);
-				if (fieldInfo != null)
+				if (fieldInfo is not null)
 					try
 					{
 						fieldInfo.SetValue(attribute, typedValue);

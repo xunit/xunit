@@ -29,7 +29,7 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 
 	_ITestCollection CreateCollection(string name)
 	{
-		if (collectionDefinitions == null)
+		if (collectionDefinitions is null)
 			collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
 
 		collectionDefinitions.TryGetValue(name, out var definitionType);
@@ -44,7 +44,7 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 		string collectionName;
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 
-		if (collectionAttribute == null)
+		if (collectionAttribute is null)
 			collectionName = "Test collection for " + testClass.Name;
 		else
 			collectionName = collectionAttribute.GetConstructorArguments().Cast<string>().Single();

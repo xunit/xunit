@@ -33,7 +33,7 @@ public class AppVeyorReporter : IRunnerReporter
 		var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
 #pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 		var handler =
-			baseUri == null
+			baseUri is null
 				? new DefaultRunnerReporterMessageHandler(logger)
 				: new AppVeyorReporterMessageHandler(logger, baseUri);
 #pragma warning restore CA2000

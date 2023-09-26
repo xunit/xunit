@@ -76,7 +76,7 @@ public static class TestIntrospectionHelper
 		var factSkipReason = factAttribute.GetNamedArgument<string?>(nameof(FactAttribute.Skip));
 		timeout ??= factAttribute.GetNamedArgument<int>(nameof(FactAttribute.Timeout));
 
-		if (baseDisplayName == null)
+		if (baseDisplayName is null)
 		{
 			if (defaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
 				baseDisplayName = formatter.Format($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}");
@@ -86,7 +86,7 @@ public static class TestIntrospectionHelper
 
 		_ITypeInfo[]? methodGenericTypes = null;
 
-		if (testMethodArguments != null && testMethod.Method.IsGenericMethodDefinition)
+		if (testMethodArguments is not null && testMethod.Method.IsGenericMethodDefinition)
 		{
 			methodGenericTypes = testMethod.Method.ResolveGenericTypes(testMethodArguments);
 			testMethod = new TestMethod(testMethod.TestClass, testMethod.Method.MakeGenericMethod(methodGenericTypes));
@@ -133,7 +133,7 @@ public static class TestIntrospectionHelper
 		if (dataRow.Explicit.HasValue)
 			result.Explicit = dataRow.Explicit.Value;
 
-		if (dataRow.Skip != null)
+		if (dataRow.Skip is not null)
 			result.SkipReason = dataRow.Skip;
 
 		return result;
@@ -163,7 +163,7 @@ public static class TestIntrospectionHelper
 		foreach (var traitAttribute in traitAttributes)
 		{
 			var traitDiscovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
-			if (traitDiscovererAttribute == null)
+			if (traitDiscovererAttribute is null)
 			{
 				TestContext.Current?.SendDiagnosticMessage(
 					"Trait attribute '{0}' on test method '{1}.{2}' does not have [TraitDiscoverer]",
@@ -186,7 +186,7 @@ public static class TestIntrospectionHelper
 				continue;
 			}
 
-			if (discoverer == null)
+			if (discoverer is null)
 			{
 				TestContext.Current?.SendDiagnosticMessage(
 					"Discoverer on trait attribute '{0}' appears to be malformed (invalid type reference?)",
@@ -200,7 +200,7 @@ public static class TestIntrospectionHelper
 		}
 
 		// Traits from the data row
-		if (dataRow?.Traits != null)
+		if (dataRow?.Traits is not null)
 			foreach (var kvp in dataRow.Traits)
 				result.GetOrAdd(kvp.Key).AddRange(kvp.Value);
 
@@ -216,7 +216,7 @@ public static class TestIntrospectionHelper
 		Dictionary<string, List<string>> traits,
 		string[]? additionalTraits)
 	{
-		if (additionalTraits == null)
+		if (additionalTraits is null)
 			return;
 
 		var idx = 0;

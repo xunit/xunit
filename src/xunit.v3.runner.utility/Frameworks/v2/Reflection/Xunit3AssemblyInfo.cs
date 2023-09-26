@@ -39,7 +39,7 @@ public class Xunit3AssemblyInfo : _IAssemblyInfo
 	public _ITypeInfo? GetType(string typeName)
 	{
 		var v2TypeInfo = V2AssemblyInfo.GetType(typeName);
-		return v2TypeInfo == null ? null : new Xunit3TypeInfo(v2TypeInfo);
+		return v2TypeInfo is null ? null : new Xunit3TypeInfo(v2TypeInfo);
 	}
 
 	/// <inheritdoc/>

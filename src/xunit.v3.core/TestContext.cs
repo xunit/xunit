@@ -172,7 +172,7 @@ public class TestContext
 	/// <param name="message">The warning message to be reported</param>
 	public void AddWarning(string message)
 	{
-		if (Test == null || warnings == null)
+		if (Test is null || warnings is null)
 			SendDiagnosticMessage("Attempted to log a test warning message while not running a test (pipeline stage = {0}); message: {1}", PipelineStage, message);
 		else
 			warnings.Add(message);
@@ -185,7 +185,7 @@ public class TestContext
 	/// <param name="message">The message to send</param>
 	public void SendDiagnosticMessage(string message)
 	{
-		if (DiagnosticMessageSink != null)
+		if (DiagnosticMessageSink is not null)
 			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
 	}
 
@@ -199,7 +199,7 @@ public class TestContext
 		string format,
 		object? arg0)
 	{
-		if (DiagnosticMessageSink != null)
+		if (DiagnosticMessageSink is not null)
 			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0) });
 	}
 
@@ -215,7 +215,7 @@ public class TestContext
 		object? arg0,
 		object? arg1)
 	{
-		if (DiagnosticMessageSink != null)
+		if (DiagnosticMessageSink is not null)
 			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1) });
 	}
 
@@ -233,7 +233,7 @@ public class TestContext
 		object? arg1,
 		object? arg2)
 	{
-		if (DiagnosticMessageSink != null)
+		if (DiagnosticMessageSink is not null)
 			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2) });
 	}
 
@@ -247,13 +247,13 @@ public class TestContext
 		string format,
 		params object?[] args)
 	{
-		if (DiagnosticMessageSink != null)
+		if (DiagnosticMessageSink is not null)
 			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
 	}
 
 	internal void SendInternalDiagnosticMessage(string message)
 	{
-		if (InternalDiagnosticMessageSink != null)
+		if (InternalDiagnosticMessageSink is not null)
 			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = message });
 	}
 
@@ -261,7 +261,7 @@ public class TestContext
 		string format,
 		object? arg0)
 	{
-		if (InternalDiagnosticMessageSink != null)
+		if (InternalDiagnosticMessageSink is not null)
 			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0) });
 	}
 
@@ -270,7 +270,7 @@ public class TestContext
 		object? arg0,
 		object? arg1)
 	{
-		if (InternalDiagnosticMessageSink != null)
+		if (InternalDiagnosticMessageSink is not null)
 			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1) });
 	}
 
@@ -280,7 +280,7 @@ public class TestContext
 		object? arg1,
 		object? arg2)
 	{
-		if (InternalDiagnosticMessageSink != null)
+		if (InternalDiagnosticMessageSink is not null)
 			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2) });
 	}
 
@@ -288,7 +288,7 @@ public class TestContext
 		string format,
 		params object?[] args)
 	{
-		if (InternalDiagnosticMessageSink != null)
+		if (InternalDiagnosticMessageSink is not null)
 			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
 	}
 
@@ -334,7 +334,7 @@ public class TestContext
 		if (testStatus == TestEngineStatus.CleaningUp)
 			Guard.ArgumentNotNull(testState);
 
-		if (Current.TestOutputHelper == null)
+		if (Current.TestOutputHelper is null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
 		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? new())
@@ -348,10 +348,10 @@ public class TestContext
 			TestCaseStatus = TestEngineStatus.Running,
 
 			TestMethod = test.TestCase.TestMethod,
-			TestMethodStatus = test.TestCase.TestMethod == null ? null : TestEngineStatus.Running,
+			TestMethodStatus = test.TestCase.TestMethod is null ? null : TestEngineStatus.Running,
 
 			TestClass = test.TestCase.TestClass,
-			TestClassStatus = test.TestCase.TestClass == null ? null : TestEngineStatus.Running,
+			TestClassStatus = test.TestCase.TestClass is null ? null : TestEngineStatus.Running,
 
 			TestCollection = test.TestCase.TestCollection,
 			TestCollectionStatus = TestEngineStatus.Running,
@@ -411,10 +411,10 @@ public class TestContext
 			TestCaseStatus = testCaseStatus,
 
 			TestMethod = testCase.TestMethod,
-			TestMethodStatus = testCase.TestMethod == null ? null : TestEngineStatus.Running,
+			TestMethodStatus = testCase.TestMethod is null ? null : TestEngineStatus.Running,
 
 			TestClass = testCase.TestClass,
-			TestClassStatus = testCase.TestClass == null ? null : TestEngineStatus.Running,
+			TestClassStatus = testCase.TestClass is null ? null : TestEngineStatus.Running,
 
 			TestCollection = testCase.TestCollection,
 			TestCollectionStatus = TestEngineStatus.Running,

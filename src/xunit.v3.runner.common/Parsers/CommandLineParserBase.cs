@@ -156,7 +156,7 @@ public abstract class CommandLineParserBase
 	{
 		get
 		{
-			if (runnerReporters == null)
+			if (runnerReporters is null)
 				runnerReporters = GetAvailableRunnerReporters();
 
 			return runnerReporters;
@@ -168,7 +168,7 @@ public abstract class CommandLineParserBase
 		string @switch,
 		Action<KeyValuePair<string, string?>> handler,
 		string? replacement = null) =>
-			parsers[@switch] = (CommandLineGroup.Hidden, null, replacement == null ? Array.Empty<string>() : new[] { replacement }, handler);
+			parsers[@switch] = (CommandLineGroup.Hidden, null, replacement is null ? Array.Empty<string>() : new[] { replacement }, handler);
 
 	/// <summary/>
 	protected void AddParser(
@@ -224,11 +224,11 @@ public abstract class CommandLineParserBase
 
 			foreach (var type in types)
 			{
-				if (type == null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() != null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+				if (type is null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() is not null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
 					continue;
 
 				var ctor = type.GetConstructor(Array.Empty<Type>());
-				if (ctor == null)
+				if (ctor is null)
 				{
 					if (!Project.Configuration.NoColorOrDefault)
 						ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
@@ -251,12 +251,12 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	[return: NotNullIfNotNull("fileName")]
 	protected virtual string? GetFullPath(string? fileName) =>
-		fileName == null ? null : Path.GetFullPath(fileName);
+		fileName is null ? null : Path.GetFullPath(fileName);
 
 	/// <summary/>
 	protected static void GuardNoOptionValue(KeyValuePair<string, string?> option)
 	{
-		if (option.Value != null)
+		if (option.Value is not null)
 			throw new ArgumentException($"error: unknown command line option: {option.Value}");
 	}
 
@@ -299,7 +299,7 @@ public abstract class CommandLineParserBase
 				// Might be a result output file...
 				if (TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
 				{
-					if (option.Value == null)
+					if (option.Value is null)
 						throw new ArgumentException($"missing filename for {option.Key}");
 
 					EnsurePathExists(option.Value);
@@ -328,7 +328,7 @@ public abstract class CommandLineParserBase
 		{
 			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
 
-			if (runnerReporter != null)
+			if (runnerReporter is not null)
 				throw new ArgumentException("only one reporter is allowed");
 
 			runnerReporter = reporter;
@@ -341,7 +341,7 @@ public abstract class CommandLineParserBase
 
 	void OnClass(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -class");
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -350,7 +350,7 @@ public abstract class CommandLineParserBase
 
 	void OnClassMinus(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -noclass");
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -359,7 +359,7 @@ public abstract class CommandLineParserBase
 
 	void OnCulture(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -culture");
 
 		var culture = option.Value switch
@@ -388,7 +388,7 @@ public abstract class CommandLineParserBase
 
 	void OnExplicit(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -explicit");
 
 		var explicitOption = option.Value.ToUpperInvariant() switch
@@ -446,7 +446,7 @@ public abstract class CommandLineParserBase
 
 	void OnList(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -list");
 
 		var pieces = option.Value.Split('/');
@@ -466,7 +466,7 @@ public abstract class CommandLineParserBase
 
 	void OnMaxThreads(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -maxthreads");
 
 		int? maxParallelThreads = null;
@@ -503,7 +503,7 @@ public abstract class CommandLineParserBase
 
 	void OnMethod(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -method");
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -512,7 +512,7 @@ public abstract class CommandLineParserBase
 
 	void OnMethodMinus(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -nomethod");
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -521,7 +521,7 @@ public abstract class CommandLineParserBase
 
 	void OnNamespace(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -namespace");
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -530,7 +530,7 @@ public abstract class CommandLineParserBase
 
 	void OnNamespaceMinus(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -nonamespace");
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -562,7 +562,7 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	protected void OnParallel(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -parallel");
 
 		if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelismOption parallelismOption))
@@ -605,7 +605,7 @@ public abstract class CommandLineParserBase
 
 	void OnTrait(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -trait");
 
 		var pieces = option.Value.Split('=');
@@ -621,7 +621,7 @@ public abstract class CommandLineParserBase
 
 	void OnTraitMinus(KeyValuePair<string, string?> option)
 	{
-		if (option.Value == null)
+		if (option.Value is null)
 			throw new ArgumentException("missing argument for -notrait");
 
 		var pieces = option.Value.Split('=');

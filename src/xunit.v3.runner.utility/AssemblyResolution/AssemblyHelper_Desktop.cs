@@ -59,7 +59,7 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 
 	Assembly? LoadAssembly(AssemblyName assemblyName)
 	{
-		if (assemblyName.Name == null)
+		if (assemblyName.Name is null)
 			return null;
 
 		if (lookupCache.TryGetValue(assemblyName.Name, out var result))
@@ -68,9 +68,9 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 		var path = Path.Combine(directory, assemblyName.Name);
 		result = ResolveAndLoadAssembly(path, out var resolvedAssemblyPath);
 
-		if (diagnosticMessageSink != null)
+		if (diagnosticMessageSink is not null)
 		{
-			if (result == null)
+			if (result is null)
 				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver" });
 			else
 				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'" });
@@ -84,7 +84,7 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 		object? sender,
 		ResolveEventArgs args)
 	{
-		if (args.Name == null)
+		if (args.Name is null)
 			return null;
 
 		return LoadAssembly(new AssemblyName(args.Name));

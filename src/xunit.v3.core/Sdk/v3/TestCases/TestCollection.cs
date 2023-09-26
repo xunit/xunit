@@ -70,7 +70,7 @@ public class TestCollection : _ITestCollection, IXunitSerializable
 		if (!string.IsNullOrWhiteSpace(definitionAssemblyName) && !string.IsNullOrWhiteSpace(definitionTypeName))
 		{
 			var type = TypeHelper.GetType(definitionAssemblyName, definitionTypeName);
-			if (type == null)
+			if (type is null)
 				throw new InvalidOperationException($"Failed to deserialize type '{definitionTypeName}' in assembly '{definitionAssemblyName}'");
 
 			CollectionDefinition = Reflector.Wrap(type);
@@ -84,7 +84,7 @@ public class TestCollection : _ITestCollection, IXunitSerializable
 		info.AddValue("ta", TestAssembly);
 		info.AddValue("id", UniqueID);
 
-		if (CollectionDefinition != null)
+		if (CollectionDefinition is not null)
 		{
 			info.AddValue("dan", CollectionDefinition.Assembly.Name);
 			info.AddValue("dtn", CollectionDefinition.Name);

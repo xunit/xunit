@@ -25,7 +25,7 @@ sealed class AppDomainManager_NoAppDomain : IAppDomainManager
 #else
 			var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
 #endif
-			if (type == null)
+			if (type is null)
 				return default;
 
 			return (TObject?)Activator.CreateInstance(type, args);
@@ -50,7 +50,7 @@ sealed class AppDomainManager_NoAppDomain : IAppDomainManager
 		try
 		{
 			var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName, throwOnError: true);
-			if (type == null)
+			if (type is null)
 				return default;
 
 			return (TObject?)Activator.CreateInstance(type, args);

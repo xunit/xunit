@@ -41,7 +41,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 		if (!isStaticClass && !ctxt.Aggregator.HasExceptions)
 		{
 			var ctor = SelectTestClassConstructor(ctxt);
-			if (ctor != null)
+			if (ctor is not null)
 			{
 				var unusedArguments = new List<Tuple<int, ParameterInfo>>();
 				var parameters = ctor.GetParameters();
@@ -57,7 +57,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 						constructorArguments[idx] = parameter.DefaultValue;
 					else if (parameter.IsOptional)
 						constructorArguments[idx] = parameter.ParameterType.GetDefaultValue();
-					else if (parameter.GetCustomAttribute<ParamArrayAttribute>() != null)
+					else if (parameter.GetCustomAttribute<ParamArrayAttribute>() is not null)
 						constructorArguments[idx] = Array.CreateInstance(parameter.ParameterType, 0);
 					else
 						unusedArguments.Add(Tuple.Create(idx, parameter));
@@ -256,7 +256,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 		Guard.ArgumentNotNull(ctxt);
 
 		var result = ctxt.Class.Type.GetConstructors().FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
-		if (result == null)
+		if (result is null)
 			ctxt.Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
 
 		return result;

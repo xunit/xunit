@@ -30,7 +30,7 @@ public static class NSubstituteExtensions
 				.Where(c => c.GetMethodInfo() == method)
 				.ElementAtOrDefault(callNumber);
 
-		if (call == null)
+		if (call is null)
 			throw new Exception("Cannot find matching call.");
 
 		var methodParameters = call.GetParameterInfos();

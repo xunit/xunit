@@ -57,12 +57,12 @@ public static class TypeHelper
 					var genericArgument = assemblyQualifiedTypeName.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
 					var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
 					var innerTypes = innerTypeNames.Select(s => GetType(s)).ToArray();
-					if (innerTypes.Any(t => t == null))
+					if (innerTypes.Any(t => t is null))
 						return null;
 
 					var genericDefinitionName = assemblyQualifiedTypeName.Substring(0, firstOpenSquare) + assemblyQualifiedTypeName.Substring(lastOpenSquare);
 					var genericDefinition = GetType(genericDefinitionName);
-					if (genericDefinition == null)
+					if (genericDefinition is null)
 						return null;
 
 					// Push array ranks so we can get down to the actual generic definition
@@ -71,7 +71,7 @@ public static class TypeHelper
 					{
 						arrayRanks.Push(genericDefinition.GetArrayRank());
 						genericDefinition = genericDefinition.GetElementType();
-						if (genericDefinition == null)
+						if (genericDefinition is null)
 							return null;
 					}
 
@@ -111,7 +111,7 @@ public static class TypeHelper
 				.GetAssemblies()
 				.FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
 
-		if (assembly == null)
+		if (assembly is null)
 		{
 			try
 			{
@@ -120,7 +120,7 @@ public static class TypeHelper
 			catch { }
 		}
 
-		if (assembly == null)
+		if (assembly is null)
 			return null;
 
 		return assembly.GetType(typeName);

@@ -266,13 +266,13 @@ public class TestMethodRunnerTests
 			Exception? aggregatorSeedException = null,
 			bool cancelInRunTestCaseAsync = false)
 		{
-			if (testCases == null)
+			if (testCases is null)
 				testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
 
 			var firstTestCase = testCases.First();
 
 			var aggregator = new ExceptionAggregator();
-			if (aggregatorSeedException != null)
+			if (aggregatorSeedException is not null)
 				aggregator.Add(aggregatorSeedException);
 
 			return new TestableTestMethodRunner(

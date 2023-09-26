@@ -52,7 +52,7 @@ public class AsyncTestSyncContext : SynchronizationContext
 
 		try
 		{
-			if (innerContext == null)
+			if (innerContext is null)
 			{
 				ThreadPool.QueueUserWorkItem(_ =>
 				{
@@ -99,7 +99,7 @@ public class AsyncTestSyncContext : SynchronizationContext
 		{
 			Guard.ArgumentNotNull(d);
 
-			if (innerContext != null)
+			if (innerContext is not null)
 				innerContext.Send(d, state);
 			else
 				d(state);

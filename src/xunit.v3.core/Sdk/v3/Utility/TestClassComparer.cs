@@ -18,9 +18,9 @@ public class TestClassComparer : IEqualityComparer<_ITestClass?>
 		_ITestClass? x,
 		_ITestClass? y)
 	{
-		if (x == null && y == null)
+		if (x is null && y is null)
 			return true;
-		if (x == null || y == null)
+		if (x is null || y is null)
 			return false;
 
 		return x.UniqueID == y.UniqueID;
@@ -28,5 +28,5 @@ public class TestClassComparer : IEqualityComparer<_ITestClass?>
 
 	/// <inheritdoc/>
 	public int GetHashCode(_ITestClass? obj) =>
-		obj == null ? 0 : obj.Class.Name.GetHashCode();
+		obj is null ? 0 : obj.Class.Name.GetHashCode();
 }

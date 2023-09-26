@@ -137,7 +137,7 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		foreach (var attributeInfo in ctxt.TestAssembly.Assembly.GetCustomAttributes(typeof(AssemblyFixtureAttribute)))
 		{
 			var fixtureType = attributeInfo.GetConstructorArguments().Single() as Type;
-			if (fixtureType != null)
+			if (fixtureType is not null)
 				CreateAssemblyFixture(ctxt, fixtureType);
 		}
 
@@ -208,7 +208,7 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		ctxt.SetupMaxConcurrencySyncContext();
 
 		Func<Func<ValueTask<RunSummary>>, ValueTask<RunSummary>> taskRunner;
-		if (SynchronizationContext.Current != null)
+		if (SynchronizationContext.Current is not null)
 		{
 			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			taskRunner = code => new(Task.Factory.StartNew(() => code().AsTask(), ctxt.CancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap());

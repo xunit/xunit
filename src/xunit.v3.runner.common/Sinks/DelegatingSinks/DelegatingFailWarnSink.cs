@@ -75,9 +75,9 @@ public class DelegatingFailWarnSink : IExecutionSink
 			lock (failCountsByUniqueID)
 			{
 				failCountsByUniqueID[testPassed.TestCaseUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestCaseUniqueID) + 1;
-				if (testPassed.TestMethodUniqueID != null)
+				if (testPassed.TestMethodUniqueID is not null)
 					failCountsByUniqueID[testPassed.TestMethodUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestMethodUniqueID) + 1;
-				if (testPassed.TestClassUniqueID != null)
+				if (testPassed.TestClassUniqueID is not null)
 					failCountsByUniqueID[testPassed.TestClassUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestClassUniqueID) + 1;
 				failCountsByUniqueID[testPassed.TestCollectionUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestCollectionUniqueID) + 1;
 				failCountsByUniqueID[testPassed.AssemblyUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.AssemblyUniqueID) + 1;
@@ -115,7 +115,7 @@ public class DelegatingFailWarnSink : IExecutionSink
 		{
 			int failedByMethod = 0;
 
-			if (testMethodFinished.TestMethodUniqueID != null)
+			if (testMethodFinished.TestMethodUniqueID is not null)
 				lock (failCountsByUniqueID)
 					if (!failCountsByUniqueID.TryGetValue(testMethodFinished.TestMethodUniqueID, out failedByMethod))
 						failedByMethod = 0;
@@ -140,7 +140,7 @@ public class DelegatingFailWarnSink : IExecutionSink
 		{
 			int failedByClass = 0;
 
-			if (testClassFinished.TestClassUniqueID != null)
+			if (testClassFinished.TestClassUniqueID is not null)
 				lock (failCountsByUniqueID)
 					if (!failCountsByUniqueID.TryGetValue(testClassFinished.TestClassUniqueID, out failedByClass))
 						failedByClass = 0;

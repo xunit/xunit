@@ -40,9 +40,9 @@ public class CommandLine : CommandLineParserBase
 		string? configFileName,
 		int? seed)
 	{
-		if (assemblyFileName != null && !FileExists(assemblyFileName))
+		if (assemblyFileName is not null && !FileExists(assemblyFileName))
 			throw new ArgumentException($"assembly not found: {assemblyFileName}");
-		if (configFileName != null && !FileExists(configFileName))
+		if (configFileName is not null && !FileExists(configFileName))
 			throw new ArgumentException($"config file not found: {configFileName}");
 
 		var targetFramework = assembly.GetTargetFramework();

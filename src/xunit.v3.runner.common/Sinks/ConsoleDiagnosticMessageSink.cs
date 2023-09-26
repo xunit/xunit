@@ -51,7 +51,7 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is _DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic != null)
+		if (message is _DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic is not null)
 		{
 			lock (consoleLock)
 			{
@@ -65,7 +65,7 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 			}
 		}
 
-		if (message is _InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal != null)
+		if (message is _InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal is not null)
 		{
 			lock (consoleLock)
 			{

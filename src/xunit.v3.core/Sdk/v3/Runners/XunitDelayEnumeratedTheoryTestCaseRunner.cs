@@ -31,7 +31,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 
 		await base.AfterTestCaseStartingAsync(ctxt);
 
-		if (ctxt.TestCase.TestMethod == null)
+		if (ctxt.TestCase.TestMethod is null)
 			return;
 
 		try
@@ -43,7 +43,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 			foreach (var dataAttribute in dataAttributes)
 			{
 				var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).FirstOrDefault();
-				if (discovererAttribute == null)
+				if (discovererAttribute is null)
 				{
 					if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 						ctxt.Aggregator.Add(new InvalidOperationException($"Data attribute {reflectionAttribute.Attribute.GetType().FullName} on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
@@ -57,7 +57,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 				try
 				{
 					discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
-					if (discoverer == null)
+					if (discoverer is null)
 					{
 						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
 							ctxt.Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
@@ -78,7 +78,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 				}
 
 				var data = await discoverer.GetData(dataAttribute, ctxt.TestCase.TestMethod.Method);
-				if (data == null)
+				if (data is null)
 				{
 					ctxt.Aggregator.Add(new InvalidOperationException($"Test data returned null for {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
 					continue;
@@ -172,7 +172,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (ctxt.DiscoveryException != null)
+		if (ctxt.DiscoveryException is not null)
 			return RunTest_DataDiscoveryException(ctxt);
 
 		var runSummary = new RunSummary();

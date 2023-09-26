@@ -7,5 +7,5 @@ public static class StringExtensions
 {
 	/// <summary/>
 	public static string Quoted(this string? value) =>
-		value == null ? "null" : @$"""{value}""";
+		value is null ? "null" : @$"""{value}""";
 }

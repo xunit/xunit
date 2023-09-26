@@ -1080,7 +1080,7 @@ public class Xunit1Tests
 			result += ex.GetType().FullName + " : ";
 			result += ex.Message;
 
-			if (ex.InnerException != null)
+			if (ex.InnerException is not null)
 				result = result + Environment.NewLine + GetMessage(ex.InnerException, level + 1);
 
 			return result;
@@ -1090,7 +1090,7 @@ public class Xunit1Tests
 
 		static string GetStackTrace(Exception? ex)
 		{
-			if (ex == null)
+			if (ex is null)
 				return "";
 
 			var result = ex.StackTrace ?? "";
@@ -1098,7 +1098,7 @@ public class Xunit1Tests
 			if (idx >= 0)
 				result = result.Substring(0, idx);
 
-			if (ex.InnerException != null)
+			if (ex.InnerException is not null)
 				result += $"{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}{GetStackTrace(ex.InnerException)}";
 
 			return result;

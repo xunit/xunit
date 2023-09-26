@@ -120,7 +120,7 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 		try
 		{
 			var assemblyFolder = Path.GetDirectoryName(ctxt.TestAssembly.Assembly.AssemblyPath);
-			if (assemblyFolder != null)
+			if (assemblyFolder is not null)
 				Directory.SetCurrentDirectory(assemblyFolder);
 		}
 		catch { }

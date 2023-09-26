@@ -44,7 +44,7 @@ public static class ConsoleProjectLister
 		var testClasses =
 			testCasesByAssembly
 				.SelectMany(kvp => kvp.Value)
-				.Where(tc => tc.TestClassName != null)
+				.Where(tc => tc.TestClassName is not null)
 				.Select(tc => tc.TestClassNameWithNamespace)
 				.Distinct()
 				.OrderBy(x => x)
@@ -94,7 +94,7 @@ public static class ConsoleProjectLister
 		var testMethods =
 			testCasesByAssembly
 				.SelectMany(kvp => kvp.Value)
-				.Where(tc => tc.TestClassName != null && tc.TestMethodName != null)
+				.Where(tc => tc.TestClassName is not null && tc.TestMethodName is not null)
 				.Select(tc => $"{tc.TestClassNameWithNamespace}.{tc.TestMethodName}")
 				.Distinct()
 				.OrderBy(x => x)

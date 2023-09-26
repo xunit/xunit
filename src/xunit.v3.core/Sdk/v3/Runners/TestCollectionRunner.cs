@@ -120,7 +120,7 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 
 		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance))
 		{
-			if (testCasesByClass.Key == null)
+			if (testCasesByClass.Key is null)
 				TestContext.Current?.SendDiagnosticMessage("TestCollectionRunner was given a null type to run for test case(s): {0}", string.Join(", ", testCasesByClass.Select(tcc => $"'{tcc.TestCaseDisplayName}'")));
 			else if (testCasesByClass.Key.Class is not _IReflectionTypeInfo reflectionTypeInfo)
 				TestContext.Current?.SendDiagnosticMessage("TestCollectionRunner was given a non-reflection-backed type to run ('{0}') for test case(s): {1}", testCasesByClass.Key.Class.Name, string.Join(", ", testCasesByClass.Select(tcc => $"'{tcc.TestCaseDisplayName}'")));

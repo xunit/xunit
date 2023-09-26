@@ -21,7 +21,7 @@ public class Xunit3TypeInfo : _ITypeInfo
 		V2TypeInfo = Guard.ArgumentNotNull(v2TypeInfo);
 
 		Assembly = new Xunit3AssemblyInfo(V2TypeInfo.Assembly);
-		BaseType = V2TypeInfo.BaseType == null ? null : new Xunit3TypeInfo(v2TypeInfo.BaseType);
+		BaseType = V2TypeInfo.BaseType is null ? null : new Xunit3TypeInfo(v2TypeInfo.BaseType);
 		Interfaces = V2TypeInfo.Interfaces.Select(i => new Xunit3TypeInfo(i)).CastOrToReadOnlyCollection();
 
 		var typeName = V2TypeInfo.Name;
@@ -115,7 +115,7 @@ public class Xunit3TypeInfo : _ITypeInfo
 		bool includePrivateMethod)
 	{
 		var v2MethodInfo = V2TypeInfo.GetMethod(methodName, includePrivateMethod);
-		return v2MethodInfo == null ? null : new Xunit3MethodInfo(v2MethodInfo);
+		return v2MethodInfo is null ? null : new Xunit3MethodInfo(v2MethodInfo);
 	}
 
 	/// <inheritdoc/>

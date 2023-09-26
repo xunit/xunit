@@ -46,7 +46,7 @@ public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	protected TDispatcher GetOrCreateAggregatedSink<TDispatcher>(ref TDispatcher? value)
 		where TDispatcher : class, _IMessageSink, new()
 	{
-		if (value == null)
+		if (value is null)
 			lock (AggregatedSinks)
 			{
 				value = new TDispatcher();

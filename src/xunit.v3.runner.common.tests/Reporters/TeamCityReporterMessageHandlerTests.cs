@@ -219,7 +219,7 @@ public class TeamCityReporterMessageHandlerTests
 			var message = messages.Last();
 
 			Assert.Equal(
-				$"[Raw] => ##teamcity[message timestamp='2023-05-03T21:12:00.000+0000'{(flowId == null ? "" : $" flowId='{TeamCityReporterMessageHandler.TeamCityEscape(flowId)}'")} status='ERROR' text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f']",
+				$"[Raw] => ##teamcity[message timestamp='2023-05-03T21:12:00.000+0000'{(flowId is null ? "" : $" flowId='{TeamCityReporterMessageHandler.TeamCityEscape(flowId)}'")} status='ERROR' text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f']",
 				message
 			);
 		}

@@ -106,7 +106,7 @@ public class _MessageSinkMessage
 	{
 		Guard.ArgumentNotNull(invalidProperties);
 
-		if (propertyValue == null)
+		if (propertyValue is null)
 			invalidProperties.Add(propertyName);
 	}
 

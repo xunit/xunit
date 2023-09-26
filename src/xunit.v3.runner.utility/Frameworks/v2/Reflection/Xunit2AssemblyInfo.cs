@@ -42,7 +42,7 @@ public class Xunit2AssemblyInfo : LongLivedMarshalByRefObject, IAssemblyInfo
 	public ITypeInfo? GetType(string typeName)
 	{
 		var v3TypeInfo = V3AssemblyInfo.GetType(typeName);
-		return v3TypeInfo == null ? null : new Xunit2TypeInfo(v3TypeInfo);
+		return v3TypeInfo is null ? null : new Xunit2TypeInfo(v3TypeInfo);
 	}
 
 	/// <inheritdoc/>

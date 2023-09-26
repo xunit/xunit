@@ -257,7 +257,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		if (DispatchMessage<_TestCaseDiscovered>(message, messageTypes, testDiscovered =>
 		{
 			++testCasesDiscovered;
-			if (TestCaseFilter == null || TestCaseFilter(testDiscovered))
+			if (TestCaseFilter is null || TestCaseFilter(testDiscovered))
 				testCasesToRun.Add(testDiscovered);
 		}))
 			return !cancelled;
@@ -276,34 +276,34 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		}))
 			return !cancelled;
 
-		if (OnDiagnosticMessage != null)
+		if (OnDiagnosticMessage is not null)
 			if (DispatchMessage<_DiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
 				return !cancelled;
-		if (OnInternalDiagnosticMessage != null)
+		if (OnInternalDiagnosticMessage is not null)
 			if (DispatchMessage<_InternalDiagnosticMessage>(message, messageTypes, m => OnInternalDiagnosticMessage(new InternalDiagnosticMessageInfo(m.Message))))
 				return !cancelled;
 #if false  // TODO: No simple conversions here yet
-		if (OnTestFailed != null)
+		if (OnTestFailed is not null)
 			if (DispatchMessage<_TestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-		if (OnTestFinished != null)
+		if (OnTestFinished is not null)
 			if (DispatchMessage<_TestFinished>(message, messageTypes, m => OnTestFinished(new TestFinishedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
 				return !cancelled;
-		if (OnTestOutput != null)
+		if (OnTestOutput is not null)
 			if (DispatchMessage<_TestOutput>(message, messageTypes, m => OnTestOutput(new TestOutputInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output))))
 				return !cancelled;
-		if (OnTestPassed != null)
+		if (OnTestPassed is not null)
 			if (DispatchMessage<_TestPassed>(message, messageTypes, m => OnTestPassed(new TestPassedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
 				return !cancelled;
-		if (OnTestSkipped != null)
+		if (OnTestSkipped is not null)
 			if (DispatchMessage<_TestSkipped>(message, messageTypes, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
 				return !cancelled;
-		if (OnTestStarting != null)
+		if (OnTestStarting is not null)
 			if (DispatchMessage<_TestStarting>(message, messageTypes, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))
 				return !cancelled;
 #endif
 
-		if (OnErrorMessage != null)
+		if (OnErrorMessage is not null)
 		{
 			if (DispatchMessage<_ErrorMessage>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
@@ -372,7 +372,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 			// TODO: This should be restructured to use FindAndRun, which will require a new design for AssemblyRunner
 			var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, internalDiagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories);
 			var filters = new XunitFilters();
-			if (typeName != null)
+			if (typeName is not null)
 				filters.IncludedClasses.Add(typeName);
 
 			var findSettings = new FrontControllerFindSettings(discoveryOptions, filters);
@@ -410,7 +410,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		string? shadowCopyFolder = null)
 	{
 		Guard.FileExists(assemblyFileName);
-		Guard.ArgumentValid("Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder == null, nameof(shadowCopyFolder));
+		Guard.ArgumentValid("Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder is null, nameof(shadowCopyFolder));
 
 		return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 	}
@@ -430,7 +430,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 	static bool DispatchMessage<TMessage>(_MessageSinkMessage message, HashSet<string>? messageTypes, Action<TMessage> handler)
 		where TMessage : _MessageSinkMessage
 	{
-		if (messageTypes == null || !MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) || !messageTypes.Contains(typeName))
+		if (messageTypes is null || !MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) || !messageTypes.Contains(typeName))
 			return false;
 
 		handler((TMessage)message);

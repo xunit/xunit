@@ -88,23 +88,23 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 		{
 			if (attributeType.IsAssignableFrom(attr.AttributeType))
 			{
-				if (list == null)
+				if (list is null)
 					list = new List<ReflectionAttributeInfo>();
 
 				list.Add(new ReflectionAttributeInfo(attr));
 			}
 		}
 
-		if (list != null)
+		if (list is not null)
 			list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
 
 		var results = list ?? Enumerable.Empty<_IAttributeInfo>();
 
-		if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
+		if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list is null))
 		{
 			// Need to find the parent method, which may not necessarily be on the parent type
 			var baseMethod = GetParent(method);
-			if (baseMethod != null)
+			if (baseMethod is not null)
 				results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage));
 		}
 
@@ -125,10 +125,10 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 
 		var currentType = method.DeclaringType;
 
-		while (currentType != typeof(object) && currentType != null)
+		while (currentType != typeof(object) && currentType is not null)
 		{
 			currentType = currentType.BaseType;
-			if (currentType == null)
+			if (currentType is null)
 				return null;
 
 			foreach (var m in currentType.GetMatchingMethods(method))
@@ -173,7 +173,7 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 	/// <inheritdoc/>
 	public IReadOnlyCollection<_IParameterInfo> GetParameters()
 	{
-		if (cachedParameters == null)
+		if (cachedParameters is null)
 		{
 			var parameters = MethodInfo.GetParameters();
 			var parameterInfos = new _IParameterInfo[parameters.Length];
@@ -191,9 +191,9 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 	{
 		bool IEqualityComparer.Equals(object? x, object? y)
 		{
-			if (x == null && y == null)
+			if (x is null && y is null)
 				return true;
-			if (x == null || y == null)
+			if (x is null || y is null)
 				return false;
 
 			var typeX = (Type)x;

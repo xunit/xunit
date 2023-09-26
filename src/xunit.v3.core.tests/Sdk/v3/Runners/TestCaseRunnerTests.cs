@@ -232,7 +232,7 @@ public class TestCaseRunnerTests
 			Exception? aggregatorSeedException = null)
 		{
 			var aggregator = new ExceptionAggregator();
-			if (aggregatorSeedException != null)
+			if (aggregatorSeedException is not null)
 				aggregator.Add(aggregatorSeedException);
 
 			return new(
