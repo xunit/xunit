@@ -22,9 +22,7 @@ public class BufferedTcpClient : IAsyncDisposable
 	Exception? fault;
 	readonly TaskCompletionSource<int> finishedSource = new();
 	readonly Action<ReadOnlyMemory<byte>> receiveHandler;
-#pragma warning disable CA2213 // This value comes from the constructor, so we don't own it
 	readonly Socket socket;
-#pragma warning restore CA2213
 	readonly List<Task> tasks = new();
 	readonly AutoResetEvent writeEvent = new(initialState: false);
 	readonly ConcurrentQueue<byte[]> writeQueue = new();
@@ -38,7 +36,9 @@ public class BufferedTcpClient : IAsyncDisposable
 		Socket socket,
 		Action<ReadOnlyMemory<byte>> receiveHandler)
 	{
-		this.socket = Guard.ArgumentNotNull(socket);
+		Guard.ArgumentNotNull(socket);
+
+		this.socket = socket;
 		this.receiveHandler = Guard.ArgumentNotNull(receiveHandler);
 	}
 

@@ -13,11 +13,11 @@ namespace Xunit.Runner.v2;
 /// </summary>
 public class Xunit2SourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
 {
-#pragma warning disable CA2213 // The disposable fields in this class are disposed via DisposalTracker
-
+#pragma warning disable CA2213 // This is disposed on a background thread (because of the contract of ISourceInformationProvider)
 	readonly DisposalTracker disposalTracker = new();
+#pragma warning restore CA2213
+#pragma warning disable CA2213 // This is disposed by DisposalTracker
 	readonly _ISourceInformationProvider v3Provider;
-
 #pragma warning restore CA2213
 
 	/// <summary>

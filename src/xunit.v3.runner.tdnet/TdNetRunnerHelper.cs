@@ -17,7 +17,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 {
 	bool disposed;
 	readonly DisposalTracker disposalTracker = new();
-#pragma warning disable CA2213 // This object is disposed in the disposal tracker
+#pragma warning disable CA2213 // This is disposed by DisposalTracker
 	readonly IFrontController? frontController;
 #pragma warning restore CA2213
 	readonly XunitProjectAssembly? projectAssembly;

@@ -20,12 +20,12 @@ namespace Xunit.Runner.v2;
 /// </summary>
 public class Xunit2 : IFrontController
 {
-#pragma warning disable CA2213 // Disposable fields in this class are disposed via DisposalTracker
-
 #if NETFRAMEWORK
 	static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
 	static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
+#pragma warning disable CA2213 // This is disposed by DisposalTracker
 	readonly AssemblyHelper? assemblyHelper;
+#pragma warning restore CA2213
 #else
 	static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
@@ -34,11 +34,11 @@ public class Xunit2 : IFrontController
 	ITestCaseBulkDeserializer? bulkDeserializer;
 	readonly string? configFileName;
 	bool disposed;
+#pragma warning disable CA2213 // These are disposed by DisposalTracker
 	readonly ITestFrameworkDiscoverer remoteDiscoverer;
 	readonly ITestFrameworkExecutor? remoteExecutor;
 	readonly ITestFramework remoteFramework;
-
-#pragma warning restore CA2213 // Disposable fields should be disposed
+#pragma warning restore CA2213
 
 	Xunit2(
 		_IMessageSink diagnosticMessageSink,

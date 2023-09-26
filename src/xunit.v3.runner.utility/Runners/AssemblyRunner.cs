@@ -17,20 +17,18 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 {
 	static readonly Dictionary<Type, string> MessageTypeNames;
 
-#pragma warning disable CA2213 // The disposable fields in this class are disposed via DisposalTracker
-
 	volatile bool cancelled;
 	bool disposed;
 	readonly TestAssemblyConfiguration configuration = new();
+#pragma warning disable CA2213 // This is disposed by DisposalTracker
 	readonly IFrontController controller;
+#pragma warning restore CA2213
 	readonly ManualResetEvent discoveryCompleteEvent = new(true);
 	readonly DisposalTracker disposalTracker = new();
 	readonly ManualResetEvent executionCompleteEvent = new(true);
 	readonly object statusLock = new();
 	int testCasesDiscovered;
 	readonly List<_TestCaseDiscovered> testCasesToRun = new();
-
-#pragma warning restore CA2213
 
 	static AssemblyRunner()
 	{
