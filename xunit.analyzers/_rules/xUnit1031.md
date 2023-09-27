@@ -2,7 +2,7 @@
 title: xUnit1031
 description: Do not use blocking task operations in test method
 category: Usage
-severity: Error
+severity: Warning
 ---
 
 ## Cause
@@ -32,7 +32,7 @@ To fix a violation of this rule, mark your unit test as `async` and use `await`.
 using System.Threading.Tasks;
 using Xunit;
 
-public class xUnit1030
+public class xUnit1031
 {
     [Fact]
     public void TestMethod()
@@ -48,7 +48,7 @@ public class xUnit1030
 using System.Threading.Tasks;
 using Xunit;
 
-public class xUnit1030
+public class xUnit1031
 {
     [Fact]
     public async Task TestMethod()
