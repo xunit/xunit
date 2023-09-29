@@ -1,23 +1,24 @@
 ---
 title: xUnit3000
-description: Test case classes must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject
+description: Classes which cross AppDomain boundaries must derive directly or indirectly from LongLivedMarshalByRefObject
 category: Extensibility
 severity: Error
 ---
 
 ## Cause
 
-Test case classes must derive from LongLivedMarshalByRefObject to correctly support both desktop CLR (with
-app domains) and non-desktop CLR (without app domains).
+Classes which may cross AppDomain boundaries must derive from LongLivedMarshalByRefObject to correctly support both .NET Framework (with
+app domains) and .NET Core (without app domains).
 
 ## Reason for rule
 
-xUnit.net test case objects must live in the execution app domain, and must be able to live longer than the
-default 5 minutes.
+Classes that implement one of the cross-AppDomain interface types (from the `Xunit.Abstractions` namespace) must be able to be proxied across
+AppDomain boundaries, and must be able to survive for longer than the default 5 minutes.
 
 ## How to fix violations
 
-To fix a violation of this rule, use `Xunit.LongLivedMarshalByRefObject` as the base class for your test case class.
+To fix a violation of this rule, use `LongLivedMarshalByRefObject` as the base class for your class. If your class lives on the runner side, then
+use `Xunit.Sdk.LongLivedMarshalByRefObject`; if your class lives on the execution side, use `Xunit.LongLivedMarshalByRefObject`.
 
 ## Examples
 
