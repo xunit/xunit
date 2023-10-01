@@ -230,6 +230,7 @@ dotnet_code_quality.CA1062.null_check_validation_methods = Xunit.Internal.Guard.
 
 dotnet_diagnostic.CA1002.severity  = none  # Do not expose generic lists
 dotnet_diagnostic.CA1008.severity  = none  # Add a member to enum that has a value of zero
+dotnet_diagnostic.CA1014.severity  = none  # Mark assemblies with CLSCompliantAttribute
 dotnet_diagnostic.CA1031.severity  = none  # Modify method to catch a more specific allowed exception type
 dotnet_diagnostic.CA1032.severity  = none  # Add missing constructor to exception
 dotnet_diagnostic.CA1034.severity  = none  # Do not nest types
