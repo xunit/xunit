@@ -56,6 +56,12 @@ public struct ExceptionAggregator
 	public ExceptionAggregator Clone() =>
 		new(GetExceptions());
 
+	/// <summary>
+	/// Creates an empty aggregator.
+	/// </summary>
+	public static ExceptionAggregator Create() =>
+		new();
+
 	List<Exception> GetExceptions() =>
 		Guard.NotNull("ExceptionAggregator is in an invalid state", exceptions);
 

@@ -40,7 +40,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	/// <summary>
 	/// Gets the aggregator used for reporting exceptions.
 	/// </summary>
-	public virtual ExceptionAggregator Aggregator { get; } = new();
+	public virtual ExceptionAggregator Aggregator { get; } = ExceptionAggregator.Create();
 
 	/// <summary>
 	/// Gets the cancellation token source used for cancelling test execution.
@@ -54,7 +54,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	protected _IMessageSink ExecutionMessageSink { get; }
 
 	/// <summary>
-	/// Gets the execution options provuded by the runner.
+	/// Gets the execution options provided by the runner.
 	/// </summary>
 	protected _ITestFrameworkExecutionOptions ExecutionOptions { get; }
 

@@ -33,7 +33,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerContext : XunitTestCaseRunn
 	/// <summary>
 	/// An exception aggregator that is used to store exceptions that should be surfaced as cleanup failures.
 	/// </summary>
-	public ExceptionAggregator CleanupAggregator { get; } = new();
+	public ExceptionAggregator CleanupAggregator { get; } = ExceptionAggregator.Create();
 
 	/// <summary>
 	/// Gets a container to place tests found during discovery.
