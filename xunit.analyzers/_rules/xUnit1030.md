@@ -7,22 +7,31 @@ severity: Warning
 
 ## Cause
 
-Developers should not call ConfigureAwait against tasks in a test method, as this may cause parallelization issues
+Developers should not call ConfigureAwait(false) against tasks in a test method, as this may cause parallelization issues
 like running too many tests in parallel.
 
 ## Reason for rule
 
 Calling `ConfigureAwait` (with `false`, specifically) will cause any code after the awaited task to run on a thread
 pool thread, which can grow without limit. xUnit.net uses its own special thread pool to limit the number of tests
-which can actively run in parallel. Any usage of `ConfigureAwait` in a unit test is suspect code, so all invocations
-are marked by the analyzer, regardless of the value that's passed.
+which can actively run in parallel.
 
 This only affects test methods marked with `[Fact]` or `[Theory]`. It does not apply to any third party test methods
 or test any non-test methods.
 
+[CA2007](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007) forces users to
+write `ConfigureAwait` regardless of the situation, so if you've enabled this rule, you may write `.ConfigureAwait(true)`
+and this rule will not trigger. However, this comes with at least two side effects. First, the call is not free;
+it always allocates at least one (or more) unnecessary objects, even when the net result should be the same, in
+addition to spending the time to execute all the involve code. Second, the call is not always transparent; when
+used in the context of `await using` of a newly constructed object, the result type from `ConfigureAwait` overwrites
+the type of your object, so you will be unable to use the newly constructed object in any way due to the incompatible
+type that is returned. _**It is for reasons like these that we strongly recommend you disable CA2007 in your unit test
+projects**_, especially when feeling any of the friction involved with this.
+
 ## How to fix violations
 
-To fix a violation of this rule, remove the call to `ConfigureAwait`.
+To fix a violation of this rule, remove the call to `ConfigureAwait` or use a `true` value.
 
 ## Examples
 
@@ -56,6 +65,22 @@ public class xUnit1030
     public async Task TestMethod()
     {
         await Task.Delay(1);
+
+        // ...code running on xUnit.net parallel execution thread pool thread...
+    }
+}
+```
+
+```csharp
+using System.Threading.Tasks;
+using Xunit;
+
+public class xUnit1030
+{
+    [Fact]
+    public async Task TestMethod()
+    {
+        await Task.Delay(1).ConfigureAwait(true);
 
         // ...code running on xUnit.net parallel execution thread pool thread...
     }
