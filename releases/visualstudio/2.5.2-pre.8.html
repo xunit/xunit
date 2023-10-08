@@ -1,0 +1,43 @@
+---
+layout: default
+title: Release Notes for October 8, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 8, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xunit.runner.visualstudio 2.5.2 Pre-Release (build 8)
+</h2>
+
+<p>
+  This is co-released with core framework release v2
+  <a href="/releases/v2/2.5.2-pre.6"><code>2.5.2-pre.6</code></a>.
+</p>
+
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    The following types were moved here from <code>xunit.runner.utility</code>:
+    <ul>
+      <li><code>VisualStudioSourceInformationProvider</code></li>
+      <li><code>DiaNavigationData</code></li>
+      <li><code>DiaSession</code></li>
+      <li><code>DiaSessionWrapper</code></li>
+      <li><code>DiaSessionWrapperHelper</code></li>
+    </ul>
+    The runner now creates these types directly and passes them to <code>XunitFrontController</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> The assembly merge that was part of the fix for
+    <a href="https://github.com/xunit/visualstudio.xunit/issues/383">xunit/visualstudio.xunit#383</a>
+    caused problems with third party runner reporters, and has been rolled back. The original issue in #383
+    was determined to be unfixable on our end, and the suggested fix for developers who have version
+    conflicts with <code>xunit.runner.utility</code> is to perform the IL merge that we were performing,
+    except against their code rather than ours.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/385">xunit/visualstudio.xunit#385</a>
+  </li>
+</ul>
