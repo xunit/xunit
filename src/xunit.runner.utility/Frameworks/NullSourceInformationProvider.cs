@@ -10,11 +10,6 @@ namespace Xunit
     /// </summary>
     public class NullSourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
     {
-        /// <summary>
-        /// Gets the singleton instance of the <see cref="NullSourceInformationProvider"/>.
-        /// </summary>
-        public static NullSourceInformationProvider Instance { get; } = new NullSourceInformationProvider();
-
         /// <inheritdoc/>
         public ISourceInformation GetSourceInformation(ITestCase testCase)
         {

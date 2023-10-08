@@ -57,8 +57,8 @@ namespace Xunit
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
             this.shadowCopyFolder = shadowCopyFolder;
-            this.sourceInformationProvider = sourceInformationProvider ?? NullSourceInformationProvider.Instance;
-            this.diagnosticMessageSink = diagnosticMessageSink ?? NullMessageSink.Instance;
+            this.sourceInformationProvider = sourceInformationProvider ?? new NullSourceInformationProvider();
+            this.diagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
             Guard.FileExists("assemblyFileName", assemblyFileName);
         }

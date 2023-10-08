@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
+using Xunit.Sdk;
+
 namespace Xunit
 #endif
 {
@@ -17,11 +18,6 @@ namespace Xunit
         , IMessageSinkWithTypes
 #endif
     {
-        /// <summary>
-        /// Gets the singleton instance of the <see cref="NullMessageSink"/>.
-        /// </summary>
-        public static NullMessageSink Instance { get; } = new NullMessageSink();
-
         /// <inheritdoc/>
         public void Dispose() { }
 
