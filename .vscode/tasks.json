@@ -36,7 +36,8 @@
         "--",
         "--configuration",
         "Debug",
-        "TestV3"
+        "Test",
+        "-3"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
@@ -59,7 +60,8 @@
         "--",
         "--configuration",
         "Debug",
-        "TestCoreV3"
+        "TestCoreConsole",
+        "-3"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
@@ -82,7 +84,8 @@
         "--",
         "--configuration",
         "Debug",
-        "TestFxV3"
+        "TestFxConsole",
+        "-3"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
@@ -103,7 +106,7 @@
         "tools/builder",
         "--no-launch-profile",
         "--",
-        "PR"
+        "BuildAll"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
