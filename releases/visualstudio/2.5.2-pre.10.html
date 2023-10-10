@@ -1,0 +1,42 @@
+---
+layout: default
+title: Release Notes for October 10, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 10, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xunit.runner.visualstudio 2.5.2 Pre-Release (build 10)
+</h2>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    <p>
+      <strong>BUG:</strong> To work around an occasional issue using <code>dotnet test</code> on non-Windows
+      platforms with .NET Framework, we have updated the NuGet package to include a dependency for
+      <a href="https://www.nuget.org/packages/Microsoft.TestPlatform.ObjectModel">Microsoft.TestPlatform.ObjectModel</a>.
+      Normally this should not be necessary, as this dependency should be provided by VSTest, but on occasion
+      tests will fail to run with the following error:
+    </p>
+    <p>
+      <code>Catastrophic failure: System.TypeLoadException: Could not load type of field 'Xunit.Runner.VisualStudio.VsExecutionSink:recorder'
+      (3) due to: Could not load file or assembly 'Microsoft.VisualStudio.TestPlatform.ObjectModel, Version=15.0.0.0, Culture=neutral,
+      PublicKeyToken=b03f5f7f11d50a3a' or one of its dependencies.</code>
+    </p>
+    <p>
+      At this point in time, it's unclear what circumstances this happens under, but hopefully the dependency
+      here should resolve the issue.
+    </p>
+    (The ideal fix would be to update <code>Microsoft.NET.Test.Sdk</code> to include <code>Microsoft.TestPlatform.ObjectModel</code>
+    as a dependency, which it already does for .NET/.NET Core but does not for .NET Framework. Unfortunately, Microsoft
+    has marked the linked issue below as "Won't Fix" despite evidence of several projects referencing it, having to fix
+    the problem on their own. Even if they fix it, our change will help people who may end up still referencing an older
+    version of <code>Microsoft.NET.Test.Sdk</code>, as it's not clear how often people will update this dependency in
+    their projects.)
+    <a class="issue-link" href="https://github.com/microsoft/vstest/issues/2469">microsoft/vstest#2469</a>
+  </li>
+</ul>
