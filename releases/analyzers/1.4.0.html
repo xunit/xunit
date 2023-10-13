@@ -1,0 +1,70 @@
+---
+layout: default
+title: Release Notes for October 12, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 12, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, 1.4.0!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.5.2 (<a href="/releases/v2/2.5.2">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.4.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.5.3 (<a href="/releases/visualstudio/2.5.3">release notes</a>)</li>
+</ul>
+
+<p>It's been 1 month since the release of <a href="1.3.0">1.3.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.3.0 to 1.4.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have updated <a href="/xunit.analyzers/rules/xUnit1030">xUnit1030</a> to not flag any usage of
+    <code>.ConfigureAwait(true)</code> so as to not conflict with users who have enabled
+    <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007">CA2007</a>.
+    Because <code>.ConfigureAwait(true)</code> is not "free" (and in can break types when used in the context of
+    <code>await using</code>), we strongly recommend developers do not enable CA2007 nor call
+    <code>.ConfigureAwait(true)</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2779">xunit/xunit#2779</a>
+  </li>
+  <li>
+    We have updated <a href="/xunit.analyzers/rules/xUnit1031">xUnit1031</a> to cover additional code paths
+    which can mark a <code>Task</code> as safe to invoke normally blocking operations (like <code>.Result</code>).
+    These include:
+    <ul>
+      <li>Inside of a <code>.ContinueWith()</code> lambda (for the task parameter in the lambda)</li>
+      <li>After using <code>Task.WhenAll</code> (for all tasks in the WhenAll)</li>
+      <li>After using <code>Task.WhenAny</code> (for the returned task only)</li>
+    </ul>
+    In addition, we have lowered the priority of this analyzer to Warning in the case that there are additional
+    code paths with "known safe to block" <code>Task</code> objects. We have
+    <a href="https://github.com/xunit/xunit/issues/2780#issuecomment-1738284272">commented on the issue</a> with
+    several known code paths that we're not currently supporting because of either difficulty to implement and/or
+    because of perceived low probability that users will run into it. As such, we've left the issue open for
+    further comments if users are seeing these situations (or any others we did not anticipate).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2780">xunit/xunit#2780</a>
+  </li>
+</ul>
+
+<h3>Extensibility Analyzers</h3>
+<ul>
+  <li>
+    We have updated <a href="/xunit.analyzers/rules/xUnit3000">xUnit3000</a> to include all known interfaces
+    that might cross <code>AppDomain</code> boundaries. For a complete list of interfaces that are now triggering
+    this analyzer, see the linked issue.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2784">xunit/xunit#2784</a>
+  </li>
+</ul>

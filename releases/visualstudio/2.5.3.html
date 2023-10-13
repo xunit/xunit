@@ -1,0 +1,78 @@
+---
+layout: default
+title: Release Notes for October 12, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 12, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, 2.5.3!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.5.2 (<a href="/releases/v2/2.5.2">release notes</a>)</li>
+  <li>xUnit.net Analyzers 1.4.0 (<a href="/releases/analyzers/1.4.0">release notes</a>)</li>
+  <li><strong>xUnit.net Visual Studio adapter 2.5.3</strong></li>
+</ul>
+
+<p>It's been 1 month since the release of <a href="2.5.1">2.5.1 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<p><em>
+  (In case you're wondering where 2.5.2 went...we discovered a bug while doing verification on the
+  final builds, so we didn't ship 2.5.2. Instead, we fixed the bug and verified the fix, and then
+  created the 2.5.3 release.)
+</em></p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.1 to 2.5.3.</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    The following types were moved here from <code>xunit.runner.utility</code>:
+    <ul>
+      <li><code>VisualStudioSourceInformationProvider</code></li>
+      <li><code>DiaNavigationData</code></li>
+      <li><code>DiaSession</code></li>
+      <li><code>DiaSessionWrapper</code></li>
+      <li><code>DiaSessionWrapperHelper</code></li>
+    </ul>
+    The runner now creates these types directly and passes them to <code>XunitFrontController</code>.
+  </li>
+  <li>
+    <strong>BUG:</strong> The built-in reporters (including auto-reporters to support TeamCity, AppVeyor,
+    and VSTS/Azure Pipelines) were broken in 2.5.1 with the <a href="https://github.com/xunit/visualstudio.xunit/issues/383">assembly merge</a>.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/384">xunit/visualstudio.xunit#384</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> The assembly merge that was part of the fix for
+    <a href="https://github.com/xunit/visualstudio.xunit/issues/383">xunit/visualstudio.xunit#383</a>
+    caused problems with third party runner reporters, and has been rolled back. The original issue in #383
+    was determined to be unfixable on our end, and the suggested fix for developers who have version
+    conflicts with <code>xunit.runner.utility</code> is to perform the IL merge that we were performing,
+    except against their code rather than ours.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/385">xunit/visualstudio.xunit#385</a>
+  </li>
+  <li>
+    <p>
+      <strong>BUG:</strong> We fixed an issue with <code>dotnet test</code> on non-Windows platforms with .NET Framework,
+      when AppDomains are enabled. This manifested with the following error:
+    <p>
+      <code>Catastrophic failure: System.TypeLoadException: Could not load type of field 'Xunit.Runner.VisualStudio.VsExecutionSink:recorder'
+      (3) due to: Could not load file or assembly 'Microsoft.VisualStudio.TestPlatform.ObjectModel, Version=15.0.0.0, Culture=neutral,
+      PublicKeyToken=b03f5f7f11d50a3a' or one of its dependencies.</code>
+    </p>
+    The fix was to add a dependency to <code>Microsoft.TestPlatform.ObjectModel</code> for .NET Framework projects. If
+    you had previously done this by hand to work around this issue, you can now remove your added dependency.
+    <a class="issue-link" href="https://github.com/microsoft/vstest/issues/2469">microsoft/vstest#2469</a>
+  </li>
+</ul>

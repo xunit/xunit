@@ -1,0 +1,61 @@
+---
+layout: default
+title: Release Notes for October 12, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 12, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>Hello, v2 2.5.2!</h2>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.5.2</strong></li>
+  <li>xUnit.net Analyzers 1.4.0 (<a href="/releases/analyzers/1.4.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.3 (<a href="/releases/visualstudio/2.5.3">release notes</a>)</li>
+</ul>
+
+<p>It's been 1 month since the release of v2 <a href="2.5.1">2.5.1 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.1 to 2.5.2.</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed another regression in <code>Assert.Equal</code> with collections of dictionaries
+    (i.e., <code>List&lt;Dictionary&lt;TKey,TValue&gt;&gt;</code>).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2755#issuecomment-1731286288">xunit/xunit#2755</a>
+  </li>
+</ul>
+
+<h3>Runner utility</h3>
+<ul>
+  <li>
+    This release removes the following types from <code>xunit.runner.utility</code>:
+    <ul>
+      <li><code>VisualStudioSourceInformationProvider</code></li>
+      <li><code>DiaNavigationData</code></li>
+      <li><code>DiaSession</code></li>
+      <li><code>DiaSessionWrapper</code></li>
+      <li><code>DiaSessionWrapperHelper</code></li>
+    </ul>
+    These types existed solely to support the <code>xunit.runner.visualstudio</code> runner, as they provide access
+    to source information from within Visual Studio. The code has been moved there.
+  </li>
+  <li>
+    Related to the item above, <code>XunitFrontController</code> will no longer attempt to create and provide
+    an instance of <code>VisualStudioSourceInformationProvider</code> to the <code>Xunit1</code> or <code>Xunit2</code>
+    classes, in the event that the developer did not pass a source information provider during creation. Instead, it
+    will always now pass a <code>NullSourceInformationProvider</code> instead.
+  </li>
+</ul>
