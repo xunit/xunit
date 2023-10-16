@@ -867,6 +867,63 @@ public class CollectionAssertsTests
 			}
 		}
 
+		public class ArraysWithComparer
+		{
+			// https://github.com/xunit/xunit/issues/2795
+			[Fact]
+			public void CollectionItemIsEnumerable()
+			{
+				var actual = new EnumerableItem[] { new(0), new(2) };
+				var expected = new EnumerableItem[] { new(1), new(3) };
+
+				Assert.Equal(expected, actual, new EnumerableItemComparer());
+			}
+
+			public class EnumerableItemComparer : IEqualityComparer<EnumerableItem>
+			{
+				public bool Equals(EnumerableItem? x, EnumerableItem? y) =>
+					x?.Value / 2 == y?.Value / 2;
+
+				public int GetHashCode(EnumerableItem obj) =>
+					throw new NotImplementedException();
+			}
+
+			public sealed class EnumerableItem : IEnumerable<string>
+			{
+				public int Value { get; }
+
+				public EnumerableItem(int value) => Value = value;
+
+				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+			}
+		}
+
+		public class ArraysWithFunc
+		{
+			// https://github.com/xunit/xunit/issues/2795
+			[Fact]
+			public void CollectionItemIsEnumerable()
+			{
+				var actual = new EnumerableItem[] { new(0), new(2) };
+				var expected = new EnumerableItem[] { new(1), new(3) };
+
+				Assert.Equal(expected, actual, (x, y) => x.Value / 2 == y.Value / 2);
+			}
+
+			public sealed class EnumerableItem : IEnumerable<string>
+			{
+				public int Value { get; }
+
+				public EnumerableItem(int value) => Value = value;
+
+				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+			}
+		}
+
 		public class Collections
 		{
 			[Fact]
@@ -991,6 +1048,36 @@ public class CollectionAssertsTests
 
 				public int GetHashCode(int obj) => throw new NotImplementedException();
 			}
+
+			// https://github.com/xunit/xunit/issues/2795
+			[Fact]
+			public void CollectionItemIsEnumerable()
+			{
+				List<EnumerableItem> actual = new List<EnumerableItem> { new(0), new(2) };
+				List<EnumerableItem> expected = new List<EnumerableItem> { new(1), new(3) };
+
+				Assert.Equal(expected, actual, new EnumerableItemComparer());
+			}
+
+			public class EnumerableItemComparer : IEqualityComparer<EnumerableItem>
+			{
+				public bool Equals(EnumerableItem? x, EnumerableItem? y) =>
+					x?.Value / 2 == y?.Value / 2;
+
+				public int GetHashCode(EnumerableItem obj) =>
+					throw new NotImplementedException();
+			}
+
+			public sealed class EnumerableItem : IEnumerable<string>
+			{
+				public int Value { get; }
+
+				public EnumerableItem(int value) => Value = value;
+
+				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+			}
 		}
 
 		public class CollectionsWithFunc
@@ -1021,6 +1108,27 @@ public class CollectionAssertsTests
 				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
 
 				Assert.Equal(expected, actual, (x, y) => true);
+			}
+
+			// https://github.com/xunit/xunit/issues/2795
+			[Fact]
+			public void CollectionItemIsEnumerable()
+			{
+				List<EnumerableItem> actual = new List<EnumerableItem> { new(0), new(2) };
+				List<EnumerableItem> expected = new List<EnumerableItem> { new(1), new(3) };
+
+				Assert.Equal(expected, actual, (x, y) => x.Value / 2 == y.Value / 2);
+			}
+
+			public sealed class EnumerableItem : IEnumerable<string>
+			{
+				public int Value { get; }
+
+				public EnumerableItem(int value) => Value = value;
+
+				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 			}
 		}
 
