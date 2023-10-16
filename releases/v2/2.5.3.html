@@ -1,0 +1,22 @@
+---
+layout: default
+title: Release Notes for October 16, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 16, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 2.5.3
+</h2>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed a regression comparing collections with a custom comparer, where the element
+    in the collection was <code>IEnumerable</code> (something we should have ignored, but didn't).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2795">xunit/xunit#2795</a>
+  </li>
+</ul>
