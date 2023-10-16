@@ -759,7 +759,7 @@ public class CollectionAssertsTests
 			{
 				string message = "Assert.Equal() Failure: Collections differ";
 
-				if (expectedPointer != null)
+				if (expectedPointer is not null)
 					message += Environment.NewLine + "           " + expectedPointer;
 
 				var (expectedType, actualType) = (expected, actual) switch
@@ -773,7 +773,7 @@ public class CollectionAssertsTests
 					Environment.NewLine + "Expected: " + expectedType + ArgumentFormatter.Format(expected) +
 					Environment.NewLine + "Actual:   " + actualType + ArgumentFormatter.Format(actual);
 
-				if (actualPointer != null)
+				if (actualPointer is not null)
 					message += Environment.NewLine + "           " + actualPointer;
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
@@ -834,14 +834,14 @@ public class CollectionAssertsTests
 			{
 				var message = "Assert.Equal() Failure: Collections differ";
 
-				if (expectedPointer != null)
+				if (expectedPointer is not null)
 					message += Environment.NewLine + "           " + expectedPointer;
 
 				message +=
 					Environment.NewLine + "Expected: " + expectedDisplay +
 					Environment.NewLine + "Actual:   " + actualDisplay;
 
-				if (actualPointer != null)
+				if (actualPointer is not null)
 					message += Environment.NewLine + "           " + actualPointer;
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
@@ -928,17 +928,17 @@ public class CollectionAssertsTests
 				string actualDisplay,
 				string? actualPointer)
 			{
-				var actual = actualArray == null ? null : new List<int>(actualArray);
+				var actual = actualArray is null ? null : new List<int>(actualArray);
 				var message = "Assert.Equal() Failure: Collections differ";
 
-				if (expectedPointer != null)
+				if (expectedPointer is not null)
 					message += Environment.NewLine + "          " + expectedPointer;
 
 				message +=
 					Environment.NewLine + "Expected: " + expectedDisplay +
 					Environment.NewLine + "Actual:   " + actualDisplay;
 
-				if (actualPointer != null)
+				if (actualPointer is not null)
 					message += Environment.NewLine + "          " + actualPointer;
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
@@ -1322,7 +1322,7 @@ public class CollectionAssertsTests
 
 				static string ToBitString(BitArray? bitArray)
 				{
-					if (bitArray == null)
+					if (bitArray is null)
 						return string.Empty;
 
 					var sb = new StringBuilder(bitArray.Length);
@@ -1851,7 +1851,7 @@ public class CollectionAssertsTests
 
 				static string ToBitString(BitArray? bitArray)
 				{
-					if (bitArray == null)
+					if (bitArray is null)
 						return string.Empty;
 
 					var sb = new StringBuilder(bitArray.Length);
@@ -2196,7 +2196,7 @@ public class CollectionAssertsTests
 		object? IEnumerator.Current =>
 			GuardNotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
 
-		public bool IsDisposed => innerEnumerator == null;
+		public bool IsDisposed => innerEnumerator is null;
 
 		public IEnumerator<T> GetEnumerator() => this;
 
@@ -2219,7 +2219,7 @@ public class CollectionAssertsTests
 			[NotNull] T2? value)
 				where T2 : class
 		{
-			if (value == null)
+			if (value is null)
 				throw new InvalidOperationException(message);
 
 			return value;
