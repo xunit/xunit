@@ -449,6 +449,11 @@ public static class SerializationHelper
 		return info.ToSerializedString();
 	}
 
+	static string SerializeEmbeddedTypeValue(
+		string? value,
+		_ITypeInfo typeInfo) =>
+			$"{ToBase64(TypeToSerializedTypeName(typeInfo))}:{value}";
+
 	static string SerializeEnum(
 		object value,
 		_ITypeInfo typeInfo)
@@ -456,8 +461,7 @@ public static class SerializationHelper
 		if (!typeInfo.IsFromLocalAssembly())
 			throw new ArgumentException($"Cannot serialize enum '{typeInfo.Name}.{value}' because it lives in the GAC", nameof(value));
 
-		var typeString = ToBase64(TypeToSerializedTypeName(typeInfo));
-		return $"{typeString}:{value}";
+		return SerializeEmbeddedTypeValue(value.ToString(), typeInfo);
 	}
 
 	static string SerializeTraits(Dictionary<string, List<string>>? value)
@@ -486,8 +490,7 @@ public static class SerializationHelper
 		var info = new XunitSerializationInfo();
 		value.Serialize(info);
 
-		var typeString = ToBase64(TypeToSerializedTypeName(typeInfo));
-		return $"{typeString}:{info.ToSerializedString()}";
+		return SerializeEmbeddedTypeValue(info.ToSerializedString(), typeInfo);
 	}
 
 	/// <summary>
