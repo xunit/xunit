@@ -96,6 +96,27 @@ public static class Guard
 	}
 
 	/// <summary>
+	/// Ensures that a nullable reference type argument is not null.
+	/// </summary>
+	/// <typeparam name="T">The argument type</typeparam>
+	/// <param name="messageFunc">The creator for an exception message to use when the argument is null</param>
+	/// <param name="argValue">The value of the argument</param>
+	/// <param name="argName">The name of the argument</param>
+	/// <returns>The argument value as a non-null value</returns>
+	/// <exception cref="ArgumentNullException">Thrown when the argument is null</exception>
+	public static T ArgumentNotNull<T>(
+		Func<string> messageFunc,
+		[NotNull] T? argValue,
+		string? argName = null)
+		where T : class
+	{
+		if (argValue is null)
+			throw new ArgumentNullException(argName, messageFunc?.Invoke());
+
+		return argValue;
+	}
+
+	/// <summary>
 	/// Ensures that a nullable enumerable type argument is not null or empty.
 	/// </summary>
 	/// <typeparam name="T">The argument type</typeparam>
@@ -138,6 +159,27 @@ public static class Guard
 	}
 
 	/// <summary>
+	/// Ensures that a nullable enumerable type argument is not null or empty.
+	/// </summary>
+	/// <typeparam name="T">The argument type</typeparam>
+	/// <param name="messageFunc">The creator for an exception message to use when the argument is null or empty</param>
+	/// <param name="argValue">The value of the argument</param>
+	/// <param name="argName">The name of the argument</param>
+	/// <returns>The argument value as a non-null, non-empty value</returns>
+	/// <exception cref="ArgumentException">Thrown when the argument is null or empty</exception>
+	public static T ArgumentNotNullOrEmpty<T>(
+		Func<string> messageFunc,
+		[NotNull] T? argValue,
+		string? argName = null)
+		where T : class, IEnumerable
+	{
+		if (argValue is null || !argValue.GetEnumerator().MoveNext())
+			throw new ArgumentException(messageFunc?.Invoke(), argName);
+
+		return argValue;
+	}
+
+	/// <summary>
 	/// Ensures that an argument is valid.
 	/// </summary>
 	/// <param name="message">The exception message to use when the argument is not valid</param>
@@ -152,6 +194,23 @@ public static class Guard
 	{
 		if (!test)
 			throw new ArgumentException(message, argName);
+	}
+
+	/// <summary>
+	/// Ensures that an argument is valid.
+	/// </summary>
+	/// <param name="messageFunc">The creator for an exception message to use when the argument is not valid</param>
+	/// <param name="test">The validity test value</param>
+	/// <param name="argName">The name of the argument</param>
+	/// <returns>The argument value as a non-null value</returns>
+	/// <exception cref="ArgumentException">Thrown when the argument is not valid</exception>
+	public static void ArgumentValid(
+		Func<string> messageFunc,
+		bool test,
+		string? argName = null)
+	{
+		if (!test)
+			throw new ArgumentException(messageFunc?.Invoke(), argName);
 	}
 
 	/// <summary>
@@ -205,6 +264,25 @@ public static class Guard
 	{
 		if (value is null)
 			throw new InvalidOperationException(message);
+
+		return value;
+	}
+
+	/// <summary>
+	/// Ensure that a value is not null.
+	/// </summary>
+	/// <typeparam name="T">The value type</typeparam>
+	/// <param name="messageFunc">The creator for an exception message to use when the value is not valid</param>
+	/// <param name="value">The value to test for null</param>
+	/// <returns>The value as a non-null value</returns>
+	/// <exception cref="InvalidOperationException">Thrown when the value is not valid</exception>
+	public static T NotNull<T>(
+		Func<string> messageFunc,
+		[NotNull] T? value)
+		where T : class
+	{
+		if (value is null)
+			throw new InvalidOperationException(messageFunc?.Invoke());
 
 		return value;
 	}
