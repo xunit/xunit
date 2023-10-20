@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.Sdk;
@@ -24,7 +25,7 @@ public class UnsetPropertyException : InvalidOperationException
 
 	/// <inheritdoc/>
 	public override string Message =>
-		$"Attempted to get '{PropertyName}' on an uninitialized '{TypeName}' object";
+		string.Format(CultureInfo.CurrentCulture, "Attempted to get '{0}' on an uninitialized '{1}' object", PropertyName, TypeName);
 
 	/// <summary>
 	/// Gets the property name of the uninitialized property.

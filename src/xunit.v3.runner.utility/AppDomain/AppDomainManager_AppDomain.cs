@@ -1,6 +1,7 @@
 #if NETFRAMEWORK
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -140,7 +141,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 				thread.Start();
 
 				if (!thread.Join(TimeSpan.FromSeconds(10)))
-					diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' timed out" });
+					diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, "AppDomain.Unload for '{0}' timed out", AssemblyFileName) });
 				else
 				{
 					if (cachePath is not null)
@@ -158,7 +159,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 			}
 
 			if (failure is not null)
-				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = $"AppDomain.Unload for '{AssemblyFileName}' failed: {failure}" });
+				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, "AppDomain.Unload for '{0}' failed: {1}", AssemblyFileName, failure) });
 		}
 	}
 

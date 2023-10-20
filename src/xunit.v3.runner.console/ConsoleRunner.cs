@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -52,11 +53,11 @@ sealed class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
-				Console.WriteLine($"usage: {executableName} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]");
+				Console.WriteLine("usage: {0} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
 				Console.WriteLine();
 				Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
 				Console.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
-				Console.WriteLine("      JSON is supported for v2 and later, on all supported plaforms");
+				Console.WriteLine("      JSON is supported for v2 and later, on all supported platforms");
 
 				commandLine.PrintUsage();
 
@@ -125,7 +126,7 @@ sealed class ConsoleRunner
 			if (!noColor)
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-			Console.WriteLine($"error: {ex.Message}");
+			Console.WriteLine("error: {0}", ex.Message);
 
 			if (globalInternalDiagnosticMessages)
 			{
@@ -194,22 +195,28 @@ sealed class ConsoleRunner
 	static void PrintHeader()
 	{
 #if NET472
-		var buildTarget = $"net472";
+		var buildTarget = "net472" +
 #elif NET48
-		var buildTarget = $"net48";
+		var buildTarget = "net48" +
 #elif NET481
-		var buildTarget = $"net481";
+		var buildTarget = "net481" +
 #else
 #error Unknown target framework
 #endif
 
 #if BUILD_X86
-		buildTarget += "/x86";
+		"/x86";
 #else
-		buildTarget += "/AnyCPU";
+		"/AnyCPU";
 #endif
 
-		Console.WriteLine($"xUnit.net v3 Console Runner v{ThisAssembly.AssemblyInformationalVersion} [{buildTarget}] ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+		Console.WriteLine(
+			"xUnit.net v3 Console Runner v{0} [{1}] ({2}-bit {3})",
+			ThisAssembly.AssemblyInformationalVersion,
+			buildTarget,
+			IntPtr.Size * 8,
+			RuntimeInformation.FrameworkDescription
+		);
 	}
 
 	async ValueTask<int> RunProject(
@@ -315,7 +322,7 @@ sealed class ConsoleRunner
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{
-				(false, AppDomainSupport.Required) => throw new ArgumentException($"AppDomains were required but assembly '{assembly.AssemblyFileName}' does not support them"),
+				(false, AppDomainSupport.Required) => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "AppDomains were required but assembly '{0}' does not support them", assembly.AssemblyFileName)),
 				(false, _) => AppDomainOption.NotAvailable,
 				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
 				(true, _) => AppDomainOption.Enabled,
@@ -361,7 +368,7 @@ sealed class ConsoleRunner
 			var e = ex;
 			while (e is not null)
 			{
-				Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
+				Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
 
 				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 					Console.WriteLine(e.StackTrace);

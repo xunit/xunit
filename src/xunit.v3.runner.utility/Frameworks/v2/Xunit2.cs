@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -154,7 +155,7 @@ public class Xunit2 : IFrontController
 
 	List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations)
 	{
-		Guard.NotNull($"This instance of {typeof(Xunit2).FullName} was created for discovery only; execution-related operations cannot be performed.", remoteExecutor);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(Xunit2).FullName), remoteExecutor);
 
 		var callbackContainer = new DeserializeCallback();
 		Action<List<KeyValuePair<string?, ITestCase?>>> callback = callbackContainer.Callback;
@@ -252,7 +253,7 @@ public class Xunit2 : IFrontController
 		_IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
-		Guard.NotNull($"This instance of {typeof(Xunit2).FullName} was created for discovery only; execution-related operations cannot be performed.", remoteExecutor);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(Xunit2).FullName), remoteExecutor);
 
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
@@ -296,13 +297,13 @@ public class Xunit2 : IFrontController
 		foreach (var suffix in supportedPlatformSuffixes)
 		{
 #if NETFRAMEWORK
-			var fileName = Path.Combine(basePath, $"xunit.execution.{suffix}.dll");
+			var fileName = Path.Combine(basePath, string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix));
 			if (File.Exists(fileName))
 				return fileName;
 #else
 			try
 			{
-				var assemblyName = $"xunit.execution.{suffix}";
+				var assemblyName = string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}", suffix);
 				Assembly.Load(new AssemblyName { Name = assemblyName });
 				return assemblyName + ".dll";
 			}
@@ -310,7 +311,7 @@ public class Xunit2 : IFrontController
 #endif
 		}
 
-		throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
+		throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix)).ToArray()));
 	}
 
 	static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
@@ -371,7 +372,7 @@ public class Xunit2 : IFrontController
 			ConfigFilePath = configFileName,
 			StartTime = DateTimeOffset.Now,
 			TargetFramework = TargetFramework,
-			TestEnvironment = $"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}",  // This may not be exactly right, but without the remote app domain, we don't know for sure
+			TestEnvironment = string.Format(CultureInfo.CurrentCulture, "{0}-bit {1}", IntPtr.Size * 8, RuntimeInformation.FrameworkDescription),  // This may not be exactly right, but without the remote app domain, we don't know for sure
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
 		});
 
@@ -552,7 +553,7 @@ public class Xunit2 : IFrontController
 		_IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
-		Guard.NotNull($"This instance of {typeof(Xunit2).FullName} was created for discovery only; execution-related operations cannot be performed.", remoteExecutor);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(Xunit2).FullName), remoteExecutor);
 
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -107,7 +108,7 @@ public class TestResultState
 			result.Result = TestResult.Failed;
 		}
 		else
-			throw new ArgumentException($"Unknown type: '{testResult.GetType().FullName}'", nameof(testResult));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown type: '{0}'", testResult.GetType().FullName), nameof(testResult));
 
 		return result;
 	}

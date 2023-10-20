@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -209,7 +210,7 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			if (!NoLogo)
 				lock (logLock)
-					Log.LogMessage(MessageImportance.High, $"xUnit.net v3 MSBuild Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+					Log.LogMessage(MessageImportance.High, "xUnit.net v3 MSBuild Runner v{0} ({1}-bit {2})", ThisAssembly.AssemblyInformationalVersion, IntPtr.Size * 8, RuntimeInformation.FrameworkDescription);
 
 			var project = new XunitProject();
 			foreach (var assembly in Assemblies)
@@ -243,7 +244,7 @@ public class xunit : MSBuildTask, ICancelableTask
 						"OFF" => ExplicitOption.Off,
 						"ON" => ExplicitOption.On,
 						"ONLY" => ExplicitOption.Only,
-						_ => throw new ArgumentException($"Invalid value for Explicit ('{Explicit}'); valid values are 'off', 'on', and 'only'"),
+						_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value for Explicit ('{0}'); valid values are 'off', 'on', and 'only'", Explicit)),
 					};
 
 				if (shadowCopy.HasValue)
@@ -363,7 +364,7 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{
-				(false, AppDomainSupport.Required) => throw new ArgumentException($"AppDomains were required but assembly '{assembly.AssemblyFileName}' does not support them"),
+				(false, AppDomainSupport.Required) => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "AppDomains were required but assembly '{0}' does not support them", assembly.AssemblyFileName)),
 				(false, _) => AppDomainOption.NotAvailable,
 				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
 				(true, _) => AppDomainOption.Enabled,

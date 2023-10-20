@@ -46,7 +46,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var error = args.Message;
 
-		LogError("FATAL ERROR", error);
+		TeamCityLogError(error, "FATAL ERROR");
 	}
 
 	/// <summary>
@@ -60,7 +60,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Assembly Cleanup Failure ({ToAssemblyName(cleanupFailure)})", cleanupFailure, cleanupFailure.AssemblyUniqueID);
+		TeamCityLogError(cleanupFailure.AssemblyUniqueID, cleanupFailure, "Test Assembly Cleanup Failure ({0})", ToAssemblyName(cleanupFailure));
 	}
 
 	/// <summary>
@@ -74,7 +74,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var assemblyFinished = args.Message;
 
-		LogSuiteFinished(ToAssemblyName(assemblyFinished), assemblyFinished.AssemblyUniqueID);
+		TeamCityLogSuiteFinished(assemblyFinished.AssemblyUniqueID, ToAssemblyName(assemblyFinished));
 
 		metadataCache.TryRemove(assemblyFinished);
 	}
@@ -92,7 +92,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		metadataCache.Set(assemblyStarting);
 
-		LogSuiteStarted(ToAssemblyName(assemblyStarting), assemblyStarting.AssemblyUniqueID, rootFlowId);
+		TeamCityLogSuiteStarted(assemblyStarting.AssemblyUniqueID, ToAssemblyName(assemblyStarting), rootFlowId);
 	}
 
 	/// <summary>
@@ -106,7 +106,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Case Cleanup Failure ({ToTestCaseName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		TeamCityLogError(cleanupFailure.TestCollectionUniqueID, cleanupFailure, "Test Case Cleanup Failure ({0})", ToTestCaseName(cleanupFailure));
 	}
 
 	/// <summary>
@@ -144,7 +144,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Class Cleanup Failure ({ToTestClassName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		TeamCityLogError(cleanupFailure.TestCollectionUniqueID, cleanupFailure, "Test Class Cleanup Failure ({0})", ToTestClassName(cleanupFailure));
 	}
 
 	/// <summary>
@@ -182,7 +182,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Collection Cleanup Failure ({ToTestCollectionName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		TeamCityLogError(cleanupFailure.TestCollectionUniqueID, cleanupFailure, "Test Collection Cleanup Failure ({0})", ToTestCollectionName(cleanupFailure));
 	}
 
 	/// <summary>
@@ -196,7 +196,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testCollectionFinished = args.Message;
 
-		LogSuiteFinished(ToTestCollectionName(testCollectionFinished), testCollectionFinished.TestCollectionUniqueID);
+		TeamCityLogSuiteFinished(testCollectionFinished.TestCollectionUniqueID, ToTestCollectionName(testCollectionFinished));
 
 		metadataCache.TryRemove(testCollectionFinished);
 	}
@@ -214,7 +214,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		metadataCache.Set(testCollectionStarting);
 
-		LogSuiteStarted(ToTestCollectionName(testCollectionStarting), testCollectionStarting.TestCollectionUniqueID, testCollectionStarting.AssemblyUniqueID);
+		TeamCityLogSuiteStarted(testCollectionStarting.TestCollectionUniqueID, ToTestCollectionName(testCollectionStarting), testCollectionStarting.AssemblyUniqueID);
 	}
 
 	/// <summary>
@@ -228,7 +228,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Cleanup Failure ({ToTestName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		TeamCityLogError(cleanupFailure.TestCollectionUniqueID, cleanupFailure, "Test Cleanup Failure ({0})", ToTestName(cleanupFailure));
 	}
 
 	/// <summary>
@@ -241,9 +241,15 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		base.HandleTestFailed(args);
 
 		var testFailed = args.Message;
-		var details = $"{TeamCityEscape(ExceptionUtility.CombineMessages(testFailed))}|r|n{TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed))}";
 
-		LogMessage("testFailed", $"name='{TeamCityEscape(ToTestName(testFailed))}' details='{details}'", testFailed.TestCollectionUniqueID);
+		TeamCityLogMessage(
+			testFailed.TestCollectionUniqueID,
+			"testFailed",
+			"name='{0}' details='{1}|r|n{2}'",
+			TeamCityEscape(ToTestName(testFailed)),
+			TeamCityEscape(ExceptionUtility.CombineMessages(testFailed)),
+			TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed))
+		);
 	}
 
 	/// <summary>
@@ -261,9 +267,9 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		var flowId = testFinished.TestCollectionUniqueID;
 
 		if (!string.IsNullOrWhiteSpace(testFinished.Output))
-			LogMessage("testStdOut", $"name='{formattedName}' out='{TeamCityEscape(testFinished.Output)}' tc:tags='tc:parseServiceMessagesInside']", flowId);
+			TeamCityLogMessage(flowId, "testStdOut", "name='{0}' out='{1}' tc:tags='tc:parseServiceMessagesInside']", formattedName, TeamCityEscape(testFinished.Output));
 
-		LogMessage("testFinished", $"name='{formattedName}' duration='{(int)(testFinished.ExecutionTime * 1000M)}'", flowId);
+		TeamCityLogMessage(flowId, "testFinished", "name='{0}' duration='{1}'", formattedName, (int)(testFinished.ExecutionTime * 1000M));
 
 		metadataCache.TryRemove(testFinished);
 	}
@@ -279,7 +285,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var cleanupFailure = args.Message;
 
-		LogError($"Test Method Cleanup Failure ({ToTestMethodName(cleanupFailure)})", cleanupFailure, cleanupFailure.TestCollectionUniqueID);
+		TeamCityLogError(cleanupFailure.TestCollectionUniqueID, cleanupFailure, "Test Method Cleanup Failure ({0})", ToTestMethodName(cleanupFailure));
 	}
 
 	/// <summary>
@@ -317,7 +323,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testSkipped = args.Message;
 
-		LogMessage("testIgnored", $"name='{TeamCityEscape(ToTestName(testSkipped))}' message='{TeamCityEscape(testSkipped.Reason)}'", testSkipped.TestCollectionUniqueID);
+		TeamCityLogMessage(testSkipped.TestCollectionUniqueID, "testIgnored", "name='{0}' message='{1}'", TeamCityEscape(ToTestName(testSkipped)), TeamCityEscape(testSkipped.Reason));
 	}
 
 	/// <summary>
@@ -333,44 +339,10 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		metadataCache.Set(testStarting);
 
-		LogMessage("testStarted", $"name='{TeamCityEscape(ToTestName(testStarting))}'", testStarting.TestCollectionUniqueID);
+		TeamCityLogMessage(testStarting.TestCollectionUniqueID, "testStarted", "name='{0}'", TeamCityEscape(ToTestName(testStarting)));
 	}
 
 	// Helpers
-
-	void LogError(
-		string messageType,
-		_IErrorMetadata errorMetadata,
-		string? flowId = null)
-	{
-		var message = $"[{messageType}] {errorMetadata.ExceptionTypes[0]}: {ExceptionUtility.CombineMessages(errorMetadata)}";
-		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
-
-		LogMessage("message", $"status='ERROR' text='{TeamCityEscape(message)}' errorDetails='{TeamCityEscape(stackTrace)}'", flowId);
-	}
-
-	void LogMessage(
-		string messageType,
-		string? arguments = null,
-		string? flowId = null) =>
-			Logger.LogRaw($"##teamcity[{messageType} timestamp='{TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture))}+0000'{(flowId is not null ? $" flowId='{TeamCityEscape(flowId)}'" : "")}{(arguments is not null ? " " + arguments : "")}]");
-
-	void LogSuiteFinished(
-		string name,
-		string flowId)
-	{
-		LogMessage("testSuiteFinished", $"name='{TeamCityEscape(name)}'", flowId);
-		LogMessage("flowFinished", flowId: flowId);
-	}
-
-	void LogSuiteStarted(
-		string name,
-		string flowId,
-		string? parentFlowId = null)
-	{
-		LogMessage("flowStarted", parentFlowId is not null ? $"parent='{TeamCityEscape(parentFlowId)}'" : null, flowId);
-		LogMessage("testSuiteStarted", $"name='{TeamCityEscape(name)}'", flowId);
-	}
 
 	/// <summary>
 	/// Escapes a string to be sent in a TeamCity message.
@@ -418,13 +390,68 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 					else
 					{
 						sb.Append("|0x");
-						sb.Append(((int)ch).ToString("x4", CultureInfo.CurrentCulture));
+						sb.Append(((int)ch).ToString("x4", CultureInfo.InvariantCulture));
 					}
 					break;
 			}
 		}
 
 		return sb.ToString();
+	}
+
+	void TeamCityLogError(
+		_IErrorMetadata errorMetadata,
+		string messageType) =>
+			TeamCityLogError(string.Empty, errorMetadata, "{0}", messageType);
+
+	void TeamCityLogError(
+		string flowId,
+		_IErrorMetadata errorMetadata,
+		string messageTypeFormat,
+		params object?[] args)
+	{
+		var message = string.Format(
+			CultureInfo.InvariantCulture,
+			"[{0}] {1}: {2}",
+			string.Format(CultureInfo.InvariantCulture, messageTypeFormat, args),
+			errorMetadata.ExceptionTypes[0],
+			ExceptionUtility.CombineMessages(errorMetadata)
+		);
+		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
+
+		TeamCityLogMessage(flowId, "message", "status='ERROR' text='{0}' errorDetails='{1}'", TeamCityEscape(message), TeamCityEscape(stackTrace));
+	}
+
+	void TeamCityLogMessage(
+		string flowId,
+		string messageType,
+		string extraMetadataFormat = "",
+		params object?[] args)
+	{
+		Logger.LogRaw(
+			"##teamcity[{0} timestamp='{1}+0000'{2}{3}]",
+			messageType,
+			TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture)),
+			flowId.Length != 0 ? string.Format(CultureInfo.InvariantCulture, " flowId='{0}'", TeamCityEscape(flowId)) : "",
+			extraMetadataFormat.Length != 0 ? " " + string.Format(CultureInfo.InvariantCulture, extraMetadataFormat, args) : ""
+		);
+	}
+
+	void TeamCityLogSuiteFinished(
+		string flowId,
+		string name)
+	{
+		TeamCityLogMessage(flowId, "testSuiteFinished", "name='{0}'", TeamCityEscape(name));
+		TeamCityLogMessage(flowId, "flowFinished");
+	}
+
+	void TeamCityLogSuiteStarted(
+		string flowId,
+		string name,
+		string? parentFlowId = null)
+	{
+		TeamCityLogMessage(flowId, "flowStarted", parentFlowId is null ? "" : "parent='{0}'", TeamCityEscape(parentFlowId));
+		TeamCityLogMessage(flowId, "testSuiteStarted", "name='{0}'", TeamCityEscape(name));
 	}
 
 	string ToAssemblyName(_TestAssemblyMessage message)
@@ -448,7 +475,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		if (metadata is null)
 			return "<unknown test collection>";
 
-		return $"{metadata.TestCollectionDisplayName} ({message.TestCollectionUniqueID})";
+		return string.Format(CultureInfo.InvariantCulture, "{0} ({1})", metadata.TestCollectionDisplayName, message.TestCollectionUniqueID);
 	}
 
 	string ToTestMethodName(_TestMethodMessage message)
@@ -461,7 +488,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		if (testClassMetadata is null)
 			return testMethodMetadata.TestMethod;
 
-		return $"{testClassMetadata.TestClass}.{testMethodMetadata.TestMethod}";
+		return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testClassMetadata.TestClass, testMethodMetadata.TestMethod);
 	}
 
 	string ToTestName(_TestMessage message) =>

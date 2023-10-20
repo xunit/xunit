@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -67,7 +68,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			client = null;
 
 			if (assembliesInFlight != 0)
-				Logger.LogWarning($"{nameof(VstsReporterMessageHandler)} disposed with {assembliesInFlight} assemblies in flight");
+				Logger.LogWarning("{0} disposed with {1} assemblies in flight", nameof(VstsReporterMessageHandler), assembliesInFlight);
 		}
 	}
 
@@ -112,7 +113,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 
 		if (assemblyMetadata is not null && classMetadata is not null && methodMetadata is not null)
 		{
-			var testName = $"{classMetadata.TestClass}.{methodMetadata.TestMethod}";
+			var testName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClass, methodMetadata.TestMethod);
 
 			VstsAddTest(testName, testStarting.TestDisplayName, assemblyMetadata.SimpleAssemblyName(), testStarting.TestUniqueID);
 		}
@@ -197,7 +198,8 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			{ "state", "Completed" }
 		};
 
-		var msg = $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}".Trim();
+		var msg = string.Format(CultureInfo.InvariantCulture, "{0}\n{1}\n{2}", errorMessage, errorStackTrace, TrimStdOut(stdOut)).Trim();
+
 		if (!string.IsNullOrWhiteSpace(msg))
 			body.Add("errorMessage", msg);
 

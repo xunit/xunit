@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Xunit.Internal;
@@ -69,9 +70,17 @@ public class XunitProjectAssembly
 				return AssemblyFileName;
 
 			if (Assembly is null)
-				throw new InvalidOperationException($"Cannot get the UniqueID of a {GetType().FullName} instance when both {nameof(Assembly)} and {nameof(AssemblyFileName)} are null");
+				throw new InvalidOperationException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Cannot get the UniqueID of a {0} instance when both {1} and {2} are null",
+						GetType().FullName,
+						nameof(Assembly),
+						nameof(AssemblyFileName)
+					)
+				);
 
-			return $"{Assembly.FullName ?? "<unnamed dynamic assembly>"}::{Assembly.GetHashCode()}";
+			return string.Format(CultureInfo.InvariantCulture, "{0}::{1}", Assembly.FullName ?? "<unnamed dynamic assembly>", Assembly.GetHashCode());
 		}
 	}
 

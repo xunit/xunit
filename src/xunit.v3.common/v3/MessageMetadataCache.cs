@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -21,7 +22,7 @@ public class MessageMetadataCache
 	public void Set(_TestAssemblyStarting message)
 	{
 		Guard.ArgumentNotNull(message);
-		Guard.NotNull($"{nameof(_TestAssemblyStarting.AssemblyUniqueID)} cannot be null when setting metadata for {typeof(_TestAssemblyStarting).FullName}", message.AssemblyUniqueID);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "{0} cannot be null when setting metadata for {1}", nameof(_TestAssemblyStarting.AssemblyUniqueID), typeof(_TestAssemblyStarting).FullName), message.AssemblyUniqueID);
 
 		InternalSet(message.AssemblyUniqueID, message);
 	}
@@ -33,7 +34,7 @@ public class MessageMetadataCache
 	public void Set(_TestCaseStarting message)
 	{
 		Guard.ArgumentNotNull(message);
-		Guard.NotNull($"{nameof(_TestCaseStarting.TestCaseUniqueID)} cannot be null when setting metadata for {typeof(_TestCaseStarting).FullName}", message.TestCaseUniqueID);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "{0} cannot be null when setting metadata for {1}", nameof(_TestCaseStarting.TestCaseUniqueID), typeof(_TestCaseStarting).FullName), message.TestCaseUniqueID);
 
 		InternalSet(message.TestCaseUniqueID, message);
 	}
@@ -45,7 +46,7 @@ public class MessageMetadataCache
 	public void Set(_TestClassStarting message)
 	{
 		Guard.ArgumentNotNull(message);
-		Guard.NotNull($"{nameof(_TestClassStarting.TestClassUniqueID)} cannot be null when setting metadata for {typeof(_TestClassStarting).FullName}", message.TestClassUniqueID);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "{0} cannot be null when setting metadata for {1}", nameof(_TestClassStarting.TestClassUniqueID), typeof(_TestClassStarting).FullName), message.TestClassUniqueID);
 
 		InternalSet(message.TestClassUniqueID, message);
 	}
@@ -57,7 +58,7 @@ public class MessageMetadataCache
 	public void Set(_TestCollectionStarting message)
 	{
 		Guard.ArgumentNotNull(message);
-		Guard.NotNull($"{nameof(_TestCollectionStarting.TestCollectionUniqueID)} cannot be null when setting metadata for {typeof(_TestCollectionStarting).FullName}", message.TestCollectionUniqueID);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "{0} cannot be null when setting metadata for {1}", nameof(_TestCollectionStarting.TestCollectionUniqueID), typeof(_TestCollectionStarting).FullName), message.TestCollectionUniqueID);
 
 		InternalSet(message.TestCollectionUniqueID, message);
 	}
@@ -69,7 +70,7 @@ public class MessageMetadataCache
 	public void Set(_TestStarting message)
 	{
 		Guard.ArgumentNotNull(message);
-		Guard.NotNull($"{nameof(_TestStarting.TestUniqueID)} cannot be null when setting metadata for {typeof(_TestStarting).FullName}", message.TestUniqueID);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "{0} cannot be null when setting metadata for {1}", nameof(_TestStarting.TestUniqueID), typeof(_TestStarting).FullName), message.TestUniqueID);
 
 		InternalSet(message.TestUniqueID, message);
 	}
@@ -81,7 +82,7 @@ public class MessageMetadataCache
 	public void Set(_TestMethodStarting message)
 	{
 		Guard.ArgumentNotNull(message);
-		Guard.NotNull($"{nameof(_TestMethodStarting.TestMethodUniqueID)} cannot be null when setting metadata for {typeof(_TestMethodStarting).FullName}", message.TestMethodUniqueID);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "{0} cannot be null when setting metadata for {1}", nameof(_TestMethodStarting.TestMethodUniqueID), typeof(_TestMethodStarting).FullName), message.TestMethodUniqueID);
 
 		InternalSet(message.TestMethodUniqueID, message);
 	}
@@ -270,7 +271,7 @@ public class MessageMetadataCache
 		{
 #pragma warning disable CA1854 // This isn't getting a value, it's setting one
 			if (cache.ContainsKey(uniqueID))
-				throw new InvalidOperationException($"Key '{uniqueID}' already exists in the message metadata cache.{Environment.NewLine}Old item: {cache[uniqueID]}{Environment.NewLine}New item: {metadata}");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' already exists in the message metadata cache.{1}Old item: {2}{3}New item: {4}", uniqueID, Environment.NewLine, cache[uniqueID], Environment.NewLine, metadata));
 #pragma warning restore CA1854
 
 			cache.Add(uniqueID, metadata);

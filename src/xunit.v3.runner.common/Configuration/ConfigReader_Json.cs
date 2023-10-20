@@ -36,7 +36,7 @@ public static class ConfigReader_Json
 
 		// {assembly}.xunit.runner.json takes priority over xunit.runner.json
 		return
-			LoadFile(configuration, Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json")) ||
+			LoadFile(configuration, Path.Combine(directoryName, string.Format(CultureInfo.CurrentCulture, "{0}.xunit.runner.json", assemblyName))) ||
 			LoadFile(configuration, Path.Combine(directoryName, "xunit.runner.json"));
 	}
 

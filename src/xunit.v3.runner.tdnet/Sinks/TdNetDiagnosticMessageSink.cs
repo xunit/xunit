@@ -1,3 +1,4 @@
+using System.Globalization;
 using TestDriven.Framework;
 using Xunit.Runner.Common;
 
@@ -19,7 +20,7 @@ public class TdNetDiagnosticMessageSink : TestMessageSink
 			return null;
 
 		var result = new TdNetDiagnosticMessageSink();
-		var prefix = $"[{assemblyDisplayName}]";
+		var prefix = string.Format(CultureInfo.CurrentCulture, "[{0}]", assemblyDisplayName);
 		var indent = new string(' ', prefix.Length);
 
 		if (showDiagnosticMessages)
@@ -29,7 +30,7 @@ public class TdNetDiagnosticMessageSink : TestMessageSink
 				{
 					var lines = args.Message.Message.Split('\n');
 					for (var idx = 0; idx < lines.Length; ++idx)
-						listener.WriteLine($"{(idx == 0 ? prefix : indent)}{lines[idx].TrimEnd('\r')}", Category.Warning);
+						listener.WriteLine(string.Format(CultureInfo.CurrentCulture, "{0}{1}", idx == 0 ? prefix : indent, lines[idx].TrimEnd('\r')), Category.Warning);
 				}
 			};
 
@@ -40,7 +41,7 @@ public class TdNetDiagnosticMessageSink : TestMessageSink
 				{
 					var lines = args.Message.Message.Split('\n');
 					for (var idx = 0; idx < lines.Length; ++idx)
-						listener.WriteLine($"{(idx == 0 ? prefix : indent)}{lines[idx].TrimEnd('\r')}", Category.Debug);
+						listener.WriteLine(string.Format(CultureInfo.CurrentCulture, "{0}{1}", idx == 0 ? prefix : indent, lines[idx].TrimEnd('\r')), Category.Debug);
 				}
 			};
 

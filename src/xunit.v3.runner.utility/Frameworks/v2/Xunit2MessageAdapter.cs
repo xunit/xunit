@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Versioning;
 using Xunit.Abstractions;
@@ -83,7 +84,7 @@ public class Xunit2MessageAdapter
 			TryConvert<ITestSkipped>(message, messageTypes, AdaptTestSkipped) ??
 			TryConvert<ITestStarting>(message, messageTypes, AdaptTestStarting) ??
 
-			throw new ArgumentException($"Unknown message type '{message.GetType().FullName}'", nameof(message));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown message type '{0}'", message.GetType().FullName), nameof(message));
 	}
 
 	_AfterTestFinished AdaptAfterTestFinished(IAfterTestFinished message)

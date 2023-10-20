@@ -33,7 +33,7 @@ public static class RunnerReporterUtility
 		}
 		catch (Exception ex)
 		{
-			messages.Add($"Exception thrown looking for reporters in folder '{folder}':{Environment.NewLine}{ex}");
+			messages.Add(string.Format(CultureInfo.CurrentCulture, "Exception thrown looking for reporters in folder '{0}':{1}{2}", folder, Environment.NewLine, ex));
 			return result;
 		}
 

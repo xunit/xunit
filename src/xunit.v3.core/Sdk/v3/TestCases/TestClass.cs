@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -61,7 +62,7 @@ public class TestClass : _ITestClass, IXunitSerializable
 
 		var type = TypeHelper.GetType(assemblyName, typeName);
 		if (type is null)
-			throw new InvalidOperationException($"Failed to deserialize type '{typeName}' in assembly '{assemblyName}'");
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Failed to deserialize type '{0}' in assembly '{1}'", typeName, assemblyName));
 
 		@class = Reflector.Wrap(type);
 	}

@@ -39,7 +39,7 @@ public class VstsReporter : IRunnerReporter
 		var accessToken = Guard.NotNull("Environment variable VSTS_ACCESS_TOKEN is not set", Environment.GetEnvironmentVariable("VSTS_ACCESS_TOKEN"));
 		var buildId = Convert.ToInt32(Guard.NotNull("Environment variable BUILD_BUILDID is not set", Environment.GetEnvironmentVariable("BUILD_BUILDID")), CultureInfo.InvariantCulture);
 
-		var baseUri = $"{collectionUri}{teamProject}/_apis/test/runs";
+		var baseUri = string.Format(CultureInfo.InvariantCulture, "{0}{1}/_apis/test/runs", collectionUri, teamProject);
 
 #pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 		return new(new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId));

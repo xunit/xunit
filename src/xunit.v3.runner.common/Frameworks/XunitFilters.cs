@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit.Internal;
@@ -133,7 +134,7 @@ public class XunitFilters
 		if (testCase.TestMethodName is null)
 			return true;
 
-		var methodName = $"{testCase.TestClassNameWithNamespace}.{testCase.TestMethodName}";
+		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassNameWithNamespace, testCase.TestMethodName);
 
 		// Standard exact match == do not pass
 		if (excludedMethodStandardFilters.Contains(methodName) == true)
@@ -158,7 +159,7 @@ public class XunitFilters
 			return true;
 
 		// Exact match or starts-with match == do not pass
-		if (ExcludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
+		if (ExcludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase)))
 			return false;
 
 		return true;
@@ -209,7 +210,7 @@ public class XunitFilters
 		if (testCase.TestMethodName is null)
 			return false;
 
-		var methodName = $"{testCase.TestClassNameWithNamespace}.{testCase.TestMethodName}";
+		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassNameWithNamespace, testCase.TestMethodName);
 
 		// Standard exact match == pass
 		if (includedMethodStandardFilters.Contains(methodName))
@@ -234,7 +235,7 @@ public class XunitFilters
 			return false;
 
 		// Exact match or starts-with match == pass
-		if (IncludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith($"{ns}.", StringComparison.OrdinalIgnoreCase)))
+		if (IncludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase)))
 			return true;
 
 		return false;
@@ -289,7 +290,7 @@ public class XunitFilters
 	}
 
 	static string WildcardToRegex(string pattern) =>
-		$"^{Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".")}$";
+		string.Format(CultureInfo.InvariantCulture, "^{0}$", Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", "."));
 
 	// This class wraps HashSet<T>, tracking the last mutation date, and using itself
 	// as a lock for mutation (so that we can guarantee a stable data set when transferring

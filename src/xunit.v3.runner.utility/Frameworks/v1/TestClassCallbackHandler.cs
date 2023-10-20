@@ -101,7 +101,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 		{
 			startSeen = true;
 			Interlocked.Increment(ref currentTestIndex);
-			var testDisplayName = xml.Attributes?["name"]?.Value ?? $"{typeName}.{methodName}";
+			var testDisplayName = xml.Attributes?["name"]?.Value ?? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeName, methodName);
 			result = messageSink.OnMessage(testCase.ToTestStarting(testDisplayName, currentTestIndex)) && result;
 		}
 

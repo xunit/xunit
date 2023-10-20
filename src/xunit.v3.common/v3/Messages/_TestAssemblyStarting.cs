@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Versioning;
 using Xunit.Internal;
 
@@ -70,7 +71,15 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{base.ToString()} name={assemblyName.Quoted()} path={AssemblyPath.Quoted()} config={ConfigFilePath.Quoted()}{(Seed is null ? "" : $" seed={Seed}")}";
+		string.Format(
+			CultureInfo.CurrentCulture,
+			"{0} name={1} path={2} config={3}{4}",
+			base.ToString(),
+			assemblyName.Quoted(),
+			AssemblyPath.Quoted(),
+			ConfigFilePath.Quoted(),
+			Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, " seed={0}", Seed)
+		);
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

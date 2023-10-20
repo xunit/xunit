@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.v3;
@@ -50,7 +51,7 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 		{
 			var pieces = element.Split(new[] { ':' }, 2);
 			if (pieces.Length != 2)
-				throw new ArgumentException($"Serialized piece '{element}' is malformed. Full serialization:{Environment.NewLine}{decodedValue}", nameof(serializedValue));
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Serialized piece '{0}' is malformed. Full serialization:{1}{2}", element, Environment.NewLine, decodedValue), nameof(serializedValue));
 
 			data[pieces[0]] = pieces[1];
 		}
@@ -66,7 +67,7 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 			valueTypeInfo = Reflector.Wrap(value?.GetType()) ?? SerializationHelper.TypeInfo_Object;
 
 		if (!SerializationHelper.IsSerializable(value, valueTypeInfo))
-			throw new ArgumentException($"Cannot serialize a value of type '{valueTypeInfo.Name}': unsupported type for serialization", nameof(value));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", valueTypeInfo.Name), nameof(value));
 
 		data.Add(key, SerializationHelper.Serialize(value, valueTypeInfo));
 	}
@@ -85,6 +86,6 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 	/// </summary>
 	public string ToSerializedString() =>
 		SerializationHelper.ToBase64(
-			string.Join("\n", data.Select(kvp => $"{kvp.Key}:{kvp.Value}"))
+			string.Join("\n", data.Select(kvp => string.Format(CultureInfo.InvariantCulture, "{0}:{1}", kvp.Key, kvp.Value)))
 		);
 }

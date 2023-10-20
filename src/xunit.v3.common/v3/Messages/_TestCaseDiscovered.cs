@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -49,7 +50,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 		get
 		{
 			if (testClassName is null && TestMethodName is not null)
-				throw new InvalidOperationException($"Illegal null {nameof(TestClassName)} on an instance of '{GetType().FullName}' when {nameof(TestMethodName)} is not null");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Illegal null {0} on an instance of '{1}' when {2} is not null", nameof(TestClassName), GetType().FullName, nameof(TestMethodName)));
 
 			return testClassName;
 		}
@@ -66,7 +67,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 		get
 		{
 			if (testClassNameWithNamespace is null && testClassName is not null)
-				throw new InvalidOperationException($"Illegal null {nameof(TestClassNameWithNamespace)} on an instance of '{GetType().FullName}' when {nameof(TestClassName)} is not null");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Illegal null {0} on an instance of '{1}' when {2} is not null", nameof(TestClassNameWithNamespace), GetType().FullName, nameof(TestClassName)));
 
 			return testClassNameWithNamespace;
 		}
@@ -85,7 +86,7 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{base.ToString()} name={testCaseDisplayName.Quoted()}";
+		string.Format(CultureInfo.CurrentCulture, "{0} name={1}", base.ToString(), testCaseDisplayName.Quoted());
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

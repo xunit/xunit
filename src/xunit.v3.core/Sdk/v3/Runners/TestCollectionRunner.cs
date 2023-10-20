@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -121,9 +122,16 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance))
 		{
 			if (testCasesByClass.Key is null)
-				TestContext.Current?.SendDiagnosticMessage("TestCollectionRunner was given a null type to run for test case(s): {0}", string.Join(", ", testCasesByClass.Select(tcc => $"'{tcc.TestCaseDisplayName}'")));
+				TestContext.Current?.SendDiagnosticMessage(
+					"TestCollectionRunner was given a null type to run for test case(s): {0}",
+					string.Join(", ", testCasesByClass.Select(tcc => string.Format(CultureInfo.CurrentCulture, "'{0}'", tcc.TestCaseDisplayName)))
+				);
 			else if (testCasesByClass.Key.Class is not _IReflectionTypeInfo reflectionTypeInfo)
-				TestContext.Current?.SendDiagnosticMessage("TestCollectionRunner was given a non-reflection-backed type to run ('{0}') for test case(s): {1}", testCasesByClass.Key.Class.Name, string.Join(", ", testCasesByClass.Select(tcc => $"'{tcc.TestCaseDisplayName}'")));
+				TestContext.Current?.SendDiagnosticMessage(
+					"TestCollectionRunner was given a non-reflection-backed type to run ('{0}') for test case(s): {1}",
+					testCasesByClass.Key.Class.Name,
+					string.Join(", ", testCasesByClass.Select(tcc => string.Format(CultureInfo.CurrentCulture, "'{0}'", tcc.TestCaseDisplayName)))
+				);
 			else
 				summary.Aggregate(await RunTestClassAsync(ctxt, testCasesByClass.Key, reflectionTypeInfo, testCasesByClass.CastOrToReadOnlyCollection()));
 

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,10 +46,17 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 				var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).FirstOrDefault();
 				if (discovererAttribute is null)
 				{
-					if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
-						ctxt.Aggregator.Add(new InvalidOperationException($"Data attribute {reflectionAttribute.Attribute.GetType().FullName} on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
-					else
-						ctxt.Aggregator.Add(new InvalidOperationException($"A data attribute specified on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not have a discoverer attribute attached."));
+					ctxt.Aggregator.Add(
+						new InvalidOperationException(
+							string.Format(
+								CultureInfo.CurrentCulture,
+								"Data attribute {0} on {1}.{2} does not have a discoverer attribute attached.",
+								dataAttribute is _IReflectionAttributeInfo reflectionAttribute ? reflectionAttribute.Attribute.GetType().SafeName() : dataAttribute.AttributeType.Name,
+								ctxt.TestCase.TestMethod.TestClass.Class.Name,
+								ctxt.TestCase.TestMethod.Method.Name
+							)
+						)
+					);
 
 					continue;
 				}
@@ -59,20 +67,34 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 					discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
 					if (discoverer is null)
 					{
-						if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
-							ctxt.Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
-						else
-							ctxt.Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not exist or could not be constructed."));
+						ctxt.Aggregator.Add(
+							new InvalidOperationException(
+								string.Format(
+									CultureInfo.CurrentCulture,
+									"Data discoverer specified for {0} on {1}.{2} does not exist or could not be constructed.",
+									dataAttribute is _IReflectionAttributeInfo reflectionAttribute ? reflectionAttribute.Attribute.GetType().SafeName() : dataAttribute.AttributeType.Name,
+									ctxt.TestCase.TestMethod.TestClass.Class.Name,
+									ctxt.TestCase.TestMethod.Method.Name
+								)
+							)
+						);
 
 						continue;
 					}
 				}
 				catch (InvalidCastException)
 				{
-					if (dataAttribute is _IReflectionAttributeInfo reflectionAttribute)
-						ctxt.Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
-					else
-						ctxt.Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
+					ctxt.Aggregator.Add(
+						new InvalidOperationException(
+							string.Format(
+								CultureInfo.CurrentCulture,
+								"Data discoverer specified for {0} on {1}.{2} does not implement IDataDiscoverer.",
+								dataAttribute is _IReflectionAttributeInfo reflectionAttribute ? reflectionAttribute.Attribute.GetType().SafeName() : dataAttribute.AttributeType.Name,
+								ctxt.TestCase.TestMethod.TestClass.Class.Name,
+								ctxt.TestCase.TestMethod.Method.Name
+							)
+						)
+					);
 
 					continue;
 				}
@@ -80,7 +102,17 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 				var data = await discoverer.GetData(dataAttribute, ctxt.TestCase.TestMethod.Method);
 				if (data is null)
 				{
-					ctxt.Aggregator.Add(new InvalidOperationException($"Test data returned null for {ctxt.TestCase.TestMethod.TestClass.Class.Name}.{ctxt.TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
+					ctxt.Aggregator.Add(
+						new InvalidOperationException(
+							string.Format(
+								CultureInfo.CurrentCulture,
+								"Test data returned null for {0}.{1}. Make sure it is statically initialized before this test method is called.",
+								ctxt.TestCase.TestMethod.TestClass.Class.Name,
+								ctxt.TestCase.TestMethod.Method.Name
+							)
+						)
+					);
+
 					continue;
 				}
 

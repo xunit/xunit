@@ -166,11 +166,12 @@ public class TransformFactory
 		Guard.ArgumentNotNull(outputFileName);
 
 		var xmlTransform = new XslCompiledTransform();
+		var fqResourceName = string.Format(CultureInfo.InvariantCulture, "Xunit.Runner.Common.Transforms.templates.{0}", resourceName);
 
 		using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
-		using var xsltStream = typeof(TransformFactory).Assembly.GetManifestResourceStream($"Xunit.Runner.Common.Transforms.templates.{resourceName}");
+		using var xsltStream = typeof(TransformFactory).Assembly.GetManifestResourceStream(fqResourceName);
 		if (xsltStream is null)
-			throw new InvalidOperationException($"Could not load resource 'Xunit.Runner.Common.Transforms.templates.{resourceName}' from assembly '{typeof(TransformFactory).Assembly.Location}'");
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not load resource '{0}' from assembly '{1}'", fqResourceName, typeof(TransformFactory).Assembly.Location));
 
 		using var xsltReader = XmlReader.Create(xsltStream);
 		using var xmlReader = xml.CreateReader();
@@ -195,7 +196,7 @@ public class TransformFactory
 
 		var transform = AvailableTransforms.FirstOrDefault(t => string.Equals(t.ID, id, StringComparison.OrdinalIgnoreCase));
 
-		Guard.NotNull($"Cannot find transform with ID '{id}'", transform);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find transform with ID '{0}'", id), transform);
 
 		transform.OutputHandler(assembliesElement, outputFileName);
 	}

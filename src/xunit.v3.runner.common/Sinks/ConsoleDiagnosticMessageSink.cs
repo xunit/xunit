@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -32,16 +33,16 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 			(false, _, _) => null,
 			(true, null, false) => "",
 			(true, null, true) => "[D] ",
-			(true, _, false) => $"[{assemblyDisplayName}] ",
-			(true, _, true) => $"[D::{assemblyDisplayName}] "
+			(true, _, false) => string.Format(CultureInfo.InvariantCulture, "[{0}] ", assemblyDisplayName),
+			(true, _, true) => string.Format(CultureInfo.InvariantCulture, "[D::{0}] ", assemblyDisplayName)
 		};
 		displayPrefixInternal = (showInternalDiagnosticMessages, assemblyDisplayName, noColor) switch
 		{
 			(false, _, _) => null,
 			(true, null, false) => "",
 			(true, null, true) => "[I] ",
-			(true, _, false) => $"[{assemblyDisplayName}] ",
-			(true, _, true) => $"[I::{assemblyDisplayName}] "
+			(true, _, false) => string.Format(CultureInfo.InvariantCulture, "[{0}] ", assemblyDisplayName),
+			(true, _, true) => string.Format(CultureInfo.InvariantCulture, "[I::{0}] ", assemblyDisplayName)
 		};
 		displayNewlineReplace = "\n" + new string(' ', (displayPrefixDiagnostic?.Length ?? displayPrefixInternal?.Length ?? 0) + 4);
 	}

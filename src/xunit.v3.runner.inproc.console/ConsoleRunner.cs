@@ -76,7 +76,7 @@ public class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
-				Console.WriteLine($"usage: [:seed] [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
+				Console.WriteLine("usage: [:seed] [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
 
 				commandLine.PrintUsage();
 				return 2;
@@ -142,7 +142,7 @@ public class ConsoleRunner
 			if (!noColor)
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-			Console.WriteLine($"error: {ex.Message}");
+			Console.WriteLine("error: {0}", ex.Message);
 
 			if (globalInternalDiagnosticMessages)
 			{
@@ -218,7 +218,12 @@ public class ConsoleRunner
 	}
 
 	static void PrintHeader() =>
-		Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
+		Console.WriteLine(
+			"xUnit.net v3 In-Process Runner v{0} ({1}-bit {2})",
+			ThisAssembly.AssemblyInformationalVersion,
+			IntPtr.Size * 8,
+			RuntimeInformation.FrameworkDescription
+		);
 
 	/// <summary>
 	/// Creates a new <see cref="ConsoleRunner"/> instance and runs it via <see cref="EntryPoint"/>.
@@ -351,7 +356,7 @@ public class ConsoleRunner
 			var e = ex;
 			while (e is not null)
 			{
-				Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
+				Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
 
 				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 					Console.WriteLine(e.StackTrace);

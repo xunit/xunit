@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using Xunit.Internal;
 
@@ -15,10 +16,10 @@ public static class _IAssemblyMetadataExtensions
 	public static string SimpleAssemblyName(this _IAssemblyMetadata assemblyMetadata)
 	{
 		Guard.ArgumentNotNull(assemblyMetadata);
-		Guard.ArgumentNotNullOrEmpty($"{nameof(assemblyMetadata)}.{nameof(_IAssemblyMetadata.AssemblyName)}", assemblyMetadata.AssemblyName, nameof(assemblyMetadata));
+		Guard.ArgumentNotNullOrEmpty(() => string.Format(CultureInfo.CurrentCulture, "{0}.{1}", nameof(assemblyMetadata), nameof(_IAssemblyMetadata.AssemblyName)), assemblyMetadata.AssemblyName, nameof(assemblyMetadata));
 
 		var parsedAssemblyName = new AssemblyName(assemblyMetadata.AssemblyName);
-		Guard.ArgumentNotNullOrEmpty($"{nameof(assemblyMetadata)}.{nameof(_IAssemblyMetadata.AssemblyName)} must include a name component", parsedAssemblyName.Name, nameof(assemblyMetadata));
+		Guard.ArgumentNotNullOrEmpty(() => string.Format(CultureInfo.CurrentCulture, "{0}.{1} must include a name component", nameof(assemblyMetadata), nameof(_IAssemblyMetadata.AssemblyName)), parsedAssemblyName.Name, nameof(assemblyMetadata));
 
 		return parsedAssemblyName.Name;
 	}

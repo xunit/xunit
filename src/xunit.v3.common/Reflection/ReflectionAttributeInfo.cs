@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
@@ -67,7 +68,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	{
 		var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
-		Guard.ArgumentNotNull($"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType, nameof(assemblyQualifiedAttributeTypeName));
+		Guard.ArgumentNotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not load type: '{0}'", assemblyQualifiedAttributeTypeName), attributeType, nameof(assemblyQualifiedAttributeTypeName));
 
 		return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
 	}
@@ -131,7 +132,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 		{
 			attributeType = attributeData.Constructor.DeclaringType ?? attributeData.Constructor.ReflectedType;
 			var fullName = attributeType?.FullName ?? attributeType?.Name ?? "<unknown type>";
-			throw new ArgumentException($"Constructor/initializer arguments for type '{fullName}' appear to be malformed", nameof(attributeData));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Constructor/initializer arguments for type '{0}' appear to be malformed", fullName), nameof(attributeData));
 		}
 
 		var ctorArgTypes = Reflector.EmptyTypes;
@@ -144,7 +145,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 
 		var attribute = (Attribute?)attributeData.Constructor.Invoke(Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
 		if (attribute is null)
-			throw new ArgumentException($"Unable to create attribute of type '{attributeData.AttributeType.FullName}'", nameof(attributeData));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unable to create attribute of type '{0}'", attributeData.AttributeType.FullName), nameof(attributeData));
 
 		attributeType = attribute.GetType();
 
@@ -162,7 +163,7 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 				}
 				catch
 				{
-					throw new ArgumentException($"Could not set property named '{memberName}' on instance of '{attributeType.FullName}'", nameof(attributeData));
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Could not set property named '{0}' on instance of '{1}'", memberName, attributeType.FullName), nameof(attributeData));
 				}
 			else
 			{
@@ -174,10 +175,10 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 					}
 					catch
 					{
-						throw new ArgumentException($"Could not set field named '{memberName}' on instance of '{attributeType.FullName}'", nameof(attributeData));
+						throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Could not set field named '{0}' on instance of '{1}'", memberName, attributeType.FullName), nameof(attributeData));
 					}
 				else
-					throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{attributeType.FullName}'", nameof(attributeData));
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Could not find property or field named '{0}' on instance of '{1}'", memberName, attributeType.FullName), nameof(attributeData));
 			}
 		}
 

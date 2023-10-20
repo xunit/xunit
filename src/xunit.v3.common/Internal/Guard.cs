@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -31,7 +32,7 @@ public static class Guard
 		ArgumentNotNull(validValues);
 
 		if (!validValues.Contains(argValue))
-			throw new ArgumentException($"Enum value {argValue} not in valid set: [{string.Join(",", validValues)}]", argName?.TrimStart('@'));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Enum value {0} not in valid set: [{1}]", argValue, string.Join(",", validValues)), argName?.TrimStart('@'));
 
 		return argValue;
 	}
@@ -225,7 +226,7 @@ public static class Guard
 		[CallerArgumentExpression("fileName")] string? argName = null)
 	{
 		ArgumentNotNullOrEmpty(fileName, argName);
-		ArgumentValid($"File not found: {fileName}", File.Exists(fileName), argName?.TrimStart('@'));
+		ArgumentValid(() => string.Format(CultureInfo.CurrentCulture, "File not found: {0}", fileName), File.Exists(fileName), argName?.TrimStart('@'));
 
 		return fileName;
 	}

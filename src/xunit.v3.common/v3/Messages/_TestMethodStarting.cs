@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -19,7 +20,7 @@ public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{base.ToString()} method={testMethod.Quoted()}";
+		string.Format(CultureInfo.CurrentCulture, "{0} method={1}", base.ToString(), testMethod.Quoted());
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

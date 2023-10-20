@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -26,7 +27,7 @@ public class _InternalDiagnosticMessage : _MessageSinkMessage
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{GetType().Name} message={message.Quoted()}";
+		string.Format(CultureInfo.CurrentCulture, "{0} message={1}", GetType().Name, message.Quoted());
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

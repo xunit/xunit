@@ -1,3 +1,4 @@
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -17,6 +18,6 @@ public class _TestMethodMessage : _TestClassMessage
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{GetType().Name}({TestMethodUniqueID.Quoted()})";
+		string.Format(CultureInfo.CurrentCulture, "{0}({1})", GetType().Name, TestMethodUniqueID.Quoted());
 }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -66,6 +67,7 @@ class VstsClient : IDisposable
 	async Task RunLoop()
 	{
 		int? runId = null;
+
 		try
 		{
 			runId = await CreateTestRun();
@@ -88,7 +90,7 @@ class VstsClient : IDisposable
 		}
 		catch (Exception e)
 		{
-			logger.LogError($"VstsClient.RunLoop: Could not create test run. Message: {e.Message}");
+			logger.LogError("VstsClient.RunLoop: Could not create test run. Message: {0}", e.Message);
 		}
 		finally
 		{
@@ -101,7 +103,7 @@ class VstsClient : IDisposable
 			}
 			catch (Exception e)
 			{
-				logger.LogError($"VstsClient.RunLoop: Could not finish test run. Message: {e.Message}");
+				logger.LogError("VstsClient.RunLoop: Could not finish test run. Message: {0}", e.Message);
 			}
 
 			finished.Set();
@@ -129,15 +131,16 @@ class VstsClient : IDisposable
 	async Task<int> CreateTestRun()
 	{
 		var requestMessage = new Dictionary<string, object?>
-			{
-				{ "name", $"xUnit Runner Test Run on {DateTime.UtcNow:o}"},
-				{ "build", new Dictionary<string, object?> { { "id", buildId } } },
-				{ "isAutomated", true }
-			};
+		{
+			{ "name", string.Format(CultureInfo.CurrentCulture, "xUnit Runner Test Run on {0:o}", DateTime.UtcNow) },
+			{ "build", new Dictionary<string, object?> { { "id", buildId } } },
+			{ "isAutomated", true }
+		};
 
 		var bodyString = JsonSerializer.Serialize(requestMessage);
-		var url = $"{baseUri}?api-version=1.0";
+		var url = baseUri + "?api-version=1.0";
 		var responseString = default(string);
+
 		try
 		{
 			var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -150,23 +153,23 @@ class VstsClient : IDisposable
 			var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
 			if (!response.IsSuccessStatusCode)
 			{
-				logger.LogWarning($"When sending 'POST {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+				logger.LogWarning("When sending 'POST {0}', received status code '{1}'; request body: {2}", url, response.StatusCode, bodyString);
 				previousErrors = true;
 			}
 
 			responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 			var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
 			if (responseJson.ValueKind != JsonValueKind.Object)
-				throw new InvalidOperationException($"Response was not a JSON object");
+				throw new InvalidOperationException("Response was not a JSON object");
 
 			if (!responseJson.TryGetProperty("id", out var idProp) || !(idProp.TryGetInt32(out var id)))
-				throw new InvalidOperationException($"Response JSON did not have an integer 'id' property");
+				throw new InvalidOperationException("Response JSON did not have an integer 'id' property");
 
 			return id;
 		}
 		catch (Exception ex)
 		{
-			logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\nresponse string:\n{responseString}");
+			logger.LogError("When sending 'POST {0}' with body '{1}'\nexception was thrown: {2}\nresponse string:\n{3}", url, bodyString, ex.Message, responseString);
 			throw;
 		}
 	}
@@ -174,13 +177,14 @@ class VstsClient : IDisposable
 	async Task FinishTestRun(int testRunId)
 	{
 		var requestMessage = new Dictionary<string, object?>
-			{
-				{ "completedDate", DateTime.UtcNow },
-				{ "state", "Completed" }
-			};
+		{
+			{ "completedDate", DateTime.UtcNow },
+			{ "state", "Completed" }
+		};
 
 		var bodyString = JsonSerializer.Serialize(requestMessage);
-		var url = $"{baseUri}/{testRunId}?api-version=1.0";
+		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}?api-version=1.0", baseUri, testRunId);
+
 		try
 		{
 			var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -193,13 +197,13 @@ class VstsClient : IDisposable
 			var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
 			if (!response.IsSuccessStatusCode)
 			{
-				logger.LogWarning($"When sending 'PATCH {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+				logger.LogWarning("When sending 'PATCH {0}', received status code '{1}'; request body: {2}", url, response.StatusCode, bodyString);
 				previousErrors = true;
 			}
 		}
 		catch (Exception ex)
 		{
-			logger.LogError($"When sending 'PATCH {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
+			logger.LogError("When sending 'PATCH {0}' with body '{1}', exception was thrown: {2}", url, bodyString, ex.Message);
 			throw;
 		}
 	}
@@ -248,7 +252,7 @@ class VstsClient : IDisposable
 		var method = isAdd ? HttpMethod.Post : PatchHttpMethod;
 		var bodyString = ToJson(body);
 
-		var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
+		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/results?api-version=3.0-preview", baseUri, runId);
 
 		try
 		{
@@ -262,7 +266,7 @@ class VstsClient : IDisposable
 			var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
 			if (!response.IsSuccessStatusCode)
 			{
-				logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body:\n{bodyString}");
+				logger.LogWarning("When sending '{0} {1}', received status code '{2}'; request body:\n{3}", method, url, response.StatusCode, bodyString);
 				previousErrors = true;
 			}
 
@@ -272,7 +276,7 @@ class VstsClient : IDisposable
 
 				var responseJson = JsonSerializer.Deserialize<JsonElement>(respString);
 				if (responseJson.ValueKind != JsonValueKind.Object)
-					throw new InvalidOperationException($"JSON response was not in the proper format (expected Object, got {responseJson.ValueKind})");
+					throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response was not in the proper format (expected Object, got {0})", responseJson.ValueKind));
 
 				if (!responseJson.TryGetProperty("value", out var testCases) || testCases.ValueKind != JsonValueKind.Array)
 					throw new InvalidOperationException("JSON response was missing top-level 'value' array");
@@ -281,10 +285,10 @@ class VstsClient : IDisposable
 				{
 					var testCase = testCases[i];
 					if (testCase.ValueKind != JsonValueKind.Object)
-						throw new InvalidOperationException($"JSON response value element {i} was not in the proper format (expected Object, got {testCase.ValueKind})");
+						throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response value element {0} was not in the proper format (expected Object, got {1})", i, testCase.ValueKind));
 
 					if (!testCase.TryGetProperty("id", out var idProp) || !idProp.TryGetInt32(out var id))
-						throw new InvalidOperationException($"JSON response value element {i} is missing an 'id' property or it wasn't an integer");
+						throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response value element {0} is missing an 'id' property or it wasn't an integer", i));
 
 					// Match the test by ordinal
 					var test = added![i];
@@ -294,14 +298,15 @@ class VstsClient : IDisposable
 		}
 		catch (Exception ex)
 		{
-			logger.LogError($"When sending '{method} {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
+			logger.LogError("When sending '{0} {1}' with body '{2}', exception was thrown: {3}", method, url, bodyString, ex.Message);
 			throw;
 		}
 	}
 
-	static string ToJson(IEnumerable<IDictionary<string, object?>> data)
-	{
-		var results = string.Join(",", data.Select(x => JsonSerializer.Serialize(x)));
-		return $"[{results}]";
-	}
+	static string ToJson(IEnumerable<IDictionary<string, object?>> data) =>
+		string.Format(
+			CultureInfo.InvariantCulture,
+			"[{0}]",
+			string.Join(",", data.Select(x => JsonSerializer.Serialize(x)))
+		);
 }

@@ -92,8 +92,8 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		_TestResultMessage testResult,
 		string resultText)
 	{
-		var testMetadata = Guard.NotNull($"Cannot find test metadata for ID {testResult.TestUniqueID}", metadataCache.TryGetTestMetadata(testResult));
-		var testCaseMetadata = Guard.NotNull($"Cannot find test case metadata for ID {testResult.TestCaseUniqueID}", metadataCache.TryGetTestCaseMetadata(testResult));
+		var testMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test metadata for ID {0}", testResult.TestUniqueID), metadataCache.TryGetTestMetadata(testResult));
+		var testCaseMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test case metadata for ID {0}", testResult.TestCaseUniqueID), metadataCache.TryGetTestCaseMetadata(testResult));
 		var testMethodMetadata = metadataCache.TryGetMethodMetadata(testResult);
 		var testClassMetadata = metadataCache.TryGetClassMetadata(testResult);
 
@@ -413,7 +413,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 		{
 			var ch = value[idx];
 			if (ch < 32)
-				escapedValue.Append($@"\x{+ch:x2}");
+				escapedValue.Append(string.Format(CultureInfo.InvariantCulture, @"\x{0:x2}", +ch));
 			else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length
 			{
 				escapedValue.Append(ch); // Append valid surrogate chars like normal
@@ -421,7 +421,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			}
 			// Check for invalid chars and append them like \x----
 			else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
-				escapedValue.Append($@"\x{+ch:x4}");
+				escapedValue.Append(string.Format(CultureInfo.InvariantCulture, @"\x{0:x4}", +ch));
 			else
 				escapedValue.Append(ch);
 		}

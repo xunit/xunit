@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -52,7 +53,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 					}
 					catch (Exception ex)
 					{
-						throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in DisposeAsync", ex.Unwrap());
+						throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in DisposeAsync", fixture.GetType().FullName), ex.Unwrap());
 					}
 				}).AsTask())
 				.ToList();
@@ -68,7 +69,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 				}
 				catch (Exception ex)
 				{
-					throw new TestFixtureCleanupException($"Collection fixture type '{fixture.GetType().FullName}' threw in Dispose", ex.Unwrap());
+					throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in Dispose", fixture.GetType().FullName), ex.Unwrap());
 				}
 			});
 	}
@@ -95,7 +96,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 
 		if (ctors.Count != 1)
 		{
-			ctxt.Aggregator.Add(new TestClassException($"Collection fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+			ctxt.Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
 			return;
 		}
 
@@ -114,9 +115,16 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		}).ToArray();
 
 		if (missingParameters.Count > 0)
-			ctxt.Aggregator.Add(new TestClassException(
-				$"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
-			));
+			ctxt.Aggregator.Add(
+				new TestClassException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Collection fixture type '{0}' had one or more unresolved constructor arguments: {1}",
+						fixtureType.FullName,
+						string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
+					)
+				)
+			);
 		else
 			ctxt.Aggregator.Run(() =>
 			{
@@ -126,7 +134,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 				}
 				catch (Exception ex)
 				{
-					throw new TestClassException($"Collection fixture type '{fixtureType.FullName}' threw in its constructor", ex.Unwrap());
+					throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in its constructor", fixtureType.FullName), ex.Unwrap());
 				}
 			});
 	}
@@ -156,7 +164,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 						}
 						catch (Exception ex)
 						{
-							throw new TestClassException($"Collection fixture type '{fixture.GetType().FullName}' threw in InitializeAsync", ex.Unwrap());
+							throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in InitializeAsync", fixture.GetType().FullName), ex.Unwrap());
 						}
 					}).AsTask()
 				)

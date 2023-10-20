@@ -1369,18 +1369,30 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithIncompatibleReturnType));
 			var exceptionEpilogue =
 				" must return data in one of the following formats:" + Environment.NewLine +
+
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IEnumerable<object[]>>" + Environment.NewLine +
 				"- ValueTask<IEnumerable<object[]>>" + Environment.NewLine +
+
+				"- IEnumerable<Tuple<...>>" + Environment.NewLine +
+				"- Task<IEnumerable<Tuple<...>>>" + Environment.NewLine +
+				"- ValueTask<IEnumerable<Tuple<...>>>" + Environment.NewLine +
+
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
 				"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
+
 				"- IAsyncEnumerable<object[]>" + Environment.NewLine +
 				"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
-				"- ValueTask<IAsyncEnumerable<object[]>>";
+				"- ValueTask<IAsyncEnumerable<object[]>>" + Environment.NewLine +
+
+				"- IAsyncEnumerable<Tuple<...>>" + Environment.NewLine +
+				"- Task<IAsyncEnumerable<Tuple<...>>>" + Environment.NewLine +
+				"- ValueTask<IAsyncEnumerable<Tuple<...>>>";
 
 			Assert.Collection(
 				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),

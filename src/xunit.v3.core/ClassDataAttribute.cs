@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -45,7 +46,15 @@ public class ClassDataAttribute : DataAttribute
 		}
 		catch (ArgumentException)
 		{
-			throw new ArgumentException($"Class '{Class.FullName}' yielded an item of type '{dataRow?.GetType().SafeName()}' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", nameof(dataRow));
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Class '{0}' yielded an item of type '{1}' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'",
+					Class.FullName,
+					dataRow?.GetType().SafeName()
+				),
+				nameof(dataRow)
+			);
 		}
 	}
 
@@ -87,11 +96,14 @@ public class ClassDataAttribute : DataAttribute
 		}
 
 		throw new ArgumentException(
-			$"'{Class.FullName}' must implement one of the following interfaces to be used as ClassData for the test method named '{testMethod.Name}' on '{testMethod.DeclaringType?.FullName}':" + Environment.NewLine +
-			"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
-			"- IEnumerable<object[]>" + Environment.NewLine +
-			"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
-			"- IAsyncEnumerable<object[]>"
+			string.Format(
+				CultureInfo.CurrentCulture,
+				"'{0}' must implement one of the following interfaces to be used as ClassData for the test method named '{1}' on '{2}':{3}- IEnumerable<ITheoryDataRow>{3}- IEnumerable<object[]>{3}- IAsyncEnumerable<ITheoryDataRow>{3}- IAsyncEnumerable<object[]>",
+				Class.FullName,
+				testMethod.Name,
+				testMethod.DeclaringType?.FullName,
+				Environment.NewLine
+			)
 		);
 	}
 }

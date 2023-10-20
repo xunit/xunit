@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -58,7 +59,7 @@ public class TestMethod : _ITestMethod, IXunitSerializable
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
 
 		var methodName = Guard.NotNull("Could not retrieve MethodName from serialization", info.GetValue<string>("mn"));
-		method = Guard.NotNull($"Could not find test method {methodName} on test class {testClass.Class.Name}", TestClass.Class.GetMethod(methodName, true));
+		method = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not find test method {0} on test class {1}", methodName, testClass.Class.Name), TestClass.Class.GetMethod(methodName, true));
 	}
 
 	/// <inheritdoc/>

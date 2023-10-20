@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
@@ -72,7 +73,7 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 
 		var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
-		Guard.ArgumentNotNull($"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType, nameof(assemblyQualifiedAttributeTypeName));
+		Guard.ArgumentNotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not load type: '{0}'", assemblyQualifiedAttributeTypeName), attributeType, nameof(assemblyQualifiedAttributeTypeName));
 
 		return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 	}

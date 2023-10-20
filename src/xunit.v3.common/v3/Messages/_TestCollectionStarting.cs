@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -22,7 +23,7 @@ public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionM
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		$"{base.ToString()} name={testCollectionDisplayName.Quoted()} class={TestCollectionClass.Quoted()}";
+		string.Format(CultureInfo.CurrentCulture, "{0} name={1} class={2}", base.ToString(), testCollectionDisplayName.Quoted(), TestCollectionClass.Quoted());
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

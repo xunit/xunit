@@ -16,9 +16,9 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class SerializationHelper
 {
-	static internal readonly _ITypeInfo TypeInfo_IXunitSerializable = Reflector.Wrap(typeof(IXunitSerializable));
-	static internal readonly _ITypeInfo TypeInfo_Object = Reflector.Wrap(typeof(object));
-	static internal readonly _ITypeInfo TypeInfo_Type = Reflector.Wrap(typeof(Type));
+	internal static readonly _ITypeInfo TypeInfo_IXunitSerializable = Reflector.Wrap(typeof(IXunitSerializable));
+	internal static readonly _ITypeInfo TypeInfo_Object = Reflector.Wrap(typeof(object));
+	internal static readonly _ITypeInfo TypeInfo_Type = Reflector.Wrap(typeof(Type));
 
 	static readonly Dictionary<TypeIndex, Func<string, object?>> deserializersByTypeIdx;
 	static readonly Dictionary<TypeIndex, Func<object, _ITypeInfo, string>> serializersByTypeIdx;
@@ -43,13 +43,13 @@ public static class SerializationHelper
 
 		deserializersByTypeIdx = new()
 		{
-			{ TypeIndex.Type, v => SerializedTypeNameToType(v) },
-			{ TypeIndex.Enum, v => DeserializeEnum(v) },
-			{ TypeIndex.IXunitSerializable, v => DeserializeXunitSerializable(v) },
-			{ TypeIndex.TraitDictionary, v => DeserializeTraits(v) },
+			{ TypeIndex.Type, SerializedTypeNameToType },
+			{ TypeIndex.Enum, DeserializeEnum },
+			{ TypeIndex.IXunitSerializable, DeserializeXunitSerializable },
+			{ TypeIndex.TraitDictionary, DeserializeTraits },
 			{ TypeIndex.Object, v => null },
 
-			{ TypeIndex.String, v => FromBase64(v) },
+			{ TypeIndex.String, FromBase64 },
 			{ TypeIndex.Char, v => (char)ushort.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.Byte, v => byte.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.SByte, v => sbyte.Parse(v, CultureInfo.InvariantCulture) },
@@ -79,7 +79,7 @@ public static class SerializationHelper
 		serializersByTypeIdx = new()
 		{
 			{ TypeIndex.Type, (v, _) => TypeToSerializedTypeName((Type)v) },
-			{ TypeIndex.Enum, (v, t) => SerializeEnum(v, t) },
+			{ TypeIndex.Enum, SerializeEnum },
 			{ TypeIndex.IXunitSerializable, (v, t) => SerializeXunitSerializable((IXunitSerializable)v, t) },
 			{ TypeIndex.TraitDictionary, (v, _) => SerializeTraits((Dictionary<string, List<string>>)v) },
 			{ TypeIndex.Object, (_, __) => string.Empty },
@@ -94,8 +94,8 @@ public static class SerializationHelper
 			{ TypeIndex.UInt32, (v, _) => ((uint)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Int64, (v, _) => ((long)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.UInt64, (v, _) => ((ulong)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Single, (v, _) => $"2[]:{SerializeArray(BitConverter.GetBytes((float)v))}" },
-			{ TypeIndex.Double, (v, _) => $"2[]:{SerializeArray(BitConverter.GetBytes((double)v))}" },
+			{ TypeIndex.Single, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((float)v)) },
+			{ TypeIndex.Double, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((double)v)) },
 			{ TypeIndex.Decimal, (v, _) => ((decimal)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Boolean, (v, _) => v.ToString() ?? throw new InvalidOperationException("Boolean value returned null from ToString()") },
 			{ TypeIndex.DateTime, (v, _) => ((DateTime)v).ToString("O", CultureInfo.InvariantCulture) },
@@ -105,9 +105,9 @@ public static class SerializationHelper
 		};
 
 		if (dateOnlyDayNumber is not null)
-			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call GetValue on an instance of '{dateOnlyType!.SafeName()}': {v}"));
+			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call GetValue on an instance of '{0}': {1}", dateOnlyType!.SafeName(), v)));
 		if (timeOnlyTicks is not null)
-			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException($"Could not call Ticks on an instance of '{timeOnlyType!.SafeName()}': {v}"));
+			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call Ticks on an instance of '{0}': {1}", timeOnlyType!.SafeName(), v)));
 
 #pragma warning restore CA1065
 
@@ -183,10 +183,10 @@ public static class SerializationHelper
 		}
 
 		if (!Enum.TryParse<TypeIndex>(typeIdxText, out var typeIdx) || typeIdx < TypeIndex_MinValue || typeIdx > TypeIndex_MaxValue)
-			throw new ArgumentException($"Tried to deserialize unknown type index '{typeIdxText}'", nameof(serializedValue));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Tried to deserialize unknown type index '{0}'", typeIdxText), nameof(serializedValue));
 
 		if (!deserializersByTypeIdx.TryGetValue(typeIdx, out var deserializer))
-			throw new ArgumentException($"Cannot deserialize value of '{typeIdx}': unsupported platform", nameof(serializedValue));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot deserialize value of '{0}': unsupported platform", typeIdx), nameof(serializedValue));
 
 		if (pieces.Length != 2)
 			return null;
@@ -223,7 +223,7 @@ public static class SerializationHelper
 
 		var type = SerializedTypeNameToType(FromBase64(pieces[0]));
 		if (type is null)
-			throw new InvalidOperationException($"Serialized type name '{pieces[0]}' could not be converted into a Type object.");
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Serialized type name '{0}' could not be converted into a Type object.", pieces[0]));
 
 		return converter(type, pieces[1]);
 	}
@@ -232,7 +232,7 @@ public static class SerializationHelper
 		DeserializeEmbeddedTypeValue(serializedValue, (type, embeddedValue) =>
 		{
 			if (!type.IsEnum)
-				throw new InvalidOperationException($"Attempted to deserialize type '{type.SafeName()}' which was not an enum");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize type '{0}' which was not an enum", type.SafeName()));
 
 			return Enum.Parse(type, embeddedValue);
 		});
@@ -271,21 +271,21 @@ public static class SerializationHelper
 		DeserializeEmbeddedTypeValue(serializedValue, (type, embeddedValue) =>
 		{
 			if (!typeof(IXunitSerializable).IsAssignableFrom(type))
-				throw new InvalidOperationException($"Attempted to deserialize type '{type.SafeName()}' which did not implement {typeof(IXunitSerializable).FullName}.");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize type '{0}' which did not implement {1}.", type.SafeName(), typeof(IXunitSerializable).FullName));
 
 			var serializationInfo = new XunitSerializationInfo(embeddedValue);
 
 			try
 			{
 				if (Activator.CreateInstance(type) is not IXunitSerializable value)
-					throw new InvalidOperationException($"Attempted to deserialize type '{type.SafeName()}' which did not implement {typeof(IXunitSerializable).FullName}.");
+					throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize type '{0}' which did not implement {1}.", type.SafeName(), typeof(IXunitSerializable).FullName));
 
 				value.Deserialize(serializationInfo);
 				return value;
 			}
 			catch (MissingMemberException)
 			{
-				throw new InvalidOperationException($"Could not de-serialize type '{type.SafeName()}' because it lacks a parameterless constructor.");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not de-serialize type '{0}' because it lacks a parameterless constructor.", type.SafeName()));
 			}
 		});
 
@@ -398,9 +398,9 @@ public static class SerializationHelper
 		typeInfo ??= Reflector.Wrap(value?.GetType()) ?? TypeInfo_Object;
 
 		if (value is null && !typeInfo.IsNullable())
-			throw new ArgumentException($"Cannot serialize a null value as type '{typeInfo.Name}' because it's type-incompatible", nameof(value));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a null value as type '{0}' because it's type-incompatible", typeInfo.Name), nameof(value));
 		if (value is not null && !typeInfo.IsAssignableFrom(value.GetType()))
-			throw new ArgumentException($"Cannot serialize a value of type '{value.GetType().SafeName()}' as type '{typeInfo.Name}' because it's type-incompatible", nameof(value));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}' as type '{1}' because it's type-incompatible", value.GetType().SafeName(), typeInfo.Name), nameof(value));
 
 		var coreValueTypeInfo = typeInfo;
 		var isArray = typeInfo.IsArray;
@@ -420,25 +420,25 @@ public static class SerializationHelper
 		{
 			var kvp = typeIndicesByType.FirstOrDefault(kvp => nonNullableCoreValueTypeInfo.Equal(kvp.Key));
 			if (kvp.Key is null)
-				throw new ArgumentException($"Cannot serialize a value of type '{typeInfo.Name}': unsupported type for serialization", nameof(value));
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", typeInfo.Name), nameof(value));
 			typeIdx = kvp.Value;
 		}
 
 		if (!serializersByTypeIdx.TryGetValue(typeIdx, out var serializer))
-			throw new ArgumentException($"Cannot serialize a value of type '{typeIdx}': unsupported platform", nameof(value));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported platform", typeIdx), nameof(value));
 
-		var typeIdxText = $"{(int)typeIdx}{(coreValueTypeInfo != nonNullableCoreValueTypeInfo ? "?" : "")}{(isArray ? "[]" : "")}";
+		var typeIdxText = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", (int)typeIdx, coreValueTypeInfo != nonNullableCoreValueTypeInfo ? "?" : "", isArray ? "[]" : "");
 
 		if (value is null)
 			return typeIdxText;
 
 		if (isArray)
-			return $"{typeIdxText}:{SerializeArray((Array)value)}";
+			return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, SerializeArray((Array)value));
 
 		if (typeIdx == TypeIndex.Object)
 			throw new ArgumentException("Cannot serialize a non-null value of type 'System.Object'", nameof(value));
 
-		return $"{typeIdxText}:{serializer(value, nonNullableCoreValueTypeInfo)}";
+		return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, serializer(value, nonNullableCoreValueTypeInfo));
 	}
 
 	static string SerializeArray(Array array)
@@ -452,14 +452,14 @@ public static class SerializationHelper
 	static string SerializeEmbeddedTypeValue(
 		string? value,
 		_ITypeInfo typeInfo) =>
-			$"{ToBase64(TypeToSerializedTypeName(typeInfo))}:{value}";
+			string.Format(CultureInfo.InvariantCulture, "{0}:{1}", ToBase64(TypeToSerializedTypeName(typeInfo)), value);
 
 	static string SerializeEnum(
 		object value,
 		_ITypeInfo typeInfo)
 	{
 		if (!typeInfo.IsFromLocalAssembly())
-			throw new ArgumentException($"Cannot serialize enum '{typeInfo.Name}.{value}' because it lives in the GAC", nameof(value));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because it lives in the GAC", typeInfo.Name, value), nameof(value));
 
 		return SerializeEmbeddedTypeValue(value.ToString(), typeInfo);
 	}
@@ -472,12 +472,12 @@ public static class SerializationHelper
 		var result = new StringBuilder();
 
 		var keysArray = value.Keys.ToArray();
-		result.Append(ToBase64(string.Join("\n", keysArray.Select(k => ToBase64(k)))));
+		result.Append(ToBase64(string.Join("\n", keysArray.Select(ToBase64))));
 
 		foreach (var key in keysArray)
 		{
 			result.Append('\n');
-			result.Append(ToBase64(string.Join("\n", value[key].Select(v => ToBase64(v)))));
+			result.Append(ToBase64(string.Join("\n", value[key].Select(ToBase64))));
 		}
 
 		return ToBase64(result.ToString());
@@ -664,7 +664,7 @@ public static class SerializationHelper
 			typeInfo = TypeInfo_Type;
 
 		if (!typeInfo.IsFromLocalAssembly())
-			throw new ArgumentException($"Cannot serialize type '{typeInfo.Name}' because it lives in the GAC", nameof(typeInfo));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because it lives in the GAC", typeInfo.Name), nameof(typeInfo));
 
 		var typeToMap = typeInfo;
 		var typeName = typeToMap.Name;
@@ -687,10 +687,10 @@ public static class SerializationHelper
 			var innerTypes =
 				typeToMap
 					.GetGenericArguments()
-					.Select(t => $"[{TypeToSerializedTypeName(t)}]")
+					.Select(t => string.Format(CultureInfo.InvariantCulture, "[{0}]", TypeToSerializedTypeName(t)))
 					.ToArray();
 
-			typeName = $"{typeDefinition.Name}[{string.Join(",", innerTypes)}]";
+			typeName = string.Format(CultureInfo.InvariantCulture, "{0}[{1}]", typeDefinition.Name, string.Join(",", innerTypes));
 
 			while (arrayRanks.Count > 0)
 			{
@@ -705,7 +705,7 @@ public static class SerializationHelper
 			string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
 			return typeName;
 
-		return $"{typeName},{assemblyName}";
+		return string.Format(CultureInfo.InvariantCulture, "{0},{1}", typeName, assemblyName);
 	}
 
 	internal static string ToBase64(string value)
@@ -749,8 +749,8 @@ public static class SerializationHelper
 			var lowerBounds = new int[rank];
 			for (var i = 0; i < lengths.Length; i++)
 			{
-				lengths[i] = info.GetValue<int>($"l{i}");
-				lowerBounds[i] = info.GetValue<int>($"lb{i}");
+				lengths[i] = info.GetValue<int>(string.Format(CultureInfo.InvariantCulture, "l{0}", i));
+				lowerBounds[i] = info.GetValue<int>(string.Format(CultureInfo.InvariantCulture, "lb{0}", i));
 			}
 
 			array = Array.CreateInstance(elementType, lengths, lowerBounds);
@@ -781,7 +781,7 @@ public static class SerializationHelper
 				if (complete)
 					break;
 
-				var item = info.GetValue($"i{i}");
+				var item = info.GetValue(string.Format(CultureInfo.InvariantCulture, "i{0}", i));
 				array.SetValue(item, indices);
 				indices[rank - 1]++;
 			}
@@ -795,13 +795,13 @@ public static class SerializationHelper
 			info.AddValue("tl", array.Length);
 
 			for (int dimension = 0; dimension < array.Rank; dimension++)
-				info.AddValue($"l{dimension}", array.GetLength(dimension));
+				info.AddValue(string.Format(CultureInfo.InvariantCulture, "l{0}", dimension), array.GetLength(dimension));
 			for (int dimension = 0; dimension < array.Rank; dimension++)
-				info.AddValue($"lb{dimension}", array.GetLowerBound(dimension));
+				info.AddValue(string.Format(CultureInfo.InvariantCulture, "lb{0}", dimension), array.GetLowerBound(dimension));
 
 			int i = 0;
 			foreach (object obj in array)
-				info.AddValue($"i{i++}", obj, obj?.GetType() ?? elementType);
+				info.AddValue(string.Format(CultureInfo.InvariantCulture, "i{0}", i++), obj, obj?.GetType() ?? elementType);
 		}
 	}
 

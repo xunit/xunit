@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.Runner.MSBuild;
 
 public class TraitParser
 {
-	static readonly char[] TraitSeperator = { ';' };
-	static readonly char[] KeyValueSeperator = { '=' };
+	static readonly char[] TraitSeparator = { ';' };
+	static readonly char[] KeyValueSeparator = { '=' };
 
 	readonly Action<string>? warningHandler;
 
@@ -22,13 +23,13 @@ public class TraitParser
 	{
 		if (!string.IsNullOrEmpty(traits))
 		{
-			foreach (var trait in traits.Split(TraitSeperator, StringSplitOptions.RemoveEmptyEntries))
+			foreach (var trait in traits.Split(TraitSeparator, StringSplitOptions.RemoveEmptyEntries))
 			{
-				var pieces = trait.Split(KeyValueSeperator, 2);
+				var pieces = trait.Split(KeyValueSeparator, 2);
 
 				if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
 				{
-					OnWarning($"Invalid trait '{trait}'. The format should be 'name=value'. This trait will be ignored.");
+					OnWarning(string.Format(CultureInfo.CurrentCulture, "Invalid trait '{0}'. The format should be 'name=value'. This trait will be ignored.", trait));
 					continue;
 				}
 

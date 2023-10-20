@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.v3;
@@ -28,7 +29,7 @@ public static class TestIntrospectionHelper
 	{
 		Guard.ArgumentNotNull(method);
 
-		return methodTraitAttributeCache.GetOrAdd($"{method.Type.Name}.{method.Name}", () => method.GetCustomAttributes(typeof(ITraitAttribute)));
+		return methodTraitAttributeCache.GetOrAdd(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", method.Type.Name, method.Name), () => method.GetCustomAttributes(typeof(ITraitAttribute)));
 	}
 
 	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
@@ -79,7 +80,7 @@ public static class TestIntrospectionHelper
 		if (baseDisplayName is null)
 		{
 			if (defaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-				baseDisplayName = formatter.Format($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}");
+				baseDisplayName = formatter.Format(string.Format(CultureInfo.CurrentCulture, "{0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name));
 			else
 				baseDisplayName = formatter.Format(testMethod.Method.Name);
 		}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Sdk;
@@ -159,7 +160,7 @@ public static class ReflectionExtensions
 				displayValues[idx] = parameterName + ": ???";
 		}
 
-		return $"{baseDisplayName}({string.Join(", ", displayValues)})";
+		return string.Format(CultureInfo.CurrentCulture, "{0}({1})", baseDisplayName, string.Join(", ", displayValues));
 	}
 
 	/// <summary/>
@@ -183,10 +184,7 @@ public static class ReflectionExtensions
 	{
 		var methods = methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetMethods();
 
-		return
-			methods
-				.Where(method => method.IsPublic == methodInfo.IsPublic && method.IsStatic == methodInfo.IsStatic && method.Name == methodInfo.Name)
-				.FirstOrDefault();
+		return methods.FirstOrDefault(method => method.IsPublic == methodInfo.IsPublic && method.IsStatic == methodInfo.IsStatic && method.Name == methodInfo.Name);
 	}
 
 	static string GetParameterName(
@@ -334,7 +332,7 @@ public static class ReflectionExtensions
 	static string ParameterToDisplayValue(
 		string parameterName,
 		object? parameterValue) =>
-			$"{parameterName}: {ArgumentFormatter.Format(parameterValue)}";
+			string.Format(CultureInfo.CurrentCulture, "{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
 
 	static object? PerformDefinedConversions(
 		object argumentValue,
@@ -342,7 +340,7 @@ public static class ReflectionExtensions
 	{
 		// argumentValue is known to not be null when we're called from TryConvertObject
 		var argumentValueType = argumentValue.GetType();
-		var methodArguments = new object[] { argumentValue };
+		var methodArguments = new[] { argumentValue };
 
 		bool isMatchingOperator(
 			MethodInfo m,
@@ -382,7 +380,7 @@ public static class ReflectionExtensions
 		for (var idx = 0; idx < genericTypes.Length; idx++)
 			typeNames[idx] = ToSimpleTypeName(genericTypes[idx]);
 
-		return $"<{string.Join(", ", typeNames)}>";
+		return string.Format(CultureInfo.CurrentCulture, "<{0}>", string.Join(", ", typeNames));
 	}
 
 	/// <summary>
@@ -631,11 +629,11 @@ public static class ReflectionExtensions
 				}
 				catch (ArrayTypeMismatchException)
 				{
-					throw new InvalidOperationException($"The arguments for this test method did not match the parameters: {ArgumentFormatter.Format(arguments)}");
+					throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "The arguments for this test method did not match the parameters: {0}", ArgumentFormatter.Format(arguments)));
 				}
 				catch (InvalidCastException)
 				{
-					throw new InvalidOperationException($"The arguments for this test method did not match the parameters: {ArgumentFormatter.Format(arguments)}");
+					throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "The arguments for this test method did not match the parameters: {0}", ArgumentFormatter.Format(arguments)));
 				}
 
 				newArguments[newArguments.Length - 1] = paramsArray;
@@ -719,7 +717,7 @@ public static class ReflectionExtensions
 		for (var idx = 0; idx < genericTypes.Length; idx++)
 			simpleNames[idx] = ToSimpleTypeName(genericTypes[idx]);
 
-		return $"{baseTypeName}<{string.Join(", ", simpleNames)}>";
+		return string.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, string.Join(", ", simpleNames));
 	}
 
 	static object? TryConvertObject(

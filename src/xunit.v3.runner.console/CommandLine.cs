@@ -62,9 +62,9 @@ public class CommandLine : CommandLineParserBase
 		int? seed)
 	{
 		if (!FileExists(assemblyFileName))
-			throw new ArgumentException($"assembly not found: {assemblyFileName}");
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "assembly not found: {0}", assemblyFileName));
 		if (configFileName is not null && !FileExists(configFileName))
-			throw new ArgumentException($"config file not found: {configFileName}");
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "config file not found: {0}", configFileName));
 
 		var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
 		var projectAssembly = new XunitProjectAssembly(Project)
@@ -140,14 +140,14 @@ public class CommandLine : CommandLineParserBase
 			{
 				var seedValueText = assemblyFileName.Substring(seedIndex + 1);
 				if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out int parsedValue) || parsedValue < 0)
-					throw new ArgumentException($"invalid seed value '{seedValueText}' (must be an integer in the range of 0 - 2147483647)");
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "invalid seed value '{0}' (must be an integer in the range of 0 - 2147483647)", seedValueText));
 
 				seed = parsedValue;
 				assemblyFileName = assemblyFileName.Substring(0, seedIndex);
 			}
 
 			if (IsConfigFile(assemblyFileName))
-				throw new ArgumentException($"expecting assembly, got config file: {assemblyFileName}");
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "expecting assembly, got config file: {0}", assemblyFileName));
 
 			string? configFileName = null;
 			if (argsStartIndex < Args.Length)

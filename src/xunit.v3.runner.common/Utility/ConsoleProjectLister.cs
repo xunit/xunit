@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit.Internal;
-using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -95,7 +95,7 @@ public static class ConsoleProjectLister
 			testCasesByAssembly
 				.SelectMany(kvp => kvp.Value)
 				.Where(tc => tc.TestClassName is not null && tc.TestMethodName is not null)
-				.Select(tc => $"{tc.TestClassNameWithNamespace}.{tc.TestMethodName}")
+				.Select(tc => string.Format(CultureInfo.CurrentCulture, "{0}.{1}", tc.TestClassNameWithNamespace, tc.TestMethodName))
 				.Distinct()
 				.OrderBy(x => x)
 				.ToList();
@@ -171,7 +171,7 @@ public static class ConsoleProjectLister
 				else
 					first = false;
 
-				Console.Write($"{JsonSerializer.Serialize(trait.key)}:{JsonSerializer.Serialize(trait.values)}");
+				Console.Write("{0}:{1}", JsonSerializer.Serialize(trait.key), JsonSerializer.Serialize(trait.values));
 			}
 
 			Console.WriteLine("}");
@@ -180,7 +180,7 @@ public static class ConsoleProjectLister
 		{
 			foreach (var trait in traits)
 				foreach (var value in trait.values)
-					Console.WriteLine($"\"{Escape(trait.key)}\" => \"{Escape(value)}\"");
+					Console.WriteLine("\"{0}\" => \"{1}\"", Escape(trait.key), Escape(value));
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ public class Xunit1 : IFrontController
 		this.shadowCopyFolder = shadowCopyFolder;
 
 		testAssemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
-		TestAssemblyUniqueID = $":v1:assembly:{assemblyFileName}:{configFileName ?? "(null)"}";
+		TestAssemblyUniqueID = string.Format(CultureInfo.InvariantCulture, ":v1:assembly:{0}:{1}", assemblyFileName, configFileName ?? "(null)");
 	}
 
 	/// <inheritdoc/>
@@ -213,13 +214,13 @@ public class Xunit1 : IFrontController
 						SkipReason = skipReason,
 						SourceFilePath = sourceFile,
 						SourceLineNumber = sourceLine,
-						TestCaseDisplayName = displayName ?? $"{typeName}.{methodName}",
-						TestCaseUniqueID = $":v1:case:{typeName}.{methodName}:{assemblyFileName}:{configFileName ?? "(null)"}",
+						TestCaseDisplayName = displayName ?? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeName, methodName),
+						TestCaseUniqueID = string.Format(CultureInfo.InvariantCulture, ":v1:case:{0}.{1}:{2}:{3}", typeName, methodName, assemblyFileName, configFileName ?? "(null)"),
 						TestClass = typeName,
-						TestClassUniqueID = $":v1:class:{typeName}:{assemblyFileName}:{configFileName ?? "(null)"}",
-						TestCollectionUniqueID = $":v1:collection:{assemblyFileName}:{configFileName ?? "(null)"}",
+						TestClassUniqueID = string.Format(CultureInfo.InvariantCulture, ":v1:class:{0}:{1}:{2}", typeName, assemblyFileName, configFileName ?? "(null)"),
+						TestCollectionUniqueID = string.Format(CultureInfo.InvariantCulture, ":v1:collection:{0}:{1}", assemblyFileName, configFileName ?? "(null)"),
 						TestMethod = methodName,
-						TestMethodUniqueID = $":v1:method:{typeName}.{methodName}:{assemblyFileName}:{configFileName ?? "(null)"}",
+						TestMethodUniqueID = string.Format(CultureInfo.InvariantCulture, ":v1:method:{0}.{1}:{2}:{3}", typeName, methodName, assemblyFileName, configFileName ?? "(null)"),
 						Traits = traits.ToReadOnly()
 					};
 
@@ -299,7 +300,7 @@ public class Xunit1 : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 
 		var results = new Xunit1RunSummary();
-		var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
+		var environment = string.Format(CultureInfo.CurrentCulture, "{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
 		var testCasesList = testCases.ToList();
 
 		var testAssemblyStartingMessage = new _TestAssemblyStarting
@@ -379,7 +380,7 @@ public class Xunit1 : IFrontController
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
 			TestCollectionClass = null,
-			TestCollectionDisplayName = $"xUnit.net v1 Tests for {assemblyFileName}",
+			TestCollectionDisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v1 Tests for {0}", assemblyFileName),
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
 		};
 

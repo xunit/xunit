@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -89,7 +90,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	/// Gets the environment information (e.g., "32-bit .NET 4.0").
 	/// </summary>
 	public virtual string TestFrameworkEnvironment =>
-		$"{IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription}";
+		string.Format(CultureInfo.CurrentCulture, "{0}-bit {1}", IntPtr.Size * 8, RuntimeInformation.FrameworkDescription);
 
 	/// <summary>
 	/// Gets the assembly that is being executed.

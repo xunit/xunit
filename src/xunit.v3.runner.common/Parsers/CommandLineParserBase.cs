@@ -224,7 +224,7 @@ public abstract class CommandLineParserBase
 	protected static void GuardNoOptionValue(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is not null)
-			throw new ArgumentException($"error: unknown command line option: {option.Value}");
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "error: unknown command line option: {0}", option.Value));
 	}
 
 	/// <summary/>
@@ -255,7 +255,7 @@ public abstract class CommandLineParserBase
 			var optionName = option.Key;
 
 			if (!optionName.StartsWith("-", StringComparison.Ordinal))
-				throw new ArgumentException($"unknown option: {option.Key}");
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
 
 			optionName = optionName.Substring(1);
 
@@ -267,7 +267,7 @@ public abstract class CommandLineParserBase
 				if (TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
 				{
 					if (option.Value is null)
-						throw new ArgumentException($"missing filename for {option.Key}");
+						throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "missing filename for {0}", option.Key));
 
 					EnsurePathExists(option.Value);
 
@@ -293,7 +293,7 @@ public abstract class CommandLineParserBase
 
 		foreach (var unknownOption in unknownOptions)
 		{
-			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
+			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: -{0}", unknownOption));
 
 			if (runnerReporter is not null)
 				throw new ArgumentException("only one reporter is allowed");
@@ -459,7 +459,7 @@ public abstract class CommandLineParserBase
 				else if (int.TryParse(option.Value, out var threadValue) && threadValue > 0)
 					maxParallelThreads = threadValue;
 				else
-					throw new ArgumentException($"incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0.0m}x')");
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
 
 				break;
 		}
@@ -635,10 +635,10 @@ public abstract class CommandLineParserBase
 			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
 			foreach (var switchableReporter in RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-				Console.WriteLine($"  -{switchableReporter.RunnerSwitch!.PadRight(longestSwitch)} : {switchableReporter.Description}");
+				Console.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
 
 			foreach (var environmentalReporter in RunnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
-				Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");
+				Console.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
 		}
 
 		if (TransformFactory.AvailableTransforms.Count != 0)
@@ -649,7 +649,7 @@ public abstract class CommandLineParserBase
 
 			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
 			foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
-				Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
+				Console.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
 		}
 	}
 
@@ -661,7 +661,7 @@ public abstract class CommandLineParserBase
 			parsers
 				.Where(p => p.Value.Group == group)
 				.OrderBy(p => p.Key)
-				.Select(p => (@switch: $"-{p.Key} {p.Value.ArgumentDisplay}".Trim(), descriptions: p.Value.Descriptions))
+				.Select(p => (@switch: string.Format(CultureInfo.CurrentCulture, "-{0} {1}", p.Key, p.Value.ArgumentDisplay).Trim(), descriptions: p.Value.Descriptions))
 				.ToList();
 
 		if (options.Count == 0)
@@ -679,9 +679,9 @@ public abstract class CommandLineParserBase
 
 		foreach (var (@switch, descriptions) in options)
 		{
-			Console.WriteLine($"  {@switch.PadRight(longestSwitch)} : {descriptions[0]}");
+			Console.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
 			for (int idx = 1; idx < descriptions.Length; ++idx)
-				Console.WriteLine($"  {padding} : {descriptions[idx]}");
+				Console.WriteLine("  {0} : {1}", padding, descriptions[idx]);
 		}
 	}
 }

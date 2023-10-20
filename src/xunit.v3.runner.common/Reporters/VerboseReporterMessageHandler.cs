@@ -18,7 +18,7 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		{
 			Guard.ArgumentNotNull(args);
 
-			Logger.LogMessage($"    {Escape(args.Message.TestDisplayName)} [STARTING]");
+			Logger.LogMessage("    {0} [STARTING]", Escape(args.Message.TestDisplayName));
 		};
 
 		Execution.TestFinishedEvent += args =>
@@ -27,9 +27,9 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 
 			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
 			if (metadata is not null)
-				Logger.LogMessage($"    {Escape(metadata.TestDisplayName)} [FINISHED] Time: {args.Message.ExecutionTime}s");
+				Logger.LogMessage("    {0} [FINISHED] Time: {1}s", Escape(metadata.TestDisplayName), args.Message.ExecutionTime);
 			else
-				Logger.LogMessage($"    <unknown test> [FINISHED] Time: {args.Message.ExecutionTime}s");
+				Logger.LogMessage("    <unknown test> [FINISHED] Time: {0}s", args.Message.ExecutionTime);
 		};
 
 		Execution.TestNotRunEvent += args =>
@@ -38,9 +38,9 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 
 			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
 			if (metadata is not null)
-				Logger.LogMessage($"    {Escape(metadata.TestDisplayName)} [NOT RUN]");
+				Logger.LogMessage("    {0} [NOT RUN]", Escape(metadata.TestDisplayName));
 			else
-				Logger.LogMessage($"    <unknown test> [NOT RUN]");
+				Logger.LogMessage("    <unknown test> [NOT RUN]");
 		};
 	}
 }

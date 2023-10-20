@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 
@@ -25,7 +26,7 @@ public class UnsetPropertiesException : InvalidOperationException
 
 	/// <inheritdoc/>
 	public override string Message =>
-		$"Object of type '{TypeName}' had one or more properties that were not set: {string.Join(", ", PropertyNames)}";
+		string.Format(CultureInfo.CurrentCulture, "Object of type '{0}' had one or more properties that were not set: {1}", TypeName, string.Join(", ", PropertyNames));
 
 	/// <summary>
 	/// Gets the property names of the uninitialized properties.

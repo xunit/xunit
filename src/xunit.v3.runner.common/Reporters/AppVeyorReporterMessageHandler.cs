@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -61,7 +62,14 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 			client = null;
 
 			if (assembliesInFlight != 0)
-				Logger.LogWarning($"{nameof(AppVeyorReporterMessageHandler)} disposed with {assembliesInFlight} assemblies in flight");
+				Logger.LogWarning(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"{0} disposed with {1} assemblies in flight",
+						nameof(AppVeyorReporterMessageHandler),
+						assembliesInFlight
+					)
+				);
 		}
 	}
 
@@ -99,7 +107,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 			var tfm = args.Message.TargetFramework;
 			var assemblyFileName = Path.GetFileName(args.Message.AssemblyPath) ?? "<unknown filename>";
 			if (!string.IsNullOrWhiteSpace(tfm))
-				assemblyFileName = $"{assemblyFileName} ({tfm})";
+				assemblyFileName = string.Format(CultureInfo.InvariantCulture, "{0} ({1})", assemblyFileName, tfm);
 
 			assemblyInfoByUniqueID[args.Message.AssemblyUniqueID] = (assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 		}
@@ -117,7 +125,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		lock (testMethods)
 			if (testMethods.TryGetValue(testName, out var testIdx))
-				testName = $"{testName} {testIdx}";
+				testName = string.Format(CultureInfo.InvariantCulture, "{0} {1}", testName, testIdx);
 
 		Client.AddTest(GetRequestMessage(
 			testName,
@@ -213,13 +221,9 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		lock (testMethods)
 		{
 			var testName = methodName;
-			var number = 0;
 
-			if (testMethods.ContainsKey(methodName))
-			{
-				number = testMethods[methodName];
-				testName = $"{methodName} {number}";
-			}
+			if (testMethods.TryGetValue(methodName, out var number))
+				testName = string.Format(CultureInfo.InvariantCulture, "{0} {1}", methodName, number);
 
 			testMethods[methodName] = number + 1;
 			return testName;

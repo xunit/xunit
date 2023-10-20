@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -24,7 +25,7 @@ public class _TestFailed : _TestResultMessage, _IErrorMetadata
 		get => cause;
 		set
 		{
-			Guard.ArgumentValid($"Cause is not a valid value from {typeof(FailureCause).FullName}", Enum.IsDefined(typeof(FailureCause), value), nameof(Cause));
+			Guard.ArgumentValid(() => string.Format(CultureInfo.CurrentCulture, "{0} is not a valid value from {1}", nameof(Cause), typeof(FailureCause).FullName), Enum.IsDefined(typeof(FailureCause), value), nameof(Cause));
 			cause = value;
 		}
 	}

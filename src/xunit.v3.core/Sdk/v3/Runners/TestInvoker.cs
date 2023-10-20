@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Security;
 using System.Threading;
@@ -170,7 +171,15 @@ public abstract class TestInvoker<TContext>
 						{
 							ctxt.Aggregator.Add(
 								new InvalidOperationException(
-									$"The test method expected {parameterCount} parameter value{(parameterCount == 1 ? "" : "s")}, but {valueCount} parameter value{(valueCount == 1 ? "" : "s")} {(valueCount == 1 ? "was" : "were")} provided."
+									string.Format(
+										CultureInfo.CurrentCulture,
+										"The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.",
+										parameterCount,
+										parameterCount == 1 ? "" : "s",
+										valueCount,
+										valueCount == 1 ? "" : "s",
+										valueCount == 1 ? "was" : "were"
+									)
 								)
 							);
 						}

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Xunit.Internal;
@@ -23,7 +24,7 @@ sealed class AppDomainManager_NoAppDomain : IAppDomainManager
 #if NETFRAMEWORK
 			var type = Assembly.Load(assemblyName).GetType(typeName, throwOnError: true);
 #else
-			var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
+			var type = Type.GetType(string.Format(CultureInfo.InvariantCulture, "{0}, {1}", typeName, assemblyName.FullName), throwOnError: true);
 #endif
 			if (type is null)
 				return default;

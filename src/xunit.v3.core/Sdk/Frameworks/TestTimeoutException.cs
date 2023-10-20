@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace Xunit.Sdk;
 
@@ -16,7 +17,7 @@ public class TestTimeoutException : Exception, ITestTimeoutException
 	/// not compatible with timeout.
 	/// </summary>
 	public static TestTimeoutException ForIncompatibleTest() =>
-		new($"Tests marked with Timeout are only supported for async tests");
+		new("Tests marked with Timeout are only supported for async tests");
 
 	/// <summary>
 	/// Creates a new instance of <see cref="TestTimeoutException"/> for a test that has
@@ -24,5 +25,5 @@ public class TestTimeoutException : Exception, ITestTimeoutException
 	/// </summary>
 	/// <param name="timeout">The timeout that was exceeded, in milliseconds</param>
 	public static TestTimeoutException ForTimedOutTest(int timeout) =>
-		new($"Test execution timed out after {timeout} milliseconds");
+		new(string.Format(CultureInfo.CurrentCulture, "Test execution timed out after {0} milliseconds", timeout));
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -56,7 +57,7 @@ public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 	{
 		var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
-		Guard.ArgumentNotNull($"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType, nameof(assemblyQualifiedAttributeTypeName));
+		Guard.ArgumentNotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not load type: '{0}'", assemblyQualifiedAttributeTypeName), attributeType, nameof(assemblyQualifiedAttributeTypeName));
 
 		return
 			additionalAssemblyAttributes

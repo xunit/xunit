@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.Build.Utilities;
 using Xunit.Runner.Common;
+using Xunit.v3;
 
 namespace Xunit.Runner.MSBuild;
 
@@ -14,8 +16,8 @@ public class MSBuildDiagnosticMessageSink : TestMessageSink
 	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
 	/// are <c>false</c>.
 	/// </summary>
-	/// <param name="consoleLock">The lock object used to prevent multi-threaded code from overlapping out to the console</param>
-	/// <param name="noColor">A flag to indicate that the user has asked for no color</param>
+	/// <param name="log">The MSBuild task logging helper</param>
+	/// <param name="logLock">The lock object used to prevent multi-threaded code from overlapping out to the log</param>
 	/// <param name="showDiagnosticMessages">A flag to indicate whether diagnostic messages should be shown</param>
 	/// <param name="showInternalDiagnosticMessages">A flag to indicate whether internal diagnostic messages should be shown</param>
 	/// <param name="assemblyDisplayName">The optional assembly display name to delineate the messages</param>
@@ -30,7 +32,7 @@ public class MSBuildDiagnosticMessageSink : TestMessageSink
 			return null;
 
 		var result = new MSBuildDiagnosticMessageSink();
-		var prefix = assemblyDisplayName is null ? "" : $"[{assemblyDisplayName}]";
+		var prefix = assemblyDisplayName is null ? "" : string.Format(CultureInfo.CurrentCulture, "[{0}]", assemblyDisplayName);
 		var indent = new string(' ', prefix.Length);
 
 		if (showDiagnosticMessages)

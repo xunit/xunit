@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -29,7 +30,7 @@ class AppVeyorClient : IDisposable
 		string baseUri)
 	{
 		this.logger = logger;
-		this.baseUri = $"{baseUri}/api/tests/batch";
+		this.baseUri = string.Format(CultureInfo.InvariantCulture, "{0}/api/tests/batch", baseUri);
 
 		Task.Run(RunLoop);
 	}
@@ -103,22 +104,43 @@ class AppVeyorClient : IDisposable
 			var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
 			if (!response.IsSuccessStatusCode)
 			{
-				logger.LogWarning($"When sending '{method} {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+				logger.LogWarning(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"When sending '{0} {1}', received status code '{2}'; request body: {3}",
+						method,
+						baseUri,
+						response.StatusCode,
+						bodyString
+					)
+				);
+
 				previousErrors = true;
 			}
 		}
 		catch (Exception ex)
 		{
-			logger.LogError($"When sending '{method} {baseUri}' with body '{bodyString}', exception was thrown: {ex.Message}");
+			logger.LogError(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"When sending '{0} {1}' with body '{2}', exception was thrown: {3}",
+					method,
+					baseUri,
+					bodyString,
+					ex.Message
+				)
+			);
+
 			throw;
 		}
 	}
 
-	static string ToJson(IEnumerable<IDictionary<string, object?>> data)
-	{
-		var results = string.Join(",", data.Select(x => JsonSerializer.Serialize(x)));
-		return $"[{results}]";
-	}
+	static string ToJson(IEnumerable<IDictionary<string, object?>> data) =>
+		string.Format(
+			CultureInfo.InvariantCulture,
+			"[{0}]",
+			string.Join(",", data.Select(x => JsonSerializer.Serialize(x)))
+		);
 
 	public void UpdateTest(IDictionary<string, object?> request)
 	{

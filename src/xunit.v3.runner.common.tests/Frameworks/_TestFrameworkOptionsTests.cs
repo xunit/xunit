@@ -22,7 +22,7 @@ public class _TestFrameworkOptionsTests
 			[Fact]
 			public void EmptyJson_DeserializesToDefaultValues()
 			{
-				var result = _TestFrameworkOptions.ForDiscovery("{}");
+				var result = _TestFrameworkOptions.ForDiscoveryFromSerialization("{}");
 
 				Assert.Null(result.GetCulture());
 				Assert.Null(result.GetDiagnosticMessages());
@@ -45,7 +45,7 @@ public class _TestFrameworkOptionsTests
 				options.SetMethodDisplayOptions(overrideEnumValue);
 				var serialized = options.ToJson();
 
-				var deserialized = _TestFrameworkOptions.ForDiscovery(serialized);
+				var deserialized = _TestFrameworkOptions.ForDiscoveryFromSerialization(serialized);
 
 				Assert.Equal("foo", deserialized.GetCulture());
 				Assert.True(deserialized.GetDiagnosticMessages());
@@ -71,7 +71,7 @@ public class _TestFrameworkOptionsTests
 			[Fact]
 			public void EmptyJson_DeserializesToDefaultValues()
 			{
-				var result = _TestFrameworkOptions.ForExecution("{}");
+				var result = _TestFrameworkOptions.ForExecutionFromSerialization("{}");
 
 				Assert.Null(result.GetCulture());
 				Assert.Null(result.GetDiagnosticMessages());
@@ -91,7 +91,7 @@ public class _TestFrameworkOptionsTests
 				options.SetMaxParallelThreads(42);
 				var serialized = options.ToJson();
 
-				var deserialized = _TestFrameworkOptions.ForExecution(serialized);
+				var deserialized = _TestFrameworkOptions.ForExecutionFromSerialization(serialized);
 
 				Assert.Equal("foo", deserialized.GetCulture());
 				Assert.True(deserialized.GetDiagnosticMessages());

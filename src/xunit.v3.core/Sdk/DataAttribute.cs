@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -197,7 +198,14 @@ public abstract class DataAttribute : Attribute
 			}
 		}
 
-		throw new ArgumentException($"Data row of type '{dataRow.GetType().SafeName()}' is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", nameof(dataRow));
+		throw new ArgumentException(
+			string.Format(
+				CultureInfo.CurrentCulture,
+				"Data row of type '{0}' is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'",
+				dataRow.GetType().SafeName()
+			),
+			nameof(dataRow)
+		);
 	}
 
 	/// <summary>

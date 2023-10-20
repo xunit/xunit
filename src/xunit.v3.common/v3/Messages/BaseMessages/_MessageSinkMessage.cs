@@ -75,7 +75,7 @@ public class _MessageSinkMessage
 	{
 		var result = JsonSerializer.Deserialize<_MessageSinkMessage>(serialization.Span, jsonSerializerOptions);
 		if (result is null)
-			throw new ArgumentException($"Deserialization of JSON message unexpectedly returned null", nameof(serialization));
+			throw new ArgumentException("Deserialization of JSON message unexpectedly returned null", nameof(serialization));
 
 		result.ValidateObjectState();
 		return result;

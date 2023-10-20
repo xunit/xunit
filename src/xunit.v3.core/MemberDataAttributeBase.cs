@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,6 +17,23 @@ namespace Xunit;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public abstract class MemberDataAttributeBase : DataAttribute
 {
+	static readonly Lazy<string> supportedDataSignatures;
+
+	static MemberDataAttributeBase()
+	{
+		supportedDataSignatures = new(() =>
+		{
+			var dataSignatures = new List<string>(18);
+
+			foreach (var enumerable in new[] { "IEnumerable<{0}>", "IAsyncEnumerable<{0}>" })
+				foreach (var dataType in new[] { "ITheoryDataRow", "object[]", "Tuple<...>" })
+					foreach (var wrapper in new[] { "- {0}", "- Task<{0}>", "- ValueTask<{0}>" })
+						dataSignatures.Add(string.Format(CultureInfo.CurrentCulture, wrapper, string.Format(CultureInfo.CurrentCulture, enumerable, dataType)));
+
+			return string.Join(Environment.NewLine, dataSignatures);
+		});
+	}
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MemberDataAttributeBase"/> class.
 	/// </summary>
@@ -66,7 +84,16 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		}
 		catch (ArgumentException)
 		{
-			throw new ArgumentException($"Member '{MemberName}' on '{MemberType ?? testMethod.DeclaringType}' yielded an item of type '{dataRow?.GetType().SafeName()}' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", nameof(dataRow));
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Member '{0}' on '{1}' yielded an item of type '{2}' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'",
+					MemberName,
+					MemberType ?? testMethod.DeclaringType,
+					dataRow.GetType().SafeName()
+				),
+				nameof(dataRow)
+			);
 		}
 	}
 
@@ -81,10 +108,15 @@ public abstract class MemberDataAttributeBase : DataAttribute
 
 		var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
 		if (accessor is null)
-		{
-			var parameterText = Parameters?.Length > 0 ? $" with parameter types: {string.Join(", ", Parameters.Select(p => p?.GetType().FullName ?? "(null)"))}" : "";
-			throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}{parameterText}");
-		}
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Could not find public static member (property, field, or method) named '{0}' on {1}{2}",
+					MemberName,
+					type.FullName,
+					Parameters.Length > 0 ? string.Format(CultureInfo.CurrentCulture, " with parameter types: {0}", string.Join(", ", Parameters.Select(p => p?.GetType().FullName ?? "(null)"))) : ""
+				)
+			);
 
 		var returnValue = accessor();
 		if (returnValue is null)
@@ -138,19 +170,14 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		}
 
 		throw new ArgumentException(
-			$"Member '{MemberName}' on '{type.FullName}' must return data in one of the following formats:" + Environment.NewLine +
-			"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
-			"- Task<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-			"- ValueTask<IEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-			"- IEnumerable<object[]>" + Environment.NewLine +
-			"- Task<IEnumerable<object[]>>" + Environment.NewLine +
-			"- ValueTask<IEnumerable<object[]>>" + Environment.NewLine +
-			"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
-			"- Task<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-			"- ValueTask<IAsyncEnumerable<ITheoryDataRow>>" + Environment.NewLine +
-			"- IAsyncEnumerable<object[]>" + Environment.NewLine +
-			"- Task<IAsyncEnumerable<object[]>>" + Environment.NewLine +
-			"- ValueTask<IAsyncEnumerable<object[]>>"
+			string.Format(
+				CultureInfo.CurrentCulture,
+				"Member '{0}' on '{1}' must return data in one of the following formats:{2}{3}",
+				MemberName,
+				type.FullName,
+				Environment.NewLine,
+				supportedDataSignatures.Value
+			)
 		);
 	}
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -62,8 +63,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 
 	public virtual IReadOnlyList<_TestCaseDiscovered> Discover()
 	{
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.frontController", GetType().FullName), frontController);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.projectAssembly", GetType().FullName), projectAssembly);
 
 		var settings = new FrontControllerFindSettings(_TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration));
 		return Discover(sink => frontController.Find(sink, settings));
@@ -71,8 +72,8 @@ public class TdNetRunnerHelper : IAsyncDisposable
 
 	IReadOnlyList<_TestCaseDiscovered> Discover(Type? type)
 	{
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.frontController", GetType().FullName), frontController);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.projectAssembly", GetType().FullName), projectAssembly);
 
 		if (type is null || type.FullName is null)
 			return Array.Empty<_TestCaseDiscovered>();
@@ -119,9 +120,9 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		TestRunState initialRunState = TestRunState.NoTests,
 		ExplicitOption? explicitOption = null)
 	{
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.testListener", testListener);
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.frontController", frontController);
-		Guard.NotNull($"Attempted to use an uninitialized {GetType().FullName}.projectAssembly", projectAssembly);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.testListener", GetType().FullName), testListener);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.frontController", GetType().FullName), frontController);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Attempted to use an uninitialized {0}.projectAssembly", GetType().FullName), projectAssembly);
 
 		// TODO: This does not yet support fail-on-skip or reporting long-running tests. The fact that these are done via
 		// delegating implementations of IExecutionSink is a design problem for this runner.

@@ -69,9 +69,19 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, TestAssembly)
 				?? new CollectionPerClassTestCollectionFactory(TestAssembly);
 
-			var threadCountText = MaxParallelThreads < 0 ? "unlimited" : MaxParallelThreads.ToString(CultureInfo.CurrentCulture);
-
-			return $"{base.TestFrameworkEnvironment} [{testCollectionFactory.DisplayName}, {(DisableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
+			return string.Format(
+				CultureInfo.CurrentCulture,
+				"{0} [{1}, {2}]",
+				base.TestFrameworkEnvironment,
+				testCollectionFactory.DisplayName,
+				DisableParallelization
+					? "non-parallel"
+					: string.Format(
+						CultureInfo.CurrentCulture,
+						"parallel ({0} threads)",
+						MaxParallelThreads < 0 ? "unlimited" : MaxParallelThreads.ToString(CultureInfo.CurrentCulture)
+					)
+			);
 		}
 	}
 

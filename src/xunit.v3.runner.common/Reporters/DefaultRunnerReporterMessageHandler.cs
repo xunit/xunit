@@ -115,7 +115,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 			text
 				.Replace("\r\n", "\n")
 				.Replace("\r", "\n")
-				.Replace("\n", $"{Environment.NewLine}{indent}")
+				.Replace("\n", Environment.NewLine + indent)
 				.Replace("\0", "\\0");
 	}
 
@@ -149,11 +149,11 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// <summary>
 	/// Logs an error message to the logger.
 	/// </summary>
-	/// <param name="failureType">The type of the failure</param>
 	/// <param name="errorMetadata">The failure information</param>
+	/// <param name="failureType">The type of the failure</param>
 	protected void LogError(
-		string failureType,
-		_IErrorMetadata errorMetadata)
+		_IErrorMetadata errorMetadata,
+		string failureType)
 	{
 		Guard.ArgumentNotNull(failureType);
 		Guard.ArgumentNotNull(errorMetadata);
@@ -162,14 +162,27 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		lock (Logger.LockObject)
 		{
-			Logger.LogError(frameInfo, $"    [{failureType}] {Escape(errorMetadata.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)")}");
+			Logger.LogError(frameInfo, "    [{0}] {1}", failureType, Escape(errorMetadata.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)"));
 
 			foreach (var messageLine in ExceptionUtility.CombineMessages(errorMetadata).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-				Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
+				Logger.LogImportantMessage(frameInfo, "      " + messageLine);
 
 			LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(errorMetadata));
 		}
 	}
+
+	/// <summary>
+	/// Logs an error message to the logger.
+	/// </summary>
+	/// <param name="errorMetadata">The failure information</param>
+	/// <param name="failureTypeFormat">The type of the failure, in message format</param>
+	/// <param name="args">The arguments to format <paramref name="failureTypeFormat"/> with</param>
+	protected void LogError(
+		_IErrorMetadata errorMetadata,
+		string failureTypeFormat,
+		params object?[] args) =>
+			LogError(errorMetadata, string.Format(CultureInfo.CurrentCulture, failureTypeFormat, args));
+
 
 	/// <summary>
 	/// Logs a stack trace to the logger.
@@ -184,7 +197,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Logger.LogMessage(frameInfo, "      Stack Trace:");
 
 		foreach (var stackFrame in stackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-			Logger.LogImportantMessage(frameInfo, $"        {StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory)}");
+			Logger.LogImportantMessage(frameInfo, "        " + StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory));
 	}
 
 	/// <summary>
@@ -205,24 +218,26 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Logger.LogMessage(frameInfo, "      Output:");
 
 		foreach (var line in output.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-			Logger.LogImportantMessage(frameInfo, $"        {line}");
+			Logger.LogImportantMessage(frameInfo, "        " + line);
 	}
 
 	/// <summary>
 	/// Logs warnings to the logger.
 	/// </summary>
-	protected virtual void LogWarnings(string[]? warnings)
+	protected virtual void LogWarnings(
+		StackFrameInfo frameInfo,
+		string[]? warnings)
 	{
 		if (warnings is null || warnings.Length == 0)
 			return;
 
-		Logger.LogMessage(StackFrameInfo.None, "      Warnings:");
+		Logger.LogMessage(frameInfo, "      Warnings:");
 
 		foreach (var warning in warnings)
 		{
 			var lines = warning.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 			for (var idx = 0; idx < lines.Length; ++idx)
-				Logger.LogWarning(StackFrameInfo.None, $"        {(idx == 0 ? "•" : " ")} {lines[idx]}");
+				Logger.LogWarning(frameInfo, "        {0} {1}", idx == 0 ? '\u2022' : ' ', lines[idx]);
 		}
 	}
 
@@ -240,7 +255,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	{
 		Guard.ArgumentNotNull(args);
 
-		LogError("FATAL ERROR", args.Message);
+		LogError(args.Message, "FATAL ERROR");
 	}
 
 	/// <summary>
@@ -255,9 +270,9 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		var assemblyDisplayName = GetAssemblyDisplayName(discoveryFinished.Assembly);
 
 		if (discoveryFinished.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
-			Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName} ({discoveryFinished.TestCasesToRun} test case{(discoveryFinished.TestCasesToRun == 1 ? "" : "s")} to be run)");
+			Logger.LogImportantMessage("  Discovered:  {0} ({1} test case{2} to be run)", assemblyDisplayName, discoveryFinished.TestCasesToRun, discoveryFinished.TestCasesToRun == 1 ? "" : "s");
 		else
-			Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName}");
+			Logger.LogImportantMessage("  Discovered:  {0}", assemblyDisplayName);
 	}
 
 	/// <summary>
@@ -275,15 +290,21 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		{
 			var appDomainText = discoveryStarting.AppDomain switch
 			{
-				AppDomainOption.Enabled => $"app domain = on [{(discoveryStarting.ShadowCopy ? "shadow copy" : "no shadow copy")}], ",
-				AppDomainOption.Disabled => $"app domain = off, ",
+				AppDomainOption.Enabled => string.Format(CultureInfo.CurrentCulture, "app domain = on [{0}shadow copy], ", discoveryStarting.ShadowCopy ? "" : "no "),
+				AppDomainOption.Disabled => "app domain = off, ",
 				_ => "",
 			};
 
-			Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} ({appDomainText}method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()}, method display options = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()})");
+			Logger.LogImportantMessage(
+				"  Discovering: {0} ({1}method display = {2}, method display options = {3})",
+				assemblyDisplayName,
+				appDomainText,
+				discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault(),
+				discoveryStarting.DiscoveryOptions.GetMethodDisplayOptionsOrDefault()
+			);
 		}
 		else
-			Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName}");
+			Logger.LogImportantMessage("  Discovering: {0}", assemblyDisplayName);
 	}
 
 	/// <summary>
@@ -295,7 +316,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var executionFinished = args.Message;
-		Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
+		Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(executionFinished.Assembly));
 
 		RemoveExecutionOptions(executionFinished.Assembly.Identifier);
 	}
@@ -320,10 +341,18 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 #pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
 #pragma warning restore CA1308
-			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText}, explicit = {@explicit}{(executionStarting.Seed is null ? "" : $", seed = {executionStarting.Seed}")})");
+
+			Logger.LogImportantMessage(
+				"  Starting:    {0} (parallel test collections = {1}, max threads = {2}, explicit = {3}{4})",
+				assemblyDisplayName,
+				!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
+				threadCountText,
+				@explicit,
+				executionStarting.Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, ", seed = {0}", executionStarting.Seed)
+			);
 		}
 		else
-			Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");
+			Logger.LogImportantMessage("  Starting:    {0}", assemblyDisplayName);
 	}
 
 	/// <summary>
@@ -335,10 +364,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetAssemblyMetadata(args.Message);
-		if (metadata is not null)
-			LogError($"Test Assembly Cleanup Failure ({metadata.AssemblyPath})", args.Message);
-		else
-			LogError($"Test Assembly Cleanup Failure (<unknown test assembly>)", args.Message);
+
+		LogError(args.Message, "Test Assembly Cleanup Failure ({0})", metadata?.AssemblyPath ?? "<unknown test assembly>");
 	}
 
 	/// <summary>
@@ -374,10 +401,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetTestCaseMetadata(args.Message);
-		if (metadata is not null)
-			LogError($"Test Case Cleanup Failure ({metadata.TestCaseDisplayName})", args.Message);
-		else
-			LogError("Test Case Cleanup Failure (<unknown test case>)", args.Message);
+
+		LogError(args.Message, "Test Case Cleanup Failure ({0})", metadata?.TestCaseDisplayName ?? "<unknown test case>");
 	}
 
 	/// <summary>
@@ -411,10 +436,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetClassMetadata(args.Message);
-		if (metadata is not null)
-			LogError($"Test Class Cleanup Failure ({metadata.TestClass})", args.Message);
-		else
-			LogError("Test Class Cleanup Failure (<unknown test class>)", args.Message);
+
+		LogError(args.Message, "Test Class Cleanup Failure ({0})", metadata?.TestClass ?? "<unknown test class>");
 	}
 
 	/// <summary>
@@ -448,10 +471,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetTestMetadata(args.Message);
-		if (metadata is not null)
-			LogError($"Test Cleanup Failure ({metadata.TestDisplayName})", args.Message);
-		else
-			LogError("Test Cleanup Failure (<unknown test>)", args.Message);
+
+		LogError(args.Message, "Test Cleanup Failure ({0})", metadata?.TestDisplayName ?? "<unknown test>");
 	}
 
 	/// <summary>
@@ -463,10 +484,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var metadata = MetadataCache.TryGetCollectionMetadata(args.Message);
-		if (metadata is not null)
-			LogError($"Test Collection Cleanup Failure ({metadata.TestCollectionDisplayName})", args.Message);
-		else
-			LogError($"Test Collection Cleanup Failure (<unknown test collection>)", args.Message);
+
+		LogError(args.Message, "Test Collection Cleanup Failure ({0})", metadata?.TestCollectionDisplayName ?? "<unknown test collection>");
 	}
 
 	/// <summary>
@@ -516,17 +535,14 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		lock (Logger.LockObject)
 		{
-			if (metadata is not null)
-				Logger.LogError(frameInfo, $"    {Escape(metadata.TestDisplayName)} [FAIL]");
-			else
-				Logger.LogError(frameInfo, "    <unknown test> [FAIL]");
+			Logger.LogError(frameInfo, "    {0} [FAIL]", Escape(metadata?.TestDisplayName ?? "<unknown test>"));
 
 			foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-				Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
+				Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
 
 			LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));
 			LogOutput(frameInfo, testFailed.Output);
-			LogWarnings(testFailed.Warnings);
+			LogWarnings(frameInfo, testFailed.Warnings);
 		}
 	}
 
@@ -551,10 +567,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		var cleanupFailure = args.Message;
 		var metadata = MetadataCache.TryGetMethodMetadata(args.Message);
-		if (metadata is not null)
-			LogError($"Test Method Cleanup Failure ({metadata.TestMethod})", cleanupFailure);
-		else
-			LogError("Test Method Cleanup Failure (<unknown test method>)", cleanupFailure);
+
+		LogError(cleanupFailure, "Test Method Cleanup Failure ({0})", metadata?.TestMethod ?? "<unknown test method>");
 	}
 
 	/// <summary>
@@ -596,13 +610,11 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 			lock (Logger.LockObject)
 			{
 				var testMetadata = MetadataCache.TryGetTestMetadata(testPassed);
-				if (testMetadata is not null)
-					Logger.LogImportantMessage($"    {Escape(testMetadata.TestDisplayName)} [PASS]");
-				else
-					Logger.LogImportantMessage("    <unknown test> [PASS]");
+
+				Logger.LogImportantMessage("    {0} [PASS]", Escape(testMetadata?.TestDisplayName ?? "<unknown test>"));
 
 				LogOutput(StackFrameInfo.None, testPassed.Output);
-				LogWarnings(testPassed.Warnings);
+				LogWarnings(StackFrameInfo.None, testPassed.Warnings);
 			}
 		}
 		// TODO: What to do if assembly metadata cannot be found?
@@ -620,15 +632,12 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		{
 			var testSkipped = args.Message;
 			var testMetadata = MetadataCache.TryGetTestMetadata(testSkipped);
-			if (testMetadata is not null)
-				Logger.LogWarning($"    {Escape(testMetadata.TestDisplayName)} [SKIP]");
-			else
-				Logger.LogWarning("    <unknown test> [SKIP]");
 
-			Logger.LogImportantMessage($"      {EscapeMultiLineIndent(testSkipped.Reason, "      ")}");
+			Logger.LogWarning("    {0} [SKIP]", Escape(testMetadata?.TestDisplayName ?? "<unknown test>"));
+			Logger.LogImportantMessage("      {0}", EscapeMultiLineIndent(testSkipped.Reason, "      "));
 
 			LogOutput(StackFrameInfo.None, testSkipped.Output);
-			LogWarnings(testSkipped.Warnings);
+			LogWarnings(StackFrameInfo.None, testSkipped.Warnings);
 		}
 	}
 
@@ -681,7 +690,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		foreach (var (summary, assemblyUniqueID, assemblyDisplayName) in summariesWithDisplayName)
 		{
 			if (summary.Total == 0)
-				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(allTotal.Length)}");
+				logger.LogImportantMessage("   {0}  Total: {1}", assemblyDisplayName.PadRight(longestAssemblyName), "0".PadLeft(allTotal.Length));
 			else
 			{
 				var total = summary.Total.ToString(CultureInfo.CurrentCulture).PadLeft(allTotal.Length);
@@ -691,14 +700,42 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				var notRun = summary.NotRun.ToString(CultureInfo.CurrentCulture).PadLeft(allNotRun.Length);
 				var time = summary.Time.ToString("0.000s", CultureInfo.CurrentCulture).PadLeft(allTime.Length);
 
-				logger.LogImportantMessage($"   {assemblyDisplayName.PadRight(longestAssemblyName)}  Total: {total}, Errors: {errors}, Failed: {failed}, Skipped: {skipped}, Not Run: {notRun}, Time: {time}");
+				logger.LogImportantMessage(
+					"   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Not Run: {5}, Time: {6}",
+					assemblyDisplayName.PadRight(longestAssemblyName),
+					total,
+					errors,
+					failed,
+					skipped,
+					notRun,
+					time
+				);
 			}
 		}
 
 		if (summaries.SummariesByAssemblyUniqueID.Count > 1)
 		{
-			logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(allTotal.Length, '-')}          {"-".PadRight(allErrors.Length, '-')}          {"-".PadRight(allFailed.Length, '-')}           {"-".PadRight(allSkipped.Length, '-')}           {"-".PadRight(allNotRun.Length, '-')}        {"-".PadRight(allTime.Length, '-')}");
-			logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {allTotal}          {allErrors}          {allFailed}           {allSkipped}           {allNotRun}        {allTime} ({summaries.ElapsedClockTime.TotalSeconds:0.000s})");
+			logger.LogImportantMessage(
+				"   {0}         {1}          {2}          {3}           {4}           {5}        {6}",
+				" ".PadRight(longestAssemblyName),
+				"-".PadRight(allTotal.Length, '-'),
+				"-".PadRight(allErrors.Length, '-'),
+				"-".PadRight(allFailed.Length, '-'),
+				"-".PadRight(allSkipped.Length, '-'),
+				"-".PadRight(allNotRun.Length, '-'),
+				"-".PadRight(allTime.Length, '-')
+			);
+			logger.LogImportantMessage(
+				"   {0} {1}          {2}          {3}           {4}           {5}        {6} ({7:0.000s})",
+				"GRAND TOTAL:".PadLeft(longestAssemblyName + 8),
+				allTotal,
+				allErrors,
+				allFailed,
+				allSkipped,
+				allNotRun,
+				allTime,
+				summaries.ElapsedClockTime.TotalSeconds
+			);
 		}
 	}
 

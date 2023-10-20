@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -161,7 +162,13 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 									details.ResolvedTestMethod,
 									details.TestCaseDisplayName,
 									details.UniqueID,
-									$"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+									string.Format(
+										CultureInfo.CurrentCulture,
+										"Data discoverer specified for {0} on {1}.{2} does not implement IDataDiscoverer.",
+										reflectionAttribute.Attribute.GetType(),
+										testMethod.TestClass.Class.Name,
+										testMethod.Method.Name
+									)
 								)
 							);
 						else
@@ -170,7 +177,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 									testMethod,
 									details.TestCaseDisplayName,
 									details.UniqueID,
-									$"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+									string.Format(
+										CultureInfo.CurrentCulture,
+										"A data discoverer specified on {0}.{1} does not implement IDataDiscoverer.",
+										testMethod.TestClass.Class.Name,
+										testMethod.Method.Name
+									)
 								)
 							);
 
@@ -187,7 +199,13 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 									details.ResolvedTestMethod,
 									details.TestCaseDisplayName,
 									details.UniqueID,
-									$"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+									string.Format(
+										CultureInfo.CurrentCulture,
+										"Data discoverer specified for {0} on {1}.{2} does not exist.",
+										reflectionAttribute.Attribute.GetType(),
+										testMethod.TestClass.Class.Name,
+										testMethod.Method.Name
+									)
 								)
 							);
 						else
@@ -196,7 +214,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 									testMethod,
 									details.TestCaseDisplayName,
 									details.UniqueID,
-									$"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+									string.Format(
+										CultureInfo.CurrentCulture,
+										"A data discoverer specified on {0}.{1} does not exist.",
+										testMethod.TestClass.Class.Name,
+										testMethod.Method.Name
+									)
 								)
 							);
 
@@ -216,7 +239,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 								details.ResolvedTestMethod,
 								details.TestCaseDisplayName,
 								details.UniqueID,
-								$"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."
+								string.Format(
+									CultureInfo.CurrentCulture,
+									"Test data returned null for {0}.{1}. Make sure it is statically initialized before this test method is called.",
+									testMethod.TestClass.Class.Name,
+									testMethod.Method.Name
+								)
 							)
 						);
 
@@ -241,7 +269,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 								resolvedData
 									.Select(x => x?.GetType().FullName)
 									.WhereNotNull()
-									.Select(x => $"'{x}'")
+									.Select(x => string.Format(CultureInfo.CurrentCulture, "'{0}'", x))
 									.ToList();
 
 							TestContext.Current?.SendDiagnosticMessage(
@@ -281,7 +309,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 							details.ResolvedTestMethod,
 							details.TestCaseDisplayName,
 							details.UniqueID,
-							$"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"
+							string.Format(
+								CultureInfo.CurrentCulture,
+								"No data found for {0}.{1}",
+								testMethod.TestClass.Class.Name,
+								testMethod.Method.Name
+							)
 						)
 					);
 				}

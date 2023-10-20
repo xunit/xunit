@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Xunit.Internal;
@@ -80,7 +81,7 @@ public class DelegatingLongRunningTestDetectionSink : IExecutionSink
 		LongRunningTestsSummary summary,
 		_IMessageSink diagnosticMessageSink)
 	{
-		var messages = summary.TestCases.Select(pair => $"Long running test: '{pair.Key.TestCaseDisplayName}' (elapsed: {pair.Value:hh\\:mm\\:ss})");
+		var messages = summary.TestCases.Select(pair => string.Format(CultureInfo.CurrentCulture, "Long running test: '{0}' (elapsed: {1:hh\\:mm\\:ss})", pair.Key.TestCaseDisplayName, pair.Value));
 		var message = string.Join(Environment.NewLine, messages.ToArray());
 
 		diagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });

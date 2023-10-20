@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	/// <summary>
 	/// Gets the display name of the xUnit.net v3 test framework.
 	/// </summary>
-	public static readonly string DisplayName = $"xUnit.net v3 {ThisAssembly.AssemblyInformationalVersion}";
+	public static readonly string DisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v3 {0}", ThisAssembly.AssemblyInformationalVersion);
 
 	static XunitTestFrameworkDiscoverer()
 	{
@@ -52,7 +53,13 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 				?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly)
 				?? new CollectionPerClassTestCollectionFactory(testAssembly);
 
-		TestFrameworkDisplayName = $"{DisplayName} [{TestCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}]";
+		TestFrameworkDisplayName = string.Format(
+			CultureInfo.CurrentCulture,
+			"{0} [{1}, {2}]",
+			DisplayName,
+			TestCollectionFactory.DisplayName,
+			disableParallelization ? "non-parallel" : "parallel"
+		);
 	}
 
 	/// <summary>
@@ -96,7 +103,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 		if (factAttributes.Count > 1)
 		{
-			var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
+			var message = string.Format(CultureInfo.CurrentCulture, "Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.Class.Name, testMethod.Method.Name);
 			var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttributes[0]);
 			await using var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
 			return await discoveryCallback(testCase);
@@ -159,7 +166,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 					testMethod,
 					details.TestCaseDisplayName,
 					details.UniqueID,
-					$"Exception during discovery:{Environment.NewLine}{ex}"
+					string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex)
 				);
 				await discoveryCallback(errorTestCase);
 			}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -83,7 +84,11 @@ public abstract class TestClassRunner<TContext, TTestCase>
 		TContext ctxt,
 		ConstructorInfo constructor,
 		IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments) =>
-			$"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
+			string.Format(
+				CultureInfo.CurrentCulture,
+				"The following constructor parameters did not have matching arguments: {0}",
+				string.Join(", ", unusedArguments.Select(arg => string.Format(CultureInfo.CurrentCulture, "{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)))
+			);
 
 	/// <summary>
 	/// This method is called just after <see cref="_TestClassStarting"/> is sent, but before any test methods are run.

@@ -96,6 +96,6 @@ public partial struct StackFrameInfo
 
 		wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
 
-		return new Regex($"{wordAt} .* {wordsInLine}");
+		return new Regex(string.Format(CultureInfo.InvariantCulture, "{0} .* {1}", wordAt, wordsInLine));
 	}
 }

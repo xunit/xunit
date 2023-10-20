@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -71,7 +72,7 @@ public class TestCollection : _ITestCollection, IXunitSerializable
 		{
 			var type = TypeHelper.GetType(definitionAssemblyName, definitionTypeName);
 			if (type is null)
-				throw new InvalidOperationException($"Failed to deserialize type '{definitionTypeName}' in assembly '{definitionAssemblyName}'");
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Failed to deserialize type '{0}' in assembly '{1}'", definitionTypeName, definitionAssemblyName));
 
 			CollectionDefinition = Reflector.Wrap(type);
 		}

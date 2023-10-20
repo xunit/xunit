@@ -80,7 +80,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
 	/// </summary>
 	/// <param name="optionsJson">The serialized discovery options.</param>
-	public static _ITestFrameworkDiscoveryOptions ForDiscovery(string optionsJson) =>
+	public static _ITestFrameworkDiscoveryOptions ForDiscoveryFromSerialization(string optionsJson) =>
 		new _TestFrameworkOptions(optionsJson);
 
 	/// <summary>
@@ -88,7 +88,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// </summary>
 	/// <param name="culture">Optional value to indicate the culture used for test execution</param>
 	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
-	/// <param name="diableParallelization">Optional flag to disable test parallelization</param>
+	/// <param name="disableParallelization">Optional flag to disable test parallelization</param>
 	/// <param name="explicitOption">Optional flag to indicate how explicit tests should be handled</param>
 	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
 	/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
@@ -98,7 +98,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	public static _ITestFrameworkExecutionOptions ForExecution(
 		string? culture = null,
 		bool? diagnosticMessages = null,
-		bool? diableParallelization = null,
+		bool? disableParallelization = null,
 		ExplicitOption? explicitOption = null,
 		bool? internalDiagnosticMessages = null,
 		int? maxParallelThreads = null,
@@ -109,7 +109,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetDisableParallelization(diableParallelization);
+		result.SetDisableParallelization(disableParallelization);
 		result.SetExplicitOption(explicitOption);
 		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
 		result.SetMaxParallelThreads(maxParallelThreads);
@@ -143,7 +143,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 	/// </summary>
 	/// <param name="optionsJson">The serialized execution options.</param>
-	public static _ITestFrameworkExecutionOptions ForExecution(string optionsJson) =>
+	public static _ITestFrameworkExecutionOptions ForExecutionFromSerialization(string optionsJson) =>
 		new _TestFrameworkOptions(optionsJson);
 
 	/// <summary>
@@ -193,7 +193,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	}
 
 	string ToDebuggerDisplay()
-		=> $"{{ {string.Join(", ", properties.Select(p => $"{{ {p.Key} = {p.Value} }}").ToArray())} }}";
+		=> string.Format(CultureInfo.CurrentCulture, "{{ {0} }}", string.Join(", ", properties.Select(p => string.Format(CultureInfo.CurrentCulture, "{{ {0} = {1} }}", p.Key, p.Value)).ToArray()));
 
 	/// <inheritdoc/>
 	public string ToJson() =>

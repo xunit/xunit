@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -82,7 +83,7 @@ public class XunitFrontController : IFrontController
 		_IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
-		Guard.NotNull($"This instance of {typeof(XunitFrontController).FullName} is for discovery only", innerController);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(XunitFrontController).FullName), innerController);
 
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
@@ -95,7 +96,7 @@ public class XunitFrontController : IFrontController
 		_IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
-		Guard.NotNull($"This instance of {typeof(XunitFrontController).FullName} is for discovery only", innerController);
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(XunitFrontController).FullName), innerController);
 
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
@@ -142,7 +143,7 @@ public class XunitFrontController : IFrontController
 #endif
 
 		if (innerDiscoverer is null)
-			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in assembly reference list");
+			throw new InvalidOperationException("Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in assembly reference list");
 
 		return new XunitFrontController(innerDiscoverer);
 	}
@@ -181,7 +182,7 @@ public class XunitFrontController : IFrontController
 #endif
 
 		if (innerController is null)
-			throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder ?? "<unknown assembly folder>"}");
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {0}", assemblyFolder ?? "<unknown assembly folder>"));
 
 		return new XunitFrontController(innerController);
 	}
