@@ -341,14 +341,18 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 #pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
 #pragma warning restore CA1308
+			var culture = executionStarting.ExecutionOptions.GetCulture();
+			if (culture?.Length == 0)
+				culture = "invariant";
 
 			Logger.LogImportantMessage(
-				"  Starting:    {0} (parallel test collections = {1}, max threads = {2}, explicit = {3}{4})",
+				"  Starting:    {0} (parallel test collections = {1}, max threads = {2}, explicit = {3}{4}{5})",
 				assemblyDisplayName,
 				!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
 				threadCountText,
 				@explicit,
-				executionStarting.Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, ", seed = {0}", executionStarting.Seed)
+				executionStarting.Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, ", seed = {0}", executionStarting.Seed),
+				culture is null ? "" : string.Format(CultureInfo.CurrentCulture, ", culture = {0}", culture)
 			);
 		}
 		else

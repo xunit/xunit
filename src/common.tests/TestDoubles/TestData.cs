@@ -296,7 +296,8 @@ public static class TestData
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
 		bool parallelizeTestCollections = false,
-		int? seed = null)
+		int? seed = null,
+		string? culture = null)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project)
@@ -308,6 +309,7 @@ public static class TestData
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 		var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
 		{
+			Culture = culture,
 			DiagnosticMessages = diagnosticMessages,
 			ExplicitOption = explicitOption,
 			InternalDiagnosticMessages = internalDiagnosticMessages,
