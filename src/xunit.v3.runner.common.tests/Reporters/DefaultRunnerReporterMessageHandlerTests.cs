@@ -211,7 +211,9 @@ public class DefaultRunnerReporterMessageHandlerTests
 			AssertFailureMessages(handler.Messages, "Test Method Cleanup Failure (MyMethod)");
 		}
 
-		static void AssertFailureMessages(IEnumerable<string> messages, string messageType)
+		static void AssertFailureMessages(
+			IEnumerable<string> messages,
+			string messageType)
 		{
 #if NETCOREAPP  // Stack frame parsing appears to be broken outside of en-US culture on .NET Framework
 			Assert.Collection(
@@ -369,7 +371,8 @@ public class DefaultRunnerReporterMessageHandlerTests
 			exceptionTypes: FailureMessages.exceptionTypes,
 			output: $"This is\t{Environment.NewLine}output",
 			messages: FailureMessages.messages,
-			stackTraces: FailureMessages.stackTraces
+			stackTraces: FailureMessages.stackTraces,
+			warnings: new[] { "warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2" }
 		);
 		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
@@ -392,7 +395,11 @@ public class DefaultRunnerReporterMessageHandlerTests
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 3", msg),
 				msg => Assert.Equal("[--- @ SomeFolder\\SomeClass.cs:18] =>       Output:", msg),
 				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         This is\t", msg),
-				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         output", msg)
+				msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         output", msg),
+				msg => Assert.Equal("[--- @ SomeFolder\\SomeClass.cs:18] =>       Warnings:", msg),
+				msg => Assert.Equal("[Wrn @ SomeFolder\\SomeClass.cs:18] =>         • warning1", msg),
+				msg => Assert.Equal("[Wrn @ SomeFolder\\SomeClass.cs:18] =>         • warning2 line 1", msg),
+				msg => Assert.Equal("[Wrn @ SomeFolder\\SomeClass.cs:18] =>           warning2 line 2", msg)
 			);
 		}
 	}
@@ -401,7 +408,26 @@ public class DefaultRunnerReporterMessageHandlerTests
 	public class OnMessage_TestPassed
 	{
 		readonly _TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");
+		readonly _TestPassed passedMessageWithWarnings = TestData.TestPassed(warnings: new[] { "warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2" });
 		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+
+		[Fact]
+		public void LogsWarnings()
+		{
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(passedMessageWithWarnings);
+
+			Assert.Collection(
+				handler.Messages,
+				msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
+				msg => Assert.Equal("[---] =>       Warnings:", msg),
+				msg => Assert.Equal("[Wrn] =>         • warning1", msg),
+				msg => Assert.Equal("[Wrn] =>         • warning2 line 1", msg),
+				msg => Assert.Equal("[Wrn] =>           warning2 line 2", msg)
+			);
+		}
 
 		[Fact]
 		public void DoesNotLogOutputByDefault()
@@ -444,7 +470,10 @@ public class DefaultRunnerReporterMessageHandlerTests
 		public static void LogsTestNameAsWarning(string skipNewline)
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
-			var skipMessage = TestData.TestSkipped(reason: $"This is my skip reason \t{skipNewline}across multiple lines");
+			var skipMessage = TestData.TestSkipped(
+				reason: $"This is my skip reason \t{skipNewline}across multiple lines",
+				warnings: new[] { "warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2" }
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(startingMessage);
@@ -452,7 +481,11 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal("[Wrn] =>     This is my display name \\t\\r\\n [SKIP]", msg),
-				msg => Assert.Equal($"[Imp] =>       This is my skip reason \t{Environment.NewLine}      across multiple lines", msg)
+				msg => Assert.Equal($"[Imp] =>       This is my skip reason \t{Environment.NewLine}      across multiple lines", msg),
+				msg => Assert.Equal("[---] =>       Warnings:", msg),
+				msg => Assert.Equal("[Wrn] =>         • warning1", msg),
+				msg => Assert.Equal("[Wrn] =>         • warning2 line 1", msg),
+				msg => Assert.Equal("[Wrn] =>           warning2 line 2", msg)
 			);
 		}
 	}
