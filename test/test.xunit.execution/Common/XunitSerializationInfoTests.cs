@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Serialization;
 
 #if NETFRAMEWORK
 using System.Xml;
+#endif
+
+#if NETCOREAPP
+using System.Numerics;
 #endif
 
 public class XunitSerializationInfoTests
@@ -103,7 +106,7 @@ public class XunitSerializationInfoTests
         }
     }
 
-    enum MyEnum { SomeValue, OtherValue }
+    enum MyEnum { SomeValue, OtherValue = -1 }
 
     public class Serialize
     {
@@ -203,17 +206,17 @@ public class XunitSerializationInfoTests
 
             var result = XunitSerializationInfo.Serialize(data);
 
-            Assert.Equal("InsertLineBreaks", result);
+            Assert.Equal("1", result);
         }
 
-        [Fact]
+        [CulturedFact("en-US", "fo-FO")]
         public static void CanSerializeEnumFromLocalAssembly()
         {
-            var data = MyEnum.SomeValue;
+            var data = MyEnum.OtherValue;
 
             var result = XunitSerializationInfo.Serialize(data);
 
-            Assert.Equal("SomeValue", result);
+            Assert.Equal("-1", result);
         }
 
 #if NETFRAMEWORK
@@ -226,7 +229,7 @@ public class XunitSerializationInfoTests
 
             var argEx = Assert.IsType<ArgumentException>(ex);
             Assert.Equal("value", argEx.ParamName);
-            Assert.StartsWith("We cannot serialize enum System.Xml.ConformanceLevel.Auto because it lives in the GAC", argEx.Message);
+            Assert.StartsWith("Cannot serialize enum System.Xml.ConformanceLevel.Auto because it lives in the GAC", argEx.Message);
         }
 #endif
 

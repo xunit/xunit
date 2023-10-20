@@ -41,6 +41,21 @@ namespace Xunit.Serialization
         static readonly ConstructorInfo timeOnlyCtor = timeOnlyType?.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Length == 1 && c.GetParameters()[0].ParameterType == typeof(long));
 #endif
 
+        static readonly Dictionary<Type, bool> enumSignsByType = new()
+        {
+            // Signed
+            { typeof(sbyte), true },
+            { typeof(short), true },
+            { typeof(int), true },
+            { typeof(long), true },
+
+            // Unsigned
+            { typeof(byte), false },
+            { typeof(ushort), false },
+            { typeof(uint), false },
+            { typeof(ulong), false },
+        };
+
         static List<Type> supportedSerializationTypes = new()
         {
             typeof(IXunitSerializable),
@@ -449,11 +464,7 @@ namespace Xunit.Serialization
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
 
             if (valueType.IsEnum())
-            {
-                if (!valueType.IsFromLocalAssembly())
-                    throw new ArgumentException($"We cannot serialize enum {valueType.FullName}.{value} because it lives in the GAC", nameof(value));
-                return value.ToString();
-            }
+                return SerializeEnum(value, valueType);
 
             var arrayData = value as Array;
             if (arrayData != null)
@@ -465,6 +476,31 @@ namespace Xunit.Serialization
             }
 
             throw new ArgumentException($"We don't know how to serialize type {valueType.FullName}", nameof(value));
+        }
+
+        static string SerializeEnum(object value, Type valueType)
+        {
+            if (!valueType.IsFromLocalAssembly())
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), nameof(value));
+
+            Type underlyingType;
+
+            try
+            {
+                underlyingType = Enum.GetUnderlyingType(value.GetType());
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because an exception was thrown getting its underlying type", valueType.FullName, value), ex);
+            }
+
+            if (!enumSignsByType.TryGetValue(underlyingType, out var signed))
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because the underlying type '{2}' is not supported", valueType.FullName, value, underlyingType.FullName), nameof(value));
+
+            return
+                signed
+                    ? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
+                    : Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>

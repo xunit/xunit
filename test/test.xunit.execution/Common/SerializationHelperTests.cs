@@ -83,13 +83,17 @@ public class SerializationHelperTests
             { new BigInteger(42), "System.Numerics.BigInteger, System.Runtime.Numerics:42" },
 #endif
             { typeof(string), "System.Type:System.String" },
-            { TestMethodDisplay.Method, "Xunit.Sdk.TestMethodDisplay, xunit.core:Method" },
+            { TestMethodDisplay.Method, "Xunit.Sdk.TestMethodDisplay, xunit.core:2" },
+            { (TestMethodDisplay)int.MinValue, "Xunit.Sdk.TestMethodDisplay, xunit.core:-2147483648" },
+            { (TestMethodDisplay)int.MaxValue, "Xunit.Sdk.TestMethodDisplay, xunit.core:2147483647" },
+            { (MyUnsignedEnum)ulong.MinValue, "SerializationHelperTests+Serialization+MyUnsignedEnum, test.xunit.execution:0" },
+            { (MyUnsignedEnum)ulong.MaxValue, "SerializationHelperTests+Serialization+MyUnsignedEnum, test.xunit.execution:18446744073709551615" },
             { new[] { 1, 2, 3 }, "System.Int32[]:RWxlbWVudFR5cGU6U3lzdGVtLlN0cmluZzpVM2x6ZEdWdExrbHVkRE15ClJhbms6U3lzdGVtLkludDMyOjEKVG90YWxMZW5ndGg6U3lzdGVtLkludDMyOjMKTGVuZ3RoMDpTeXN0ZW0uSW50MzI6MwpMb3dlckJvdW5kMDpTeXN0ZW0uSW50MzI6MApJdGVtMDpTeXN0ZW0uSW50MzI6MQpJdGVtMTpTeXN0ZW0uSW50MzI6MgpJdGVtMjpTeXN0ZW0uSW50MzI6Mw==" },
             { 42, "System.Int32:42" },
             { new MySerializable(42), "SerializationHelperTests+Serialization+MySerializable, test.xunit.execution:dmFsdWU6U3lzdGVtLkludDMyOjQy" },
         };
 
-        [Theory]
+        [CulturedTheory("en-US", "fo-FO")]
         [MemberData(nameof(ValidValueData))]
         public void ValidValues<T>(T value, string serializedValue)
         {
@@ -144,5 +148,8 @@ public class SerializationHelperTests
                 info.AddValue(nameof(value), value);
             }
         }
+
+        enum MyUnsignedEnum : ulong
+        { }
     }
 }
