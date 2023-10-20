@@ -195,54 +195,21 @@ public abstract class CommandLineParserBase
 
 	List<IRunnerReporter> GetAvailableRunnerReporters()
 	{
-		var result = new List<IRunnerReporter>();
-
 		if (string.IsNullOrWhiteSpace(reporterFolder))
-			return result;
+			return new List<IRunnerReporter>();
 
-		// TODO: We shouldn't just load every DLL, this could cause a lot of problems (not just performance,
-		// but also the fact that some things may not be loadable from here). What's the best strategy? Demand
-		// a filename match? Use Cecil to see if there's an assembly-level attribute indicating reporters are
-		// present? Something besides this...
-		foreach (var dllFile in Directory.GetFiles(reporterFolder, "*.dll").Select(f => Path.Combine(reporterFolder, f)))
+		var result = RunnerReporterUtility.GetAvailableRunnerReporters(reporterFolder, out var messages);
+
+		if (messages.Count != 0)
 		{
-			Type?[] types;
+			if (!Project.Configuration.NoColorOrDefault)
+				ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
-			try
-			{
-				var assembly = LoadAssembly(dllFile);
-				types = assembly.GetTypes();
-			}
-			catch (ReflectionTypeLoadException ex)
-			{
-				types = ex.Types;
-			}
-			catch
-			{
-				continue;
-			}
+			foreach (var message in messages)
+				Console.WriteLine(message);
 
-			foreach (var type in types)
-			{
-				if (type is null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() is not null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-					continue;
-
-				var ctor = type.GetConstructor(Array.Empty<Type>());
-				if (ctor is null)
-				{
-					if (!Project.Configuration.NoColorOrDefault)
-						ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-
-					Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-
-					if (!Project.Configuration.NoColorOrDefault)
-						ConsoleHelper.ResetColor();
-
-					continue;
-				}
-
-				result.Add((IRunnerReporter)ctor.Invoke(Array.Empty<object>()));
-			}
+			if (!Project.Configuration.NoColorOrDefault)
+				ConsoleHelper.ResetColor();
 		}
 
 		return result;

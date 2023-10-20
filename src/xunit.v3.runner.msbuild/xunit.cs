@@ -432,44 +432,16 @@ public class xunit : MSBuildTask, ICancelableTask
 
 	protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
 	{
-		var result = new List<IRunnerReporter>();
-		var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
+		var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+		if (runnerPath is null)
+			return new List<IRunnerReporter>();
 
-		foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
-		{
-			Type?[] types;
+		var result = RunnerReporterUtility.GetAvailableRunnerReporters(runnerPath, out var messages);
 
-			try
-			{
-				var assembly = Assembly.LoadFile(dllFile);
-				types = assembly.GetTypes();
-			}
-			catch (ReflectionTypeLoadException ex)
-			{
-				types = ex.Types;
-			}
-			catch
-			{
-				continue;
-			}
-
-			foreach (var type in types)
-			{
-				if (type is null || type.IsAbstract || type.GetCustomAttribute<HiddenRunnerReporterAttribute>() is not null || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-					continue;
-
-				var ctor = type.GetConstructor(Array.Empty<Type>());
-				if (ctor is null)
-				{
-					lock (logLock)
-						Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
-
-					continue;
-				}
-
-				result.Add((IRunnerReporter)ctor.Invoke(Array.Empty<object>()));
-			}
-		}
+		if (messages.Count != 0)
+			lock (logLock)
+				foreach (var message in messages)
+					Log.LogWarning(message);
 
 		return result;
 	}
