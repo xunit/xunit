@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
-using System.Xml;
 using Xunit;
 using Xunit.Sdk;
+
+#if NETFRAMEWORK
+using System.Xml;
+#endif
 
 public class SerializationHelperTests
 {
@@ -45,10 +48,18 @@ public class SerializationHelperTests
 		// IXunitSerializable and enums contain embedded type information in addition to a type index
 #if BUILD_X86
 		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.tests.x86")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
-		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:MyValue" },
+		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:123" },
+		{ (MyEnum)int.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:-2147483648" },
+		{ (MyEnum)int.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:2147483647" },
+		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests.x86")}:0" },
+		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests.x86")}:18446744073709551615" },
 #else
 		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.tests")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
-		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:MyValue" },
+		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:123" },
+		{ (MyEnum)int.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:-2147483648" },
+		{ (MyEnum)int.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:2147483647" },
+		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests")}:0" },
+		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests")}:18446744073709551615" },
 #endif
 
 		// Trait dictionaries are serialized as a keys list and values arrays
@@ -125,7 +136,7 @@ public class SerializationHelperTests
 			Assert.StartsWith("Tried to deserialize unknown type index 'abc'", argEx.Message);
 		}
 
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCases(
 			Type _,
@@ -136,7 +147,7 @@ public class SerializationHelperTests
 			Assert.Null(result);
 		}
 
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCasesAsArrays(
 			Type _,
@@ -147,7 +158,7 @@ public class SerializationHelperTests
 			Assert.Null(result);
 		}
 
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
 		public void NonNullSuccessCases<T>(
 			T? expectedValue,
@@ -209,7 +220,7 @@ public class SerializationHelperTests
 #endif
 		};
 
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(SupportedTypes), DisableDiscoveryEnumeration = true)]
 		public void SuccessCases(Type type)
 		{
@@ -239,7 +250,7 @@ public class SerializationHelperTests
 
 	public class Serialize
 	{
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCases(
 			Type nullableType,
@@ -250,7 +261,7 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization, result);
 		}
 
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCasesAsArrays(
 			Type nullableType,
@@ -261,7 +272,7 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization + "[]", result);
 		}
 
-		[Theory]
+		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
 		public void NonNullSuccessCases<T>(
 			T? value,
@@ -300,7 +311,7 @@ public class SerializationHelperTests
 			return result;
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FailureData))]
 		public void FailureCases(
 			object? value,
@@ -373,6 +384,9 @@ public class SerializationHelperTests
 	{
 		MyValue = 123
 	}
+
+	enum MyUnsignedEnum : ulong
+	{ }
 
 	class MySerializable : IXunitSerializable
 	{

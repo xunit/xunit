@@ -21,6 +21,7 @@ public static class SerializationHelper
 	internal static readonly _ITypeInfo TypeInfo_Type = Reflector.Wrap(typeof(Type));
 
 	static readonly Dictionary<TypeIndex, Func<string, object?>> deserializersByTypeIdx;
+	static readonly Dictionary<Type, bool> enumSignsByType;
 	static readonly Dictionary<TypeIndex, Func<object, _ITypeInfo, string>> serializersByTypeIdx;
 	static readonly Dictionary<Type, TypeIndex> typeIndicesByType;
 	static readonly Dictionary<TypeIndex, Type> typesByTypeIdx;
@@ -145,6 +146,21 @@ public static class SerializationHelper
 			typesByTypeIdx.Add(TypeIndex.TimeOnly, timeOnlyType);
 
 		typeIndicesByType = typesByTypeIdx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+		enumSignsByType = new()
+		{
+			// Signed
+			{ typeof(sbyte), true },
+			{ typeof(short), true },
+			{ typeof(int), true },
+			{ typeof(long), true },
+
+			// Unsigned
+			{ typeof(byte), false },
+			{ typeof(ushort), false },
+			{ typeof(uint), false },
+			{ typeof(ulong), false },
+		};
 	}
 
 	/// <summary>
@@ -461,7 +477,26 @@ public static class SerializationHelper
 		if (!typeInfo.IsFromLocalAssembly())
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because it lives in the GAC", typeInfo.Name, value), nameof(value));
 
-		return SerializeEmbeddedTypeValue(value.ToString(), typeInfo);
+		Type underlyingType;
+
+		try
+		{
+			underlyingType = Enum.GetUnderlyingType(value.GetType());
+		}
+		catch (Exception ex)
+		{
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because an exception was thrown getting its underlying type", typeInfo.Name, value), ex);
+		}
+
+		if (!enumSignsByType.TryGetValue(underlyingType, out var signed))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because the underlying type '{2}' is not supported", typeInfo.Name, value, underlyingType.SafeName()), nameof(value));
+
+		var result =
+			signed
+				? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
+				: Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
+
+		return SerializeEmbeddedTypeValue(result, typeInfo);
 	}
 
 	static string SerializeTraits(Dictionary<string, List<string>>? value)
