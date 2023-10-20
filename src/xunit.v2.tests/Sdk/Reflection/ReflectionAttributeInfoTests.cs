@@ -6,6 +6,37 @@ using Xunit.Sdk;
 
 public class ReflectionAttributeInfoTests
 {
+	public class ConstructorArgs
+	{
+		// https://github.com/xunit/xunit/issues/2796
+		[CulturedFact("en-US", "fo-FO")]
+		public void CanConvertEnumArgs()
+		{
+			var method = typeof(ConstructorArgs).GetRuntimeMethod(nameof(UnusedFunction), new Type[0]);
+			Assert.NotNull(method);
+			var attributeData = method.GetCustomAttributesData();
+			Assert.NotNull(attributeData);
+			var attributeDatum = Assert.Single(attributeData);
+			var attribute = new ReflectionAttributeInfo(attributeDatum);
+
+			var ctorArgs = attribute.GetConstructorArguments();
+
+			var ctorArg = Assert.Single(ctorArgs);
+			var inlineArgData = Assert.IsType<object[]>(ctorArg);
+			var inlineArgDatum = Assert.Single(inlineArgData);
+			var enumValue = Assert.IsType<EnumWithNegativeValue>(inlineArgDatum);
+			Assert.Equal(EnumWithNegativeValue.NegativeOne, enumValue);
+		}
+
+		enum EnumWithNegativeValue
+		{
+			NegativeOne = -1,
+		}
+
+		[InlineData(EnumWithNegativeValue.NegativeOne)]
+		public void UnusedFunction() { }
+	}
+
 	public class GetNamedArgument
 	{
 		public class NamedValueDoesNotExist
