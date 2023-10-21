@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -132,7 +133,15 @@ namespace Xunit.Sdk
                 if (fieldInfo.Name == argumentName)
                     return (TValue)fieldInfo.GetValue(Attribute);
 
-            throw new ArgumentException($"Could not find property or field named '{argumentName}' on instance of '{Attribute.GetType().FullName}'", nameof(argumentName));
+            throw new ArgumentException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    "Could not find property or field named '{0}' on instance of '{1}'",
+                    argumentName,
+                    Attribute.GetType().FullName
+                ),
+                nameof(argumentName)
+            );
         }
 
         Attribute Instantiate(CustomAttributeData attributeData)
@@ -164,7 +173,15 @@ namespace Xunit.Sdk
                     }
                     catch
                     {
-                        throw new ArgumentException($"Could not set property named '{memberName}' on instance of '{ati.FullName}'", nameof(attributeData));
+                        throw new ArgumentException(
+                            string.Format(
+                                CultureInfo.CurrentCulture,
+                                "Could not set property named '{0}' on instance of '{1}'",
+                                memberName,
+                                ati.FullName
+                            ),
+                            nameof(attributeData)
+                        );
                     }
                 else
                 {
@@ -176,10 +193,26 @@ namespace Xunit.Sdk
                         }
                         catch
                         {
-                            throw new ArgumentException($"Could not set field named '{memberName}' on instance of '{ati.FullName}'", nameof(attributeData));
+                            throw new ArgumentException(
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    "Could not set field named '{0}' on instance of '{1}'",
+                                    memberName,
+                                    ati.FullName
+                                ),
+                                nameof(attributeData)
+                            );
                         }
                     else
-                        throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{ati.FullName}'", nameof(attributeData));
+                        throw new ArgumentException(
+                            string.Format(
+                                CultureInfo.CurrentCulture,
+                                "Could not find property or field named '{0}' on instance of '{1}'",
+                                memberName,
+                                ati.FullName
+                            ),
+                            nameof(attributeData)
+                        );
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using Xunit.Abstractions;
 
@@ -30,7 +31,8 @@ namespace Xunit.Sdk
                 var className = testCase.TestMethod?.TestClass?.Class?.Name;
                 var methodName = testCase.TestMethod?.Method?.Name;
 
-                result.AppendFormat("C {1}{0}M {2}{0}U {3}{0}D {4}{0}",
+                result.AppendFormat(CultureInfo.InvariantCulture,
+                                    "C {1}{0}M {2}{0}U {3}{0}D {4}{0}",
                                     Separator,
                                     className,
                                     methodName,
@@ -38,24 +40,28 @@ namespace Xunit.Sdk
                                     Encode(testCase.DisplayName));
 
                 if (discoverer != null)
-                    result.AppendFormat("S {1}{0}",
+                    result.AppendFormat(CultureInfo.InvariantCulture,
+                                        "S {1}{0}",
                                         Separator,
                                         discoverer.Serialize(testCase));
 
                 if (!string.IsNullOrEmpty(testCase.SkipReason))
-                    result.AppendFormat("R {1}{0}",
+                    result.AppendFormat(CultureInfo.InvariantCulture,
+                                        "R {1}{0}",
                                         Separator,
                                         Encode(testCase.SkipReason));
 
                 if (!string.IsNullOrEmpty(testCase.SourceInformation?.FileName))
-                    result.AppendFormat("F {1}{0}L {2}{0}",
+                    result.AppendFormat(CultureInfo.InvariantCulture,
+                                        "F {1}{0}L {2}{0}",
                                         Separator,
                                         testCase.SourceInformation.FileName,
                                         testCase.SourceInformation.LineNumber);
 
                 foreach (var name in testCase.Traits ?? EmptyTraits)
                     foreach (var value in name.Value)
-                        result.AppendFormat("T {1}{0}{2}{0}",
+                        result.AppendFormat(CultureInfo.InvariantCulture,
+                                            "T {1}{0}{2}{0}",
                                             Separator,
                                             Encode(name.Key),
                                             Encode(value));

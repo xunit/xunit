@@ -35,7 +35,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{Environment.NewLine}{ex}"));
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{0}{1}", Environment.NewLine, ex));
                 result = Randomize(result);
             }
 
@@ -62,8 +62,8 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull(nameof(x), x);
             Guard.ArgumentNotNull(nameof(y), y);
-            Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.DisplayName} because it has a null UniqueID", x.UniqueID != null);
-            Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.DisplayName} because it has a null UniqueID", y.UniqueID != null);
+            Guard.ArgumentValid(nameof(x), x.UniqueID != null, "Could not compare test case {0} because it has a null UniqueID", x.DisplayName);
+            Guard.ArgumentValid(nameof(y), y.UniqueID != null, "Could not compare test case {0} because it has a null UniqueID", y.DisplayName);
 
             return string.CompareOrdinal(x.UniqueID, y.UniqueID);
         }

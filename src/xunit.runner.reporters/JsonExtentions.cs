@@ -27,15 +27,15 @@ namespace Xunit.Runner.Reporters
                 sb.Append(',');
 
             if (value is int || value is long || value is float || value is double || value is decimal)
-                sb.AppendFormat(@"""{0}"":{1}", name, Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture));
+                sb.AppendFormat(CultureInfo.InvariantCulture, @"""{0}"":{1}", name, value);
             else if (value is bool)
-                sb.AppendFormat(@"""{0}"":{1}", name, value.ToString().ToLower());
+                sb.AppendFormat(CultureInfo.InvariantCulture, @"""{0}"":{1}", name, value.ToString().ToLowerInvariant());
             else if (value is DateTime dt)
-                sb.AppendFormat(@"""{0}"":""{1}""", name, dt.ToString("o", CultureInfo.InvariantCulture));
+                sb.AppendFormat(CultureInfo.InvariantCulture, @"""{0}"":""{1:o}""", name, dt);
             else if (value is IDictionary<string, object> dict)
-                sb.AppendFormat(@"""{0}"":{1}", name, dict.ToJson()); // sub-object
+                sb.AppendFormat(CultureInfo.InvariantCulture, @"""{0}"":{1}", name, dict.ToJson()); // sub-object
             else
-                sb.AppendFormat(@"""{0}"":""{1}""", name, JsonEscape(value.ToString()));
+                sb.AppendFormat(CultureInfo.InvariantCulture, @"""{0}"":""{1}""", name, JsonEscape(value.ToString()));
         }
 
         static string JsonEscape(string value)
@@ -52,7 +52,7 @@ namespace Xunit.Runner.Reporters
                     case '\n': sb.Append("\\n"); break;
                     default:
                         if (c < 32)
-                            sb.AppendFormat("\\u{0:X4}", (int)c);
+                            sb.AppendFormat(CultureInfo.InvariantCulture, "\\u{0:X4}", (int)c);
                         else
                             sb.Append(c);
                         break;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Serialization;
@@ -38,7 +39,15 @@ namespace Xunit
 
             var deserializedType = GetType(pieces[0]);
             if (deserializedType == null)
-                throw new ArgumentException($"Could not load type '{pieces[0]}' from serialization value '{serializedValue}'", nameof(serializedValue));
+                throw new ArgumentException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        "Could not load type '{0}' from serialization value '{1}'",
+                        pieces[0],
+                        serializedValue
+                    ),
+                    nameof(serializedValue)
+                );
 
             return (T)XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
         }
@@ -178,7 +187,7 @@ namespace Xunit
             string GetTypeNameAsString(Type typeToMap)
             {
                 if (!type.IsFromLocalAssembly())
-                    throw new ArgumentException($"We cannot serialize type {type.FullName} because it lives in the GAC", nameof(type));
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "We cannot serialize type {0} because it lives in the GAC", type.FullName), nameof(type));
 
                 var typeName = typeToMap.FullName;
                 var assemblyName = typeToMap.GetAssembly().FullName.Split(',')[0];
@@ -194,9 +203,9 @@ namespace Xunit
                 {
                     var typeDefinition = typeToMap.GetGenericTypeDefinition();
                     var innerTypes = typeToMap.GetGenericArguments()
-                                              .Select(t => $"[{GetTypeNameForSerialization(t)}]")
+                                              .Select(t => string.Format(CultureInfo.InvariantCulture, "[{0}]", GetTypeNameForSerialization(t)))
                                               .ToArray();
-                    typeName = $"{typeDefinition.FullName}[{string.Join(",", innerTypes)}]";
+                    typeName = string.Format(CultureInfo.InvariantCulture, "{0}[{1}]", typeDefinition.FullName, string.Join(",", innerTypes));
 
                     while (arrayRanks.Count > 0)
                     {
@@ -217,7 +226,7 @@ namespace Xunit
                     assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
 #endif
 
-                return $"{typeName}, {assemblyName}";
+                return string.Format(CultureInfo.InvariantCulture, "{0}, {1}", typeName, assemblyName);
             }
         }
 
@@ -241,7 +250,7 @@ namespace Xunit
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            return $"{GetTypeNameForSerialization(value.GetType())}:{XunitSerializationInfo.Serialize(value)}";
+            return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", GetTypeNameForSerialization(value.GetType()), XunitSerializationInfo.Serialize(value));
         }
 
         static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)

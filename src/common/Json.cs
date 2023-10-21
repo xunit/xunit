@@ -678,7 +678,7 @@ namespace Xunit
             try
             {
                 _raw = token.Value;
-                _double = double.Parse(_raw, NumberStyles.Float);
+                _double = double.Parse(_raw, NumberStyles.Float, CultureInfo.InvariantCulture);
             }
             catch (FormatException ex)
             {
@@ -757,7 +757,7 @@ namespace Xunit
             {
                 throw new FormatException();
             }
-            return Convert.ToInt32(number.Raw);
+            return Convert.ToInt32(number.Raw, CultureInfo.InvariantCulture);
         }
 
         public bool ValueAsBoolean(string key, bool defaultValue = false)

@@ -136,7 +136,7 @@ namespace Xunit.Sdk
                             Traits.Add(keyValuePair.Key, keyValuePair.Value);
                 }
                 else
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]"));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Trait attribute on '{0}' did not have [TraitDiscoverer]", DisplayName));
             }
         }
 

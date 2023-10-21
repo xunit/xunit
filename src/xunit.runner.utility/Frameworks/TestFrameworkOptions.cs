@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -89,7 +90,7 @@ namespace Xunit
         }
 
         string ToDebuggerDisplay()
-            => $"{{ {string.Join(", ", properties.Select(p => string.Format("{{ {0} = {1} }}", new object[] { p.Key, ToDebuggerDisplay(p.Value) })).ToArray())} }}";
+            => string.Format(CultureInfo.CurrentCulture, "{{ {0} }}", string.Join(", ", properties.Select(p => string.Format(CultureInfo.CurrentCulture, "{{ {0} = {1} }}", p.Key, ToDebuggerDisplay(p.Value))).ToArray()));
 
         string ToDebuggerDisplay(object value)
         {
@@ -98,7 +99,7 @@ namespace Xunit
 
             var stringValue = value as string;
             if (stringValue != null)
-                return $"\"{stringValue}\"";
+                return string.Format(CultureInfo.CurrentCulture, "\"{0}\"", stringValue);
 
             return value.ToString();
         }

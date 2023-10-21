@@ -38,7 +38,7 @@ namespace Xunit.Sdk
                              CancellationTokenSource cancellationTokenSource)
         {
             Guard.ArgumentNotNull("test", test);
-            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+            Guard.ArgumentValid("test", test.TestCase is TTestCase, "test.TestCase must implement " + typeof(TTestCase).FullName);
 
             Test = test;
             MessageBus = messageBus;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Xunit.Runner.MSBuild
 {
@@ -25,7 +26,7 @@ namespace Xunit.Runner.MSBuild
 
                     if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
                     {
-                        OnWarning($"Invalid trait '{trait}'. The format should be 'name=value'. This trait will be ignored.");
+                        OnWarning(string.Format(CultureInfo.CurrentCulture, "Invalid trait '{0}'. The format should be 'name=value'. This trait will be ignored.", trait));
                         continue;
                     }
 

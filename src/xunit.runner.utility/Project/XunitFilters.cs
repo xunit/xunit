@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit.Abstractions;
@@ -106,7 +107,7 @@ namespace Xunit
             if (ExcludedNamespaces.Count == 0)
                 return true;
 
-            if (ExcludedNamespaces.Count != 0 && ExcludedNamespaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
+            if (ExcludedNamespaces.Count != 0 && ExcludedNamespaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith(a + ".", StringComparison.Ordinal)))
                 return false;
             return true;
         }
@@ -117,7 +118,7 @@ namespace Xunit
             if (IncludedNamespaces.Count == 0)
                 return true;
 
-            if (IncludedNamespaces.Count != 0 && IncludedNamespaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
+            if (IncludedNamespaces.Count != 0 && IncludedNamespaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith(a + ".", StringComparison.Ordinal)))
                 return true;
 
             return false;
@@ -132,7 +133,7 @@ namespace Xunit
             if (ExcludedClasses.Count != 0 && ExcludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
                 return false;
 
-            var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
+            var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
 
             if (excludeMethodStandardFilters.Count != 0 && excludeMethodStandardFilters.Contains(methodName))
                 return false;
@@ -154,7 +155,7 @@ namespace Xunit
             if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
                 return true;
 
-            var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
+            var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
 
             if (includeMethodStandardFilters.Count != 0 && includeMethodStandardFilters.Contains(methodName))
                 return true;
@@ -260,7 +261,7 @@ namespace Xunit
         }
 
         string WildcardToRegex(string pattern)
-            => $"^{Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".")}$";
+            => string.Format(CultureInfo.InvariantCulture, "^{0}$", Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", "."));
 
         // This class wraps HashSet<T>, tracking the last mutation date, and using itself
         // as a lock for mutation (so that we can guarantee a stable data set when transferring

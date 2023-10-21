@@ -213,3 +213,10 @@ dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
+
+#### Code quality rules ####
+
+# Analyzer severity
+
+dotnet_diagnostic.CA1304.severity = error # Specify CultureInfo
+dotnet_diagnostic.CA1305.severity = error # Specify IFormatProvider

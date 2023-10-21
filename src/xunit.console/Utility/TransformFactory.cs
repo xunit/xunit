@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -67,25 +68,29 @@ namespace Xunit.ConsoleClient
         static void Handler_XslTransform(string key, string resourceName, XElement xml, string outputFileName)
         {
 #if NETCOREAPP1_0
-            if(!NoErrorColoring)
-            {
+            if (!NoErrorColoring)
                 ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-            }
-            Console.WriteLine($"Skipping -{key} because XSL-T is not supported on .NET Core 1.x");
-            if(!NoErrorColoring)
-            {
+
+            Console.WriteLine("Skipping -{0} because XSL-T is not supported on .NET Core 1.x", key);
+
+            if (!NoErrorColoring)
                 ConsoleHelper.ResetColor();
-            }
 #else
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
+            var fqResourceName = string.Format(CultureInfo.InvariantCulture, "Xunit.ConsoleClient.{0}", resourceName);
 
             using (var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true }))
-            using (var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream($"Xunit.ConsoleClient.{resourceName}"))
-            using (var xsltReader = XmlReader.Create(xsltStream))
-            using (var xmlReader = xml.CreateReader())
+            using (var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream(fqResourceName))
             {
-                xmlTransform.Load(xsltReader);
-                xmlTransform.Transform(xmlReader, writer);
+                if (xsltStream is null)
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not load resource '{0}' from assembly '{1}'", fqResourceName, typeof(TransformFactory).Assembly.Location));
+
+                using (var xsltReader = XmlReader.Create(xsltStream))
+                using (var xmlReader = xml.CreateReader())
+                {
+                    xmlTransform.Load(xsltReader);
+                    xmlTransform.Transform(xmlReader, writer);
+                }
             }
 #endif
         }

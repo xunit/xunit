@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -158,7 +159,13 @@ namespace Xunit.Sdk
                                         discoveryOptions.MethodDisplayOrDefault(),
                                         discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
-                                        $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+                                        string.Format(
+                                            CultureInfo.CurrentCulture,
+                                            "Data discoverer specified for {0} on {1}.{2} does not implement IDataDiscoverer.",
+                                            reflectionAttribute.Attribute.GetType(),
+                                            testMethod.TestClass.Class.Name,
+                                            testMethod.Method.Name
+                                        )
                                     )
                                 );
                             else
@@ -168,7 +175,12 @@ namespace Xunit.Sdk
                                         discoveryOptions.MethodDisplayOrDefault(),
                                         discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
-                                        $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+                                        string.Format(
+                                            CultureInfo.CurrentCulture,
+                                            "A data discoverer specified on {0}.{1} does not implement IDataDiscoverer.",
+                                            testMethod.TestClass.Class.Name,
+                                            testMethod.Method.Name
+                                        )
                                     )
                                 );
 
@@ -186,7 +198,13 @@ namespace Xunit.Sdk
                                         discoveryOptions.MethodDisplayOrDefault(),
                                         discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
-                                        $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+                                        string.Format(
+                                            CultureInfo.CurrentCulture,
+                                            "Data discoverer specified for {0} on {1}.{2} does not exist.",
+                                            reflectionAttribute.Attribute.GetType(),
+                                            testMethod.TestClass.Class.Name,
+                                            testMethod.Method.Name
+                                        )
                                     )
                                 );
                             else
@@ -196,7 +214,12 @@ namespace Xunit.Sdk
                                         discoveryOptions.MethodDisplayOrDefault(),
                                         discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
-                                        $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+                                        string.Format(
+                                            CultureInfo.CurrentCulture,
+                                            "A data discoverer specified on {0}.{1} does not exist.",
+                                            testMethod.TestClass.Class.Name,
+                                            testMethod.Method.Name
+                                        )
                                     )
                                 );
 
@@ -217,7 +240,12 @@ namespace Xunit.Sdk
                                     discoveryOptions.MethodDisplayOrDefault(),
                                     discoveryOptions.MethodDisplayOptionsOrDefault(),
                                     testMethod,
-                                    $"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."
+                                    string.Format(
+                                        CultureInfo.CurrentCulture,
+                                        "Test data returned null for {0}.{1}. Make sure it is statically initialized before this test method is called.",
+                                        testMethod.TestClass.Class.Name,
+                                        testMethod.Method.Name
+                                    )
                                 )
                             );
 
@@ -231,7 +259,15 @@ namespace Xunit.Sdk
                             // this will throw and we will fall back to a single theory test case that gets its data at runtime.
                             if (!SerializationHelper.IsSerializable(dataRow))
                             {
-                                DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case."));
+                                DiagnosticMessageSink.OnMessage(
+                                    new DiagnosticMessage(
+                                        "Non-serializable data ('{0}') found for '{1}.{2}'; falling back to single test case.",
+                                        dataRow.GetType().FullName,
+                                        testMethod.TestClass.Class.Name,
+                                        testMethod.Method.Name
+                                    )
+                                );
+
                                 return CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
                             }
 
@@ -249,13 +285,21 @@ namespace Xunit.Sdk
                                                                discoveryOptions.MethodDisplayOrDefault(),
                                                                discoveryOptions.MethodDisplayOptionsOrDefault(),
                                                                testMethod,
-                                                               $"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"));
+                                                               string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)));
 
                     return results;
                 }
                 catch (Exception ex)    // If something goes wrong, fall through to return just the XunitTestCase
                 {
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during theory discovery on '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case.{Environment.NewLine}{ex}"));
+                    DiagnosticMessageSink.OnMessage(
+                        new DiagnosticMessage(
+                            "Exception thrown during theory discovery on '{0}.{1}'; falling back to single test case.{2}{3}",
+                            testMethod.TestClass.Class.Name,
+                            testMethod.Method.Name,
+                            Environment.NewLine,
+                            ex
+                        )
+                    );
                 }
             }
 

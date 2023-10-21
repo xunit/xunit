@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit.Abstractions;
@@ -60,7 +61,7 @@ namespace Xunit
                 {
                     var match = stackFrameRegex.Match(frame);
                     if (match.Success)
-                        return new StackFrameInfo(match.Groups["file"].Value, int.Parse(match.Groups["line"].Value));
+                        return new StackFrameInfo(match.Groups["file"].Value, int.Parse(match.Groups["line"].Value, CultureInfo.InvariantCulture));
                 }
             }
 
@@ -100,7 +101,7 @@ namespace Xunit
 
             wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
 
-            return new Regex($"{wordAt} .* {wordsInLine}");
+            return new Regex(string.Format(CultureInfo.InvariantCulture, "{0} .* {1}", wordAt, wordsInLine));
         }
     }
 }

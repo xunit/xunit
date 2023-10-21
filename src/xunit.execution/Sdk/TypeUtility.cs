@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -39,7 +40,7 @@ namespace Xunit.Sdk
             for (var idx = 0; idx < genericTypes.Length; idx++)
                 simpleNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-            return $"{baseTypeName}<{string.Join(", ", simpleNames)}>";
+            return string.Format(CultureInfo.InvariantCulture, "{0}<{1}>", baseTypeName, string.Join(", ", simpleNames));
         }
 
         /// <summary>
@@ -103,7 +104,13 @@ namespace Xunit.Sdk
                     }
                     catch (InvalidCastException)
                     {
-                        throw new InvalidOperationException($"The arguments for this test method did not match the parameters: {ArgumentFormatter.Format(arguments)}");
+                        throw new InvalidOperationException(
+                            string.Format(
+                                CultureInfo.CurrentCulture,
+                                "The arguments for this test method did not match the parameters: {0}",
+                                ArgumentFormatter.Format(arguments)
+                            )
+                        );
                     }
 
                     newArguments[newArguments.Length - 1] = paramsArray;
@@ -219,7 +226,7 @@ namespace Xunit.Sdk
                     displayValues[idx] = parameterName + ": ???";
             }
 
-            return $"{baseDisplayName}({string.Join(", ", displayValues)})";
+            return string.Format(CultureInfo.InvariantCulture, "{0}({1})", baseDisplayName, string.Join(", ", displayValues));
         }
 
         static string GetParameterName(IParameterInfo[] parameters, int index)
@@ -231,7 +238,7 @@ namespace Xunit.Sdk
         }
 
         static string ParameterToDisplayValue(string parameterName, object parameterValue)
-            => $"{parameterName}: {ArgumentFormatter.Format(parameterValue)}";
+            => string.Format(CultureInfo.CurrentCulture, "{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
 
         static string ResolveGenericDisplay(ITypeInfo[] genericTypes)
         {
@@ -242,7 +249,7 @@ namespace Xunit.Sdk
             for (var idx = 0; idx < genericTypes.Length; idx++)
                 typeNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-            return $"<{string.Join(", ", typeNames)}>";
+            return string.Format(CultureInfo.InvariantCulture, "<{0}>", string.Join(", ", typeNames));
         }
 
         /// <summary>

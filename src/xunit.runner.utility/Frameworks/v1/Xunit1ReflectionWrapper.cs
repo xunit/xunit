@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Xunit.Abstractions;
@@ -25,7 +26,7 @@ namespace Xunit
             AssemblyFileName = assemblyFileName;
             TypeName = typeName;
             MethodName = methodName;
-            UniqueID = $"{typeName}.{methodName} ({assemblyFileName})";
+            UniqueID = string.Format(CultureInfo.InvariantCulture, "{0}.{1} ({2})", typeName, methodName, assemblyFileName);
         }
 
         /// <summary>

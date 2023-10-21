@@ -1,3 +1,4 @@
+using System.Globalization;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -25,7 +26,7 @@ namespace Xunit
         /// <param name="args">The arguments used to format the message</param>
         public _DiagnosticMessage(string format, params object[] args)
         {
-            Message = string.Format(format, args);
+            Message = string.Format(CultureInfo.CurrentCulture, format, args);
         }
 
         /// <inheritdoc/>

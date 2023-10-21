@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -32,7 +33,7 @@ namespace Xunit
             }
             catch (Exception ex)
             {
-                messages.Add($"Exception thrown looking for reporters in folder '{folder}':{Environment.NewLine}{ex}");
+                messages.Add(string.Format(CultureInfo.CurrentCulture, "Exception thrown looking for reporters in folder '{0}':{1}{2}", folder, Environment.NewLine, ex));
                 return result;
             }
 
@@ -72,7 +73,7 @@ namespace Xunit
                         var ctor = type.GetConstructor(new Type[0]);
                         if (ctor == null)
                         {
-                            messages.Add($"Type '{type.FullName ?? type.Name}' in assembly '{dllFile}' appears to be a runner reporter, but does not have an empty constructor.");
+                            messages.Add(string.Format(CultureInfo.CurrentCulture, "Type '{0}' in assembly '{1}' appears to be a runner reporter, but does not have an empty constructor.", type.FullName ?? type.Name, dllFile));
                             continue;
                         }
 
@@ -80,7 +81,7 @@ namespace Xunit
                     }
                     catch (Exception ex)
                     {
-                        messages.Add($"Exception thrown while inspecting type '{type.FullName ?? type.Name}' in assembly '{dllFile}':{Environment.NewLine}{ex}");
+                        messages.Add(string.Format(CultureInfo.CurrentCulture, "Exception thrown while inspecting type '{0}' in assembly '{1}':{2}{3}", type.FullName ?? type.Name, dllFile, Environment.NewLine, ex));
                     }
                 }
             }

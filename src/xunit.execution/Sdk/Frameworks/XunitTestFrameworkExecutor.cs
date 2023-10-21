@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -79,8 +80,8 @@ namespace Xunit.Sdk
                     var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
                     var methodInfo = testClass.Class.GetMethod(parts[1], true);
                     var testMethod = new TestMethod(testClass, methodInfo);
-                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
-                    var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
+                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2], CultureInfo.InvariantCulture);
+                    var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3], CultureInfo.InvariantCulture);
                     return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace Xunit
 {
@@ -62,7 +63,7 @@ namespace Xunit
 
                     case 'L':
                         if (text != null)
-                            SourceLineNumber = int.Parse(text);
+                            SourceLineNumber = int.Parse(text, CultureInfo.InvariantCulture);
                         break;
 
                     case 'T':

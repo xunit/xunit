@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -52,13 +51,13 @@ namespace Xunit.Runner.Reporters
             {
                 assembliesInFlight++;
 
-                // Look for the TFM attrib to disambiguate 
+                // Look for the TFM attrib to disambiguate
                 var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
                 var arg = attrib?.GetConstructorArguments().FirstOrDefault() as string;
 
                 var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
                 if (arg != null)
-                    assemblyFileName = $"{assemblyFileName} ({arg})";
+                    assemblyFileName = string.Format(CultureInfo.InvariantCulture, "{0} ({1})", assemblyFileName, arg);
 
                 assemblyNames[args.Message.TestAssembly.Assembly.Name] = Tuple.Create(assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 
@@ -74,7 +73,7 @@ namespace Xunit.Runner.Reporters
             var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
             lock (dict)
                 if (dict.ContainsKey(testName))
-                    testName = $"{testName} {dict[testName]}";
+                    testName = string.Format(CultureInfo.InvariantCulture, "{0} {1}", testName, dict[testName]);
 
             AppVeyorAddTest(testName, "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Running", null, null, null, null);
         }
@@ -125,7 +124,7 @@ namespace Xunit.Runner.Reporters
                 if (testMethods.ContainsKey(methodName))
                 {
                     number = testMethods[methodName];
-                    testName = $"{methodName} {number}";
+                    testName = string.Format(CultureInfo.InvariantCulture, "{0} {1}", methodName, number);
                 }
 
                 testMethods[methodName] = number + 1;

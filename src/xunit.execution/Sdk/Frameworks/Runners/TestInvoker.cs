@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security;
@@ -41,7 +42,7 @@ namespace Xunit.Sdk
                               CancellationTokenSource cancellationTokenSource)
         {
             Guard.ArgumentNotNull("test", test);
-            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+            Guard.ArgumentValid("test", test.TestCase is TTestCase, "test.TestCase must implement " + typeof(TTestCase).FullName);
 
             Test = test;
             MessageBus = messageBus;
@@ -260,7 +261,15 @@ namespace Xunit.Sdk
                             {
                                 Aggregator.Add(
                                     new InvalidOperationException(
-                                        $"The test method expected {parameterCount} parameter value{(parameterCount == 1 ? "" : "s")}, but {valueCount} parameter value{(valueCount == 1 ? "" : "s")} {(valueCount == 1 ? "was" : "were")} provided."
+                                        string.Format(
+                                            CultureInfo.CurrentCulture,
+                                            "The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.",
+                                            parameterCount,
+                                            parameterCount == 1 ? "" : "s",
+                                            valueCount,
+                                            valueCount == 1 ? "" : "s",
+                                            valueCount == 1 ? "was" : "were"
+                                        )
                                     )
                                 );
                             }

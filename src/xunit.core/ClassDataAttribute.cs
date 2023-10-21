@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -32,7 +33,15 @@ namespace Xunit
         {
             IEnumerable<object[]> data = Activator.CreateInstance(Class) as IEnumerable<object[]>;
             if (data == null)
-                throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType.FullName}");
+                throw new ArgumentException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        "{0} must implement IEnumerable<object[]> to be used as ClassData for the test method named '{1}' on {2}",
+                        Class.FullName,
+                        testMethod.Name,
+                        testMethod.DeclaringType.FullName
+                    )
+                );
 
             return data;
         }

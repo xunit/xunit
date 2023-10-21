@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,9 +67,28 @@ namespace Xunit.Sdk
                     if (discovererType == null)
                     {
                         if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
-                            Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
+                            Aggregator.Add(
+                                new InvalidOperationException(
+                                    string.Format(
+                                        CultureInfo.CurrentCulture,
+                                        "Data discoverer specified for {0} on {1}.{2} does not exist.",
+                                        reflectionAttribute.Attribute.GetType(),
+                                        TestCase.TestMethod.TestClass.Class.Name,
+                                        TestCase.TestMethod.Method.Name
+                                    )
+                                )
+                            );
                         else
-                            Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
+                            Aggregator.Add(
+                                new InvalidOperationException(
+                                    string.Format(
+                                        CultureInfo.CurrentCulture,
+                                        "A data discoverer specified on {0}.{1} does not exist.",
+                                        TestCase.TestMethod.TestClass.Class.Name,
+                                        TestCase.TestMethod.Method.Name
+                                    )
+                                )
+                            );
 
                         continue;
                     }
@@ -81,9 +101,28 @@ namespace Xunit.Sdk
                     catch (InvalidCastException)
                     {
                         if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
-                            Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
+                            Aggregator.Add(
+                                new InvalidOperationException(
+                                    string.Format(
+                                        CultureInfo.CurrentCulture,
+                                        "Data discoverer specified for {0} on {1}.{2} does not implement IDataDiscoverer.",
+                                        reflectionAttribute.Attribute.GetType(),
+                                        TestCase.TestMethod.TestClass.Class.Name,
+                                        TestCase.TestMethod.Method.Name
+                                    )
+                                )
+                            );
                         else
-                            Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
+                            Aggregator.Add(
+                                new InvalidOperationException(
+                                    string.Format(
+                                        CultureInfo.CurrentCulture,
+                                        "A data discoverer specified on {0}.{1} does not implement IDataDiscoverer.",
+                                        TestCase.TestMethod.TestClass.Class.Name,
+                                        TestCase.TestMethod.Method.Name
+                                    )
+                                )
+                            );
 
                         continue;
                     }
@@ -91,7 +130,17 @@ namespace Xunit.Sdk
                     var data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
                     if (data == null)
                     {
-                        Aggregator.Add(new InvalidOperationException($"Test data returned null for {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
+                        Aggregator.Add(
+                            new InvalidOperationException(
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    "Test data returned null for {0}.{1}. Make sure it is statically initialized before this test method is called.",
+                                    TestCase.TestMethod.TestClass.Class.Name,
+                                    TestCase.TestMethod.Method.Name
+                                )
+                            )
+                        );
+
                         continue;
                     }
 

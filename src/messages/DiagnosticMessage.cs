@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -18,6 +19,7 @@ namespace Xunit
 #endif
     {
         static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
         /// </summary>
@@ -39,7 +41,7 @@ namespace Xunit
         /// <param name="args">The arguments used to format the message</param>
         public DiagnosticMessage(string format, params object[] args)
         {
-            Message = string.Format(format, args);
+            Message = string.Format(CultureInfo.CurrentCulture, format, args);
         }
 
         /// <inheritdoc/>

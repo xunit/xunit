@@ -302,7 +302,7 @@ namespace Xunit.Serialization
             }
             catch (MissingMemberException)
             {
-                throw new InvalidOperationException($"Could not de-serialize type '{type.FullName}' because it lacks a parameterless constructor.");
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not de-serialize type '{0}' because it lacks a parameterless constructor.", type.FullName));
             }
         }
 
@@ -445,10 +445,12 @@ namespace Xunit.Serialization
 
 #if !NET35
             if (valueType == dateOnlyType && dateOnlyDayNumber != null)
-                return dateOnlyDayNumber.GetValue(value)?.ToString() ?? throw new InvalidOperationException($"Could not call DayNumber on an instance of '{dateOnlyType.FullName}': {value}");
+                return (dateOnlyDayNumber.GetValue(value) as int?)?.ToString(CultureInfo.InvariantCulture)
+                    ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call DayNumber on an instance of '{0}': {1}", dateOnlyType.FullName, value));
 
             if (valueType == timeOnlyType && timeOnlyTicks != null)
-                return timeOnlyTicks.GetValue(value)?.ToString() ?? throw new InvalidOperationException($"Could not call Ticks on an instance of '{timeOnlyType.FullName}': {value}");
+                return (timeOnlyTicks.GetValue(value) as long?)?.ToString(CultureInfo.InvariantCulture)
+                    ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call Ticks on an instance of '{0}': {1}", timeOnlyType.FullName, value));
 
             if (value is TimeSpan)
                 return ((TimeSpan)value).ToString("c", CultureInfo.InvariantCulture);
@@ -475,7 +477,7 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
-            throw new ArgumentException($"We don't know how to serialize type {valueType.FullName}", nameof(value));
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "We don't know how to serialize type {0}", valueType.FullName), nameof(value));
         }
 
         static string SerializeEnum(object value, Type valueType)
@@ -514,9 +516,9 @@ namespace Xunit.Serialization
             var serializedValue = Serialize(triple.Value);
             // Leaving off the colon is how we indicate null-ness
             if (serializedValue == null)
-                return $"{triple.Key}:{serializedType}";
+                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", triple.Key, serializedType);
 
-            return $"{triple.Key}:{serializedType}:{serializedValue}";
+            return string.Format(CultureInfo.InvariantCulture, "{0}:{1}:{2}", triple.Key, serializedType, serializedValue);
         }
 
         static string ToBase64(string value)

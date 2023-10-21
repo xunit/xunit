@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -46,7 +45,7 @@ namespace Xunit
                 }
 
                 if (platformSuffix == null)
-                    throw new InvalidOperationException($"Could not find any xunit.execution.* assembly loaded in the current context");
+                    throw new InvalidOperationException("Could not find any xunit.execution.* assembly loaded in the current context");
 
                 return platformSuffix;
             }

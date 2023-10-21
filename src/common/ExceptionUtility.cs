@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -138,9 +139,21 @@ namespace Xunit
 
             if (children.Count > 1)
                 for (var idx = 0; idx < children.Count; ++idx)
-                    result += $"{Environment.NewLine}----- Inner Stack Trace #{idx + 1} ({GetAt(failureInfo.ExceptionTypes, children[idx])}) -----{Environment.NewLine}{GetStackTrace(failureInfo, children[idx])}";
+                    result += string.Format(
+                        CultureInfo.CurrentCulture,
+                        "{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
+                        Environment.NewLine,
+                        idx + 1,
+                        GetAt(failureInfo.ExceptionTypes, children[idx]),
+                        GetStackTrace(failureInfo, children[idx])
+                    );
             else if (children.Count == 1)
-                result += $"{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}{GetStackTrace(failureInfo, children[0])}";
+                result += string.Format(
+                    CultureInfo.CurrentCulture,
+                    "{0}----- Inner Stack Trace -----{0}{1}",
+                    Environment.NewLine,
+                    GetStackTrace(failureInfo, children[0])
+                );
 
             return result;
         }

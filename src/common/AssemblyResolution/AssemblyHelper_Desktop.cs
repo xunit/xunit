@@ -55,9 +55,9 @@ namespace Xunit
             if (internalDiagnosticsMessageSink != null)
             {
                 if (result == null)
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name));
                 else
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath));
             }
 
             lookupCache[assemblyName.Name] = result;

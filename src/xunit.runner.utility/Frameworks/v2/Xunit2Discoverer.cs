@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -218,13 +219,13 @@ namespace Xunit
             foreach (var suffix in supportedPlatformSuffixes)
             {
 #if NETFRAMEWORK
-                var fileName = Path.Combine(basePath, $"xunit.execution.{suffix}.dll");
+                var fileName = Path.Combine(basePath, string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix));
                 if (File.Exists(fileName))
                     return fileName;
 #else
                 try
                 {
-                    var assemblyName = $"xunit.execution.{suffix}";
+                    var assemblyName = string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}", suffix);
                     Assembly.Load(new AssemblyName { Name = assemblyName });
                     return assemblyName + ".dll";
                 }
@@ -232,7 +233,7 @@ namespace Xunit
 #endif
             }
 
-            throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
+            throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix)).ToArray()));
         }
 
         static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)

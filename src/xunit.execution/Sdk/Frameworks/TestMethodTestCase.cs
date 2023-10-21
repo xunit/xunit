@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -71,7 +72,7 @@ namespace Xunit.Sdk
             get
             {
                 if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-                    return formatter.Format($"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}");
+                    return formatter.Format(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name));
 
                 return formatter.Format(TestMethod.Method.Name);
             }
@@ -292,7 +293,7 @@ namespace Xunit.Sdk
                     {
                         InitializationException = ex;
                         TestMethodArguments = null;
-                        displayName = $"{BaseDisplayName}(???)";
+                        displayName = string.Format(CultureInfo.InvariantCulture, "{0}(???)", BaseDisplayName);
                     }
                 }
             }

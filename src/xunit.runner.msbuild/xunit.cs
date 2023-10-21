@@ -106,7 +106,7 @@ namespace Xunit.Runner.MSBuild
             RemotingUtility.CleanUpRegisteredChannels();
 
             XElement assembliesElement = null;
-            var environment = $"{IntPtr.Size * 8}-bit {CrossPlatform.Version}";
+            var environment = string.Format(CultureInfo.CurrentCulture, "{0}-bit {1}", IntPtr.Size * 8, CrossPlatform.Version);
 
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
@@ -173,7 +173,7 @@ namespace Xunit.Runner.MSBuild
                 if (!NoLogo)
                 {
                     var versionAttribute = typeof(xunit).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                    Log.LogMessage(MessageImportance.High, $"xUnit.net MSBuild Runner v{versionAttribute.InformationalVersion} ({environment})");
+                    Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild Runner v{0} ({1})", versionAttribute.InformationalVersion, environment);
                 }
 
                 var project = new XunitProject();

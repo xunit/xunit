@@ -30,7 +30,7 @@ namespace Xunit
             if (!File.Exists(assemblyFileName))
             {
                 if (internalDiagnosticsMessageSink != null)
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_NetCoreApp..ctor] Assembly file not found: '{assemblyFileName}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage("[AssemblyHelper_NetCoreApp..ctor] Assembly file not found: '{0}'", assemblyFileName));
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace Xunit
             if (assembly == null)
             {
                 if (internalDiagnosticsMessageSink != null)
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_NetCoreApp..ctor] Assembly file could not be loaded: '{assemblyFileName}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage("[AssemblyHelper_NetCoreApp..ctor] Assembly file could not be loaded: '{0}'", assemblyFileName));
                 return;
             }
 
@@ -46,7 +46,7 @@ namespace Xunit
             if (dependencyContext == null)
             {
                 if (internalDiagnosticsMessageSink != null)
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_NetCoreApp..ctor] Assembly file does not contain dependency manifest: '{assemblyFileName}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage("[AssemblyHelper_NetCoreApp..ctor] Assembly file does not contain dependency manifest: '{0}'", assemblyFileName));
                 return;
             }
 

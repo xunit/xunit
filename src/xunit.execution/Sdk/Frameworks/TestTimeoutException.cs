@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Xunit.Sdk
 {
@@ -12,6 +13,6 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="timeout">The timeout that was exceeded, in milliseconds</param>
         public TestTimeoutException(int timeout)
-            : base($"Test execution timed out after {timeout} milliseconds") { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Test execution timed out after {0} milliseconds", timeout)) { }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -88,7 +89,7 @@ namespace Xunit
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var keys = data.GetValue<string[]>("Traits.Keys");
             foreach (var key in keys)
-                Traits.Add(key, data.GetValue<string[]>($"Traits[{key}]").ToList());
+                Traits.Add(key, data.GetValue<string[]>(string.Format(CultureInfo.InvariantCulture, "Traits[{0}]", key)).ToList());
         }
 
         /// <inheritdoc/>
@@ -103,7 +104,7 @@ namespace Xunit
             data.AddValue("SourceInformation", SourceInformation);
             data.AddValue("Traits.Keys", Traits.Keys.ToArray());
             foreach (var key in Traits.Keys)
-                data.AddValue($"Traits[{key}]", Traits[key].ToArray());
+                data.AddValue(string.Format(CultureInfo.InvariantCulture, "Traits[{0}]", key), Traits[key].ToArray());
         }
 
         /// <inheritdoc/>
@@ -116,7 +117,7 @@ namespace Xunit
         ITypeInfo ITestCollection.CollectionDefinition => null;
 
         /// <inheritdoc/>
-        string ITestCollection.DisplayName => $"xUnit.net v1 Tests for {reflectionWrapper.AssemblyFileName}";
+        string ITestCollection.DisplayName => string.Format(CultureInfo.CurrentCulture, "xUnit.net v1 Tests for {0}", reflectionWrapper.AssemblyFileName);
 
         /// <inheritdoc/>
         ITestAssembly ITestCollection.TestAssembly => this;

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -22,9 +23,9 @@ namespace Xunit.Runner.Reporters
             var teamProject = EnvironmentHelper.GetEnvironmentVariable("SYSTEM_TEAMPROJECT");
 
             // Build ID is the ID associated with the build number, which we will use to associate the test run with
-            var buildId = Convert.ToInt32(EnvironmentHelper.GetEnvironmentVariable("BUILD_BUILDID"));
+            var buildId = Convert.ToInt32(EnvironmentHelper.GetEnvironmentVariable("BUILD_BUILDID"), CultureInfo.InvariantCulture);
 
-            var baseUri = $"{collectionUri}{teamProject}/_apis/test/runs";
+            var baseUri = string.Format(CultureInfo.InvariantCulture, "{0}{1}/_apis/test/runs", collectionUri, teamProject);
 
             return accessToken == null || collectionUri == null || teamProject == null
                 ? new DefaultRunnerReporterWithTypesMessageHandler(logger)

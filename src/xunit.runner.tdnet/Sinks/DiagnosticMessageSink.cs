@@ -1,4 +1,5 @@
-﻿using TestDriven.Framework;
+﻿using System.Globalization;
+using TestDriven.Framework;
 
 namespace Xunit.Runner.TdNet
 {
@@ -7,7 +8,7 @@ namespace Xunit.Runner.TdNet
         public DiagnosticMessageSink(ITestListener listener, string assemblyDisplayName, bool showDiagnostics)
         {
             if (showDiagnostics)
-                Diagnostics.DiagnosticMessageEvent += args => listener.WriteLine($"{assemblyDisplayName}: {args.Message.Message}", Category.Warning);
+                Diagnostics.DiagnosticMessageEvent += args => listener.WriteLine(string.Format(CultureInfo.CurrentCulture, "{0}: {1}", assemblyDisplayName, args.Message.Message), Category.Warning);
         }
     }
 }

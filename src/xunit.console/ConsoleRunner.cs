@@ -105,7 +105,7 @@ namespace Xunit.ConsoleClient
                 if (!commandLine.NoColor)
                     ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-                Console.WriteLine($"error: {ex.Message}");
+                Console.WriteLine("error: {0}", ex.Message);
 
                 if (commandLine.InternalDiagnosticMessages)
                 {
@@ -162,23 +162,23 @@ namespace Xunit.ConsoleClient
         void PrintHeader()
         {
 #if NET452
-            var platform = $".NET Framework 4.5.2, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.5.2, runtime: " + Environment.Version;
 #elif NET46
-            var platform = $".NET Framework 4.6, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.6, runtime: " + Environment.Version;
 #elif NET461
-            var platform = $".NET Framework 4.6.1, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.6.1, runtime: " + Environment.Version;
 #elif NET462
-            var platform = $".NET Framework 4.6.2, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.6.2, runtime: " + Environment.Version;
 #elif NET47
-            var platform = $".NET Framework 4.7, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.7, runtime: " + Environment.Version;
 #elif NET471
-            var platform = $".NET Framework 4.7.1, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.7.1, runtime: " + Environment.Version;
 #elif NET472
-            var platform = $".NET Framework 4.7.2, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.7.2, runtime: " + Environment.Version;
 #elif NET48
-            var platform = $".NET Framework 4.8, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.8, runtime: " + Environment.Version;
 #elif NET481
-            var platform = $".NET Framework 4.8.1, runtime: {Environment.Version}";
+            var platform = ".NET Framework 4.8.1, runtime: " + Environment.Version;
 #elif NETCOREAPP
             var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #else
@@ -186,7 +186,7 @@ namespace Xunit.ConsoleClient
 #endif
             var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            Console.WriteLine($"xUnit.net Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
+            Console.WriteLine("xUnit.net Console Runner v{0} ({1}-bit {2})", versionAttribute.InformationalVersion, IntPtr.Size * 8, platform);
         }
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
@@ -199,7 +199,7 @@ namespace Xunit.ConsoleClient
 
             Console.WriteLine("Copyright (C) .NET Foundation.");
             Console.WriteLine();
-            Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
+            Console.WriteLine("usage: {0} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
             Console.WriteLine();
 #if NETFRAMEWORK
             Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
@@ -271,14 +271,14 @@ namespace Xunit.ConsoleClient
                 Console.WriteLine("Reporters: (optional, choose only one)");
 
                 foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine($"  -{reporter.RunnerSwitch.ToLowerInvariant().PadRight(21)} : {reporter.Description}");
+                    Console.WriteLine("  -{0} : {1}", reporter.RunnerSwitch.ToLowerInvariant().PadRight(21), reporter.Description);
 
                 Console.WriteLine();
             }
 
             Console.WriteLine("Result formats: (optional, choose one or more)");
             TransformFactory.AvailableTransforms.ForEach(
-                transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(21).Substring(0, 21)} : {transform.Description}")
+                transform => Console.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.CommandLine).PadRight(21).Substring(0, 21), transform.Description)
             );
         }
 
@@ -443,7 +443,7 @@ namespace Xunit.ConsoleClient
                 var e = ex;
                 while (e != null)
                 {
-                    Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
+                    Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
 
                     if (internalDiagnosticMessages)
                         Console.WriteLine(e.StackTrace);
@@ -463,7 +463,7 @@ namespace Xunit.ConsoleClient
             lock (consoleLock)
             {
                 ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
-                Console.WriteLine($"File not found: {fileName}");
+                Console.WriteLine("File not found: {0}", fileName);
                 ConsoleHelper.SetForegroundColor(ConsoleColor.Gray);
             }
 

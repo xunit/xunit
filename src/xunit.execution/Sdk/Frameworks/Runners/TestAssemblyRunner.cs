@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -96,7 +97,7 @@ namespace Xunit.Sdk
         /// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
         /// </summary>
         protected virtual string GetTestFrameworkEnvironment()
-            => $"{IntPtr.Size * 8}-bit .NET {GetVersion()}";
+            => string.Format(CultureInfo.CurrentCulture, "{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
 
         static string GetVersion()
         {
@@ -158,7 +159,18 @@ namespace Xunit.Sdk
             catch (Exception ex)
             {
                 var innerEx = ex.Unwrap();
-                DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test collection orderer '{TestCollectionOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+
+                DiagnosticMessageSink.OnMessage(
+                    new DiagnosticMessage(
+                        "Test collection orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
+                        TestCollectionOrderer.GetType().FullName,
+                        innerEx.GetType().FullName,
+                        innerEx.Message,
+                        Environment.NewLine,
+                        innerEx.StackTrace
+                    )
+                );
+
                 orderedTestCollections = testCasesByCollection.Keys.ToList();
             }
 

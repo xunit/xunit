@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 
 #if NETSTANDARD1_1
@@ -132,7 +133,7 @@ namespace Xunit
             var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
             var directoryName = Path.GetDirectoryName(assemblyFileName);
 
-            return LoadFile(Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json"))
+            return LoadFile(Path.Combine(directoryName, string.Format(CultureInfo.InvariantCulture, "{0}.xunit.runner.json", assemblyName)))
                 ?? LoadFile(Path.Combine(directoryName, "xunit.runner.json"));
         }
 

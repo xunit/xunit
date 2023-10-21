@@ -278,7 +278,7 @@ namespace Xunit.Runners
                                                    bool shadowCopy = true,
                                                    string shadowCopyFolder = null)
         {
-            Guard.ArgumentValid(nameof(shadowCopyFolder), "Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder == null);
+            Guard.ArgumentValid(nameof(shadowCopyFolder), shadowCopy == true || shadowCopyFolder == null, "Cannot set shadowCopyFolder if shadowCopy is false");
 
             return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
         }

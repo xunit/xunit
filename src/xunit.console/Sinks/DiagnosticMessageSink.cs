@@ -39,9 +39,9 @@ namespace Xunit.ConsoleClient
                         ConsoleHelper.SetForegroundColor(displayColor);
 
                     if (assemblyDisplayName != null)
-                        Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
+                        Console.WriteLine("   {0}: {1}", assemblyDisplayName, diagnosticMessage.Message);
                     else
-                        Console.WriteLine($"   {diagnosticMessage.Message}");
+                        Console.WriteLine("   {0}", diagnosticMessage.Message);
 
                     if (!noColor)
                         ConsoleHelper.ResetColor();

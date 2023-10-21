@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -66,7 +67,7 @@ namespace Xunit.Sdk
 
             if (ctors.Count != 1)
             {
-                Aggregator.Add(new TestClassException($"Class fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+                Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
                 return;
             }
 
@@ -84,9 +85,16 @@ namespace Xunit.Sdk
             }).ToArray();
 
             if (missingParameters.Count > 0)
-                Aggregator.Add(new TestClassException(
-                    $"Class fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
-                ));
+                Aggregator.Add(
+                    new TestClassException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            "Class fixture type '{0}' had one or more unresolved constructor arguments: {1}",
+                            fixtureType.FullName,
+                            string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
+                        )
+                    )
+                );
             else
             {
                 Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
@@ -107,7 +115,11 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
-            => $"The following constructor parameters did not have matching fixture data: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
+            => string.Format(
+                CultureInfo.CurrentCulture,
+                "The following constructor parameters did not have matching fixture data: {0}",
+                string.Join(", ", unusedArguments.Select(arg => string.Format(CultureInfo.CurrentCulture, "{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)))
+            );
 
         /// <inheritdoc/>
         protected override async Task AfterTestClassStartingAsync()
@@ -123,14 +135,33 @@ namespace Xunit.Sdk
                     else
                     {
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for class-level test case orderer on test class '{TestClass.Class.Name}'"));
+
+                        DiagnosticMessageSink.OnMessage(
+                            new DiagnosticMessage(
+                                "Could not find type '{0}' in {1} for class-level test case orderer on test class '{2}'",
+                                args[0],
+                                args[1],
+                                TestClass.Class.Name
+                            )
+                        );
                     }
                 }
                 catch (Exception ex)
                 {
                     var innerEx = ex.Unwrap();
                     var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Class-level test case orderer '{args[0]}' for test class '{TestClass.Class.Name}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+
+                    DiagnosticMessageSink.OnMessage(
+                        new DiagnosticMessage(
+                            "Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}{4}{5}",
+                            args[0],
+                            TestClass.Class.Name,
+                            innerEx.GetType().FullName,
+                            innerEx.Message,
+                            Environment.NewLine,
+                            innerEx.StackTrace
+                        )
+                    );
                 }
             }
 

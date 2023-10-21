@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -78,7 +79,7 @@ namespace Xunit.Sdk
 
             if (ctors.Count != 1)
             {
-                Aggregator.Add(new TestClassException($"Collection fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+                Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
                 return;
             }
 
@@ -95,9 +96,16 @@ namespace Xunit.Sdk
             }).ToArray();
 
             if (missingParameters.Count > 0)
-                Aggregator.Add(new TestClassException(
-                    $"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
-                ));
+                Aggregator.Add(
+                    new TestClassException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            "Collection fixture type '{0}' had one or more unresolved constructor arguments: {1}",
+                            fixtureType.FullName,
+                            string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
+                        )
+                    )
+                );
             else
             {
                 Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
@@ -139,13 +147,32 @@ namespace Xunit.Sdk
                             return testCaseOrderer;
 
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
+
+                        DiagnosticMessageSink.OnMessage(
+                            new DiagnosticMessage(
+                                "Could not find type '{0}' in {1} for collection-level test case orderer on test collection '{2}'",
+                                args[0],
+                                args[1],
+                                TestCollection.DisplayName
+                            )
+                        );
                     }
                     catch (Exception ex)
                     {
                         var innerEx = ex.Unwrap();
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{args[0]}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+
+                        DiagnosticMessageSink.OnMessage(
+                            new DiagnosticMessage(
+                                "Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}",
+                                args[0],
+                                TestCollection.DisplayName,
+                                innerEx.GetType().FullName,
+                                innerEx.Message,
+                                Environment.NewLine,
+                                innerEx.StackTrace
+                            )
+                        );
                     }
                 }
             }

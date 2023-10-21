@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Internal.Microsoft.DotNet.PlatformAbstractions;
@@ -57,7 +58,12 @@ namespace Xunit
             }
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
+                internalDiagnosticsMessageSink.OnMessage(
+                    new _DiagnosticMessage(
+                        "[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [{0}]",
+                        string.Join(",", results.Select(x => string.Format(CultureInfo.CurrentCulture, "'{0}'", x)))
+                    )
+                );
 
             return results;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -78,7 +79,7 @@ namespace Xunit.Runner.Reporters
             }
             catch (Exception e)
             {
-                logger.LogError($"VstsClient.RunLoop: Could not create test run. Message: {e.Message}");
+                logger.LogError("VstsClient.RunLoop: Could not create test run. Message: {0}", e.Message);
             }
             finally
             {
@@ -91,7 +92,7 @@ namespace Xunit.Runner.Reporters
                 }
                 catch (Exception e)
                 {
-                    logger.LogError($"VstsClient.RunLoop: Could not finish test run. Message: {e.Message}");
+                    logger.LogError("VstsClient.RunLoop: Could not finish test run. Message: {0}", e.Message);
                 }
 
                 finished.Set();
@@ -116,13 +117,13 @@ namespace Xunit.Runner.Reporters
         {
             var requestMessage = new Dictionary<string, object>
             {
-                { "name", $"xUnit Runner Test Run on {DateTime.UtcNow.ToString("o")}"},
+                { "name", string.Format(CultureInfo.CurrentCulture, "xUnit Runner Test Run on {0:o}", DateTime.UtcNow) },
                 { "build", new Dictionary<string, object> { { "id", buildId } } },
                 { "isAutomated", true }
             };
 
             var bodyString = requestMessage.ToJson();
-            var url = $"{baseUri}?api-version=1.0";
+            var url = string.Format(CultureInfo.InvariantCulture, "{0}?api-version=1.0", baseUri);
             var respString = default(string);
             try
             {
@@ -140,7 +141,7 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending 'POST {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        logger.LogWarning("When sending 'POST {0}', received status code '{1}'; request body: {2}", url, response.StatusCode, bodyString);
                         previousErrors = true;
                     }
 
@@ -155,7 +156,7 @@ namespace Xunit.Runner.Reporters
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\nresponse string:\n{respString}");
+                logger.LogError("When sending 'POST {0}' with body '{1}'\nexception was thrown: {2}\nresponse string:\n{3}", url, bodyString, ex.Message, respString);
                 throw;
             }
         }
@@ -169,7 +170,7 @@ namespace Xunit.Runner.Reporters
             };
 
             var bodyString = requestMessage.ToJson();
-            var url = $"{baseUri}/{testRunId}?api-version=1.0";
+            var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}?api-version=1.0", baseUri, testRunId);
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -186,14 +187,14 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending 'PATCH {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        logger.LogWarning("When sending 'PATCH {0}', received status code '{1}'; request body: {2}", url, response.StatusCode, bodyString);
                         previousErrors = true;
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'PATCH {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                logger.LogError("When sending 'PATCH {0}' with body '{1}', exception was thrown: {2}", url, bodyString, ex.Message);
                 throw;
             }
         }
@@ -236,7 +237,7 @@ namespace Xunit.Runner.Reporters
             var method = isAdd ? HttpMethod.Post : PatchHttpMethod;
             var bodyString = ToJson(body);
 
-            var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
+            var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/results?api-version=3.0-preview", baseUri, runId);
 
             try
             {
@@ -254,7 +255,7 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body:\n{bodyString}");
+                        logger.LogWarning("When sending '{0} {1}', received status code '{2}'; request body:\n{3}", method, url, response.StatusCode, bodyString);
                         previousErrors = true;
                     }
 
@@ -282,7 +283,7 @@ namespace Xunit.Runner.Reporters
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending '{method} {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                logger.LogError("When sending '{0} {1}' with body '{2}', exception was thrown: {3}", method, url, bodyString, ex.Message);
                 throw;
             }
         }
@@ -290,7 +291,7 @@ namespace Xunit.Runner.Reporters
         static string ToJson(IEnumerable<IDictionary<string, object>> data)
         {
             var results = string.Join(",", data.Select(x => x.ToJson()));
-            return $"[{results}]";
+            return string.Format(CultureInfo.InvariantCulture, "[{0}]", results);
         }
 
         bool disposedValue = false;

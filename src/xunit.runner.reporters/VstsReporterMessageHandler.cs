@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -58,7 +59,7 @@ namespace Xunit.Runner.Reporters
                 var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
                 var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
                 if (attrib?.GetConstructorArguments().FirstOrDefault() is string arg)
-                    assemblyFileName = $"{assemblyFileName} ({arg})";
+                    assemblyFileName = string.Format(CultureInfo.InvariantCulture, "{0} ({1})", assemblyFileName, arg);
 
                 assemblyNames[args.Message.TestAssembly.Assembly.Name] = assemblyFileName;
 
@@ -71,7 +72,7 @@ namespace Xunit.Runner.Reporters
         {
             var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
 
-            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}",
+            VstsAddTest(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", args.Message.TestClass.Class.Name, args.Message.TestMethod.Method.Name),
                         args.Message.Test.DisplayName,
                         assemblyName,
                         args.Message.Test);
@@ -134,7 +135,7 @@ namespace Xunit.Runner.Reporters
                 { "state", "Completed" }
             };
 
-            var msg = $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}".Trim();
+            var msg = string.Format(CultureInfo.InvariantCulture, "{0}\n{1}\n{2}", errorMessage, errorStackTrace, TrimStdOut(stdOut)).Trim();
             if (!string.IsNullOrWhiteSpace(msg))
                 body.Add("errorMessage", msg);
 

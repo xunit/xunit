@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
@@ -20,13 +20,13 @@ namespace Xunit.Runner.TdNet
             Execution.TestPassedEvent += HandleTestPassed;
             Execution.TestSkippedEvent += HandleTestSkipped;
 
-            Diagnostics.ErrorMessageEvent += args => ReportError("Fatal Error", args.Message);
-            Execution.TestAssemblyCleanupFailureEvent += args => ReportError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
-            Execution.TestCaseCleanupFailureEvent += args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
-            Execution.TestClassCleanupFailureEvent += args => ReportError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
-            Execution.TestCollectionCleanupFailureEvent += args => ReportError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
-            Execution.TestMethodCleanupFailureEvent += args => ReportError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
-            Execution.TestCleanupFailureEvent += args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
+            Diagnostics.ErrorMessageEvent += args => ReportError(args.Message, "Fatal Error");
+            Execution.TestAssemblyCleanupFailureEvent += args => ReportError(args.Message, "Test Assembly Cleanup Failure ({0})", args.Message.TestAssembly.Assembly.AssemblyPath);
+            Execution.TestCaseCleanupFailureEvent += args => ReportError(args.Message, "Test Case Cleanup Failure ({0})", args.Message.TestCase.DisplayName);
+            Execution.TestClassCleanupFailureEvent += args => ReportError(args.Message, "Test Class Cleanup Failure ({0})", args.Message.TestClass.Class.Name);
+            Execution.TestCollectionCleanupFailureEvent += args => ReportError(args.Message, "Test Collection Cleanup Failure ({0})", args.Message.TestCollection.DisplayName);
+            Execution.TestMethodCleanupFailureEvent += args => ReportError(args.Message, "Test Method Cleanup Failure ({0})", args.Message.TestMethod.Method.Name);
+            Execution.TestCleanupFailureEvent += args => ReportError(args.Message, "Test Cleanup Failure ({0})", args.Message.Test.DisplayName);
 
             Execution.TestAssemblyFinishedEvent += args => Finished.Set();
         }
@@ -74,13 +74,13 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
         }
 
-        void ReportError(string messageType, IFailureInformation failureInfo)
+        void ReportError(IFailureInformation failureInfo, string messageType)
         {
             TestRunState = TestRunState.Failure;
 
             var testResult = new TestResult
             {
-                Name = $"*** {messageType} ***",
+                Name = string.Format(CultureInfo.CurrentCulture, "*** {0} ***", messageType),
                 State = TestState.Failed,
                 TimeSpan = TimeSpan.Zero,
                 TotalTests = 1,
@@ -91,14 +91,17 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
         }
 
+        void ReportError(IFailureInformation failureInfo, string messageTypeFormat, params object[] args) =>
+            ReportError(failureInfo, string.Format(CultureInfo.CurrentCulture, messageTypeFormat, args));
+
         void WriteOutput(string name, string output)
         {
             if (string.IsNullOrWhiteSpace(output))
                 return;
 
-            TestListener.WriteLine($"Output from {name}:", Category.Output);
+            TestListener.WriteLine(string.Format(CultureInfo.CurrentCulture, "Output from {0}:", name), Category.Output);
             foreach (var line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                TestListener.WriteLine($"  {line}", Category.Output);
+                TestListener.WriteLine(string.Format(CultureInfo.CurrentCulture, "  {0}", line), Category.Output);
         }
 
         public override void Dispose()

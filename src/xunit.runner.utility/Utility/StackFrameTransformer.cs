@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -39,7 +40,7 @@ namespace Xunit
             if (defaultDirectory != null && file.StartsWith(defaultDirectory, StringComparison.OrdinalIgnoreCase))
                 file = file.Substring(defaultDirectory.Length + 1);
 
-            return $"{file}({match.Groups["line"].Value},0): at {match.Groups["method"].Value}";
+            return string.Format(CultureInfo.InvariantCulture, "{0}({1},0): at {2}", file, match.Groups["line"].Value, match.Groups["method"].Value);
         }
 
         /// <summary>

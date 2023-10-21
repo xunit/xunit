@@ -74,7 +74,7 @@ namespace Xunit.Sdk
                             return DateTimeOffset.Parse(arg.ToString(), CultureInfo.InvariantCulture);
                         }
 
-                        return Convert.ChangeType(arg, type);
+                        return Convert.ChangeType(arg, type, CultureInfo.CurrentCulture);
                     }
                 }
                 catch { } // Eat conversion-related exceptions; they'll get re-surfaced during execution

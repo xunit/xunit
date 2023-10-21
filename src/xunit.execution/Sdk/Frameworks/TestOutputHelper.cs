@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using Xunit.Abstractions;
 
@@ -74,7 +75,7 @@ namespace Xunit.Sdk
                 if (ch == '\0')
                     builder.Append("\\0");
                 else if (ch < 32 && !char.IsWhiteSpace(ch)) // C0 control char
-                    builder.AppendFormat(@"\x{0}", (+ch).ToString("x2"));
+                    builder.AppendFormat(CultureInfo.CurrentCulture, @"\x{0:x2}", +ch);
                 else if (char.IsSurrogatePair(s, i))
                 {
                     // For valid surrogates, append like normal
@@ -83,9 +84,7 @@ namespace Xunit.Sdk
                 }
                 // Check for stray surrogates/other invalid chars
                 else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
-                {
-                    builder.AppendFormat(@"\x{0}", (+ch).ToString("x4"));
-                }
+                    builder.AppendFormat(CultureInfo.CurrentCulture, @"\x{0:x4}", +ch);
                 else
                     builder.Append(ch); // Append the char like normal
             }
@@ -116,7 +115,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("format", format);
             Guard.ArgumentNotNull("args", args);
 
-            QueueTestOutput(string.Format(format, args) + Environment.NewLine);
+            QueueTestOutput(string.Format(CultureInfo.CurrentCulture, format, args) + Environment.NewLine);
         }
     }
 }

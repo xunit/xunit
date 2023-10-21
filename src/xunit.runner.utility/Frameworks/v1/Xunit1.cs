@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using Xunit.Abstractions;
@@ -197,7 +198,7 @@ namespace Xunit
             EnsureInitialized();
 
             var results = new Xunit1RunSummary();
-            var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
+            var environment = string.Format(CultureInfo.CurrentCulture, "{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
             var firstTestCase = testCases.FirstOrDefault();
             var testCollection = firstTestCase == null ? null : firstTestCase.TestMethod.TestClass.TestCollection;
 

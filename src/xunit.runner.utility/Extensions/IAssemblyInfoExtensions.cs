@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using Xunit.Abstractions;
 
 /// <summary>
@@ -13,10 +14,10 @@ public static class IAssemblyInfoExtensions
     public static string SimpleAssemblyName(this IAssemblyInfo assemblyInfo)
     {
         Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
-        Guard.ArgumentNotNullOrEmpty($"{nameof(assemblyInfo)}.{nameof(IAssemblyInfo.Name)}", assemblyInfo.Name);
+        Guard.ArgumentNotNullOrEmpty(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", nameof(assemblyInfo), nameof(IAssemblyInfo.Name)), assemblyInfo.Name);
 
         var parsedAssemblyName = new AssemblyName(assemblyInfo.Name);
-        Guard.ArgumentValid(nameof(assemblyInfo), $"{nameof(assemblyInfo)}.{nameof(IAssemblyInfo.Name)} must include a name component", !string.IsNullOrEmpty(parsedAssemblyName.Name));
+        Guard.ArgumentValid(nameof(assemblyInfo), !string.IsNullOrEmpty(parsedAssemblyName.Name), "{0}.{1} must include a name component", nameof(assemblyInfo), nameof(IAssemblyInfo.Name));
 
         return parsedAssemblyName.Name;
     }

@@ -4,6 +4,7 @@
 #if NETFRAMEWORK || NETCOREAPP
 
 using System;
+using System.Globalization;
 using Internal.Microsoft.DotNet.PlatformAbstractions.Native;
 
 namespace Internal.Microsoft.DotNet.PlatformAbstractions
@@ -88,7 +89,7 @@ namespace Internal.Microsoft.DotNet.PlatformAbstractions
             else if (ver.Major >= 10)
             {
                 // Return the major version for use in RID computation without applying any cap.
-                return ver.Major.ToString();
+                return ver.Major.ToString(CultureInfo.InvariantCulture);
             }
             return string.Empty; // Unknown version
         }

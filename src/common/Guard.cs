@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
+
+#if !XUNIT_FRAMEWORK && !NETSTANDARD
 using System.IO;
+#endif
 
 /// <summary>
 /// Guard class, used for guard clauses and argument validation
@@ -24,10 +28,17 @@ static class Guard
     }
 
     /// <summary/>
-    public static void ArgumentValid(string argName, string message, bool test)
+    public static void ArgumentValid(string argName, bool test, string message)
     {
         if (!test)
             throw new ArgumentException(message, argName);
+    }
+
+    /// <summary/>
+    public static void ArgumentValid(string argName, bool test, string messageFormat, params object[] args)
+    {
+        if (!test)
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, messageFormat, args), argName);
     }
 
 #if !XUNIT_FRAMEWORK
@@ -36,7 +47,7 @@ static class Guard
     {
         ArgumentNotNullOrEmpty(argName, fileName);
 #if !NETSTANDARD
-        ArgumentValid(argName, $"File not found: {fileName}", File.Exists(fileName));
+        ArgumentValid(argName, File.Exists(fileName), "File not found: {0}", fileName);
 #endif
     }
 #endif

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -35,7 +36,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                return new KeyValuePair<string, ITestCase>($"Test case deserialization failure: {ex}", null);
+                return new KeyValuePair<string, ITestCase>(string.Format(CultureInfo.CurrentCulture, "Test case deserialization failure: {0}", ex), null);
             }
         }
     }
