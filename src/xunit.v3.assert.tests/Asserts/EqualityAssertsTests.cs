@@ -1403,6 +1403,35 @@ public class EqualityAssertsTests
 			}
 		}
 
+		public class KeyValuePair
+		{
+			[Fact]
+			public void CollectionValues_Equal()
+			{
+				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void CollectionValues_NotEqual()
+			{
+				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value2a" });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: [\"Key1\"] = [\"Value1a\", \"Value1b\"]" + Environment.NewLine +
+					"Actual:   [\"Key1\"] = [\"Value1a\", \"Value2a\"]",
+					ex.Message
+				);
+			}
+		}
+
 		public class DoubleEnumerationPrevention
 		{
 			[Fact]
@@ -3271,6 +3300,35 @@ public class EqualityAssertsTests
 					@"Actual:       ""This is a long string so that we can test truncati""···",
 					ex.Message
 				);
+			}
+		}
+
+		public class KeyValuePair
+		{
+			[Fact]
+			public void CollectionValues_Equal()
+			{
+				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not [\"Key1\"] = [\"Value1a\", \"Value1b\"]" + Environment.NewLine +
+					"Actual:       [\"Key1\"] = [\"Value1a\", \"Value1b\"]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void CollectionValues_NotEqual()
+			{
+				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value2a" });
+
+				Assert.NotEqual(expected, actual);
 			}
 		}
 
