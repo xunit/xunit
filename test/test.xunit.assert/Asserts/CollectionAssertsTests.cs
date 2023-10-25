@@ -1078,6 +1078,32 @@ public class CollectionAssertsTests
 
 				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 			}
+
+			[Fact]
+			public void WithThrow_PrintsPointerWhereThrowOccurs_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.Equal(new[] { 1, 2 }, new[] { 1, 3 }, new ThrowingComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"           ↓ (pos 0)" + Environment.NewLine +
+					"Expected: [1, 2]" + Environment.NewLine +
+					"Actual:   [1, 3]" + Environment.NewLine +
+					"           ↑ (pos 0)",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingComparer : IEqualityComparer<int>
+			{
+				public bool Equals(int x, int y) =>
+					throw new DivideByZeroException();
+
+				public int GetHashCode(int obj) =>
+					throw new NotImplementedException();
+			}
 		}
 
 		public class CollectionsWithFunc
@@ -1129,6 +1155,29 @@ public class CollectionAssertsTests
 				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
 
 				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+			}
+
+			[Fact]
+			public void WithThrow_PrintsPointerWhereThrowOccurs_RecordsInnerException()
+			{
+				var ex = Record.Exception(() =>
+					Assert.Equal(
+						new[] { 1, 2 },
+						new[] { 1, 3 },
+						(int e, int a) => throw new DivideByZeroException()
+					)
+				);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"           ↓ (pos 0)" + Environment.NewLine +
+					"Expected: [1, 2]" + Environment.NewLine +
+					"Actual:   [1, 3]" + Environment.NewLine +
+					"           ↑ (pos 0)",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
 			}
 		}
 
@@ -1638,6 +1687,32 @@ public class CollectionAssertsTests
 
 				public int GetHashCode(int obj) => throw new NotImplementedException();
 			}
+
+			[Fact]
+			public void WithThrow_PrintsPointerWhereThrowOccurs_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(new[] { 1, 2 }, new[] { 1, 2 }, new ThrowingComparer()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"               ↓ (pos 0)" + Environment.NewLine +
+					"Expected: Not [1, 2]" + Environment.NewLine +
+					"Actual:       [1, 2]" + Environment.NewLine +
+					"               ↑ (pos 0)",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingComparer : IEqualityComparer<int>
+			{
+				public bool Equals(int x, int y) =>
+					throw new DivideByZeroException();
+
+				public int GetHashCode(int obj) =>
+					throw new NotImplementedException();
+			}
 		}
 
 		public class CollectionsWithFunc
@@ -1666,6 +1741,29 @@ public class CollectionAssertsTests
 					"Actual:       List<int> [0, 0, 0, 0, 0]",
 					ex.Message
 				);
+			}
+
+			[Fact]
+			public void WithThrow_PrintsPointerWhereThrowOccurs_RecordsInnerException()
+			{
+				var ex = Record.Exception(() =>
+					Assert.NotEqual(
+						new[] { 1, 2 },
+						new[] { 1, 2 },
+						(int e, int a) => throw new DivideByZeroException()
+					)
+				);
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"               ↓ (pos 0)" + Environment.NewLine +
+					"Expected: Not [1, 2]" + Environment.NewLine +
+					"Actual:       [1, 2]" + Environment.NewLine +
+					"               ↑ (pos 0)",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
 			}
 		}
 
