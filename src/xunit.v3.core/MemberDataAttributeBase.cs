@@ -38,13 +38,13 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	/// Initializes a new instance of the <see cref="MemberDataAttributeBase"/> class.
 	/// </summary>
 	/// <param name="memberName">The name of the public static member on the test class that will provide the test data</param>
-	/// <param name="parameters">The parameters for the member (only supported for methods; ignored for everything else)</param>
+	/// <param name="arguments">The arguments to be passed to the member (only supported for methods; ignored for everything else)</param>
 	protected MemberDataAttributeBase(
 		string memberName,
-		object?[] parameters)
+		object?[] arguments)
 	{
 		MemberName = Guard.ArgumentNotNull(memberName);
-		Parameters = Guard.ArgumentNotNull(parameters);
+		Arguments = Guard.ArgumentNotNull(arguments);
 	}
 
 	/// <summary>
@@ -66,9 +66,9 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	public Type? MemberType { get; set; }
 
 	/// <summary>
-	/// Gets or sets the parameters passed to the member. Only supported for static methods.
+	/// Gets or sets the arguments passed to the member. Only supported for static methods.
 	/// </summary>
-	public object?[] Parameters { get; }
+	public object?[] Arguments { get; }
 
 	/// <inheritdoc/>
 	protected override ITheoryDataRow ConvertDataRow(
@@ -114,7 +114,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 					"Could not find public static member (property, field, or method) named '{0}' on {1}{2}",
 					MemberName,
 					type.FullName,
-					Parameters.Length > 0 ? string.Format(CultureInfo.CurrentCulture, " with parameter types: {0}", string.Join(", ", Parameters.Select(p => p?.GetType().FullName ?? "(null)"))) : ""
+					Arguments.Length > 0 ? string.Format(CultureInfo.CurrentCulture, " with parameter types: {0}", string.Join(", ", Arguments.Select(p => p?.GetType().FullName ?? "(null)"))) : ""
 				)
 			);
 
@@ -200,13 +200,13 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetMethodAccessor(Type? type)
 	{
 		MethodInfo? methodInfo = null;
-		var parameterTypes = Parameters is null ? Array.Empty<Type>() : Parameters.Select(p => p?.GetType()).ToArray();
+		var argumentTypes = Arguments is null ? Array.Empty<Type>() : Arguments.Select(p => p?.GetType()).ToArray();
 		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
 		{
 			methodInfo =
 				reflectionType
 					.GetRuntimeMethods()
-					.FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
+					.FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), argumentTypes));
 
 			if (methodInfo is not null)
 				break;
@@ -215,7 +215,12 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		if (methodInfo is null || !methodInfo.IsStatic)
 			return null;
 
-		return () => methodInfo.Invoke(null, Parameters);
+		var completedArguments = Arguments ?? Array.Empty<object?>();
+		var finalMethodParameters = methodInfo.GetParameters();
+		completedArguments = completedArguments.Length == finalMethodParameters.Length
+			? completedArguments
+			: completedArguments.Concat(finalMethodParameters.Skip(completedArguments.Length).Select(pi => pi.DefaultValue)).ToArray();
+		return () => methodInfo.Invoke(null, completedArguments);
 	}
 
 	Func<object?>? GetPropertyAccessor(Type? type)
@@ -235,14 +240,19 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	}
 
 	static bool ParameterTypesCompatible(
-		ParameterInfo[]? parameters,
-		Type?[] parameterTypes)
+		ParameterInfo[] parameters,
+		Type?[] argumentTypes)
 	{
-		if (parameters?.Length != parameterTypes.Length)
+		if (parameters.Length < argumentTypes.Length)
 			return false;
 
-		for (var idx = 0; idx < parameters.Length; ++idx)
-			if (parameterTypes[idx] is not null && !parameters[idx].ParameterType.IsAssignableFrom(parameterTypes[idx]!))
+		var idx = 0;
+		for (; idx < argumentTypes.Length; ++idx)
+			if (argumentTypes[idx] is not null && !parameters[idx].ParameterType.IsAssignableFrom(argumentTypes[idx]!))
+				return false;
+
+		for (; idx < parameters.Length; ++idx)
+			if (!parameters[idx].IsOptional)
 				return false;
 
 		return true;
