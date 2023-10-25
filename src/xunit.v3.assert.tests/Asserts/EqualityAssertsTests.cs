@@ -98,6 +98,52 @@ public class EqualityAssertsTests
 
 				public int GetHashCode(T obj) => throw new NotImplementedException();
 			}
+
+			[Fact]
+			public void NonEnumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.Equal(42, 2112, new ThrowingIntComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: 42" + Environment.NewLine +
+					"Actual:   2112",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingIntComparer : IEqualityComparer<int>
+			{
+				public bool Equals(int x, int y) =>
+					throw new DivideByZeroException();
+				public int GetHashCode(int obj) =>
+					throw new NotImplementedException();
+			}
+
+			[Fact]
+			public void Enumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.Equal(new[] { 1, 2 }, new[] { 1, 3 }, new ThrowingEnumerableComparer()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: [1, 2]" + Environment.NewLine +
+					"Actual:   [1, 3]",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingEnumerableComparer : IEqualityComparer<IEnumerable<int>>
+			{
+				public bool Equals(IEnumerable<int>? x, IEnumerable<int>? y) =>
+					throw new DivideByZeroException();
+				public int GetHashCode(IEnumerable<int> obj) =>
+					throw new NotImplementedException();
+			}
 		}
 
 		public class WithFunc
@@ -126,6 +172,42 @@ public class EqualityAssertsTests
 					"Actual:   42",
 					ex.Message
 				);
+			}
+
+			[Fact]
+			public void NonEnumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.Equal(42, 2112, (e, a) => throw new DivideByZeroException()));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: 42" + Environment.NewLine +
+					"Actual:   2112",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			[Fact]
+			public void Enumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(
+					() => Assert.Equal(
+						new[] { 1, 2 },
+						new[] { 1, 3 },
+						(IEnumerable<int> e, IEnumerable<int> a) => throw new DivideByZeroException()
+					)
+				);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: [1, 2]" + Environment.NewLine +
+					"Actual:   [1, 3]",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
 			}
 		}
 
@@ -1942,6 +2024,75 @@ public class EqualityAssertsTests
 
 				public int GetHashCode(T obj) => throw new NotImplementedException();
 			}
+
+			[Fact]
+			public void NonEnumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(42, 42, new ThrowingIntComparer()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: Not 42" + Environment.NewLine +
+					"Actual:       42",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingIntComparer : IEqualityComparer<int>
+			{
+				public bool Equals(int x, int y) =>
+					throw new DivideByZeroException();
+				public int GetHashCode(int obj) =>
+					throw new NotImplementedException();
+			}
+
+			[Fact]
+			public void Enumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(new[] { 1, 2 }, new[] { 1, 2 }, new ThrowingEnumerableComparer()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: Not [1, 2]" + Environment.NewLine +
+					"Actual:       [1, 2]",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingEnumerableComparer : IEqualityComparer<IEnumerable<int>>
+			{
+				public bool Equals(IEnumerable<int>? x, IEnumerable<int>? y) =>
+					throw new DivideByZeroException();
+				public int GetHashCode(IEnumerable<int> obj) =>
+					throw new NotImplementedException();
+			}
+
+			[Fact]
+			public void Strings_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual("42", "42", new ThrowingStringComparer()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: Not \"42\"" + Environment.NewLine +
+					"Actual:       \"42\"",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			public class ThrowingStringComparer : IEqualityComparer<string>
+			{
+				public bool Equals(string? x, string? y) =>
+					throw new DivideByZeroException();
+				public int GetHashCode(string obj) =>
+					throw new NotImplementedException();
+			}
 		}
 
 		public class WithFunc
@@ -1970,6 +2121,57 @@ public class EqualityAssertsTests
 			public void NotEqual()
 			{
 				Assert.NotEqual(42, 42, (x, y) => false);
+			}
+
+			[Fact]
+			public void NonEnumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual(42, 42, (e, a) => throw new DivideByZeroException()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: Not 42" + Environment.NewLine +
+					"Actual:       42",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			[Fact]
+			public void Enumerable_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(
+					() => Assert.NotEqual(
+						new[] { 1, 2 },
+						new[] { 1, 2 },
+						(IEnumerable<int> e, IEnumerable<int> a) => throw new DivideByZeroException()
+					)
+				);
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: Not [1, 2]" + Environment.NewLine +
+					"Actual:       [1, 2]",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
+			}
+
+			[Fact]
+			public void Strings_WithThrow_RecordsInnerException()
+			{
+				var ex = Record.Exception(() => Assert.NotEqual("42", "42", (e, a) => throw new DivideByZeroException()));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Exception thrown during comparison" + Environment.NewLine +
+					"Expected: Not \"42\"" + Environment.NewLine +
+					"Actual:       \"42\"",
+					ex.Message
+				);
+				Assert.IsType<DivideByZeroException>(ex.InnerException);
 			}
 		}
 
