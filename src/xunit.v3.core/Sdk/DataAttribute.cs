@@ -217,9 +217,10 @@ public abstract class DataAttribute : Attribute
 	/// data instance (with values from <see cref="ExplicitWithoutDefaultValue"/> and <see cref="Skip"/>).
 	/// </remarks>
 	/// <param name="testMethod">The method that is being tested</param>
+	/// <param name="disposalTracker">The repository for tracking objects to be disposed of upon test completion</param>
 	/// <returns>One or more rows of theory data. Each invocation of the test method
 	/// is represented by a single instance of <see cref="ITheoryDataRow"/>.</returns>
-	public abstract ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod);
+	public abstract ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker);
 
 	void MergeTraitsInto(Dictionary<string, List<string>> traits) =>
 		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);

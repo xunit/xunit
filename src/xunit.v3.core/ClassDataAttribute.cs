@@ -30,7 +30,7 @@ public class ClassDataAttribute : DataAttribute
 	/// <summary>
 	/// Gets the type of the class that provides the data.
 	/// </summary>
-	public Type Class { get; private set; }
+	public Type Class { get; }
 
 	/// <inheritdoc/>
 	protected override ITheoryDataRow ConvertDataRow(
@@ -59,11 +59,14 @@ public class ClassDataAttribute : DataAttribute
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
+	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(disposalTracker);
 
 		var classInstance = Activator.CreateInstance(Class);
+		if (classInstance is IDisposable)
+			disposalTracker.Add(classInstance);
 
 		if (classInstance is IEnumerable dataItems)
 		{
@@ -76,14 +79,22 @@ public class ClassDataAttribute : DataAttribute
 			return new(result.CastOrToReadOnlyCollection());
 		}
 
-		return GetDataAsync(classInstance, testMethod);
+		return GetDataAsync(classInstance, testMethod, disposalTracker);
 	}
 
 	// Split into a separate method to avoid the async machinery when we don't have async results
 	async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
 		object? classInstance,
-		MethodInfo testMethod)
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
+		if (classInstance is IAsyncDisposable)
+		{
+			disposalTracker.Add(classInstance);
+			if (classInstance is IAsyncLifetime classLifetime)
+				await classLifetime.InitializeAsync();
+		}
+
 		if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
 		{
 			var result = new List<ITheoryDataRow>();

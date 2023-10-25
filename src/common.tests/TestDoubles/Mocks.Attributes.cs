@@ -98,7 +98,7 @@ public static partial class Mocks
 		var dataAttribute = Substitute.For<DataAttribute>();
 		dataAttribute.Explicit = @explicit.GetValueOrDefault();
 		dataAttribute.Skip = skip;
-		dataAttribute.GetData(null!).ReturnsForAnyArgs(dataRows);
+		dataAttribute.GetData(null!, null!).ReturnsForAnyArgs(dataRows);
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(dataAttribute);
@@ -111,7 +111,7 @@ public static partial class Mocks
 	public static _IReflectionAttributeInfo DataAttribute(params ITheoryDataRow[] data)
 	{
 		var dataAttribute = Substitute.For<DataAttribute>();
-		dataAttribute.GetData(null!).ReturnsForAnyArgs(data.CastOrToReadOnlyCollection());
+		dataAttribute.GetData(null!, null!).ReturnsForAnyArgs(data.CastOrToReadOnlyCollection());
 
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(dataAttribute);

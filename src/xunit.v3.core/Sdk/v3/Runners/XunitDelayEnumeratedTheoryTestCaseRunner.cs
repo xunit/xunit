@@ -99,7 +99,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 					continue;
 				}
 
-				var data = await discoverer.GetData(dataAttribute, ctxt.TestCase.TestMethod.Method);
+				var data = await discoverer.GetData(dataAttribute, ctxt.TestCase.TestMethod.Method, ctxt.DisposalTracker);
 				if (data is null)
 				{
 					ctxt.Aggregator.Add(

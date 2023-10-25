@@ -28,11 +28,13 @@ public interface IDataDiscoverer
 	/// </remarks>
 	/// <param name="dataAttribute">The data attribute being discovered</param>
 	/// <param name="testMethod">The method that is being tested/discovered</param>
+	/// <param name="disposalTracker">The repository for tracking objects to be disposed of upon test completion</param>
 	/// <returns>The theory data (or null during discovery, if not enough
 	/// information is available to enumerate the data)</returns>
 	ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 		_IAttributeInfo dataAttribute,
-		_IMethodInfo testMethod
+		_IMethodInfo testMethod,
+		DisposalTracker disposalTracker
 	);
 
 	/// <summary>
