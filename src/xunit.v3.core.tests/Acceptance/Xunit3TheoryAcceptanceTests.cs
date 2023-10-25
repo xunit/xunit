@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -1962,6 +1963,67 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<object?[]> TestData()
 			{
 				yield return new object?[] { 42 };
+			}
+		}
+
+		[Fact]
+		public async Task OptionalParametersSupported()
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassWithDataMethodsWithOptionalParameters));
+
+			Assert.NotEmpty(testMessages.OfType<TestPassedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<_TestFailed>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
+		}
+
+		class ClassWithDataMethodsWithOptionalParameters
+		{
+			public static IEnumerable<object[]> DataMethodWithOptionalParameters(string name, int scenarios = 444)
+			{
+				for (int i = 1; i <= scenarios; i++)
+					yield return new object[] { name, i };
+			}
+
+			[Theory]
+			[MemberData(nameof(DataMethodWithOptionalParameters), "MyFirst")]
+			[MemberData(nameof(DataMethodWithOptionalParameters), "MySecond")]
+			public void TestMethod(string name, int scenario)
+			{
+				Assert.True(name.Length > 0);
+				Assert.True(scenario > 0);
+			}
+		}
+
+		[Fact]
+		public async Task MultipleMethodsButOnlyOneNonOptionalSupported()
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassWithMultipleMethodsButOneWithoutOptionalParameters));
+
+			Assert.Equal(2, testMessages.OfType<TestPassedWithDisplayName>().Count());
+			Assert.Empty(testMessages.OfType<_TestFailed>());
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
+		}
+
+		class ClassWithMultipleMethodsButOneWithoutOptionalParameters
+		{
+			public static IEnumerable<object[]> OverloadedDataMethod(string name, int scenarios = 444)
+			{
+				for (int i = 1; i <= scenarios; i++)
+					yield return new object[] { name, i };
+			}
+
+			public static IEnumerable<object[]> OverloadedDataMethod(string name)
+			{
+				yield return new object[] { name, -1 };
+			}
+
+			[Theory]
+			[MemberData(nameof(OverloadedDataMethod), "MyFirst")]
+			[MemberData(nameof(OverloadedDataMethod), "MySecond")]
+			public void TestMethod(string name, int scenario)
+			{
+				Assert.True(name.Length > 0);
+				Assert.Equal(-1, scenario);
 			}
 		}
 	}
