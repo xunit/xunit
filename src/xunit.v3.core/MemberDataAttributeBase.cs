@@ -203,13 +203,24 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		var argumentTypes = Arguments is null ? Array.Empty<Type>() : Arguments.Select(p => p?.GetType()).ToArray();
 		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
 		{
-			methodInfo =
+			var methodInfoArray =
 				reflectionType
 					.GetRuntimeMethods()
-					.FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), argumentTypes));
-
+					.Where(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), argumentTypes))
+					.ToArray();
+			if (methodInfoArray.Length == 0)
+				continue;
+			if (methodInfoArray.Length == 1)
+			{
+				methodInfo = methodInfoArray[0];
+				break;
+			}
+			methodInfo = methodInfoArray.Where(m => m.GetParameters().Length == argumentTypes.Length).FirstOrDefault();
 			if (methodInfo is not null)
 				break;
+
+			throw new ArgumentException($"The call to method '{type!.FullName}.{MemberName}' is ambigous between {methodInfoArray.Length} different options for the given arguments.");
+
 		}
 
 		if (methodInfo is null || !methodInfo.IsStatic)
