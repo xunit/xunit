@@ -133,7 +133,7 @@ namespace Xunit
 
         IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("This API is new for v2 and should never be called for v1");
         }
 
         // ITypeInfo

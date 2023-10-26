@@ -60,7 +60,7 @@ namespace Xunit
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-        public static Exception Exception(Func<Task> testCode) { throw new NotImplementedException(); }
+        public static Exception Exception(Func<Task> testCode) { throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code."); }
 
         /// <summary>
         /// Records any exception which is thrown by the given task.
