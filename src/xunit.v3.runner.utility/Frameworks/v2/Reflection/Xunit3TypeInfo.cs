@@ -91,7 +91,7 @@ public class Xunit3TypeInfo : _ITypeInfo
 
 	/// <inheritdoc/>
 	public int GetArrayRank() =>
-		throw new NotImplementedException();  // New in v3; should never be called since IsArray always returns false
+		throw new NotImplementedException("This API is new for v3 and should never be called for v2");
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
@@ -107,7 +107,7 @@ public class Xunit3TypeInfo : _ITypeInfo
 
 	/// <inheritdoc/>
 	public _ITypeInfo GetGenericTypeDefinition() =>
-		throw new NotImplementedException();  // New for v3
+		throw new NotImplementedException("This API is new for v3 and should never be called for v2");
 
 	/// <inheritdoc/>
 	public _IMethodInfo? GetMethod(
