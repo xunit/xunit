@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -219,10 +218,11 @@ namespace Xunit.Sdk
                 return typeX == typeY;
             }
 
-            [SuppressMessage("Code Notifications", "RECS0083:Shows NotImplementedException throws in the quick task bar", Justification = "This class is not intended to be used in a hashed container")]
             int IEqualityComparer.GetHashCode(object obj)
             {
-                throw new NotImplementedException();
+                Guard.ArgumentNotNull(nameof(obj), obj);
+
+                return obj.GetHashCode();
             }
         }
     }
