@@ -61,19 +61,19 @@ public static class Record
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[DoesNotReturn]
 	[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-	public static Exception Exception(Func<Task> testCode) => throw new NotImplementedException();
+	public static Exception Exception(Func<Task> testCode) => throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
 
 	/// <summary/>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[DoesNotReturn]
 	[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-	public static Exception Exception(Func<ValueTask> testCode) => throw new NotImplementedException();
+	public static Exception Exception(Func<ValueTask> testCode) => throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
 
 	/// <summary/>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[DoesNotReturn]
 	[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-	public static Exception Exception<T>(Func<ValueTask<T>> testCode) => throw new NotImplementedException();
+	public static Exception Exception<T>(Func<ValueTask<T>> testCode) => throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
 
 	/// <summary>
 	/// Records any exception which is thrown by the given task.

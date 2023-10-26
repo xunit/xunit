@@ -206,9 +206,7 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 			return typeX == typeY;
 		}
 
-		int IEqualityComparer.GetHashCode(object obj)
-		{
-			throw new NotImplementedException();
-		}
+		int IEqualityComparer.GetHashCode(object obj) =>
+			Guard.ArgumentNotNull(obj).GetHashCode();
 	}
 }
