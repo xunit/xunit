@@ -11,7 +11,7 @@
     <icon>_content/logo-128-transparent.png</icon>
     <readme>_content/README.md</readme>
     <releaseNotes>https://xunit.net/releases/v2/$PackageVersion$</releaseNotes>
-    <description>Includes the assertion library from xUnit.net (xunit.assert.dll). Supports .NET Standard 1.1.</description>
+    <description>Includes the assertion library from xUnit.net (xunit.assert.dll). Supports .NET Standard 1.1+ and .NET 6.0+.</description>
     <copyright>Copyright (C) .NET Foundation</copyright>
     <repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
     <dependencies>
@@ -19,6 +19,7 @@
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.1" />
       </group>
+      <group targetFramework="net6.0" />
     </dependencies>
   </metadata>
   <files>
@@ -27,5 +28,8 @@
 
     <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.dll" target="lib\netstandard1.1\" />
     <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.xml" target="lib\netstandard1.1\" />
+
+    <file src="xunit.assert\bin\$Configuration$\net6.0\xunit.assert.dll" target="lib\net6.0\" />
+    <file src="xunit.assert\bin\$Configuration$\net6.0\xunit.assert.xml" target="lib\net6.0\" />
   </files>
 </package>
