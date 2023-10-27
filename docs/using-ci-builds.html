@@ -1,0 +1,45 @@
+---
+layout: default
+title: Using CI Builds
+breadcrumb: Documentation
+---
+
+<h1>Using CI Builds</h1>
+
+<p>
+  The <a href="/#packages">packages table on the home page</a> lists the current available builds.
+  The column titled "Latest CI" indicates the version of the most recent build that was pushed
+  automatically as a result of new code being pushed to GitHub. These automated builds are currently
+  sent to <a href="https://feedz.io/org/xunit/repository/xunit/search">feedz.io</a> (that link will
+  require you to log into your feedz.io account, which is free if you don't already have one).
+</p>
+
+<p>
+  In order to consume packages from this feed, you need to create or update the <code>NuGet.Config</code>
+  file for your project. Here is an example:
+</p>
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+    <add key="feedz.io/xunit/xunit" value="https://f.feedz.io/xunit/xunit/nuget/index.json" protocolVersion="3" />
+  </packageSources>
+</configuration>
+{% endhighlight %}
+
+<p>
+  This NuGet.Config file sets two feed sources: the official source from NuGet, and the feed from feedz.io.
+  (Note that while you need an account to view the feedz.io website, you do not need any account to restore
+  packages, so using this NuGet.Config should be relatively friction free.) You should place the NuGet.Config
+  file into the same folder at the top level folder of your source repository so that it will be used for
+  all package operations in your project.
+</p>
+
+<p>
+  Note that the order of the package sources matters: the first listed source (nuget.org in this case) has the
+  highest priority. That means if the package is available from nuget.org with the version you requested, it
+  will be sourced from there, even if the same version is available on a later package feed.
+</p>
