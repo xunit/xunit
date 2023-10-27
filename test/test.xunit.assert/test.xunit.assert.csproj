@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[6.0.0]" />
   </ItemGroup>
 
 </Project>
