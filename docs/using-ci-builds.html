@@ -7,7 +7,7 @@ breadcrumb: Documentation
 <h1>Using CI Builds</h1>
 
 <p>
-  The <a href="/#packages">packages table on the home page</a> lists the current available builds.
+  The <a href="/#packages">packages table on the home page</a> lists the currently available builds.
   The column titled "Latest CI" indicates the version of the most recent build that was pushed
   automatically as a result of new code being pushed to GitHub. These automated builds are currently
   sent to <a href="https://feedz.io/org/xunit/repository/xunit/search">feedz.io</a> (that link will
@@ -31,15 +31,15 @@ breadcrumb: Documentation
 {% endhighlight %}
 
 <p>
-  This NuGet.Config file sets two feed sources: the official source from NuGet, and the feed from feedz.io.
-  (Note that while you need an account to view the feedz.io website, you do not need any account to restore
-  packages, so using this NuGet.Config should be relatively friction free.) You should place the NuGet.Config
-  file into the same folder at the top level folder of your source repository so that it will be used for
-  all package operations in your project.
+  This <code>NuGet.Config</code> file sets two feed sources: the official source from NuGet, and the feed
+  from <code>feedz.io</code>. (Note that while you need an account to view the <code>feedz.io</code> website,
+  you do not need an account to restore packages, so using this <code>NuGet.Config</code> should be relatively
+  friction free.) We recommend that you place the <code>NuGet.Config</code> file into the top level folder of
+  your source repository so that it will be used for all package operations in your project.
 </p>
 
 <p>
-  Note that the order of the package sources matters: the first listed source (nuget.org in this case) has the
-  highest priority. That means if the package is available from nuget.org with the version you requested, it
-  will be sourced from there, even if the same version is available on a later package feed.
+  Note that the order of the package sources matters: the first listed source (<code>nuget.org</code> in this case)
+  has the highest priority. That means if the package is available from <code>nuget.org</code> with the version
+  you requested, it will be sourced from there, even if the same version is available on a later package feed.
 </p>
