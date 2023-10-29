@@ -2025,6 +2025,40 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.Equal(-1, scenario);
 			}
 		}
+
+		[Fact]
+		public async Task MultipleMethodsWithAmbiguousOptionalParameters()
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassWithMultipleMethodsAndAmbiguousOptionalParameters));
+
+			Assert.Empty(testMessages.OfType<_TestPassed>());
+			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			Assert.StartsWith(
+				"The call to method 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMultipleMethodsAndAmbiguousOptionalParameters.OverloadedDataMethod' is ambigous between 2 different options for the given arguments.",
+				failed.Messages.Single()
+			);
+			Assert.Empty(testMessages.OfType<_TestSkipped>());
+		}
+
+		class ClassWithMultipleMethodsAndAmbiguousOptionalParameters
+		{
+			public static IEnumerable<object[]> OverloadedDataMethod(string name, int scenarios = 444)
+			{
+				for (int i = 1; i <= scenarios; i++)
+					yield return new object[] { name, i };
+			}
+
+			public static IEnumerable<object[]> OverloadedDataMethod(string name, string scenariosAsString = "444")
+			{
+				yield return new object[] { name, int.Parse(scenariosAsString) };
+			}
+
+			[Theory]
+			[MemberData(nameof(OverloadedDataMethod), "MyFirst")]
+			[MemberData(nameof(OverloadedDataMethod), "MySecond")]
+			public void TestMethod(string _1, int _2)
+			{ }
+		}
 	}
 
 	public class CustomDataTests : AcceptanceTestV3
