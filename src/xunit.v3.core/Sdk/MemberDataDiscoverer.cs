@@ -31,7 +31,7 @@ public class MemberDataDiscoverer : DataDiscoverer
 				memberDataAttribute.MemberType is null &&
 				reflectionTestMethod.Type is _IReflectionTypeInfo reflectionTestMethodType)
 			{
-				var newMemberDataAttribute = new MemberDataAttribute(memberDataAttribute.MemberName, memberDataAttribute.Parameters)
+				var newMemberDataAttribute = new MemberDataAttribute(memberDataAttribute.MemberName, memberDataAttribute.Arguments)
 				{
 					DisableDiscoveryEnumeration = memberDataAttribute.DisableDiscoveryEnumeration,
 					Explicit = memberDataAttribute.Explicit,
