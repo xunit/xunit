@@ -65,8 +65,7 @@ public class ClassDataAttribute : DataAttribute
 		Guard.ArgumentNotNull(disposalTracker);
 
 		var classInstance = Activator.CreateInstance(Class);
-		if (classInstance is IDisposable)
-			disposalTracker.Add(classInstance);
+		disposalTracker.Add(classInstance);
 
 		if (classInstance is IEnumerable dataItems)
 		{
@@ -79,21 +78,16 @@ public class ClassDataAttribute : DataAttribute
 			return new(result.CastOrToReadOnlyCollection());
 		}
 
-		return GetDataAsync(classInstance, testMethod, disposalTracker);
+		return GetDataAsync(classInstance, testMethod);
 	}
 
 	// Split into a separate method to avoid the async machinery when we don't have async results
 	async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
 		object? classInstance,
-		MethodInfo testMethod,
-		DisposalTracker disposalTracker)
+		MethodInfo testMethod)
 	{
-		if (classInstance is IAsyncDisposable)
-		{
-			disposalTracker.Add(classInstance);
-			if (classInstance is IAsyncLifetime classLifetime)
-				await classLifetime.InitializeAsync();
-		}
+		if (classInstance is IAsyncLifetime classLifetime)
+			await classLifetime.InitializeAsync();
 
 		if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
 		{
