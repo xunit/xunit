@@ -48,6 +48,11 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	}
 
 	/// <summary>
+	/// Gets or sets the arguments passed to the member. Only supported for static methods.
+	/// </summary>
+	public object?[] Arguments { get; }
+
+	/// <summary>
 	/// Returns <c>true</c> if the data attribute wants to skip enumerating data during discovery.
 	/// This will cause the theory to yield a single test case for all data, and the data discovery
 	/// will be during test execution instead of discovery.
@@ -64,11 +69,6 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	/// retrieved from the unit test class.
 	/// </summary>
 	public Type? MemberType { get; set; }
-
-	/// <summary>
-	/// Gets or sets the arguments passed to the member. Only supported for static methods.
-	/// </summary>
-	public object?[] Arguments { get; }
 
 	/// <inheritdoc/>
 	protected override ITheoryDataRow ConvertDataRow(
@@ -219,8 +219,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			if (methodInfo is not null)
 				break;
 
-			throw new ArgumentException($"The call to method '{type!.FullName}.{MemberName}' is ambigous between {methodInfoArray.Length} different options for the given arguments.");
-
+			throw new ArgumentException($"The call to method '{type!.SafeName()}.{MemberName}' is ambigous between {methodInfoArray.Length} different options for the given arguments.");
 		}
 
 		if (methodInfo is null || !methodInfo.IsStatic)
@@ -228,9 +227,12 @@ public abstract class MemberDataAttributeBase : DataAttribute
 
 		var completedArguments = Arguments ?? Array.Empty<object?>();
 		var finalMethodParameters = methodInfo.GetParameters();
-		completedArguments = completedArguments.Length == finalMethodParameters.Length
-			? completedArguments
-			: completedArguments.Concat(finalMethodParameters.Skip(completedArguments.Length).Select(pi => pi.DefaultValue)).ToArray();
+
+		completedArguments =
+			completedArguments.Length == finalMethodParameters.Length
+				? completedArguments
+				: completedArguments.Concat(finalMethodParameters.Skip(completedArguments.Length).Select(pi => pi.DefaultValue)).ToArray();
+
 		return () => methodInfo.Invoke(null, completedArguments);
 	}
 
