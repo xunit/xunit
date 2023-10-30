@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -19,7 +20,7 @@ public class ClassDataDiscoverer : DataDiscoverer
 
 		var @class = Guard.NotNull(
 			() => $"Attribute {nameof(ClassDataAttribute)} has been provided without a class type assigned to it.",
-			dataAttribute.GetNamedArgument<Type>(nameof(ClassDataAttribute.Class))
+			dataAttribute.GetConstructorArguments().FirstOrDefault() as Type
 		);
 
 		return !typeof(IDisposable).IsAssignableFrom(@class)
