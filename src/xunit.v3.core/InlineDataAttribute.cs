@@ -27,6 +27,8 @@ public sealed class InlineDataAttribute : DataAttribute
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
-		new(new[] { new TheoryDataRow(data) });
+	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker) =>
+			new(new[] { new TheoryDataRow(data) });
 }
