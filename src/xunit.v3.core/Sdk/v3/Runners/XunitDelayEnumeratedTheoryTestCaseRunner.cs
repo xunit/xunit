@@ -235,7 +235,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 		{
 			if (trackedObject is IAsyncDisposable asyncDisposable)
 				elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.CleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
-			if (trackedObject is IDisposable disposable)
+			else if (trackedObject is IDisposable disposable)
 				elapsedTime += ExecutionTimer.Measure(() => ctxt.CleanupAggregator.Run(disposable.Dispose));
 		}
 
