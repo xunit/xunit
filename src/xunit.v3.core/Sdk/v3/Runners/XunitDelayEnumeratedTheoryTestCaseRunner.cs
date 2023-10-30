@@ -119,8 +119,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 				foreach (var dataRow in data)
 				{
 					var dataRowData = dataRow.GetData();
-					foreach (var dataRowItem in dataRowData)
-						ctxt.DisposalTracker.Add(dataRowItem);
+					ctxt.DisposalTracker.AddRange(dataRowData);
 
 					_ITypeInfo[]? resolvedTypes = null;
 					var methodToRun = ctxt.TestMethod;
