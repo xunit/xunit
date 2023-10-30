@@ -60,13 +60,18 @@ public class ClassDataAttribute : DataAttribute
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
+	public override async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(disposalTracker);
 
 		var classInstance = Activator.CreateInstance(Class);
 		disposalTracker.Add(classInstance);
+
+		if (classInstance is IAsyncLifetime classLifetime)
+			await classLifetime.InitializeAsync();
 
 		if (classInstance is IEnumerable dataItems)
 		{
@@ -76,19 +81,8 @@ public class ClassDataAttribute : DataAttribute
 				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
-			return new(result.CastOrToReadOnlyCollection());
+			return result.CastOrToReadOnlyCollection();
 		}
-
-		return GetDataAsync(classInstance, testMethod);
-	}
-
-	// Split into a separate method to avoid the async machinery when we don't have async results
-	async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
-		object? classInstance,
-		MethodInfo testMethod)
-	{
-		if (classInstance is IAsyncLifetime classLifetime)
-			await classLifetime.InitializeAsync();
 
 		if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
 		{
