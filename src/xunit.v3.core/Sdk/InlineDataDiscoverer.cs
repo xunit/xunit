@@ -16,10 +16,12 @@ public class InlineDataDiscoverer : IDataDiscoverer
 	/// <inheritdoc/>
 	public virtual ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 		_IAttributeInfo dataAttribute,
-		_IMethodInfo testMethod)
+		_IMethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(dataAttribute);
 		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(disposalTracker);
 
 		// The data from GetConstructorArguments does not maintain its original form (in particular, collections
 		// end up as generic IEnumerable<T>). So we end up needing to call .ToArray() on the enumerable so that

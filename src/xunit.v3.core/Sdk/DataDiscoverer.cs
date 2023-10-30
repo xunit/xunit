@@ -15,13 +15,15 @@ public class DataDiscoverer : IDataDiscoverer
 	/// <inheritdoc/>
 	public virtual ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 		_IAttributeInfo dataAttribute,
-		_IMethodInfo testMethod)
+		_IMethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(dataAttribute);
 		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(disposalTracker);
 
 		if (dataAttribute is _IReflectionAttributeInfo reflectionDataAttribute && testMethod is _IReflectionMethodInfo reflectionTestMethod)
-			return ((DataAttribute)reflectionDataAttribute.Attribute).GetData(reflectionTestMethod.MethodInfo);
+			return ((DataAttribute)reflectionDataAttribute.Attribute).GetData(reflectionTestMethod.MethodInfo, disposalTracker);
 
 		return new(default(IReadOnlyCollection<ITheoryDataRow>));
 	}

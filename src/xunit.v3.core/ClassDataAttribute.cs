@@ -15,6 +15,7 @@ namespace Xunit;
 /// Provides a data source for a data theory, with the data coming from a class
 /// which must implement IEnumerable&lt;object?[]&gt;.
 /// </summary>
+[DataDiscoverer(typeof(ClassDataDiscoverer))]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public class ClassDataAttribute : DataAttribute
 {
@@ -30,7 +31,7 @@ public class ClassDataAttribute : DataAttribute
 	/// <summary>
 	/// Gets the type of the class that provides the data.
 	/// </summary>
-	public Type Class { get; private set; }
+	public Type Class { get; }
 
 	/// <inheritdoc/>
 	protected override ITheoryDataRow ConvertDataRow(
@@ -59,11 +60,18 @@ public class ClassDataAttribute : DataAttribute
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
+	public override async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(disposalTracker);
 
 		var classInstance = Activator.CreateInstance(Class);
+		disposalTracker.Add(classInstance);
+
+		if (classInstance is IAsyncLifetime classLifetime)
+			await classLifetime.InitializeAsync();
 
 		if (classInstance is IEnumerable dataItems)
 		{
@@ -73,17 +81,9 @@ public class ClassDataAttribute : DataAttribute
 				if (dataItem is not null)
 					result.Add(ConvertDataRow(testMethod, dataItem));
 
-			return new(result.CastOrToReadOnlyCollection());
+			return result.CastOrToReadOnlyCollection();
 		}
 
-		return GetDataAsync(classInstance, testMethod);
-	}
-
-	// Split into a separate method to avoid the async machinery when we don't have async results
-	async ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetDataAsync(
-		object? classInstance,
-		MethodInfo testMethod)
-	{
 		if (classInstance is IAsyncEnumerable<object?> asyncDataItems)
 		{
 			var result = new List<ITheoryDataRow>();

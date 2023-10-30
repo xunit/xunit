@@ -139,6 +139,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 		if (preEnumerate)
 		{
+			DisposalTracker disposalTracker = new();
 			try
 			{
 				var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
@@ -229,7 +230,10 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
 						return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 
-					var data = await discoverer.GetData(dataAttribute, testMethod.Method);
+					var data = await discoverer.GetData(dataAttribute, testMethod.Method, disposalTracker);
+					if (disposalTracker.TrackedObjects.Count > 0)
+						return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
+
 					if (data is null)
 					{
 						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
@@ -330,6 +334,10 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					Environment.NewLine,
 					ex
 				);
+			}
+			finally
+			{
+				await disposalTracker.DisposeAsync();
 			}
 		}
 

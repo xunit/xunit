@@ -14,11 +14,12 @@ public class MemberDataDiscoverer : DataDiscoverer
 	/// <inheritdoc/>
 	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
 		_IAttributeInfo dataAttribute,
-		_IMethodInfo testMethod)
+		_IMethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		try
 		{
-			return base.GetData(dataAttribute, testMethod);
+			return base.GetData(dataAttribute, testMethod, disposalTracker);
 		}
 		catch (ArgumentException)
 		{
@@ -39,7 +40,7 @@ public class MemberDataDiscoverer : DataDiscoverer
 					TestDisplayName = memberDataAttribute.TestDisplayName,
 				};
 
-				return newMemberDataAttribute.GetData(reflectionTestMethod.MethodInfo);
+				return newMemberDataAttribute.GetData(reflectionTestMethod.MethodInfo, disposalTracker);
 			}
 
 			throw;

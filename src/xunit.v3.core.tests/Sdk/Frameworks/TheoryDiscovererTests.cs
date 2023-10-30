@@ -70,7 +70,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class EmptyTheoryDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
 			new(Array.Empty<ITheoryDataRow>());
 	}
 
@@ -114,7 +114,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class MultipleDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
 			new(
 				new ITheoryDataRow[]
 				{
@@ -181,7 +181,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class ThrowingDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo method)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo method, DisposalTracker disposalTracker)
 		{
 			throw new DivideByZeroException();
 		}
@@ -232,7 +232,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class NonSerializableDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo method) =>
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo method, DisposalTracker disposalTracker) =>
 			new(
 				new[]
 				{
@@ -268,7 +268,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
 	public class NoSuchDataDiscovererAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
 		{
 			throw new NotImplementedException();
 		}
@@ -294,7 +294,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[DataDiscoverer(typeof(TheoryDiscovererTests))]
 	public class NotADataDiscovererAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod)
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
 		{
 			throw new NotImplementedException();
 		}
@@ -645,5 +645,47 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 				Assert.Equal($"{typeof(ClassWithDisplayNameOnTheoryDataRows).FullName}.{nameof(ClassWithDisplayNameOnTheoryDataRows.TestWithDisplayName)}(x: 2112)", testCase.TestCaseDisplayName);
 			}
 		);
+	}
+
+	class ClassWithDataDiscovererThatAddsToDisposalTracker
+	{
+		class MyDataAttribute : DataAttribute
+		{
+			class DisposableObject : IDisposable
+			{
+				public void Dispose() { }
+			}
+
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
+			{
+				disposalTracker.Add(new DisposableObject());
+
+				var data = new[]
+				{
+					new TheoryDataRow(42),
+					new TheoryDataRow(2112),
+					new TheoryDataRow(2600),
+				};
+
+				return new(data);
+			}
+		}
+
+		[Theory]
+		[MyData]
+		public void TestMethod(int _) { }
+	}
+
+	[Fact]
+	public async ValueTask DataDiscoverAddsDataToTracker_YieldsDelayEnumeratedTestCase()
+	{
+		var discoverer = new TheoryDiscoverer();
+		var testMethod = Mocks.TestMethod<ClassWithDataDiscovererThatAddsToDisposalTracker>(nameof(ClassWithDataDiscovererThatAddsToDisposalTracker.TestMethod));
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		var testCase = Assert.Single(testCases);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 	}
 }

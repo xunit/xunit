@@ -1136,6 +1136,84 @@ public class Xunit3TheoryAcceptanceTests
 			}
 		}
 #pragma warning restore xUnit1007 // ClassData must point at a valid class
+
+		[Fact]
+		public async ValueTask ClassDisposable_DisposesOfClass()
+		{
+			Assert.Equal(0, DataSource_ClassDisposable.DisposeCount);
+
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ClassDisposable));
+
+			Assert.Equal(3, testMessages.OfType<TestPassedWithDisplayName>().Count());
+			Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Single(testMessages.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal(1, DataSource_ClassDisposable.DisposeCount);
+		}
+
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
+		class ClassUnderTest_ClassDisposable
+		{
+			[Theory]
+			[ClassData(typeof(DataSource_ClassDisposable))]
+			public void TestMethod(string _1, int _2) { }
+		}
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+
+		public class DataSource_ClassDisposable : IEnumerable, IDisposable
+		{
+			public static int DisposeCount;
+
+			public void Dispose() =>
+				Interlocked.Increment(ref DisposeCount);
+
+			IEnumerator IEnumerable.GetEnumerator() =>
+				ClassDataSource.Data.GetEnumerator();
+		}
+
+		[Fact]
+		public async ValueTask ClassAsyncDisposable_DisposesOfClass()
+		{
+			Assert.Equal(0, DataSource_ClassAsyncDisposable.DisposeCount);
+			Assert.Equal(0, DataSource_ClassAsyncDisposable.InitializeCount);
+
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ClassAsyncDisposable));
+
+			Assert.Equal(3, testMessages.OfType<TestPassedWithDisplayName>().Count());
+			Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Single(testMessages.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal(1, DataSource_ClassAsyncDisposable.DisposeCount);
+			Assert.Equal(1, DataSource_ClassAsyncDisposable.InitializeCount);
+		}
+
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
+		class ClassUnderTest_ClassAsyncDisposable
+		{
+			[Theory]
+			[ClassData(typeof(DataSource_ClassAsyncDisposable))]
+			public void TestMethod(string _1, int _2) { }
+		}
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+
+		public class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
+		{
+			public static int DisposeCount;
+			public static int InitializeCount;
+
+			public ValueTask DisposeAsync()
+			{
+				Interlocked.Increment(ref DisposeCount);
+				return default;
+			}
+
+			public ValueTask InitializeAsync()
+			{
+				Interlocked.Increment(ref InitializeCount);
+				return default;
+			}
+
+			IEnumerator IEnumerable.GetEnumerator() =>
+				ClassDataSource.Data.GetEnumerator();
+		}
 	}
 
 	public class MissingDataTests : AcceptanceTestV3
@@ -2081,7 +2159,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
 				new(
 					new[]
 					{
@@ -2126,7 +2204,7 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod) =>
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
 				new(new[] { new TheoryDataRow(new object()) });
 		}
 

@@ -99,7 +99,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 					continue;
 				}
 
-				var data = await discoverer.GetData(dataAttribute, ctxt.TestCase.TestMethod.Method);
+				var data = await discoverer.GetData(dataAttribute, ctxt.TestCase.TestMethod.Method, ctxt.DisposalTracker);
 				if (data is null)
 				{
 					ctxt.Aggregator.Add(
@@ -119,8 +119,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 				foreach (var dataRow in data)
 				{
 					var dataRowData = dataRow.GetData();
-					foreach (var dataRowItem in dataRowData)
-						ctxt.DisposalTracker.Add(dataRowItem);
+					ctxt.DisposalTracker.AddRange(dataRowData);
 
 					_ITypeInfo[]? resolvedTypes = null;
 					var methodToRun = ctxt.TestMethod;
@@ -235,7 +234,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner : XunitTestCaseRunnerBase<
 		{
 			if (trackedObject is IAsyncDisposable asyncDisposable)
 				elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.CleanupAggregator.RunAsync(asyncDisposable.DisposeAsync));
-			if (trackedObject is IDisposable disposable)
+			else if (trackedObject is IDisposable disposable)
 				elapsedTime += ExecutionTimer.Measure(() => ctxt.CleanupAggregator.Run(disposable.Dispose));
 		}
 
