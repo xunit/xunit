@@ -98,7 +98,9 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
+	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(testMethod);
 
