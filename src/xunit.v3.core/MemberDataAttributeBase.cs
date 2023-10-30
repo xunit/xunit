@@ -219,7 +219,16 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			if (methodInfo is not null)
 				break;
 
-			throw new ArgumentException($"The call to method '{type!.SafeName()}.{MemberName}' is ambigous between {methodInfoArray.Length} different options for the given arguments.", nameof(type));
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"The call to method '{0}.{1}' is ambigous between {2} different options for the given arguments.",
+					type!.SafeName(),
+					MemberName,
+					methodInfoArray.Length
+				),
+				nameof(type)
+			);
 		}
 
 		if (methodInfo is null || !methodInfo.IsStatic)
