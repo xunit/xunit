@@ -646,4 +646,46 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			}
 		);
 	}
+
+	class ClassWithDataDiscovererThatAddsToDisposalTracker
+	{
+		class MyDataAttribute : DataAttribute
+		{
+			class DisposableObject : IDisposable
+			{
+				public void Dispose() { }
+			}
+
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker)
+			{
+				disposalTracker.Add(new DisposableObject());
+
+				var data = new[]
+				{
+					new TheoryDataRow(42),
+					new TheoryDataRow(2112),
+					new TheoryDataRow(2600),
+				};
+
+				return new(data);
+			}
+		}
+
+		[Theory]
+		[MyData]
+		public void TestMethod(int _) { }
+	}
+
+	[Fact]
+	public async ValueTask DataDiscoverAddsDataToTracker_YieldsDelayEnumeratedTestCase()
+	{
+		var discoverer = new TheoryDiscoverer();
+		var testMethod = Mocks.TestMethod<ClassWithDataDiscovererThatAddsToDisposalTracker>(nameof(ClassWithDataDiscovererThatAddsToDisposalTracker.TestMethod));
+		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+		var testCase = Assert.Single(testCases);
+		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+	}
 }
