@@ -15,6 +15,7 @@ namespace Xunit;
 /// Provides a data source for a data theory, with the data coming from a class
 /// which must implement IEnumerable&lt;object?[]&gt;.
 /// </summary>
+[DataDiscoverer(typeof(ClassDataDiscoverer))]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public class ClassDataAttribute : DataAttribute
 {

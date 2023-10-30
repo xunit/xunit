@@ -231,6 +231,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
 
 					var data = await discoverer.GetData(dataAttribute, testMethod.Method, disposalTracker);
+					if (disposalTracker.TrackedObjects.Count > 0)
+						return await CreateTestCasesForTheory(discoveryOptions, testMethod, factAttribute);
+
 					if (data is null)
 					{
 						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
