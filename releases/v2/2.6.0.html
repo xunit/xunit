@@ -1,0 +1,95 @@
+---
+layout: default
+title: Release Notes for October 31, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 31, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 Core Framework 2.6.0
+</h2>
+
+<p>
+  It has been approximately 2 weeks since we released v2 Core Framework <a href="2.5.3">2.5.3 RTM</a>.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.3 to 2.6.0.</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where trying to use an enum with a negative value in
+    <code>[InlineData]</code> where the current locale is one which uses
+    <a href="https://www.compart.com/en/unicode/U+2212">Unicode U+2212</a> as the minus sign for
+    integers rather than <a href="https://www.compart.com/en/unicode/U+002D">Unicode U+002D</a>,
+    which caused <a href="https://learn.microsoft.com/en-us/dotnet/api/system.enum.parse"><code>Enum.Parse</code></a>
+    to fail. Additionally we have opened an issue against .NET to try to get a "known safe to
+    roundtrip" value from <code>Enum.ToString()</code> that would make this workaround unnecessary,
+    as all overloads of <code>Enum.ToString()</code> that take format providers (aka cultures)
+    are marked as obsolete and the format provider is ignored.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2796">xunit/xunit#2796</a>
+    <a class="issue-link" href="https://github.com/dotnet/runtime/issues/93663">dotnet/runtime#93663</a>
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    We have added a new <code>net6.0</code> target to <code>xunit.assert</code>, along with the
+    existing <code>netstandard1.1</code> target. This new target enables assertion overloads
+    that support <code>Span&lt;T&gt;</code> and <code>Memory&lt;T&gt;</code> (and their read-only
+    counterparts), overloads that support <code>ValueTask</code> and <code>ValueTask&lt;T&gt;</code>
+    for asynchronous operations (in places where we already supported <code>Task</code> and
+    <code>Task&lt;T&gt;</code>), and overloads that support <code>ImmutableHashSet</code> and
+    <code>ImmutableDictionary</code>. Developers whose test projects target .NET 6 (or later)
+    will automatically get access to these new assertion methods. Note that this may introduce
+    new compiler ambiguities due to the additional overloads; for more information, see
+    <a href="https://github.com/xunit/xunit/issues/2793">issue 2793</a>.<br />
+    <strong>Important note: <code>ValueTask</code> support only applies to the assertion library.
+    Test methods must return either <code>Task</code> or <code>void</code> if they are async;
+    <code>ValueTask</code> is not supported in this scenario until v3.</strong>
+  </li>
+  <li>
+    We have added a try/catch inside <code>Assert.Equals</code> to catch when exceptions are thrown
+    when calling a user-defined comparer (either a comparer function, or an implementation of
+    <code>IEqualityComparer&lt;T&gt;</code>). Previously this would just surface as the exception
+    being the cause of the failure; now it will show an <code>Assert.Equal() Failure</code> message
+    (which includes the collection including a pointer into the collection, when the thing being
+    compared is an item in a collection) as well as the exception that was thrown. This should
+    greatly help in debugging user-provided comparison functions to understand which data item
+    caused the exception.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2800">xunit/xunit#2800</a>
+  </li>
+  <li>
+    We have added special handling for <code>KeyValuePair&lt;TKey, TValue&gt;</code> when using
+    <code>Assert.Equal</code> (including when what you're comparing is a collection of key/value
+    pairs). We already had special handling for dictionaries with special equality handling for
+    the key and the value; this extends that behavior to the "dictionary-like" situation of
+    <code>IEnumerable&lt;KeyValuePair&lt;&gt;&gt;</code> as well.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2803">xunit/xunit#2803</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where some implementations of <code>GetHashCode</code>
+    were throwing <code>NotImplementedException</code>, causing some code paths for
+    <code>Assert.Equal</code> to throw when the hash code was needed.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2804">xunit/xunit#2804</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed a significant performance regression related to <code>Assert.Equal</code>
+    with collections. In some situations, the comparison could take as much as 10x (1000%) longer as
+    in 2.4.2. Most of the performance issues have been resolved, and the new collection assertion
+    is within 10% of the older assertions (and in some cases on .NET 6+, the new collection
+    comparison can be a few orders of magnitude faster, for arrays of unmanaged values).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2806">xunit/xunit#2806</a>
+  </li>
+</ul>
