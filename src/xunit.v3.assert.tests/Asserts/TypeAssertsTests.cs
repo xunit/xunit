@@ -376,7 +376,7 @@ public class TypeAssertsTests
 
 #if NETFRAMEWORK && XUNIT_VALUETASK
 		[Fact]
-		public async ValueTask UnmatchedTypesWithIdenticalNamesShowAssemblies()
+		public async Task UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
 			var dynamicAssembly = await CSharpDynamicAssembly.Create("namespace System.Xml { public class XmlException: Exception { } }");
 			var assembly = Assembly.LoadFile(dynamicAssembly.FileName);
@@ -438,7 +438,7 @@ public class TypeAssertsTests
 
 #if NETFRAMEWORK && XUNIT_VALUETASK
 		[Fact]
-		public async ValueTask UnmatchedTypesWithIdenticalNamesShowAssemblies()
+		public async Task UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
 			var dynamicAssembly = await CSharpDynamicAssembly.Create("namespace System.Xml { public class XmlException: Exception { } }");
 			var assembly = Assembly.LoadFile(dynamicAssembly.FileName);
