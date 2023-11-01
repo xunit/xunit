@@ -2,8 +2,8 @@ These projects are here to validate compatibility (mostly backward), since the a
 supports both xUnit.net v2 and v3 users, and has several optionally enabled features.
 
 All compatibility projects are compiled with .NET Standard 1.1 (except the .NET 6 project), as that's the bar
-set by xUnit.net v2. The minimum C# language version is 6 (which supports `XUNIT_IMMUTABLE_COLLECTIONS`, `XUNIT_SPAN`,
-and `XUNIT_VALUETASK`), as this is what shipped with Visual Studio 2015. To compile for `XUNIT_NULLABLE`, you need C#
+set by xUnit.net v2. The minimum C# language version is 6 (which supports `XUNIT_IMMUTABLE_COLLECTIONS` and
+`XUNIT_SPAN`), as this is what shipped with Visual Studio 2015. To compile for `XUNIT_NULLABLE`, you need C#
 language version 9 (nullable was introduced in C# 8, but we use constraints that were introduced in C# 9).
 
 The .NET 6 project exists because there are assertions to support `IReadOnlySet<T>`, which is a type that was
@@ -15,15 +15,14 @@ _**All assertion code that is written outside the context of `XUNIT_NULLABLE` mu
 
 The following projects exist for compatibility testing:
 
-| Project                            | Language | Flags                                                                                     |
+| Project                            | Language | Flags                                                               |
 | ---------------------------------- | -------- | ----------------------------------------------------------------------------------------- |
-| `xunit.v3.assert.all-off.csproj`   | C# 6     | _None_                                                                                    |
-| `xunit.v3.assert.immutable.csproj` | C# 6     | `XUNIT_IMMUTABLE_COLLECTIONS`                                                             |
-| `xunit.v3.assert.nullable.csproj`  | C# 9     | `XUNIT_NULLABLE`                                                                          |
-| `xunit.v3.assert.span.csproj`      | C# 6     | `XUNIT_SPAN`                                                                              |
-| `xunit.v3.assert.valuetask.csproj` | C# 6     | `XUNIT_VALUETASK`                                                                         |
-| `xunit.v3.assert.all-on.csproj`    | C# 9     | `XUNIT_IMMUTABLE_COLLECTIONS`<br/>`XUNIT_NULLABLE`<br/>`XUNIT_SPAN`<br/>`XUNIT_VALUETASK` |
-| `xunit.v3.assert.net6.csproj`      | C# 9     | `XUNIT_IMMUTABLE_COLLECTIONS`<br/>`XUNIT_NULLABLE`<br/>`XUNIT_SPAN`<br/>`XUNIT_VALUETASK` |
+| `xunit.v3.assert.all-off.csproj`   | C# 6     | _None_                                                              |
+| `xunit.v3.assert.immutable.csproj` | C# 6     | `XUNIT_IMMUTABLE_COLLECTIONS`                                       |
+| `xunit.v3.assert.nullable.csproj`  | C# 9     | `XUNIT_NULLABLE`                                                    |
+| `xunit.v3.assert.span.csproj`      | C# 6     | `XUNIT_SPAN`                                                        |
+| `xunit.v3.assert.all-on.csproj`    | C# 9     | `XUNIT_IMMUTABLE_COLLECTIONS`<br/>`XUNIT_NULLABLE`<br/>`XUNIT_SPAN` |
+| `xunit.v3.assert.net6.csproj`      | C# 9     | `XUNIT_IMMUTABLE_COLLECTIONS`<br/>`XUNIT_NULLABLE`<br/>`XUNIT_SPAN` |
 
 For a list of language features, see:
 [C# version 6](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-version-history#c-version-60),

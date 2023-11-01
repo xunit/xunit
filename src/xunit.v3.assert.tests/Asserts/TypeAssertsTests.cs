@@ -2,7 +2,7 @@ using System;
 using Xunit;
 using Xunit.Sdk;
 
-#if NETFRAMEWORK && XUNIT_VALUETASK
+#if NETFRAMEWORK
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -374,7 +374,7 @@ public class TypeAssertsTests
 			);
 		}
 
-#if NETFRAMEWORK && XUNIT_VALUETASK
+#if NETFRAMEWORK
 		[Fact]
 		public async Task UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
@@ -436,7 +436,7 @@ public class TypeAssertsTests
 			);
 		}
 
-#if NETFRAMEWORK && XUNIT_VALUETASK
+#if NETFRAMEWORK
 		[Fact]
 		public async Task UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
@@ -480,7 +480,7 @@ public class TypeAssertsTests
 		{ }
 	}
 
-#if NETFRAMEWORK && XUNIT_VALUETASK
+#if NETFRAMEWORK
 	class CSharpDynamicAssembly : CSharpAcceptanceTestAssembly
 	{
 		public CSharpDynamicAssembly() :

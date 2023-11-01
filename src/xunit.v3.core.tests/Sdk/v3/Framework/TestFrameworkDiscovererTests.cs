@@ -18,8 +18,8 @@ public class TestFrameworkDiscovererTests
 		{
 			var framework = TestableTestFrameworkDiscoverer.Create();
 
-			await Assert.ThrowsAsync<ArgumentNullException>("callback", () => framework.Find(callback: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()));
-			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => framework.Find(callback: _ => new(true), discoveryOptions: null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("callback", () => framework.Find(callback: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => framework.Find(callback: _ => new(true), discoveryOptions: null!).AsTask());
 		}
 
 		[Fact]

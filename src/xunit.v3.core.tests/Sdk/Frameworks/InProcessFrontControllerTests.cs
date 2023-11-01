@@ -44,9 +44,9 @@ public class InProcessFrontControllerTests
 			var options = _TestFrameworkOptions.ForDiscovery();
 			var filter = (_ITestCaseMetadata testCase) => true;
 
-			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.Find(null!, options, filter));
-			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(messageSink, null!, filter));
-			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.Find(messageSink, options, null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.Find(null!, options, filter).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(messageSink, null!, filter).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.Find(messageSink, options, null!).AsTask());
 		}
 
 		[Fact]
@@ -142,10 +142,10 @@ public class InProcessFrontControllerTests
 			var executionOptions = _TestFrameworkOptions.ForExecution();
 			var filter = (_ITestCaseMetadata testCase) => true;
 
-			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter));
-			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => frontController.FindAndRun(messageSink, null!, executionOptions, filter));
-			await Assert.ThrowsAsync<ArgumentNullException>("executionOptions", () => frontController.FindAndRun(messageSink, discoveryOptions, null!, filter));
-			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => frontController.FindAndRun(messageSink, null!, executionOptions, filter).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("executionOptions", () => frontController.FindAndRun(messageSink, discoveryOptions, null!, filter).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, null!).AsTask());
 		}
 
 		[Fact]
