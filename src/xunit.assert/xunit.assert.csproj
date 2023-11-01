@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <DefineConstants Condition=" '$(TargetFramework)' == 'netstandard1.1' ">$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'net6.0' ">$(DefineConstants);XUNIT_IMMUTABLE_COLLECTIONS;XUNIT_NULLABLE;XUNIT_SPAN;XUNIT_VALUETASK</DefineConstants>
+    <DefineConstants Condition=" '$(TargetFramework)' == 'net6.0' ">$(DefineConstants);XUNIT_IMMUTABLE_COLLECTIONS;XUNIT_NULLABLE;XUNIT_SPAN</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <TargetFrameworks>netstandard1.1;net6.0</TargetFrameworks>
