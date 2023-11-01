@@ -4,13 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
-
-#if XUNIT_VALUETASK
-using System.Threading.Tasks;
-#endif
 
 public class CollectionAssertsTests
 {
@@ -66,15 +63,14 @@ public class CollectionAssertsTests
 		}
 	}
 
-#if XUNIT_VALUETASK
 	public class AllAsync
 	{
 		[Fact]
 		public static async Task GuardClauses()
 		{
 			await Assert.ThrowsAsync<ArgumentNullException>("collection", () => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
-			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>(), (Func<object, ValueTask>)null!));
-			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>(), (Func<object, int, ValueTask>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(new object[0], (Func<object, Task>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(new object[0], (Func<object, int, Task>)null!));
 		}
 
 		[Fact]
@@ -118,7 +114,6 @@ public class CollectionAssertsTests
 			Assert.Equal(new[] { 0, 1, 2, 3, 4, 5 }, indices);
 		}
 	}
-#endif
 
 	public class Collection
 	{
@@ -190,7 +185,6 @@ public class CollectionAssertsTests
 		}
 	}
 
-#if XUNIT_VALUETASK
 	public class CollectionAsync
 	{
 		[Fact]
@@ -274,7 +268,6 @@ public class CollectionAssertsTests
 			);
 		}
 	}
-#endif
 
 	public class Contains
 	{
