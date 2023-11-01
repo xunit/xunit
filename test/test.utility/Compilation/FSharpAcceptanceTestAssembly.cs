@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.FSharp.Compiler.SimpleSourceCodeServices;
 using Microsoft.FSharp.Core;
 
@@ -23,27 +24,28 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         return new[] { mscorlib, sysRuntime, "xunit.abstractions.dll" };
     }
 
-    protected override void Compile(string code, string[] references)
+    protected override Task Compile(string[] code, params string[] references)
     {
-        var sourcePath = Path.GetTempFileName() + ".fs";
-        File.WriteAllText(sourcePath, code);
+        var compilerArgs = new List<string> { "fsc", "--noframework" };
 
-        var compilerArgs =
-            new[] {
-                "fsc",
-                "--noframework",
-                sourcePath,
-                $"--out:{FileName}",
-                $"--pdb:{PdbName}",
-                $"--lib:\"{BasePath}\"",
-                "--debug",
-                "--target:library"
-            }
-            .Concat(GetStandardReferences().Concat(references).Select(r => $"--reference:{r}"))
-            .ToArray();
+        foreach (var codeText in code)
+        {
+            var sourcePath = Path.GetTempFileName() + ".fs";
+            File.WriteAllText(sourcePath, codeText);
+            compilerArgs.Add(sourcePath);
+        }
+
+        compilerArgs.AddRange(new[] {
+            $"--out:{FileName}",
+            $"--pdb:{PdbName}",
+            $"--lib:\"{BasePath}\"",
+            "--debug",
+            "--target:library"
+        });
+        compilerArgs.AddRange(GetStandardReferences().Concat(references).Select(r => $"--reference:{r}"));
 
         var compiler = new SimpleSourceCodeServices(FSharpOption<bool>.Some(false));
-        var result = compiler.Compile(compilerArgs);
+        var result = compiler.Compile(compilerArgs.ToArray());
         if (result.Item2 != 0)
         {
             var errors = result.Item1
@@ -51,6 +53,8 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 
             throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
         }
+
+        return CompletedTask;
     }
 }
 

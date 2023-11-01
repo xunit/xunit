@@ -18,7 +18,7 @@ public class CSharpAcceptanceTestV1Assembly : CSharpAcceptanceTestAssembly
     {
         var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
         var assembly = new CSharpAcceptanceTestV1Assembly(basePath);
-        assembly.Compile(code, references);
+        assembly.Compile(new[] { code }, references);
         return assembly;
     }
 }

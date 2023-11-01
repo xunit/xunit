@@ -20,7 +20,7 @@ public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
     {
         var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
         var assembly = new CSharpAcceptanceTestV2Assembly(basePath);
-        assembly.Compile(code, references);
+        assembly.Compile(new[] { code }, references);
         return assembly;
     }
 }

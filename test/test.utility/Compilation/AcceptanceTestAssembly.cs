@@ -4,13 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 public abstract class AcceptanceTestAssembly : IDisposable
 {
-    protected AcceptanceTestAssembly(string basePath)
+    protected static readonly Task CompletedTask = Task.FromResult(0);
+
+    protected AcceptanceTestAssembly(string basePath = null)
     {
-        BasePath = basePath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-        FileName = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
+        BasePath = basePath ?? Path.GetDirectoryName(typeof(AcceptanceTestAssembly).Assembly.GetLocalCodeBase())!;
+        FileName = Path.Combine(BasePath, Path.GetRandomFileName() + AssemblyFileExtension);
         PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 
         AssemblyName = new AssemblyName()
@@ -19,6 +22,8 @@ public abstract class AcceptanceTestAssembly : IDisposable
             CodeBase = Path.GetDirectoryName(Path.GetFullPath(FileName))
         };
     }
+
+    protected virtual string AssemblyFileExtension => ".dll";
 
     public AssemblyName AssemblyName { get; protected set; }
 
@@ -30,14 +35,22 @@ public abstract class AcceptanceTestAssembly : IDisposable
 
     public virtual void Dispose()
     {
-        if (File.Exists(FileName))
-            File.Delete(FileName);
+        try
+        {
+            if (File.Exists(FileName))
+                File.Delete(FileName);
+        }
+        catch { }
 
-        if (File.Exists(PdbName))
-            File.Delete(PdbName);
+        try
+        {
+            if (File.Exists(PdbName))
+                File.Delete(PdbName);
+        }
+        catch { }
     }
 
-    protected abstract void Compile(string code, string[] references);
+    protected abstract Task Compile(string[] code, params string[] references);
 
     protected virtual IEnumerable<string> GetStandardReferences()
         => new[] {

@@ -4,14 +4,16 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CSharp;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-    protected CSharpAcceptanceTestAssembly(string basePath)
-        : base(basePath) { }
+    protected CSharpAcceptanceTestAssembly(string basePath = null) :
+        base(basePath)
+    { }
 
-    protected override void Compile(string code, string[] references)
+    protected override Task Compile(string[] code, params string[] references)
     {
         var parameters = new CompilerParameters()
         {
@@ -20,9 +22,11 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         };
 
         parameters.ReferencedAssemblies.AddRange(
-            GetStandardReferences().Concat(references ?? new string[0])
-                                   .Select(ResolveReference)
-                                   .ToArray());
+            GetStandardReferences()
+                .Concat(references ?? new string[0])
+                .Select(ResolveReference)
+                .ToArray()
+        );
 
         var compilerOptions = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
         var provider = new CSharpCodeProvider(compilerOptions);
@@ -32,11 +36,13 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         {
             var errors = new List<string>();
 
-            foreach (CompilerError error in results.Errors)
+            foreach (var error in results.Errors.Cast<CompilerError>().Where(x => x != null))
                 errors.Add($"{error.FileName}({error.Line},{error.Column}): error {error.ErrorNumber}: {error.ErrorText}");
 
             throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
         }
+
+        return CompletedTask;
     }
 }
 
