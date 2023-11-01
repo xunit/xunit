@@ -728,7 +728,7 @@ public class ExceptionAssertsTests
 		public class WithValueTask
 		{
 			[Fact]
-			public static async ValueTask GuardClause()
+			public static async Task GuardClause()
 			{
 				async ValueTask testCode()
 				{
@@ -739,7 +739,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask NoExceptionThrown()
+			public static async Task NoExceptionThrown()
 			{
 				ValueTask testCode() => default(ValueTask);
 
@@ -755,7 +755,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask CorrectExceptionThrown()
+			public static async Task CorrectExceptionThrown()
 			{
 				ValueTask testCode() => throw new ArgumentException();
 
@@ -763,7 +763,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask IncorrectExceptionThrown()
+			public static async Task IncorrectExceptionThrown()
 			{
 				var thrown = new DivideByZeroException();
 				ValueTask testCode() => throw thrown;
@@ -781,7 +781,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask DerivedExceptionThrown()
+			public static async Task DerivedExceptionThrown()
 			{
 				ValueTask testCode() => throw new ArgumentNullException();
 
@@ -866,7 +866,7 @@ public class ExceptionAssertsTests
 		public class WithValueTask
 		{
 			[Fact]
-			public static async ValueTask GuardClause()
+			public static async Task GuardClause()
 			{
 				async ValueTask testCode()
 				{
@@ -877,7 +877,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask NoExceptionThrown()
+			public static async Task NoExceptionThrown()
 			{
 				ValueTask testCode() => default(ValueTask);
 
@@ -893,7 +893,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask CorrectExceptionThrown()
+			public static async Task CorrectExceptionThrown()
 			{
 				ValueTask testCode() => throw new ArgumentException();
 
@@ -901,7 +901,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask IncorrectExceptionThrown()
+			public static async Task IncorrectExceptionThrown()
 			{
 				var thrown = new DivideByZeroException();
 				ValueTask testCode() => throw thrown;
@@ -919,7 +919,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask DerivedExceptionThrown()
+			public static async Task DerivedExceptionThrown()
 			{
 				var thrown = new ArgumentNullException();
 				ValueTask testCode() => throw thrown;
@@ -1031,7 +1031,7 @@ public class ExceptionAssertsTests
 		public class WithValueTask
 		{
 			[Fact]
-			public static async ValueTask GuardClause()
+			public static async Task GuardClause()
 			{
 				async ValueTask testCode()
 				{
@@ -1042,7 +1042,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask NoExceptionThrown()
+			public static async Task NoExceptionThrown()
 			{
 				ValueTask testCode() => default(ValueTask);
 
@@ -1058,7 +1058,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask CorrectExceptionThrown()
+			public static async Task CorrectExceptionThrown()
 			{
 				ValueTask testCode() => throw new ArgumentException("Hello world", "paramName");
 
@@ -1066,7 +1066,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask IncorrectParameterName()
+			public static async Task IncorrectParameterName()
 			{
 				ValueTask testCode() => throw new ArgumentException("Hello world", "paramName1");
 
@@ -1083,7 +1083,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask IncorrectExceptionThrown()
+			public static async Task IncorrectExceptionThrown()
 			{
 				var thrown = new DivideByZeroException();
 				ValueTask testCode() => throw thrown;
@@ -1101,7 +1101,7 @@ public class ExceptionAssertsTests
 			}
 
 			[Fact]
-			public static async ValueTask DerivedExceptionThrown()
+			public static async Task DerivedExceptionThrown()
 			{
 				var thrown = new ArgumentNullException();
 				ValueTask testCode() => throw thrown;

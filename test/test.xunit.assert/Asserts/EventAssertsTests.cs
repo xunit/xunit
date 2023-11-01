@@ -304,7 +304,7 @@ public class EventAssertsTests
 	public class RaisesAnyAsync_ValueTask
 	{
 		[Fact]
-		public static async ValueTask NoEventRaised()
+		public static async Task NoEventRaised()
 		{
 			var obj = new RaisingClass();
 
@@ -326,7 +326,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask NoEventRaised_NonGeneric()
+		public static async Task NoEventRaised_NonGeneric()
 		{
 			var obj = new RaisingClass_NonGeneric();
 
@@ -348,7 +348,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ExactTypeRaised()
+		public static async Task ExactTypeRaised()
 		{
 			var obj = new RaisingClass();
 			var eventObj = new object();
@@ -369,7 +369,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ExactTypeRaised_NonGeneric()
+		public static async Task ExactTypeRaised_NonGeneric()
 		{
 			var obj = new RaisingClass_NonGeneric();
 			var eventObj = new EventArgs();
@@ -390,7 +390,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask DerivedTypeRaised()
+		public static async Task DerivedTypeRaised()
 		{
 			var obj = new RaisingClass();
 			var eventObj = new DerivedObject();
@@ -411,7 +411,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask DerivedTypeRaised_NonGeneric()
+		public static async Task DerivedTypeRaised_NonGeneric()
 		{
 			var obj = new RaisingClass_NonGeneric();
 			var eventObj = new DerivedEventArgs();
@@ -502,7 +502,7 @@ public class EventAssertsTests
 	public class RaisesAsync_ValueTask
 	{
 		[Fact]
-		public static async ValueTask NoEventRaised()
+		public static async Task NoEventRaised()
 		{
 			var obj = new RaisingClass();
 
@@ -524,7 +524,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ExactTypeRaised()
+		public static async Task ExactTypeRaised()
 		{
 			var obj = new RaisingClass();
 			var eventObj = new object();
@@ -545,7 +545,7 @@ public class EventAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask DerivedTypeRaised()
+		public static async Task DerivedTypeRaised()
 		{
 			var obj = new RaisingClass();
 			var eventObj = new DerivedObject();

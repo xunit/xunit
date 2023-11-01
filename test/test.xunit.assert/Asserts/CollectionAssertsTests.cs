@@ -70,7 +70,7 @@ public class CollectionAssertsTests
 	public class AllAsync
 	{
 		[Fact]
-		public static async ValueTask GuardClauses()
+		public static async Task GuardClauses()
 		{
 			await Assert.ThrowsAsync<ArgumentNullException>("collection", () => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
 			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>(), (Func<object, ValueTask>)null!));
@@ -78,7 +78,7 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask Success()
+		public static async Task Success()
 		{
 			var items = new[] { 1, 1, 1, 1, 1, 1 };
 
@@ -108,7 +108,7 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask ActionCanReceiveIndex()
+		public static async Task ActionCanReceiveIndex()
 		{
 			var items = new[] { 1, 1, 2, 2, 1, 1 };
 			var indices = new List<int>();
@@ -194,7 +194,7 @@ public class CollectionAssertsTests
 	public class CollectionAsync
 	{
 		[Fact]
-		public static async ValueTask EmptyCollection()
+		public static async Task EmptyCollection()
 		{
 			var list = new List<int>();
 
@@ -202,7 +202,7 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask MismatchedElementCountAsync()
+		public static async Task MismatchedElementCountAsync()
 		{
 			var list = new List<int>();
 
@@ -224,7 +224,7 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask NonEmptyCollectionAsync()
+		public static async Task NonEmptyCollectionAsync()
 		{
 			var list = new List<int> { 42, 2112 };
 
@@ -243,7 +243,7 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static async ValueTask MismatchedElementAsync()
+		public static async Task MismatchedElementAsync()
 		{
 			var list = new List<int> { 42, 2112 };
 
