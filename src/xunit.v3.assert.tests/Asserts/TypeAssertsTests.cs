@@ -493,7 +493,7 @@ public class TypeAssertsTests
 		public static async Task<CSharpDynamicAssembly> Create(string code)
 		{
 			var assembly = new CSharpDynamicAssembly();
-			await assembly.Compile(new[] { code }, Array.Empty<string>());
+			await assembly.Compile(new[] { code });
 			return assembly;
 		}
 	}

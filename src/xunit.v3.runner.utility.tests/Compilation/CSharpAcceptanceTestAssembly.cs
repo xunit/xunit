@@ -14,9 +14,9 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		base(basePath)
 	{ }
 
-	protected override ValueTask Compile(
+	protected override Task Compile(
 		string[] code,
-		string[] references)
+		params string[] references)
 	{
 		var parameters = new CompilerParameters()
 		{
@@ -45,7 +45,7 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
 		}
 
-		return default;
+		return Task.CompletedTask;
 	}
 }
 
