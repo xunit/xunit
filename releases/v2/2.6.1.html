@@ -1,0 +1,75 @@
+---
+layout: default
+title: Release Notes for November 2, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: November 2, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<h2>
+  xUnit.net v2 Core Framework 2.6.1
+</h2>
+
+<p>
+  It has been 2 days since we released v2 Core Framework <a href="2.6.0">2.6.0 RTM</a>. This release
+  addresses a compiler ambiguity introduced in 2.6.0.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.6.0 to 2.6.1.</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <p>
+      With the release of the <code>net6.0</code> target for <code>xunit.assert</code> introduced several
+      compiler ambiguities related to support for <code>ValueTask</code>. These come about when using
+      an async lambda to call these functions, as the compiler does not know whether to generate the
+      lambda to return <code>Task</code> or <code>ValueTask</code> (as both are legal). As such, we have
+      removed/replaced all <code>ValueTask</code> support.
+    </p>
+    <p>
+      This includes conversions (for net-new async assertions which are currently <code>ValueTask</code>
+      only):
+    </p>
+    <p>
+      <ul>
+        <li>
+          <code>Assert.AllAsync&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T, ValueTask&gt;)</code> to<br />
+          <code>Assert.AllAsync&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T, Task&gt;)</code>
+        </li>
+        <li>
+          <code>Assert.CollectionAsync&lt;T&gt;(IEnumerable&lt;T&gt;, params Func&lt;T, ValueTask&gt;[])</code> to<br />
+          <code>Assert.CollectionAsync&lt;T&gt;(IEnumerable&lt;T&gt;, params Func&lt;T, Task&gt;[])</code>
+        </li>
+      </ul>
+    </p>
+    <p>And removals (for new async overloads):</p>
+    <p>
+      <ul>
+        <li><code>Assert.PropertyChangedAsync(INotifyPropertyChanged, string, Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.RaisesAnyAsync(Action&lt;EventHandler&gt;, Action&lt;EventHandler&gt;, Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.RaisesAnyAsync&lt;T&gt;(Action&lt;EventHandler&lt;T&gt;&gt;, Action&lt;EventHandler&lt;T&gt;&gt;, Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.RaisesAsync&lt;T&gt;(Action&lt;EventHandler&lt;T&gt;&gt;, Action&lt;EventHandler&lt;T&gt;&gt;, Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.Throws&lt;T&gt;(string?, Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.ThrowsAnyAsync&lt;T&gt;(Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.ThrowsAsync(Type, Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.ThrowsAsync&lt;T&gt;(Func&lt;ValueTask&gt;)</code></li>
+        <li><code>Assert.ThrowsAsync&lt;T&gt;(string?, Func&lt;ValueTask&gt;)</code></li>
+      </ul>
+    </p>
+    Developers who may now experience compiler failures after utilizing the <code>ValueTask</code>
+    overloads should add <code>.AsTask()</code> to the end of their <code>ValueTask</code> returning
+    code inside the lambda to convert the <code>ValueTask</code> into a <code>Task</code> and allow
+    the code to compile.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2808">xunit/xunit#2808</a>
+  </li>
+</ul>
