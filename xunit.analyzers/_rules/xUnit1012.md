@@ -36,6 +36,19 @@ public class xUnit1012
 }
 ```
 
+If nullable reference types are enabled, this also violates:
+
+```csharp
+using Xunit;
+
+public class xUnit1012
+{
+    [Theory]
+    [InlineData(null)]
+    public void TestMethod(object _) { }
+}
+```
+
 ### Does not violate
 
 ```csharp
@@ -60,6 +73,8 @@ public class xUnit1012
 }
 ```
 
+If nullable reference types are enabled, parameters must be decorated to receive `null` values:
+
 ```csharp
 using Xunit;
 
@@ -67,6 +82,6 @@ public class xUnit1012
 {
     [Theory]
     [InlineData(null)]
-    public void TestMethod(object _) { }
+    public void TestMethod(object? _) { }
 }
 ```
