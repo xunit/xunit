@@ -13,13 +13,18 @@ using Xunit.v3;
 
 public class DelegatingXmlCreationSinkTests
 {
-	readonly ExecutionSummary executionSummary = new();
 	readonly IExecutionSink innerSink;
 
 	public DelegatingXmlCreationSinkTests()
 	{
-		innerSink = Substitute.For<IExecutionSink>();
-		innerSink.ExecutionSummary.Returns(executionSummary);
+		innerSink = new DelegatingSummarySink(
+			new XunitProjectAssembly(new XunitProject()),
+			_TestFrameworkOptions.ForDiscovery(),
+			_TestFrameworkOptions.ForExecution(),
+			AppDomainOption.Disabled,
+			false,
+			Substitute.For<_IMessageSink>()
+		);
 	}
 
 	[Fact]
@@ -74,14 +79,13 @@ public class DelegatingXmlCreationSinkTests
 	[CulturedFact]
 	public void AddsAssemblyFinishedInformationToXml()
 	{
-		executionSummary.Total = 2112;
-		executionSummary.Failed = 42;
-		executionSummary.Skipped = 6;
-		executionSummary.NotRun = 3;
-		executionSummary.Time = 123.4567M;
-		executionSummary.Errors = 1;
-
-		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyFinished = TestData.TestAssemblyFinished(
+			testsTotal: 2112,
+			testsFailed: 42,
+			testsSkipped: 6,
+			testsNotRun: 3,
+			executionTime: 123.4567M
+		);
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
 		var errorMessage = TestData.ErrorMessage(
