@@ -348,12 +348,7 @@ public class DelegatingXmlCreationSink : IExecutionSink
 	{
 		Guard.ArgumentNotNull(message);
 
-		// Call the inner sink first, because we want to be able to depend on ExecutionSummary
-		// being correctly filled out.
-		var result = innerSink.OnMessage(message);
-
-		return message.DispatchWhen<_ErrorMessage>(HandleErrorMessage)
-
+		var dispatchSuccessful = message.DispatchWhen<_ErrorMessage>(HandleErrorMessage)
 			&& message.DispatchWhen<_TestAssemblyCleanupFailure>(HandleTestAssemblyCleanupFailure)
 			&& message.DispatchWhen<_TestAssemblyFinished>(HandleTestAssemblyFinished)
 			&& message.DispatchWhen<_TestAssemblyStarting>(HandleTestAssemblyStarting)
@@ -380,9 +375,10 @@ public class DelegatingXmlCreationSink : IExecutionSink
 			&& message.DispatchWhen<_TestPassed>(HandleTestPassed)
 			&& message.DispatchWhen<_TestNotRun>(HandleTestNotRun)
 			&& message.DispatchWhen<_TestSkipped>(HandleTestSkipped)
-			&& message.DispatchWhen<_TestStarting>(HandleTestStarting)
+			&& message.DispatchWhen<_TestStarting>(HandleTestStarting);
 
-			&& result;
+		return innerSink.OnMessage(message)
+			&& dispatchSuccessful;
 	}
 
 	/// <summary>

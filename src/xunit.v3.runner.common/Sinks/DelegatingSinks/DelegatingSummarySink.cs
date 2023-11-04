@@ -157,10 +157,7 @@ public class DelegatingSummarySink : IExecutionSink
 	{
 		Guard.ArgumentNotNull(message);
 
-		var result = innerSink.OnMessage(message);
-
-		return
-			message.DispatchWhen<_DiscoveryComplete>(HandleDiscoveryComplete)
+		var dispatchSuccessful = message.DispatchWhen<_DiscoveryComplete>(HandleDiscoveryComplete)
 			&& message.DispatchWhen<_DiscoveryStarting>(HandleDiscoveryStarting)
 			&& message.DispatchWhen<_ErrorMessage>(args => Interlocked.Increment(ref errors))
 			&& message.DispatchWhen<_TestAssemblyCleanupFailure>(args => Interlocked.Increment(ref errors))
@@ -171,7 +168,9 @@ public class DelegatingSummarySink : IExecutionSink
 			&& message.DispatchWhen<_TestCleanupFailure>(args => Interlocked.Increment(ref errors))
 			&& message.DispatchWhen<_TestCollectionCleanupFailure>(args => Interlocked.Increment(ref errors))
 			&& message.DispatchWhen<_TestMethodCleanupFailure>(args => Interlocked.Increment(ref errors))
-			&& result
 			&& !cancelThunk();
+
+		return innerSink.OnMessage(message)
+			&& dispatchSuccessful;
 	}
 }
