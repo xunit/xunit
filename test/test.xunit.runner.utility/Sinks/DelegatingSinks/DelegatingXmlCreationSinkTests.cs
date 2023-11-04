@@ -10,13 +10,11 @@ using Xunit.Abstractions;
 
 public class DelegatingXmlCreationSinkTests
 {
-    readonly ExecutionSummary executionSummary = new ExecutionSummary();
     readonly IExecutionSink innerSink;
 
     public DelegatingXmlCreationSinkTests()
     {
-        innerSink = Substitute.For<IExecutionSink>();
-        innerSink.ExecutionSummary.Returns(executionSummary);
+        innerSink = new DelegatingExecutionSummarySink(Substitute.For<IMessageSinkWithTypes>());
     }
 
     [Fact]
@@ -59,13 +57,11 @@ public class DelegatingXmlCreationSinkTests
     [CulturedFact]
     public void AddsAssemblyFinishedInformationToXml()
     {
-        executionSummary.Total = 2112;
-        executionSummary.Failed = 42;
-        executionSummary.Skipped = 6;
-        executionSummary.Time = 123.4567M;
-        executionSummary.Errors = 1;
-
         var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+        assemblyFinished.TestsRun.Returns(2112);
+        assemblyFinished.TestsFailed.Returns(42);
+        assemblyFinished.TestsSkipped.Returns(6);
+        assemblyFinished.ExecutionTime.Returns(123.4567M);
         var assemblyElement = new XElement("assembly");
         var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
         var errorMessage = Substitute.For<IErrorMessage>();
