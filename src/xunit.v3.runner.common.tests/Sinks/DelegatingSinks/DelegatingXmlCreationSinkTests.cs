@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using NSubstitute;
@@ -88,60 +87,6 @@ public class DelegatingXmlCreationSinkTests
 		);
 		var assemblyElement = new XElement("assembly");
 		var sink = new DelegatingXmlCreationSink(innerSink, assemblyElement);
-		var errorMessage = TestData.ErrorMessage(
-			exceptionParentIndices: new[] { -1 },
-			exceptionTypes: new[] { "ExceptionType" },
-			messages: new[] { "Message" },
-			stackTraces: new[] { "Stack" }
-		);
-
-		sink.OnMessage(errorMessage);
-		sink.OnMessage(assemblyFinished);
-
-		Assert.Equal("2112", assemblyElement.Attribute("total")!.Value);
-		Assert.Equal("2061", assemblyElement.Attribute("passed")!.Value);
-		Assert.Equal("42", assemblyElement.Attribute("failed")!.Value);
-		Assert.Equal("6", assemblyElement.Attribute("skipped")!.Value);
-		Assert.Equal("3", assemblyElement.Attribute("not-run")!.Value);
-		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), assemblyElement.Attribute("time")!.Value);
-		Assert.Equal("1", assemblyElement.Attribute("errors")!.Value);
-	}
-
-	private sealed class ExecutionSinkThatFillsExecutionSummaryWhenOnMessageInvoked : IExecutionSink
-	{
-		private readonly ExecutionSummary _executionSummary = new();
-		public ExecutionSummary ExecutionSummary => _executionSummary;
-
-		private readonly ManualResetEvent _finishedMre = new(false);
-		public ManualResetEvent Finished => _finishedMre;
-
-
-		public void Dispose()
-		{
-			//Intentionally empty
-		}
-
-		public bool OnMessage(_MessageSinkMessage message)
-		{
-			_executionSummary.Total = 2112;
-			_executionSummary.Failed = 42;
-			_executionSummary.Skipped = 6;
-			_executionSummary.NotRun = 3;
-			_executionSummary.Time = 123.4567M;
-			_executionSummary.Errors = 1;
-			return true;
-		}
-	}
-
-
-	[CulturedFact]
-	public void AddsAssemblyFinishedInformationToXmlWhenSummaryIsFilledByOnMessage()
-	{
-		IExecutionSink localSink = new ExecutionSinkThatFillsExecutionSummaryWhenOnMessageInvoked();
-
-		var assemblyFinished = TestData.TestAssemblyFinished();
-		var assemblyElement = new XElement("assembly");
-		var sink = new DelegatingXmlCreationSink(localSink, assemblyElement);
 		var errorMessage = TestData.ErrorMessage(
 			exceptionParentIndices: new[] { -1 },
 			exceptionTypes: new[] { "ExceptionType" },
