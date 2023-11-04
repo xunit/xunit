@@ -10,6 +10,7 @@
     <DebugType>portable</DebugType>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>10.0</LangVersion>
+    <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <NoWarn>$(NoWarn);NU1603;CS1701;MSB3277</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>

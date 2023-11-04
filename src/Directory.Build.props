@@ -17,6 +17,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>10.0</LangVersion>
+    <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <NoWarn>$(NoWarn);NU1603;NU5128;NU5131;CS0436;CS1701</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <RootNamespace>Xunit</RootNamespace>
