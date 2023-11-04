@@ -1,0 +1,8 @@
+{
+  "$schema": "https://xunit.net/schema/v2.5/xunit.runner.schema.json",
+  "appDomain": "required",
+  "diagnosticMessages": true,
+  "methodDisplay": "classAndMethod",
+  "parallelizeAssembly": true,
+  "shadowCopy": false
+}
