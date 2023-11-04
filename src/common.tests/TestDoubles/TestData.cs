@@ -134,7 +134,7 @@ public static class TestData
 		string? configFilePath = DefaultConfigFilePath,
 		int? seed = null,
 		DateTimeOffset? startTime = null,
-		string targetFramework = DefaultTargetFramework,
+		string? targetFramework = DefaultTargetFramework,
 		string testEnvironment = DefaultTestEnvironment,
 		string testFrameworkDisplayName = DefaultTestFrameworkDisplayName) =>
 			new()
@@ -357,6 +357,29 @@ public static class TestData
 		);
 	}
 
+	public static _TestCaseCleanupFailure TestCaseCleanupFailure(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		string[]? messages = null,
+		string?[]? stackTraces = null,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				Messages = messages ?? DefaultExceptionMessages,
+				StackTraces = stackTraces ?? DefaultStackTraces,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+			};
+
 	public static _TestCaseDiscovered TestCaseDiscovered(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string serialization = DefaultTestCaseSerialization,
@@ -450,6 +473,25 @@ public static class TestData
 				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>(),
 			};
 
+	public static _TestClassCleanupFailure TestClassCleanupFailure(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		string[]? messages = null,
+		string?[]? stackTraces = null,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				Messages = messages ?? DefaultExceptionMessages,
+				StackTraces = stackTraces ?? DefaultStackTraces,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+			};
+
 	public static _TestClassFinished TestClassFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
@@ -484,11 +526,53 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
+	public static _TestCleanupFailure TestCleanupFailure(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		string[]? messages = null,
+		string?[]? stackTraces = null,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				Messages = messages ?? DefaultExceptionMessages,
+				StackTraces = stackTraces ?? DefaultStackTraces,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
 	public static TestCollection TestCollection(
 		_ITestAssembly assembly,
 		_ITypeInfo? collectionDefinition = null,
 		string? displayName = null) =>
 			new(assembly, collectionDefinition, displayName ?? $"[Unit Test] Collection for '{assembly.Assembly.Name}'");
+
+	public static _TestCollectionCleanupFailure TestCollectionCleanupFailure(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		string[]? messages = null,
+		string?[]? stackTraces = null,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				Messages = messages ?? DefaultExceptionMessages,
+				StackTraces = stackTraces ?? DefaultStackTraces,
+				TestCollectionUniqueID = testCollectionUniqueID,
+			};
 
 	public static _TestCollectionFinished TestCollectionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -617,6 +701,27 @@ public static class TestData
 
 		return new(testClass, methodInfo, uniqueID ?? "method-id");
 	}
+
+	public static _TestMethodCleanupFailure TestMethodCleanupFailure(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		string[]? messages = null,
+		string?[]? stackTraces = null,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				Messages = messages ?? DefaultExceptionMessages,
+				StackTraces = stackTraces ?? DefaultStackTraces,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+			};
 
 	public static _TestMethodFinished TestMethodFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
