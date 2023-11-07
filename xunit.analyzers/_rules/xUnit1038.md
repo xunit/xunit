@@ -57,7 +57,7 @@ using Xunit;
 
 public class xUnit1038
 {
-    public static TheoryData<int?, string?> PropertyData =>
+    public static TheoryData<int, string> PropertyData =>
         new() { { 1, "Hello" }, { 2, "World" } };
 
     [Theory]
