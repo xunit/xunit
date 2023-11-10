@@ -1,6 +1,6 @@
 ---
 title: xUnit2022
-description: Paste the description from the analyzer here
+description: Boolean assertions should not be negated
 category: Assertions
 severity: Info
 ---
