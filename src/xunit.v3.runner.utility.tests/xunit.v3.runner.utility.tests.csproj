@@ -23,8 +23,8 @@
 
   <ItemGroup>
     <!-- Required for F# acceptance tests -->
-    <PackageReference Include="FSharp.Compiler.Service" Version="$(FSharpCompilerServiceVersion)" />
-    <PackageReference Include="System.Reflection.Metadata" Version="$(SystemReflectionMetadataVersion)" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="[$(FSharpCompilerServiceVersion)]" />
+    <PackageReference Include="System.Reflection.Metadata" Version="[$(SystemReflectionMetadataVersion)]" />
   </ItemGroup>
 
   <ItemGroup>

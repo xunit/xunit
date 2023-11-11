@@ -387,8 +387,8 @@ public class StringAssertsTests
 		[InlineData("", "\t", false, false, true, true)]
 		[InlineData("foobar", "foo bar", false, false, true, true)]
 		public void Success(
-			string value1,
-			string value2,
+			string? value1,
+			string? value2,
 			bool ignoreCase,
 			bool ignoreLineEndingDifferences,
 			bool ignoreWhiteSpaceDifferences,

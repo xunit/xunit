@@ -11,7 +11,7 @@ using System.Xml;
 
 public class SerializationHelperTests
 {
-	public static TheoryData<object?, string?> NonNullSuccessData = new()
+	public static TheoryData<object?, string> NonNullSuccessData = new()
 	{
 		// Supported built-in types just contain a type index and the value
 		{ "String value", $"0:{ToBase64("String value")}" },
@@ -81,7 +81,7 @@ public class SerializationHelperTests
 		{ new object?[] { 1, "2", 3.4m, null }, $"-1[]:{ToBase64($"r:6:1\ntl:6:4\nl0:6:4\nlb0:6:0\ni0:6:1\ni1:0:{ToBase64("2")}\ni2:12:3.4\ni3:-1")}" },
 	};
 
-	public static TheoryData<Type, string?> NullSuccessData = new()
+	public static TheoryData<Type, string> NullSuccessData = new()
 	{
 		{ typeof(Type), "-5" },
 		{ typeof(MySerializable), "-4" },
@@ -283,9 +283,9 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization, result);
 		}
 
-		public static TheoryData<object?, Type, string?> FailureData()
+		public static TheoryData<object?, Type, string> FailureData()
 		{
-			var result = new TheoryData<object?, Type, string?>();
+			var result = new TheoryData<object?, Type, string>();
 
 #if NETFRAMEWORK
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)

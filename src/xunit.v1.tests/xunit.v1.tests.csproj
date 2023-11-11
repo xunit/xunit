@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Moq" Version="$(MoqVersion)" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsVersion)" />
-    <PackageReference Include="xunit.extensions" Version="$(XunitV1Version)" />
+    <PackageReference Include="xunit.extensions" Version="[$(XunitV1Version)]" />
   </ItemGroup>
 
   <ItemGroup>

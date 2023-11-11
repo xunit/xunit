@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="$(SystemIoPipelinesVersion)" />
+    <PackageReference Include="System.IO.Pipelines" Version="[$(SystemIoPipelinesVersion)]" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpVersion)" />
   </ItemGroup>
 

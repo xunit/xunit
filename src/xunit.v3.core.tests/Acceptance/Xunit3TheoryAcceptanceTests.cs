@@ -464,7 +464,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory(Skip = "Don't run this!")]
 			[InlineData(42, "Hello, world!")]
 			[InlineData(0, null)]
-			public void SkippedTheory(int _, string y)
+			public void SkippedTheory(int _, string? y)
 			{
 				Assert.NotNull(y);
 			}
@@ -472,7 +472,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, "Hello, world!")]
 			[InlineData(0, null, Skip = "Don't run this!")]
-			public void SkippedInlineData(int _, string y)
+			public void SkippedInlineData(int _, string? y)
 			{
 				Assert.NotNull(y);
 			}
@@ -938,7 +938,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, 21.12, "Hello, world!")]
 			[InlineData(0, 0.0, null)]
-			public void TestMethod(int _1, double _2, string z)
+			public void TestMethod(int _1, double _2, string? z)
 			{
 				Assert.NotNull(z);
 			}
@@ -957,7 +957,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[InlineData(null!)]
-			public void TestMethod(string _) { }
+			public void TestMethod(string? _) { }
 		}
 
 		[Fact]
@@ -973,7 +973,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 			[InlineData(new[] { 42, 2112 }, new[] { "SELF", "PARENT1", "PARENT2", "PARENT3" }, null, 10.5, "Hello, world!")]
-			public void TestMethod(int[] _1, string[] _2, float[] _3, double _4, string _5) { }
+			public void TestMethod(int[] _1, string[] _2, float[]? _3, double _4, string _5) { }
 		}
 
 		[Fact]
@@ -2006,7 +2006,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassWithDowncastedMethodData
 		{
-			public static IEnumerable<object?[]> DataSource(object x, string y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
+			public static IEnumerable<object?[]> DataSource(object x, string? y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
 
 			[Theory]
 			[MemberData(nameof(DataSource), 42, "Hello world")]
