@@ -1,0 +1,105 @@
+---
+layout: default
+title: Release Notes for November 10, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: November 10, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>It's been 1 month since the release of <a href="1.4.0">1.4.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.4.0 to 1.5.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    <a href="/xunit.analyzers/rules/xUnit1012">xUnit1012</a> has been updated to account for nullable
+    reference types when passing <code>null</code> values into <code>[InlineData]</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2189">xunit/xunit#2189</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/164">xunit/xunit.analyzers#164</a>
+  </li>
+  <li>
+    Added three new analyzers to ensure that <code>[MemberData]</code> usage with data generation methods have
+    compatible arguments:
+    <ul>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1034">xUnit1034</a> is reported when you pass <code>null</code>
+        to a parameter that is not nullable.
+      </li>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1035">xUnit1035</a> is reported when the argument type is not
+        compatible with the parameter type.
+      </li>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1036">xUnit1036</a> is reported when you provide too many arguments.
+      </li>
+    </ul>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2189">xunit/xunit#2189</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/165">xunit/xunit.analyzers#165</a>
+  </li>
+  <li>
+    Added four new analyzers to help users return <code>TheoryData&lt;&gt;</code> from <code>[MemberData]</code>:
+    <ul>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1037">xUnit1037</a> is reported when you have too few generic types
+        in <code>TheoryData&lt;&gt;</code> for your test method.
+      </li>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1038">xUnit1038</a> is reported when you have too many generic types
+        in <code>TheoryData&lt;&gt;</code> for your test method.
+      </li>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1039">xUnit1039</a> is reported when one of the generic types in
+        <code>TheoryData&lt;&gt;</code> is not compatible with the corresponding parameter in your test method.
+      </li>
+      <li>
+        <a href="/xunit.analyzers/rules/xUnit1040">xUnit1040</a> is reported when your generic type in
+        <code>TheoryData&lt;&gt;</code> is a nullable reference type but the test method parameter is not nullable.
+      </li>
+    </ul>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2189">xunit/xunit#2189</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/166">xunit/xunit.analyzers#166</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Analysis in <a href="/xunit.analyzers/rules/xUnit2014">xUnit2014</a> was updated to remove support for
+    <code>ValueTask</code> in the <code>Assert.Throws</code> since it is no longer supported as of 2.6.1
+    (due to compiler ambiguity problems with async lambdas).
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit2021">xUnit2021</a> to warn developers when async assertions are
+    not being awaited. This includes:
+    <ul>
+      <li><code>Assert.PropertyChangedAsync</code></li>
+      <li><code>Assert.RaisesAnyAsync</code></li>
+      <li><code>Assert.RaisesAsync</code></li>
+      <li><code>Assert.ThrowsAnyAsync</code></li>
+      <li><code>Assert.ThrowsAsync</code></li>
+    </ul>
+    This feature is limited to just assertions shipped with xUnit.net; it does not include third party assertions
+    nor any calls to non-assertion async methods. Note that while
+    <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs4014">CS4014</a>
+    can report un-awaited tasks, it will only do so if the method is already marked as <code>async</code>.
+    xUnit2021 will always be reported regardless of whether the test method is <code>async</code> or not (and is
+    reported as an Error, while CS4014 is reported as a Warning).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2346">xunit/xunit#2346</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit2022">xUnit2022</a> to suggest to developers that they should
+    not use a negated expression with <code>Assert.True</code> or <code>Assert.False</code>, and should instead
+    use a non-negated expression with the opposite assertion.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1435">xunit/xunit#1435</a>
+  </li>
+</ul>
