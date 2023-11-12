@@ -151,7 +151,7 @@ public class DefaultRunnerReporterMessageHandlerTests
     {
         [Theory]
         [InlineData(false, "[Imp] =>   Starting:    testAssembly")]
-        [InlineData(true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on, max threads = 42)")]
+        [InlineData(true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on, max threads = 42, stop on fail = true)")]
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
             var message = Mocks.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages);
