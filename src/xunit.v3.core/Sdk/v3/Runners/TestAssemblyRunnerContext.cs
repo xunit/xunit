@@ -112,7 +112,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	protected virtual IMessageBus CreateMessageBus()
 	{
 		if (ExecutionOptions.SynchronousMessageReportingOrDefault())
-			return new SynchronousMessageBus(ExecutionMessageSink);
+			return new SynchronousMessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
 
 		return new MessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
 	}

@@ -9,12 +9,17 @@ namespace Xunit.Internal;
 /// </summary>
 public class SynchronousMessageBus : IMessageBus
 {
+	volatile bool continueRunning = true;
 	readonly _IMessageSink messageSink;
+	readonly bool stopOnFail;
 
 	/// <summary/>
-	public SynchronousMessageBus(_IMessageSink messageSink)
+	public SynchronousMessageBus(
+		_IMessageSink messageSink,
+		bool stopOnFail = false)
 	{
 		this.messageSink = Guard.ArgumentNotNull(messageSink);
+		this.stopOnFail = stopOnFail;
 	}
 
 	/// <summary/>
@@ -28,6 +33,9 @@ public class SynchronousMessageBus : IMessageBus
 	{
 		Guard.ArgumentNotNull(message);
 
-		return messageSink.OnMessage(message);
+		if (stopOnFail && message is _TestFailed)
+			continueRunning = false;
+
+		return messageSink.OnMessage(message) && continueRunning;
 	}
 }
