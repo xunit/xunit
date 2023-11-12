@@ -7,12 +7,15 @@ namespace Xunit.Sdk
     /// </summary>
     public class SynchronousMessageBus : IMessageBus
     {
+        volatile bool continueRunning = true;
         readonly IMessageSink messageSink;
+        readonly bool stopOnFail;
 
         /// <summary/>
-        public SynchronousMessageBus(IMessageSink messageSink)
+        public SynchronousMessageBus(IMessageSink messageSink, bool stopOnFail = false)
         {
             this.messageSink = messageSink;
+            this.stopOnFail = stopOnFail;
         }
 
         /// <summary/>
@@ -21,7 +24,10 @@ namespace Xunit.Sdk
         /// <summary/>
         public bool QueueMessage(IMessageSinkMessage message)
         {
-            return messageSink.OnMessage(message);
+            if (stopOnFail && message is ITestFailed)
+                continueRunning = false;
+
+            return messageSink.OnMessage(message) && continueRunning;
         }
     }
 }

@@ -22,9 +22,32 @@ public class SynchronousMessageBusTests
     [Fact]
     public void BusShouldReportShutdownWhenMessageSinkReturnsFalse()
     {
-        using (var bus = new SynchronousMessageBus(SpyMessageSink.Create(returnResult: false)))
-        {
-            Assert.False(bus.QueueMessage(Substitute.For<IMessageSinkMessage>()));
-        }
+        using var bus = new SynchronousMessageBus(SpyMessageSink.Create(returnResult: false));
+
+        Assert.False(bus.QueueMessage(Substitute.For<IMessageSinkMessage>()));
+    }
+
+    [Fact]
+    public void WhenStopOnFailIsFalse_WithFailedTest_BusShouldNotReportShutdown()
+    {
+        var testPassedMessage = Substitute.For<ITestPassed>();
+        var testFailedMessage = Substitute.For<ITestFailed>();
+        using var bus = new SynchronousMessageBus(SpyMessageSink.Create(), stopOnFail: false);
+
+        Assert.True(bus.QueueMessage(testPassedMessage));
+        Assert.True(bus.QueueMessage(testFailedMessage));
+        Assert.True(bus.QueueMessage(testPassedMessage));
+    }
+
+    [Fact]
+    public void WhenStopOnFailIsTrue_WithFailedTest_BusShouldReportShutdown()
+    {
+        var testPassedMessage = Substitute.For<ITestPassed>();
+        var testFailedMessage = Substitute.For<ITestFailed>();
+        using var bus = new SynchronousMessageBus(SpyMessageSink.Create(), stopOnFail: true);
+
+        Assert.True(bus.QueueMessage(testPassedMessage));
+        Assert.False(bus.QueueMessage(testFailedMessage));
+        Assert.False(bus.QueueMessage(testPassedMessage));
     }
 }
