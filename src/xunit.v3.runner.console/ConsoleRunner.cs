@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole;
@@ -354,7 +355,7 @@ sealed class ConsoleRunner
 				controller.FindAndRun(resultsSink, settings);
 				resultsSink.Finished.WaitOne();
 
-				if (assembly.Configuration.StopOnFailOrDefault && resultsSink.ExecutionSummary.Failed != 0)
+				if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 				{
 					Console.WriteLine("Canceling due to test failure...");
 					cancel = true;

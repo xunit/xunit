@@ -346,10 +346,11 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				culture = "invariant";
 
 			Logger.LogImportantMessage(
-				"  Starting:    {0} (parallel test collections = {1}, max threads = {2}, explicit = {3}{4}{5})",
+				"  Starting:    {0} (parallel test collections = {1}, max threads = {2}, stop on fail = {3}, explicit = {4}{5}{6})",
 				assemblyDisplayName,
 				!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
 				threadCountText,
+				executionStarting.ExecutionOptions.GetStopOnTestFailOrDefault() ? "on" : "off",
 				@explicit,
 				executionStarting.Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, ", seed = {0}", executionStarting.Seed),
 				culture is null ? "" : string.Format(CultureInfo.CurrentCulture, ", culture = {0}", culture)

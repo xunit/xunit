@@ -296,6 +296,7 @@ public static class TestData
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
 		bool parallelizeTestCollections = false,
+		bool? stopOnFail = null,
 		int? seed = null,
 		string? culture = null)
 	{
@@ -315,6 +316,7 @@ public static class TestData
 			InternalDiagnosticMessages = internalDiagnosticMessages,
 			MaxParallelThreads = maxParallelThreads,
 			ParallelizeTestCollections = parallelizeTestCollections,
+			StopOnFail = stopOnFail,
 		});
 
 		return new()

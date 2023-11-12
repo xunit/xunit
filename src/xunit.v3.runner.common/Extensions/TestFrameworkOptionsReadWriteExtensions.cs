@@ -428,6 +428,27 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
+	/// Gets a flag that determines whether xUnit.net stop testing when a test fails.
+	/// </summary>
+	public static bool? GetStopOnTestFail(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.StopOnFail);
+	}
+
+	/// <summary>
+	/// Gets a flag that determines whether xUnit.net stop testing when a test fails. If the flag
+	/// is not set, returns the default value (<c>false</c>).
+	/// </summary>
+	public static bool GetStopOnTestFailOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetStopOnTestFail() ?? false;
+	}
+
+	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// </summary>
 	public static bool? GetSynchronousMessageReporting(this _ITestFrameworkExecutionOptions executionOptions)

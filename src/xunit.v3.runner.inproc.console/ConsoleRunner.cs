@@ -342,7 +342,7 @@ public class ConsoleRunner
 
 				testExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 
-				if (assembly.Configuration.StopOnFailOrDefault && resultsSink.ExecutionSummary.Failed != 0)
+				if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 				{
 					Console.WriteLine("Canceling due to test failure...");
 					cancel = true;

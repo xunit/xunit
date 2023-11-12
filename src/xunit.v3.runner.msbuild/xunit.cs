@@ -399,7 +399,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				if (resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0)
 				{
 					ExitCode = 1;
-					if (stopOnFail == true)
+					if (executionOptions.GetStopOnTestFailOrDefault())
 					{
 						lock (logLock)
 							Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
