@@ -337,7 +337,15 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
 		{
 			var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
-			var threadCountText = threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.InvariantCulture);
+			var parallelTestCollections =
+				executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault()
+					? "off"
+					: string.Format(
+						CultureInfo.CurrentCulture,
+						"on [{0} thread{1}]",
+						threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
+						threadCount == 1 ? string.Empty : "s"
+					);
 #pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
 #pragma warning restore CA1308
@@ -346,10 +354,9 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				culture = "invariant";
 
 			Logger.LogImportantMessage(
-				"  Starting:    {0} (parallel test collections = {1}, max threads = {2}, stop on fail = {3}, explicit = {4}{5}{6})",
+				"  Starting:    {0} (parallel test collections = {1}, stop on fail = {2}, explicit = {3}{4}{5})",
 				assemblyDisplayName,
-				!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
-				threadCountText,
+				parallelTestCollections,
 				executionStarting.ExecutionOptions.GetStopOnTestFailOrDefault() ? "on" : "off",
 				@explicit,
 				executionStarting.Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, ", seed = {0}", executionStarting.Seed),

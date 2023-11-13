@@ -51,11 +51,11 @@ public partial class BuildContext
 		ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
 		ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
-		TestFlagsNonParallel = "-parallel none -maxthreads 1 ";
+		TestFlagsNonParallel = "-parallel none ";
 		TestFlagsParallel = "";
 
-		// Turn off test parallelization in CI, for more repeatable test timing
+		// Run parallelizable tests with a single thread in CI to help catch Task-related deadlocks
 		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")))
-			TestFlagsParallel = TestFlagsNonParallel;
+			TestFlagsParallel = "-maxthreads 1 ";
 	}
 }

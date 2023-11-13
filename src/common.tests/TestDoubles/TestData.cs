@@ -295,7 +295,7 @@ public static class TestData
 		ExplicitOption? explicitOption = null,
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
-		bool parallelizeTestCollections = false,
+		bool? parallelizeTestCollections = null,
 		bool? stopOnFail = null,
 		int? seed = null,
 		string? culture = null)
