@@ -252,12 +252,20 @@ namespace Xunit
             if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
             {
                 var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
+                var parallelTestCollections =
+                    executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault()
+                        ? "off"
+                        : string.Format(
+                            CultureInfo.CurrentCulture,
+                            "on [{0} thread{1}]",
+                            threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
+                            threadCount == 1 ? string.Empty : "s"
+                        );
 
                 Logger.LogImportantMessage(
-                    "  Starting:    {0} (parallel test collections = {1}, max threads = {2}, stop on fail = {3})",
+                    "  Starting:    {0} (parallel test collections = {1}, stop on fail = {2})",
                     assemblyDisplayName,
-                    !executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
-                    threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
+                    parallelTestCollections,
                     executionStarting.ExecutionOptions.GetStopOnTestFailOrDefault() ? "on" : "off"
                 );
             }

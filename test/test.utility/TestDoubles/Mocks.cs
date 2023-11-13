@@ -247,10 +247,10 @@ public static class Mocks
         return result;
     }
 
-    public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false, string assemblyFilename = null)
+    public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false, string assemblyFilename = null, bool? parallelizeTestCollections = null, int maxParallelThreads = 42, bool? stopOnFail = null)
     {
         var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true, StopOnFail = true };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = maxParallelThreads, ParallelizeTestCollections = parallelizeTestCollections, ShadowCopy = true, StopOnFail = stopOnFail };
         var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
         result.Assembly.Returns(assembly);
         result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));

@@ -148,11 +148,20 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
     public class OnMessage_ITestAssemblyExecutionStarting
     {
         [Theory]
-        [InlineData(false, "[Imp] =>   Starting:    testAssembly")]
-        [InlineData(true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on, max threads = 42, stop on fail = on)")]
-        public static void LogsMessage(bool diagnosticMessages, string expectedResult)
+        [InlineData(false, null, null, null, "[Imp] =>   Starting:    testAssembly")]
+        [InlineData(true, false, null, null, "[Imp] =>   Starting:    testAssembly (parallel test collections = off, stop on fail = off)")]
+        [InlineData(true, null, -1, null, "[Imp] =>   Starting:    testAssembly (parallel test collections = on [unlimited threads], stop on fail = off)")]
+        [InlineData(true, null, 1, null, "[Imp] =>   Starting:    testAssembly (parallel test collections = on [1 thread], stop on fail = off)")]
+        [InlineData(true, null, null, true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on [42 threads], stop on fail = on)")]
+        [InlineData(true, null, null, null, "[Imp] =>   Starting:    testAssembly (parallel test collections = on [42 threads], stop on fail = off)")]
+        public static void LogsMessage(bool diagnosticMessages, bool? parallelizeTestCollections, int? maxThreads, bool? stopOnFail, string expectedResult)
         {
-            var message = Mocks.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages);
+            var message = Mocks.TestAssemblyExecutionStarting(
+                diagnosticMessages: diagnosticMessages,
+                parallelizeTestCollections: parallelizeTestCollections,
+                maxParallelThreads: maxThreads ?? 42,
+                stopOnFail: stopOnFail
+            );
             var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
             handler.OnMessageWithTypes(message, null);
