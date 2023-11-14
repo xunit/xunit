@@ -11,7 +11,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>10.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
-    <NoWarn>$(NoWarn);NU1603;CS1701;MSB3277</NoWarn>
+    <NoWarn>$(NoWarn);NU1603;NU1903;CS1701;MSB3277</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <WarningsAsErrors>true</WarningsAsErrors>
