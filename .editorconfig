@@ -248,6 +248,7 @@ dotnet_diagnostic.CA1720.severity  = none  # Identifier contains type name
 dotnet_diagnostic.CA1810.severity  = none  # Do not use static constructors
 dotnet_diagnostic.CA1815.severity  = none  # Override equals and operator equals on value types
 dotnet_diagnostic.CA1819.severity  = none  # Properties should not return arrays
+dotnet_diagnostic.CA1859.severity  = none  # Use concrete types when possible for improved performance
 dotnet_diagnostic.CA2007.severity  = none  # Consider calling ConfigureAwait on the awaited task
 dotnet_diagnostic.CA2211.severity  = none  # Non-constant fields should not be visible
 dotnet_diagnostic.IDE0040.severity = none  # Add accessibility modifiers

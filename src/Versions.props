@@ -28,7 +28,7 @@
 
     <!-- These versions are stuck because they're used in PackageDownload only and need hand updating -->
     <ILRepackVersion>2.0.13</ILRepackVersion>
-    <MicrosoftNetCoreAppRefVersion>6.0.24</MicrosoftNetCoreAppRefVersion>
+    <MicrosoftNetCoreAppRefVersion>6.0.25</MicrosoftNetCoreAppRefVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
     <XunitV2Version>2.6.1</XunitV2Version>

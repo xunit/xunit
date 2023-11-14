@@ -28,9 +28,13 @@ public class XunitTestCaseRunnerBase<TContext> : TestCaseRunner<TContext, IXunit
 	{
 		Guard.ArgumentNotNull(testCase);
 
+#pragma warning disable CA2208 // These messages are perfectly descriptive. You're drunk, CA2208, go home.
+
 		// TODO: This means XunitTestFramework can never run test cases without a class & method
 		var testClass = testCase.TestClass?.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestClass.Class does not map to a Type object", nameof(testCase));
 		var testMethod = testCase.TestMethod?.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod.Method does not map to a MethodInfo object", nameof(testCase));
+
+#pragma warning restore CA2208
 
 		var parameters = testMethod.GetParameters();
 		var parameterTypes = new Type[parameters.Length];

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
@@ -62,7 +61,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 
 		IXunitTestCase testCase;
 
-		if (testMethod.Method.GetParameters().Any())
+		if (testMethod.Method.GetParameters().Count != 0)
 			testCase = ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
 		else if (testMethod.Method.IsGenericMethodDefinition)
 			testCase = ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to be generic.");

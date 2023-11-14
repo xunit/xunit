@@ -20,6 +20,7 @@ public static class SerializationHelper
 	internal static readonly _ITypeInfo TypeInfo_Object = Reflector.Wrap(typeof(object));
 	internal static readonly _ITypeInfo TypeInfo_Type = Reflector.Wrap(typeof(Type));
 
+	static readonly char[] colonSeparator = new[] { ':' };
 	static readonly Dictionary<TypeIndex, Func<string, object?>> deserializersByTypeIdx;
 	static readonly Dictionary<Type, bool> enumSignsByType;
 	static readonly Dictionary<TypeIndex, Func<object, _ITypeInfo, string>> serializersByTypeIdx;
@@ -181,7 +182,7 @@ public static class SerializationHelper
 	{
 		Guard.ArgumentNotNull(serializedValue);
 
-		var pieces = serializedValue.Split(new[] { ':' }, 2);
+		var pieces = serializedValue.Split(colonSeparator, 2);
 		var typeIdxText = pieces[0];
 		var isArray = false;
 		var isNullable = false;
@@ -233,7 +234,7 @@ public static class SerializationHelper
 		string serializedValue,
 		Func<Type, string, T?> converter)
 	{
-		var pieces = serializedValue.Split(new[] { ':' }, 2);
+		var pieces = serializedValue.Split(colonSeparator, 2);
 		if (pieces.Length == 1)
 			return default;
 

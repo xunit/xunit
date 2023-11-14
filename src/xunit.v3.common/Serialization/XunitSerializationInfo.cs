@@ -13,6 +13,7 @@ namespace Xunit.Sdk;
 /// </summary>
 public class XunitSerializationInfo : IXunitSerializationInfo
 {
+	static readonly char[] colonSeparator = new[] { ':' };
 	readonly Dictionary<string, string> data = new();
 
 	/// <summary>
@@ -49,7 +50,7 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 
 		foreach (var element in decodedValue.Split('\n'))
 		{
-			var pieces = element.Split(new[] { ':' }, 2);
+			var pieces = element.Split(colonSeparator, 2);
 			if (pieces.Length != 2)
 				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Serialized piece '{0}' is malformed. Full serialization:{1}{2}", element, Environment.NewLine, decodedValue), nameof(serializedValue));
 
