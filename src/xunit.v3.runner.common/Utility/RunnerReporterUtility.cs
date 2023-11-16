@@ -13,19 +13,39 @@ namespace Xunit.Runner.Common;
 public static class RunnerReporterUtility
 {
 	/// <summary>
+	/// Gets the list of reporters that are embedded inside xUnit.net itself. Does not include <see cref="DefaultRunnerReporter"/>.
+	/// </summary>
+	public static IReadOnlyList<IRunnerReporter> EmbeddedReporters { get; } = new List<IRunnerReporter>
+	{
+		new AppVeyorReporter(),
+		new JsonReporter(),
+		new QuietReporter(),
+		new TeamCityReporter(),
+		new VerboseReporter(),
+		new VstsReporter(),
+	};
+
+	/// <summary>
 	/// Gets a list of runner reporters from DLLs in the given folder. The only DLLs that are searched are those
-	/// named "*reporters*.dll"
+	/// named "*reporters*.dll". The list only includes concrete (non-abstract) types that implement <see cref="IRunnerReporter"/>,
+	/// excluding any class decorated with <see cref="HiddenRunnerReporterAttribute"/>.
 	/// </summary>
 	/// <param name="folder">The folder to search for reporters in</param>
+	/// <param name="includeEmbeddedReporters">A flag to indicate if the embedded reporters should be included. This
+	/// is the list of reporters built into xUnit.net, except for <see cref="DefaultRunnerReporter"/>.</param>
 	/// <param name="messages">Messages that were generated during discovery</param>
 	/// <returns>List of available reporters</returns>
 	public static List<IRunnerReporter> GetAvailableRunnerReporters(
 		string folder,
+		bool includeEmbeddedReporters,
 		out List<string> messages)
 	{
 		var result = new List<IRunnerReporter>();
 		messages = new List<string>();
 		string[] dllFiles;
+
+		if (includeEmbeddedReporters)
+			result.AddRange(EmbeddedReporters);
 
 		try
 		{

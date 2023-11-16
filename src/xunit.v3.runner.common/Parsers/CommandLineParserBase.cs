@@ -198,7 +198,7 @@ public abstract class CommandLineParserBase
 		if (string.IsNullOrWhiteSpace(reporterFolder))
 			return new List<IRunnerReporter>();
 
-		var result = RunnerReporterUtility.GetAvailableRunnerReporters(reporterFolder, out var messages);
+		var result = RunnerReporterUtility.GetAvailableRunnerReporters(reporterFolder, includeEmbeddedReporters: true, out var messages);
 
 		if (messages.Count != 0)
 		{

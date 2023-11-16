@@ -437,7 +437,7 @@ public class xunit : MSBuildTask, ICancelableTask
 		if (runnerPath is null)
 			return new List<IRunnerReporter>();
 
-		var result = RunnerReporterUtility.GetAvailableRunnerReporters(runnerPath, out var messages);
+		var result = RunnerReporterUtility.GetAvailableRunnerReporters(runnerPath, includeEmbeddedReporters: true, out var messages);
 
 		if (messages.Count != 0)
 			lock (logLock)
