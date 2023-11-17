@@ -20,6 +20,7 @@ public static class RunnerReporterUtility
 		new AppVeyorReporter(),
 		new JsonReporter(),
 		new QuietReporter(),
+		new SilentReporter(),
 		new TeamCityReporter(),
 		new VerboseReporter(),
 		new VstsReporter(),
