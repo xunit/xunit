@@ -260,7 +260,7 @@ public class ArgumentFormatterTests
 	public class Enumerables
 	{
 		// Both tracked and untracked should be the same
-		public static TheoryData<IEnumerable?> Collections = new()
+		public static TheoryData<IEnumerable> Collections = new()
 		{
 			new object[] { 1, 2.3M, "Hello, world!" },
 			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker(),
@@ -288,7 +288,7 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
-		public static TheoryData<IEnumerable?> LongCollections = new()
+		public static TheoryData<IEnumerable> LongCollections = new()
 		{
 			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
 			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.AsTracker(),

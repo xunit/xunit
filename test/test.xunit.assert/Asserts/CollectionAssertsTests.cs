@@ -1099,6 +1099,45 @@ public class CollectionAssertsTests
 			}
 		}
 
+		public class CollectionsWithEquatable
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new[] { new EquatableObject { Char = 'a' } };
+				var actual = new[] { new EquatableObject { Char = 'a' } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new[] { new EquatableObject { Char = 'a' } };
+				var actual = new[] { new EquatableObject { Char = 'b' } };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"           ↓ (pos 0)" + Environment.NewLine +
+					"Expected: [EquatableObject { Char = 'a' }]" + Environment.NewLine +
+					"Actual:   [EquatableObject { Char = 'b' }]" + Environment.NewLine +
+					"           ↑ (pos 0)",
+					ex.Message
+				);
+			}
+
+			public class EquatableObject : IEquatable<EquatableObject>
+			{
+				public char Char { get; set; }
+
+				public bool Equals(EquatableObject? other) =>
+					other != null && other.Char == Char;
+			}
+		}
+
 		public class CollectionsWithFunc
 		{
 			[Fact]
@@ -1705,6 +1744,43 @@ public class CollectionAssertsTests
 
 				public int GetHashCode(int obj) =>
 					throw new NotImplementedException();
+			}
+		}
+
+		public class CollectionsWithEquatable
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new[] { new EquatableObject { Char = 'a' } };
+				var actual = new[] { new EquatableObject { Char = 'a' } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [EquatableObject { Char = 'a' }]" + Environment.NewLine +
+					"Actual:       [EquatableObject { Char = 'a' }]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new[] { new EquatableObject { Char = 'a' } };
+				var actual = new[] { new EquatableObject { Char = 'b' } };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			public class EquatableObject : IEquatable<EquatableObject>
+			{
+				public char Char { get; set; }
+
+				public bool Equals(EquatableObject? other) =>
+					other != null && other.Char == Char;
 			}
 		}
 

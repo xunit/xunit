@@ -1430,6 +1430,40 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+			[Fact]
+			public void EquatableValues_Equal()
+			{
+				var expected = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'a' });
+				var actual = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'a' });
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void EquatableValues_NotEqual()
+			{
+				var expected = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'a' });
+				var actual = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'b' });
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: [\"Key1\"] = EquatableObject { Char = 'a' }" + Environment.NewLine +
+					"Actual:   [\"Key1\"] = EquatableObject { Char = 'b' }",
+					ex.Message
+				);
+			}
+
+			public class EquatableObject : IEquatable<EquatableObject>
+			{
+				public char Char { get; set; }
+
+				public bool Equals(EquatableObject? other) =>
+					other != null && other.Char == Char;
+			}
 		}
 
 		public class DoubleEnumerationPrevention
@@ -3329,6 +3363,40 @@ public class EqualityAssertsTests
 				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value2a" });
 
 				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void EquatableValues_Equal()
+			{
+				var expected = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'a' });
+				var actual = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'a' });
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not [\"Key1\"] = EquatableObject { Char = 'a' }" + Environment.NewLine +
+					"Actual:       [\"Key1\"] = EquatableObject { Char = 'a' }",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void EquatableValues_NotEqual()
+			{
+				var expected = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'a' });
+				var actual = new KeyValuePair<string, EquatableObject>("Key1", new() { Char = 'b' });
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			public class EquatableObject : IEquatable<EquatableObject>
+			{
+				public char Char { get; set; }
+
+				public bool Equals(EquatableObject? other) =>
+					other != null && other.Char == Char;
 			}
 		}
 
