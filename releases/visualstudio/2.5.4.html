@@ -1,0 +1,48 @@
+---
+layout: default
+title: Release Notes for November 18, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: November 18, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.6.2 (<a href="/releases/v2/2.6.2">release notes</a>)</li>
+  <li>xUnit.net Analyzers 1.6.0  (<a href="/releases/analyzers/1.6.0">release notes</a>)</li>
+  <li><strong>xUnit.net Visual Studio adapter 2.5.4</strong></li>
+</ul>
+
+<p>It's been 5 weeks since the release of <a href="2.5.3">2.5.3 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.3 to 2.5.4.</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    We have added a new <code>SilentReporter</code>, which can be selected with a <code>RunnerSwitch</code> value of
+    <code>silent</code> via <a href="/docs/runsettings">RunSettings</a>. This reporter is designed to block all messages
+    (other than the copyright banner/logo). This was requested for <code>xunit.runner.visualstudio</code> because of the
+    habit of <code>dotnet test</code> to output some notices twice (once from our adapter, and once from VSTest). Note
+    that this is not the default, so if you are among the users who are bothered by the double reporting in VSTest, this
+    reporter is for you (and must be enabled via RunSettings).
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/113">xunit/visualstudio.xunit#113</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We were ignoring <a href="/docs/configuration-files#stopOnFail"><code>stopOnFail</code></a>
+    when synchronous message reporting was requested. The most common trigger for this situation was disabling
+    test collection parallelization while using <code>xunit.runner.visualstudio</code>. (This is actually a core
+    framework bug whose fix is part of <a href="/releases/v2/2.6.2">2.6.2</a>.)
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/392">xunit/visualstudio.xunit#392</a>
+  </li>
+</ul>

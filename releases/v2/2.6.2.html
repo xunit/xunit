@@ -1,0 +1,84 @@
+---
+layout: default
+title: Release Notes for November 18, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: November 18, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.6.2</strong></li>
+  <li>xUnit.net Analyzers 1.6.0  (<a href="/releases/analyzers/1.6.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.4 (<a href="/releases/visualstudio/2.5.4">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 weeks since the release of <a href="2.6.1">2.6.1 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.6.1 to 2.6.2.</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> We were ignoring <a href="/docs/configuration-files#stopOnFail"><code>stopOnFail</code></a>
+    when synchronous message reporting was requested. The most common trigger for this situation was disabling
+    test collection parallelization while using <code>xunit.runner.visualstudio</code>.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/392">xunit/visualstudio.xunit#392</a>
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> We inadvertently broke some usages of <code>Assert.Equal</code> where you
+    were comparing collections of items which had custom comparison logic (i.e., by implementing
+    <code>IEquatable&lt;T&gt;</code>). While this was triggered by some performance optimization that
+    happened in the previous release, it turns out there was a larger issue related to how inner
+    comparers were used during collections &amp; complex object comparisons. The change here was
+    <a href="https://github.com/xunit/assert.xunit/commit/455865ac846c0812e80ffb1c4a46b9d5d35ff828">somewhat
+    substantial</a> in that it changes the way default inner comparers are created, and as such
+    may have some unforeseen secondary effects. If you find items that were previous passing suddenly
+    start failing, please open issues so we can evaluate the comparison paths.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2821">xunit/xunit#2821</a>
+  </li>
+</ul>
+
+<h3>Runner utility</h3>
+<ul>
+  <li>
+    <p>
+      We have updated the "starting" banners slightly when you have diagnostic messages enabled.
+      We are now reporting the status of <a href="/docs/configuration-files#stopOnFail"><code>stopOnFail</code></a>
+      and have made reporting of <a href="/docs/configuration-files#maxParallelThreads"><code>maxParallelThreads</code></a>
+      more consistent with usage: when <a href="/docs/configuration-files#parallelTestCollections"><code>parallelTestCollections</code></a>
+      is turned off, maximum parallel threads is ignored and thus now not shown; when it is reported now (because
+      test collection parallelization is on), it is reported as a sub-value of that fact. To illustrate, here are
+      a couple examples of old vs. new:
+    </p>
+    <pre>Starting: Assembly1 (parallel test collections = on, max threads = 42)
+Starting: Assembly2 (parallel test collections = off, max threads = 42)</pre>
+    <pre>Starting: Assembly1 (parallel test collections = on [42 threads], stop on fail = off)
+Starting: Assembly2 (parallel test collections = off, stop on fail = on)</pre>
+  </li>
+  <li>
+    We have added a new <code>SilentReporter</code> (with <code>-silent</code> switch for the console runner,
+    <code>Reporter=&quot;silent&quot;</code> for the MSBuild runner, and <code>RunnerSwitch</code> value of
+    <code>silent</code> for <code>xunit.runner.visualstudio</code> via <a href="/docs/runsettings">RunSettings</a>).
+    This reporter is designed to block all messages (other than the copyright banner/logo). While not particularly
+    useful for the console &amp; MSBuild runners, it was requested for <code>xunit.runner.visualstudio</code>
+    because of the habit of <code>dotnet test</code> to output some notices twice (once from our adapter,
+    and once from VSTest). Note that this is not the default, so if you are among the users who are bothered
+    by the double reporting in VSTest, this reporter is for you.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/113">xunit/visualstudio.xunit#113</a>
+  </li>
+</ul>
