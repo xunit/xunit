@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -9,6 +10,7 @@ namespace Xunit
     /// A delegating implementation of <see cref="IExecutionSink"/> which converts all
     /// skipped tests into failures before passing them on to the inner sink.
     /// </summary>
+    [Obsolete("This class has been obsoleted; please use ExecutionSink instead")]
     public class DelegatingFailSkipSink : LongLivedMarshalByRefObject, IExecutionSink
     {
         readonly IExecutionSink innerSink;

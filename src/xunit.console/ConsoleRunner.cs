@@ -416,13 +416,16 @@ namespace Xunit.ConsoleClient
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
-                        if (assemblyElement != null)
-                            resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-                        if (longRunningSeconds > 0)
-                            resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
-                        if (failSkips)
-                            resultsSink = new DelegatingFailSkipSink(resultsSink);
+                        var resultsOptions = new ExecutionSinkOptions
+                        {
+                            AssemblyElement = assemblyElement,
+                            CancelThunk = () => cancel,
+                            FinishedCallback = summary => completionMessages.TryAdd(assemblyDisplayName, summary),
+                            DiagnosticMessageSink = diagnosticMessageSink,
+                            FailSkips = failSkips,
+                            LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+                        };
+                        var resultsSink = new ExecutionSink(reporterMessageHandler, resultsOptions);
 
                         controller.RunTests(filteredTestCases, resultsSink, executionOptions);
                         resultsSink.Finished.WaitOne();

@@ -16,6 +16,7 @@ namespace Xunit
     /// creating the xUnit.net v2 XML output from the execution test results. This class is
     /// not available in .NET 3.5 because it relies upon XML LINQ.
     /// </summary>
+    [Obsolete("This class has been obsoleted; please use ExecutionSink instead")]
     public class DelegatingXmlCreationSink : LongLivedMarshalByRefObject, IExecutionSink
     {
         readonly XElement assemblyElement;

@@ -12,6 +12,7 @@ namespace Xunit
     /// A delegating implementation of <see cref="IExecutionSink"/> which detects and reports when
     /// tests have become long-running (during otherwise idle time).
     /// </summary>
+    [Obsolete("This class has been obsoleted; please use ExecutionSink instead")]
     public class DelegatingLongRunningTestDetectionSink : LongLivedMarshalByRefObject, IExecutionSink
     {
         static readonly string[] DiagnosticMessageTypes = { typeof(IDiagnosticMessage).FullName };
