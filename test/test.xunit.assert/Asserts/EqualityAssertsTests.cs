@@ -1117,6 +1117,32 @@ public class EqualityAssertsTests
 				assertFailure(() => Assert.Equal(expected, (IDictionary)actual));
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 			}
+
+			[Fact]
+			public void NullValue_Equal()
+			{
+				var expected = new Dictionary<string, int?> { { "two", null } };
+				var actual = new Dictionary<string, int?> { { "two", null } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void NullValue_NotEqual()
+			{
+				var expected = new Dictionary<string, int?> { { "two", null } };
+				var actual = new Dictionary<string, int?> { { "two", 1 } };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"two\"] = null]" + Environment.NewLine +
+					"Actual:   [[\"two\"] = 1]",
+					ex.Message
+				);
+			}
 		}
 
 		public class HashSets
@@ -3051,6 +3077,32 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, (IDictionary)actual);
 				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void NullValue_Equal()
+			{
+				var expected = new Dictionary<string, int?> { { "two", null } };
+				var actual = new Dictionary<string, int?> { { "two", null } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+					"Expected: Not [[\"two\"] = null]" + Environment.NewLine +
+					"Actual:       [[\"two\"] = null]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NullValue_NotEqual()
+			{
+				var expected = new Dictionary<string, int?> { { "two", null } };
+				var actual = new Dictionary<string, int?> { { "two", 1 } };
+
+				Assert.NotEqual(expected, actual);
 			}
 		}
 
