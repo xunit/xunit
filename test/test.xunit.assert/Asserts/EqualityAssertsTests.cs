@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -1045,6 +1046,53 @@ public class EqualityAssertsTests
 
 				public int GetHashCode([DisallowNull] IEnumerable obj) =>
 					throw new NotImplementedException();
+			}
+
+			[Fact]
+			public void CollectionWithIEquatable_Equal()
+			{
+				var expected = new EnumerableEquatable<int> { 42, 2112 };
+				var actual = new EnumerableEquatable<int> { 2112, 42 };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void CollectionWithIEquatable_NotEqual()
+			{
+				var expected = new EnumerableEquatable<int> { 42, 2112 };
+				var actual = new EnumerableEquatable<int> { 2112, 2600 };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				// No pointers because it's relying on IEquatable<>
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"Expected: [42, 2112]" + Environment.NewLine +
+					"Actual:   [2112, 2600]",
+					ex.Message
+				);
+			}
+
+			public sealed class EnumerableEquatable<T> :
+				IEnumerable<T>, IEquatable<EnumerableEquatable<T>>
+			{
+				List<T> values = new();
+
+				public void Add(T value) => values.Add(value);
+
+				public bool Equals(EnumerableEquatable<T>? other)
+				{
+					if (other == null)
+						return false;
+
+					return !values.Except(other.values).Any() && !other.values.Except(values).Any();
+				}
+
+				public IEnumerator<T> GetEnumerator() => values.GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 			}
 		}
 
@@ -3006,6 +3054,52 @@ public class EqualityAssertsTests
 				actual.SetValue(42, 0);
 
 				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void CollectionWithIEquatable_Equal()
+			{
+				var expected = new EnumerableEquatable<int> { 42, 2112 };
+				var actual = new EnumerableEquatable<int> { 2112, 42 };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [42, 2112]" + Environment.NewLine +
+					"Actual:       [2112, 42]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void CollectionWithIEquatable_NotEqual()
+			{
+				var expected = new EnumerableEquatable<int> { 42, 2112 };
+				var actual = new EnumerableEquatable<int> { 2112, 2600 };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			public sealed class EnumerableEquatable<T> :
+				IEnumerable<T>, IEquatable<EnumerableEquatable<T>>
+			{
+				List<T> values = new();
+
+				public void Add(T value) => values.Add(value);
+
+				public bool Equals(EnumerableEquatable<T>? other)
+				{
+					if (other == null)
+						return false;
+
+					return !values.Except(other.values).Any() && !other.values.Except(values).Any();
+				}
+
+				public IEnumerator<T> GetEnumerator() => values.GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 			}
 		}
 
