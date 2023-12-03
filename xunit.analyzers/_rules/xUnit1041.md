@@ -21,6 +21,8 @@ There are three fixture sources:
 - `ICollectionFixture<>` can decorate the collection definition class
 - `AssemblyFixtureAttribute` can decorate the assembly (for v3 only)
 
+For more information on fixtures and shared context, please see [the documentation](/docs/shared-context).
+
 _Note: collection definition classes must be defined in the same assembly as the test. You may get this
 analyzer on your source code if you've mistakenly put your collection definition class into the wrong
 assembly._

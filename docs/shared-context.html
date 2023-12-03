@@ -26,6 +26,10 @@ breadcrumb: Documentation
     <a href="#collection-fixture">Collection Fixtures</a> (shared object
     instances across multiple test classes)
   </li>
+  <li>
+    <a href="#assembly-fixture">Assembly Fixtures</a> (shared object instances
+    across the entire test assembly)
+  </li>
 </ul>
 
 <h2 id="constructor">Constructor and Dispose</h2>
@@ -357,6 +361,80 @@ public class DatabaseTestClass2
   <strong>Important note:</strong> Fixtures can be shared across assemblies, but collection definitions <strong>must</strong> be in the
   same assembly as the test that uses them.
 </em></p>
+
+<h2 id="assembly-fixture">Assembly Fixtures</h2>
+
+<p><em>
+  <strong>When to use:</strong> when you want to create a single test context
+  and share it among all the tests in your test assembly.
+</em></p>
+
+<p>
+  Newly introduced in v3, you can now share a single instance of a fixture among all the test
+  classes in your test assembly.
+</p>
+
+<p>Here is the example from collection fixtures, but adapted to be used as an assembly fixture:</p>
+
+{% highlight C# %}
+[assembly: AssemblyFixture(typeof(DatabaseFixture))]
+
+public class DatabaseFixture : IDisposable
+{
+    public DatabaseFixture()
+    {
+        Db = new SqlConnection("MyConnectionString");
+
+        // ... initialize data in the test database ...
+    }
+
+    public void Dispose()
+    {
+        // ... clean up test data from the database ...
+    }
+
+    public SqlConnection Db { get; private set; }
+}
+
+public class DatabaseTestClass1
+{
+    DatabaseFixture fixture;
+
+    public DatabaseTestClass1(DatabaseFixture fixture)
+    {
+        this.fixture = fixture;
+    }
+
+    // ...
+  }
+
+public class DatabaseTestClass2
+{
+  DatabaseFixture fixture;
+
+  public DatabaseTestClass2(DatabaseFixture fixture)
+  {
+      this.fixture = fixture;
+  }
+
+  // ...
+}
+{% endhighlight %}
+
+<p>
+  Instance of assembly fixtures are created once before any test in your assembly is run,
+  and cleaned up after all tests have finished running. Any test class may gain access to the
+  assembly fixture simply by adding it as a constructor argument.
+</p>
+
+<p>
+  Note that unlike collection fixtures, there is no change in parallelization when using an
+  assembly fixture. This means fixtures used as assembly fixtures may be used from multiple tests
+  simultaneously, and must be designed for with this parallelism requirement in mind. Alternatively,
+  you could disable all parallelism in your test assembly by setting the
+  <a href="/docs/configuration-files#parallelizeTestCollections"><code>parallelizeTestCollections</code></a>
+  configuration setting to <code>false</code>.
+</p>
 
 <section class="related-topics">Related topics:</section>
 <ul>
