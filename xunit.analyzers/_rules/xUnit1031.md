@@ -57,3 +57,23 @@ public class xUnit1031
     }
 }
 ```
+
+## Disabled parallelization
+
+If you have disabled parallelization for the entire test assembly, you can disable this warning as it no longer
+applies to your project.
+
+You can disable it via a global attribute:
+
+```csharp
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("xUnit", "xUnit1031", Justification = "Parallelization is disabled")]
+```
+
+Or you can disable it by adding the following to a project-level `.editorconfig` file:
+
+```ini
+[*.cs]
+dotnet_diagnostic.xUnit1031.severity = none
+```
