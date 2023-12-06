@@ -1,0 +1,116 @@
+---
+layout: default
+title: Equality with hash sets vs. linear containers
+breadcrumb: Documentation
+---
+
+<h1>Equality with hash sets vs. linear containers</h1>
+
+<p>
+  When calling an assertion like <code>Assert.Equal</code> with a collection, as of the writing
+  of this documentation you have three overloads you can use:
+</p>
+
+<ol>
+  <li><code>Assert.Equal&lt;T&gt;(IEnumerable&lt;T&gt; expected, IEnumerable&lt;T&gt; actual)</code></li>
+  <li><code>Assert.Equal&lt;T&gt;(IEnumerable&lt;T&gt; expected, IEnumerable&lt;T&gt; actual, IEqualityComparer&lt;T&gt; comparer)</code></li>
+  <li><code>Assert.Equal&lt;T&gt;(IEnumerable&lt;T&gt; expected, IEnumerable&lt;T&gt; actual, Func&lt;T, T, bool&gt; comparer)</code></li>
+</ol>
+
+<p>
+  Overload #1 uses default comparisons, and the other two overloads allow you to override the comparisons
+  used when comparing items in the containers.
+</p>
+
+<p>
+  For linear containers (for example, arrays or <code>List&lt;T&gt;</code>) the only part of the equality comparison
+  that's used in
+  <a href="https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.iequalitycomparer-1"><code>IEqualityComparer&lt;T&gt;</code></a>
+  is the <code>Equals</code> function. Linear containers are walked in order, and each item is compared against the
+  corresponding item in the same slot in the other container.
+</p>
+
+<p>
+  Hash sets don't behave like linear containers. They don't have an order, so the idea of walking the container
+  "in order" and comparing items to the item in the same position in the other container doesn't make sense.
+  They also generally have a notion of eliminating duplicate items in the container, so they are often used
+  to create a set of unique items. Comparing two hash sets for equality, then, is done using the built-in
+  <a href="https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.setequals">SetEquals</a>
+  function on <code>HashSet</code>.
+</p>
+
+<p>
+  The important difference between the way these two types of equality works is how they utilize the equality
+  comparer. Hash sets do a two-stage version of item equality: first, they call <code>GetHashCode</code> on
+  the two items in question and if the hash code isn't equal, then the items aren't equal. Since hash sets don't
+  store duplicate items, this is also how the container decides whether to add a new item or not. Only if/when
+  the two <code>GetHashCode</code> calls return the same value is a secondary call to <code>Equals</code> done
+  on the two items. Hash codes aren't guaranteed to be unique (that is, two unequal values might have the same
+  hash code), which is why the secondary call to <code>Equals</code> is necessary.
+</p>
+
+<p>
+  Hash sets perform this two-stage equality because of the way their storage is designed. In order to create
+  high performance lookups, the container creates buckets based on the hash code of the item, and places all
+  items with the same hash code into the same bucket. Whether you're trying to add an item or determine if
+  an item exists in the hash set, the first thing it needs is the hash code so it can locate the bucket where
+  the item should live. This design allows hash sets to perform highly optimized lookups, because given a
+  hash code, finding an item only means searching linearly inside the appropriate bucket. With an ideal hashing
+  function, that means each bucket will end up with 1 (or very few) items in it, so that searching becomes
+  more like an <a href="https://en.wikipedia.org/wiki/Big_O_notation"><code>O(1)</code></a> operation rather
+  than the <code>O(n)</code> search time that's more commonly associated with linear containers.
+</p>
+
+<p>
+  All of this means that the third overload (the one that takes a comparer function) is never appropriate for
+  hash sets. Custom equality for hash sets requires both the item comparison (which translates to the `Equals`
+  implementation) and the hash code. If you try to write a custom equality function but don't write a custom
+  hashing function as well, your equality function may never end up being called.
+</p>
+
+<p>
+  One question that comes up is: if this is the case, when you create a custom implementation wrapped around
+  the comparer function, why not just make the custom hashing function return a constant value like <code>0</code>?
+  The answer is performance, and that also relates to some extra code we had to write in order to be able to
+  call <code>SetEquals</code> in the first place.
+</p>
+
+<p>
+  Unfortunately, <code>SetEquals</code> does not have an overload that takes an instance of <code>IEqualityComparer&lt;T&gt;</code>.
+  The only way to get a custom comparison is to create the hash set with that comparison function in the first
+  place. This makes sense when you consider that equality is an important function to the operation of the hash set
+  itself, because it's used to categorize items into the appropriate bucket for storage and determine when identical
+  items are found (to prevent duplication). Passing a <em>different</em> equality system to <code>SetEquals</code>
+  would be broken, because it changes the way items are bucketed and identified, so you would never be able
+  to find the items in the container.
+</p>
+
+<p>
+  Because of this design, when you provide a custom comparison, we have to
+  <a href="https://github.com/xunit/assert.xunit/blob/6e0a7cd70648f8bd1a94e08a827aae1297d5a775/Sdk/CollectionTracker.cs#L308-L312">create
+  new hash sets with your given values</a> so that we can pass the custom comparison into the hash set constructor.
+  That means we're creating a second copy of each hash set, and relying on the custom comparison system to determine
+  which items end up in the new container. If we were to always return a constant hash code, then these new hash
+  sets would be "unbalanced"; that is, all the items would be placed into a single bucket, and the search performance
+  degrades back to <code>O(n)</code> for a single lookup. Since container comparison would mean one lookup per
+  item in the expected container, you actually end up with <code>O(n*m)</code> (exponential) performance for the
+  comparison. It doesn't take overly large containers before exponential performance becomes a serious problem.
+</p>
+
+<p>
+  What this means is that if you are comparing two hash sets with a custom comparison function, you must never call
+  the third overload, because it will not perform the operation you want. You must provide a full implementation of
+  <code>IEqualityComparer&lt;T&gt;</code>, including a hashing function that matches your equality function such
+  that two equal items have the same hash code, but still ideally yield hash code values that provide significant
+  enough uniqueness so that your lookups inside the hash set lean more towards <code>O(1)</code> than
+  <code>O(n)</code>. Even better would be for you to create the hash sets with the custom comparer in the first
+  place, so that we aren't forced to recreate the hash sets on your behalf when doing the comparison (which
+  obviously adds time & memory pressure to do the comparison).
+</p>
+
+<p>
+  Alternatively, if you wish to treat a hash set like a linear container, you can use the Linq extension function
+  <a href="https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.orderby"><code>OrderBy</code></a>
+  to create a stable order for the items in the hash set, and then pass the sorted collections to the assertion
+  function with your custom comparer.
+</p>
