@@ -1308,6 +1308,21 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+			[Fact]
+			public void ComparerFunc_Throws()
+			{
+				var expected = new HashSet<string> { "bar" };
+				var actual = new HashSet<string> { "baz" };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, (string l, string r) => true));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: During comparison of two collections, GetHashCode was called, but only a comparison function was provided. This typically indicates trying to compare two sets with an item comparison function, which is not supported. For more information, see https://xunit.net/docs/hash-sets-vs-linear-containers",
+					ex.Message
+				);
+			}
 		}
 
 		public class Sets
@@ -1474,6 +1489,21 @@ public class EqualityAssertsTests
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+			}
+
+			[Fact]
+			public void ComparerFunc_Throws()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new HashSet<string> { "baz" };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual, (string l, string r) => true));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: During comparison of two collections, GetHashCode was called, but only a comparison function was provided. This typically indicates trying to compare two sets with an item comparison function, which is not supported. For more information, see https://xunit.net/docs/hash-sets-vs-linear-containers",
+					ex.Message
+				);
 			}
 		}
 
@@ -3285,6 +3315,21 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+			[Fact]
+			public void ComparerFunc_Throws()
+			{
+				var expected = new HashSet<string> { "bar" };
+				var actual = new HashSet<string> { "baz" };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (string l, string r) => false));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: During comparison of two collections, GetHashCode was called, but only a comparison function was provided. This typically indicates trying to compare two sets with an item comparison function, which is not supported. For more information, see https://xunit.net/docs/hash-sets-vs-linear-containers",
+					ex.Message
+				);
+			}
 		}
 
 		public class Sets
@@ -3438,6 +3483,21 @@ public class EqualityAssertsTests
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
 				Assert.NotEqual(expected, (object)actual);
+			}
+
+			[Fact]
+			public void ComparerFunc_Throws()
+			{
+				var expected = new NonGenericSet { "bar" };
+				var actual = new HashSet<string> { "baz" };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (string l, string r) => false));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: During comparison of two collections, GetHashCode was called, but only a comparison function was provided. This typically indicates trying to compare two sets with an item comparison function, which is not supported. For more information, see https://xunit.net/docs/hash-sets-vs-linear-containers",
+					ex.Message
+				);
 			}
 		}
 
