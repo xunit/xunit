@@ -57,3 +57,17 @@ public class xUnit1031
     }
 }
 ```
+
+
+
+## Disabled parallelization
+
+When parallelization is intentionally disabled, this warning is unwarranted.
+
+In that case it can be explicitly suppressed in the project.
+
+```C#
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("xUnit", "xUnit1031", Justification = "Parallelization is disabled")]
+```
