@@ -1,0 +1,74 @@
+---
+layout: default
+title: Release Notes for December 8, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: December 8, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.6.3</strong></li>
+  <li>xUnit.net Analyzers 1.7.0  (<a href="/releases/analyzers/1.7.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.5 (<a href="/releases/visualstudio/2.5.5">release notes</a>)</li>
+</ul>
+
+<p>It's been 3 weeks since the release of <a href="2.6.2">2.6.2 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.6.2 to 2.6.3.</p>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    Attempts to call equality comparison (<code>Assert.Equal</code> and <code>Assert.NotEqual</code>)
+    with the overload that takes a comparison function, while comparing two sets (that is, any
+    collection implementing <code>ISet&lt;T&gt;</code> or <code>IReadOnlySet&lt;T&gt;</code>) will
+    now throw. Previously the behavior was undefined. The reasoning behind this inspired a new
+    documentation page (<a href="/docs/hash-sets-vs-linear-containers">"Equality with hash sets vs.
+    linear containers"</a>), which describes the reasoning behind this change.
+  </li>
+  <li>
+    The order of precedence for equality assertion now places implementation of
+    <code>IEquatable&lt;T&gt;</code> higher than attempting to treat items as containers.
+    This allows developers who want to customize container comparison to implement
+    this interface. Note that all other comparison interfaces remain lower priority,
+    so this is the only supported interface for customized container comparison.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2828">xunit/xunit#2828</a>
+  </li>
+  <li>
+    Overloads of <code>Assert.Contains</code> and <code>Assert.DoesNotContain</code> for
+    <code>SortedSet&lt;T&gt;</code> and <code>ImmutableSortedSet&lt;T&gt;</code> have been
+    added, to help deal with compiler ambiguity.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2811">xunit/xunit#2811</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>null</code> values in dictionaries weren't
+    being properly compared.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2824">xunit/xunit#2824</a>
+  </li>
+</ul>
+
+<h3>Runner utility</h3>
+<ul>
+  <li>
+    Several "delegating sink" classes were deprecated, and combined into a single new class
+    (<a href="https://github.com/xunit/xunit/blob/v2/src/xunit.runner.utility/Sinks/ExecutionSink.cs"><code>ExecutionSink</code></a>)
+    which performs all the duties of the previously separate classes. These classes already had
+    strong ordering dependencies on one another, and the current implementation of those classes
+    were causing an issue where sometimes XML output was missing, due to a race condition. For
+    an example of the changes to use the new class, please see
+    <a href="https://github.com/xunit/visualstudio.xunit/commit/56db5de6cece6ca1341664ceece0a1e186dceca8">this
+    commit</a> which updates the Visual Studio adapter to use the new class.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2090">xunit/xunit#2090</a>
+  </li>
+</ul>

@@ -1,0 +1,101 @@
+---
+layout: default
+title: Release Notes for December 8, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: December 8, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.6.3 (<a href="/releases/v2/2.6.3">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.7.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.5.5 (<a href="/releases/visualstudio/2.5.5">release notes</a>)</li>
+</ul>
+
+<p>It's been 3 week since the release of <a href="1.6.0">1.6.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<p>
+  <strong>Important note:</strong> The minimum version for the analyzers is now Visual Studio 2022
+  17.2, as version 17.0 is no longer supported by Microsoft. This aligns with version Roslyn 4.2.
+  Notably, the latest version of C# that's supported in Roslyn 4.2 is C# 10 (with some support for
+  features that were experimental and ended up in C# 11), so some language features beyond C# 10
+  may cause false positives in analyzers, as well as not picking up any bug fixes in Roslyn since
+  this release.
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.6.0 to 1.7.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issues with <a href="/xunit.analyzers/rules/xUnit1010">xUnit1010</a>,
+    <a href="/xunit.analyzers/rules/xUnit1011">xUnit1011</a>, and
+    <a href="/xunit.analyzers/rules/xUnit1012">xUnit1012</a> that might cause a yellow-bar in Visual
+    Studio showing an <code>ArgumentOutOfRangeException</code> from <code>InlineDataMustMatchTheoryParameters</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2826">xunit/xunit#2823</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed two issues with <a href="/xunit.analyzers/rules/xUnit1035">xUnit1035</a>,
+    <a href="/xunit.analyzers/rules/xUnit1036">xUnit1036</a>, and
+    <a href="/xunit.analyzers/rules/xUnit1036">xUnit1039</a> that was causing false positives with
+    some usages of arrays when passing to a <code>params</code> array in the test method.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2826">xunit/xunit#2826</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2827">xunit/xunit#2827</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit1041">xUnit1041</a> which verifies that any fixture arguments
+    in the constructor of your test class have an appropriate fixture source. This can also highlight an
+    issue where a developer places a test collection definition in the wrong assembly, as this can be
+    difficult to identify.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2311">xunit/xunit#2311</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit1042">xUnit1042</a> which suggests to developers that any
+    member-based data source could use
+    <a href="https://github.com/xunit/xunit/blob/v2/src/xunit.core/TheoryData.cs"><code>TheoryData&lt;&gt;</code></a>
+    to get type-safe compiler support for their data, as well as being able to take advantage of
+    several of the new <code>TheoryData</code>-related analyzers that were added in 1.6.0.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1244">xunit/xunit#1244</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with the fixer for <a href="/xunit.analyzers/rules/xUnit2023">xUnit2023</a>
+    that caused a yellow-bar exception in Visual Studio.
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit2024">xUnit2024</a> which detects some usage of
+    <code>Assert.True</code> or <code>Assert.False</code> with equality statements using constant
+    values of strings, integral values, floating point values, decimal values, or enum values.
+    A fixer is available that will convert to <code>Assert.Equal</code> or <code>Assert.NotEqual</code>
+    as appropriate.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1503">xunit/xunit#1503</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit2025">xUnit2025</a> which detects some usage of
+    <code>Assert.True</code> or <code>Assert.False</code> with equality statements that compare
+    against literal <code>true</code> or <code>false</code> values. A fixer is available that will
+    simplify the expression (and swap to the opposite assertion function, if needed).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1503">xunit/xunit#1503</a>
+  </li>
+</ul>
+
+<!--
+  <li>
+    <a href="/xunit.analyzers/rules/xUnit">xUnit</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/">xunit/xunit#</a>
+  </li>
+-->
