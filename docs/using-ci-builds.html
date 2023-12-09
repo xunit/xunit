@@ -7,10 +7,29 @@ breadcrumb: Documentation
 <h1>Using CI Builds</h1>
 
 <ul>
+  <li><a href="#safety">Is it safe to use CI builds?</a></li>
   <li><a href="#consume">How to consume CI builds</a></li>
   <li><a href="#newer">Can I use newer individual dependencies?</a></li>
   <li><a href="#older">Can I use older individual dependencies?</a></li>
 </ul>
+
+<h2 id="safety">Is it safe to use CI builds?</h2>
+
+<p>
+  In general, our pre-release builds and release builds have the same quality level. We do not have
+  a separate phase of "stabilizing" the code; each push to the source repository (and thus each CI
+  build) is intended to be RTW-level quality. On very rare occasions we will need to produce CI
+  builds that don't meet this bar, but that is extremely rare and usually very short lived. If we
+  recommend you try a CI build, it's because we believe it to be of RTW-level quality.
+</p>
+
+<p>
+  Does that mean they won't have bugs? No. But that's also true for RTW builds. 😄 Typically speaking,
+  if we're recommending you use a CI build, it's because it fixes a bug that you're affected by in
+  an RTW build.
+</p>
+
+<p>You should feel confident to use CI builds, especially ones that we recommend.</p>
 
 <h2 id="consume">How to consume CI builds</h2>
 
