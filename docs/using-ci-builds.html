@@ -6,6 +6,14 @@ breadcrumb: Documentation
 
 <h1>Using CI Builds</h1>
 
+<ul>
+  <li><a href="#consume">How to consume CI builds</a></li>
+  <li><a href="#newer">Can I use newer individual dependencies?</a></li>
+  <li><a href="#older">Can I use older individual dependencies?</a></li>
+</ul>
+
+<h2 id="consume">How to consume CI builds</h2>
+
 <p>
   The <a href="/#packages">packages table on the home page</a> lists the currently available builds.
   The column titled "Latest CI" indicates the version of the most recent build that was pushed
@@ -43,3 +51,83 @@ breadcrumb: Documentation
   has the highest priority. That means if the package is available from <code>nuget.org</code> with the version
   you requested, it will be sourced from there, even if the same version is available on a later package feed.
 </p>
+
+<h2 id="newer">Can I use newer individual dependencies?</h2>
+
+<p>
+  A common question people ask when a CI package is available is whether they can use that package, when it's
+  a dependency of the core <code>xunit</code> package.
+</p>
+
+<p>
+  If you look at the <a href="https://www.nuget.org/packages/xunit#dependencies-body-tab">dependencies</a> list
+  for <code>xunit</code>, you'll notice that both <code>xunit.assert</code> and <code>xunit.analyzers</code> are
+  listed with a <code>&gt;=</code> designation. This means that if you don't have an explicit reference to either
+  of those packages, you'll get the version shown on that page:
+</p>
+
+<p><img class="border" src="/images/xunit-dependencies.png" width="876" /></p>
+
+<p>
+  However, any version that is that <em>or newer</em> satisfies the requirement. So in this example, I could pull
+  in a newer <code>xunit.analyzers</code> reference simply by adding it with the version I want, like this:
+</p>
+
+{% highlight xml %}
+<ItemGroup>
+  <PackageReference Include="xunit" Version="2.6.3" />
+  <PackageReference Include="xunit.analyzers" Version="1.8.0-pre.2" />
+</ItemGroup>
+{% endhighlight %}
+
+<p>
+  This allows you to consume a CI build of just one dependency while leaving yourself on RTW versions of the
+  other packages. This is also not just limited to CI packages, because from time to time we will release newer
+  analyzer packages without an associated update to the core <code>xunit</code> package, and this would allow you
+  to pull in a newer RTW analyzer package.
+</p>
+
+<h2 id="older">Can I use older individual dependencies?</h2>
+
+<p>
+  This question occasionally comes up as well. Users will sometimes be affected by a bug in an existing release
+  and want to roll back, or may choose to stay with older functionality (temporarily or permanently) due to
+  breaking changes.
+</p>
+
+<p>
+  Using something older is possible, but not as simply. Since the dependencies are specified as <code>&gt;=</code>,
+  an older version would fail, like this:
+</p>
+
+<pre>
+error NU1605: Warning As Error: Detected package downgrade: xunit.analyzers from 1.7.0 to 1.6.0. Reference the package directly from the project to select a different version.
+error NU1605:  xunit 2.6.3 -> xunit.analyzers (>= 1.7.0)
+error NU1605:  xunit.analyzers (>= 1.6.0)
+</pre>
+
+<p>
+  The way to do this is to stop using the <code>xunit</code> package and instead specify all the dependencies
+  directly. So the correct way to this would be like this:
+</p>
+
+{% highlight xml %}
+<ItemGroup>
+  <PackageReference Include="xunit.core" Version="2.6.3" />
+  <PackageReference Include="xunit.analyzers" Version="1.6.0" />
+  <PackageReference Include="xunit.assert" Version="2.6.3" />
+</ItemGroup>
+{% endhighlight %}
+
+<p>
+  Here we've taken the older analyzers and are using them with the newer framework. We could even combine this
+  with an older assertion library as well:
+</p>
+
+{% highlight xml %}
+<ItemGroup>
+  <PackageReference Include="xunit.core" Version="2.6.3" />
+  <PackageReference Include="xunit.analyzers" Version="1.6.0" />
+  <PackageReference Include="xunit.assert" Version="2.4.1" />
+</ItemGroup>
+{% endhighlight %}
