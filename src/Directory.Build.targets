@@ -93,7 +93,7 @@
   </ItemGroup>
 
   <!-- Supplement Nerdbank.GitVersioning version calculations -->
-  <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
+  <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <!-- Local builds should have a '-dev' suffix on the build number -->
       <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
