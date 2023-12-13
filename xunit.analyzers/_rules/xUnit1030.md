@@ -7,14 +7,15 @@ severity: Warning
 
 ## Cause
 
-Developers should not call ConfigureAwait(false) against tasks in a test method, as this may cause parallelization issues
-like running too many tests in parallel.
+Developers who configure awaiting may cause parallelization issues, like running too many tests in parallel. There
+are two ways they could do this: by calling `ConfigureAwait(false)` or by calling the `ConfigureAwait()` overload that
+accepts `ConfigureAwaitOptions` without including `ConfigureAwaitOptions.ContinueOnCapturedContext`.
 
 ## Reason for rule
 
-Calling `ConfigureAwait` (with `false`, specifically) will cause any code after the awaited task to run on a thread
-pool thread, which can grow without limit. xUnit.net uses its own special thread pool to limit the number of tests
-which can actively run in parallel.
+Calling `ConfigureAwait` (with `false`, or without `ConfigureAwaitOptions.ContinueOnCapturedContext`) will cause any code
+after the awaited task to run on a thread pool thread, which can grow without limit. xUnit.net uses its own special thread
+pool to limit the number of tests which can actively run in parallel.
 
 This only affects test methods marked with `[Fact]` or `[Theory]`. It does not apply to any third party test methods
 or test any non-test methods.
@@ -31,7 +32,8 @@ projects**_, especially when feeling any of the friction involved with this.
 
 ## How to fix violations
 
-To fix a violation of this rule, remove the call to `ConfigureAwait` or use a `true` value.
+To fix a violation of this rule, remove the call to `ConfigureAwait`, use a `true` value, or use a `ConfigureAwaitOptions`
+value that includes `ConfigureAwaitOptions.ContinueOnCapturedContext`.
 
 ## Examples
 
@@ -47,6 +49,24 @@ public class xUnit1030
     public async Task TestMethod()
     {
         await Task.Delay(1).ConfigureAwait(false);
+
+        // ...code running on thread pool thread...
+    }
+}
+```
+
+#### .NET 8 or later
+
+```csharp
+using System.Threading.Tasks;
+using Xunit;
+
+public class xUnit1030
+{
+    [Fact]
+    public async Task TestMethod()
+    {
+        await Task.Delay(1).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
 
         // ...code running on thread pool thread...
     }
@@ -81,6 +101,24 @@ public class xUnit1030
     public async Task TestMethod()
     {
         await Task.Delay(1).ConfigureAwait(true);
+
+        // ...code running on xUnit.net parallel execution thread pool thread...
+    }
+}
+```
+
+#### .NET 8 or later
+
+```csharp
+using System.Threading.Tasks;
+using Xunit;
+
+public class xUnit1030
+{
+    [Fact]
+    public async Task TestMethod()
+    {
+        await Task.Delay(1).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing | ConfigureAwaitOptions.ContinueOnCapturedContext);
 
         // ...code running on xUnit.net parallel execution thread pool thread...
     }
