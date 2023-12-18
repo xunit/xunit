@@ -32,6 +32,7 @@ namespace Xunit
         DateTime lastTestActivity;
         volatile int skipCount;
         ManualResetEvent stopEvent;
+        bool stopRequested;
 
 #if !NET35
         readonly XElement errorsElement;
@@ -226,8 +227,7 @@ namespace Xunit
             }
 #endif
 
-            Finished.Set();
-            stopEvent?.Set();
+            stopRequested = true;
         }
 
         void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
@@ -441,10 +441,20 @@ namespace Xunit
 #endif
 
             // Dispatch to the reporter handler
-            return
+            result =
                 innerSink.OnMessageWithTypes(message, messageTypes)
                 && result
                 && (options.CancelThunk == null || !options.CancelThunk());
+
+            // Don't request stop until after the inner handler has had a chance to process the message
+            // per https://github.com/xunit/visualstudio.xunit/issues/396
+            if (stopRequested)
+            {
+                Finished.Set();
+                stopEvent?.Set();
+            }
+
+            return result;
         }
 
         void SendLongRunningMessage()

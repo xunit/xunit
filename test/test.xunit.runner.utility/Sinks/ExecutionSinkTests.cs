@@ -339,6 +339,34 @@ public class ExecutionSinkTests
         }
     }
 
+    public class Messages
+    {
+        public class TestAssemblyFinished
+        {
+            [Fact]
+            public void EnsureInnerHandlerIsCalledBeforeFinishedIsSet()
+            {
+                var innerSink = Substitute.For<IMessageSinkWithTypes>();
+                var sink = new ExecutionSink(innerSink, new ExecutionSinkOptions());
+                bool? isFinishedDuringDispatch = default;
+                innerSink
+                    .OnMessageWithTypes(Arg.Any<IMessageSinkMessage>(), Arg.Any<HashSet<string>>())
+                    .Returns(callInfo =>
+                    {
+                        if (callInfo.Arg<IMessageSinkMessage>() is ITestAssemblyFinished)
+                            isFinishedDuringDispatch = sink.Finished.WaitOne(0);
+                        return true;
+                    });
+
+                sink.OnMessageWithTypes(Substitute.For<ITestAssemblyFinished>(), null);
+                var isFinishedAfterDispatch = sink.Finished.WaitOne(0);
+
+                Assert.False(isFinishedDuringDispatch);
+                Assert.True(isFinishedAfterDispatch);
+            }
+        }
+    }
+
     public class XmlCreation
     {
         readonly IMessageSinkWithTypes innerSink;
