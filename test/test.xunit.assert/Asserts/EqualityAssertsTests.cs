@@ -1510,6 +1510,32 @@ public class EqualityAssertsTests
 		public class KeyValuePair
 		{
 			[Fact]
+			public void CollectionKeys_Equal()
+			{
+				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void CollectionKeys_NotEqual()
+			{
+				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key3" }, 42);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: [[\"Key1\", \"Key2\"]] = 42" + Environment.NewLine +
+					"Actual:   [[\"Key1\", \"Key3\"]] = 42",
+					ex.Message
+				);
+			}
+
+			[Fact]
 			public void CollectionValues_Equal()
 			{
 				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
@@ -1531,6 +1557,32 @@ public class EqualityAssertsTests
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 					"Expected: [\"Key1\"] = [\"Value1a\", \"Value1b\"]" + Environment.NewLine +
 					"Actual:   [\"Key1\"] = [\"Value1a\", \"Value2a\"]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void EquatableKeys_Equal()
+			{
+				var expected = new KeyValuePair<EquatableObject, int>(new() { Char = 'a' }, 42);
+				var actual = new KeyValuePair<EquatableObject, int>(new() { Char = 'a' }, 42);
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void EquatableKeys_NotEqual()
+			{
+				var expected = new KeyValuePair<EquatableObject, int>(new() { Char = 'a' }, 42);
+				var actual = new KeyValuePair<EquatableObject, int>(new() { Char = 'b' }, 42);
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+					"Expected: [EquatableObject { Char = 'a' }] = 42" + Environment.NewLine +
+					"Actual:   [EquatableObject { Char = 'b' }] = 42",
 					ex.Message
 				);
 			}
@@ -3546,6 +3598,32 @@ public class EqualityAssertsTests
 		public class KeyValuePair
 		{
 			[Fact]
+			public void CollectionKeys_Equal()
+			{
+				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not [[\"Key1\", \"Key2\"]] = 42" + Environment.NewLine +
+					"Actual:       [[\"Key1\", \"Key2\"]] = 42",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void CollectionKeys_NotEqual()
+			{
+				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key3" }, 42);
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
 			public void CollectionValues_Equal()
 			{
 				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
@@ -3567,6 +3645,32 @@ public class EqualityAssertsTests
 			{
 				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
 				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value2a" });
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void EquatableKeys_Equal()
+			{
+				var expected = new KeyValuePair<EquatableObject, int>(new() { Char = 'a' }, 42);
+				var actual = new KeyValuePair<EquatableObject, int>(new() { Char = 'a' }, 42);
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+					"Expected: Not [EquatableObject { Char = 'a' }] = 42" + Environment.NewLine +
+					"Actual:       [EquatableObject { Char = 'a' }] = 42",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void EquatableKeys_NotEqual()
+			{
+				var expected = new KeyValuePair<EquatableObject, int>(new() { Char = 'a' }, 42);
+				var actual = new KeyValuePair<EquatableObject, int>(new() { Char = 'b' }, 42);
 
 				Assert.NotEqual(expected, actual);
 			}
