@@ -1343,6 +1343,40 @@ public class CollectionAssertsTests
 			}
 
 			[Fact]
+			public void EquatableValues_Equal()
+			{
+				var expected = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'a' } } };
+				var actual = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'a' } } };
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void EquatableValues_NotEqual()
+			{
+				var expected = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'a' } } };
+				var actual = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'b' } } };
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+					"Expected: [[\"Key1\"] = EquatableObject { Char = 'a' }]" + Environment.NewLine +
+					"Actual:   [[\"Key1\"] = EquatableObject { Char = 'b' }]",
+					ex.Message
+				);
+			}
+
+			public class EquatableObject : IEquatable<EquatableObject>
+			{
+				public char Char { get; set; }
+
+				public bool Equals(EquatableObject? other) =>
+					other != null && other.Char == Char;
+			}
+
+			[Fact]
 			public void ComplexEmbeddedValues_Equal()
 			{
 				var expected = new Dictionary<string, object>()
@@ -1955,6 +1989,40 @@ public class CollectionAssertsTests
 				};
 
 				Assert.NotEqual(expected, actual);
+			}
+
+			[Fact]
+			public void EquatableValues_Equal()
+			{
+				var expected = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'a' } } };
+				var actual = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'a' } } };
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+					"Expected: Not [[\"Key1\"] = EquatableObject { Char = 'a' }]" + Environment.NewLine +
+					"Actual:       [[\"Key1\"] = EquatableObject { Char = 'a' }]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void EquatableValues_NotEqual()
+			{
+				var expected = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'a' } } };
+				var actual = new Dictionary<string, EquatableObject> { { "Key1", new() { Char = 'b' } } };
+
+				Assert.NotEqual(expected, actual);
+			}
+
+			public class EquatableObject : IEquatable<EquatableObject>
+			{
+				public char Char { get; set; }
+
+				public bool Equals(EquatableObject? other) =>
+					other != null && other.Char == Char;
 			}
 
 			[Fact]
