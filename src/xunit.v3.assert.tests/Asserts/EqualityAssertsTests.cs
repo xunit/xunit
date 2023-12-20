@@ -1512,8 +1512,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionKeys_Equal()
 			{
+				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
-				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key2" }, 42);
 
 				Assert.Equal(expected, actual);
 			}
@@ -1521,8 +1522,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionKeys_NotEqual()
 			{
+				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
-				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key3" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key3" }, 42);
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -1538,8 +1540,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionValues_Equal()
 			{
-				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
-				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value1b" });
 
 				Assert.Equal(expected, actual);
 			}
@@ -1547,8 +1550,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionValues_NotEqual()
 			{
-				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
-				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value2a" });
+				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value2a" });
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -3600,8 +3604,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionKeys_Equal()
 			{
+				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
-				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key2" }, 42);
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 
@@ -3617,8 +3622,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionKeys_NotEqual()
 			{
+				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
-				var actual = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key3" }, 42);
+				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key3" }, 42);
 
 				Assert.NotEqual(expected, actual);
 			}
@@ -3626,8 +3632,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionValues_Equal()
 			{
-				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
-				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
+				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value1b" });
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 
@@ -3643,8 +3650,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionValues_NotEqual()
 			{
-				var expected = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value1b" });
-				var actual = new KeyValuePair<string, List<string>>("Key1", new() { "Value1a", "Value2a" });
+				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
+				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value2a" });
 
 				Assert.NotEqual(expected, actual);
 			}

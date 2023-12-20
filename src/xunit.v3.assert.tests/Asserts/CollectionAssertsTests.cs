@@ -1303,15 +1303,16 @@ public class CollectionAssertsTests
 			[Fact]
 			public static void WithCollectionValues_Equal()
 			{
-				var expected = new Dictionary<string, List<string>>
+				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new Dictionary<string, IEnumerable<string>>
 				{
 					["toAddresses"] = new List<string> { "test1@example.com" },
 					["ccAddresses"] = new List<string> { "test2@example.com" },
 				};
-				var actual = new Dictionary<string, List<string>>
+				var actual = new Dictionary<string, IEnumerable<string>>
 				{
-					["toAddresses"] = new List<string> { "test1@example.com" },
-					["ccAddresses"] = new List<string> { "test2@example.com" },
+					["toAddresses"] = new string[] { "test1@example.com" },
+					["ccAddresses"] = new string[] { "test2@example.com" },
 				};
 
 				Assert.Equal(expected, actual);
@@ -1320,15 +1321,16 @@ public class CollectionAssertsTests
 			[Fact]
 			public static void WithCollectionValues_NotEqual()
 			{
-				var expected = new Dictionary<string, List<string>>
+				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new Dictionary<string, IEnumerable<string>>
 				{
 					["toAddresses"] = new List<string> { "test1@example.com" },
 					["ccAddresses"] = new List<string> { "test2@example.com" },
 				};
-				var actual = new Dictionary<string, List<string>>
+				var actual = new Dictionary<string, IEnumerable<string>>
 				{
-					["toAddresses"] = new List<string> { "test1@example.com" },
-					["ccAddresses"] = new List<string> { "test3@example.com" },
+					["toAddresses"] = new string[] { "test1@example.com" },
+					["ccAddresses"] = new string[] { "test3@example.com" },
 				};
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
@@ -1952,15 +1954,16 @@ public class CollectionAssertsTests
 			[Fact]
 			public static void WithCollectionValues_Equal()
 			{
-				var expected = new Dictionary<string, List<string>>
+				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new Dictionary<string, IEnumerable<string>>
 				{
 					["toAddresses"] = new List<string> { "test1@example.com" },
 					["ccAddresses"] = new List<string> { "test2@example.com" },
 				};
-				var actual = new Dictionary<string, List<string>>
+				var actual = new Dictionary<string, IEnumerable<string>>
 				{
-					["toAddresses"] = new List<string> { "test1@example.com" },
-					["ccAddresses"] = new List<string> { "test2@example.com" },
+					["toAddresses"] = new string[] { "test1@example.com" },
+					["ccAddresses"] = new string[] { "test2@example.com" },
 				};
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
@@ -1977,15 +1980,16 @@ public class CollectionAssertsTests
 			[Fact]
 			public static void WithCollectionValues_NotEqual()
 			{
-				var expected = new Dictionary<string, List<string>>
+				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
+				var expected = new Dictionary<string, IEnumerable<string>>
 				{
 					["toAddresses"] = new List<string> { "test1@example.com" },
 					["ccAddresses"] = new List<string> { "test2@example.com" },
 				};
-				var actual = new Dictionary<string, List<string>>
+				var actual = new Dictionary<string, IEnumerable<string>>
 				{
-					["toAddresses"] = new List<string> { "test1@example.com" },
-					["ccAddresses"] = new List<string> { "test3@example.com" },
+					["toAddresses"] = new string[] { "test1@example.com" },
+					["ccAddresses"] = new string[] { "test3@example.com" },
 				};
 
 				Assert.NotEqual(expected, actual);
