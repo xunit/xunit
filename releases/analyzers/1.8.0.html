@@ -1,0 +1,70 @@
+---
+layout: default
+title: Release Notes for December 22, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: December 22, 2023</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.6.4 (<a href="/releases/v2/2.6.4">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.8.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.5.6 (<a href="/releases/visualstudio/2.5.6">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 weeks since the release of <a href="1.7.0">1.7.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<p>
+  <strong>Important note:</strong> We have added support for Visual Studio 2019 16.11+. This is in addition
+  to supporting Visual Studio 2022 17.2+. This means the minimum compiler (Roslyn) version is now 3.11 rather
+  than 4.2. In addition we are also providing builds to explicitly support 17.4 (4.4), 17.6 (4.6), and 17.8 (4.8),
+  which means any issues related to our inability to explicitly support C# 12 should now be resolved. Third
+  party support for analyzers (for example, in Mono or JetBrains Rider) should be arranged through those third
+  parties, as we do not directly support them (though of course we are happy to incorporate PRs to fix any
+  issues in our code related to them).
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.7.0 to 1.8.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have updated <a href="/xunit.analyzers/rules/xUnit1030">xUnit1030</a> to handle
+    <a href="https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.configureawaitoptions"><code>ConfigureAwaitOptions</code></a>
+    which was introduced in .NET 8. When using this overload, the analyzer ensures that
+    <code>ConfigureAwaitOptions.ContinueOnCapturedContext</code> is directly part of the call (meaning, we
+    do not analyze variables for this value, we expect to see this literal value directly in the call itself).
+    We have also extended the fixes here to include the ability to pass this value, as well to to convert
+    a call from <code>false</code> to <code>true</code> for the older API (as the old fixer only provided
+    the ability to remove the call to `ConfigureAwait` entirely).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2849">xunit/xunit#2849</a>
+  </li>
+  <li>
+    Because of the common usage of third party data sources, we have made the decision to shift
+    <a href="/xunit.analyzers/rules/xUnit1041">xUnit1041</a> from Error to Warning. We strongly recommend
+    people using third party fixture sources to disable this rule entirely, and hopefully third party
+    libraries can provide their own analyzer which includes both the built-in fixture sources and
+    their own custom fixture sources.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1041">xUnit1041</a> where
+    base classes were not being checked for <code>[Collection]</code> attributes.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2845">xunit/xunit#2845</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with <a href="/xunit.analyzers/rules/xUnit1041">xUnit1041</a> where
+    optional constructor parameters to test classes weren't being ignored.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2846">xunit/xunit#2846</a>
+  </li>
+</ul>

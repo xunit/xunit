@@ -2,7 +2,7 @@
 title: xUnit1041
 description: Fixture arguments to test classes must have fixture sources
 category: Usage
-severity: Error
+severity: Warning
 ---
 
 ## Cause
@@ -23,9 +23,14 @@ There are three fixture sources:
 
 For more information on fixtures and shared context, please see [the documentation](/docs/shared-context).
 
-_Note: collection definition classes must be defined in the same assembly as the test. You may get this
+_Note: Collection definition classes must be defined in the same assembly as the test. You may get this
 analyzer on your source code if you've mistakenly put your collection definition class into the wrong
 assembly._
+
+_Note: Third party fixture source libraries are not supported by this analyzer. For projects which use
+third party collection sources, you should disable this rule (conditionally or globally). Ideally third
+party fixture source libraries should provide their own customization of `xUnit1041` that includes their
+own rules in addition to the ones built into this analyzer._
 
 ## How to fix violations
 
