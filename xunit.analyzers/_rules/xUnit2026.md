@@ -7,20 +7,22 @@ severity: Warning
 
 ## Cause
 
-This rule is trigger by the use of an equality comparison with two sets, using an item comparison function.
+This rule is triggered by the use of an equality assertion with two sets, using an item comparison function.
 
 ## Reason for rule
 
 Unlike linear containers (arrays, lists, etc.), sets do not have a natural order to them. A simple item comparison function
-is not sufficient, since the comparison is not done linearly.
+is not sufficient, due to the way sets define item equality.
 
 For more information, see [Equality with hash sets vs. linear containers](/docs/hash-sets-vs-linear-containers).
 
 ## How to fix violations
 
 In order for set item comparisons to perform properly, they need both an implementation of `Equals` and an
-implementation of `GetHashCode`. More importantly, any values which return `true` for `Equals` must also
-return the same value for `GetHashCode`.
+implementation of `GetHashCode`. More importantly, any two values which return `true` for `Equals` must also
+return the same value for `GetHashCode`. Because both of these functions need to be defined, and because
+the implementation of `GetHashCode` cannot be inferred from the equality function, you are required to
+provide both pieces of code. This is fundamental to how sets work.
 
 If the item in the set is a custom class that you control, then you can override the implementation
 of both `Equals` and `GetHashCode` on the custom class. These functions will be used by the set when you
