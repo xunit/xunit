@@ -30,10 +30,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageDownload Include="ILRepack.MSBuild.Task" Version="[$(ILRepackVersion)]" />
-  </ItemGroup>
-
   <!-- ======================================== -->
   <!-- Production-specific properties and items -->
 
@@ -62,6 +58,7 @@
       </ItemGroup>
 
       <ItemGroup>
+        <PackageReference Include="ILRepack" Version="$(ILRepackVersion)" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkGitHubVersion)">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>

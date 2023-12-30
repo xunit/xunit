@@ -3,6 +3,7 @@
   <!-- Package versions shared among multiple .targets files -->
   <PropertyGroup>
     <!-- These versions float and get upgraded when `dotnet outdated` says to -->
+    <ILRepackVersion>2.0.21</ILRepackVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
@@ -29,9 +30,6 @@
     <SystemIoPipelinesVersion>6.0.0</SystemIoPipelinesVersion>
     <SystemReflectionMetadataVersion>6.0.0</SystemReflectionMetadataVersion>
     <SystemTextJsonVersion>6.0.0</SystemTextJsonVersion>
-
-    <!-- These versions are stuck because they're used in PackageDownload only and need hand updating -->
-    <ILRepackVersion>2.0.13</ILRepackVersion>
   </PropertyGroup>
 
 </Project>

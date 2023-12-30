@@ -51,36 +51,28 @@
       Name="ILRepackConditional"
       Inputs="$(TargetPath)"
       Outputs="$(TargetDir)merged\$(TargetFileName)">
-    <ItemGroup>
-      <Assemblies
-          Include="$(TargetDir)*.dll;$(TargetPath)"
-          Exclude="@(ILRepackExclusions)" />
-    </ItemGroup>
 
-    <MakeDir Directories="$(TargetDir)premerge;$(TargetDir)merged" />
-    <!-- We copy assemblies into a 'premerge' folder and merge from there, because of this issue: https://github.com/gluck/il-repack/issues/283 -->
-    <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(TargetDir)premerge" />
+    <MakeDir Directories="$(TargetDir)merged" />
 
     <PropertyGroup>
-      <ILRepackExe>$([System.IO.Path]::Combine($(NuGetPackageRoot), "ilrepack.msbuild.task", $(ILRepackVersion), "tools", "ilrepack.exe"))</ILRepackExe>
+      <ILRepackExe>$(ILRepack)</ILRepackExe>
       <ILRepackExe Condition=" '$(OS)' != 'Windows_NT' ">mono $(ILRepackExe)</ILRepackExe>
-      <MainAssembly>$([System.IO.Path]::Combine($(TargetDir), "premerge", "$(TargetFileName)"))</MainAssembly>
+      <MainAssembly>$([System.IO.Path]::Combine($(TargetDir), "$(TargetFileName)"))</MainAssembly>
       <OutputAssembly>$([System.IO.Path]::Combine($(TargetDir), "merged", "$(TargetFileName)"))</OutputAssembly>
     </PropertyGroup>
 
     <ItemGroup>
-      <OutputsToCopy Include="$(TargetDir)*.config;@(ILRepackExclusions)" />
       <ILRepackDependencies
-          Include="$(TargetDir)premerge\*.dll"
-          Exclude="$(MainAssembly)"/>
+          Include="$(TargetDir)*.dll"
+          Exclude="$(MainAssembly);@(ILRepackExclusions)"/>
     </ItemGroup>
 
-    <Copy SourceFiles="@(OutputsToCopy)" DestinationFolder="$(TargetDir)merged" />
+    <Copy SourceFiles="@(ILRepackExclusions)" DestinationFolder="$(TargetDir)merged" />
     <Exec
         StandardOutputImportance="low"
+        IgnoreStandardErrorWarningFormat="true"
         Command="$(ILRepackExe) -internalize -ndebug -lib:$(TargetDir) -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
     <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' " />
-    <RemoveDir Directories="$(TargetDir)premerge" />
   </Target>
 
   <!-- Support deterministic builds (via https://github.com/clairernovotny/DeterministicBuilds) -->
