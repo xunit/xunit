@@ -387,7 +387,9 @@ public class XunitTestClassRunnerTests
 	[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
 	class ClassUnderTest : IClassFixture<FixtureUnderTest>
 	{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 		public ClassUnderTest(FixtureUnderTest x, string y, decimal z) { }
+#pragma warning restore xUnit1041
 
 		[Fact]
 		public void Passing() { }

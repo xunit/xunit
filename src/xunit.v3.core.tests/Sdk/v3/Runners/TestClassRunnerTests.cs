@@ -378,7 +378,9 @@ public static class TestClassRunnerTests
 
 	class ClassWithConstructor
 	{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 		public ClassWithConstructor(int x, string y, decimal z) { }
+#pragma warning restore xUnit1041
 
 		[Fact]
 		public void Passing() { }

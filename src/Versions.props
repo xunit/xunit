@@ -4,7 +4,7 @@
   <PropertyGroup>
     <!-- These versions float and get upgraded when `dotnet outdated` says to -->
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
-    <MicrosoftSourceLinkGitHubVersion>1.1.1</MicrosoftSourceLinkGitHubVersion>
+    <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
     <MoqVersion>4.17.2</MoqVersion>
     <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>
@@ -15,11 +15,15 @@
     <SystemThreadingTasksExtensionsVersion>4.5.4</SystemThreadingTasksExtensionsVersion>
     <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAnalyzersVersion>1.6.0-pre.2</XunitAnalyzersVersion>
+    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
+    <XunitAnalyzersVersion>1.9.0-pre.9</XunitAnalyzersVersion>
+    <XunitV1Version>1.9.2</XunitV1Version>
+    <XunitV2Version>2.6.4</XunitV2Version>
 
     <!-- These versions are stuck to represent what shipped with .NET 6 -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftNetCoreAppRefVersion>6.0.25</MicrosoftNetCoreAppRefVersion>
     <SystemCodeDomVersion>6.0.0</SystemCodeDomVersion>
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
     <SystemIoPipelinesVersion>6.0.0</SystemIoPipelinesVersion>
@@ -28,10 +32,6 @@
 
     <!-- These versions are stuck because they're used in PackageDownload only and need hand updating -->
     <ILRepackVersion>2.0.13</ILRepackVersion>
-    <MicrosoftNetCoreAppRefVersion>6.0.25</MicrosoftNetCoreAppRefVersion>
-    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
-    <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.6.1</XunitV2Version>
   </PropertyGroup>
 
 </Project>

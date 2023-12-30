@@ -82,7 +82,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithExtraCtorArg : IClassFixture<EmptyFixtureData>
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithExtraCtorArg(int arg1, EmptyFixtureData fixture, string arg2) { }
+#pragma warning restore xUnit1041
 
 			[Fact]
 			public void TheTest() { }
@@ -222,7 +224,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithParamsArg : IClassFixture<EmptyFixtureData>
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithParamsArg(EmptyFixtureData fixture, params object[] x)
+#pragma warning restore xUnit1041
 			{
 				Assert.NotNull(fixture);
 				Assert.Empty(x);
@@ -359,7 +363,9 @@ public class FixtureAcceptanceTests
 		[Collection("Collection with empty fixture data")]
 		class ClassWithExtraCtorArg
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithExtraCtorArg(int arg1, EmptyFixtureData fixture, string arg2) { }
+#pragma warning restore xUnit1041
 
 			[Fact]
 			public void TheTest() { }
@@ -466,7 +472,9 @@ public class FixtureAcceptanceTests
 		{
 			public static EmptyFixtureData? Fixture;
 
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public FixtureSaver1(EmptyFixtureData data)
+#pragma warning restore xUnit1041
 			{
 				Fixture = data;
 			}
@@ -479,7 +487,9 @@ public class FixtureAcceptanceTests
 		{
 			public static EmptyFixtureData? Fixture;
 
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public FixtureSaver2(EmptyFixtureData data)
+#pragma warning restore xUnit1041
 			{
 				Fixture = data;
 			}
@@ -660,7 +670,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithExtraCtorArg
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithExtraCtorArg(int arg1, EmptyFixtureData fixture, string arg2) { }
+#pragma warning restore xUnit1041
 
 			[Fact]
 			public void TheTest() { }
@@ -678,7 +690,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithMissingCtorArg
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithMissingCtorArg(EmptyFixtureData fixture) { }
+#pragma warning restore xUnit1041
 
 			[Fact]
 			public void TheTest() { }
@@ -732,7 +746,9 @@ public class FixtureAcceptanceTests
 
 		class FixtureSpy
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public FixtureSpy(EmptyFixtureData data)
+#pragma warning restore xUnit1041
 			{
 				Assert.NotNull(data);
 			}
@@ -753,7 +769,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithDefaultCtorArg
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithDefaultCtorArg(EmptyFixtureData fixture, int x = 0)
+#pragma warning restore xUnit1041
 			{
 				Assert.NotNull(fixture);
 				Assert.Equal(0, x);
@@ -775,7 +793,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithOptionalCtorArg
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional] int x, [Optional] object y)
+#pragma warning restore xUnit1041
 			{
 				Assert.NotNull(fixture);
 				Assert.Equal(0, x);
@@ -798,7 +818,9 @@ public class FixtureAcceptanceTests
 
 		class ClassWithParamsArg
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public ClassWithParamsArg(EmptyFixtureData fixture, params object[] x)
+#pragma warning restore xUnit1041
 			{
 				Assert.NotNull(fixture);
 				Assert.Empty(x);
@@ -863,7 +885,9 @@ public class FixtureAcceptanceTests
 		[Collection("Assembly async once")]
 		class TestClass1
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public TestClass1(CountedAsyncFixture<Alpha> alpha, CountedAsyncFixture<Beta> beta)
+#pragma warning restore xUnit1041
 			{
 				Assert.Equal(1, alpha.Count);
 				Assert.Equal(1, beta.Count);
@@ -876,7 +900,9 @@ public class FixtureAcceptanceTests
 		[Collection("Assembly async once")]
 		class TestClass2
 		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public TestClass2(CountedAsyncFixture<Alpha> alpha, CountedAsyncFixture<Beta> beta)
+#pragma warning restore xUnit1041
 			{
 				Assert.Equal(1, alpha.Count);
 				Assert.Equal(1, beta.Count);
@@ -929,7 +955,9 @@ public class FixtureAcceptanceTests
 			public TestClassWithClassFixtureComposition(
 				ComposedClassFixture classFixture,
 				ComposedCollectionFixture collectionFixture,
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 				ComposedAssemblyFixture assemblyFixture,
+#pragma warning restore xUnit1041
 				ITestContextAccessor testContextAccessor)
 			{
 				this.classFixture = classFixture;

@@ -379,7 +379,9 @@ public class TestInvokerTests
 	class NonCreateableClass
 	{
 		// Unmatched constructor argument, class isn't createable
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 		public NonCreateableClass(int _)
+#pragma warning restore xUnit1041
 		{ }
 
 		[Fact]
