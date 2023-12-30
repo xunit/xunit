@@ -1287,9 +1287,11 @@ public class EqualityAssertsTests
 				var expected = new HashSet<string> { "bar", "foo" };
 				var actual = new SortedSet<string> { "foo", "bar" };
 
+				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.Equal(expected, (object)actual);
-
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1315,7 +1317,9 @@ public class EqualityAssertsTests
 				var expected = new HashSet<string> { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
+#pragma warning disable xUnit2026
 				var ex = Record.Exception(() => Assert.Equal(expected, actual, (string l, string r) => true));
+#pragma warning restore xUnit2026
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
@@ -1335,7 +1339,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.Equal(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1359,7 +1365,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1370,7 +1378,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.Equal(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1394,7 +1404,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1418,7 +1430,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1429,7 +1443,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.Equal(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1453,7 +1469,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1464,7 +1482,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.Equal(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1488,7 +1508,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.Equal(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -1497,7 +1519,9 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
+#pragma warning disable xUnit2026
 				var ex = Record.Exception(() => Assert.Equal(expected, actual, (string l, string r) => true));
+#pragma warning restore xUnit2026
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
@@ -3360,7 +3384,9 @@ public class EqualityAssertsTests
 				}
 
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3378,7 +3404,9 @@ public class EqualityAssertsTests
 				var expected = new HashSet<string> { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
+#pragma warning disable xUnit2026
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (string l, string r) => false));
+#pragma warning restore xUnit2026
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
@@ -3411,7 +3439,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3422,7 +3452,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.NotEqual(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3446,7 +3478,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3457,7 +3491,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.NotEqual(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3468,7 +3504,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.NotEqual(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3492,7 +3530,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3503,7 +3543,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.NotEqual(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3527,7 +3569,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#pragma warning disable xUnit2027
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3538,7 +3582,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#pragma warning disable xUnit2027
 				Assert.NotEqual(expected, (object)actual);
+#pragma warning restore xUnit2027
 			}
 
 			[Fact]
@@ -3547,7 +3593,9 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
+#pragma warning disable xUnit2026
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (string l, string r) => false));
+#pragma warning restore xUnit2026
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
