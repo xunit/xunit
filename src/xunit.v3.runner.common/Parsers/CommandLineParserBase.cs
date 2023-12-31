@@ -240,72 +240,6 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	protected abstract Assembly LoadAssembly(string dllFile);
 
-	/// <summary/>
-	protected XunitProject ParseInternal(int argStartIndex)
-	{
-		var arguments = new Stack<string>();
-		var unknownOptions = new List<string>();
-
-		for (var i = Args.Length - 1; i >= argStartIndex; i--)
-			arguments.Push(Args[i]);
-
-		while (arguments.Count > 0)
-		{
-			var option = PopOption(arguments);
-			var optionName = option.Key;
-
-			if (!optionName.StartsWith("-", StringComparison.Ordinal))
-				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
-
-			optionName = optionName.Substring(1);
-
-			if (parsers.TryGetValue(optionName, out var parser))
-				parser.Handler(option);
-			else
-			{
-				// Might be a result output file...
-				if (TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
-				{
-					if (option.Value is null)
-						throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "missing filename for {0}", option.Key));
-
-					EnsurePathExists(option.Value);
-
-					Project.Configuration.Output.Add(optionName, option.Value);
-				}
-				// ...or it might be a reporter (we won't know until later)
-				else
-				{
-					GuardNoOptionValue(option);
-					unknownOptions.Add(optionName);
-				}
-			}
-		}
-
-		// Determine the runner reporter while validating the unknown parsed options
-		runnerReporters ??= GetAvailableRunnerReporters();
-
-		var runnerReporter = default(IRunnerReporter);
-		var autoReporter =
-			Project.Configuration.NoAutoReportersOrDefault
-				? null
-				: runnerReporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
-
-		foreach (var unknownOption in unknownOptions)
-		{
-			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: -{0}", unknownOption));
-
-			if (runnerReporter is not null)
-				throw new ArgumentException("only one reporter is allowed");
-
-			runnerReporter = reporter;
-		}
-
-		Project.RunnerReporter = autoReporter ?? runnerReporter ?? new DefaultRunnerReporter();
-
-		return Project;
-	}
-
 	void OnClass(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
@@ -606,6 +540,72 @@ public abstract class CommandLineParserBase
 	{
 		GuardNoOptionValue(option);
 		Project.Configuration.Wait = true;
+	}
+
+	/// <summary/>
+	protected XunitProject ParseInternal(int argStartIndex)
+	{
+		var arguments = new Stack<string>();
+		var unknownOptions = new List<string>();
+
+		for (var i = Args.Length - 1; i >= argStartIndex; i--)
+			arguments.Push(Args[i]);
+
+		while (arguments.Count > 0)
+		{
+			var option = PopOption(arguments);
+			var optionName = option.Key;
+
+			if (!optionName.StartsWith("-", StringComparison.Ordinal))
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
+
+			optionName = optionName.Substring(1);
+
+			if (parsers.TryGetValue(optionName, out var parser))
+				parser.Handler(option);
+			else
+			{
+				// Might be a result output file...
+				if (TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
+				{
+					if (option.Value is null)
+						throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "missing filename for {0}", option.Key));
+
+					EnsurePathExists(option.Value);
+
+					Project.Configuration.Output.Add(optionName, option.Value);
+				}
+				// ...or it might be a reporter (we won't know until later)
+				else
+				{
+					GuardNoOptionValue(option);
+					unknownOptions.Add(optionName);
+				}
+			}
+		}
+
+		// Determine the runner reporter while validating the unknown parsed options
+		runnerReporters ??= GetAvailableRunnerReporters();
+
+		var runnerReporter = default(IRunnerReporter);
+		var autoReporter =
+			Project.Configuration.NoAutoReportersOrDefault
+				? null
+				: runnerReporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+
+		foreach (var unknownOption in unknownOptions)
+		{
+			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: -{0}", unknownOption));
+
+			if (runnerReporter is not null)
+				throw new ArgumentException("only one reporter is allowed");
+
+			runnerReporter = reporter;
+		}
+
+		Project.RunnerReporter = autoReporter ?? runnerReporter ?? new DefaultRunnerReporter();
+
+		return Project;
 	}
 
 	static KeyValuePair<string, string?> PopOption(Stack<string> arguments)
