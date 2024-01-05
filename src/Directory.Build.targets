@@ -55,8 +55,6 @@
     <MakeDir Directories="$(TargetDir)merged" />
 
     <PropertyGroup>
-      <ILRepackExe>$(ILRepack)</ILRepackExe>
-      <ILRepackExe Condition=" '$(OS)' != 'Windows_NT' ">mono $(ILRepackExe)</ILRepackExe>
       <MainAssembly>$([System.IO.Path]::Combine($(TargetDir), "$(TargetFileName)"))</MainAssembly>
       <OutputAssembly>$([System.IO.Path]::Combine($(TargetDir), "merged", "$(TargetFileName)"))</OutputAssembly>
     </PropertyGroup>
@@ -65,14 +63,16 @@
       <ILRepackDependencies
           Include="$(TargetDir)*.dll"
           Exclude="$(MainAssembly);@(ILRepackExclusions)"/>
+      <ILRepackLibPaths Include="$(TargetDir)" />
+      <ILRepackLibPaths Include="$(TargetFrameworkRootPath)$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\" Condition=" '$(TargetFrameworkRootPath)' != '' " />
     </ItemGroup>
 
     <Copy SourceFiles="@(ILRepackExclusions)" DestinationFolder="$(TargetDir)merged" />
     <Exec
         StandardOutputImportance="low"
         IgnoreStandardErrorWarningFormat="true"
-        Command="$(ILRepackExe) -internalize -ndebug -lib:$(TargetDir) -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
-    <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' " />
+        Command="dotnet &quot;$(ILRepack)&quot; -internalize -ndebug @(ILRepackLibPaths->'-lib:%(FullPath)', ' ') -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
+    <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' AND $(OutputAssembly.EndsWith('.exe')) " />
   </Target>
 
   <!-- Support deterministic builds (via https://github.com/clairernovotny/DeterministicBuilds) -->
