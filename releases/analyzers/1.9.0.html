@@ -1,0 +1,66 @@
+---
+layout: default
+title: Release Notes for January 4, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: January 4, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping two new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.6.5 (<a href="/releases/v2/2.6.5">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.9.0</strong></li>
+</ul>
+
+<p>It's been 2 weeks since the release of <a href="1.8.0">1.8.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.8.0 to 1.9.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> We fixed an issue in <a href="/xunit.analyzers/rules/xUnit1030">xUnit1030</a> that was
+    raising a diagnostic inappropriately for using <code>ConfigureAwait</code> inside of a lambda expression.
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/177">xunit/xunit.analyzers#177</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue in <a href="/xunit.analyzers/rules/xUnit1031">xUnit1031</a> that was
+    raising a diagnostic inappropriately for code using blocking <code>Task</code> methods inside of a lambda
+    expression.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2856">xunit/xunit#2856</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue in <a href="/xunit.analyzers/rules/xUnit1034">xUnit1034</a> that was
+    misidentifying array initializers in <code>[InlineData]</code> as being <code>null</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2852">xunit/xunit#2852</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit2026">xUnit2026</a> to detect when developers called <code>Assert.Equal</code>
+    or <code>Assert.NotEqual</code> with two sets, using the function overload for comparisons. Due to the way sets are
+    implemented internally, a full implementation of <code>IEqualityComparer&lt;T&gt;</code> is required, because the
+    implementations of <code>Equals</code> and <code>GetHashCode</code> must be consistent (so just passing the equivalent
+    of <code>Equals</code> as a function is not sufficient for proper comparisons).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2840">xunit/xunit#2840</a>
+  </li>
+  <li>
+    Added <a href="/xunit.analyzers/rules/xUnit2027">xUnit2027</a> to detect when developers called <code>Assert.Equal</code>
+    or <code>Assert.NotEqual</code> with a set (like <code>HashSet</code>) and a linear collection (like an array or list).
+    Since sets are not stored in linear fashion, they have an unpredictable enumeration order, which can cause false
+    positives or false negatives during testing. Applying an order to the set (for example, using LINQ's <code>OrderBy</code>
+    extension method) ensures that the set becomes linear with a predictable order.
+  </li>
+</ul>
