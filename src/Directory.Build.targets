@@ -55,6 +55,8 @@
     <MakeDir Directories="$(TargetDir)merged" />
 
     <PropertyGroup>
+      <ILRepackExe>$(ILRepack)</ILRepackExe>
+      <ILRepackExe Condition=" '$(OS)' != 'Windows_NT' ">mono $(ILRepackExe)</ILRepackExe>
       <MainAssembly>$([System.IO.Path]::Combine($(TargetDir), "$(TargetFileName)"))</MainAssembly>
       <OutputAssembly>$([System.IO.Path]::Combine($(TargetDir), "merged", "$(TargetFileName)"))</OutputAssembly>
     </PropertyGroup>
@@ -69,7 +71,7 @@
     <Exec
         StandardOutputImportance="low"
         IgnoreStandardErrorWarningFormat="true"
-        Command="dotnet &quot;$(ILRepack)&quot; -internalize -ndebug -lib:$(TargetDir) -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
+        Command="$(ILRepackExe) -internalize -ndebug -lib:$(TargetDir) -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
     <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' " />
   </Target>
 

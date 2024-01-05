@@ -3,7 +3,7 @@
   <!-- Package versions shared among multiple .targets files -->
   <PropertyGroup>
     <!-- These versions float and get upgraded when `dotnet outdated` says to -->
-    <ILRepackVersion>2.0.22</ILRepackVersion>
+    <ILRepackVersion>2.0.21</ILRepackVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
