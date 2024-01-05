@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ILRepackExclusions Include="$(OutputPath)Microsoft.Build.Framework.dll" />
     <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll" />
   </ItemGroup>
 
@@ -17,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework" Private="true" />
+    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
   </ItemGroup>
 
