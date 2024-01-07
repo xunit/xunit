@@ -25,7 +25,7 @@ is `null` (which is not legal for `Assert.Empty`). Further, you can't use `Asser
 
 To fix a violation of this rule, it is recommended that you examine the item count via the `Count` property
 with `Assert.Equal` or `Assert.NotEqual`. Doing these operations with these known problematic types will
-not trigger [xUnit2013](xUnit2013) like other collections do.
+not trigger [xUnit2013](xUnit2013) (unlike other collections which do).
 
 ## Examples
 
