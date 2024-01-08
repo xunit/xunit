@@ -203,7 +203,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	{
 		MethodInfo? methodInfo = null;
 		var argumentTypes = Arguments is null ? Array.Empty<Type>() : Arguments.Select(p => p?.GetType()).ToArray();
-		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: Environment.Version.Major >= 8))
+		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: true))
 		{
 			var methodInfoArray =
 				reflectionType
@@ -250,7 +250,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetPropertyAccessor(Type? type)
 	{
 		PropertyInfo? propInfo = null;
-		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: Environment.Version.Major >= 8))
+		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: true))
 		{
 			propInfo = reflectionType.GetRuntimeProperty(MemberName);
 			if (propInfo is not null)
