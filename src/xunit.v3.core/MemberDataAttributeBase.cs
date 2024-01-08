@@ -186,7 +186,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetFieldAccessor(Type? type)
 	{
 		FieldInfo? fieldInfo = null;
-		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
+		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: false))
 		{
 			fieldInfo = reflectionType.GetRuntimeField(MemberName);
 			if (fieldInfo is not null)
@@ -203,7 +203,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	{
 		MethodInfo? methodInfo = null;
 		var argumentTypes = Arguments is null ? Array.Empty<Type>() : Arguments.Select(p => p?.GetType()).ToArray();
-		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
+		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: Environment.Version.Major >= 8))
 		{
 			var methodInfoArray =
 				reflectionType
@@ -250,7 +250,7 @@ public abstract class MemberDataAttributeBase : DataAttribute
 	Func<object?>? GetPropertyAccessor(Type? type)
 	{
 		PropertyInfo? propInfo = null;
-		for (var reflectionType = type; reflectionType is not null; reflectionType = reflectionType.BaseType)
+		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: Environment.Version.Major >= 8))
 		{
 			propInfo = reflectionType.GetRuntimeProperty(MemberName);
 			if (propInfo is not null)
@@ -261,6 +261,25 @@ public abstract class MemberDataAttributeBase : DataAttribute
 			return null;
 
 		return () => propInfo.GetValue(null, null);
+	}
+
+	static IEnumerable<Type> GetTypesForMemberResolution(Type? typeToInspect, bool includeInterfaces)
+	{
+		List<Type> interfaces = new();
+
+		for (var reflectionType = typeToInspect; reflectionType is not null; reflectionType = reflectionType.BaseType)
+		{
+			yield return reflectionType;
+			if (includeInterfaces)
+			{
+				interfaces.AddRange(reflectionType.GetInterfaces());
+			}
+		}
+
+		foreach (var i in interfaces)
+		{
+			yield return i;
+		}
 	}
 
 	static bool ParameterTypesCompatible(
