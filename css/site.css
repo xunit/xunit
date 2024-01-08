@@ -320,3 +320,6 @@ blockquote.padded {
 .paperclip:hover {
   text-decoration: none;
 }
+.no-wrap {
+  white-space: nowrap;
+}

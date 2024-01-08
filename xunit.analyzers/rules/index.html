@@ -1,31 +1,100 @@
 ---
 layout: default
+title: Analyzer Rules
+breadcrumb: Analyzers
 ---
 
-<h2>Rules</h2>
+{% assign usage_rules = site.rules | where_exp: "item", "item.category == 'Usage'" %}
+{% assign assertion_rules = site.rules | where_exp: "item", "item.category == 'Assertions'" %}
+{% assign extensibility_rules = site.rules | where_exp: "item", "item.category == 'Extensibility'" %}
 
 <table class="table">
-  <thead>
+
+  <tr><th class="left" colspan="2"><h2>Usage Analyzers</h2></th></tr>
+  <tr>
+    <th class="left">ID</th>
+    <th class="left">Title</th>
+  </tr>
+
+  {% for rule in usage_rules %}
+  {% case rule.severity %}
+    {% when 'Error' %}
+      {% assign severity-label = 'label-danger' %}
+    {% when 'Warning' %}
+      {% assign severity-label = 'label-warning' %}
+    {% when 'Info' %}
+      {% assign severity-label = 'label-info' %}
+    {% when 'Hidden' %}
+      {% assign severity-label = 'label-default' %}
+    {% else %}
+      {% assign severity-label = '' %}
+  {% endcase %}
+  <tr>
+    <th class="left no-wrap">
+      {% capture rule_url %}xunit.analyzers/rules/{{ rule.title }}{% endcapture %}
+      <a href="{{ rule_url | relative_url }}"><code>{{ rule.title }}</code></a>
+      <span class="label {{ severity-label }}">{{ rule.severity }}</span>
+    </th>
+    <td class="left">{{ rule.description }}</td>
+  </tr>
+  {% endfor %}
+
+  <tr><th class="left" colspan="2"><h2>Assertion Analyzers</h2></th></tr>
+  <tr>
+    <th class="left">ID</th>
+    <th class="left">Title</th>
+  </tr>
+
+  {% for rule in assertion_rules %}
+    {% case rule.severity %}
+      {% when 'Error' %}
+        {% assign severity-label = 'label-danger' %}
+      {% when 'Warning' %}
+        {% assign severity-label = 'label-warning' %}
+      {% when 'Info' %}
+        {% assign severity-label = 'label-info' %}
+      {% when 'Hidden' %}
+        {% assign severity-label = 'label-default' %}
+      {% else %}
+        {% assign severity-label = '' %}
+    {% endcase %}
     <tr>
-      <th class="left">ID</th>
-      <th class="left">Title</th>
-      <th class="left">Severity</th>
-      <th class="left">Category</th>
-    </tr>
-  </thead>
-  <tbody>
-{% for rule in site.rules %}
-    <tr>
-      <th class="left">
+      <th class="left no-wrap">
         {% capture rule_url %}xunit.analyzers/rules/{{ rule.title }}{% endcapture %}
-        <a href="{{ rule_url | relative_url }}">
-          <code>{{ rule.title }}</code>
-        </a>
+        <a href="{{ rule_url | relative_url }}"><code>{{ rule.title }}</code></a>
+        <span class="label {{ severity-label }}">{{ rule.severity }}</span>
       </th>
       <td class="left">{{ rule.description }}</td>
-      <td class="left">{{ rule.severity }}</td>
-      <td class="left">{{ rule.category }}</td>
     </tr>
-{% endfor %}
-  </tbody>
+  {% endfor %}
+
+  <tr><th class="left" colspan="2"><h2>Extensibility Analyzers</h2></th></tr>
+  <tr>
+    <th class="left">ID</th>
+    <th class="left">Title</th>
+  </tr>
+
+  {% for rule in extensibility_rules %}
+    {% case rule.severity %}
+      {% when 'Error' %}
+        {% assign severity-label = 'label-danger' %}
+      {% when 'Warning' %}
+        {% assign severity-label = 'label-warning' %}
+      {% when 'Info' %}
+        {% assign severity-label = 'label-info' %}
+      {% when 'Hidden' %}
+        {% assign severity-label = 'label-default' %}
+      {% else %}
+        {% assign severity-label = '' %}
+    {% endcase %}
+    <tr>
+      <th class="left no-wrap">
+        {% capture rule_url %}xunit.analyzers/rules/{{ rule.title }}{% endcapture %}
+        <a href="{{ rule_url | relative_url }}"><code>{{ rule.title }}</code></a>
+        <span class="label {{ severity-label }}">{{ rule.severity }}</span>
+      </th>
+      <td class="left">{{ rule.description }}</td>
+    </tr>
+  {% endfor %}
+
 </table>
