@@ -26,8 +26,14 @@
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
       </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
+      </group>
       <group targetFramework="netcoreapp1.0">
         <dependency id="NETStandard.Library" version="1.6.0" />
+        <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
+      </group>
+      <group targetFramework="netcoreapp2.0">
         <dependency id="xunit.runner.utility" version="[$PackageVersion$]" />
       </group>
     </dependencies>

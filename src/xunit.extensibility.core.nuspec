@@ -25,6 +25,9 @@
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.abstractions" version="2.0.3" />
       </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="xunit.abstractions" version="2.0.3" />
+      </group>
     </dependencies>
   </metadata>
   <files>

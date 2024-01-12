@@ -22,6 +22,9 @@
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.extensibility.core" version="[$PackageVersion$]" />
       </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="xunit.extensibility.core" version="[$PackageVersion$]" />
+      </group>
     </dependencies>
   </metadata>
   <files>
