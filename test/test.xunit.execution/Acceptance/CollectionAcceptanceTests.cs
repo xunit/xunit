@@ -29,6 +29,10 @@ public class CollectionAcceptanceTests : AcceptanceTestV2
             message => Assert.IsAssignableFrom<ITestStarting>(message),
             message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
             message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+            message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),  // from XunitTestCaseRunnerTests.BeforeAfterOnAssembly
+            message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),  // from XunitTestCaseRunnerTests.BeforeAfterOnAssembly
+            message => Assert.IsAssignableFrom<IAfterTestStarting>(message),   // from XunitTestCaseRunnerTests.BeforeAfterOnAssembly
+            message => Assert.IsAssignableFrom<IAfterTestFinished>(message),   // from XunitTestCaseRunnerTests.BeforeAfterOnAssembly
             message =>
             {
                 var passed = Assert.IsAssignableFrom<ITestPassed>(message);

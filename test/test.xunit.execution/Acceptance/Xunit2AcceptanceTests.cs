@@ -78,6 +78,15 @@ public class Xunit2AcceptanceTests
                 },
                 message =>
                 {
+                    // From XunitTestCaseRunnerTests.BeforeAfterOnAssembly
+                    var beforeTestStarting = Assert.IsAssignableFrom<IBeforeTestStarting>(message);
+                    Assert.Equal("BeforeAfterOnAssembly", beforeTestStarting.AttributeName);
+                },
+                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                message =>
+                {
                     var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
                     Assert.Equal(testPassed.TestCase.DisplayName, testPassed.Test.DisplayName);
                     Assert.NotEqual(0M, testPassed.ExecutionTime);
