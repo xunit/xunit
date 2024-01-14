@@ -14,9 +14,10 @@ You will need the following software installed:
     * .NET Framework targeting packs for 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2, 4.8, 4.8.1
     * Windows 10 SDK 10.0.19041.0
     * F# desktop language support
-* [.NET SDK 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
+* [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [.NET 6.0 Runtime](https://dotnet.microsoft.com/download/dotnet/6.0)
 * [.NET Core 2.0 Runtime](https://dotnet.microsoft.com/download/dotnet/2.0)
-* PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-6))
+* PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows))
 
 Ensure that you have configured PowerShell to be able to run local unsigned scripts (either by running
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` from within PowerShell, or by launching PowerShell with the
@@ -26,7 +27,7 @@ Ensure that you have configured PowerShell to be able to run local unsigned scri
 
 1. Open PowerShell (or PowerShell Core). (To ensure MSBUILD is on the path, you may wish to start with "Developer Powershell for VS" shortcut.)
 
-1. From the root folder of the source repo, this command will build the code & run all tests:
+1. From the root folder of the source repo, this command will build the code and run all tests:
 
     `./build`
 
