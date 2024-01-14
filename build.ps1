@@ -261,8 +261,8 @@ if ($null -eq $targetFunction) {
 }
 
 _build_step "Performing pre-build verifications"
-    _require dotnet "Could not find 'dotnet'. Please ensure .NET SDK 6.0 or later is installed."
-    _verify_dotnetsdk_version "6.0"
+    _require dotnet "Could not find 'dotnet'. Please ensure .NET SDK 8.0 or later is installed."
+    _verify_dotnetsdk_version "8.0"
     _require msbuild.exe "Could not find 'msbuild'. Please ensure MSBUILD.EXE v17.0 is on the path."
     _verify_msbuild_version "17.0.0"
 
