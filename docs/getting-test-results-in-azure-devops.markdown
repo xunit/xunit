@@ -23,14 +23,11 @@ These instructions are written for `Version 2.*` of the `Visual Studio Test` tas
 
 * Under `Test selection/Test files`, point to your generated test assemblies, for example:
 ```
-**\bin\$(BuildConfiguration)\**\*test*.dll
+**\bin\$(BuildConfiguration)\**\*.tests.dll
 !**\obj\**
 !**\ref\**
-!**\xunit.runner.visualstudio.testadapter.dll
-!**\xunit.runner.visualstudio.dotnetcore.testadapter.dll
 ```
-(The third and fourth line excludes the xUnit test adapters from being considered a test assembly.)
-Note: it is important to make sure the file matching pattern is valid.  `testVerAssemblyVer2` must be expressed with newlines. [vsts-doc issue 1580](https://github.com/MicrosoftDocs/vsts-docs/issues/1580)
+Note: it is important to make sure the file matching pattern is valid. You may need to add additional exclusions if your chosen name pattern unintentionally matches other files in your output folder(s). `testVerAssemblyVer2` must be expressed with newlines. [vsts-doc issue 1580](https://github.com/MicrosoftDocs/vsts-docs/issues/1580)
 
 ### Enable Code Coverage (optional)
 
