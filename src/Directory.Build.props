@@ -58,7 +58,10 @@
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="ILRepack" Version="$(ILRepackVersion)" />
+        <PackageReference Include="ILRepack" Version="$(ILRepackVersion)">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkGitHubVersion)">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
