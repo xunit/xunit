@@ -26,8 +26,8 @@ else
 fi
 
 if which dotnet > /dev/null; then
-	if [ $(dotnet --version | cut -d. -f1) -lt 6 ]; then
-		echo "error(1): .NET SDK version $(dotnet --version) is too low; please install 6.0 or later"
+	if [ $(dotnet --version | cut -d. -f1) -lt 8 ]; then
+		echo "error(1): .NET SDK version $(dotnet --version) is too low; please install 8.0 or later"
 		exit 1
 	fi
 
