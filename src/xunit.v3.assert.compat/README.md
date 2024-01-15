@@ -22,7 +22,6 @@ The following projects exist for compatibility testing:
 | `xunit.v3.assert.nullable.csproj`  | C# 9     | `XUNIT_NULLABLE`                                                    |
 | `xunit.v3.assert.span.csproj`      | C# 6     | `XUNIT_SPAN`                                                        |
 | `xunit.v3.assert.all-on.csproj`    | C# 9     | `XUNIT_IMMUTABLE_COLLECTIONS`<br/>`XUNIT_NULLABLE`<br/>`XUNIT_SPAN` |
-| `xunit.v3.assert.net6.csproj`      | C# 9     | `XUNIT_IMMUTABLE_COLLECTIONS`<br/>`XUNIT_NULLABLE`<br/>`XUNIT_SPAN` |
 
 For a list of language features, see:
 [C# version 6](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-version-history#c-version-60),
