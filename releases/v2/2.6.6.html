@@ -1,0 +1,49 @@
+---
+layout: default
+title: Release Notes for January 15, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: January 15, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping two new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.6.6</strong></li>
+  <li>xUnit.net Analyzers 1.10.0 (<a href="/releases/analyzers/1.10.0">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 weeks since the release of <a href="2.6.4">2.6.5 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.6.5 to 2.6.6.</p>
+
+<h3>Core Framework</h3>
+<ul>
+  <li>
+    We have back-ported (from v3) support for classes that derive from
+    <a href="https://github.com/xunit/xunit/blob/v2/src/xunit.core/Sdk/BeforeAfterTestAttribute.cs"><code>BeforeAfterTestAttribute</code></a>
+    to be able to be applied at assembly level (in addition to the current support at method and class
+    level). Use the <code>[assembly: MyBeforeAfterTest]</code> syntax to add these, and they will be
+    invoked before and after every test in the assembly.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2334">xunit/xunit#2334</a>
+  </li>
+</ul>
+
+<h3>Packaging</h3>
+<ul>
+  <li>
+    We have fixed the NuGet packages so that we offer additional dependency groups, which should eliminate
+    security warnings when using .NET Standard 2.0+, .NET Core 2.0+, and .NET 5+. These were caused by old
+    packages from .NET Standard 1.1/.NET Core 1.0 which have been fixed in later platforms.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2862">xunit/xunit#2862</a>
+  </li>
+</ul>
