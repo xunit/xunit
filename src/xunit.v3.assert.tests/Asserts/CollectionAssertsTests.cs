@@ -16,7 +16,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.All<object>(null!, _ => { }));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.All(default(IEnumerable<object>)!, _ => { }));
 			Assert.Throws<ArgumentNullException>("action", () => Assert.All(new object[0], (Action<object>)null!));
 			Assert.Throws<ArgumentNullException>("action", () => Assert.All(new object[0], (Action<object, int>)null!));
 		}
@@ -68,7 +68,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static async Task GuardClauses()
 		{
-			await Assert.ThrowsAsync<ArgumentNullException>("collection", () => Assert.AllAsync<object>(null!, async _ => await Task.Yield()));
+			await Assert.ThrowsAsync<ArgumentNullException>("collection", () => Assert.AllAsync(default(IEnumerable<object>)!, async _ => await Task.Yield()));
 			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(new object[0], (Func<object, Task>)null!));
 			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(new object[0], (Func<object, int, Task>)null!));
 		}
@@ -192,7 +192,9 @@ public class CollectionAssertsTests
 		{
 			var list = new List<int>();
 
+#pragma warning disable xUnit2011 // Do not use empty collection check
 			await Assert.CollectionAsync(list);
+#pragma warning restore xUnit2011 // Do not use empty collection check
 		}
 
 		[Fact]
@@ -336,7 +338,7 @@ public class CollectionAssertsTests
 		{
 			var comparer = Substitute.For<IEqualityComparer<int>>();
 
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, null!, comparer));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, default(IEnumerable<int>)!, comparer));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, new int[0], null!));
 		}
 
@@ -377,7 +379,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains<int>(null!, item => true));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(default(IEnumerable<int>)!, item => true));
 			Assert.Throws<ArgumentNullException>("filter", () => Assert.Contains(new int[0], (Predicate<int>)null!));
 		}
 
@@ -410,7 +412,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Distinct<int>(null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Distinct(default(IEnumerable<int>)!));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(new object[0], null!));
 		}
 
@@ -557,7 +559,7 @@ public class CollectionAssertsTests
 		{
 			var comparer = Substitute.For<IEqualityComparer<int>>();
 
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, null!, comparer));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, default(IEnumerable<int>)!, comparer));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, new int[0], null!));
 		}
 
@@ -590,7 +592,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain((List<int>)null!, item => true));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(default(IEnumerable<int>)!, item => true));
 			Assert.Throws<ArgumentNullException>("filter", () => Assert.DoesNotContain(new int[0], (Predicate<int>)null!));
 		}
 
@@ -2352,7 +2354,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single<object>(null!));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single(default(IEnumerable<object>)!));
 		}
 
 		[Fact]
@@ -2437,7 +2439,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single<object>(null!, _ => true));
+			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single(default(IEnumerable<object>)!, _ => true));
 			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single(new object[0], null!));
 		}
 
