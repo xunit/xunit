@@ -1172,8 +1172,8 @@ public class CollectionAssertsTests
 			[Fact]
 			public void CollectionItemIsEnumerable()
 			{
-				List<EnumerableItem> actual = new List<EnumerableItem> { new(0), new(2) };
-				List<EnumerableItem> expected = new List<EnumerableItem> { new(1), new(3) };
+				var expected = new List<EnumerableItem> { new(1), new(3) };
+				var actual = new List<EnumerableItem> { new(0), new(2) };
 
 				Assert.Equal(expected, actual, (x, y) => x.Value / 2 == y.Value / 2);
 			}
