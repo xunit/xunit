@@ -444,10 +444,7 @@ public class StringAssertsTests
 			);
 
 			Assert.IsType<EqualException>(ex);
-			Assert.Equal<object>(
-				message,
-				ex.Message
-			);
+			Assert.Equal(message, ex.Message);
 		}
 
 		[Fact]
