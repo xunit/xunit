@@ -18,8 +18,8 @@ if ($null -eq $PSScriptRoot) {
 Set-Location $PSScriptRoot
 
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
-$parallelFlags = "-parallel all -maxthreads 16"
-$nonparallelFlags = "-parallel collections -maxthreads 16"
+$parallelFlags = "-parallel all"
+$nonparallelFlags = "-parallel collections"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $dotnetFormatCommand = "& dotnet dotnet-format --folder --exclude src/common/AssemblyResolution/Microsoft.DotNet.PlatformAbstractions --exclude src/common/AssemblyResolution/Microsoft.Extensions.DependencyModel --exclude src/xunit.assert/Asserts"
 
