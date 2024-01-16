@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
@@ -17,15 +18,34 @@ public static class ConfigReader_Json
 	/// <param name="configuration">The configuration object to write the values to.</param>
 	/// <param name="assemblyFileName">The test assembly.</param>
 	/// <param name="configFileName">The test assembly configuration file.</param>
+	/// <param name="warnings">The list of warnings that occured when loading</param>
 	/// <returns>A flag which indicates whether configuration values were read.</returns>
 	public static bool Load(
 		TestAssemblyConfiguration configuration,
 		string? assemblyFileName,
-		string? configFileName = null)
+		string? configFileName,
+		out List<string> warnings)
 	{
+		warnings = new List<string>();
+
 		// If they provide a configuration file, we only read that, success or failure
 		if (configFileName is not null)
-			return configFileName.EndsWith(".json", StringComparison.Ordinal) && LoadFile(configuration, configFileName);
+		{
+			var isJsonFile = configFileName.EndsWith(".json", StringComparison.Ordinal);
+			if (!isJsonFile)
+			{
+				warnings.Add($"Skipped loading the {configFileName} config file: not a .json file");
+				return false;
+			}
+			
+			if (!File.Exists(configFileName))
+			{
+				warnings.Add($"Couldn't load the {configFileName} config file: the file does not exist");
+				return false;
+			}
+			
+			return LoadFile(configuration, configFileName, out warnings);
+		}
 
 		// If there's no assembly file, then we can't find co-located xunit.runner.json files
 		if (string.IsNullOrWhiteSpace(assemblyFileName))
@@ -36,36 +56,49 @@ public static class ConfigReader_Json
 
 		// {assembly}.xunit.runner.json takes priority over xunit.runner.json
 		return
-			LoadFile(configuration, Path.Combine(directoryName, string.Format(CultureInfo.CurrentCulture, "{0}.xunit.runner.json", assemblyName))) ||
-			LoadFile(configuration, Path.Combine(directoryName, "xunit.runner.json"));
+			LoadFile(configuration, Path.Combine(directoryName, string.Format(CultureInfo.CurrentCulture, "{0}.xunit.runner.json", assemblyName)), out warnings) ||
+			LoadFile(configuration, Path.Combine(directoryName, "xunit.runner.json"), out warnings);
 	}
 
 	static bool LoadFile(
 		TestAssemblyConfiguration configuration,
-		string configFileName)
+		string configFileName,
+		out List<string> warnings)
 	{
+		warnings = new List<string>();
+		
 		try
 		{
 			if (!File.Exists(configFileName))
 				return false;
 
 			var json = File.ReadAllText(configFileName);
-			return LoadJson(configuration, json);
+			var result = LoadJson(configuration, json, out List<string> jsonParseWarnings);
+			warnings.AddRange(jsonParseWarnings);
+			return result;
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			warnings.Add($"Couldn't load the config file {configFileName}: {ex.Message}");
+		}
 
 		return false;
 	}
 
 	static bool LoadJson(
 		TestAssemblyConfiguration configuration,
-		string json)
+		string json,
+		out List<string> warnings)
 	{
+		warnings = new List<string>();
 		try
 		{
 			var root = JsonSerializer.Deserialize<JsonElement>(json);
 			if (root.ValueKind != JsonValueKind.Object)
+			{
+				warnings.Add("Couldn't parse the json config file: the root isn't a json object");
 				return false;
+			}
 
 			foreach (var property in root.EnumerateObject())
 			{
@@ -161,7 +194,10 @@ public static class ConfigReader_Json
 
 			return true;
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			warnings.Add($"Couldn't parse the json config file: {ex.Message}");
+		}
 
 		return false;
 	}

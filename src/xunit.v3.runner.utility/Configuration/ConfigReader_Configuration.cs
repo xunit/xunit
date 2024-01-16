@@ -1,6 +1,7 @@
 #if NETFRAMEWORK
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -20,44 +21,60 @@ public static class ConfigReader_Configuration
 	/// <param name="configuration">The configuration object to write the values to.</param>
 	/// <param name="assemblyFileName">The test assembly file name.</param>
 	/// <param name="configFileName">The test assembly configuration file.</param>
+	/// <param name="warnings">The list of warnings that occured when loading</param>
 	/// <returns>A flag which indicates whether configuration values were read.</returns>
 	public static bool Load(
 		TestAssemblyConfiguration configuration,
 		string? assemblyFileName,
-		string? configFileName = null)
+		string? configFileName,
+		out List<string> warnings)
 	{
 		Guard.ArgumentNotNull(configuration);
+		warnings = new List<string>();
 
 		if (configFileName is null && !string.IsNullOrWhiteSpace(assemblyFileName))
 			configFileName = assemblyFileName + ".config";
 
-		if (configFileName?.EndsWith(".config", StringComparison.Ordinal) == true && File.Exists(configFileName))
+		var isConfigFile = configFileName?.EndsWith(".config", StringComparison.Ordinal) == true;
+		if (!isConfigFile)
 		{
-			try
+			warnings.Add($"Skipped loading the {configFileName} config file: not a .config file");
+			return false;
+		}
+			
+		if (!File.Exists(configFileName))
+		{
+			warnings.Add($"Couldn't load the {configFileName} config file: the file does not exist");
+			return false;
+		}
+		
+		try
+		{
+			var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
+			var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+			if (config.AppSettings is not null)
 			{
-				var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
-				var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
-				if (config is not null && config.AppSettings is not null)
-				{
-					var settings = config.AppSettings.Settings;
+				var settings = config.AppSettings.Settings;
 
-					configuration.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? configuration.AppDomain;
-					configuration.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? configuration.DiagnosticMessages;
-					configuration.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? configuration.InternalDiagnosticMessages;
-					configuration.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? configuration.MaxParallelThreads;
-					configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
-					configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
-					configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
-					configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
-					configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
-					configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
-					configuration.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? configuration.StopOnFail;
-					configuration.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? configuration.LongRunningTestSeconds;
+				configuration.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? configuration.AppDomain;
+				configuration.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? configuration.DiagnosticMessages;
+				configuration.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? configuration.InternalDiagnosticMessages;
+				configuration.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? configuration.MaxParallelThreads;
+				configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
+				configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
+				configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
+				configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
+				configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
+				configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
+				configuration.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? configuration.StopOnFail;
+				configuration.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? configuration.LongRunningTestSeconds;
 
-					return true;
-				}
+				return true;
 			}
-			catch { }
+		}
+		catch (Exception ex)
+		{
+			warnings.Add($"Couldn't load the config file {configFileName}: {ex.Message}");
 		}
 
 		return false;

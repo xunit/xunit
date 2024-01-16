@@ -228,7 +228,12 @@ public class xunit : MSBuildTask, ICancelableTask
 					TargetFramework = targetFramework
 				};
 
-				ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName);
+				bool loaded = ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName, out List<string> warnings);
+				if (!loaded && warnings.Count > 0)
+				{
+					foreach (string warning in warnings)
+						logger.LogWarning(warning);
+				}
 
 				if (Culture is not null)
 					projectAssembly.Configuration.Culture = Culture switch

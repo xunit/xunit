@@ -47,7 +47,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 			TargetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName)
 		};
 		projectAssembly.Configuration.ShadowCopy = false;
-		ConfigReader.Load(projectAssembly.Configuration, assemblyFileName);
+		ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, null, out _);
 
 		var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;

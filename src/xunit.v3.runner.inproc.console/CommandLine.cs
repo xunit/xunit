@@ -33,6 +33,9 @@ public class CommandLine : CommandLineParserBase
 			"  collections - parallelize by collections [default]"
 		);
 	}
+	
+	/// <summary/>
+	public List<string> parseWarnings { get; } = new();
 
 	void AddAssembly(
 		Assembly assembly,
@@ -54,7 +57,8 @@ public class CommandLine : CommandLineParserBase
 			TargetFramework = targetFramework
 		};
 
-		ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+		ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, out List<string> warnings);
+		parseWarnings.AddRange(warnings);
 		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
 
 		Project.Add(projectAssembly);
