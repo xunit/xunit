@@ -30,8 +30,6 @@ public class CommandLine : CommandLineParserBase
 		AddParsers();
 	}
 
-	public List<string> parseWarnings { get; } = new();
-	
 	private void AddParsers()
 	{
 		// General options
@@ -76,8 +74,7 @@ public class CommandLine : CommandLineParserBase
 			TargetFramework = targetFramework
 		};
 
-		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, out List<string> warnings);
-		parseWarnings.AddRange(warnings);
+		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, ParseWarnings);
 		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
 
 		Project.Add(projectAssembly);

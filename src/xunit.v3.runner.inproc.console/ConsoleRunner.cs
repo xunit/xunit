@@ -116,8 +116,8 @@ public class ConsoleRunner
 
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
-			
-			foreach (string warning in commandLine.parseWarnings)
+
+			foreach (string warning in commandLine.ParseWarnings)
 				logger.LogWarning(warning);
 
 			var failCount = 0;

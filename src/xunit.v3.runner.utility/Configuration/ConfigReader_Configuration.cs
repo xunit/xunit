@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Xunit.Internal;
@@ -21,33 +22,42 @@ public static class ConfigReader_Configuration
 	/// <param name="configuration">The configuration object to write the values to.</param>
 	/// <param name="assemblyFileName">The test assembly file name.</param>
 	/// <param name="configFileName">The test assembly configuration file.</param>
-	/// <param name="warnings">The list of warnings that occured when loading</param>
+	/// <param name="warnings">A container to receive loading warnings, if desired.</param>
 	/// <returns>A flag which indicates whether configuration values were read.</returns>
 	public static bool Load(
 		TestAssemblyConfiguration configuration,
 		string? assemblyFileName,
-		string? configFileName,
-		out List<string> warnings)
+		string? configFileName = null,
+		List<string>? warnings = null)
 	{
 		Guard.ArgumentNotNull(configuration);
-		warnings = new List<string>();
 
-		if (configFileName is null && !string.IsNullOrWhiteSpace(assemblyFileName))
-			configFileName = assemblyFileName + ".config";
+		// If they provide a configuration file, we only read that, success or failure
+		if (configFileName is not null)
+		{
+			if (!configFileName.EndsWith(".config", StringComparison.Ordinal))
+				return false;
 
-		var isConfigFile = configFileName?.EndsWith(".config", StringComparison.Ordinal) == true;
-		if (!isConfigFile)
-		{
-			warnings.Add($"Skipped loading the {configFileName} config file: not a .config file");
-			return false;
+			if (!File.Exists(configFileName))
+			{
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't load config file '{0}': file not found", configFileName));
+				return false;
+			}
 		}
-			
-		if (!File.Exists(configFileName))
+		else
 		{
-			warnings.Add($"Couldn't load the {configFileName} config file: the file does not exist");
-			return false;
+			// If there's no assembly file, then we can't find co-located .config files
+			if (string.IsNullOrWhiteSpace(assemblyFileName))
+				return false;
+
+			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+			var directoryName = Path.GetDirectoryName(assemblyFileName)!;
+
+			configFileName = Path.Combine(directoryName, assemblyName + ".config");
+			if (!File.Exists(configFileName))
+				return false;
 		}
-		
+
 		try
 		{
 			var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
@@ -74,7 +84,7 @@ public static class ConfigReader_Configuration
 		}
 		catch (Exception ex)
 		{
-			warnings.Add($"Couldn't load the config file {configFileName}: {ex.Message}");
+			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
 		}
 
 		return false;

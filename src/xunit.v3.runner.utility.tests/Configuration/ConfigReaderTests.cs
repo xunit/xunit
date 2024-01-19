@@ -18,26 +18,40 @@ public class ConfigReaderTests
 		AssemblyPath = Path.GetDirectoryName(AssemblyFileName)!;
 	}
 
-	[Fact]
-	public static void ConfigurationFileNotJson_ReturnsFalseWithWarning()
+	[Theory]
+	[InlineData("UnknownFile.json")]
+#if NETFRAMEWORK
+	[InlineData("UnknownFile.config")]
+#endif
+	public static void ConfigurationFileNotFound_ReturnsFalseWithWarning(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var configFilePath = Path.Combine(AssemblyPath, configFileName);
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "UnknownFile.txt"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, configFilePath, warnings);
 
 		Assert.False(result);
-		Assert.NotEmpty(warnings);
+		var warning = Assert.Single(warnings);
+		Assert.Equal($"Couldn't load config file '{configFilePath}': file not found", warning);
 	}
 
-	[Fact]
-	public static void ConfigurationFileNotFound_ReturnsFalseWithWarning()
+	[Theory]
+	[InlineData("UnknownFile.xml")]
+#if !NETFRAMEWORK
+	[InlineData("UnknownFile.config")]
+#endif
+	public static void ConfigurationFileTypeUnknown_ReturnsFalseWithWarning(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var configFilePath = Path.Combine(AssemblyPath, configFileName);
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "UnknownFile.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, configFilePath, warnings);
 
 		Assert.False(result);
-		Assert.NotEmpty(warnings);
+		var warning = Assert.Single(warnings);
+		Assert.Equal($"Couldn't load config file '{configFilePath}': unknown file type", warning);
 	}
 
 	[Theory]
@@ -48,8 +62,9 @@ public class ConfigReaderTests
 	public static void EmptyConfigurationFile_ReturnsDefaultValues(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -75,8 +90,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithValidValues_ReturnsConfiguredValues(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -105,8 +121,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithInvalidValues_FallsBackToDefaultValues(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -128,8 +145,9 @@ public class ConfigReaderTests
 	public static void SupportDefaultCulture()
 	{
 		var configuration = new TestAssemblyConfiguration { Culture = "override-me" };
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_CultureDefault.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_CultureDefault.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -140,8 +158,9 @@ public class ConfigReaderTests
 	public static void SupportInvariantCulture()
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_CultureInvariant.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_CultureInvariant.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -156,8 +175,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -172,8 +192,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithZeroThreads_ReturnsProcessorCount(string configFileName)
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -184,8 +205,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithMaxThreadsAsMultiplier_ReturnsMultipliedValue()
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplier.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplier.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -196,8 +218,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithMaxThreadsAsMultiplierWithComma_ReturnsMultipliedValue()
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierComma.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierComma.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -208,8 +231,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithMaxThreadsAsMultiplierWithDecimal_ReturnsMultipliedValue()
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierDecimal.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierDecimal.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -220,8 +244,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithMaxThreadsExplicitDefault_ReturnsProcessorCount()
 	{
 		var configuration = new TestAssemblyConfiguration { MaxParallelThreads = 2112 };
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsDefault.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsDefault.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);
@@ -232,8 +257,9 @@ public class ConfigReaderTests
 	public static void ConfigurationFileWithMaxThreadsExplicitUnlimited_ReturnsUnlimited()
 	{
 		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
 
-		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsUnlimited.json"), out List<string> warnings);
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsUnlimited.json"), warnings);
 
 		Assert.True(result);
 		Assert.Empty(warnings);

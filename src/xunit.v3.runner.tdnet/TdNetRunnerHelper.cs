@@ -36,7 +36,7 @@ public class TdNetRunnerHelper : IAsyncDisposable
 		Assembly assembly,
 		ITestListener testListener)
 	{
-		this.testListener = testListener;
+		this.testListener = Guard.ArgumentNotNull(testListener);
 
 		var assemblyFileName = assembly.GetLocalCodeBase();
 		var project = new XunitProject();
@@ -47,7 +47,12 @@ public class TdNetRunnerHelper : IAsyncDisposable
 			TargetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName)
 		};
 		projectAssembly.Configuration.ShadowCopy = false;
-		ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, null, out _);
+
+		var warnings = new List<string>();
+		ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, warnings: warnings);
+
+		foreach (var warning in warnings)
+			testListener.WriteLine(warning, Category.Warning);
 
 		var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;

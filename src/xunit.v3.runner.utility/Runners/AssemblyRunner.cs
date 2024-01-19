@@ -68,7 +68,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 			ConfigFileName = configFileName,
 		};
 
-		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, out _);
+		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 		projectAssembly.Configuration.AppDomain = appDomainSupport;
 		projectAssembly.Configuration.ShadowCopy = shadowCopy;
 		projectAssembly.Configuration.ShadowCopyFolder = shadowCopyFolder;
@@ -78,7 +78,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		controller = XunitFrontController.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: this);
 		disposalTracker.Add(controller);
 
-		ConfigReader.Load(configuration, assemblyFileName, configFileName, out _);
+		ConfigReader.Load(configuration, assemblyFileName, configFileName);
 	}
 
 	/// <summary>

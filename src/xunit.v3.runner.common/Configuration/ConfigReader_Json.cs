@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -18,33 +19,29 @@ public static class ConfigReader_Json
 	/// <param name="configuration">The configuration object to write the values to.</param>
 	/// <param name="assemblyFileName">The test assembly.</param>
 	/// <param name="configFileName">The test assembly configuration file.</param>
-	/// <param name="warnings">The list of warnings that occured when loading</param>
+	/// <param name="warnings">A container to receive loading warnings, if desired.</param>
 	/// <returns>A flag which indicates whether configuration values were read.</returns>
 	public static bool Load(
 		TestAssemblyConfiguration configuration,
 		string? assemblyFileName,
-		string? configFileName,
-		out List<string> warnings)
+		string? configFileName = null,
+		List<string>? warnings = null)
 	{
-		warnings = new List<string>();
+		Guard.ArgumentNotNull(configuration);
 
 		// If they provide a configuration file, we only read that, success or failure
 		if (configFileName is not null)
 		{
-			var isJsonFile = configFileName.EndsWith(".json", StringComparison.Ordinal);
-			if (!isJsonFile)
-			{
-				warnings.Add($"Skipped loading the {configFileName} config file: not a .json file");
+			if (!configFileName.EndsWith(".json", StringComparison.Ordinal))
 				return false;
-			}
-			
+
 			if (!File.Exists(configFileName))
 			{
-				warnings.Add($"Couldn't load the {configFileName} config file: the file does not exist");
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't load config file '{0}': file not found", configFileName));
 				return false;
 			}
-			
-			return LoadFile(configuration, configFileName, out warnings);
+
+			return LoadFile(configuration, configFileName, warnings);
 		}
 
 		// If there's no assembly file, then we can't find co-located xunit.runner.json files
@@ -56,47 +53,25 @@ public static class ConfigReader_Json
 
 		// {assembly}.xunit.runner.json takes priority over xunit.runner.json
 		return
-			LoadFile(configuration, Path.Combine(directoryName, string.Format(CultureInfo.CurrentCulture, "{0}.xunit.runner.json", assemblyName)), out warnings) ||
-			LoadFile(configuration, Path.Combine(directoryName, "xunit.runner.json"), out warnings);
+			LoadFile(configuration, Path.Combine(directoryName, string.Format(CultureInfo.CurrentCulture, "{0}.xunit.runner.json", assemblyName)), warnings) ||
+			LoadFile(configuration, Path.Combine(directoryName, "xunit.runner.json"), warnings);
 	}
 
 	static bool LoadFile(
 		TestAssemblyConfiguration configuration,
 		string configFileName,
-		out List<string> warnings)
+		List<string>? warnings)
 	{
-		warnings = new List<string>();
-		
 		try
 		{
 			if (!File.Exists(configFileName))
 				return false;
 
-			var json = File.ReadAllText(configFileName);
-			var result = LoadJson(configuration, json, out List<string> jsonParseWarnings);
-			warnings.AddRange(jsonParseWarnings);
-			return result;
-		}
-		catch (Exception ex)
-		{
-			warnings.Add($"Couldn't load the config file {configFileName}: {ex.Message}");
-		}
-
-		return false;
-	}
-
-	static bool LoadJson(
-		TestAssemblyConfiguration configuration,
-		string json,
-		out List<string> warnings)
-	{
-		warnings = new List<string>();
-		try
-		{
-			var root = JsonSerializer.Deserialize<JsonElement>(json);
+			using var jsonStream = File.OpenRead(configFileName);
+			var root = JsonSerializer.Deserialize<JsonElement>(jsonStream);
 			if (root.ValueKind != JsonValueKind.Object)
 			{
-				warnings.Add("Couldn't parse the json config file: the root isn't a json object");
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse config file '{0}': the root must be a JSON object", configFileName));
 				return false;
 			}
 
@@ -196,7 +171,7 @@ public static class ConfigReader_Json
 		}
 		catch (Exception ex)
 		{
-			warnings.Add($"Couldn't parse the json config file: {ex.Message}");
+			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
 		}
 
 		return false;
