@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -16,7 +15,6 @@ namespace Xunit.Sdk
     {
         static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
         static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();
-        static readonly ConcurrentDictionary<Tuple<Type, Type>, Delegate> enumConverters = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
@@ -46,18 +44,7 @@ namespace Xunit.Sdk
                 if (valueAsEnumerable != null)
                     value = Convert(valueAsEnumerable).ToArray();
                 else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
-                {
-                    var valueType = value.GetType();
-                    var enumConverter = enumConverters.GetOrAdd(Tuple.Create(argument.ArgumentType, valueType), _ =>
-                    {
-                        var parameter = Expression.Parameter(valueType);
-                        var funcType = typeof(Func<,>).MakeGenericType(valueType, argument.ArgumentType);
-                        var dynamicMethod = Expression.Lambda(funcType, Expression.Convert(parameter, argument.ArgumentType), parameter);
-                        return dynamicMethod.Compile();
-                    });
-
-                    value = enumConverter.DynamicInvoke(value);
-                }
+                    value = Enum.ToObject(argument.ArgumentType, value);
 
                 if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
                     value = Reflector.ConvertArgument(value, argument.ArgumentType);
