@@ -54,7 +54,7 @@ public class CommandLine : CommandLineParserBase
 			TargetFramework = targetFramework
 		};
 
-		ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+		ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, ParseWarnings);
 		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
 
 		Project.Add(projectAssembly);

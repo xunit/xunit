@@ -74,7 +74,7 @@ public class CommandLine : CommandLineParserBase
 			TargetFramework = targetFramework
 		};
 
-		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, ParseWarnings);
 		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
 
 		Project.Add(projectAssembly);

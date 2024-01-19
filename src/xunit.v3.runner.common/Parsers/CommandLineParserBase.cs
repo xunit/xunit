@@ -149,6 +149,9 @@ public abstract class CommandLineParserBase
 		Args.Length > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
 
 	/// <summary/>
+	public List<string> ParseWarnings { get; } = new();
+
+	/// <summary/>
 	protected XunitProject Project { get; } = new();
 
 	/// <summary/>

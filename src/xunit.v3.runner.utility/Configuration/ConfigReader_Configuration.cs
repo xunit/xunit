@@ -1,7 +1,9 @@
 #if NETFRAMEWORK
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Xunit.Internal;
@@ -20,44 +22,69 @@ public static class ConfigReader_Configuration
 	/// <param name="configuration">The configuration object to write the values to.</param>
 	/// <param name="assemblyFileName">The test assembly file name.</param>
 	/// <param name="configFileName">The test assembly configuration file.</param>
+	/// <param name="warnings">A container to receive loading warnings, if desired.</param>
 	/// <returns>A flag which indicates whether configuration values were read.</returns>
 	public static bool Load(
 		TestAssemblyConfiguration configuration,
 		string? assemblyFileName,
-		string? configFileName = null)
+		string? configFileName = null,
+		List<string>? warnings = null)
 	{
 		Guard.ArgumentNotNull(configuration);
 
-		if (configFileName is null && !string.IsNullOrWhiteSpace(assemblyFileName))
-			configFileName = assemblyFileName + ".config";
-
-		if (configFileName?.EndsWith(".config", StringComparison.Ordinal) == true && File.Exists(configFileName))
+		// If they provide a configuration file, we only read that, success or failure
+		if (configFileName is not null)
 		{
-			try
+			if (!configFileName.EndsWith(".config", StringComparison.Ordinal))
+				return false;
+
+			if (!File.Exists(configFileName))
 			{
-				var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
-				var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
-				if (config is not null && config.AppSettings is not null)
-				{
-					var settings = config.AppSettings.Settings;
-
-					configuration.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? configuration.AppDomain;
-					configuration.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? configuration.DiagnosticMessages;
-					configuration.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? configuration.InternalDiagnosticMessages;
-					configuration.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? configuration.MaxParallelThreads;
-					configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
-					configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
-					configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
-					configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
-					configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
-					configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
-					configuration.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? configuration.StopOnFail;
-					configuration.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? configuration.LongRunningTestSeconds;
-
-					return true;
-				}
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't load config file '{0}': file not found", configFileName));
+				return false;
 			}
-			catch { }
+		}
+		else
+		{
+			// If there's no assembly file, then we can't find co-located .config files
+			if (string.IsNullOrWhiteSpace(assemblyFileName))
+				return false;
+
+			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+			var directoryName = Path.GetDirectoryName(assemblyFileName)!;
+
+			configFileName = Path.Combine(directoryName, assemblyName + ".config");
+			if (!File.Exists(configFileName))
+				return false;
+		}
+
+		try
+		{
+			var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
+			var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+			if (config.AppSettings is not null)
+			{
+				var settings = config.AppSettings.Settings;
+
+				configuration.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? configuration.AppDomain;
+				configuration.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? configuration.DiagnosticMessages;
+				configuration.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? configuration.InternalDiagnosticMessages;
+				configuration.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? configuration.MaxParallelThreads;
+				configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
+				configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
+				configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
+				configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
+				configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
+				configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
+				configuration.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? configuration.StopOnFail;
+				configuration.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? configuration.LongRunningTestSeconds;
+
+				return true;
+			}
+		}
+		catch (Exception ex)
+		{
+			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
 		}
 
 		return false;
