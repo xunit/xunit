@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -12,7 +13,13 @@ namespace Xunit.Sdk
         readonly bool stopOnFail;
 
         /// <summary/>
-        public SynchronousMessageBus(IMessageSink messageSink, bool stopOnFail = false)
+        [Obsolete("Please use the overload with the stopOnFail boolean value")]
+        public SynchronousMessageBus(IMessageSink messageSink) :
+            this(messageSink, false)
+        { }
+
+        /// <summary/>
+        public SynchronousMessageBus(IMessageSink messageSink, bool stopOnFail)
         {
             this.messageSink = messageSink;
             this.stopOnFail = stopOnFail;

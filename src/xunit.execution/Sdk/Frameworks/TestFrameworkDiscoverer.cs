@@ -111,7 +111,7 @@ namespace Xunit.Sdk
         static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkDiscoveryOptions options)
         {
             if (options.SynchronousMessageReportingOrDefault())
-                return new SynchronousMessageBus(messageSink);
+                return new SynchronousMessageBus(messageSink, stopOnFail: false);
 
             return new MessageBus(messageSink);
         }
