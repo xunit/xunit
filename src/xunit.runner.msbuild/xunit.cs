@@ -252,6 +252,9 @@ namespace Xunit.Runner.MSBuild
 
         protected virtual XElement ExecuteAssembly(XunitProjectAssembly assembly, AppDomainSupport? appDomains)
         {
+            foreach (var warning in assembly.ConfigWarnings)
+                logger.LogWarning(warning);
+
             if (cancel)
                 return null;
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
@@ -17,9 +18,53 @@ namespace Xunit
         /// Loads the test assembly configuration for the given test assembly from a JSON stream. Caller is responsible for opening the stream.
         /// </summary>
         /// <param name="configStream">Stream containing config for an assembly</param>
+        /// <param name="warnings">A container to receive loading warnings, if desired.</param>
         /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration Load(Stream configStream)
+        public static TestAssemblyConfiguration Load(Stream configStream, List<string> warnings = null) =>
+            LoadConfiguration(configStream, null, warnings);
+
+        /// <summary>
+        /// Loads the test assembly configuration for the given test assembly.
+        /// </summary>
+        /// <param name="assemblyFileName">The test assembly.</param>
+        /// <param name="configFileName">The test assembly configuration file.</param>
+        /// <param name="warnings">A container to receive loading warnings, if desired.</param>
+        /// <returns>The test assembly configuration.</returns>
+        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null, List<string> warnings = null)
         {
+            // If they provide a configuration file, we only read that, success or failure
+            if (configFileName != null)
+            {
+                if (!configFileName.EndsWith(".json", StringComparison.Ordinal))
+                    return null;
+
+#if !NETSTANDARD1_1
+                if (!File.Exists(configFileName))
+                {
+                    warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't load config file '{0}': file not found", configFileName));
+                    return null;
+                }
+#endif
+
+                return LoadFile(configFileName, warnings);
+            }
+
+            var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+            var directoryName = Path.GetDirectoryName(assemblyFileName);
+
+            return LoadFile(Path.Combine(directoryName, string.Format(CultureInfo.InvariantCulture, "{0}.xunit.runner.json", assemblyName)), warnings)
+                ?? LoadFile(Path.Combine(directoryName, "xunit.runner.json"), warnings);
+        }
+
+        static TestAssemblyConfiguration LoadConfiguration(Stream configStream, string configFileName, List<string> warnings)
+        {
+            Guard.ArgumentNotNull(nameof(configStream), configStream);
+
+            string ConfigDescription() =>
+                configFileName == null
+                    ? "configuration"
+                    : string.Format(CultureInfo.CurrentCulture, "config file '{0}'", configFileName);
+
             var result = new TestAssemblyConfiguration();
 
             try
@@ -27,6 +72,12 @@ namespace Xunit
                 using (var reader = new StreamReader(configStream))
                 {
                     var config = JsonDeserializer.Deserialize(reader) as JsonObject;
+
+                    if (config == null)
+                    {
+                        warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse {0}: the root must be a JSON object", ConfigDescription()));
+                        return null;
+                    }
 
                     foreach (var propertyName in config.Keys)
                     {
@@ -114,41 +165,24 @@ namespace Xunit
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading {0}: {1}", ConfigDescription(), ex.Message));
+            }
 
             return result;
         }
 
-        /// <summary>
-        /// Loads the test assembly configuration for the given test assembly.
-        /// </summary>
-        /// <param name="assemblyFileName">The test assembly.</param>
-        /// <param name="configFileName">The test assembly configuration file.</param>
-        /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
+        static TestAssemblyConfiguration LoadFile(string configFileName, List<string> warnings = null)
         {
-            if (configFileName != null)
-                return configFileName.EndsWith(".json", StringComparison.Ordinal) ? LoadFile(configFileName) : null;
-
-            var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
-            var directoryName = Path.GetDirectoryName(assemblyFileName);
-
-            return LoadFile(Path.Combine(directoryName, string.Format(CultureInfo.InvariantCulture, "{0}.xunit.runner.json", assemblyName)))
-                ?? LoadFile(Path.Combine(directoryName, "xunit.runner.json"));
-        }
-
-        static TestAssemblyConfiguration LoadFile(string configFileName)
-        {
+#if !NETSTANDARD1_1
+            if (!File.Exists(configFileName))
+                return null;
+#endif
             try
             {
-#if !NETSTANDARD1_1
-                if (!File.Exists(configFileName))
-                {
-                    return null;
-                }
-#endif
                 using (var stream = File_OpenRead(configFileName))
-                    return Load(stream);
+                    return LoadConfiguration(stream, configFileName, warnings);
             }
             catch { }
 

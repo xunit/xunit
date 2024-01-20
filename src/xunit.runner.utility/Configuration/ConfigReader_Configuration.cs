@@ -1,7 +1,10 @@
 #if NETFRAMEWORK
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
+using System.IO;
 
 namespace Xunit
 {
@@ -15,40 +18,57 @@ namespace Xunit
         /// </summary>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
+        /// <param name="warnings">A container to receive loading warnings, if desired.</param>
         /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
+        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null, List<string> warnings = null)
         {
-            if (configFileName == null)
-                configFileName = assemblyFileName + ".config";
-
-            if (configFileName.EndsWith(".config", StringComparison.Ordinal))
+            // If they provide a configuration file, we only read that, success or failure
+            if (configFileName != null)
             {
-                try
+                if (!configFileName.EndsWith(".config", StringComparison.Ordinal))
+                    return null;
+
+                if (!File.Exists(configFileName))
                 {
-                    var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
-                    var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
-                    if (config != null && config.AppSettings != null)
-                    {
-                        var result = new TestAssemblyConfiguration();
-                        var settings = config.AppSettings.Settings;
-
-                        result.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? result.AppDomain;
-                        result.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
-                        result.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? result.InternalDiagnosticMessages;
-                        result.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
-                        result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? result.MethodDisplay;
-                        result.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? result.MethodDisplayOptions;
-                        result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
-                        result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
-                        result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
-                        result.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? result.ShadowCopy;
-                        result.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? result.StopOnFail;
-                        result.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? result.LongRunningTestSeconds;
-
-                        return result;
-                    }
+                    warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't load config file '{0}': file not found", configFileName));
+                    return null;
                 }
-                catch { }
+            }
+            else
+            {
+                configFileName = assemblyFileName + ".config";
+                if (!File.Exists(configFileName))
+                    return null;
+            }
+
+            try
+            {
+                var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
+                var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+                if (config != null && config.AppSettings != null)
+                {
+                    var result = new TestAssemblyConfiguration();
+                    var settings = config.AppSettings.Settings;
+
+                    result.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? result.AppDomain;
+                    result.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
+                    result.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? result.InternalDiagnosticMessages;
+                    result.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
+                    result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? result.MethodDisplay;
+                    result.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? result.MethodDisplayOptions;
+                    result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
+                    result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
+                    result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
+                    result.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? result.ShadowCopy;
+                    result.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? result.StopOnFail;
+                    result.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? result.LongRunningTestSeconds;
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
             }
 
             return null;

@@ -353,6 +353,9 @@ namespace Xunit.ConsoleClient
                                  XunitFilters filters,
                                  bool internalDiagnosticMessages)
         {
+            foreach (var warning in assembly.ConfigWarnings)
+                logger.LogWarning(warning);
+
             if (cancel)
                 return null;
 

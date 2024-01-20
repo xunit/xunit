@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Xunit
 {
@@ -27,11 +28,16 @@ namespace Xunit
             get
             {
                 if (configuration == null)
-                    configuration = ConfigReader.Load(AssemblyFilename, ConfigFilename);
+                    configuration = ConfigReader.Load(AssemblyFilename, ConfigFilename, ConfigWarnings);
 
                 return configuration;
             }
         }
+
+        /// <summary>
+        /// Gets the list of warnings that resulting from reading the configuration.
+        /// </summary>
+        public List<string> ConfigWarnings { get; } = new();
 
         /// <summary>
         /// Gets or sets a value indicating whether to shadow copy the assembly

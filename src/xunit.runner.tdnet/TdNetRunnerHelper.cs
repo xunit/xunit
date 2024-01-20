@@ -25,7 +25,12 @@ namespace Xunit.Runner.TdNet
             this.testListener = testListener;
 
             var assemblyFileName = assembly.GetLocalCodeBase();
-            configuration = ConfigReader.Load(assemblyFileName);
+            var warnings = new List<string>();
+            configuration = ConfigReader.Load(assemblyFileName, warnings: warnings);
+
+            foreach (var warning in warnings)
+                testListener.WriteLine(warning, Category.Warning);
+
             var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
             xunit = new Xunit2(configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false, diagnosticMessageSink: diagnosticMessageSink);
             toDispose.Push(xunit);
