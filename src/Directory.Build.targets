@@ -108,6 +108,7 @@
         PackageVersion=$(PackageVersion);
         SystemIoPipelinesVersion=$(SystemIoPipelinesVersion);
         SystemNetHttpVersion=$(SystemNetHttpVersion);
+        SystemTextJsonVersion=$(SystemTextJsonVersion);
         SystemThreadingTasksExtensionsVersion=$(SystemThreadingTasksExtensionsVersion);
         XunitAbstractionsVersion=$(XunitAbstractionsVersion);
         XunitAnalyzersVersion=$(XunitAnalyzersVersion);
