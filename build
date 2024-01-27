@@ -1,6 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+function write_error {
+	echo "error(1): $1" 2>&1
+	exit 1
+}
+
+function guard_bin {
+	builtin type -P "$1" &>/dev/null || write_error "Could not find '$1'; $2"
+}
+
+guard_bin git "please install the Git CLI from https://git-scm.com/"
+guard_bin dotnet "please install the .NET SDK from https://dot.net/"
+
+if [ `uname -o` = Msys ]; then
+	guard_bin msbuild.exe "please run this from a Visual Studio developer shell"
+else
+	guard_bin mono "please install Mono from https://www.mono-project.com/"
+fi
+
+[ $(dotnet --version | cut -d. -f1) -ge 8 ] || write_error ".NET SDK version $(dotnet --version) is too low; please install version 8.0 or later from https://dot.net/"
+
+git submodule status | while read line; do
+	if [ "$(echo $line | cut -b1)" == "-" ]; then
+		pieces=( $line )
+		git submodule update --init ${pieces[1]}
+		echo ""
+	fi
+done
+
 PUSHED=0
 
 cleanup () {
@@ -12,35 +40,7 @@ cleanup () {
 
 trap cleanup EXIT ERR INT TERM
 
-if which git > /dev/null; then
-	git submodule status | while read line; do
-		if [ "$(echo $line | cut -b1)" == "-" ]; then
-			pieces=( $line )
-			git submodule update --init ${pieces[1]}
-			echo ""
-		fi
-	done
-else
-	echo "error(1): Could not find 'git'; please install the Git CLI" 2>&1
-	exit 1
-fi
+pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
+PUSHED=1
 
-if which dotnet > /dev/null; then
-	if [ $(dotnet --version | cut -d. -f1) -lt 8 ]; then
-		echo "error(1): .NET SDK version $(dotnet --version) is too low; please install 8.0 or later"
-		exit 1
-	fi
-
-	if [ `uname -o` = Msys ] || which mono > /dev/null ; then
-		pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
-		PUSHED=1
-
-		dotnet run --project tools/builder --no-launch-profile -- "$@"
-	else
-		echo "error(1): Could not find 'mono'; please install Mono" 2>&1
-		exit 1
-	fi
-else
-	echo "error(1): Could not find 'dotnet'; please install the .NET Core SDK" 2>&1
-	exit 1
-fi
+dotnet run --project tools/builder --no-launch-profile -- "$@"
