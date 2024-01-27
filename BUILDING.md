@@ -37,11 +37,11 @@ Ensure that you have configured PowerShell to be able to run local unsigned scri
 
 1. From the root folder of the source repo, this command will build the code and run all tests:
 
-    `./build`
+    `./build[.ps1]`
 
     To build a specific target (or multiple targets):
 
-    `./build [target [target...]]`
+    `./build[.ps1] [target [target...]]`
 
     The common targets (case-insensitive) include:
 
@@ -54,4 +54,4 @@ Ensure that you have configured PowerShell to be able to run local unsigned scri
 
     You can get a list of options:
 
-    `./build --help`
+    `./build[.ps1] --help`
