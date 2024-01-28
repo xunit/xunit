@@ -175,13 +175,14 @@ public class AsyncCollectionAssertsTests
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
-			Assert.Equal(
+			Assert.StartsWith(
 				"Assert.Collection() Failure: Item comparison failure" + Environment.NewLine +
 				"                 ↓ (pos 1)" + Environment.NewLine +
 				"Collection: [42, 2112]" + Environment.NewLine +
 				"Error:      Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 2113" + Environment.NewLine +
-				"            Actual:   2112",
+				"            Actual:   2112" + Environment.NewLine +
+				"            Stack Trace:",
 				ex.Message
 			);
 		}
@@ -261,13 +262,14 @@ public class AsyncCollectionAssertsTests
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
-			Assert.Equal(
+			Assert.StartsWith(
 				"Assert.Collection() Failure: Item comparison failure" + Environment.NewLine +
 				"                 ↓ (pos 1)" + Environment.NewLine +
 				"Collection: [42, 2112]" + Environment.NewLine +
 				"Error:      Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 2113" + Environment.NewLine +
-				"            Actual:   2112",
+				"            Actual:   2112" + Environment.NewLine +
+				"            Stack Trace:",
 				ex.Message
 			);
 		}
