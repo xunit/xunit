@@ -553,28 +553,12 @@ public class FixtureAcceptanceTests
 			Assert.Equal(2, messages.Count);
 		}
 
-		public sealed class GenericFixture<T>
-			:
-#if NET6_0_OR_GREATER
-				IAsyncLifetime,
-#endif
-				IDisposable
-		{
-			public GenericFixture() { }
-			public void Dispose() { }
-#if NET6_0_OR_GREATER
-			public ValueTask InitializeAsync() => ValueTask.CompletedTask;
-			public ValueTask DisposeAsync() => ValueTask.CompletedTask;
-#endif
-		}
-
-
 		[CollectionDefinition("generic collection")]
 		public class GenericFixtureCollection<T> : ICollectionFixture<GenericFixture<T>> { }
 
 
 		[Collection("generic collection")]
-		public abstract class GenericTestBase<T>
+		abstract class GenericTestBase<T>
 		{
 			protected GenericTestBase(GenericFixture<T> fixture) => _fixture = fixture;
 			protected readonly GenericFixture<T> _fixture;
@@ -582,7 +566,7 @@ public class FixtureAcceptanceTests
 
 		public class GenericArgument { }
 
-		public class GenericTests : GenericTestBase<GenericArgument>
+		class GenericTests : GenericTestBase<GenericArgument>
 		{
 #pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public GenericTests(GenericFixture<GenericArgument> fixture) : base(fixture) { }
@@ -1122,5 +1106,13 @@ public class FixtureAcceptanceTests
 		public CountedFixture() => Identity = ++counter;
 
 		public readonly int Identity;
+	}
+
+	sealed class GenericFixture<T> : IAsyncLifetime, IDisposable
+	{
+		public GenericFixture() { }
+		public void Dispose() { }
+		public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+		public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 	}
 }
