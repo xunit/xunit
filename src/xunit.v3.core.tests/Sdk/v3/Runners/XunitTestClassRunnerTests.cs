@@ -408,7 +408,7 @@ public class XunitTestClassRunnerTests
 		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
 		readonly CancellationTokenSource cancellationTokenSource;
 		readonly _IReflectionTypeInfo @class;
-		readonly IReadOnlyDictionary<Type, object> collectionFixtureMappings;
+		readonly CollectionFixtureMappingManager collectionFixtureMappings;
 		readonly IMessageBus messageBus;
 		readonly ITestCaseOrderer testCaseOrderer;
 		readonly IReadOnlyCollection<IXunitTestCase> testCases;
@@ -428,7 +428,7 @@ public class XunitTestClassRunnerTests
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
 			IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
-			IReadOnlyDictionary<Type, object> collectionFixtureMappings)
+			CollectionFixtureMappingManager collectionFixtureMappings)
 		{
 			this.testClass = testClass;
 			this.@class = @class;
@@ -443,18 +443,28 @@ public class XunitTestClassRunnerTests
 
 		public static TestableXunitTestClassRunner Create(
 			IXunitTestCase testCase,
-			params object[] collectionFixtures) =>
-				new(
-					testCase.TestClass ?? throw new InvalidOperationException("testCase.TestClass cannot be null"),
-					testCase.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
-					new[] { testCase },
-					new SpyMessageBus(),
-					new MockTestCaseOrderer(),
-					new ExceptionAggregator(),
-					new CancellationTokenSource(),
-					new Dictionary<Type, object>(),
-					collectionFixtures.ToDictionary(fixture => fixture.GetType())
-				);
+			params object[] collectionFixtures)
+		{
+			ExceptionAggregator aggregator = new();
+			CollectionFixtureMappingManager fixtureManager = new(aggregator);
+			for (int i = 0; i < collectionFixtures.Length; i++)
+			{
+				fixtureManager.AddFixture(collectionFixtures[i].GetType(), collectionFixtures[i]);
+			}
+			TestableXunitTestClassRunner runner = new(
+				testCase.TestClass ?? throw new InvalidOperationException("testCase.TestClass cannot be null"),
+				testCase.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
+				new[] { testCase },
+				new SpyMessageBus(),
+				new MockTestCaseOrderer(),
+				aggregator,
+				new CancellationTokenSource(),
+				new Dictionary<Type, object>(),
+				fixtureManager
+			);
+
+			return runner;
+		}
 
 		protected override ValueTask<RunSummary> RunTestMethodsAsync(XunitTestClassRunnerContext ctxt)
 		{

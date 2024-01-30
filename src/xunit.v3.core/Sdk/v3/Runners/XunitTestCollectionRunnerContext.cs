@@ -25,6 +25,7 @@ public class XunitTestCollectionRunnerContext : TestCollectionRunnerContext<IXun
 			base(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 	{
 		AssemblyFixtureMappings = assemblyFixtureMappings;
+		CollectionFixtureMappings = new(aggregator);
 	}
 
 	/// <summary>
@@ -35,5 +36,5 @@ public class XunitTestCollectionRunnerContext : TestCollectionRunnerContext<IXun
 	/// <summary>
 	/// Gets the fixtures (mapped type => instance) that were declared at the collection level.
 	/// </summary>
-	public Dictionary<Type, object> CollectionFixtureMappings { get; } = new();
+	public CollectionFixtureMappingManager CollectionFixtureMappings { get; }
 }

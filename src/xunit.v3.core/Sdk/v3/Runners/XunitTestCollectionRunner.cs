@@ -37,41 +37,11 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	}
 
 	/// <inheritdoc/>
-	protected override async ValueTask BeforeTestCollectionFinishedAsync(XunitTestCollectionRunnerContext ctxt)
+	protected override ValueTask BeforeTestCollectionFinishedAsync(XunitTestCollectionRunnerContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var disposeAsyncTasks =
-			ctxt.CollectionFixtureMappings
-				.Values
-				.OfType<IAsyncDisposable>()
-				.Select(fixture => ctxt.Aggregator.RunAsync(async () =>
-				{
-					try
-					{
-						await fixture.DisposeAsync();
-					}
-					catch (Exception ex)
-					{
-						throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in DisposeAsync", fixture.GetType().FullName), ex.Unwrap());
-					}
-				}).AsTask())
-				.ToList();
-
-		await Task.WhenAll(disposeAsyncTasks);
-
-		foreach (var fixture in ctxt.CollectionFixtureMappings.Values.OfType<IDisposable>())
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					fixture.Dispose();
-				}
-				catch (Exception ex)
-				{
-					throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in Dispose", fixture.GetType().FullName), ex.Unwrap());
-				}
-			});
+		return ctxt.CollectionFixtureMappings.OnFinished();
 	}
 
 	/// <summary>
@@ -88,55 +58,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(fixtureType);
 
-		var ctors =
-			fixtureType
-				.GetConstructors()
-				.Where(ci => !ci.IsStatic && ci.IsPublic)
-				.ToList();
-
-		if (ctors.Count != 1)
-		{
-			ctxt.Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
-			return;
-		}
-
-		var ctor = ctors[0];
-		var missingParameters = new List<ParameterInfo>();
-		var ctorArgs = ctor.GetParameters().Select(p =>
-		{
-			object? arg = null;
-			if (p.ParameterType == typeof(_IMessageSink))
-				arg = TestContext.Current?.DiagnosticMessageSink;
-			else if (p.ParameterType == typeof(ITestContextAccessor))
-				arg = TestContextAccessor.Instance;
-			else if (!ctxt.AssemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
-				missingParameters.Add(p);
-			return arg;
-		}).ToArray();
-
-		if (missingParameters.Count > 0)
-			ctxt.Aggregator.Add(
-				new TestClassException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Collection fixture type '{0}' had one or more unresolved constructor arguments: {1}",
-						fixtureType.FullName,
-						string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
-					)
-				)
-			);
-		else
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					ctxt.CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
-				}
-				catch (Exception ex)
-				{
-					throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in its constructor", fixtureType.FullName), ex.Unwrap());
-				}
-			});
+		ctxt.CollectionFixtureMappings.AddFixtureForType(fixtureType, ctxt.AssemblyFixtureMappings);
 	}
 
 	ValueTask CreateCollectionFixturesAsync(XunitTestCollectionRunnerContext ctxt)
@@ -151,26 +73,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 			CreateCollectionFixture(ctxt, fixtureType);
 		}
 
-		var initializeAsyncTasks =
-			ctxt.CollectionFixtureMappings
-				.Values
-				.OfType<IAsyncLifetime>()
-				.Select(
-					fixture => ctxt.Aggregator.RunAsync(async () =>
-					{
-						try
-						{
-							await fixture.InitializeAsync();
-						}
-						catch (Exception ex)
-						{
-							throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in InitializeAsync", fixture.GetType().FullName), ex.Unwrap());
-						}
-					}).AsTask()
-				)
-				.ToList();
-
-		return new(Task.WhenAll(initializeAsyncTasks));
+		return ctxt.CollectionFixtureMappings.OnInitialize();
 	}
 
 	/// <summary>

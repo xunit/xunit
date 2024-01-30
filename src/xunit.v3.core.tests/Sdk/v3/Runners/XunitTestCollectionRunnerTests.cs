@@ -20,9 +20,8 @@ public class XunitTestCollectionRunnerTests
 
 		Assert.NotNull(runner.RunTestClassesAsync_CollectionFixtureMappings);
 		Assert.Collection(
-			runner.RunTestClassesAsync_CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
-			mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
-			mapping => Assert.IsType<object>(mapping.Value)
+			runner.RunTestClassesAsync_CollectionFixtureMappings.Values,
+			mapping => Assert.IsType<FixtureUnderTest>(mapping)
 		);
 	}
 
@@ -282,7 +281,7 @@ public class XunitTestCollectionRunnerTests
 		readonly _ITestCollection testCollection;
 
 		public Exception? RunTestClassAsync_AggregatorResult;
-		public Dictionary<Type, object>? RunTestClassesAsync_CollectionFixtureMappings;
+		public CollectionFixtureMappingManager? RunTestClassesAsync_CollectionFixtureMappings;
 		public ITestCaseOrderer? RunTestClassesAsync_TestCaseOrderer;
 
 		TestableXunitTestCollectionRunner(

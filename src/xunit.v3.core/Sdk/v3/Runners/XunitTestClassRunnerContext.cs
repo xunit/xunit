@@ -24,7 +24,7 @@ public class XunitTestClassRunnerContext : TestClassRunnerContext<IXunitTestCase
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
-		IReadOnlyDictionary<Type, object> collectionFixtureMappings) :
+		CollectionFixtureMappingManager collectionFixtureMappings) :
 			base(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 	{
 		AssemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
@@ -44,7 +44,7 @@ public class XunitTestClassRunnerContext : TestClassRunnerContext<IXunitTestCase
 	/// <summary>
 	/// Gets the fixtures (mapped type => instance) that were declared at the collection level.
 	/// </summary>
-	public IReadOnlyDictionary<Type, object> CollectionFixtureMappings { get; }
+	public CollectionFixtureMappingManager CollectionFixtureMappings { get; }
 
 	/// <summary>
 	/// Gets the list of class fixtures that were initialized via <see cref="IAsyncLifetime"/>.

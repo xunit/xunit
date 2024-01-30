@@ -260,7 +260,7 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
-		IReadOnlyDictionary<Type, object> collectionFixtureMappings)
+		CollectionFixtureMappingManager collectionFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
