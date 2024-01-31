@@ -26,7 +26,7 @@ public static class TestCollectionFactoryHelper
 				.Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName!).FirstOrDefault() })
 				.Where(list => list.Attribute is not null)
 				.GroupBy(
-					list => list.Attribute!.GetConstructorArguments().Cast<string>().Single(),
+					list => list.Attribute!.GetConstructorArguments().Cast<string>().SingleOrDefault() ?? list.Type.SimpleName,
 					list => list.Type,
 					StringComparer.OrdinalIgnoreCase
 				);
