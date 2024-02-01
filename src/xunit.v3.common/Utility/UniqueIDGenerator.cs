@@ -110,6 +110,27 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
+	/// Computes a unique ID for a type/>
+	/// </summary>
+	/// <param name="assemblyName">The name of the assembly hosting the type</param>
+	/// <param name="typeNamespace">The type namespace</param>
+	/// <param name="typeName">The type name</param>
+	public static string ForType(
+		string assemblyName,
+		string? typeNamespace,
+		string typeName)
+	{
+		Guard.ArgumentNotNull(assemblyName);
+		Guard.ArgumentNotNull(typeName);
+
+		using var generator = new UniqueIDGenerator();
+		generator.Add(assemblyName);
+		generator.Add(typeNamespace ?? string.Empty);
+		generator.Add(typeName);
+		return generator.Compute();
+	}
+
+	/// <summary>
 	/// Computes a unique ID for a test, to be placed into <see cref="_TestMessage.TestUniqueID"/>
 	/// </summary>
 	/// <param name="testCaseUniqueID">The unique ID of the test case that this test belongs to.</param>

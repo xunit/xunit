@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
@@ -26,7 +27,8 @@ public static class TestCollectionFactoryHelper
 				.Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName!).FirstOrDefault() })
 				.Where(list => list.Attribute is not null)
 				.GroupBy(
-					list => list.Attribute!.GetConstructorArguments().Cast<string>().SingleOrDefault() ?? list.Type.SimpleName,
+					list => list.Attribute!.GetConstructorArguments().Cast<string>().SingleOrDefault()
+						?? UniqueIDGenerator.ForType(list.Type.Assembly.Name, list.Type.Namespace, list.Type.Name),
 					list => list.Type,
 					StringComparer.OrdinalIgnoreCase
 				);

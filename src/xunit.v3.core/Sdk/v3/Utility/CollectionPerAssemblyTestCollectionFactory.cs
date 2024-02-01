@@ -65,10 +65,13 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 
 	_ITestCollection GetForType(_ITypeInfo fixtureType)
 	{
-		if (!collectionDefinitions.Value.ContainsKey(fixtureType.SimpleName))
-		    collectionDefinitions.Value.Add(fixtureType.SimpleName, fixtureType);
+		string name = UniqueIDGenerator.ForType(
+			fixtureType.Assembly.Name, fixtureType.Namespace, fixtureType.Name);
 
-		return testCollections.GetOrAdd(fixtureType.SimpleName, CreateTestCollection);
+		if (!collectionDefinitions.Value.ContainsKey(name))
+		    collectionDefinitions.Value.Add(name, fixtureType);
+
+		return testCollections.GetOrAdd(name, CreateTestCollection);
 	}
 
 	Dictionary<string, _ITypeInfo> InitializeCollections() =>
