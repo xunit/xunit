@@ -110,23 +110,6 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a type/>
-	/// </summary>
-	/// <param name="type">The type to generate an ID for</param>
-	public static string ForType(_ITypeInfo type)
-	{
-		Guard.ArgumentNotNull(type);
-
-		using var generator = new UniqueIDGenerator();
-
-		// Assembly name may include some parts that are less stable, so for now, split on comma
-		var assemblyParts = type.Assembly.Name.Split(',');
-		generator.Add(assemblyParts[0]);
-		generator.Add(type.Name);
-		return generator.Compute();
-	}
-
-	/// <summary>
 	/// Computes a unique ID for a test, to be placed into <see cref="_TestMessage.TestUniqueID"/>
 	/// </summary>
 	/// <param name="testCaseUniqueID">The unique ID of the test case that this test belongs to.</param>
@@ -237,6 +220,23 @@ public sealed class UniqueIDGenerator : IDisposable
 		using var generator = new UniqueIDGenerator();
 		generator.Add(testClassUniqueID);
 		generator.Add(methodName);
+		return generator.Compute();
+	}
+
+	/// <summary>
+	/// Computes a unique ID for a type/>
+	/// </summary>
+	/// <param name="type">The type to generate an ID for</param>
+	public static string ForType(_ITypeInfo type)
+	{
+		Guard.ArgumentNotNull(type);
+
+		using var generator = new UniqueIDGenerator();
+
+		// Assembly name may include some parts that are less stable, so for now, split on comma
+		var assemblyParts = type.Assembly.Name.Split(',');
+		generator.Add(assemblyParts[0]);
+		generator.Add(type.Name);
 		return generator.Compute();
 	}
 
