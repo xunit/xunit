@@ -61,8 +61,7 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 
 	_ITestCollection GetForType(_ITypeInfo fixtureType)
 	{
-		string name = UniqueIDGenerator.ForType(
-			fixtureType.Assembly.Name, fixtureType.Namespace, fixtureType.Name);
+		string name = UniqueIDGenerator.ForType(fixtureType);
 
 		if (!collectionDefinitions.Value.ContainsKey(name))
 			collectionDefinitions.Value.Add(name, fixtureType);

@@ -28,7 +28,7 @@ public static class TestCollectionFactoryHelper
 				.Where(list => list.Attribute is not null)
 				.GroupBy(
 					list => list.Attribute!.GetConstructorArguments().Cast<string>().SingleOrDefault()
-						?? UniqueIDGenerator.ForType(list.Type.Assembly.Name, list.Type.Namespace, list.Type.Name),
+						?? UniqueIDGenerator.ForType(list.Type),
 					list => list.Type,
 					StringComparer.OrdinalIgnoreCase
 				);
