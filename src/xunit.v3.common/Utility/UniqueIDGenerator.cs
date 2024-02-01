@@ -122,7 +122,6 @@ public sealed class UniqueIDGenerator : IDisposable
 		// Assembly name may include some parts that are less stable, so for now, split on comma
 		var assemblyParts = type.Assembly.Name.Split(',');
 		generator.Add(assemblyParts[0]);
-		generator.Add(type.Namespace ?? string.Empty);
 		generator.Add(type.Name);
 		return generator.Compute();
 	}
