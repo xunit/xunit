@@ -31,6 +31,17 @@ public class TestInvokerContext : ContextBase
 		ConstructorArguments = Guard.ArgumentNotNull(constructorArguments);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
 		TestMethodArguments = testMethodArguments;
+
+		// https://github.com/xunit/visualstudio.xunit/issues/371
+		var parameterCount = TestMethod.GetParameters().Length;
+		var valueCount = TestMethodArguments is null ? 0 : TestMethodArguments.Length;
+		if (valueCount == 0 && parameterCount == 1)
+		{
+			var parameter = TestMethod.GetParameters()[0];
+			var elementType = parameter.ParameterType.GetElementType();
+			if (parameter.GetCustomAttribute(typeof(ParamArrayAttribute)) is not null && elementType is not null)
+				TestMethodArguments = new object[] { Array.CreateInstance(elementType, 0) };
+		}
 	}
 
 	/// <summary>
