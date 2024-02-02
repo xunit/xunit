@@ -766,6 +766,228 @@ public class FixtureAcceptanceTests
 		}
 	}
 
+#if NET7_0_OR_GREATER
+	public class CollectionFixtureGeneric : AcceptanceTestV3
+	{
+		[Fact]
+		public async ValueTask TestClassCannotBeDecoratedWithICollectionFixture()
+		{
+			var messages = await RunAsync<_TestFailed>(typeof(TestClassWithCollectionFixture));
+
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
+			Assert.Equal("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).", msg.Messages.Single());
+		}
+
+		class TestClassWithCollectionFixture : ICollectionFixture<EmptyFixtureData>
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
+
+		[Fact]
+		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
+		{
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithExtraCtorArg));
+
+			var msg = Assert.Single(messages);
+			Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
+			Assert.Equal("The following constructor parameters did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
+		}
+
+		public class CollectionWithEmptyFixtureData : ICollectionFixture<EmptyFixtureData>
+		{
+		}
+
+		[Collection<CollectionWithEmptyFixtureData>]
+		class ClassWithExtraCtorArg
+		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public ClassWithExtraCtorArg(int arg1, EmptyFixtureData fixture, string arg2) { }
+#pragma warning restore xUnit1041
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
+		{
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithMissingCtorArg));
+
+			Assert.Single(messages);
+		}
+
+		[Collection<CollectionWithEmptyFixtureData>]
+		class ClassWithMissingCtorArg
+		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public ClassWithMissingCtorArg(EmptyFixtureData fixture) { }
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+		{
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureCtor));
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Collection fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
+		}
+
+		public class CollectionWithThrowingCtor : ICollectionFixture<ThrowingCtorFixture>
+		{
+		}
+
+		[Collection<CollectionWithThrowingCtor>]
+		class ClassWithThrowingFixtureCtor
+		{
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
+		{
+			var messages = await RunAsync<_TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestFixtureCleanupException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Collection fixture type 'FixtureAcceptanceTests+ThrowingDisposeFixture' threw in Dispose", msg.Messages.First());
+		}
+
+		public class CollectionWithThrowingDispose : ICollectionFixture<ThrowingDisposeFixture>
+		{
+		}
+
+		[Collection<CollectionWithThrowingDispose>]
+		class ClassWithThrowingFixtureDispose
+		{
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask FixtureDataIsPassedToConstructor()
+		{
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy));
+
+			Assert.Single(messages);
+		}
+
+		[Collection(typeof(CollectionWithEmptyFixtureData))]
+		class FixtureSpy
+		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public FixtureSpy(EmptyFixtureData data)
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
+			{
+				Assert.NotNull(data);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask FixtureDataIsSameInstanceAcrossClasses()
+		{
+			await RunAsync<_TestPassed>(new[] { typeof(FixtureSaver1), typeof(FixtureSaver2) });
+
+			Assert.Same(FixtureSaver1.Fixture, FixtureSaver2.Fixture);
+		}
+
+		class FixtureSaver1
+		{
+			public static EmptyFixtureData? Fixture;
+
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public FixtureSaver1(EmptyFixtureData data)
+#pragma warning restore xUnit1041
+			{
+				Fixture = data;
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		class FixtureSaver2
+		{
+			public static EmptyFixtureData? Fixture;
+
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public FixtureSaver2(EmptyFixtureData data)
+#pragma warning restore xUnit1041
+			{
+				Fixture = data;
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask ClassFixtureOnCollectionDecorationWorks()
+		{
+			var messages = await RunAsync<_TestPassed>(typeof(FixtureSpy_ClassFixture));
+
+			Assert.Single(messages);
+		}
+
+		public class CollectionWithClassFixture : IClassFixture<EmptyFixtureData> { }
+
+		[Collection<CollectionWithClassFixture>]
+		class FixtureSpy_ClassFixture
+		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public FixtureSpy_ClassFixture(EmptyFixtureData data)
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
+			{
+				Assert.NotNull(data);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
+		{
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithCountedFixture));
+
+			Assert.Single(messages);
+		}
+
+		public class CollectionWithClassFixtureCounter : ICollectionFixture<CountedFixture> { }
+
+		[Collection<CollectionWithClassFixtureCounter>]
+		class ClassWithCountedFixture : IClassFixture<CountedFixture>
+		{
+			public ClassWithCountedFixture(CountedFixture fixture)
+			{
+				// 1 == test collection, 2 == test class
+				Assert.Equal(2, fixture.Identity);
+			}
+
+			[Fact]
+			public void TheTest() { }
+		}
+	}
+#endif
+
 	public class AsyncCollectionFixture : AcceptanceTestV3
 	{
 		[Fact]

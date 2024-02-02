@@ -90,6 +90,13 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 					list ??= new List<ReflectionAttributeInfo>();
 					list.Add(new ReflectionAttributeInfo(attr));
 				}
+				else if (attributeType.IsGenericTypeDefinition
+					&& attr.AttributeType.IsConstructedGenericType
+					&& attr.AttributeType.GetGenericTypeDefinition() == attributeType)
+				{
+					list ??= new List<ReflectionAttributeInfo>();
+					list.Add(new ReflectionAttributeInfo(attr));
+				}
 			}
 
 			if (list is not null)
