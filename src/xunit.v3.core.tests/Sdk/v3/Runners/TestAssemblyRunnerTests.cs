@@ -39,14 +39,20 @@ public class TestAssemblyRunnerTests
 					Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.AssemblyPath);
 					Assert.NotNull(runner.TestAssembly);
 					Assert.Equal(runner.TestAssembly.ConfigFileName, starting.ConfigFilePath);
-					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
-#else
-					Assert.Equal(".NETCoreApp,Version=v6.0", starting.TargetFramework);
 #endif
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);
 					Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
 					Assert.Equal("assembly-id", starting.AssemblyUniqueID);
+#if NET472
+					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
+#elif NET6_0
+					Assert.Equal(".NETCoreApp,Version=v6.0", starting.TargetFramework);
+#elif NET8_0
+					Assert.Equal(".NETCoreApp,Version=v8.0", starting.TargetFramework);
+#else
+					Assert.Fail($"Unexpected target framework: {starting.TargetFramework}");
+#endif
 				},
 				msg =>
 				{
