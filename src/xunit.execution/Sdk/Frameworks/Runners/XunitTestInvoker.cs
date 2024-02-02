@@ -116,6 +116,9 @@ namespace Xunit.Sdk
 
         async Task<decimal> InvokeTimeoutTestMethodAsync(object testClassInstance)
         {
+            if (!AsyncUtility.IsAsync(TestMethod))
+                throw new TestTimeoutException();
+
             var baseTask = base.InvokeTestMethodAsync(testClassInstance);
             var resultTask = await Task.WhenAny(baseTask, Task.Delay(TestCase.Timeout));
 

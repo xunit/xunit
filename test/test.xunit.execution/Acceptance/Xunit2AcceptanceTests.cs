@@ -192,7 +192,7 @@ public class Xunit2AcceptanceTests
             public Task LongRunningTest() => Task.Delay(10000);
 
             [Fact(Timeout = 10000)]
-            public void ShortRunningTest() => Task.Delay(10);
+            public Task ShortRunningTest() => Task.Delay(10);
         }
     }
 
