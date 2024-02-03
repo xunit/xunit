@@ -16,15 +16,16 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<developmentDependency>true</developmentDependency>
 		<dependencies>
-			<group targetFramework=".NETFramework4.7.2" />
+			<group targetFramework="net472" />
 		</dependencies>
 	</metadata>
-
+	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
-		<file target="build\net472\" src="bin\$Configuration$\net472\merged\*" />
+		<file target="build\net472\" src="bin\$Configuration$\net472\merged\xunit.abstractions.dll" />
+		<file target="build\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
 		<file target="build\net472\" src="Package\build\*" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
