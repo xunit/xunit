@@ -93,6 +93,8 @@
       <Output TaskParameter="Lines" PropertyName="GitAssertModuleCommitId"/>
     </ReadLinesFromFile>
     <PropertyGroup>
+      <SignedPath />
+      <SignedPath Condition=" '$(SIGN_APP_SECRET)' != '' ">signed\</SignedPath>
       <!-- Local builds should have a '-dev' suffix on the build number -->
       <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
       <!-- Never put the Git hash in the package version -->
@@ -106,6 +108,7 @@
         MicrosoftBclAsyncInterfacesVersion=$(MicrosoftBclAsyncInterfacesVersion);
         MonoCecilVersion=$(MonoCecilVersion);
         PackageVersion=$(PackageVersion);
+        SignedPath=$(SignedPath);
         SystemIoPipelinesVersion=$(SystemIoPipelinesVersion);
         SystemNetHttpVersion=$(SystemNetHttpVersion);
         SystemTextJsonVersion=$(SystemTextJsonVersion);
