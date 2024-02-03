@@ -19,6 +19,9 @@ jobs:
           fetch-depth: 0
           submodules: true
 
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1
+
       - name: Replace global.json
         run: cp .github/workflows/.global.json global.json
         shell: bash
