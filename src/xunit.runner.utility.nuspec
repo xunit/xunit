@@ -44,23 +44,24 @@
       </group>
     </dependencies>
   </metadata>
+  <!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="xunit.runner.utility\bin\$Configuration$\net35\xunit.runner.utility.net35.dll" target="lib\net35\" />
-    <file src="xunit.runner.utility\bin\$Configuration$\net35\xunit.runner.utility.net35.xml" target="lib\net35\" />
+    <file target="lib\net35\" src="xunit.runner.utility\bin\$Configuration$\net35\$SignedPath$xunit.runner.utility.net35.dll" />
+    <file target="lib\net35\" src="xunit.runner.utility\bin\$Configuration$\net35\xunit.runner.utility.net35.xml" />
 
-    <file src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.dll" target="lib\net452\" />
-    <file src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.xml" target="lib\net452\" />
+    <file target="lib\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
+    <file target="lib\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.xml" />
 
-    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.1\xunit.runner.utility.netstandard11.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.1\xunit.runner.utility.netstandard11.xml" target="lib\netstandard1.1\" />
+    <file target="lib\netstandard1.1\" src="xunit.runner.utility\bin\$Configuration$\netstandard1.1\$SignedPath$xunit.runner.utility.netstandard11.dll" />
+    <file target="lib\netstandard1.1\" src="xunit.runner.utility\bin\$Configuration$\netstandard1.1\xunit.runner.utility.netstandard11.xml" />
 
-    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.dll" target="lib\netstandard1.5\" />
-    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.xml" target="lib\netstandard1.5\" />
+    <file target="lib\netstandard1.5\" src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\$SignedPath$xunit.runner.utility.netstandard15.dll" />
+    <file target="lib\netstandard1.5\" src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.xml" />
 
-    <file src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
-    <file src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.xml" target="lib\netcoreapp1.0\" />
+    <file target="lib\netcoreapp1.0\" src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\$SignedPath$xunit.runner.utility.netcoreapp10.dll" />
+    <file target="lib\netcoreapp1.0\" src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.xml" />
   </files>
 </package>

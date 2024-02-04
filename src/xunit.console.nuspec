@@ -23,12 +23,15 @@
       </group>
     </dependencies>
   </metadata>
+  <!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.console.dll" target="lib\netcoreapp1.0\" />
+    <file target="lib\netcoreapp1.0\" src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\$SignedPath$xunit.console.dll" />
 
-    <file src="xunit.console\bin\$Configuration$\netcoreapp2.0\xunit.console.dll" target="lib\netcoreapp2.0\" />
+    <file target="lib\netcoreapp2.0\" src="xunit.console\bin\$Configuration$\netcoreapp2.0\publish\$SignedPath$xunit.console.dll" />
+
+    <file target="lib\net6.0\" src="xunit.console\bin\$Configuration$\net6.0\publish\$SignedPath$xunit.console.dll" />
   </files>
 </package>

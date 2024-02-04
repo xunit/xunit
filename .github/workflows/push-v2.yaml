@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: "CI Build"
+    name: "Build"
     runs-on: windows-2022
     env:
       DOTNET_NOLOGO: true
@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Add msbuild to PATH
+      - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
 
       - name: Replace global.json
@@ -36,7 +36,7 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: "Build target: CI"
+      - name: "Build target: BuildAll & PublishPackages"
         env:
           PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
           PUSH_URI: ${{ secrets.PUSH_URI }}
@@ -47,12 +47,12 @@ jobs:
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: .\build.ps1 -target CI
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing
 
-      - name: "Upload artifact: test-results"
+      - name: "Upload artifact: test"
         uses: actions/upload-artifact@v3
         with:
-          name: test-results
+          name: test
           path: artifacts/test
         if: always()
 
