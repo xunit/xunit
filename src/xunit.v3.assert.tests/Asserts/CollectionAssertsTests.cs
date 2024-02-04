@@ -324,15 +324,22 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void HashSetIsTreatedSpecially()
+		public static void SetsAreTreatedSpecially()
 		{
-			// HashSet.Contains() is a custom implementation since the comparer is passed
-			// to the constructor. If this comes in via the IEnumerable<T> overload, we want
-			// to make sure it still gets treated like a HashSet.
 			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
 			Assert.Contains("HI THERE", set);
 		}
+
+#if NET5_0_OR_GREATER
+		[Fact]
+		public static void ReadOnlySetsAreTreatedSpecially()
+		{
+			IEnumerable<string> set = new ReadOnlySet<string>(StringComparer.OrdinalIgnoreCase, "Hi there");
+
+			Assert.Contains("HI THERE", set);
+		}
+#endif
 	}
 
 	public class Contains_Comparer
@@ -536,11 +543,8 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
-		public static void HashSetIsTreatedSpecially()
+		public static void SetsAreTreatedSpecially()
 		{
-			// HashSet.Contains() is a custom implementation since the comparer is passed
-			// to the constructor. If this comes in via the IEnumerable<T> overload, we want
-			// to make sure it still gets treated like a HashSet.
 			IEnumerable<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
 
 			var ex = Record.Exception(() => Assert.DoesNotContain("HI THERE", set));
@@ -554,6 +558,25 @@ public class CollectionAssertsTests
 				ex.Message
 			);
 		}
+
+#if NET5_0_OR_GREATER
+		[Fact]
+		public static void ReadOnlySetsAreTreatedSpecially()
+		{
+			IEnumerable<string> set = new ReadOnlySet<string>(StringComparer.OrdinalIgnoreCase, "Hi there");
+
+			var ex = Record.Exception(() => Assert.DoesNotContain("HI THERE", set));
+
+			Assert.IsType<DoesNotContainException>(ex);
+			// Note: There is no pointer for sets, unlike other collections
+			Assert.Equal(
+				"Assert.DoesNotContain() Failure: Item found in set" + Environment.NewLine +
+				"Set:   [\"Hi there\"]" + Environment.NewLine +
+				"Found: \"HI THERE\"",
+				ex.Message
+			);
+		}
+#endif
 	}
 
 	public class DoesNotContain_Comparer
