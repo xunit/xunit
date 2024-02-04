@@ -39,7 +39,7 @@
     <file target="lib\net452\" src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll.tdnet" />
     <file target="lib\net452\" src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" />
     <file target="lib\net452\" src="xunit.runner.tdnet\bin\$Configuration$\net452\$SignedPath$xunit.runner.tdnet.dll" />
-    <file target="lib\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.dll" />
+    <file target="lib\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="lib\netstandard1.1\" src="xunit.core\bin\$Configuration$\netstandard1.1\$SignedPath$xunit.core.dll" />
     <file target="lib\netstandard1.1\" src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" />
