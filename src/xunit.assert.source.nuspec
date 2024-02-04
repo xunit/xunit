@@ -22,7 +22,7 @@
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="build\.nuget.editorconfig" target="contentFiles\.editorconfig" />
-    <file src="xunit.assert\Asserts\**\*.cs" target="contentFiles\cs\netstandard1.1\Asserts" />
+    <file target="contentFiles\.editorconfig"             src="build\.nuget.editorconfig" />
+    <file target="contentFiles\cs\netstandard1.1\Asserts" src="xunit.assert\Asserts\**\*.cs" />
   </files>
 </package>

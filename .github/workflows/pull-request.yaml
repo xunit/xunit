@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: "Build for PR (v2)"
+    name: "Build"
     runs-on: windows-2022
     env:
       DOTNET_NOLOGO: true
@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Add msbuild to PATH
+      - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
 
       - name: Replace global.json
@@ -37,11 +37,11 @@ jobs:
         run: dotnet --info
 
       - name: "Build target: BuildAll"
-        run: .\build.ps1 -target BuildAll
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
-      - name: "Upload artifact: test-results"
+      - name: "Upload artifact: test"
         uses: actions/upload-artifact@v3
         with:
-          name: test-results
+          name: test
           path: artifacts/test
         if: always()

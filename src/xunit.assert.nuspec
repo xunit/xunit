@@ -23,14 +23,15 @@
       <group targetFramework="net6.0" />
     </dependencies>
   </metadata>
+  <!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.xml" target="lib\netstandard1.1\" />
+    <file target="lib\netstandard1.1\" src="xunit.assert\bin\$Configuration$\netstandard1.1\$SignedPath$xunit.assert.dll" />
+    <file target="lib\netstandard1.1\" src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.xml" />
 
-    <file src="xunit.assert\bin\$Configuration$\net6.0\xunit.assert.dll" target="lib\net6.0\" />
-    <file src="xunit.assert\bin\$Configuration$\net6.0\xunit.assert.xml" target="lib\net6.0\" />
+    <file target="lib\net6.0\" src="xunit.assert\bin\$Configuration$\net6.0\$SignedPath$xunit.assert.dll" />
+    <file target="lib\net6.0\" src="xunit.assert\bin\$Configuration$\net6.0\xunit.assert.xml" />
   </files>
 </package>

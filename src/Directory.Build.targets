@@ -21,10 +21,19 @@
 
   <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
+      <SignedPath />
+      <SignedPath Condition=" '$(SIGN_APP_SECRET)' != '' ">signed\</SignedPath>
+      <!-- Local builds should have a '-dev' suffix on the build number -->
+      <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
       <!-- Never put the Git hash in the package version -->
-      <PackageVersion>$(BuildVersionSimple)$(PrereleaseVersion)</PackageVersion>
+      <PackageVersion>$(BuildVersionSimple)$(PrereleaseVersion)$(PrereleaseSuffix)</PackageVersion>
       <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
-      <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId);Configuration=$(Configuration)</NuspecProperties>
+      <NuspecProperties>
+        Configuration=$(Configuration);
+        GitCommitId=$(GitCommitId);
+        PackageVersion=$(PackageVersion);
+        SignedPath=$(SignedPath);
+      </NuspecProperties>
     </PropertyGroup>
   </Target>
 

@@ -30,17 +30,18 @@
       </group>
     </dependencies>
   </metadata>
+  <!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll"                  target="lib\net452\" />
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll.tdnet"            target="lib\net452\" />
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml"                  target="lib\net452\" />
-    <file src="xunit.runner.tdnet\bin\$Configuration$\net452\xunit.runner.tdnet.dll"          target="lib\net452\" />
-    <file src="xunit.runner.tdnet\bin\$Configuration$\net452\xunit.runner.utility.net452.dll" target="lib\net452\" />
+    <file target="lib\net452\" src="xunit.core\bin\$Configuration$\netstandard1.1\$SignedPath$xunit.core.dll" />
+    <file target="lib\net452\" src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll.tdnet" />
+    <file target="lib\net452\" src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" />
+    <file target="lib\net452\" src="xunit.runner.tdnet\bin\$Configuration$\net452\$SignedPath$xunit.runner.tdnet.dll" />
+    <file target="lib\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.dll" />
 
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" target="lib\netstandard1.1\" />
+    <file target="lib\netstandard1.1\" src="xunit.core\bin\$Configuration$\netstandard1.1\$SignedPath$xunit.core.dll" />
+    <file target="lib\netstandard1.1\" src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" />
   </files>
 </package>

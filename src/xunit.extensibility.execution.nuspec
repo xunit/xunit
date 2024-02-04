@@ -27,14 +27,15 @@
       </group>
     </dependencies>
   </metadata>
+  <!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll" target="lib\net452\" />
-    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.xml" target="lib\net452\" />
+    <file target="lib\net452\" src="xunit.execution\bin\$Configuration$\net452\$SignedPath$xunit.execution.desktop.dll" />
+    <file target="lib\net452\" src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.xml" />
 
-    <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
+    <file target="lib\netstandard1.1\" src="xunit.execution\bin\$Configuration$\netstandard1.1\$SignedPath$xunit.execution.dotnet.dll" />
+    <file target="lib\netstandard1.1\" src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.xml" />
   </files>
 </package>

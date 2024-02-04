@@ -19,18 +19,19 @@
       <group targetFramework="net452" />
     </dependencies>
   </metadata>
+  <!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
   <files>
     <file target="_content\" src="..\tools\media\logo-128-transparent.png" />
     <file target="_content\" src="..\README.md" />
 
-    <file src="xunit.console\*.xslt"                                                              target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.abstractions.dll"            target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.msbuild.net452.dll"   target="build\net452\" />
-    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                             target="build\net452\" />
-    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.targets"                           target="build\net452\" />
+    <file target="build\net452\" src="xunit.console\*.xslt" />
+    <file target="build\net452\" src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.abstractions.dll" />
+    <file target="build\net452\" src="xunit.runner.msbuild\bin\$Configuration$\net452\$SignedPath$xunit.runner.msbuild.net452.dll" />
+    <file target="build\net452\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
+    <file target="build\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
+    <file target="build\net452\" src="xunit.runner.msbuild\build\xunit.runner.msbuild.props" />
+    <file target="build\net452\" src="xunit.runner.msbuild\build\xunit.runner.msbuild.targets" />
 
-    <file src="build\_._" target="lib\net452\_._" />
+    <file target="lib\net452\_._" src="build\_._" />
   </files>
 </package>
