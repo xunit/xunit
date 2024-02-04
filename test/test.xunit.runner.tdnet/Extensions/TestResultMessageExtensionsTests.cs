@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TestDriven.Framework;
 using Xunit;
 using Xunit.Runner.TdNet;

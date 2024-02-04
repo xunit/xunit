@@ -1,4 +1,4 @@
-﻿namespace Xunit
+namespace Xunit
 {
     /// <summary>
     /// Collects execution totals for a group of test cases.

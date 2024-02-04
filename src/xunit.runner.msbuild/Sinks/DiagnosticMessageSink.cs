@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Utilities;
+using Microsoft.Build.Utilities;
 
 namespace Xunit.Runner.MSBuild
 {

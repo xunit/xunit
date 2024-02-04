@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD1_1 || NETSTANDARD1_5
+#if NETSTANDARD1_1 || NETSTANDARD1_5
 
 using System;
 using Xunit.Abstractions;

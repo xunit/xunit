@@ -1,4 +1,4 @@
-﻿using Xunit.Abstractions;
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk

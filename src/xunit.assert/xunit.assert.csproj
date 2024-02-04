@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <DefineConstants Condition=" '$(TargetFramework)' == 'netstandard1.1' ">$(DefineConstants);XUNIT_NULLABLE</DefineConstants>

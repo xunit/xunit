@@ -1,4 +1,4 @@
-﻿namespace Xunit
+namespace Xunit
 {
     /// <summary>
     /// Collects statistics from running tests.

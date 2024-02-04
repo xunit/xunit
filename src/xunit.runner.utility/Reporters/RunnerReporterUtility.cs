@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK || NETCOREAPP || NETSTANDARD1_5_OR_GREATER
+#if NETFRAMEWORK || NETCOREAPP || NETSTANDARD1_5_OR_GREATER
 
 using System;
 using System.Collections.Generic;

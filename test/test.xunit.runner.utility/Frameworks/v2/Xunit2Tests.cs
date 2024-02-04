@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK
+#if NETFRAMEWORK
 
 using System.Linq;
 using Xunit;

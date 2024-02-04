@@ -1,4 +1,4 @@
-﻿namespace Xunit
+namespace Xunit
 {
     /// <summary>
     /// Internal helper class for remoting.

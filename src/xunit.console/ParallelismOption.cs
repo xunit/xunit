@@ -1,4 +1,4 @@
-﻿namespace Xunit.ConsoleClient
+namespace Xunit.ConsoleClient
 {
     public enum ParallelismOption
     {

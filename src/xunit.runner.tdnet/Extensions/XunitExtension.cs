@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using TestDriven.Framework;
 using Xunit.Abstractions;

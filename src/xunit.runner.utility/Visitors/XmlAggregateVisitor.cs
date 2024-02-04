@@ -1,4 +1,4 @@
-﻿#if !NET35
+#if !NET35
 
 using System;
 using System.Collections.Concurrent;

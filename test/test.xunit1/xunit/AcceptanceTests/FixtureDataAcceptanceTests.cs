@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using TestUtility;
 using Xunit;
 using Xunit.Sdk;

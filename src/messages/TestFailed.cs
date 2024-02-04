@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK

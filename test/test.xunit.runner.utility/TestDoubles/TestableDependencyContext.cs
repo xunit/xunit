@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP
+#if NETCOREAPP
 
 using System.Collections.Generic;
 using System.Linq;

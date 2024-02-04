@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP1_0
+#if NETCOREAPP1_0
 
 namespace System
 {

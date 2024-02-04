@@ -1,4 +1,4 @@
-﻿#if XUNIT_FRAMEWORK
+#if XUNIT_FRAMEWORK
 namespace Xunit
 #else
 namespace Xunit.Sdk

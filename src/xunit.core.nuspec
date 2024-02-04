@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>xunit.core</id>

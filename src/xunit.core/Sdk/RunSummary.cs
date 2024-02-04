@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk
+namespace Xunit.Sdk
 {
     /// <summary>
     /// Represents the statistical summary from a run of one or more tests.

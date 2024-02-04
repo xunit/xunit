@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Reflection;
 using Xunit.Abstractions;
 

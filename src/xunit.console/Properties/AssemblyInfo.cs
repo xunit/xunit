@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 #if NET452
 [assembly: AssemblyTitle("xUnit.net Console Test Runner (.NET 4.5.2)")]

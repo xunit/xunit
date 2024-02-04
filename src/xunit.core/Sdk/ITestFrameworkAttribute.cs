@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk
+namespace Xunit.Sdk
 {
     /// <summary>
     /// Marker interface that must be implemented by test framework attributes, so

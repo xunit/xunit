@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using TestDriven.Framework;
 
 namespace Xunit.Runner.TdNet

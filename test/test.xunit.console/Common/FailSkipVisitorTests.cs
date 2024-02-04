@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 
 using System.Linq;
 using NSubstitute;

@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk
+namespace Xunit.Sdk
 {
     /// <summary>
     /// Marker interface used by attributes which provide trait data.

@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runners
+namespace Xunit.Runners
 {
     /// <summary>
     /// Represents test assembly execution being finished.

@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK || NETCOREAPP
+#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 
