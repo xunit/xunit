@@ -16,19 +16,29 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<developmentDependency>true</developmentDependency>
 	</metadata>
+	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
 		<file target="build\" src="Package\build\*" />
 
-		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\*" />
-		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\*.x86.*" />
+		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\xunit.abstractions.dll" />
+		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.console.exe" />
+		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\xunit.v3.runner.console.exe.config" />
+		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
+		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\xunit.v3.runner.console.x86.exe.config" />
 
-		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\*" />
-		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\*.x86.*" />
+		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\xunit.abstractions.dll" />
+		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\$SignedPath$xunit.v3.runner.console.exe" />
+		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\xunit.v3.runner.console.exe.config" />
+		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
+		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\xunit.v3.runner.console.x86.exe.config" />
 
-		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\*" />
-		<file target="tools\net481\" src="bin\$Configuration$_x86\net481\merged\*.x86.*" />
+		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\xunit.abstractions.dll" />
+		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\$SignedPath$xunit.v3.runner.console.exe" />
+		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\xunit.v3.runner.console.exe.config" />
+		<file target="tools\net481\" src="bin\$Configuration$_x86\net481\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
+		<file target="tools\net481\" src="bin\$Configuration$_x86\net481\merged\xunit.v3.runner.console.x86.exe.config" />
 	</files>
 </package>
