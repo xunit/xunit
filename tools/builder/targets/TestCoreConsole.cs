@@ -14,14 +14,22 @@ public static class TestCoreConsole
 {
 	public static async Task OnExecute(BuildContext context)
 	{
+		await RunTests(context, 6);
+		await RunTests(context, 8);
+	}
+
+	static async Task RunTests(
+		BuildContext context,
+		int dotnetVersion)
+	{
 		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
 
 		// ------------- AnyCPU -------------
 
-		context.BuildStep("Running .NET Core tests (AnyCPU, via Console runner)");
+		context.BuildStep($"Running .NET {dotnetVersion} tests (AnyCPU, via Console runner)");
 
 		// v3
-		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "net6");
+		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, $"net{dotnetVersion}");
 		var v3TestDlls =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.dll", SearchOption.AllDirectories)
@@ -31,7 +39,7 @@ public static class TestCoreConsole
 
 		// TODO: When we officially move to console runner, combine x86 and AnyCPU binaries into a single run (and output file)
 #if false
-		var v3OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v3.tests-netcore");
+		var v3OutputFileName = Path.Combine(context.TestOutputFolder, $"xunit.v3.tests-net{dotnetVersion}");
 
 		await context.Exec(context.ConsoleRunnerExe, $"\"{string.Join("\" \"", v3TestDlls)}\" {context.TestFlagsParallel}-preenumeratetheories -xml \"{v3OutputFileName}.xml\" -html \"{v3OutputFileName}.html\" -trx \"{v3OutputFileName}.trx\"");
 #else
@@ -60,10 +68,10 @@ public static class TestCoreConsole
 		if (!File.Exists(x86Dotnet))
 			return;
 
-		context.BuildStep("Running .NET Core tests (x86, via Console runner)");
+		context.BuildStep($"Running .NET {dotnetVersion} tests (x86, via Console runner)");
 
 		// v3 (forced 32-bit)
-		var netCore32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", "net6");
+		var netCore32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", $"net{dotnetVersion}");
 		var v3x86TestDlls =
 			Directory
 				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.x86.dll", SearchOption.AllDirectories)
