@@ -48,7 +48,24 @@ public abstract class TestInvoker<TContext>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
+		if (TestEventSource.Log.IsEnabled())
+		{
+			TestEventSource.Log.TestMethodStart(ctxt.Test.TestDisplayName);
+		}
+
+		try
+		{
+			return ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
+		}
+		finally
+		{
+			// There is no guarantee that AfterTestMethodInvokedAsync is always going to be executed,
+			// that is why this logic is part of the finally block.
+			if (TestEventSource.Log.IsEnabled())
+			{
+				TestEventSource.Log.TestMethodStop(ctxt.Test.TestDisplayName);
+			}
+		}
 	}
 
 	/// <summary>
